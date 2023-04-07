@@ -3,17 +3,19 @@ class Wallet {
   final int chainId;
   final String name;
   final String address;
-  final int balance;
+  final int _balance;
   final String symbol;
 
-  Wallet({
+  Wallet(
+    this._balance, {
     required this.id,
     required this.chainId,
     required this.name,
     required this.address,
-    required this.balance,
     required this.symbol,
   });
+
+  get balance => _balance / 100;
 
   // convert to Wallet object from JSON
   Wallet.fromJson(Map<String, dynamic> json)
@@ -21,7 +23,7 @@ class Wallet {
         chainId = json['chainId'],
         name = json['name'],
         address = json['address'],
-        balance = json['balance'],
+        _balance = json['balance'],
         symbol = json['symbol'];
 
   // Convert a Conversation object into a Map object.
@@ -31,7 +33,7 @@ class Wallet {
         'chainId': chainId,
         'name': name,
         'address': address,
-        'balance': balance,
+        'balance': _balance,
         'symbol': symbol,
       };
 }
