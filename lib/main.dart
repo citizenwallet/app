@@ -1,14 +1,19 @@
 import 'package:citizenwallet/router/router.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/state.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load();
+  await dotenv.load();
 
-  runApp(const MyApp());
+  await PreferencesService().init();
+
+  runApp(provideAppState(const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -49,12 +54,13 @@ class MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final darkMode = context.select((AppState state) => state.darkMode);
+
     return CupertinoApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: CupertinoThemeData(
-        brightness:
-            SchedulerBinding.instance.platformDispatcher.platformBrightness,
+        brightness: darkMode ? Brightness.dark : Brightness.light,
       ),
     );
   }
