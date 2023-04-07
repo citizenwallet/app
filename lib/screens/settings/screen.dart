@@ -1,8 +1,10 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -29,6 +31,11 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   void onChanged(bool enabled) {
     _appLogic.setDarkMode(enabled);
+    HapticFeedback.mediumImpact();
+  }
+
+  void handleAppReset() {
+    print('reset');
   }
 
   @override
@@ -42,12 +49,6 @@ class SettingsScreenState extends State<SettingsScreen> {
         children: [
           Header(
             title: widget.title,
-            actionButton: CupertinoButton(
-              onPressed: () => print('hello'),
-              child: const Icon(
-                CupertinoIcons.settings,
-              ),
-            ),
           ),
           Expanded(
             child: ListView(
@@ -74,11 +75,27 @@ class SettingsScreenState extends State<SettingsScreen> {
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
-                    'Storage',
+                    'Wallet',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                ),
+                const SettingsRow(
+                  label: 'Setting 1',
+                  trailing: Text('Property 1'),
+                ),
+                const SettingsRow(
+                  label: 'Setting 2',
+                  trailing: Text('Property 2'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                  child: Button(
+                    label: 'Clear App Data',
+                    color: CupertinoColors.systemRed,
+                    onPressed: handleAppReset,
                   ),
                 ),
               ],
