@@ -37,4 +37,17 @@ class WalletLogic {
       _state.walletListError();
     }
   }
+
+  Future<void> getTransactions(int id) async {
+    _state.transactionListRequest();
+
+    try {
+      // final transactions = await _api.getTransactions(id);
+      await delay(const Duration(seconds: 1));
+
+      _state.transactionListSuccess(mockTransactions);
+    } catch (e) {
+      _state.transactionListError();
+    }
+  }
 }

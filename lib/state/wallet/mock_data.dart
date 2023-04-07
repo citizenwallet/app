@@ -1,3 +1,4 @@
+import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 
 const int mockWalletId = 0;
@@ -91,5 +92,80 @@ final List<Wallet> mockWallets = [
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
+  ),
+];
+
+final List<Transaction> mockTransactions = [
+  Transaction(
+    1000,
+    id: '0',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    38,
+    id: '1',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    2342,
+    id: '2',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    323,
+    id: '3',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    542,
+    id: '4',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    9923,
+    id: '5',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    33,
+    id: '6',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
+  ),
+  Transaction(
+    343,
+    id: '7',
+    chainId: 0,
+    from: '0x1234567890',
+    to: '0x1234567890',
+    title: 'Deposit',
+    date: DateTime.now(),
   ),
 ];

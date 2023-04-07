@@ -4,18 +4,20 @@ class Transaction {
   final String from;
   final String to;
   final String title;
-  final double amount;
+  final double _amount;
   final DateTime date;
 
-  Transaction({
+  Transaction(
+    this._amount, {
     required this.id,
     required this.chainId,
     required this.from,
     required this.to,
     required this.title,
-    required this.amount,
     required this.date,
   });
+
+  get amount => _amount / 100;
 
   // convert to Transaction object from JSON
   Transaction.fromJson(Map<String, dynamic> json)
@@ -24,7 +26,7 @@ class Transaction {
         from = json['from'],
         to = json['to'],
         title = json['title'],
-        amount = json['amount'],
+        _amount = json['amount'],
         date = DateTime.parse(json['date']);
 
   // Convert a Conversation object into a Map object.
@@ -35,7 +37,7 @@ class Transaction {
         'from': from,
         'to': to,
         'title': title,
-        'amount': amount,
+        'amount': _amount,
         'date': date.toIso8601String(),
       };
 }

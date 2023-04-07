@@ -1,3 +1,4 @@
+import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -9,6 +10,10 @@ class WalletState extends ChangeNotifier {
   final List<Wallet> wallets = [];
   bool loadingWallets = false;
   bool errorWallets = false;
+
+  final List<Transaction> transactions = [];
+  bool loadingTransactions = false;
+  bool errorTransactions = false;
 
   void walletRequest() {
     loading = true;
@@ -46,6 +51,26 @@ class WalletState extends ChangeNotifier {
   void walletListError() {
     loadingWallets = false;
     errorWallets = true;
+    notifyListeners();
+  }
+
+  void transactionListRequest() {
+    loadingTransactions = true;
+    errorTransactions = false;
+    notifyListeners();
+  }
+
+  void transactionListSuccess(List<Transaction> transactions) {
+    this.transactions.clear();
+    this.transactions.addAll(transactions);
+    loadingTransactions = false;
+    errorTransactions = false;
+    notifyListeners();
+  }
+
+  void transactionListError() {
+    loadingTransactions = false;
+    errorTransactions = true;
     notifyListeners();
   }
 }

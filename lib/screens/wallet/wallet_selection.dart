@@ -53,7 +53,7 @@ class WalletSelectionState extends State<WalletSelection> {
     return DismissibleModalPopup(
       modalKey: 'wallet-selection',
       maxHeight: 120,
-      paddingSides: 20,
+      paddingSides: 0,
       topRadius: 0,
       onUpdate: (details) {
         if (details.direction == DismissDirection.down &&
