@@ -1,1 +1,5 @@
 # citizenwallet
+
+```
+flutter run
+```
