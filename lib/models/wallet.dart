@@ -20,7 +20,7 @@ class Wallet {
   get balance => _balance / 100;
 
   get formattedBalance =>
-      NumberFormat.currency(name: name, symbol: symbol, decimalDigits: 2)
+      NumberFormat.currency(symbol: '$symbol ', decimalDigits: 2)
           .format(balance);
 
   // convert to Wallet object from JSON

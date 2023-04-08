@@ -22,9 +22,9 @@ class Transaction {
 
   get amount => _amount / 100;
 
-  String formattedAmount(Wallet wallet) => NumberFormat.currency(
-          name: wallet.name, symbol: wallet.symbol, decimalDigits: 2)
-      .format(amount);
+  String formattedAmount(Wallet wallet) =>
+      NumberFormat.currency(symbol: '${wallet.symbol} ', decimalDigits: 2)
+          .format(amount);
 
   // convert to Transaction object from JSON
   Transaction.fromJson(Map<String, dynamic> json)
