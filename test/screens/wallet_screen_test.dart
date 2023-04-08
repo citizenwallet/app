@@ -233,7 +233,7 @@ void main() {
       expect(reason: 'Header title should match',
           find.byWidgetPredicate((widget) {
         if (widget is Header) {
-          return widget.title == 'Wallet name';
+          return widget.title == walletState.wallet!.name;
         }
         return false;
       }), findsOneWidget);
