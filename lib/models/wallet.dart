@@ -21,7 +21,7 @@ class Wallet {
 
   get formattedBalance =>
       NumberFormat.currency(name: name, symbol: symbol, decimalDigits: 2)
-          .format(_balance);
+          .format(balance);
 
   // convert to Wallet object from JSON
   Wallet.fromJson(Map<String, dynamic> json)

@@ -1,4 +1,5 @@
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_header.dart';
 import 'package:citizenwallet/screens/wallet/wallet_selection.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -192,42 +193,11 @@ class WalletScreenState extends State<WalletScreen> {
                         }
 
                         final transaction = transactions[index];
-                        final date = transaction.date;
 
-                        return Container(
-                          margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-                          decoration: BoxDecoration(
-                            color: ThemeColors.background.resolveFrom(context),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: ThemeColors.subtle.resolveFrom(context),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  NumberFormat.currency(
-                                          name: wallet.name,
-                                          symbol: wallet.symbol,
-                                          decimalDigits: 2)
-                                      .format(transaction.amount),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                        return TransactionRow(
+                            key: Key(transaction.id),
+                            transaction: transaction,
+                            wallet: wallet);
                       },
                     ),
                   ),
