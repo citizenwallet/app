@@ -35,7 +35,7 @@ jobs:
           channel: "stable"
       - run: flutter pub get
       - run: flutter test
-      - run: flutter build web
+      - run: flutter build web --base-href /citizenwallet/
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
