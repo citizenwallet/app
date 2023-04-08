@@ -3,7 +3,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-provideAppState(Widget child) => MultiProvider(
+Widget provideAppState(Widget child) => MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AppState(),

@@ -57,12 +57,6 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final loading = context.select((WalletState state) => state.loading);
     final wallet = context.select((WalletState state) => state.wallet);
-    var balance = '0.00';
-    if (wallet != null) {
-      balance = NumberFormat.currency(
-              name: wallet.name, symbol: wallet.symbol, decimalDigits: 2)
-          .format(wallet.balance);
-    }
 
     final transactions =
         context.select((WalletState state) => state.transactions);
@@ -115,11 +109,16 @@ class WalletScreenState extends State<WalletScreen> {
                             ),
                             loading
                                 ? CupertinoActivityIndicator(
+                                    key: const Key(
+                                        'wallet-balance-shrunken-loading'),
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
                                   )
                                 : Text(
-                                    balance,
+                                    wallet != null
+                                        ? wallet.formattedBalance
+                                        : '',
+                                    key: const Key('wallet-balance-shrunken'),
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
@@ -148,11 +147,15 @@ class WalletScreenState extends State<WalletScreen> {
                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                               child: loading
                                   ? CupertinoActivityIndicator(
+                                      key: const Key('wallet-balance-loading'),
                                       color: ThemeColors.subtle
                                           .resolveFrom(context),
                                     )
                                   : Text(
-                                      balance,
+                                      wallet != null
+                                          ? wallet.formattedBalance
+                                          : '',
+                                      key: const Key('wallet-balance'),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.normal,
@@ -203,21 +206,28 @@ class WalletScreenState extends State<WalletScreen> {
                           ),
                           child: Row(
                             children: [
-                              Text(
-                                NumberFormat.currency(
-                                        name: wallet.name,
-                                        symbol: wallet.symbol,
-                                        decimalDigits: 2)
-                                    .format(transaction.amount),
+                              Expanded(
+                                child: Text(
+                                  NumberFormat.currency(
+                                          name: wallet.name,
+                                          symbol: wallet.symbol,
+                                          decimalDigits: 2)
+                                      .format(transaction.amount),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                               const SizedBox(width: 10),
-                              Text(
-                                '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}',
+                              Expanded(
+                                child: Text(
+                                  '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
                         );
-                        ;
                       },
                     ),
                   ),

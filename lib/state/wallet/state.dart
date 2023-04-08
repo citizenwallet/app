@@ -7,11 +7,11 @@ class WalletState extends ChangeNotifier {
   bool loading = false;
   bool error = false;
 
-  final List<Wallet> wallets = [];
+  List<Wallet> wallets = [];
   bool loadingWallets = false;
   bool errorWallets = false;
 
-  final List<Transaction> transactions = [];
+  List<Transaction> transactions = [];
   bool loadingTransactions = false;
   bool errorTransactions = false;
 
@@ -72,5 +72,23 @@ class WalletState extends ChangeNotifier {
     loadingTransactions = false;
     errorTransactions = true;
     notifyListeners();
+  }
+
+  void clear() {
+    wallet = null;
+    loading = false;
+    error = false;
+    wallets.clear();
+    loadingWallets = false;
+    errorWallets = false;
+    transactions.clear();
+    loadingTransactions = false;
+    errorTransactions = false;
+  }
+
+  @override
+  void dispose() {
+    clear();
+    super.dispose();
   }
 }

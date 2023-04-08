@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Wallet {
   final int id;
   final int chainId;
@@ -16,6 +18,10 @@ class Wallet {
   });
 
   get balance => _balance / 100;
+
+  get formattedBalance =>
+      NumberFormat.currency(name: name, symbol: symbol, decimalDigits: 2)
+          .format(_balance);
 
   // convert to Wallet object from JSON
   Wallet.fromJson(Map<String, dynamic> json)
