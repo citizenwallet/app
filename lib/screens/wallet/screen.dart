@@ -9,12 +9,9 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/text_badge.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
-  final String title = 'Wallet name';
-
   const WalletScreen({super.key});
 
   @override
@@ -70,7 +67,7 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            title: widget.title,
+            title: wallet?.name ?? 'Wallet',
             actionButton: CupertinoButton(
               onPressed: () => handleWalletSelection(context),
               child: !loading && wallet != null
