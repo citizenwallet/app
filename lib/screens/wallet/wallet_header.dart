@@ -17,8 +17,18 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return SizedBox.expand(
-      child: shrinkOffset == 0 ? child : shrunkenChild,
+    if (shrinkOffset == 0) {
+      return SizedBox.expand(child: child);
+    }
+
+    if (shrinkOffset == expandedHeight) {
+      return SizedBox.expand(child: shrunkenChild);
+    }
+
+    return AnimatedOpacity(
+      opacity: (shrinkOffset / expandedHeight).clamp(0, 1),
+      duration: Duration.zero,
+      child: SizedBox.expand(child: shrunkenChild),
     );
   }
 
