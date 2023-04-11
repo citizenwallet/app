@@ -45,7 +45,7 @@ class WalletSelectionState extends State<WalletSelection> {
   @override
   Widget build(BuildContext context) {
     final loading = context.select((WalletState state) => state.loadingWallets);
-    final wallets = context.select((WalletState state) => state.wallets);
+    final wallets = context.watch<WalletState>().wallets;
 
     final badgeColor = ThemeColors.surfaceBackground.resolveFrom(context);
     final badgeTextColor = ThemeColors.surfaceText.resolveFrom(context);

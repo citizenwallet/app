@@ -17,7 +17,6 @@ class WalletLogic {
     try {
       // final wallet = await _api.getWallet(id);
       final wallet = mockWallets.firstWhere((w) => w.id == id);
-      await delay(const Duration(seconds: 1));
 
       _state.walletSuccess(wallet);
     } catch (e) {
@@ -30,7 +29,6 @@ class WalletLogic {
 
     try {
       // final wallets = await _api.getWallets();
-      await delay(const Duration(seconds: 1));
 
       _state.walletListSuccess(mockWallets);
     } catch (e) {
@@ -43,7 +41,6 @@ class WalletLogic {
 
     try {
       // final transactions = await _api.getTransactions(id);
-      await delay(const Duration(seconds: 1));
 
       _state.transactionListSuccess(mockTransactions);
     } catch (e) {
