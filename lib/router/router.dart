@@ -2,6 +2,7 @@ import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
+import 'package:citizenwallet/screens/wallets/screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +13,8 @@ GoRouter createRouter(
   List<NavigatorObserver> observers,
 ) =>
     GoRouter(
-        initialLocation: '/',
+        // initialLocation: '/',
+        initialLocation: '/wallet/1',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
         observers: observers,
@@ -23,6 +25,15 @@ GoRouter createRouter(
             parentNavigatorKey: rootNavigatorKey,
             builder: (context, state) => const LandingScreen(),
           ),
+          GoRoute(
+            name: 'Wallet',
+            path: '/wallet/:id',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) => RouterShell(
+              state: state,
+              child: const WalletScreen(),
+            ),
+          ),
           ShellRoute(
             navigatorKey: shellNavigatorKey,
             builder: (context, state, child) => RouterShell(
@@ -31,13 +42,13 @@ GoRouter createRouter(
             ),
             routes: [
               GoRoute(
-                name: 'Wallet',
-                path: '/wallet',
+                name: 'Wallets',
+                path: '/wallets',
                 parentNavigatorKey: shellNavigatorKey,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
-                  child: WalletScreen(),
+                  child: const WalletsScreen(),
                 ),
               ),
               GoRoute(
@@ -47,7 +58,7 @@ GoRouter createRouter(
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
-                  child: SettingsScreen(),
+                  child: const SettingsScreen(),
                 ),
               ),
             ],

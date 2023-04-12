@@ -1,4 +1,5 @@
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/utils/currency.dart';
 import 'package:intl/intl.dart';
 
 class Transaction {
@@ -23,8 +24,7 @@ class Transaction {
   get amount => _amount / 100;
 
   String formattedAmount(Wallet wallet) =>
-      NumberFormat.currency(symbol: '${wallet.symbol} ', decimalDigits: 2)
-          .format(amount);
+      formatCurrency(amount, wallet.symbol);
 
   // convert to Transaction object from JSON
   Transaction.fromJson(Map<String, dynamic> json)

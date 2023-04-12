@@ -22,7 +22,7 @@ class RouterShell extends StatelessWidget {
   ];
 
   final routes = {
-    '/wallet': 0,
+    '/wallets': 0,
     '/settings': 1,
   };
 
@@ -44,7 +44,7 @@ class RouterShell extends StatelessWidget {
             onTap: (index) {
               switch (index) {
                 case 0:
-                  GoRouter.of(context).go('/wallet');
+                  GoRouter.of(context).go('/wallets');
                   break;
                 case 1:
                   GoRouter.of(context).go('/settings');

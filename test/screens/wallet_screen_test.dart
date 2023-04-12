@@ -3,8 +3,8 @@
 // test group for wallet logic
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/screens/wallet/screen.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/screens/wallets/screen.dart';
+import 'package:citizenwallet/state/wallets/state.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +20,7 @@ void main() {
 
       await widgetTester.pumpAppWithRouter(
         const CupertinoPageScaffold(
-          child: WalletScreen(),
+          child: WalletsScreen(),
         ),
       );
 
@@ -30,7 +30,7 @@ void main() {
         find.byType(CupertinoPageScaffold),
       );
 
-      WalletState walletState = context.read<WalletState>();
+      WalletsState walletState = context.read<WalletsState>();
 
       walletState.clear();
 
@@ -214,7 +214,7 @@ void main() {
       await widgetTester.pumpAndSettle();
 
       // read the current wallet from state
-      walletState = context.read<WalletState>();
+      walletState = context.read<WalletsState>();
 
       // test that the wallet state is populated with the correct wallet
       expect(walletState.wallet, wallet);

@@ -1,17 +1,15 @@
-import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/screens/wallet/transaction_row.dart';
-import 'package:citizenwallet/screens/wallet/wallet_header.dart';
-import 'package:citizenwallet/screens/wallet/wallet_selection.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/mock_data.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/text_badge.dart';
+import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
+  final String title = 'Settings';
+
   const WalletScreen({super.key});
 
   @override
@@ -19,7 +17,7 @@ class WalletScreen extends StatefulWidget {
 }
 
 class WalletScreenState extends State<WalletScreen> {
-  late WalletLogic _walletLogic;
+  late WalletLogic _logic;
 
   @override
   void initState() {
@@ -27,39 +25,22 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      _walletLogic = WalletLogic(context);
-
-      _walletLogic.getWallet(mockWalletId);
-      _walletLogic.getTransactions(mockWalletId);
+      _logic = WalletLogic(context);
     });
   }
 
-  void handleWalletSelection(BuildContext context) async {
-    final wallet = await showCupertinoModalPopup<Wallet?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => WalletSelection(walletLogic: _walletLogic),
-    );
-
-    if (wallet != null) {
-      _walletLogic.getWallet(wallet.id);
-    }
+  void onChanged(bool enabled) {
+    // _appLogic.setDarkMode(enabled);
+    HapticFeedback.mediumImpact();
   }
 
-  Future<void> handleRefresh() async {
-    _walletLogic.getWallet(mockWalletId);
-    _walletLogic.getTransactions(mockWalletId);
+  void handleWeb3Test() {
+    _logic.testMethod();
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = context.select((WalletState state) => state.loading);
-    final wallet = context.select((WalletState state) => state.wallet);
-
-    final transactions =
-        context.select((WalletState state) => state.transactions);
-    final transactionsLoading =
-        context.select((WalletState state) => state.loadingTransactions);
+    final darkMode = context.select((AppState state) => state.darkMode);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -67,139 +48,56 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            title: wallet?.name ?? 'Wallet',
-            actionButton: CupertinoButton(
-              onPressed: () => handleWalletSelection(context),
-              child: !loading && wallet != null
-                  ? TextBadge(
-                      text: wallet.symbol,
-                      size: 20,
-                      color: ThemeColors.surfaceBackground.resolveFrom(context),
-                      textColor: ThemeColors.surfaceText.resolveFrom(context),
-                    )
-                  : const SizedBox(),
-            ),
+            title: widget.title,
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: CustomScrollView(
-                slivers: [
-                  CupertinoSliverRefreshControl(
-                    onRefresh: handleRefresh,
-                  ),
-                  SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: WalletHeader(
-                      expandedHeight: 140,
-                      shrunkenChild: Container(
-                        color: ThemeColors.uiBackground.resolveFrom(context),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Balance',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            loading
-                                ? CupertinoActivityIndicator(
-                                    key: const Key(
-                                        'wallet-balance-shrunken-loading'),
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
-                                  )
-                                : Text(
-                                    wallet != null
-                                        ? wallet.formattedBalance
-                                        : '',
-                                    key: const Key('wallet-balance-shrunken'),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
-                      child: Container(
-                        color: ThemeColors.uiBackground.resolveFrom(context),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                              child: Text(
-                                'Balance',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                              child: loading
-                                  ? CupertinoActivityIndicator(
-                                      key: const Key('wallet-balance-loading'),
-                                      color: ThemeColors.subtle
-                                          .resolveFrom(context),
-                                    )
-                                  : Text(
-                                      wallet != null
-                                          ? wallet.formattedBalance
-                                          : '',
-                                      key: const Key('wallet-balance'),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                              child: Text(
-                                'Transactions',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'App',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      childCount: transactionsLoading ? 0 : transactions.length,
-                      (context, index) {
-                        if (transactionsLoading) {
-                          return CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          );
-                        }
-
-                        if (wallet == null) {
-                          return const SizedBox();
-                        }
-
-                        final transaction = transactions[index];
-
-                        return TransactionRow(
-                            key: Key(transaction.id),
-                            transaction: transaction,
-                            wallet: wallet);
-                      },
+                ),
+                SettingsRow(
+                  label: 'Dark mode',
+                  trailing: CupertinoSwitch(
+                    value: darkMode,
+                    onChanged: onChanged,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Wallet',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SettingsRow(
+                  label: 'Setting 1',
+                  trailing: Text('Property 1'),
+                ),
+                const SettingsRow(
+                  label: 'Setting 2',
+                  trailing: Text('Property 2'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                  child: Button(
+                    label: 'Test Web3 Functions',
+                    onPressed: handleWeb3Test,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

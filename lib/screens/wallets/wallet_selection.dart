@@ -1,6 +1,6 @@
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/state/wallets/logic.dart';
+import 'package:citizenwallet/state/wallets/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/text_badge.dart';
@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class WalletSelection extends StatefulWidget {
-  final WalletLogic walletLogic;
+  final WalletsLogic walletLogic;
 
   const WalletSelection({
     Key? key,
@@ -20,7 +20,7 @@ class WalletSelection extends StatefulWidget {
 }
 
 class WalletSelectionState extends State<WalletSelection> {
-  late WalletLogic _walletLogic;
+  late WalletsLogic _walletLogic;
 
   @override
   void initState() {
@@ -44,8 +44,9 @@ class WalletSelectionState extends State<WalletSelection> {
 
   @override
   Widget build(BuildContext context) {
-    final loading = context.select((WalletState state) => state.loadingWallets);
-    final wallets = context.watch<WalletState>().wallets;
+    final loading =
+        context.select((WalletsState state) => state.loadingWallets);
+    final wallets = context.watch<WalletsState>().wallets;
 
     final badgeColor = ThemeColors.surfaceBackground.resolveFrom(context);
     final badgeTextColor = ThemeColors.surfaceText.resolveFrom(context);
