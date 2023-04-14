@@ -13,8 +13,7 @@ GoRouter createRouter(
   List<NavigatorObserver> observers,
 ) =>
     GoRouter(
-        // initialLocation: '/',
-        initialLocation: '/wallet/1',
+        initialLocation: '/',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
         observers: observers,
@@ -25,15 +24,6 @@ GoRouter createRouter(
             parentNavigatorKey: rootNavigatorKey,
             builder: (context, state) => const LandingScreen(),
           ),
-          GoRoute(
-            name: 'Wallet',
-            path: '/wallet/:id',
-            parentNavigatorKey: rootNavigatorKey,
-            builder: (context, state) => RouterShell(
-              state: state,
-              child: const WalletScreen(),
-            ),
-          ),
           ShellRoute(
             navigatorKey: shellNavigatorKey,
             builder: (context, state, child) => RouterShell(
@@ -41,14 +31,25 @@ GoRouter createRouter(
               child: child,
             ),
             routes: [
+              // GoRoute(
+              //   name: 'Wallets',
+              //   path: '/wallets',
+              //   parentNavigatorKey: shellNavigatorKey,
+              //   pageBuilder: (context, state) => NoTransitionPage(
+              //     key: state.pageKey,
+              //     name: state.name,
+              //     child: const WalletsScreen(),
+              //   ),
+              // ),
               GoRoute(
-                name: 'Wallets',
+                name: 'Wallet',
+                // path: '/wallet/:id',
                 path: '/wallets',
                 parentNavigatorKey: shellNavigatorKey,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
-                  child: const WalletsScreen(),
+                  child: const WalletScreen(),
                 ),
               ),
               GoRoute(

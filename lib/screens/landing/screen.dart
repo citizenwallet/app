@@ -50,14 +50,14 @@ class LandingScreenState extends State<LandingScreen> {
                 children: [
                   Button(
                     label: 'New Wallet',
-                    onPressed: () => GoRouter.of(context).go('/wallet'),
+                    onPressed: () => GoRouter.of(context).go('/wallets'),
                     minWidth: 200,
                     maxWidth: 200,
                   ),
                   const SizedBox(height: 20),
                   Button(
                     label: 'Restore a wallet',
-                    onPressed: () => GoRouter.of(context).go('/wallet'),
+                    onPressed: () => GoRouter.of(context).go('/wallets'),
                     minWidth: 200,
                     maxWidth: 200,
                   )
