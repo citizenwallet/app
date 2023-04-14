@@ -12,7 +12,7 @@ class WalletTransaction {
   final String nonce;
   final String blockHash;
   final BlockNum blockNumber;
-  final int transactionIndex;
+  final BigInt transactionIndex;
   final EthereumAddress from;
   final EthereumAddress to;
   final EtherAmount value;
@@ -42,14 +42,15 @@ class WalletTransaction {
       hash: '${json['hash']}',
       nonce: '${json['nonce']}',
       blockHash: '${json['blockHash']}',
-      blockNumber: BlockNum.exact(parseIntFromHex(json['blockNumber'])),
+      blockNumber: BlockNum.exact(parseIntFromHex(json['blockNumber']).toInt()),
       transactionIndex: parseIntFromHex(json['transactionIndex']),
       from: EthereumAddress.fromHex(json['from']),
       to: EthereumAddress.fromHex(json['to']),
-      value: EtherAmount.fromInt(EtherUnit.wei, parseIntFromHex(json['value'])),
-      gasPrice:
-          EtherAmount.fromInt(EtherUnit.wei, parseIntFromHex(json['gasPrice'])),
-      gas: EtherAmount.fromInt(EtherUnit.wei, parseIntFromHex(json['gas'])),
+      value:
+          EtherAmount.fromBigInt(EtherUnit.wei, parseIntFromHex(json['value'])),
+      gasPrice: EtherAmount.fromBigInt(
+          EtherUnit.wei, parseIntFromHex(json['gasPrice'])),
+      gas: EtherAmount.fromBigInt(EtherUnit.wei, parseIntFromHex(json['gas'])),
       input: json['input'] != null && !isZeroHexValue('${json['input']}')
           ? Message.fromHexString('${json['input']}')
           : null,

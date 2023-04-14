@@ -5,14 +5,14 @@ import 'package:web3dart/web3dart.dart';
 const firstBlockNumber = 0;
 
 class WalletBlock {
-  final int number;
+  final BigInt number;
   final String hash;
   final String parentHash;
   final String miner;
-  final int difficulty;
-  final int totalDifficulty;
+  final BigInt difficulty;
+  final BigInt totalDifficulty;
   final String extraData;
-  final int size;
+  final BigInt size;
   final EtherAmount gasLimit;
   final EtherAmount gasUsed;
   final DateTime timestamp;
@@ -34,6 +34,10 @@ class WalletBlock {
   });
 
   factory WalletBlock.fromJson(Map<String, dynamic> json) {
+    print('before');
+    // print()
+    print('after');
+
     return WalletBlock(
       number: parseIntFromHex(json['number']),
       hash: '${json['hash']}',
@@ -43,12 +47,12 @@ class WalletBlock {
       totalDifficulty: parseIntFromHex(json['totalDifficulty']),
       extraData: '${json['extraData']}',
       size: parseIntFromHex(json['size']),
-      gasLimit:
-          EtherAmount.fromInt(EtherUnit.wei, parseIntFromHex(json['gasLimit'])),
-      gasUsed:
-          EtherAmount.fromInt(EtherUnit.wei, parseIntFromHex(json['gasUsed'])),
+      gasLimit: EtherAmount.fromBigInt(
+          EtherUnit.wei, parseIntFromHex(json['gasLimit'])),
+      gasUsed: EtherAmount.fromBigInt(
+          EtherUnit.wei, parseIntFromHex(json['gasUsed'])),
       timestamp: DateTime.fromMillisecondsSinceEpoch(
-        parseIntFromHex(json['timestamp']) * 1000,
+        parseIntFromHex(json['timestamp']).toInt() * 1000,
         isUtc: true,
       ),
       transactions: json['transactions'] != null

@@ -12,6 +12,43 @@ import 'package:http/http.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
+Future<WalletService?> walletServiceFromChain(
+  BigInt chainId,
+  String walletFile,
+  String password,
+) async {
+  final List rawNativeChains =
+      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
+
+  final List<Chain> nativeChains =
+      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
+
+  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (i >= 0) {
+    return WalletService.fromWalletFile(
+      nativeChains[i],
+      walletFile,
+      password,
+    );
+  }
+
+  final List rawChains =
+      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
+
+  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
+
+  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (ii < 0) {
+    return null;
+  }
+
+  return WalletService.fromWalletFile(
+    chains[ii],
+    walletFile,
+    password,
+  );
+}
+
 class WalletService {
   String? _clientVersion;
   BigInt? _chainId;
@@ -20,16 +57,17 @@ class WalletService {
   late EthereumAddress _address;
 
   final Client _client = Client();
-  final String _url;
 
   late Web3Client _ethClient;
   late APIService _api;
 
   /// creates a new random private key
   /// init before using
-  WalletService(this._url) {
-    _ethClient = Web3Client(_url, _client);
-    _api = APIService(baseURL: _url);
+  WalletService(this._chain) {
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
 
     final Random key = Random.secure();
 
@@ -39,9 +77,11 @@ class WalletService {
 
   /// creates using an existing private key from a hex string
   /// init before using
-  WalletService.fromKey(this._url, String privateKey) {
-    _ethClient = Web3Client(_url, _client);
-    _api = APIService(baseURL: _url);
+  WalletService.fromKey(this._chain, String privateKey) {
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
 
     _credentials = EthPrivateKey.fromHex(privateKey);
     _address = _credentials.address;
@@ -49,9 +89,15 @@ class WalletService {
 
   /// creates using a wallet file
   /// init before using
-  WalletService.fromWalletFile(this._url, String walletFile, String password) {
-    _ethClient = Web3Client(_url, _client);
-    _api = APIService(baseURL: _url);
+  WalletService.fromWalletFile(
+    this._chain,
+    String walletFile,
+    String password,
+  ) {
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
@@ -62,21 +108,31 @@ class WalletService {
   Future<void> init() async {
     _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
-    _chain = await _fetchChainById(_chainId!);
   }
 
   Future<Chain?> _fetchChainById(BigInt id) async {
+    final List rawNativeChains = jsonDecode(
+        await rootBundle.loadString('assets/data/native_chains.json'));
+
+    final List<Chain> nativeChains =
+        rawNativeChains.map((c) => Chain.fromJson(c)).toList();
+
+    final i = nativeChains.indexWhere((c) => c.chainId == id.toInt());
+    if (i >= 0) {
+      return nativeChains[i];
+    }
+
     final List rawChains =
         jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
 
     final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
 
-    final i = chains.indexWhere((c) => c.chainId == id.toInt());
-    if (i < 0) {
+    final ii = chains.indexWhere((c) => c.chainId == id.toInt());
+    if (ii < 0) {
       return null;
     }
 
-    return chains[i];
+    return chains[ii];
   }
 
   /// makes a jsonrpc request from this wallet
@@ -104,6 +160,12 @@ class WalletService {
   String get privateKeyHex =>
       bytesToHex(_credentials.privateKey, include0x: true);
 
+  /// retrieve chain id
+  int get chainId => _chainId!.toInt();
+
+  /// retrieve chain symbol
+  NativeCurrency get nativeCurrency => _chain!.nativeCurrency;
+
   /// retrieve the current block number
   Future<int> get blockNumber async => await _ethClient.getBlockNumber();
 
@@ -111,7 +173,8 @@ class WalletService {
   EthereumAddress get address => _address;
 
   /// retrieves the current balance of the address
-  Future<EtherAmount> get balance async => await _ethClient.getBalance(address);
+  Future<double> get balance async =>
+      (await _ethClient.getBalance(address)).getInEther.toDouble();
 
   /// retrieves the transaction count for the address
   Future<int> get transactionCount async =>
@@ -142,6 +205,7 @@ class WalletService {
       return WalletBlock.fromJson(response.result);
     } catch (e) {
       // error fetching block
+      print(e);
     }
 
     return null;
@@ -156,7 +220,7 @@ class WalletService {
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
       from: address,
-      value: EtherAmount.fromInt(EtherUnit.wei, amount),
+      value: EtherAmount.fromInt(EtherUnit.ether, amount),
       data: Message(message: message).toBytes(),
     );
 
@@ -184,11 +248,13 @@ class WalletService {
     // iterate through blocks
     for (int i = startBlock; i < endBlock; i++) {
       final WalletBlock? block = await _getBlockByNumber(blockNumber: i);
+      print('block: $block');
       if (block == null) {
         continue;
       }
 
       for (final transaction in block.transactions) {
+        print('transaction: ${transaction.value.getInEther}');
         // find transactions that are sent or received by this wallet
         if (transaction.from == address || transaction.to == address) {
           transaction.setDirection(address);

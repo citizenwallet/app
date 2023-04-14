@@ -3,15 +3,15 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletsState extends ChangeNotifier {
-  Wallet? wallet;
+  CWWallet? wallet;
   bool loading = false;
   bool error = false;
 
-  List<Wallet> wallets = [];
+  List<CWWallet> wallets = [];
   bool loadingWallets = false;
   bool errorWallets = false;
 
-  List<Transaction> transactions = [];
+  List<CWTransaction> transactions = [];
   bool loadingTransactions = false;
   bool errorTransactions = false;
 
@@ -21,7 +21,7 @@ class WalletsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void walletSuccess(Wallet wallet) {
+  void walletSuccess(CWWallet wallet) {
     this.wallet = wallet;
     loading = false;
     error = false;
@@ -40,7 +40,7 @@ class WalletsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void walletListSuccess(List<Wallet> wallets) {
+  void walletListSuccess(List<CWWallet> wallets) {
     this.wallets.clear();
     this.wallets.addAll(wallets);
     loadingWallets = false;
@@ -60,7 +60,7 @@ class WalletsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void transactionListSuccess(List<Transaction> transactions) {
+  void transactionListSuccess(List<CWTransaction> transactions) {
     this.transactions.clear();
     this.transactions.addAll(transactions);
     loadingTransactions = false;

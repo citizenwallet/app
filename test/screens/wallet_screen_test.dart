@@ -44,10 +44,8 @@ void main() {
       expect(walletState.transactions, isEmpty);
 
       // populate the wallet state with a wallet
-      final Wallet wallet = Wallet(
+      final CWWallet wallet = CWWallet(
         1000,
-        id: 0,
-        chainId: 1,
         name: 'test',
         address: '0x123',
         symbol: 'ETH',
@@ -122,19 +120,15 @@ void main() {
       );
 
       // populate the wallet state with a list of wallets
-      final List<Wallet> wallets = [
-        Wallet(
+      final List<CWWallet> wallets = [
+        CWWallet(
           30,
-          id: 0,
-          chainId: 1,
           name: 'test',
           address: '0x123',
           symbol: 'ETH',
         ),
-        Wallet(
+        CWWallet(
           10,
-          id: 1,
-          chainId: 2,
           name: 'test',
           address: '0x456',
           symbol: 'BTC',
@@ -166,8 +160,8 @@ void main() {
       expect(walletState.errorWallets, false);
 
       // populate the wallet state with a list of transactions
-      final List<Transaction> transactions = [
-        Transaction(
+      final List<CWTransaction> transactions = [
+        CWTransaction(
           1000,
           id: '0',
           chainId: 1,
@@ -176,7 +170,7 @@ void main() {
           title: 'test',
           date: DateTime.now(),
         ),
-        Transaction(
+        CWTransaction(
           1000,
           id: '1',
           chainId: 1,

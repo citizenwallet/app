@@ -37,15 +37,25 @@ class MessageAttachment {
 }
 
 class Message {
-  final int version = 1;
+  final int version;
   final String message;
+  DateTime date = DateTime.now();
   final MessageAttachment? attachment;
 
-  Message({this.message = emptyMessage, this.attachment});
+  Message({
+    this.version = 1,
+    this.message = emptyMessage,
+    DateTime? date,
+    this.attachment,
+  }) {
+    date = date ?? DateTime.now();
+  }
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
+      version: json['version'],
       message: json['message'],
+      date: DateTime.parse(json['date']),
       attachment: json['attachment'] != null
           ? MessageAttachment.fromJson(json['attachment'])
           : null,
@@ -69,12 +79,14 @@ class Message {
       return {
         'version': version,
         'message': message,
+        'date': date.toIso8601String(),
       };
     }
 
     return {
       'version': version,
       'message': message,
+      'date': date.toIso8601String(),
       'attachment': attachment!.toJson(),
     };
   }
@@ -86,6 +98,6 @@ class Message {
   @override
   // to string
   String toString() {
-    return 'Message: $message, Attachment: $attachment';
+    return 'Version: $version, Date $date Message: $message, Attachment: $attachment';
   }
 }

@@ -10,12 +10,12 @@ class WalletsLogic {
     _state = context.read<WalletsState>();
   }
 
-  Future<void> getWallet(int id) async {
+  Future<void> getWallet(String id) async {
     _state.walletRequest();
 
     try {
       // final wallet = await _api.getWallet(id);
-      final wallet = mockWallets.firstWhere((w) => w.id == id);
+      final wallet = mockWallets.firstWhere((w) => w.address == id);
 
       _state.walletSuccess(wallet);
     } catch (e) {
@@ -35,7 +35,7 @@ class WalletsLogic {
     }
   }
 
-  Future<void> getTransactions(int id) async {
+  Future<void> getTransactions(String id) async {
     _state.transactionListRequest();
 
     try {

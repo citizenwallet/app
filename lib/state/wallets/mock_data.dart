@@ -1,102 +1,80 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 
-const int mockWalletId = 0;
+const String mockWalletId = '0x0000000';
 
-final Wallet mockWallet = Wallet(
+final CWWallet mockWallet = CWWallet(
   10000,
-  id: 0,
-  chainId: 12345,
   name: 'Citizen Coin',
   address: '0x0000000',
   symbol: 'CC',
 );
 
-final List<Wallet> mockWallets = [
-  Wallet(
+final List<CWWallet> mockWallets = [
+  CWWallet(
     10000,
-    id: 0,
-    chainId: 12345,
     name: 'Citizen Coin',
     address: '0x0000000',
     symbol: 'CC',
   ),
-  Wallet(
+  CWWallet(
     7999,
-    id: 1,
-    chainId: 9098,
     name: 'Another Coin',
     address: '0x0000000',
     symbol: 'AC',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 2,
-    chainId: 709,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 3,
-    chainId: 79087,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 4,
-    chainId: 6786,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 5,
-    chainId: 987698,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 6,
-    chainId: 69876,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 7,
-    chainId: 69870,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 8,
-    chainId: 584654,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
-  Wallet(
+  CWWallet(
     10000,
-    id: 9,
-    chainId: 12987945,
     name: 'Coin',
     address: '0x0000000',
     symbol: 'C',
   ),
 ];
 
-final List<Transaction> mockTransactions = [
-  Transaction(
+final List<CWTransaction> mockTransactions = [
+  CWTransaction(
     1000,
     id: '0',
     chainId: 0,
@@ -105,7 +83,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     38,
     id: '1',
     chainId: 0,
@@ -114,7 +92,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     2342,
     id: '2',
     chainId: 0,
@@ -123,7 +101,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     323,
     id: '3',
     chainId: 0,
@@ -132,7 +110,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     542,
     id: '4',
     chainId: 0,
@@ -141,7 +119,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     9923,
     id: '5',
     chainId: 0,
@@ -150,7 +128,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     33,
     id: '6',
     chainId: 0,
@@ -159,7 +137,7 @@ final List<Transaction> mockTransactions = [
     title: 'Deposit',
     date: DateTime.now(),
   ),
-  Transaction(
+  CWTransaction(
     343,
     id: '7',
     chainId: 0,

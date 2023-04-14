@@ -4,8 +4,8 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 
 class TransactionRow extends StatelessWidget {
-  final Transaction transaction;
-  final Wallet wallet;
+  final CWTransaction transaction;
+  final CWWallet wallet;
 
   const TransactionRow({
     super.key,

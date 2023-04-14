@@ -38,7 +38,7 @@ class WalletSelectionState extends State<WalletSelection> {
     Navigator.of(context).pop();
   }
 
-  void handleSubmit(BuildContext context, Wallet wallet) {
+  void handleSubmit(BuildContext context, CWWallet wallet) {
     Navigator.of(context).pop(wallet);
   }
 

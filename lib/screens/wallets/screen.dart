@@ -35,14 +35,14 @@ class WalletScreenState extends State<WalletsScreen> {
   }
 
   void handleWalletSelection(BuildContext context) async {
-    final wallet = await showCupertinoModalPopup<Wallet?>(
+    final wallet = await showCupertinoModalPopup<CWWallet?>(
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => WalletSelection(walletLogic: _walletLogic),
     );
 
     if (wallet != null) {
-      _walletLogic.getWallet(wallet.id);
+      _walletLogic.getWallet(wallet.address);
     }
   }
 

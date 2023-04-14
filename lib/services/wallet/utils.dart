@@ -1,5 +1,5 @@
-int parseIntFromHex(String hex) {
-  return int.parse(hex);
+BigInt parseIntFromHex(String hex) {
+  return BigInt.parse(hex);
 }
 
 const zeroHexValue = '0x0';

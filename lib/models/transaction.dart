@@ -1,8 +1,7 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/utils/currency.dart';
-import 'package:intl/intl.dart';
 
-class Transaction {
+class CWTransaction {
   final String id;
   final int chainId;
   final String from;
@@ -11,7 +10,7 @@ class Transaction {
   final double _amount;
   final DateTime date;
 
-  Transaction(
+  CWTransaction(
     this._amount, {
     required this.id,
     required this.chainId,
@@ -21,13 +20,16 @@ class Transaction {
     required this.date,
   });
 
-  get amount => _amount / 100;
+  double get amount => _amount;
 
-  String formattedAmount(Wallet wallet) =>
-      formatCurrency(amount, wallet.symbol);
+  String formattedAmount(CWWallet wallet) => formatCurrency(
+        amount,
+        wallet.symbol,
+        decimalDigits: wallet.decimalDigits,
+      );
 
   // convert to Transaction object from JSON
-  Transaction.fromJson(Map<String, dynamic> json)
+  CWTransaction.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         chainId = json['chainId'],
         from = json['from'],

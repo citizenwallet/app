@@ -1,44 +1,47 @@
 import 'package:citizenwallet/utils/currency.dart';
-import 'package:intl/intl.dart';
 
-class Wallet {
-  final int id;
-  final int chainId;
+class CWWallet {
   final String name;
   final String address;
-  final int _balance;
+  double _balance;
   final String symbol;
+  final int decimalDigits;
 
-  Wallet(
+  CWWallet(
     this._balance, {
-    required this.id,
-    required this.chainId,
     required this.name,
     required this.address,
     required this.symbol,
+    this.decimalDigits = 2,
   });
 
-  get balance => _balance / 100;
+  double get balance => _balance;
 
-  get formattedBalance => formatCurrency(balance, symbol);
+  get formattedBalance => formatCurrency(
+        balance,
+        symbol,
+        decimalDigits: decimalDigits,
+      );
 
   // convert to Wallet object from JSON
-  Wallet.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        chainId = json['chainId'],
-        name = json['name'],
+  CWWallet.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
         address = json['address'],
         _balance = json['balance'],
-        symbol = json['symbol'];
+        symbol = json['symbol'],
+        decimalDigits = json['decimalDigits'];
 
   // Convert a Conversation object into a Map object.
   // The keys must correspond to the names of the columns in the database.
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'chainId': chainId,
         'name': name,
         'address': address,
         'balance': _balance,
         'symbol': symbol,
+        'decimalDigits': decimalDigits,
       };
+
+  void setBalance(double balance) {
+    _balance = balance;
+  }
 }

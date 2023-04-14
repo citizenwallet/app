@@ -1,0 +1,39 @@
+[
+    {
+        "name": "Citizen Coin",
+        "chain": "CC",
+        "icon": "citizen_coin",
+        "rpc": [
+            "https://cw-ganache.techi.be"
+        ],
+        "features": [
+            {
+                "name": "EIP155"
+            },
+            {
+                "name": "EIP1559"
+            }
+        ],
+        "faucets": [],
+        "nativeCurrency": {
+            "name": "Citizen Coin",
+            "symbol": "CC",
+            "decimals": 2
+        },
+        "infoURL": "https://citizenwallet.xyz",
+        "shortName": "cc",
+        "chainId": 1337,
+        "networkId": 1,
+        "slip44": 60,
+        "ens": {
+            "registry": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+        },
+        "explorers": [
+            {
+                "name": "etherscan",
+                "url": "https://etherscan.io",
+                "standard": "EIP3091"
+            }
+        ]
+    }
+]
