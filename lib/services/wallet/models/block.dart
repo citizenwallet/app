@@ -34,10 +34,6 @@ class WalletBlock {
   });
 
   factory WalletBlock.fromJson(Map<String, dynamic> json) {
-    print('before');
-    // print()
-    print('after');
-
     return WalletBlock(
       number: parseIntFromHex(json['number']),
       hash: '${json['hash']}',

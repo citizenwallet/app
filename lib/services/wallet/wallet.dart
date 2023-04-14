@@ -248,13 +248,11 @@ class WalletService {
     // iterate through blocks
     for (int i = startBlock; i < endBlock; i++) {
       final WalletBlock? block = await _getBlockByNumber(blockNumber: i);
-      print('block: $block');
       if (block == null) {
         continue;
       }
 
       for (final transaction in block.transactions) {
-        print('transaction: ${transaction.value.getInEther}');
         // find transactions that are sent or received by this wallet
         if (transaction.from == address || transaction.to == address) {
           transaction.setDirection(address);

@@ -83,7 +83,7 @@ class WalletLogic {
     try {
       _state.loadTransactions();
 
-      final transactions = await _wallet.transactions(limit: 100000000);
+      final transactions = await _wallet.transactions();
 
       _state.loadTransactionsSuccess(
         transactions
