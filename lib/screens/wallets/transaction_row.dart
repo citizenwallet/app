@@ -2,6 +2,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class TransactionRow extends StatelessWidget {
   final CWTransaction transaction;
@@ -17,6 +18,7 @@ class TransactionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final date = transaction.date;
     return Container(
+      key: super.key,
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       decoration: BoxDecoration(
@@ -38,7 +40,7 @@ class TransactionRow extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}',
+              DateFormat('dd/MM/y HH:mm').format(date),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

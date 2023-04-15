@@ -20,6 +20,7 @@ class WalletTransaction {
   final EtherAmount gas;
   final Message? input;
 
+  DateTime timestamp = DateTime.now();
   TransactionDirection direction;
 
   WalletTransaction({
@@ -34,8 +35,11 @@ class WalletTransaction {
     required this.gasPrice,
     required this.gas,
     this.input,
+    DateTime? timestamp,
     this.direction = TransactionDirection.outgoing,
-  });
+  }) {
+    this.timestamp = timestamp ?? DateTime.now();
+  }
 
   factory WalletTransaction.fromJson(Map<String, dynamic> json) {
     final transaction = WalletTransaction(
@@ -63,5 +67,9 @@ class WalletTransaction {
     direction = from == address
         ? TransactionDirection.outgoing
         : TransactionDirection.incoming;
+  }
+
+  void setTimestamp(DateTime timestamp) {
+    this.timestamp = timestamp;
   }
 }

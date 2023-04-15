@@ -255,6 +255,7 @@ class WalletService {
       for (final transaction in block.transactions) {
         // find transactions that are sent or received by this wallet
         if (transaction.from == address || transaction.to == address) {
+          transaction.setTimestamp(block.timestamp);
           transaction.setDirection(address);
           transactions.add(transaction);
         }

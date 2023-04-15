@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/services/wallet/models/message.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
   late WalletState _state;
@@ -94,7 +91,7 @@ class WalletLogic {
                   from: e.from.hex,
                   to: e.to.hex,
                   title: e.input?.message ?? '',
-                  date: e.input?.date ?? DateTime.now(),
+                  date: e.timestamp,
                 ))
             .toList(),
       );
