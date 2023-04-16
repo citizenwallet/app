@@ -16,4 +16,8 @@ class AppLogic {
 
     _appState.darkMode = darkMode;
   }
+
+  void setFirstLaunch(bool firstLaunch) {
+    _preferences.setFirstLaunch(firstLaunch);
+  }
 }

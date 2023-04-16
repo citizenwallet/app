@@ -1,3 +1,4 @@
+import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/screen_description.dart';
@@ -13,6 +14,30 @@ class LandingScreen extends StatefulWidget {
 }
 
 class LandingScreenState extends State<LandingScreen> {
+  late AppLogic _appLogic;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // make initial requests here
+      _appLogic = AppLogic(context);
+    });
+  }
+
+  void handleNewWallet() {
+    _appLogic.setFirstLaunch(false);
+
+    GoRouter.of(context).go('/wallets');
+  }
+
+  void handleRestoreWallet() {
+    _appLogic.setFirstLaunch(false);
+
+    GoRouter.of(context).go('/wallets');
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -50,14 +75,14 @@ class LandingScreenState extends State<LandingScreen> {
                 children: [
                   Button(
                     label: 'New Wallet',
-                    onPressed: () => GoRouter.of(context).go('/wallets'),
+                    onPressed: handleNewWallet,
                     minWidth: 200,
                     maxWidth: 200,
                   ),
                   const SizedBox(height: 20),
                   Button(
                     label: 'Restore a wallet',
-                    onPressed: () => GoRouter.of(context).go('/wallets'),
+                    onPressed: handleRestoreWallet,
                     minWidth: 200,
                     maxWidth: 200,
                   )

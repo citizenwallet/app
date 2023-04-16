@@ -2,6 +2,7 @@ import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +13,7 @@ GoRouter createRouter(
   List<NavigatorObserver> observers,
 ) =>
     GoRouter(
-        initialLocation: '/',
+        initialLocation: PreferencesService().firstLaunch ? '/' : '/wallets',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
         observers: observers,
