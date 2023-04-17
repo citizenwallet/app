@@ -88,8 +88,6 @@ class WalletScreenState extends State<WalletScreen> {
     final sendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
-    final padding = MediaQuery.of(context).padding;
-
     final formattedBalance = wallet?.formattedBalance ?? '';
 
     return GestureDetector(
@@ -105,6 +103,7 @@ class WalletScreenState extends State<WalletScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
               child: Stack(
+                alignment: Alignment.center,
                 children: [
                   CustomScrollView(
                     slivers: [
@@ -246,10 +245,6 @@ class WalletScreenState extends State<WalletScreen> {
                   ),
                   Positioned(
                     bottom: 10,
-                    left: 0,
-                    width: MediaQuery.of(context).size.width -
-                        padding.left -
-                        padding.right,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
