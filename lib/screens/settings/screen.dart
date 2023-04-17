@@ -93,7 +93,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
                   child: Button(
-                    label: 'Clear App Data',
+                    text: 'Clear App Data',
                     color: CupertinoColors.systemRed,
                     onPressed: handleAppReset,
                   ),

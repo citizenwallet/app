@@ -1,6 +1,16 @@
 import 'package:flutter/cupertino.dart';
 
 class ThemeColors {
+  static const primary = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(7, 153, 98, 1),
+    darkColor: Color.fromRGBO(7, 153, 98, 1),
+  );
+
+  static const secondary = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(244, 188, 81, 1),
+    darkColor: Color.fromRGBO(244, 188, 81, 1),
+  );
+
   static const text = CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.black,
     darkColor: CupertinoColors.white,

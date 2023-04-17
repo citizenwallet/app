@@ -13,6 +13,9 @@ class WalletState extends ChangeNotifier {
 
   List<CWTransaction> transactions = [];
 
+  bool transactionSendLoading = false;
+  bool transactionSendError = false;
+
   void loadWallet() {
     loading = true;
     error = false;
@@ -54,22 +57,23 @@ class WalletState extends ChangeNotifier {
   }
 
   void loadTransactions() {
-    loading = true;
-    error = false;
+    transactionsLoading = true;
+    transactionsError = false;
     notifyListeners();
   }
 
   void loadTransactionsSuccess(List<CWTransaction> transactions) {
-    this.transactions = transactions;
+    this.transactions.clear();
+    this.transactions.addAll(transactions);
 
-    loading = false;
-    error = false;
+    transactionsLoading = false;
+    transactionsError = false;
     notifyListeners();
   }
 
   void loadTransactionsError() {
-    loading = false;
-    error = true;
+    transactionsLoading = false;
+    transactionsError = true;
     notifyListeners();
   }
 
@@ -80,7 +84,7 @@ class WalletState extends ChangeNotifier {
   }
 
   void loadAdditionalTransactionsSuccess(List<CWTransaction> transactions) {
-    this.transactions.insertAll(0, transactions);
+    this.transactions.addAll(transactions);
 
     transactionsLoading = false;
     transactionsError = false;
@@ -88,6 +92,52 @@ class WalletState extends ChangeNotifier {
   }
 
   void loadAdditionalTransactionsError() {
+    transactionsLoading = false;
+    transactionsError = true;
+    notifyListeners();
+  }
+
+  void sendTransaction() {
+    transactionSendLoading = true;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendTransactionSuccess(CWTransaction transaction) {
+    transactions.insert(0, transaction);
+    transactionSendLoading = false;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendTransactionError() {
+    transactionSendLoading = false;
+    transactionSendError = true;
+    notifyListeners();
+  }
+
+  void incomingTransactionsRequest() {
+    transactionsLoading = true;
+    transactionsError = false;
+    notifyListeners();
+  }
+
+  void incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
+    for (final transaction in transactions) {
+      final index = this.transactions.indexWhere((t) => t.id == transaction.id);
+      if (index == -1) {
+        this.transactions.insert(0, transaction);
+      } else {
+        this.transactions[index] = transaction;
+      }
+    }
+
+    transactionsLoading = false;
+    transactionsError = false;
+    notifyListeners();
+  }
+
+  void incomingTransactionsRequestError() {
     transactionsLoading = false;
     transactionsError = true;
     notifyListeners();

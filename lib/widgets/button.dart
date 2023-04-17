@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class Button extends StatelessWidget {
-  final String label;
+  final String text;
   final double minWidth;
   final double maxWidth;
   final void Function()? onPressed;
@@ -13,7 +13,7 @@ class Button extends StatelessWidget {
   const Button({
     super.key,
     this.onPressed,
-    this.label = '',
+    this.text = '',
     this.minWidth = 200,
     this.maxWidth = 200,
     this.color = CupertinoColors.activeBlue,
@@ -38,7 +38,7 @@ class Button extends StatelessWidget {
           children: [
             if (prefix != null) prefix!,
             Text(
-              label,
+              text,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

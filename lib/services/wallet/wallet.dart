@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -101,6 +102,8 @@ class WalletService {
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
+    final Stream<String> blockSubscription = _ethClient.addedBlocks();
+
     _credentials = wallet.privateKey;
     _address = _credentials.address;
   }
@@ -189,6 +192,9 @@ class WalletService {
     return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
   }
 
+  /// allows you to listen to new blocks
+  Stream<String> get blockStream => _ethClient.addedBlocks();
+
   /// return a block for a given blockNumber
   Future<WalletBlock?> _getBlockByNumber({int? blockNumber}) async {
     final body = JSONRPCRequest(
@@ -197,6 +203,25 @@ class WalletService {
         blockNumber != null ? '0x${blockNumber.toRadixString(16)}' : 'latest',
         true
       ],
+    );
+
+    try {
+      final response = await _request(body);
+
+      return WalletBlock.fromJson(response.result);
+    } catch (e) {
+      // error fetching block
+      print(e);
+    }
+
+    return null;
+  }
+
+  /// return a block for a given hash
+  Future<WalletBlock?> _getBlockByHash(String hash) async {
+    final body = JSONRPCRequest(
+      method: 'eth_getBlockByHash',
+      params: [hash, true],
     );
 
     try {
@@ -257,8 +282,29 @@ class WalletService {
         if (transaction.from == address || transaction.to == address) {
           transaction.setTimestamp(block.timestamp);
           transaction.setDirection(address);
-          transactions.add(transaction);
+          transactions.insert(0, transaction);
         }
+      }
+    }
+
+    return transactions;
+  }
+
+  /// retrieves list of transactions for this wallet for a give block hash
+  Future<List<WalletTransaction>> transactionsForBlockHash(String hash) async {
+    final List<WalletTransaction> transactions = [];
+
+    final WalletBlock? block = await _getBlockByHash(hash);
+    if (block == null) {
+      return transactions;
+    }
+
+    for (final transaction in block.transactions) {
+      // find transactions that are sent or received by this wallet
+      if (transaction.from == address || transaction.to == address) {
+        transaction.setTimestamp(block.timestamp);
+        transaction.setDirection(address);
+        transactions.insert(0, transaction);
       }
     }
 
@@ -267,7 +313,6 @@ class WalletService {
 
   /// dispose of resources
   void dispose() {
-    _client.close();
     _ethClient.dispose();
   }
 }

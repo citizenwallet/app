@@ -12,6 +12,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class WalletsScreen extends StatefulWidget {
+  final String title = 'Citizen Wallet';
+
   const WalletsScreen({super.key});
 
   @override
@@ -67,7 +69,7 @@ class WalletScreenState extends State<WalletsScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            title: wallet?.name ?? 'Wallet',
+            title: widget.title,
             actionButton: CupertinoButton(
               onPressed: () => handleWalletSelection(context),
               child: !loading && wallet != null

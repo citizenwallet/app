@@ -17,30 +17,42 @@ class TransactionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = transaction.date;
-    return Container(
+    final isIncoming = transaction.isIncoming(wallet.address);
+    return AnimatedContainer(
       key: super.key,
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       decoration: BoxDecoration(
         color: ThemeColors.background.resolveFrom(context),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: ThemeColors.subtle.resolveFrom(context),
+          width: 2,
+          color: transaction.isPending
+              ? ThemeColors.secondary.resolveFrom(context)
+              : ThemeColors.uiBackground.resolveFrom(context),
         ),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              transaction.formattedAmount(wallet),
+              transaction.formattedAmount(wallet, isIncoming: isIncoming),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight:
+                    transaction.isPending ? FontWeight.normal : FontWeight.w500,
+                color: isIncoming
+                    ? CupertinoColors.activeGreen
+                    : CupertinoColors.black,
+              ),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              DateFormat('dd/MM/y HH:mm').format(date),
+              DateFormat('dd/MM/y HH:mm').format(date.toLocal()),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

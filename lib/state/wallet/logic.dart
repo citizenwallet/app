@@ -12,6 +12,8 @@ class WalletLogic {
   late WalletState _state;
   late WalletService _wallet;
 
+  late StreamSubscription<String> _blockSubscription;
+
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
   }
@@ -57,6 +59,8 @@ class WalletLogic {
       final balance = await _wallet.balance;
       final currency = _wallet.nativeCurrency;
 
+      _blockSubscription = _wallet.blockStream.listen(onBlockHash);
+
       _state.loadWalletSuccess(
         CWWallet(
           balance,
@@ -74,6 +78,34 @@ class WalletLogic {
     }
 
     _state.loadWalletError();
+  }
+
+  void onBlockHash(String hash) async {
+    try {
+      _state.incomingTransactionsRequest();
+
+      final transactions = await _wallet.transactionsForBlockHash(hash);
+
+      _state.incomingTransactionsRequestSuccess(
+        transactions
+            .map((e) => CWTransaction(
+                  e.value.getInEther.toDouble(),
+                  id: e.hash,
+                  chainId: _wallet.chainId,
+                  from: e.from.hex,
+                  to: e.to.hex,
+                  title: e.input?.message ?? '',
+                  date: e.timestamp,
+                ))
+            .toList(),
+      );
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.incomingTransactionsRequestError();
   }
 
   Future<void> loadTransactions() async {
@@ -120,21 +152,38 @@ class WalletLogic {
     _state.updateWalletBalanceError();
   }
 
-  Future<void> sendTransaction(double amount) async {
+  Future<void> sendTransaction(double amount, {String message = ''}) async {
     try {
-      await _wallet.sendTransaction(
+      _state.sendTransaction();
+
+      final _amount = amount.toInt();
+
+      final hash = await _wallet.sendTransaction(
         to: dotenv.get('TEST_DESTINATION_ADDRESS'),
-        amount: amount.toInt(),
+        amount: _amount,
+        message: message,
       );
 
+      _state.sendTransactionSuccess(CWTransaction.pending(
+        _amount.toDouble(),
+        id: hash,
+        title: message,
+        date: DateTime.now(),
+      ));
+
       await updateBalance();
+
+      return;
     } catch (e) {
       print('error');
       print(e);
     }
+
+    _state.sendTransactionError();
   }
 
   void dispose() {
     _wallet.dispose();
+    _blockSubscription.cancel();
   }
 }

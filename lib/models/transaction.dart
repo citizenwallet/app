@@ -1,6 +1,12 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/utils/currency.dart';
 
+enum TransactionState {
+  pending,
+  success,
+  failed,
+}
+
 class CWTransaction {
   final String id;
   final int chainId;
@@ -10,22 +16,41 @@ class CWTransaction {
   final double _amount;
   final DateTime date;
 
+  TransactionState state = TransactionState.success;
+
   CWTransaction(
     this._amount, {
     required this.id,
-    required this.chainId,
-    required this.from,
-    required this.to,
+    this.chainId = 0,
+    this.from = '0x',
+    this.to = '0x',
     required this.title,
     required this.date,
+    this.state = TransactionState.success,
+  });
+  CWTransaction.pending(
+    this._amount, {
+    required this.id,
+    this.chainId = 0,
+    this.from = '0x',
+    this.to = '0x',
+    required this.title,
+    required this.date,
+    this.state = TransactionState.pending,
   });
 
   double get amount => _amount;
 
-  String formattedAmount(CWWallet wallet) => formatCurrency(
+  bool get isPending => state == TransactionState.pending;
+
+  bool isIncoming(String to) => this.to == to;
+
+  String formattedAmount(CWWallet wallet, {bool isIncoming = false}) =>
+      formatCurrency(
         amount,
         wallet.symbol,
         decimalDigits: wallet.decimalDigits,
+        isIncoming: isIncoming,
       );
 
   // convert to Transaction object from JSON
@@ -36,7 +61,8 @@ class CWTransaction {
         to = json['to'],
         title = json['title'],
         _amount = json['amount'],
-        date = DateTime.parse(json['date']);
+        date = DateTime.parse(json['date']),
+        state = json['state'] ?? TransactionState.success;
 
   // Convert a Conversation object into a Map object.
   // The keys must correspond to the names of the columns in the database.
@@ -49,4 +75,12 @@ class CWTransaction {
         'amount': _amount,
         'date': date.toIso8601String(),
       };
+
+  void pending() {
+    state = TransactionState.pending;
+  }
+
+  void success() {
+    state = TransactionState.success;
+  }
 }

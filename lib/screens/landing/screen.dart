@@ -74,14 +74,14 @@ class LandingScreenState extends State<LandingScreen> {
               action: Column(
                 children: [
                   Button(
-                    label: 'New Wallet',
+                    text: 'New Wallet',
                     onPressed: handleNewWallet,
                     minWidth: 200,
                     maxWidth: 200,
                   ),
                   const SizedBox(height: 20),
                   Button(
-                    label: 'Restore a wallet',
+                    text: 'Restore a wallet',
                     onPressed: handleRestoreWallet,
                     minWidth: 200,
                     maxWidth: 200,
