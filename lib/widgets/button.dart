@@ -1,3 +1,4 @@
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 
 class Button extends StatelessWidget {
@@ -16,7 +17,7 @@ class Button extends StatelessWidget {
     this.text = '',
     this.minWidth = 200,
     this.maxWidth = 200,
-    this.color = CupertinoColors.activeBlue,
+    this.color,
     this.labelColor,
     this.prefix,
     this.suffix,
@@ -25,7 +26,7 @@ class Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      color: color,
+      color: color ?? ThemeColors.primary.resolveFrom(context),
       onPressed: onPressed,
       padding: const EdgeInsets.all(0),
       child: ConstrainedBox(

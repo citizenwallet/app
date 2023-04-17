@@ -7,6 +7,7 @@ class Header extends StatelessWidget {
   final String? subTitle;
   final Widget? subTitleWidget;
   final Widget? actionButton;
+  final bool manualBack;
 
   const Header({
     super.key,
@@ -14,6 +15,7 @@ class Header extends StatelessWidget {
     this.subTitleWidget,
     this.subTitle,
     this.actionButton,
+    this.manualBack = false,
   });
 
   @override
@@ -33,7 +35,7 @@ class Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (router.canPop())
+              if (router.canPop() && !manualBack)
                 GestureDetector(
                   onTap: () => GoRouter.of(context).pop(),
                   child: const Align(

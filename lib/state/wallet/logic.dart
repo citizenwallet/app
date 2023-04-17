@@ -152,20 +152,21 @@ class WalletLogic {
     _state.updateWalletBalanceError();
   }
 
-  Future<void> sendTransaction(double amount, {String message = ''}) async {
+  Future<void> sendTransaction(double amount, String to,
+      {String message = ''}) async {
     try {
       _state.sendTransaction();
 
-      final _amount = amount.toInt();
+      final intAmount = amount.toInt();
 
       final hash = await _wallet.sendTransaction(
-        to: dotenv.get('TEST_DESTINATION_ADDRESS'),
-        amount: _amount,
+        to: to,
+        amount: intAmount,
         message: message,
       );
 
       _state.sendTransactionSuccess(CWTransaction.pending(
-        _amount.toDouble(),
+        intAmount.toDouble(),
         id: hash,
         title: message,
         date: DateTime.now(),

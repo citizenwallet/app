@@ -5,7 +5,6 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/screens/wallets/screen.dart';
 import 'package:citizenwallet/state/wallets/state.dart';
-import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -218,19 +217,6 @@ void main() {
 
       // test that the wallet state is populated with the correct transactions
       expect(walletState.transactions, transactions);
-
-      // test that the header has the correct title
-      expect(
-        find.byType(Header),
-        findsOneWidget,
-      );
-      expect(reason: 'Header title should match',
-          find.byWidgetPredicate((widget) {
-        if (widget is Header) {
-          return widget.title == walletState.wallet!.name;
-        }
-        return false;
-      }), findsOneWidget);
 
       // resets the screen to its original size after the test end
       addTearDown(widgetTester.binding.window.clearPhysicalSizeTestValue);

@@ -25,8 +25,8 @@ class TransactionRow extends StatelessWidget {
       height: 80,
       decoration: BoxDecoration(
         color: transaction.isPending
-            ? ThemeColors.border.resolveFrom(context)
-            : ThemeColors.background.resolveFrom(context),
+            ? ThemeColors.subtleEmphasis.resolveFrom(context)
+            : ThemeColors.subtle.resolveFrom(context),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           width: 2,
@@ -38,7 +38,7 @@ class TransactionRow extends StatelessWidget {
       child: Row(
         children: [
           const ProfileCircle(
-            size: 60,
+            size: 50,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -50,20 +50,19 @@ class TransactionRow extends StatelessWidget {
                   transaction.from,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.normal,
-                    color: CupertinoColors.black,
+                    color: ThemeColors.text.resolveFrom(context),
                   ),
                 ),
-                // const SizedBox(height: 5),
                 Text(
                   transaction.title == '' ? '...' : transaction.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
-                    color: CupertinoColors.systemGrey,
+                    color: ThemeColors.subtleText.resolveFrom(context),
                   ),
                 ),
               ],
@@ -78,11 +77,12 @@ class TransactionRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
               style: TextStyle(
+                fontSize: 16,
                 fontWeight:
                     transaction.isPending ? FontWeight.normal : FontWeight.w500,
                 color: isIncoming
-                    ? CupertinoColors.activeGreen
-                    : CupertinoColors.black,
+                    ? ThemeColors.primary.resolveFrom(context)
+                    : ThemeColors.text.resolveFrom(context),
               ),
             ),
           ),

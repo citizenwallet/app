@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 class DismissibleModalPopup extends StatelessWidget {
   final Widget child;
   final String modalKey;
-  final int maxHeight;
+  final double? maxHeight;
   final double paddingSides;
   final double topRadius;
   final void Function(DismissUpdateDetails)? onUpdate;
@@ -14,7 +14,7 @@ class DismissibleModalPopup extends StatelessWidget {
     super.key,
     required this.child,
     required this.modalKey,
-    this.maxHeight = 300,
+    this.maxHeight,
     this.paddingSides = 10,
     this.topRadius = 10,
     this.onUpdate,
@@ -29,9 +29,12 @@ class DismissibleModalPopup extends StatelessWidget {
       onUpdate: onUpdate,
       onDismissed: onDismissed,
       child: Container(
-        constraints: BoxConstraints(
-          maxHeight: maxHeight + MediaQuery.of(context).viewInsets.bottom,
-        ),
+        constraints: maxHeight != null
+            ? BoxConstraints(
+                maxHeight:
+                    maxHeight! + MediaQuery.of(context).viewInsets.bottom,
+              )
+            : null,
         padding: EdgeInsets.fromLTRB(paddingSides, 10, paddingSides, 10),
         decoration: BoxDecoration(
           color: ThemeColors.uiBackground.resolveFrom(context),

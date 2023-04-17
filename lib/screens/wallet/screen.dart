@@ -1,3 +1,4 @@
+import 'package:citizenwallet/screens/wallet/send_form.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -55,16 +56,6 @@ class WalletScreenState extends State<WalletScreen> {
     HapticFeedback.mediumImpact();
   }
 
-  void handleSend() async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
-    await _logic.sendTransaction(100);
-  }
-
   void handleReceive() async {
     // final sendLoading = context.read<WalletState>().transactionSendLoading;
 
@@ -73,6 +64,26 @@ class WalletScreenState extends State<WalletScreen> {
     // }
 
     // await _logic.sendTransaction(100);
+  }
+
+  Future<void> handleSend(double amount, String to) async {
+    return _logic.sendTransaction(amount, to);
+  }
+
+  void handleSendModal(BuildContext context) async {
+    final sendLoading = context.read<WalletState>().transactionSendLoading;
+
+    if (sendLoading) {
+      return;
+    }
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => SendForm(
+        logic: _logic,
+      ),
+    );
   }
 
   @override
@@ -262,14 +273,16 @@ class WalletScreenState extends State<WalletScreen> {
                           text: 'Send',
                           maxWidth: 140,
                           minWidth: 140,
-                          onPressed: () {
-                            handleSend();
-                          },
+                          onPressed: () => handleSendModal(context),
                           prefix: const SizedBox(width: 20),
                           suffix: SizedBox(
                             width: 40,
                             child: !sendLoading
-                                ? const Icon(CupertinoIcons.up_arrow)
+                                ? Icon(
+                                    CupertinoIcons.up_arrow,
+                                    color:
+                                        ThemeColors.white.resolveFrom(context),
+                                  )
                                 : CupertinoActivityIndicator(
                                     color: ThemeColors.background
                                         .resolveFrom(context),
@@ -288,7 +301,11 @@ class WalletScreenState extends State<WalletScreen> {
                           suffix: SizedBox(
                             width: 40,
                             child: !sendLoading
-                                ? const Icon(CupertinoIcons.down_arrow)
+                                ? Icon(
+                                    CupertinoIcons.down_arrow,
+                                    color:
+                                        ThemeColors.white.resolveFrom(context),
+                                  )
                                 : CupertinoActivityIndicator(
                                     color: ThemeColors.background
                                         .resolveFrom(context),
