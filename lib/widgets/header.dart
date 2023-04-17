@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 class Header extends StatelessWidget {
   final String title;
   final String? subTitle;
+  final Widget? subTitleWidget;
   final Widget? actionButton;
 
   const Header({
     super.key,
     required this.title,
+    this.subTitleWidget,
     this.subTitle,
     this.actionButton,
   });
@@ -68,16 +70,25 @@ class Header extends StatelessWidget {
               ),
             ],
           ),
+          if (subTitleWidget != null)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
+                child: subTitleWidget,
+              ),
+            ),
           if (subTitle != null && subTitle!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
-              child: Text(
-                subTitle ?? '',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.normal,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
+                child: Text(
+                  subTitle ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
             ),

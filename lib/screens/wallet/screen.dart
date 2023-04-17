@@ -1,4 +1,4 @@
-import 'package:citizenwallet/screens/wallets/transaction_row.dart';
+import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -97,7 +97,7 @@ class WalletScreenState extends State<WalletScreen> {
         children: [
           Header(
             title: wallet?.name ?? 'Wallet',
-            subTitle: wallet?.symbol,
+            // subTitle: wallet?.symbol,
           ),
           Expanded(
             child: Padding(
@@ -114,12 +114,14 @@ class WalletScreenState extends State<WalletScreen> {
                         pinned: true,
                         floating: true,
                         delegate: WalletHeader(
-                          expandedHeight: 140,
+                          expandedHeight: 80,
+                          minHeight: 40,
                           shrunkenChild: Container(
                             color:
                                 ThemeColors.uiBackground.resolveFrom(context),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
                                   'Balance',
@@ -155,7 +157,7 @@ class WalletScreenState extends State<WalletScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                                   child: Text(
                                     'Balance',
                                     style: TextStyle(
@@ -166,7 +168,7 @@ class WalletScreenState extends State<WalletScreen> {
                                 ),
                                 Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   child: loading && formattedBalance.isEmpty
                                       ? CupertinoActivityIndicator(
                                           key: const Key(
@@ -183,19 +185,26 @@ class WalletScreenState extends State<WalletScreen> {
                                           ),
                                         ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                  child: Text(
-                                    'Transactions',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
+                        ),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          childCount: 1,
+                          (context, index) {
+                            return const Padding(
+                              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              child: Text(
+                                'Transactions',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                       if (transactionsLoading && transactions.isEmpty)

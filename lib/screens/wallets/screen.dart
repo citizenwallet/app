@@ -1,5 +1,5 @@
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/screens/wallets/transaction_row.dart';
+import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/screens/wallets/wallet_selection.dart';
 import 'package:citizenwallet/state/wallets/logic.dart';

@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 
 class WalletHeader extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
+  final double minHeight;
   final Widget child;
   final Widget shrunkenChild;
 
   WalletHeader({
     required this.expandedHeight,
+    this.minHeight = 60,
     required this.child,
     required this.shrunkenChild,
   });
@@ -22,13 +24,23 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
     }
 
     if (shrinkOffset == expandedHeight) {
-      return SizedBox.expand(child: shrunkenChild);
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: minHeight,
+        ),
+        child: SizedBox.expand(child: shrunkenChild),
+      );
     }
 
     return AnimatedOpacity(
       opacity: (shrinkOffset / expandedHeight).clamp(0, 1),
       duration: Duration.zero,
-      child: SizedBox.expand(child: shrunkenChild),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: minHeight,
+        ),
+        child: SizedBox.expand(child: shrunkenChild),
+      ),
     );
   }
 
@@ -36,7 +48,7 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
   double get maxExtent => expandedHeight;
 
   @override
-  double get minExtent => 60;
+  double get minExtent => minHeight;
 
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
