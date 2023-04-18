@@ -69,9 +69,11 @@ class SlideToCompleteState extends State<SlideToComplete> {
           return;
         }
 
+        final newOffset = _offset + details.delta.dx;
+
         setState(() {
           _duration = 0;
-          _offset += details.delta.dx;
+          _offset = newOffset.clamp(0, widget.width);
         });
       },
       onHorizontalDragEnd: (details) {
@@ -107,7 +109,7 @@ class SlideToCompleteState extends State<SlideToComplete> {
                   child: Text(
                     widget.completionLabel,
                     style: TextStyle(
-                      color: ThemeColors.text.resolveFrom(context),
+                      color: ThemeColors.white.resolveFrom(context),
                       fontSize: 16,
                     ),
                   ),

@@ -16,6 +16,7 @@ class WalletState extends ChangeNotifier {
   bool transactionSendLoading = false;
   bool transactionSendError = false;
 
+  bool invalidAddress = false;
   bool invalidAmount = false;
 
   void loadWallet() {
@@ -101,6 +102,7 @@ class WalletState extends ChangeNotifier {
 
   void sendTransaction() {
     setInvalidAmount(false);
+    setInvalidAddress(false);
     transactionSendLoading = true;
     transactionSendError = false;
     notifyListeners();
@@ -148,6 +150,11 @@ class WalletState extends ChangeNotifier {
 
   void setInvalidAmount(bool invalid) {
     invalidAmount = invalid;
+    notifyListeners();
+  }
+
+  void setInvalidAddress(bool invalid) {
+    invalidAddress = invalid;
     notifyListeners();
   }
 }

@@ -25,8 +25,12 @@ class SendForm extends StatefulWidget {
 
 class SendFormState extends State<SendForm> with TickerProviderStateMixin {
   late final AnimationController _controller;
+
+  final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
+
+  final double animationSize = 200;
 
   bool _isSending = false;
   double _percentage = 0;
@@ -51,6 +55,10 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
     Navigator.of(context).pop();
   }
 
+  void handleQRScan() {
+    widget.logic.updateAddress(dotenv.get('TEST_DESTINATION_ADDRESS'));
+  }
+
   void handleSend(BuildContext context) async {
     if (_isSending) {
       return;
@@ -70,7 +78,7 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
 
     final confirm = await widget.logic.sendTransaction(
       widget.logic.amountController.value.text,
-      dotenv.get('TEST_DESTINATION_ADDRESS'),
+      widget.logic.addressController.value.text,
       message: widget.logic.messageController.value.text,
     );
 
@@ -90,9 +98,10 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
-    final error =
-        context.select((WalletState state) => state.transactionSendError);
 
+    final invalidAddress = context.select(
+      (WalletState state) => state.invalidAddress,
+    );
     final invalidAmount = context.select(
       (WalletState state) => state.invalidAmount,
     );
@@ -119,95 +128,172 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'To',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Amount',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          CupertinoTextField(
-            controller: widget.logic.amountController,
-            placeholder: formatCurrency(1050.00, ''),
-            prefix: Center(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Text(
-                  wallet?.symbol ?? '',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
+          Expanded(
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              children: [
+                const SizedBox(height: 20),
+                const Text(
+                  'To',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ),
-            decoration: invalidAmount
-                ? BoxDecoration(
-                    border: Border.all(
-                      color: ThemeColors.danger,
+                const SizedBox(height: 10),
+                CupertinoTextField(
+                  controller: widget.logic.addressController,
+                  placeholder: 'Enter an address',
+                  maxLines: 1,
+                  decoration: invalidAddress
+                      ? BoxDecoration(
+                          color: const CupertinoDynamicColor.withBrightness(
+                            color: CupertinoColors.white,
+                            darkColor: CupertinoColors.black,
+                          ),
+                          border: Border.all(
+                            color: ThemeColors.danger,
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                        )
+                      : BoxDecoration(
+                          color: const CupertinoDynamicColor.withBrightness(
+                            color: CupertinoColors.white,
+                            darkColor: CupertinoColors.black,
+                          ),
+                          border: Border.all(
+                            color: ThemeColors.border.resolveFrom(context),
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                        ),
+                  prefix: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Icon(
+                        CupertinoIcons.creditcard,
+                        color: ThemeColors.subtleEmphasis.resolveFrom(context),
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(5),
-                  )
-                : null,
-            maxLines: 1,
-            maxLength: 25,
-            autocorrect: false,
-            enableSuggestions: false,
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-              signed: false,
+                  ),
+                  suffix: GestureDetector(
+                    onTap: handleQRScan,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        child: Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
+                      ),
+                    ),
+                  ),
+                  onSubmitted: (_) {
+                    amountFocuseNode.requestFocus();
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Amount',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                CupertinoTextField(
+                  controller: widget.logic.amountController,
+                  placeholder: formatCurrency(1050.00, ''),
+                  prefix: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Text(
+                        wallet?.symbol ?? '',
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  decoration: invalidAmount
+                      ? BoxDecoration(
+                          color: const CupertinoDynamicColor.withBrightness(
+                            color: CupertinoColors.white,
+                            darkColor: CupertinoColors.black,
+                          ),
+                          border: Border.all(
+                            color: ThemeColors.danger,
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                        )
+                      : BoxDecoration(
+                          color: const CupertinoDynamicColor.withBrightness(
+                            color: CupertinoColors.white,
+                            darkColor: CupertinoColors.black,
+                          ),
+                          border: Border.all(
+                            color: ThemeColors.border.resolveFrom(context),
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                        ),
+                  maxLines: 1,
+                  maxLength: 25,
+                  focusNode: amountFocuseNode,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: false,
+                  ),
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [
+                    amountFormatter,
+                  ],
+                  onSubmitted: (_) {
+                    messageFocusNode.requestFocus();
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Message',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                CupertinoTextField(
+                  controller: widget.logic.messageController,
+                  placeholder: 'Enter a message',
+                  maxLines: 4,
+                  maxLength: 256,
+                  focusNode: messageFocusNode,
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: animationSize,
+                      width: animationSize,
+                      child: Center(
+                        child: Lottie.asset(
+                          'assets/lottie/wallet_loader.json',
+                          height: (_percentage * animationSize),
+                          width: (_percentage * animationSize),
+                          controller: _controller,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
-            textInputAction: TextInputAction.next,
-            inputFormatters: [
-              amountFormatter,
-            ],
-            onSubmitted: (_) {
-              messageFocusNode.requestFocus();
-            },
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'Message',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          CupertinoTextField(
-            controller: widget.logic.messageController,
-            placeholder: 'Enter a message',
-            maxLines: 4,
-            maxLength: 256,
-            focusNode: messageFocusNode,
-          ),
-          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 100,
-                width: 100,
-                child: Center(
-                  child: Lottie.asset(
-                    'assets/lottie/wallet_loader.json',
-                    height: (_percentage * 100),
-                    width: (_percentage * 100),
-                    controller: _controller,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                height: 90,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                   child: SlideToComplete(
                     onCompleted: !_isSending ? () => handleSend(context) : null,
                     isComplete: _isSending,
@@ -238,8 +324,8 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

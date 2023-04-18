@@ -14,9 +14,11 @@ class WalletLogic {
 
   late StreamSubscription<String> _blockSubscription;
 
+  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
+  TextEditingController get addressController => _addressController;
   TextEditingController get amountController => _amountController;
   TextEditingController get messageController => _messageController;
 
@@ -163,6 +165,11 @@ class WalletLogic {
     try {
       _state.sendTransaction();
 
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
       var doubleAmount = double.tryParse(amount.replaceAll(',', '.'));
       if (doubleAmount == null) {
         _state.setInvalidAmount(true);
@@ -184,6 +191,7 @@ class WalletLogic {
         date: DateTime.now(),
       ));
 
+      _addressController.clear();
       _amountController.clear();
       _messageController.clear();
 
@@ -200,7 +208,12 @@ class WalletLogic {
     return false;
   }
 
+  void updateAddress(String address) {
+    _addressController.text = address;
+  }
+
   void dispose() {
+    _addressController.dispose();
     _amountController.dispose();
     _messageController.dispose();
     _wallet.dispose();
