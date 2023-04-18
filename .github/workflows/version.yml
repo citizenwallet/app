@@ -36,6 +36,6 @@ jobs:
       - run: flutter test
 
       - name: Bump version
-      - uses: jacopocarlini/action-autotag@stable
+        uses: jacopocarlini/action-autotag@stable
         with:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
