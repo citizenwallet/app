@@ -1,0 +1,41 @@
+# Simple workflow for bumping version when pushing to main
+name: Bump version
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow bumping version
+# permissions:
+#   contents: read
+#   pages: write
+#   id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "version"
+  cancel-in-progress: true
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Copy env file
+        run: echo "${{ secrets.GANACHE_TEST_ENV }}" >> .env
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - run: flutter pub get
+      - run: flutter test
+
+      - name: Bump version
+      - uses: jacopocarlini/action-autotag@stable
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
