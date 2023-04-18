@@ -39,7 +39,11 @@ jobs:
       #     current_version: ${{ steps.get-latest-tag.outputs.tag }}
       #     level: patch
 
-      - run: pub global activate pubspec_version
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - run: dart pub global activate pubspec_version
 
       - run: pubver bump patch -b
 
