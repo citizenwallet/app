@@ -1,5 +1,5 @@
 # Simple workflow for bumping version when pushing to main
-name: Bump version
+name: Bump patch version
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{secrets.PAT}}
+          token: ${{ secrets.PAT }}
 
       - name: Copy env file
         run: echo "${{ secrets.GANACHE_TEST_ENV }}" >> .env
@@ -30,33 +30,18 @@ jobs:
       - run: flutter pub get
       - run: flutter test
 
-      # - uses: actions-ecosystem/action-get-latest-tag@v1
-      #   id: get-latest-tag
-      #   with:
-      #     initial_version: "1.0.0"
-
-      # - uses: actions-ecosystem/action-bump-semver@v1
-      #   id: bump-semver
-      #   with:
-      #     current_version: ${{ steps.get-latest-tag.outputs.tag }}
-      #     level: patch
-
-      - uses: dart-lang/setup-dart@v1
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
         with:
-          sdk: stable
+          initial_version: "1.0.0"
 
-      - run: dart pub global activate pubspec_version
-
-      - run: pubver bump patch -b
-
-      - run: echo "TAG_NAME=$(pubver get)" >> $GITHUB_ENV
-
-      - name: Commit & Push changes
-        uses: actions-js/push@master
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
         with:
-          github_token: ${{ secrets.PAT }}
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: patch
 
       - uses: actions-ecosystem/action-push-tag@v1
         with:
-          tag: ${{ env.TAG_NAME }}
-          message: "[tagged] ${{ env.TAG_NAME }}"
+          tag: ${{ steps.bump-semver.outputs.new_version }}
+          message: "[tagged] ${{ steps.bump-semver.outputs.new_version }}"
