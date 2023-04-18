@@ -2,9 +2,9 @@ name: citizenwallet
 version: 1.0.3+1
 publish_to: none
 description: A new Flutter project.
-environment: 
-  sdk: '>=2.19.6 <3.0.0'
-dependencies: 
+environment:
+  sdk: ">=2.19.6 <3.0.0"
+dependencies:
   cupertino_icons: ^1.0.2
   go_router: ^6.5.6
   provider: ^6.0.5
@@ -18,17 +18,17 @@ dependencies:
   http: ^0.13.5
   flutter_secure_storage: ^8.0.0
   convert: ^3.1.1
-  flutter: 
+  flutter:
     sdk: flutter
-dev_dependencies: 
+dev_dependencies:
   flutter_lints: ^2.0.0
-  flutter_test: 
+  flutter_test:
     sdk: flutter
-flutter: 
-  assets: 
+flutter:
+  assets:
     - .env
     - assets/wallet.svg
     - assets/icons/profile.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
-  uses-material-design: true
+  uses-material-design: false
