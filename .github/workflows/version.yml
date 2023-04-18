@@ -35,7 +35,18 @@ jobs:
       - run: flutter pub get
       - run: flutter test
 
-      - name: Bump version
-        uses: jacopocarlini/action-autotag@stable
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
         with:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          initial_version: "1.0.0"
+
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: minor
+
+      - uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: ${{ steps.bump-semver.outputs.new_version }}
+          message: "[released] ${{ steps.bump-semver.outputs.new_version }}"
