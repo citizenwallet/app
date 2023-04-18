@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{secrets.PAT}}
 
       - name: Copy env file
         run: echo "${{ secrets.GANACHE_TEST_ENV }}" >> .env
@@ -52,7 +54,7 @@ jobs:
       - name: Commit & Push changes
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PAT }}
 
       - uses: actions-ecosystem/action-push-tag@v1
         with:
