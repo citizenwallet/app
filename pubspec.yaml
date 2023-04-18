@@ -20,6 +20,7 @@ dependencies:
   convert: ^3.1.1
   flutter:
     sdk: flutter
+  lottie: ^2.3.2
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
@@ -31,4 +32,8 @@ flutter:
     - assets/icons/profile.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
+    - assets/lottie/success.json
+    - assets/lottie/app.json
+    - assets/lottie/wallet_loader.json
+    - assets/lottie/wallet_receive.json
   uses-material-design: false

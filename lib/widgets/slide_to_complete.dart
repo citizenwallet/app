@@ -8,6 +8,7 @@ class SlideToComplete extends StatefulWidget {
   final double childWidth;
   final bool isComplete;
   final void Function()? onCompleted;
+  final void Function(double percentage)? onSlide;
 
   final Color thumbColor;
 
@@ -19,6 +20,7 @@ class SlideToComplete extends StatefulWidget {
     this.childWidth = 50,
     this.isComplete = false,
     this.onCompleted,
+    this.onSlide,
     this.thumbColor = CupertinoColors.systemGrey,
   }) : super(key: key);
 
@@ -32,9 +34,14 @@ class SlideToCompleteState extends State<SlideToComplete> {
 
   @override
   Widget build(BuildContext context) {
+    final double _offsetComplete = widget.width - widget.childWidth;
+
     return GestureDetector(
       onHorizontalDragUpdate: (details) {
         if (widget.isComplete) return;
+
+        widget.onSlide
+            ?.call(((_offset + widget.childWidth) / widget.width).clamp(0, 1));
 
         if (_offset + widget.childWidth >= widget.width) {
           setState(() {
@@ -52,6 +59,9 @@ class SlideToCompleteState extends State<SlideToComplete> {
       },
       onHorizontalDragEnd: (details) {
         if (widget.isComplete) return;
+
+        widget.onSlide?.call(0);
+
         setState(() {
           _duration = 250;
           _offset = 0;
@@ -88,7 +98,7 @@ class SlideToCompleteState extends State<SlideToComplete> {
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
-              left: _offset,
+              left: widget.isComplete ? _offsetComplete : _offset,
               child: Container(
                 width: widget.width,
                 height: 50,
@@ -101,7 +111,7 @@ class SlideToCompleteState extends State<SlideToComplete> {
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
-              left: _offset,
+              left: widget.isComplete ? _offsetComplete : _offset,
               child: Container(
                 height: 50,
                 width: widget.childWidth,

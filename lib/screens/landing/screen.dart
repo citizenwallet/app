@@ -3,7 +3,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/screen_description.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -13,7 +13,8 @@ class LandingScreen extends StatefulWidget {
   LandingScreenState createState() => LandingScreenState();
 }
 
-class LandingScreenState extends State<LandingScreen> {
+class LandingScreenState extends State<LandingScreen>
+    with TickerProviderStateMixin {
   late AppLogic _appLogic;
 
   @override
@@ -88,7 +89,7 @@ class LandingScreenState extends State<LandingScreen> {
                   )
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
