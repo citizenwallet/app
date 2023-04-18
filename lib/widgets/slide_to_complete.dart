@@ -33,8 +33,25 @@ class SlideToCompleteState extends State<SlideToComplete> {
   double _offset = 0;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant SlideToComplete oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isComplete && !widget.isComplete) {
+      setState(() {
+        _duration = 250;
+        _offset = 0;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final double _offsetComplete = widget.width - widget.childWidth;
+    final double offsetComplete = widget.width - widget.childWidth;
 
     return GestureDetector(
       onHorizontalDragUpdate: (details) {
@@ -98,7 +115,7 @@ class SlideToCompleteState extends State<SlideToComplete> {
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
-              left: widget.isComplete ? _offsetComplete : _offset,
+              left: widget.isComplete ? offsetComplete : _offset,
               child: Container(
                 width: widget.width,
                 height: 50,
@@ -111,7 +128,7 @@ class SlideToCompleteState extends State<SlideToComplete> {
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
-              left: widget.isComplete ? _offsetComplete : _offset,
+              left: widget.isComplete ? offsetComplete : _offset,
               child: Container(
                 height: 50,
                 width: widget.childWidth,

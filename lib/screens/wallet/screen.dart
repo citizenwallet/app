@@ -66,10 +66,6 @@ class WalletScreenState extends State<WalletScreen> {
     // await _logic.sendTransaction(100);
   }
 
-  Future<void> handleSend(double amount, String to) async {
-    return _logic.sendTransaction(amount, to);
-  }
-
   void handleSendModal(BuildContext context) async {
     final sendLoading = context.read<WalletState>().transactionSendLoading;
 

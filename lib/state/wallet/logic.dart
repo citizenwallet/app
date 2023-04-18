@@ -14,6 +14,12 @@ class WalletLogic {
 
   late StreamSubscription<String> _blockSubscription;
 
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  TextEditingController get amountController => _amountController;
+  TextEditingController get messageController => _messageController;
+
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
   }
@@ -152,38 +158,51 @@ class WalletLogic {
     _state.updateWalletBalanceError();
   }
 
-  Future<void> sendTransaction(double amount, String to,
+  Future<bool> sendTransaction(String amount, String to,
       {String message = ''}) async {
     try {
       _state.sendTransaction();
 
-      final intAmount = amount.toInt();
+      var doubleAmount = double.tryParse(amount.replaceAll(',', '.'));
+      if (doubleAmount == null) {
+        _state.setInvalidAmount(true);
+        throw Exception('invalid amount');
+      }
+
+      doubleAmount = doubleAmount * 100;
 
       final hash = await _wallet.sendTransaction(
         to: to,
-        amount: intAmount,
+        amount: doubleAmount.toInt(),
         message: message,
       );
 
       _state.sendTransactionSuccess(CWTransaction.pending(
-        intAmount.toDouble(),
+        doubleAmount,
         id: hash,
         title: message,
         date: DateTime.now(),
       ));
 
+      _amountController.clear();
+      _messageController.clear();
+
       await updateBalance();
 
-      return;
+      return true;
     } catch (e) {
       print('error');
       print(e);
     }
 
     _state.sendTransactionError();
+
+    return false;
   }
 
   void dispose() {
+    _amountController.dispose();
+    _messageController.dispose();
     _wallet.dispose();
     _blockSubscription.cancel();
   }

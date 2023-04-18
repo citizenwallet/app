@@ -21,6 +21,11 @@ class ThemeColors {
     darkColor: Color.fromRGBO(244, 188, 81, 1),
   );
 
+  static const danger = CupertinoDynamicColor.withBrightness(
+    color: CupertinoColors.systemRed,
+    darkColor: CupertinoColors.systemRed,
+  );
+
   static const text = CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.black,
     darkColor: CupertinoColors.white,
