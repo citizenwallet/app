@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Citizen Wallet needs gallery acces in order to scan QR codes. Scanning is done on device.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
