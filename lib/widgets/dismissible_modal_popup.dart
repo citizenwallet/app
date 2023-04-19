@@ -14,7 +14,7 @@ class DismissibleModalPopup extends StatelessWidget {
     super.key,
     required this.child,
     required this.modalKey,
-    this.maxHeight,
+    this.maxHeight = 200,
     this.paddingSides = 10,
     this.topRadius = 10,
     this.onUpdate,

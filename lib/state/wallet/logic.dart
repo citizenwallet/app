@@ -191,9 +191,7 @@ class WalletLogic {
         date: DateTime.now(),
       ));
 
-      _addressController.clear();
-      _amountController.clear();
-      _messageController.clear();
+      clearInputControllers();
 
       await updateBalance();
 
@@ -206,6 +204,12 @@ class WalletLogic {
     _state.sendTransactionError();
 
     return false;
+  }
+
+  void clearInputControllers() {
+    _addressController.clear();
+    _amountController.clear();
+    _messageController.clear();
   }
 
   void updateAddress(String address) {
