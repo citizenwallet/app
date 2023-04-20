@@ -223,9 +223,10 @@ class WalletLogic {
 
   void updateAddress(String address) {
     _addressController.text = address;
+    _state.setHasAddress(address.isNotEmpty);
   }
 
-  void updateAddressFromCapture(String raw) async {
+  void updateAddressFromWalletCapture(String raw) async {
     try {
       _state.parseQRAddress();
 
@@ -239,6 +240,7 @@ class WalletLogic {
       }
 
       _addressController.text = qrWallet.data.address;
+      _state.setHasAddress(qrWallet.data.address.isNotEmpty);
 
       _state.parseQRAddressSuccess();
       return;
@@ -248,6 +250,55 @@ class WalletLogic {
     }
 
     _addressController.text = '';
+    _state.parseQRAddressError();
+  }
+
+  void updateFromCapture(String raw) {
+    try {
+      final qr = QR.fromCompressedJson(raw);
+
+      switch (qr.type) {
+        case QRType.qrWallet:
+          updateAddressFromWalletCapture(raw);
+          break;
+        case QRType.qrTransactionRequest:
+          updateTransactionFromTransactionCapture(raw);
+          break;
+        default:
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void updateTransactionFromTransactionCapture(String raw) async {
+    try {
+      final qr = QR.fromCompressedJson(raw);
+
+      final qrTransaction = qr.toQRTransactionRequest();
+
+      final verified = await qrTransaction.verifyData();
+      if (!verified) {
+        throw signatureException;
+      }
+
+      _addressController.text = qrTransaction.data.address;
+      _state.setHasAddress(qrTransaction.data.address.isNotEmpty);
+
+      if (qrTransaction.data.amount >= 0) {
+        _amountController.text = qrTransaction.data.amount
+            .toStringAsFixed(_wallet.nativeCurrency.decimals);
+      }
+
+      if (qrTransaction.data.message != '') {
+        _messageController.text = qrTransaction.data.message;
+      }
+
+      return;
+    } catch (e) {
+      print(e);
+    }
+
     _state.parseQRAddressError();
   }
 

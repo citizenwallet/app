@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
-import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,7 +41,7 @@ void main() {
           .toQRWallet();
 
       expect(qrSignedWallet.version, 1);
-      expect(qrSignedWallet.type, 'qr_wallet');
+      expect(qrSignedWallet.type, QRType.qrWallet);
       expect(qrSignedWallet.raw['address'], dotenv.get('TEST_ADDRESS'));
 
       expect(await qrSignedWallet.verifyData(), true);
@@ -52,7 +51,7 @@ void main() {
       final decompressed = QR.fromCompressedJson(compressed);
 
       expect(decompressed.version, 1);
-      expect(decompressed.type, 'qr_wallet');
+      expect(decompressed.type, QRType.qrWallet);
       expect(decompressed.raw['address'], dotenv.get('TEST_ADDRESS'));
 
       final decompressedQRWallet = decompressed.toQRWallet();
@@ -72,7 +71,7 @@ void main() {
 
       final qrTransactionRequest = QR(
         version: 1,
-        type: 'qr_tr_req',
+        type: QRType.qrTransactionRequest,
         signature: '0x0',
         raw: {
           'chainId': 1337,

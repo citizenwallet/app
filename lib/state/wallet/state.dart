@@ -22,6 +22,8 @@ class WalletState extends ChangeNotifier {
   bool invalidAddress = false;
   bool invalidAmount = false;
 
+  bool hasAddress = false;
+
   String receiveQR = '';
 
   void loadWallet() {
@@ -188,6 +190,11 @@ class WalletState extends ChangeNotifier {
 
   void updateReceiveQR(String qr) {
     receiveQR = qr;
+    notifyListeners();
+  }
+
+  void setHasAddress(bool hasAddress) {
+    this.hasAddress = hasAddress;
     notifyListeners();
   }
 }

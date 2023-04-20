@@ -5,6 +5,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
@@ -32,7 +33,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   final double animationSize = 200;
 
-  bool _hasAddress = false;
   bool _isSending = false;
   double _percentage = 0;
 
@@ -44,6 +44,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
+
+    // post frame callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // initial requests go here
+
+      handleQRScan();
+    });
   }
 
   @override
@@ -58,29 +65,31 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     Navigator.of(context).pop();
   }
 
-  void handleAddressUpdate(String s) {
-    if (s.isNotEmpty) {
-      setState(() {
-        _hasAddress = true;
-      });
-    } else {
-      setState(() {
-        _hasAddress = false;
-      });
-    }
-  }
+  // void handleQRAddressScan() async {
+  //   final result = await showCupertinoModalPopup<String?>(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (_) => const Scanner(
+  //       modalKey: 'send-form-scanner',
+  //     ),
+  //   );
+
+  //   if (result != null) {
+  //     widget.logic.updateAddressFromWalletCapture(result);
+  //   }
+  // }
 
   void handleQRScan() async {
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
       builder: (_) => const Scanner(
-        modalKey: 'send-form-scanner',
+        modalKey: 'send-form-anything-scanner',
       ),
     );
 
     if (result != null) {
-      widget.logic.updateAddressFromCapture(result);
+      widget.logic.updateFromCapture(result);
     }
   }
 
@@ -133,6 +142,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.invalidAmount,
     );
 
+    final hasAddress = context.select(
+      (WalletState state) => state.hasAddress,
+    );
+
     final parsingQRAddress = context.select(
       (WalletState state) => state.parsingQRAddress,
     );
@@ -182,6 +195,27 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Button(
+                                text: 'Scan',
+                                color: ThemeColors.surfaceSubtle
+                                    .resolveFrom(context),
+                                suffix: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Icon(
+                                    CupertinoIcons.qrcode_viewfinder,
+                                    color:
+                                        ThemeColors.white.resolveFrom(context),
+                                  ),
+                                ),
+                                onPressed: handleQRScan,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
                           const Text(
                             'To',
                             style: TextStyle(
@@ -195,8 +229,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             autocorrect: false,
                             enableSuggestions: false,
                             textInputAction: TextInputAction.next,
-                            onChanged:
-                                parsingQRAddress ? null : handleAddressUpdate,
                             decoration: invalidAddress || parsingQRAddressError
                                 ? BoxDecoration(
                                     color: const CupertinoDynamicColor
@@ -229,32 +261,35 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                     const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                 child: Icon(
                                   CupertinoIcons.creditcard,
-                                  color: _hasAddress
+                                  color: hasAddress
                                       ? ThemeColors.text.resolveFrom(context)
                                       : ThemeColors.subtleEmphasis
                                           .resolveFrom(context),
                                 ),
                               ),
                             ),
-                            suffix: GestureDetector(
-                              onTap: parsingQRAddress ? null : handleQRScan,
-                              child: Center(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: parsingQRAddress
-                                      ? CupertinoActivityIndicator(
-                                          color: ThemeColors.background
-                                              .resolveFrom(context),
-                                        )
-                                      : Icon(
-                                          CupertinoIcons.qrcode_viewfinder,
-                                          color: ThemeColors.primary
-                                              .resolveFrom(context),
-                                        ),
-                                ),
-                              ),
-                            ),
+
+                            /// TODO: selection from contacts
+                            // suffix: GestureDetector(
+                            //   onTap:
+                            //       parsingQRAddress ? null : handleQRAddressScan,
+                            //   child: Center(
+                            //     child: Padding(
+                            //       padding:
+                            //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            //       child: parsingQRAddress
+                            //           ? CupertinoActivityIndicator(
+                            //               color: ThemeColors.background
+                            //                   .resolveFrom(context),
+                            //             )
+                            //           : Icon(
+                            //               CupertinoIcons.person_alt,
+                            //               color: ThemeColors.primary
+                            //                   .resolveFrom(context),
+                            //             ),
+                            //     ),
+                            //   ),
+                            // ),
                             onSubmitted: (_) {
                               amountFocuseNode.requestFocus();
                             },
@@ -339,7 +374,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             maxLength: 256,
                             focusNode: messageFocusNode,
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(
+                            height: 90,
+                          ),
                         ],
                       ),
                       Positioned(

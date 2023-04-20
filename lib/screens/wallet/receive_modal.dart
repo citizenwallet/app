@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:qr/qr.dart';
+import 'package:throttled/throttled.dart';
 
 class ReceiveModal extends StatefulWidget {
   final WalletLogic logic;
@@ -46,6 +47,15 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   void handleCopy() {
     widget.logic.copyQRToClipboard();
+  }
+
+  void handleThrottledUpdateQRCode() {
+    throttle(
+      'updateReceiveQR',
+      widget.logic.updateReceiveQR,
+      cooldown: const Duration(milliseconds: 500),
+      leaky: true,
+    );
   }
 
   @override
@@ -93,109 +103,130 @@ class ReceiveModalState extends State<ReceiveModal> {
                     ),
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: ThemeColors.white.resolveFrom(context),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: PrettyQr(
-                    data: qrCode,
-                    size: qrSize,
-                    roundEdges: true,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Button(
-                      text: 'Copy',
-                      color: ThemeColors.primary.resolveFrom(context),
-                      suffix: Icon(
-                        CupertinoIcons.doc_on_clipboard,
-                        color: ThemeColors.white.resolveFrom(context),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: ThemeColors.white.resolveFrom(context),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: PrettyQr(
+                          data: qrCode,
+                          size: qrSize,
+                          roundEdges: true,
+                        ),
                       ),
-                      onPressed: handleCopy,
-                    )
-                  ],
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Button(
+                            text: 'Copy',
+                            color: ThemeColors.primary.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.doc_on_clipboard,
+                              color: ThemeColors.white.resolveFrom(context),
+                            ),
+                            onPressed: handleCopy,
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Text(
+                        'Amount',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      CupertinoTextField(
+                        controller: widget.logic.amountController,
+                        placeholder: formatCurrency(1050.00, ''),
+                        prefix: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            child: Text(
+                              wallet?.symbol ?? '',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w500),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        decoration: invalidAmount
+                            ? BoxDecoration(
+                                color:
+                                    const CupertinoDynamicColor.withBrightness(
+                                  color: CupertinoColors.white,
+                                  darkColor: CupertinoColors.black,
+                                ),
+                                border: Border.all(
+                                  color: ThemeColors.danger,
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0)),
+                              )
+                            : BoxDecoration(
+                                color:
+                                    const CupertinoDynamicColor.withBrightness(
+                                  color: CupertinoColors.white,
+                                  darkColor: CupertinoColors.black,
+                                ),
+                                border: Border.all(
+                                  color:
+                                      ThemeColors.border.resolveFrom(context),
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0)),
+                              ),
+                        maxLines: 1,
+                        maxLength: 25,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: false,
+                        ),
+                        textInputAction: TextInputAction.next,
+                        inputFormatters: [
+                          amountFormatter,
+                        ],
+                        onChanged: (_) {
+                          handleThrottledUpdateQRCode();
+                        },
+                        onSubmitted: (_) {
+                          messageFocusNode.requestFocus();
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Message',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      CupertinoTextField(
+                        controller: widget.logic.messageController,
+                        placeholder: 'Enter a message',
+                        maxLines: 4,
+                        maxLength: 256,
+                        focusNode: messageFocusNode,
+                        textInputAction: TextInputAction.done,
+                        onChanged: (_) {
+                          handleThrottledUpdateQRCode();
+                        },
+                        onSubmitted: (_) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                // const Text(
-                //   'Amount',
-                //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                // ),
-                // const SizedBox(height: 10),
-                // CupertinoTextField(
-                //   controller: widget.logic.amountController,
-                //   placeholder: formatCurrency(1050.00, ''),
-                //   prefix: Center(
-                //     child: Padding(
-                //       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                //       child: Text(
-                //         wallet?.symbol ?? '',
-                //         style: const TextStyle(
-                //             fontSize: 18, fontWeight: FontWeight.w500),
-                //         textAlign: TextAlign.center,
-                //       ),
-                //     ),
-                //   ),
-                //   decoration: invalidAmount
-                //       ? BoxDecoration(
-                //           color: const CupertinoDynamicColor.withBrightness(
-                //             color: CupertinoColors.white,
-                //             darkColor: CupertinoColors.black,
-                //           ),
-                //           border: Border.all(
-                //             color: ThemeColors.danger,
-                //           ),
-                //           borderRadius:
-                //               const BorderRadius.all(Radius.circular(5.0)),
-                //         )
-                //       : BoxDecoration(
-                //           color: const CupertinoDynamicColor.withBrightness(
-                //             color: CupertinoColors.white,
-                //             darkColor: CupertinoColors.black,
-                //           ),
-                //           border: Border.all(
-                //             color: ThemeColors.border.resolveFrom(context),
-                //           ),
-                //           borderRadius:
-                //               const BorderRadius.all(Radius.circular(5.0)),
-                //         ),
-                //   maxLines: 1,
-                //   maxLength: 25,
-                //   autocorrect: false,
-                //   enableSuggestions: false,
-                //   keyboardType: const TextInputType.numberWithOptions(
-                //     decimal: true,
-                //     signed: false,
-                //   ),
-                //   textInputAction: TextInputAction.next,
-                //   inputFormatters: [
-                //     amountFormatter,
-                //   ],
-                //   onSubmitted: (_) {
-                //     messageFocusNode.requestFocus();
-                //   },
-                // ),
-                // const SizedBox(height: 20),
-                // const Text(
-                //   'Message',
-                //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                // ),
-                // const SizedBox(height: 10),
-                // CupertinoTextField(
-                //   controller: widget.logic.messageController,
-                //   placeholder: 'Enter a message',
-                //   maxLines: 4,
-                //   maxLength: 256,
-                //   focusNode: messageFocusNode,
-                // ),
               ],
             ),
           ),

@@ -29,7 +29,7 @@ class SlideToComplete extends StatefulWidget {
 }
 
 class SlideToCompleteState extends State<SlideToComplete> {
-  final double radius = 16;
+  final double radius = 10;
 
   int _duration = 0;
   double _offset = 0;
@@ -88,66 +88,62 @@ class SlideToCompleteState extends State<SlideToComplete> {
           _offset = 0;
         });
       },
-      child: AnimatedOpacity(
-        opacity: widget.isComplete ? 1 : 0.8,
-        duration: const Duration(milliseconds: 200),
-        child: SizedBox(
-          height: 50,
-          width: widget.width,
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: widget.width,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: ThemeColors.primary.resolveFrom(context),
-                    borderRadius: BorderRadius.circular(radius),
-                    border: Border.all(
-                      color: widget.isComplete
-                          ? ThemeColors.primary.resolveFrom(context)
-                          : ThemeColors.background.resolveFrom(context),
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      widget.completionLabel,
-                      style: TextStyle(
-                        color: ThemeColors.white.resolveFrom(context),
-                        fontSize: 16,
-                      ),
-                    ),
-                  )),
-              AnimatedPositioned(
-                duration: Duration(milliseconds: _duration),
-                curve: Curves.easeInOut,
-                left: widget.isComplete ? offsetComplete : _offset,
-                child: Container(
-                  width: widget.width,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                    borderRadius: BorderRadius.circular(radius),
+      child: SizedBox(
+        height: 50,
+        width: widget.width,
+        child: Stack(
+          children: [
+            AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: widget.width,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: ThemeColors.primary.resolveFrom(context),
+                  borderRadius: BorderRadius.circular(radius),
+                  border: Border.all(
+                    color: widget.isComplete
+                        ? ThemeColors.primary.resolveFrom(context)
+                        : ThemeColors.background.resolveFrom(context),
+                    width: 2,
                   ),
                 ),
-              ),
-              AnimatedPositioned(
-                duration: Duration(milliseconds: _duration),
-                curve: Curves.easeInOut,
-                left: widget.isComplete ? offsetComplete : _offset,
-                child: Container(
-                  height: 50,
-                  width: widget.childWidth,
-                  decoration: BoxDecoration(
-                    color: widget.thumbColor,
-                    borderRadius: BorderRadius.circular(radius),
+                child: Center(
+                  child: Text(
+                    widget.completionLabel,
+                    style: TextStyle(
+                      color: ThemeColors.white.resolveFrom(context),
+                      fontSize: 16,
+                    ),
                   ),
-                  child: widget.child,
+                )),
+            AnimatedPositioned(
+              duration: Duration(milliseconds: _duration),
+              curve: Curves.easeInOut,
+              left: widget.isComplete ? offsetComplete : _offset,
+              child: Container(
+                width: widget.width,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: ThemeColors.surfaceSubtle.resolveFrom(context),
+                  borderRadius: BorderRadius.circular(radius),
                 ),
               ),
-            ],
-          ),
+            ),
+            AnimatedPositioned(
+              duration: Duration(milliseconds: _duration),
+              curve: Curves.easeInOut,
+              left: widget.isComplete ? offsetComplete : _offset,
+              child: Container(
+                height: 50,
+                width: widget.childWidth,
+                decoration: BoxDecoration(
+                  color: widget.thumbColor,
+                  borderRadius: BorderRadius.circular(radius),
+                ),
+                child: widget.child,
+              ),
+            ),
+          ],
         ),
       ),
     );

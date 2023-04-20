@@ -8,7 +8,7 @@ import 'package:web3dart/crypto.dart';
 
 class QRWallet extends QR {
   static const int _version = 1;
-  static const String _type = 'qr_wallet';
+  static const QRType _type = QRType.qrWallet;
   late QRWalletData data;
 
   QRWallet({

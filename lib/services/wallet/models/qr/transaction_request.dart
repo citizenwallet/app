@@ -8,12 +8,12 @@ import 'package:web3dart/crypto.dart';
 
 class QRTransactionRequest extends QR {
   static const int _version = 1;
-  static const String _type = 'qr_tr_req';
+  static const QRType _type = QRType.qrTransactionRequest;
   late QRTransactionRequestData data;
 
   QRTransactionRequest({
     super.version = 1,
-    super.type = 'qr_tr_req',
+    super.type = QRType.qrTransactionRequest,
     required super.raw,
     super.signature = hexPadding,
   }) {

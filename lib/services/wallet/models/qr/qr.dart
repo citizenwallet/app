@@ -9,15 +9,24 @@ const Map<String, dynamic> emptyRaw = {};
 
 final signatureException = Exception('QR data signature mismatch');
 
+enum QRType {
+  qr('qr'),
+  qrWallet('qr_wallet'),
+  qrTransactionRequest('qr_tr_req');
+
+  const QRType(this.value);
+  final String value;
+}
+
 class QR {
   final int _version;
-  final String _type;
+  final QRType _type;
   Map<String, dynamic> _raw = {};
   String _signature;
 
   QR({
     required int version,
-    required String type,
+    required QRType type,
     Map<String, dynamic> raw = emptyRaw,
     required String signature,
   })  : _version = version,
@@ -28,7 +37,9 @@ class QR {
   factory QR.fromJson(Map<String, dynamic> json) {
     return QR(
       version: json['version'],
-      type: json['type'],
+      type: QRType.values.firstWhere(
+        (element) => element.value == json['type'],
+      ),
       raw: json['data'],
       signature: json['signature'],
     );
@@ -39,7 +50,9 @@ class QR {
 
     return QR(
       version: json['version'],
-      type: json['type'],
+      type: QRType.values.firstWhere(
+        (element) => element.value == json['type'],
+      ),
       raw: json['data'],
       signature: json['signature'],
     );
@@ -66,7 +79,7 @@ class QR {
   Map<String, dynamic> toJson() {
     return {
       'version': _version,
-      'type': _type,
+      'type': _type.value,
       'data': _raw,
       'signature': _signature,
     };
@@ -75,7 +88,7 @@ class QR {
   String toCompressedJson() {
     final Map<String, dynamic> json = {
       'version': _version,
-      'type': _type,
+      'type': _type.value,
       'data': _raw,
       'signature': _signature,
     };
@@ -84,7 +97,7 @@ class QR {
   }
 
   int get version => _version;
-  String get type => _type;
+  QRType get type => _type;
   Map<String, dynamic> get raw => _raw;
   String get signature => _signature;
 
