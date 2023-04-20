@@ -54,6 +54,18 @@ void main() {
       expect(qrSignedWallet.raw['address'], dotenv.get('TEST_ADDRESS'));
 
       expect(await qrSignedWallet.verifyData(), true);
+
+      final compressed = qrSignedWallet.toCompressedJson();
+
+      final decompressed = QR.fromCompressedJson(compressed);
+
+      expect(decompressed.version, 1);
+      expect(decompressed.type, 'qr_wallet');
+      expect(decompressed.raw['address'], dotenv.get('TEST_ADDRESS'));
+
+      final decompressedQRWallet = decompressed.toQRWallet();
+
+      expect(await decompressedQRWallet.verifyData(), true);
     });
   });
 }

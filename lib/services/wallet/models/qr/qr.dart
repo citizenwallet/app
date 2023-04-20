@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 
 const Map<String, dynamic> emptyRaw = {};
 
@@ -32,6 +33,17 @@ class QR {
     );
   }
 
+  factory QR.fromCompressedJson(String compressed) {
+    final Map<String, dynamic> json = jsonDecode(decompress(compressed));
+
+    return QR(
+      version: json['version'],
+      type: json['type'],
+      raw: json['data'],
+      signature: json['signature'],
+    );
+  }
+
   QRWallet toQRWallet() {
     return QRWallet(
       version: _version,
@@ -48,6 +60,17 @@ class QR {
       'data': _raw,
       'signature': _signature,
     };
+  }
+
+  String toCompressedJson() {
+    final Map<String, dynamic> json = {
+      'version': _version,
+      'type': _type,
+      'data': _raw,
+      'signature': _signature,
+    };
+
+    return compress(jsonEncode(json));
   }
 
   int get version => _version;

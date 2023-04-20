@@ -222,9 +222,7 @@ class WalletLogic {
     try {
       _state.parseQRAddress();
 
-      final Map<String, dynamic> decoded = jsonDecode(raw);
-
-      final qr = QR.fromJson(decoded);
+      final qr = QR.fromCompressedJson(raw);
 
       final qrWallet = qr.toQRWallet();
 
