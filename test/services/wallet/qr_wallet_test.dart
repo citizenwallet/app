@@ -11,7 +11,7 @@ void main() {
   dotenv.load(fileName: '.env');
 
   group(' QR Wallet', () {
-    test('parsing', () async {
+    test('parsing, generation and signing', () async {
       final qr = QR.fromJson({
         'version': 1,
         'type': 'qr_wallet',
@@ -54,7 +54,5 @@ void main() {
 
       expect(await qrSignedWallet.verifyData(), true);
     });
-
-    test('Test QR Wallet generation and signing', () {});
   });
 }
