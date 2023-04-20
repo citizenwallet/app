@@ -38,6 +38,7 @@ void main() {
       final SignatureVerifier verifier = SignatureVerifier(
         data: jsonEncode(qrWallet.raw),
         signature: qrWallet.signature,
+        address: qrWallet.data.address,
         publicKey: signer.privateKey.encodedPublicKey,
       );
 

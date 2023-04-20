@@ -75,11 +75,13 @@ class Signature extends MsgSignature {
 class SignatureVerifier {
   final String data;
   final String signature;
+  final String address;
   final Uint8List publicKey;
 
   SignatureVerifier({
     required this.data,
     required this.signature,
+    required this.address,
     required this.publicKey,
   });
 
@@ -89,9 +91,18 @@ class SignatureVerifier {
   }
 }
 
-/// verify the signature of data with the public key
+/// verify the signature of data with the public key.
+/// verify the public key matches the address
 bool verifySignature(SignatureVerifier verifier) {
   try {
+    final recoveredAddress =
+        bytesToHex(publicKeyToAddress(verifier.publicKey), include0x: true);
+
+    if (recoveredAddress.toLowerCase() != verifier.address.toLowerCase()) {
+      // at a minimum, the address must match the public key
+      return false;
+    }
+
     final sig = hexToBytes(verifier.signature);
 
     final decodedsig = jsonDecode(utf8.decode(sig));

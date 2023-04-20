@@ -3,15 +3,14 @@ import 'dart:typed_data';
 
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
-import 'package:flutter/foundation.dart';
 import 'package:web3dart/crypto.dart';
 
-class QRWallet extends QR {
+class QRTransactionRequest extends QR {
   static const int _version = 1;
-  static const String _type = 'qr_wallet';
-  late QRWalletData data;
+  static const String _type = 'qr_tr_req';
+  late QRTransactionRequestData data;
 
-  QRWallet({
+  QRTransactionRequest({
     required super.version,
     required super.type,
     required super.raw,
@@ -25,7 +24,7 @@ class QRWallet extends QR {
     }
 
     // parse data
-    final data = QRWalletData.fromJson(raw);
+    final data = QRTransactionRequestData.fromJson(raw);
 
     // data is parsed, assign and continue
     this.data = data;
@@ -46,33 +45,37 @@ class QRWallet extends QR {
   }
 }
 
-class QRWalletData {
-  final Map<String, dynamic> wallet;
+class QRTransactionRequestData {
   final int chainId;
   final String address;
+  final double amount;
+  final String message;
   final Uint8List publicKey;
 
-  QRWalletData({
-    required this.wallet,
+  QRTransactionRequestData({
     required this.chainId,
     required this.address,
+    required this.amount,
+    this.message = '',
     required this.publicKey,
   });
 
-  factory QRWalletData.fromJson(Map<String, dynamic> json) {
-    return QRWalletData(
-      wallet: json['wallet'],
+  factory QRTransactionRequestData.fromJson(Map<String, dynamic> json) {
+    return QRTransactionRequestData(
       chainId: json['chainId'],
       address: json['address'],
+      amount: json['amount'],
+      message: json['message'],
       publicKey: hexToBytes(json['public_key']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'wallet': wallet,
       'chainId': chainId,
       'address': address,
+      'amount': amount,
+      'message': message,
       'public_key': bytesToHex(publicKey),
     };
   }
