@@ -16,6 +16,9 @@ class WalletState extends ChangeNotifier {
   bool transactionSendLoading = false;
   bool transactionSendError = false;
 
+  bool parsingQRAddress = false;
+  bool parsingQRAddressError = false;
+
   bool invalidAddress = false;
   bool invalidAmount = false;
 
@@ -155,6 +158,24 @@ class WalletState extends ChangeNotifier {
 
   void setInvalidAddress(bool invalid) {
     invalidAddress = invalid;
+    notifyListeners();
+  }
+
+  void parseQRAddress() {
+    parsingQRAddress = true;
+    parsingQRAddressError = false;
+    notifyListeners();
+  }
+
+  void parseQRAddressSuccess() {
+    parsingQRAddress = false;
+    parsingQRAddressError = false;
+    notifyListeners();
+  }
+
+  void parseQRAddressError() {
+    parsingQRAddress = false;
+    parsingQRAddressError = true;
     notifyListeners();
   }
 }

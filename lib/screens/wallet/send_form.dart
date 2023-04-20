@@ -7,6 +7,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +33,7 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
 
   final double animationSize = 200;
 
+  bool _hasAddress = false;
   bool _isSending = false;
   double _percentage = 0;
 
@@ -57,8 +59,30 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
     Navigator.of(context).pop();
   }
 
-  void handleQRScan() {
-    widget.logic.updateAddress(dotenv.get('TEST_DESTINATION_ADDRESS'));
+  void handleAddressUpdate(String s) {
+    if (s.isNotEmpty) {
+      setState(() {
+        _hasAddress = true;
+      });
+    } else {
+      setState(() {
+        _hasAddress = false;
+      });
+    }
+  }
+
+  void handleQRScan() async {
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const Scanner(
+        modalKey: 'send-form-scanner',
+      ),
+    );
+
+    if (result != null) {
+      widget.logic.updateAddressFromCapture(result);
+    }
   }
 
   void handleSend(BuildContext context) async {
@@ -84,6 +108,8 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
       message: widget.logic.messageController.value.text,
     );
 
+    _controller.stop();
+
     if (confirm) {
       HapticFeedback.heavyImpact();
 
@@ -108,12 +134,20 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
       (WalletState state) => state.invalidAmount,
     );
 
+    final parsingQRAddress = context.select(
+      (WalletState state) => state.parsingQRAddress,
+    );
+
+    final parsingQRAddressError = context.select(
+      (WalletState state) => state.parsingQRAddressError,
+    );
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
     return DismissibleModalPopup(
       modalKey: 'send-form',
-      maxHeight: height - MediaQuery.of(context).padding.top,
+      maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {
         if (details.direction == DismissDirection.down &&
@@ -162,7 +196,9 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
                             autocorrect: false,
                             enableSuggestions: false,
                             textInputAction: TextInputAction.next,
-                            decoration: invalidAddress
+                            onChanged:
+                                parsingQRAddress ? null : handleAddressUpdate,
+                            decoration: invalidAddress || parsingQRAddressError
                                 ? BoxDecoration(
                                     color: const CupertinoDynamicColor
                                         .withBrightness(
@@ -194,22 +230,29 @@ class SendFormState extends State<SendForm> with TickerProviderStateMixin {
                                     const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                 child: Icon(
                                   CupertinoIcons.creditcard,
-                                  color: ThemeColors.subtleEmphasis
-                                      .resolveFrom(context),
+                                  color: _hasAddress
+                                      ? ThemeColors.text.resolveFrom(context)
+                                      : ThemeColors.subtleEmphasis
+                                          .resolveFrom(context),
                                 ),
                               ),
                             ),
                             suffix: GestureDetector(
-                              onTap: handleQRScan,
+                              onTap: parsingQRAddress ? null : handleQRScan,
                               child: Center(
                                 child: Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: Icon(
-                                    CupertinoIcons.qrcode_viewfinder,
-                                    color: ThemeColors.primary
-                                        .resolveFrom(context),
-                                  ),
+                                  child: parsingQRAddress
+                                      ? CupertinoActivityIndicator(
+                                          color: ThemeColors.background
+                                              .resolveFrom(context),
+                                        )
+                                      : Icon(
+                                          CupertinoIcons.qrcode_viewfinder,
+                                          color: ThemeColors.primary
+                                              .resolveFrom(context),
+                                        ),
                                 ),
                               ),
                             ),

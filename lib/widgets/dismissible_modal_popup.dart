@@ -6,6 +6,7 @@ class DismissibleModalPopup extends StatelessWidget {
   final String modalKey;
   final double? maxHeight;
   final double paddingSides;
+  final double paddingTopBottom;
   final double topRadius;
   final void Function(DismissUpdateDetails)? onUpdate;
   final void Function(DismissDirection)? onDismissed;
@@ -16,6 +17,7 @@ class DismissibleModalPopup extends StatelessWidget {
     required this.modalKey,
     this.maxHeight = 200,
     this.paddingSides = 10,
+    this.paddingTopBottom = 10,
     this.topRadius = 10,
     this.onUpdate,
     this.onDismissed,
@@ -35,7 +37,12 @@ class DismissibleModalPopup extends StatelessWidget {
                     maxHeight! + MediaQuery.of(context).viewInsets.bottom,
               )
             : null,
-        padding: EdgeInsets.fromLTRB(paddingSides, 10, paddingSides, 10),
+        padding: EdgeInsets.fromLTRB(
+          paddingSides,
+          paddingTopBottom,
+          paddingSides,
+          paddingTopBottom,
+        ),
         decoration: BoxDecoration(
           color: ThemeColors.uiBackground.resolveFrom(context),
           borderRadius: BorderRadius.only(

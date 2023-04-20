@@ -8,6 +8,7 @@ class Header extends StatelessWidget {
   final Widget? subTitleWidget;
   final Widget? actionButton;
   final bool manualBack;
+  final bool transparent;
 
   const Header({
     super.key,
@@ -16,6 +17,7 @@ class Header extends StatelessWidget {
     this.subTitle,
     this.actionButton,
     this.manualBack = false,
+    this.transparent = false,
   });
 
   @override
@@ -24,7 +26,9 @@ class Header extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: ThemeColors.uiBackground.resolveFrom(context),
+        color: transparent
+            ? ThemeColors.transparent.resolveFrom(context)
+            : ThemeColors.uiBackground.resolveFrom(context),
         border: Border(
           bottom: BorderSide(color: ThemeColors.border.resolveFrom(context)),
         ),

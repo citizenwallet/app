@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -214,6 +216,34 @@ class WalletLogic {
 
   void updateAddress(String address) {
     _addressController.text = address;
+  }
+
+  void updateAddressFromCapture(String raw) async {
+    try {
+      _state.parseQRAddress();
+
+      final Map<String, dynamic> decoded = jsonDecode(raw);
+
+      final qr = QR.fromJson(decoded);
+
+      final qrWallet = qr.toQRWallet();
+
+      final verified = await qrWallet.verifyData();
+      if (!verified) {
+        throw signatureException;
+      }
+
+      _addressController.text = qrWallet.data.address;
+
+      _state.parseQRAddressSuccess();
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _addressController.text = '';
+    _state.parseQRAddressError();
   }
 
   void dispose() {

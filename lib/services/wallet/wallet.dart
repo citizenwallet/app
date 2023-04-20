@@ -7,6 +7,7 @@ import 'package:citizenwallet/services/wallet/models/block.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/message.dart';
+import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
@@ -102,9 +103,22 @@ class WalletService {
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
-    final Stream<String> blockSubscription = _ethClient.addedBlocks();
-
     _credentials = wallet.privateKey;
+    _address = _credentials.address;
+  }
+
+  /// creates using a signer
+  /// init before using
+  WalletService.fromSigner(
+    this._chain,
+    Signer signer,
+  ) {
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
+
+    _credentials = signer.privateKey;
     _address = _credentials.address;
   }
 
