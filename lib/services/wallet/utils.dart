@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:archive/archive.dart';
 
 BigInt parseIntFromHex(String hex) {
   return BigInt.parse(hex);
@@ -14,12 +14,12 @@ bool isZeroHexValue(String hex) {
 
 String compress(String data) {
   final enCodedData = utf8.encode(data);
-  final gZipData = GZipCodec(level: 6).encode(enCodedData);
-  return base64.encode(gZipData);
+  final gZipData = GZipEncoder().encode(enCodedData, level: 6);
+  return base64.encode(gZipData!);
 }
 
 String decompress(String data) {
   final decodeBase64Data = base64.decode(data);
-  final decodegZipData = GZipCodec(level: 6).decode(decodeBase64Data);
+  final decodegZipData = GZipDecoder().decodeBytes(decodeBase64Data);
   return utf8.decode(decodegZipData);
 }
