@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
+import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
+import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
@@ -246,6 +249,47 @@ class WalletLogic {
 
     _addressController.text = '';
     _state.parseQRAddressError();
+  }
+
+  void updateReceiveQR() {
+    try {
+      _state.clearReceiveQR();
+
+      final double amount = _amountController.text.isEmpty
+          ? 0
+          : double.tryParse(_amountController.text) ?? 0;
+
+      final qrData = QRTransactionRequestData(
+        chainId: _wallet.chainId,
+        address: _wallet.address.hex,
+        amount: amount,
+        publicKey: _wallet.publicKey,
+      );
+
+      final qr = QRTransactionRequest(raw: qrData.toJson());
+
+      final signer = Signer(_wallet.privateKey);
+
+      qr.generateSignature(signer);
+
+      final compressed = qr.toCompressedJson();
+
+      _state.updateReceiveQR(compressed);
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.clearReceiveQR();
+  }
+
+  void clearReceiveQR() {
+    _state.clearReceiveQR();
+  }
+
+  void copyQRToClipboard() {
+    Clipboard.setData(ClipboardData(text: _state.receiveQR));
   }
 
   void dispose() {

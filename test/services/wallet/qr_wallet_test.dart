@@ -3,15 +3,17 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
+import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:web3dart/crypto.dart';
 
 void main() {
   dotenv.load(fileName: '.env');
 
-  group(' QR Wallet', () {
-    test('parsing, generation and signing', () async {
+  group(' QR', () {
+    test('parsing, generation and signing wallets', () async {
       final qr = QR
           .fromCompressedJson(dotenv.get('TEST_COMPRESSED_WALLET_INVALID_SIG'));
 
@@ -56,6 +58,42 @@ void main() {
       final decompressedQRWallet = decompressed.toQRWallet();
 
       expect(await decompressedQRWallet.verifyData(), true);
+    });
+
+    test('parsing, generation and signing transactions', () async {
+      final qr = QR.fromCompressedJson(dotenv.get('TEST_COMPRESSED_WALLET'));
+
+      final qrWallet = qr.toQRWallet();
+
+      final signer = Signer.fromQRWallet(
+        qrWallet,
+        dotenv.get('TEST_WALLET_PASSWORD'),
+      );
+
+      final qrTransactionRequest = QR(
+        version: 1,
+        type: 'qr_tr_req',
+        signature: '0x0',
+        raw: {
+          'chainId': 1337,
+          'address': signer.address,
+          'amount': 10.5,
+          'message': 'hello test transaction',
+          'public_key': bytesToHex(signer.publicKey),
+        },
+      ).toQRTransactionRequest();
+
+      expect(await qrTransactionRequest.verifyData(), false);
+
+      await qrTransactionRequest.generateSignature(signer);
+
+      expect(await qrTransactionRequest.verifyData(), true);
+
+      final qrParsed = QR
+          .fromCompressedJson(dotenv.get('TEST_COMPRESSED_TRANSACTION'))
+          .toQRTransactionRequest();
+
+      expect(await qrParsed.verifyData(), true);
     });
   });
 }

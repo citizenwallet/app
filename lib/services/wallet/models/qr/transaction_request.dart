@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:web3dart/crypto.dart';
 
 class QRTransactionRequest extends QR {
@@ -11,10 +12,10 @@ class QRTransactionRequest extends QR {
   late QRTransactionRequestData data;
 
   QRTransactionRequest({
-    required super.version,
-    required super.type,
+    super.version = 1,
+    super.type = 'qr_tr_req',
     required super.raw,
-    required super.signature,
+    super.signature = hexPadding,
   }) {
     if (super.version != _version) {
       throw Exception('QR version mismatch');

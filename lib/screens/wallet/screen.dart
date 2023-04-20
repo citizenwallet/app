@@ -1,4 +1,5 @@
-import 'package:citizenwallet/screens/wallet/send_form.dart';
+import 'package:citizenwallet/screens/wallet/receive_modal.dart';
+import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -57,11 +58,19 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleReceive() async {
-    // final sendLoading = context.read<WalletState>().transactionSendLoading;
+    final sendLoading = context.read<WalletState>().transactionSendLoading;
 
-    // if (sendLoading) {
-    //   return;
-    // }
+    if (sendLoading) {
+      return;
+    }
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => ReceiveModal(
+        logic: _logic,
+      ),
+    );
 
     // await _logic.sendTransaction(100);
   }
@@ -76,7 +85,7 @@ class WalletScreenState extends State<WalletScreen> {
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
-      builder: (_) => SendForm(
+      builder: (_) => SendModal(
         logic: _logic,
       ),
     );

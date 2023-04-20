@@ -11,20 +11,19 @@ import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-class SendForm extends StatefulWidget {
+class SendModal extends StatefulWidget {
   final WalletLogic logic;
 
-  const SendForm({Key? key, required this.logic}) : super(key: key);
+  const SendModal({Key? key, required this.logic}) : super(key: key);
 
   @override
-  SendFormState createState() => SendFormState();
+  SendModalState createState() => SendModalState();
 }
 
-class SendFormState extends State<SendForm> with TickerProviderStateMixin {
+class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   late final AnimationController _controller;
 
   final FocusNode amountFocuseNode = FocusNode();

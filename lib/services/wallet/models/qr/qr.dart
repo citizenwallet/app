@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -46,6 +47,15 @@ class QR {
 
   QRWallet toQRWallet() {
     return QRWallet(
+      version: _version,
+      type: _type,
+      raw: _raw,
+      signature: _signature,
+    );
+  }
+
+  QRTransactionRequest toQRTransactionRequest() {
+    return QRTransactionRequest(
       version: _version,
       type: _type,
       raw: _raw,

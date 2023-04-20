@@ -173,9 +173,15 @@ class WalletService {
     return wallet.toJson();
   }
 
+  EthPrivateKey get privateKey => _credentials;
+
   /// retrieve the private key as a hex string
   String get privateKeyHex =>
       bytesToHex(_credentials.privateKey, include0x: true);
+
+  Uint8List get publicKey => _credentials.encodedPublicKey;
+  String get publicKeyHex =>
+      bytesToHex(_credentials.encodedPublicKey, include0x: true);
 
   /// retrieve chain id
   int get chainId => _chainId!.toInt();
