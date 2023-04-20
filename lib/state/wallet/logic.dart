@@ -46,9 +46,13 @@ class WalletLogic {
     try {
       _state.loadWallet();
 
+      final qrWallet = QR
+          .fromCompressedJson(dotenv.get('TEST_COMPRESSED_WALLET'))
+          .toQRWallet();
+
       final wallet = await walletServiceFromChain(
         BigInt.from(1337),
-        dotenv.get('TEST_WALLET'),
+        jsonEncode(qrWallet.data.wallet),
         dotenv.get('TEST_WALLET_PASSWORD'),
       );
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 
@@ -16,6 +17,14 @@ class Signer {
     String password,
   ) {
     Wallet wallet = Wallet.fromJson(walletFile, password);
+
+    _privateKey = wallet.privateKey;
+  }
+  Signer.fromQRWallet(
+    QRWallet qrwallet,
+    String password,
+  ) {
+    Wallet wallet = Wallet.fromJson(jsonEncode(qrwallet.data.wallet), password);
 
     _privateKey = wallet.privateKey;
   }

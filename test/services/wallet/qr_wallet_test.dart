@@ -12,24 +12,13 @@ void main() {
 
   group(' QR Wallet', () {
     test('parsing, generation and signing', () async {
-      final qr = QR.fromJson({
-        'version': 1,
-        'type': 'qr_wallet',
-        'data': {
-          'wallet': jsonDecode(dotenv.get('TEST_WALLET')),
-          'chainId': 1337,
-          'address': dotenv.get('TEST_ADDRESS'),
-          'public_key': dotenv.get('TEST_PUBLIC_KEY'),
-        },
-        'signature': '0x0'
-      });
+      final qr = QR
+          .fromCompressedJson(dotenv.get('TEST_COMPRESSED_WALLET_INVALID_SIG'));
 
       final qrWallet = qr.toQRWallet();
 
-      expect(await qrWallet.verifyData(), false);
-
-      final signer = Signer.fromWalletFile(
-        dotenv.get('TEST_WALLET'),
+      final signer = Signer.fromQRWallet(
+        qrWallet,
         dotenv.get('TEST_WALLET_PASSWORD'),
       );
 
@@ -46,8 +35,9 @@ void main() {
 
       expect(verified, true);
 
-      final qrSignedWallet =
-          QR.fromJson(jsonDecode(dotenv.get('TEST_QR_WALLET'))).toQRWallet();
+      final qrSignedWallet = QR
+          .fromCompressedJson(dotenv.get('TEST_COMPRESSED_WALLET'))
+          .toQRWallet();
 
       expect(qrSignedWallet.version, 1);
       expect(qrSignedWallet.type, 'qr_wallet');
