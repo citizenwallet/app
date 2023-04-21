@@ -5,6 +5,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
+import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -333,16 +334,43 @@ class WalletLogic {
     _state.clearReceiveQR();
   }
 
-  void clearReceiveQR() {
-    _state.clearReceiveQR();
+  void copyReceiveQRToClipboard() {
+    Clipboard.setData(ClipboardData(text: _state.receiveQR));
+  }
+
+  void updateWalletQR() async {
+    try {
+      if (_wallet.wallet == null) {
+        throw Exception('wallet not set');
+      }
+
+      final qrData = QRWalletData(
+        wallet: jsonDecode(_wallet.wallet!.toJson()),
+        chainId: _wallet.chainId,
+        address: _wallet.address.hex,
+        publicKey: _wallet.publicKey,
+      );
+
+      final qr = QRWallet(raw: qrData.toJson());
+
+      final signer = Signer(_wallet.privateKey);
+
+      await qr.generateSignature(signer);
+
+      final compressed = qr.toCompressedJson();
+
+      _state.updateWalletQR(compressed);
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.clearWalletQR();
   }
 
   void copyWalletQRToClipboard() {
     Clipboard.setData(ClipboardData(text: _state.walletQR));
-  }
-
-  void copyReceiveQRToClipboard() {
-    Clipboard.setData(ClipboardData(text: _state.receiveQR));
   }
 
   void dispose() {

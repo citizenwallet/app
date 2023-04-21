@@ -1,4 +1,3 @@
-import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -10,16 +9,12 @@ import 'package:provider/provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class QRModal extends StatelessWidget {
-  final WalletLogic logic;
+  final void Function()? onCopy;
 
-  const QRModal({Key? key, required this.logic}) : super(key: key);
+  const QRModal({Key? key, this.onCopy}) : super(key: key);
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();
-  }
-
-  void handleCopy() {
-    logic.copyWalletQRToClipboard();
   }
 
   @override
@@ -51,7 +46,7 @@ class QRModal extends StatelessWidget {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: 'Receive',
+                  title: 'Wallet',
                   manualBack: true,
                   actionButton: GestureDetector(
                     onTap: () => handleDismiss(context),
@@ -81,23 +76,24 @@ class QRModal extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Button(
-                            text: 'Copy',
-                            color: ThemeColors.primary.resolveFrom(context),
-                            suffix: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                              child: Icon(
-                                CupertinoIcons.doc_on_clipboard,
-                                color: ThemeColors.white.resolveFrom(context),
+                      if (onCopy != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Button(
+                              text: 'Copy',
+                              color: ThemeColors.primary.resolveFrom(context),
+                              suffix: Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                child: Icon(
+                                  CupertinoIcons.doc_on_clipboard,
+                                  color: ThemeColors.white.resolveFrom(context),
+                                ),
                               ),
-                            ),
-                            onPressed: handleCopy,
-                          )
-                        ],
-                      ),
+                              onPressed: onCopy,
+                            )
+                          ],
+                        ),
                       const SizedBox(
                         height: 20,
                       ),

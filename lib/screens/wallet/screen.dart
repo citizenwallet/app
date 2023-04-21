@@ -59,11 +59,13 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    _logic.updateWalletQR();
+
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
       builder: (_) => QRModal(
-        logic: _logic,
+        onCopy: handleCopyWalletQR,
       ),
     );
   }
@@ -100,6 +102,10 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  void handleCopyWalletQR() {
+    _logic.copyWalletQRToClipboard();
+  }
+
   @override
   Widget build(BuildContext context) {
     final loading = context.select((WalletState state) => state.loading);
@@ -122,16 +128,6 @@ class WalletScreenState extends State<WalletScreen> {
         children: [
           Header(
             title: wallet?.name ?? 'Wallet',
-            // actionButton: GestureDetector(
-            //   onTap: () => handleDisplayWalletQR(context),
-            //   child: Padding(
-            //     padding: const EdgeInsets.all(5),
-            //     child: Icon(
-            //       CupertinoIcons.qrcode,
-            //       color: ThemeColors.primary.resolveFrom(context),
-            //     ),
-            //   ),
-            // ),
             actionButton: CupertinoButton(
               padding: const EdgeInsets.all(5),
               onPressed: () => handleDisplayWalletQR(context),

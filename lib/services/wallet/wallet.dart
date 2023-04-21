@@ -55,6 +55,7 @@ class WalletService {
   String? _clientVersion;
   BigInt? _chainId;
   Chain? _chain;
+  late Wallet? _wallet;
   late EthPrivateKey _credentials;
   late EthereumAddress _address;
 
@@ -103,6 +104,7 @@ class WalletService {
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
+    _wallet = wallet;
     _credentials = wallet.privateKey;
     _address = _credentials.address;
   }
@@ -185,6 +187,9 @@ class WalletService {
 
   /// retrieve chain id
   int get chainId => _chainId!.toInt();
+
+  /// retrieve raw wallet that was used to instantiate this service
+  Wallet? get wallet => _wallet;
 
   /// retrieve chain symbol
   NativeCurrency get nativeCurrency => _chain!.nativeCurrency;
