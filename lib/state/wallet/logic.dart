@@ -302,10 +302,8 @@ class WalletLogic {
     _state.parseQRAddressError();
   }
 
-  void updateReceiveQR() {
+  void updateReceiveQR() async {
     try {
-      _state.clearReceiveQR();
-
       final double amount = _amountController.text.isEmpty
           ? 0
           : double.tryParse(_amountController.text) ?? 0;
@@ -321,7 +319,7 @@ class WalletLogic {
 
       final signer = Signer(_wallet.privateKey);
 
-      qr.generateSignature(signer);
+      await qr.generateSignature(signer);
 
       final compressed = qr.toCompressedJson();
 
