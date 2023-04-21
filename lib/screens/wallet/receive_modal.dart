@@ -127,9 +127,12 @@ class ReceiveModalState extends State<ReceiveModal> {
                           Button(
                             text: 'Copy',
                             color: ThemeColors.primary.resolveFrom(context),
-                            suffix: Icon(
-                              CupertinoIcons.doc_on_clipboard,
-                              color: ThemeColors.white.resolveFrom(context),
+                            suffix: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              child: Icon(
+                                CupertinoIcons.doc_on_clipboard,
+                                color: ThemeColors.white.resolveFrom(context),
+                              ),
                             ),
                             onPressed: handleCopy,
                           )
@@ -190,7 +193,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                         enableSuggestions: false,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
-                          signed: false,
+                          signed: true,
                         ),
                         textInputAction: TextInputAction.next,
                         inputFormatters: [
