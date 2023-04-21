@@ -221,9 +221,8 @@ class WalletLogic {
     _messageController.clear();
   }
 
-  void updateAddress(String address) {
-    _addressController.text = address;
-    _state.setHasAddress(address.isNotEmpty);
+  void updateAddress() {
+    _state.setHasAddress(_addressController.text.isNotEmpty);
   }
 
   void updateAddressFromWalletCapture(String raw) async {
@@ -284,6 +283,7 @@ class WalletLogic {
 
       _addressController.text = qrTransaction.data.address;
       _state.setHasAddress(qrTransaction.data.address.isNotEmpty);
+      _state.parseQRAddressSuccess();
 
       if (qrTransaction.data.amount >= 0) {
         _amountController.text = qrTransaction.data.amount

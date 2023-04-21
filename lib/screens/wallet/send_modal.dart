@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:throttled/throttled.dart';
 
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
@@ -78,6 +79,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   //     widget.logic.updateAddressFromWalletCapture(result);
   //   }
   // }
+
+  void handleThrottledUpdateAddress() {
+    throttle(
+      'updateSendAddress',
+      widget.logic.updateAddress,
+      cooldown: const Duration(milliseconds: 500),
+      leaky: true,
+    );
+  }
 
   void handleQRScan() async {
     final result = await showCupertinoModalPopup<String?>(
@@ -152,6 +162,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final parsingQRAddressError = context.select(
       (WalletState state) => state.parsingQRAddressError,
+    );
+
+    final transactionSendError = context.select(
+      (WalletState state) => state.transactionSendError,
     );
 
     final height = MediaQuery.of(context).size.height;
@@ -229,7 +243,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             autocorrect: false,
                             enableSuggestions: false,
                             textInputAction: TextInputAction.next,
-                            decoration: invalidAddress || parsingQRAddressError
+                            onChanged: (_) => handleThrottledUpdateAddress(),
+                            decoration: invalidAddress ||
+                                    parsingQRAddressError ||
+                                    transactionSendError
                                 ? BoxDecoration(
                                     color: const CupertinoDynamicColor
                                         .withBrightness(
@@ -317,7 +334,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            decoration: invalidAmount
+                            decoration: invalidAmount || transactionSendError
                                 ? BoxDecoration(
                                     color: const CupertinoDynamicColor
                                         .withBrightness(

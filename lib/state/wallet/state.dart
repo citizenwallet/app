@@ -174,6 +174,10 @@ class WalletState extends ChangeNotifier {
   void parseQRAddressSuccess() {
     parsingQRAddress = false;
     parsingQRAddressError = false;
+
+    invalidAddress = false;
+    transactionSendError = false;
+
     notifyListeners();
   }
 
@@ -195,6 +199,11 @@ class WalletState extends ChangeNotifier {
 
   void setHasAddress(bool hasAddress) {
     this.hasAddress = hasAddress;
+    if (hasAddress) {
+      parsingQRAddress = false;
+      parsingQRAddressError = false;
+      invalidAddress = false;
+    }
     notifyListeners();
   }
 }
