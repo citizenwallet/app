@@ -70,7 +70,7 @@ class QRModal extends StatelessWidget {
                         child: PrettyQr(
                           data: qrCode,
                           size: qrSize,
-                          roundEdges: true,
+                          roundEdges: false,
                         ),
                       ),
                       const SizedBox(

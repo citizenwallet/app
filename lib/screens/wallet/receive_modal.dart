@@ -117,7 +117,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                         child: PrettyQr(
                           data: qrCode,
                           size: qrSize,
-                          roundEdges: true,
+                          roundEdges: false,
                         ),
                       ),
                       const SizedBox(
