@@ -5,6 +5,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/text_badge.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class WalletSelection extends StatefulWidget {
@@ -35,11 +36,11 @@ class WalletSelectionState extends State<WalletSelection> {
   }
 
   void handleDismiss(BuildContext context) {
-    Navigator.of(context).pop();
+    GoRouter.of(context).pop();
   }
 
   void handleSubmit(BuildContext context, CWWallet wallet) {
-    Navigator.of(context).pop(wallet);
+    GoRouter.of(context).pop(wallet);
   }
 
   @override

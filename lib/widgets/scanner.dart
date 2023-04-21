@@ -3,6 +3,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -73,7 +74,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
 
   void handleDismiss(BuildContext context) {
     _complete = true;
-    Navigator.of(context).pop();
+    GoRouter.of(context).pop();
   }
 
   void handleToggleTorch() {
@@ -94,7 +95,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
       _complete = true;
     });
 
-    final navigator = Navigator.of(context);
+    final navigator = GoRouter.of(context);
 
     _animationController.forward();
 

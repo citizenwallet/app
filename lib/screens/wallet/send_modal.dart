@@ -12,6 +12,7 @@ import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:throttled/throttled.dart';
@@ -63,7 +64,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void handleDismiss(BuildContext context) {
     widget.logic.clearInputControllers();
 
-    Navigator.of(context).pop();
+    GoRouter.of(context).pop();
   }
 
   // void handleQRAddressScan() async {
@@ -116,7 +117,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     _controller.repeat();
 
-    final navigator = Navigator.of(context);
+    final navigator = GoRouter.of(context);
 
     await Future.delayed(const Duration(milliseconds: 1000));
 
