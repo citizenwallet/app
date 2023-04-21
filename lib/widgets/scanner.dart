@@ -177,20 +177,19 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            GestureDetector(
-                              onTap: () => handleDismiss(context),
-                              child: Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  color: ThemeColors.uiBackground
-                                      .resolveFrom(context),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                margin:
-                                    const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                                child: Center(
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: ThemeColors.uiBackground
+                                    .resolveFrom(context),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                              child: Center(
+                                child: CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: () => handleDismiss(context),
                                   child: Icon(
                                     CupertinoIcons.xmark,
                                     color: ThemeColors.touchable
@@ -207,21 +206,20 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               if (_hasTorch)
-                                GestureDetector(
-                                  onTap: handleToggleTorch,
-                                  child: Container(
-                                    height: 50,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      color: ThemeColors.uiBackground
-                                          .resolveFrom(context),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    padding:
-                                        const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    margin: const EdgeInsets.fromLTRB(
-                                        20, 20, 20, 20),
-                                    child: Center(
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: ThemeColors.uiBackground
+                                        .resolveFrom(context),
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                                  child: Center(
+                                    child: CupertinoButton(
+                                      padding: const EdgeInsets.all(5),
+                                      onPressed: () => handleDismiss(context),
                                       child: Icon(
                                         _torchState == TorchState.off
                                             ? CupertinoIcons.lightbulb

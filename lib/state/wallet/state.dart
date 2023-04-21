@@ -26,6 +26,8 @@ class WalletState extends ChangeNotifier {
 
   String receiveQR = '';
 
+  String walletQR = '';
+
   void loadWallet() {
     loading = true;
     error = false;
@@ -204,6 +206,16 @@ class WalletState extends ChangeNotifier {
       parsingQRAddressError = false;
       invalidAddress = false;
     }
+    notifyListeners();
+  }
+
+  void clearWalletQR() {
+    walletQR = '';
+    notifyListeners();
+  }
+
+  void updateWalletQR(String qr) {
+    walletQR = qr;
     notifyListeners();
   }
 }

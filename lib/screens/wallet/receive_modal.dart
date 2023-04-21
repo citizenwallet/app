@@ -47,7 +47,7 @@ class ReceiveModalState extends State<ReceiveModal> {
   }
 
   void handleCopy() {
-    widget.logic.copyQRToClipboard();
+    widget.logic.copyReceiveQRToClipboard();
   }
 
   void handleThrottledUpdateQRCode() {
@@ -96,8 +96,9 @@ class ReceiveModalState extends State<ReceiveModal> {
                 Header(
                   title: 'Receive',
                   manualBack: true,
-                  actionButton: GestureDetector(
-                    onTap: () => handleDismiss(context),
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
                       color: ThemeColors.touchable.resolveFrom(context),

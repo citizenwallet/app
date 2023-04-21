@@ -337,7 +337,11 @@ class WalletLogic {
     _state.clearReceiveQR();
   }
 
-  void copyQRToClipboard() {
+  void copyWalletQRToClipboard() {
+    Clipboard.setData(ClipboardData(text: _state.walletQR));
+  }
+
+  void copyReceiveQRToClipboard() {
     Clipboard.setData(ClipboardData(text: _state.receiveQR));
   }
 

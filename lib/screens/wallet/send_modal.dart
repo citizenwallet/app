@@ -194,8 +194,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                 Header(
                   title: 'Send',
                   manualBack: true,
-                  actionButton: GestureDetector(
-                    onTap: () => handleDismiss(context),
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
                       color: ThemeColors.touchable.resolveFrom(context),

@@ -7,8 +7,8 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -52,9 +52,20 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.loadTransactions();
   }
 
-  void onChanged(bool enabled) {
-    // _appLogic.setDarkMode(enabled);
-    HapticFeedback.mediumImpact();
+  void handleDisplayWalletQR(BuildContext context) async {
+    final sendLoading = context.read<WalletState>().transactionSendLoading;
+
+    if (sendLoading) {
+      return;
+    }
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => QRModal(
+        logic: _logic,
+      ),
+    );
   }
 
   void handleReceive() async {
@@ -71,8 +82,6 @@ class WalletScreenState extends State<WalletScreen> {
         logic: _logic,
       ),
     );
-
-    // await _logic.sendTransaction(100);
   }
 
   void handleSendModal(BuildContext context) async {
@@ -113,7 +122,24 @@ class WalletScreenState extends State<WalletScreen> {
         children: [
           Header(
             title: wallet?.name ?? 'Wallet',
-            // subTitle: wallet?.symbol,
+            // actionButton: GestureDetector(
+            //   onTap: () => handleDisplayWalletQR(context),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(5),
+            //     child: Icon(
+            //       CupertinoIcons.qrcode,
+            //       color: ThemeColors.primary.resolveFrom(context),
+            //     ),
+            //   ),
+            // ),
+            actionButton: CupertinoButton(
+              padding: const EdgeInsets.all(5),
+              onPressed: () => handleDisplayWalletQR(context),
+              child: Icon(
+                CupertinoIcons.qrcode,
+                color: ThemeColors.primary.resolveFrom(context),
+              ),
+            ),
           ),
           Expanded(
             child: Padding(

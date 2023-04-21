@@ -2,7 +2,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
   final String title;
   final String? subTitle;
   final Widget? subTitleWidget;
@@ -21,12 +21,54 @@ class Header extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final router = GoRouter.of(context);
+  HeaderState createState() => HeaderState();
+}
 
+class HeaderState extends State<Header> {
+  bool _canPop = false;
+  late GoRouter router;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = GoRouter.of(context);
+
+      _canPop = router.canPop();
+
+      router.addListener(updatePop);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    router = GoRouter.of(context);
+  }
+
+  @override
+  void dispose() {
+    router.removeListener(updatePop);
+    super.dispose();
+  }
+
+  void updatePop() {
+    setState(() {
+      _canPop = router.canPop();
+    });
+  }
+
+  void handleDismiss(BuildContext context) {
+    GoRouter.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: transparent
+        color: widget.transparent
             ? ThemeColors.transparent.resolveFrom(context)
             : ThemeColors.uiBackground.resolveFrom(context),
         border: Border(
@@ -39,26 +81,17 @@ class Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (router.canPop() && !manualBack)
-                GestureDetector(
-                  onTap: () => GoRouter.of(context).pop(),
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 10, 15, 10),
-                      child: SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: Icon(
-                          CupertinoIcons.back,
-                        ),
-                      ),
-                    ),
+              if (_canPop && !widget.manualBack)
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: () => handleDismiss(context),
+                  child: const Icon(
+                    CupertinoIcons.back,
                   ),
                 ),
               Expanded(
                 child: Text(
-                  title,
+                  widget.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -71,24 +104,24 @@ class Header extends StatelessWidget {
                 height: 60.0,
                 width: 60.0,
                 child: Center(
-                  child: actionButton,
+                  child: widget.actionButton,
                 ),
               ),
             ],
           ),
-          if (subTitleWidget != null)
+          if (widget.subTitleWidget != null)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
-                child: subTitleWidget,
+                child: widget.subTitleWidget,
               ),
             ),
-          if (subTitle != null && subTitle!.isNotEmpty)
+          if (widget.subTitle != null && widget.subTitle!.isNotEmpty)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
                 child: Text(
-                  subTitle ?? '',
+                  widget.subTitle ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
