@@ -64,7 +64,8 @@ class WalletScreenState extends State<WalletScreen> {
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
-      builder: (_) => QRModal(
+      builder: (modalContext) => QRModal(
+        qrCode: modalContext.select((WalletState state) => state.walletQR),
         onCopy: handleCopyWalletQR,
       ),
     );

@@ -2,7 +2,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:flutter/cupertino.dart';
 
-class WalletsState extends ChangeNotifier {
+class WalletsState with ChangeNotifier {
   CWWallet? wallet;
   bool loading = false;
   bool error = false;

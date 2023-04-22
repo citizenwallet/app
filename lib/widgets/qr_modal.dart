@@ -1,17 +1,22 @@
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+typedef QrSelector<T> = String Function(T);
+
 class QRModal extends StatelessWidget {
+  final String qrCode;
   final void Function()? onCopy;
 
-  const QRModal({Key? key, this.onCopy}) : super(key: key);
+  const QRModal({
+    Key? key,
+    required this.qrCode,
+    this.onCopy,
+  }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();
@@ -23,8 +28,6 @@ class QRModal extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     final qrSize = width - 40;
-
-    final qrCode = context.select((WalletState state) => state.walletQR);
 
     return DismissibleModalPopup(
       modalKey: 'wallet-qr-modal',

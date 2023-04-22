@@ -23,6 +23,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   late final AnimationController _animationController;
   late MobileScannerController _controller;
 
+  double _opacity = 0;
   bool _complete = false;
   bool _hasTorch = false;
   TorchState _torchState = TorchState.off;
@@ -51,17 +52,26 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
 
-      _controller.start();
+      onLoad();
+    });
+  }
 
-      _controller.torchState.addListener(() {
-        setState(() {
-          _torchState = _controller.torchState.value;
-        });
-      });
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 125));
 
+    await _controller.start();
+
+    _controller.torchState.addListener(() {
       setState(() {
-        _hasTorch = true;
+        _torchState = _controller.torchState.value;
       });
+    });
+
+    await delay(const Duration(milliseconds: 125));
+
+    setState(() {
+      _opacity = 1;
+      _hasTorch = _controller.hasTorch;
     });
   }
 
@@ -144,27 +154,31 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
-                        child: MobileScanner(
-                          controller: _controller,
-                          onDetect: handleDetection,
-                          fit: BoxFit.cover,
-                          placeholderBuilder: (p0, p1) {
-                            return Container(
-                              height: height,
-                              width: width,
-                              decoration: BoxDecoration(
-                                color: ThemeColors.uiBackground
-                                    .resolveFrom(context),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: CupertinoActivityIndicator(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                        child: AnimatedOpacity(
+                          opacity: _opacity,
+                          duration: const Duration(milliseconds: 1000),
+                          child: MobileScanner(
+                            controller: _controller,
+                            onDetect: handleDetection,
+                            fit: BoxFit.cover,
+                            placeholderBuilder: (p0, p1) {
+                              return Container(
+                                height: height,
+                                width: width,
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.uiBackground
+                                      .resolveFrom(context),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              ),
-                            );
-                          },
+                                child: Center(
+                                  child: CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
