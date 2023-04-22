@@ -69,6 +69,10 @@ void main() {
         dotenv.get('TEST_WALLET_PASSWORD'),
       );
 
+      await qrWallet.generateSignature(signer);
+
+      expect(await qrWallet.verifyData(), true);
+
       final qrTransactionRequest = QR(
         version: 1,
         type: QRType.qrTransactionRequest,

@@ -31,6 +31,7 @@ class QRTransactionRequest extends QR {
     this.data = data;
   }
 
+  /// verifyData verifies the data of the QR code
   @override
   Future<bool> verifyData() async {
     final SignatureVerifier verifier = SignatureVerifier(
