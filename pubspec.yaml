@@ -28,6 +28,7 @@ dependencies:
   pretty_qr_code: ^2.0.3
   archive: ^3.3.7
   throttled: ^1.0.1
+  nfc_manager: ^3.2.0
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
