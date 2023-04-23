@@ -1,6 +1,7 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
+import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/foundation.dart';
@@ -51,6 +52,16 @@ GoRouter createRouter(
                   name: state.name,
                   child: const WalletScreen(),
                 ),
+                routes: [
+                  GoRoute(
+                    name: 'Chat',
+                    path: 'transactions/:transactionId',
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) => TransactionScreen(
+                      transactionId: state.params['transactionId'],
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 name: 'Settings',

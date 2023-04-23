@@ -9,6 +9,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -105,6 +106,10 @@ class WalletScreenState extends State<WalletScreen> {
 
   void handleCopyWalletQR() {
     _logic.copyWalletQRToClipboard();
+  }
+
+  void handleTransactionTap(String transactionId) {
+    GoRouter.of(context).push('/wallets/transactions/$transactionId');
   }
 
   @override
@@ -280,6 +285,7 @@ class WalletScreenState extends State<WalletScreen> {
                               key: Key(transaction.id),
                               transaction: transaction,
                               wallet: wallet,
+                              onTap: handleTransactionTap,
                             );
                           },
                         ),

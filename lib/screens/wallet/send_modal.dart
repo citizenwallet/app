@@ -193,7 +193,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
               children: [
                 Header(
                   title: 'Send',
-                  manualBack: true,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -218,13 +217,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                 text: 'Scan',
                                 color: ThemeColors.surfaceSubtle
                                     .resolveFrom(context),
+                                labelColor:
+                                    ThemeColors.text.resolveFrom(context),
                                 suffix: Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                   child: Icon(
                                     CupertinoIcons.qrcode_viewfinder,
                                     color:
-                                        ThemeColors.white.resolveFrom(context),
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
                                 onPressed: handleQRScan,

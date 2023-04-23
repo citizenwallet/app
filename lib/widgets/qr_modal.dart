@@ -50,7 +50,6 @@ class QRModal extends StatelessWidget {
               children: [
                 Header(
                   title: 'Wallet',
-                  manualBack: true,
                   actionButton: GestureDetector(
                     onTap: () => handleDismiss(context),
                     child: Icon(

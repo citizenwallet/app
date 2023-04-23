@@ -7,7 +7,7 @@ class Header extends StatefulWidget {
   final String? subTitle;
   final Widget? subTitleWidget;
   final Widget? actionButton;
-  final bool manualBack;
+  final bool showBackButton;
   final bool transparent;
 
   const Header({
@@ -16,7 +16,7 @@ class Header extends StatefulWidget {
     this.subTitleWidget,
     this.subTitle,
     this.actionButton,
-    this.manualBack = false,
+    this.showBackButton = false,
     this.transparent = false,
   });
 
@@ -25,41 +25,6 @@ class Header extends StatefulWidget {
 }
 
 class HeaderState extends State<Header> {
-  bool _canPop = false;
-  late GoRouter router;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      router = GoRouter.of(context);
-
-      _canPop = router.canPop();
-
-      router.addListener(updatePop);
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    router = GoRouter.of(context);
-  }
-
-  @override
-  void dispose() {
-    router.removeListener(updatePop);
-    super.dispose();
-  }
-
-  void updatePop() {
-    setState(() {
-      _canPop = router.canPop();
-    });
-  }
-
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();
   }
@@ -67,6 +32,9 @@ class HeaderState extends State<Header> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints(
+        minHeight: 60,
+      ),
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent.resolveFrom(context)
@@ -77,11 +45,12 @@ class HeaderState extends State<Header> {
       ),
       padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              if (_canPop && !widget.manualBack)
+              if (widget.showBackButton)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -100,13 +69,14 @@ class HeaderState extends State<Header> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 60.0,
-                width: 60.0,
-                child: Center(
-                  child: widget.actionButton,
+              if (widget.actionButton != null)
+                SizedBox(
+                  height: 60.0,
+                  width: 60.0,
+                  child: Center(
+                    child: widget.actionButton,
+                  ),
                 ),
-              ),
             ],
           ),
           if (widget.subTitleWidget != null)

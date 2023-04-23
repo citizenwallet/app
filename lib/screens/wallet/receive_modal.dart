@@ -95,7 +95,6 @@ class ReceiveModalState extends State<ReceiveModal> {
               children: [
                 Header(
                   title: 'Receive',
-                  manualBack: true,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
