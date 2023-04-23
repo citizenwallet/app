@@ -70,9 +70,11 @@ class HeaderState extends State<Header> {
                 ),
               ),
               if (widget.actionButton != null)
-                SizedBox(
+                Container(
                   height: 60.0,
-                  width: 60.0,
+                  constraints: const BoxConstraints(
+                    minWidth: 60,
+                  ),
                   child: Center(
                     child: widget.actionButton,
                   ),
