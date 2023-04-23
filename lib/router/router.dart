@@ -1,4 +1,5 @@
 import 'package:citizenwallet/router/shell.dart';
+import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
@@ -14,7 +15,8 @@ GoRouter createRouter(
   List<NavigatorObserver> observers,
 ) =>
     GoRouter(
-        initialLocation: PreferencesService().firstLaunch ? '/' : '/wallets',
+        initialLocation: '/',
+        // initialLocation: PreferencesService().firstLaunch ? '/' : '/wallets',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
         observers: observers,
@@ -44,13 +46,15 @@ GoRouter createRouter(
               // ),
               GoRoute(
                 name: 'Wallet',
-                // path: '/wallet/:id',
-                path: '/wallets',
+                // path: '/wallets',
+                path: '/wallet/:chainId/:address',
                 parentNavigatorKey: shellNavigatorKey,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
-                  child: const WalletScreen(),
+                  child: WalletScreen(
+                      int.tryParse(state.params['chainId'] ?? '0'),
+                      state.params['address']),
                 ),
                 routes: [
                   GoRoute(
@@ -62,6 +66,16 @@ GoRouter createRouter(
                     ),
                   ),
                 ],
+              ),
+              GoRoute(
+                name: 'Cards',
+                path: '/cards',
+                parentNavigatorKey: shellNavigatorKey,
+                pageBuilder: (context, state) => NoTransitionPage(
+                  key: state.pageKey,
+                  name: state.name,
+                  child: const CardsScreen(),
+                ),
               ),
               GoRoute(
                 name: 'Settings',
