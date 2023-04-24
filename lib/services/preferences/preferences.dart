@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -27,4 +28,18 @@ class PreferencesService {
   }
 
   bool get firstLaunch => _preferences.getBool('firstLaunch') ?? true;
+
+  Future setChainId(int chainId) async {
+    await _preferences.setInt('chainId', chainId);
+  }
+
+  int get chainId =>
+      _preferences.getInt('chainId') ??
+      int.parse(dotenv.get('DEFAULT_CHAIN_ID'));
+
+  Future setLastWallet(String address) async {
+    await _preferences.setString('lastWallet', address);
+  }
+
+  String? get lastWallet => _preferences.getString('lastWallet');
 }

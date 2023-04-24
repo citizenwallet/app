@@ -1,10 +1,13 @@
 import 'package:citizenwallet/state/app/logic.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/screen_description.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -24,23 +27,62 @@ class LandingScreenState extends State<LandingScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
       _appLogic = AppLogic(context);
+
+      onLoad();
     });
   }
 
-  void handleNewWallet() {
-    _appLogic.setFirstLaunch(false);
+  void onLoad() async {
+    final navigator = GoRouter.of(context);
 
-    GoRouter.of(context).go('/wallets');
+    final address = await _appLogic.loadLastWallet();
+
+    if (address == null) {
+      return;
+    }
+    navigator.go('/wallet/${address.toLowerCase()}');
   }
 
-  void handleRestoreWallet() {
-    _appLogic.setFirstLaunch(false);
+  void handleNewWallet() async {
+    final navigator = GoRouter.of(context);
 
-    GoRouter.of(context).go('/wallets');
+    final address = await _appLogic.createWallet('New Wallet');
+
+    if (address == null) {
+      return;
+    }
+
+    navigator.go('/wallet/${address.toLowerCase()}');
+  }
+
+  void handleImportWallet() async {
+    final navigator = GoRouter.of(context);
+
+    // TODO: allow user to enter a private key manually
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const Scanner(
+        modalKey: 'import-qr-scanner',
+      ),
+    );
+
+    if (result != null && await _appLogic.isVerifiedWallet(result)) {
+      final wallet = await _appLogic.importWallet(result, 'New Wallet');
+
+      if (wallet == null) {
+        return;
+      }
+
+      navigator.go('/wallet/${wallet.data.address.toLowerCase()}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final walletLoading =
+        context.select((AppState state) => state.walletLoading);
+
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Flex(
@@ -72,23 +114,27 @@ class LandingScreenState extends State<LandingScreen>
                 height: 140,
                 width: 140,
               ),
-              action: Column(
-                children: [
-                  Button(
-                    text: 'New Wallet',
-                    onPressed: handleNewWallet,
-                    minWidth: 200,
-                    maxWidth: 200,
-                  ),
-                  const SizedBox(height: 20),
-                  Button(
-                    text: 'Restore a wallet',
-                    onPressed: handleRestoreWallet,
-                    minWidth: 200,
-                    maxWidth: 200,
-                  )
-                ],
-              ),
+              action: walletLoading
+                  ? CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
+                    )
+                  : Column(
+                      children: [
+                        Button(
+                          text: 'New Wallet',
+                          onPressed: handleNewWallet,
+                          minWidth: 200,
+                          maxWidth: 200,
+                        ),
+                        const SizedBox(height: 40),
+                        Button(
+                          text: 'Import a wallet',
+                          onPressed: handleImportWallet,
+                          minWidth: 200,
+                          maxWidth: 200,
+                        )
+                      ],
+                    ),
             ),
           ],
         ),

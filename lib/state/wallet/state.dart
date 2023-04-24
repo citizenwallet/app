@@ -1,11 +1,13 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
   bool loading = false;
   bool error = false;
 
+  int chainId = PreferencesService().chainId;
   CWWallet? wallet;
 
   bool transactionsLoading = false;
@@ -27,6 +29,34 @@ class WalletState with ChangeNotifier {
   String receiveQR = '';
 
   String walletQR = '';
+
+  bool isInvalidPassword = false;
+
+  void setChainId(int chainId) {
+    this.chainId = chainId;
+    notifyListeners();
+  }
+
+  void switchChainRequest() {
+    loading = true;
+    error = false;
+    notifyListeners();
+  }
+
+  void switchChainSuccess(CWWallet wallet) {
+    transactions = [];
+    wallet = wallet;
+
+    loading = false;
+    error = false;
+    notifyListeners();
+  }
+
+  void switchChainError() {
+    loading = false;
+    error = true;
+    notifyListeners();
+  }
 
   void loadWallet() {
     loading = true;
@@ -216,6 +246,11 @@ class WalletState with ChangeNotifier {
 
   void updateWalletQR(String qr) {
     walletQR = qr;
+    notifyListeners();
+  }
+
+  void setInvalidPassword(bool invalid) {
+    isInvalidPassword = invalid;
     notifyListeners();
   }
 }

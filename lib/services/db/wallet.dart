@@ -14,10 +14,8 @@ class WalletTable extends DBTable {
       wallet_type TEXT NOT NULL,
       name TEXT NOT NULL,
       address TEXT NOT NULL,
-      chainId INTEGER NOT NULL,
       balance INTEGER NOT NULL,
-      wallet TEXT NOT NULL,
-      UNIQUE(address, chainId)
+      wallet TEXT NOT NULL
     )
   ''';
 
@@ -51,26 +49,25 @@ class WalletTable extends DBTable {
   }
 
   // get wallet by chainId and address
-  Future<Map<String, dynamic>> getWallet(int chainId, String address) async {
+  Future<Map<String, dynamic>> getWallet(String address) async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
-      where: 'chainId = ? AND address = ?',
-      whereArgs: [chainId, address],
+      where: 'address = ?',
+      whereArgs: [address],
     );
 
     return maps.first;
   }
 
   /// create a new wallet
-  Future<void> create(String type, String name, String address, int chainId,
-      int balance, String wallet) async {
+  Future<void> create(String type, String name, String address, int balance,
+      String wallet) async {
     await db.insert(
       this.name,
       {
         'wallet_type': type,
         'name': name,
         'address': address,
-        'chainId': chainId,
         'balance': balance,
         'wallet': wallet,
       },
@@ -87,6 +84,18 @@ class WalletTable extends DBTable {
       },
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  /// update raw wallet using address
+  Future<void> updateRawWallet(String address, String wallet) async {
+    await db.update(
+      name,
+      {
+        'wallet': wallet,
+      },
+      where: 'address = ?',
+      whereArgs: [address],
     );
   }
 

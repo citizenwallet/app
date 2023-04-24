@@ -36,7 +36,7 @@ class QRWallet extends QR {
   @override
   Future<bool> verifyData() async {
     final SignatureVerifier verifier = SignatureVerifier(
-      data: jsonEncode(data.toJson()),
+      data: jsonEncode(raw),
       signature: signature,
       address: data.address,
       publicKey: data.publicKey,
@@ -50,13 +50,11 @@ class QRWallet extends QR {
 
 class QRWalletData {
   final Map<String, dynamic> wallet;
-  final int chainId;
   final String address;
   final Uint8List publicKey;
 
   QRWalletData({
     required this.wallet,
-    required this.chainId,
     required this.address,
     required this.publicKey,
   });
@@ -64,7 +62,6 @@ class QRWalletData {
   factory QRWalletData.fromJson(Map<String, dynamic> json) {
     return QRWalletData(
       wallet: json['wallet'],
-      chainId: json['chainId'],
       address: json['address'],
       publicKey: hexToBytes(json['public_key']),
     );
@@ -73,7 +70,6 @@ class QRWalletData {
   Map<String, dynamic> toJson() {
     return {
       'wallet': wallet,
-      'chainId': chainId,
       'address': address,
       'public_key': bytesToHex(publicKey),
     };

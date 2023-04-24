@@ -1,8 +1,8 @@
 [
     {
-        "name": "Citizen Coin",
+        "name": "Citizen Chain",
         "chain": "CC",
-        "icon": "citizen_coin",
+        "icon": "citizen_chain",
         "rpc": [
             "https://cw-ganache.techi.be"
         ],
@@ -22,8 +22,8 @@
         },
         "infoURL": "https://citizenwallet.xyz",
         "shortName": "cc",
-        "chainId": 1337,
-        "networkId": 1,
+        "chainId": 9999999999999999,
+        "networkId": 9999999999999999,
         "slip44": 60,
         "ens": {
             "registry": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"

@@ -1,3 +1,4 @@
+import 'package:citizenwallet/screens/wallet/password_modal.dart';
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
@@ -14,8 +15,9 @@ import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
   final String title = 'Wallet';
+  final String? address;
 
-  const WalletScreen({super.key});
+  const WalletScreen(this.address, {super.key});
 
   @override
   WalletScreenState createState() => WalletScreenState();
@@ -44,7 +46,30 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    await _logic.openWallet();
+    if (widget.address == null) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    final password = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => PasswordModal(
+        address: widget.address!,
+        logic: _logic,
+      ),
+    );
+
+    if (password == null) {
+      navigator.go('/');
+      return;
+    }
+
+    await _logic.openWallet(
+      widget.address!,
+      password,
+    );
 
     await _logic.loadTransactions();
   }
@@ -134,13 +159,26 @@ class WalletScreenState extends State<WalletScreen> {
         children: [
           Header(
             title: wallet?.name ?? 'Wallet',
-            actionButton: CupertinoButton(
-              padding: const EdgeInsets.all(5),
-              onPressed: () => handleDisplayWalletQR(context),
-              child: Icon(
-                CupertinoIcons.qrcode,
-                color: ThemeColors.primary.resolveFrom(context),
-              ),
+            actionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: () => handleDisplayWalletQR(context),
+                  child: Icon(
+                    CupertinoIcons.chevron_down,
+                    color: ThemeColors.primary.resolveFrom(context),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: () => handleDisplayWalletQR(context),
+                  child: Icon(
+                    CupertinoIcons.qrcode,
+                    color: ThemeColors.primary.resolveFrom(context),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

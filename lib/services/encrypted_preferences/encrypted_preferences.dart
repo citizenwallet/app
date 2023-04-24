@@ -26,4 +26,14 @@ class EncryptedPreferencesService {
   Future<String?> getString(String key) async {
     return _preferences.read(key: key);
   }
+
+  Future<void> setWalletPassword(String address, String password) async {
+    await _preferences.write(
+        key: 'w_${address.toLowerCase()}', value: password);
+  }
+
+  // get wallet password
+  Future<String?> getWalletPassword(String address) async {
+    return _preferences.read(key: 'w_${address.toLowerCase()}');
+  }
 }

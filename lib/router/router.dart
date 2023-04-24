@@ -16,6 +16,7 @@ GoRouter createRouter(
 ) =>
     GoRouter(
         initialLocation: '/',
+        // initialLocation: '/wallet/0x0b772F674eD6fB67C5647Be0fbBd2FBe95156D60',
         // initialLocation: PreferencesService().firstLaunch ? '/' : '/wallets',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
@@ -47,14 +48,14 @@ GoRouter createRouter(
               GoRoute(
                 name: 'Wallet',
                 // path: '/wallets',
-                path: '/wallet/:chainId/:address',
+                path: '/wallet/:address',
                 parentNavigatorKey: shellNavigatorKey,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
                   child: WalletScreen(
-                      int.tryParse(state.params['chainId'] ?? '0'),
-                      state.params['address']),
+                    state.params['address'],
+                  ),
                 ),
                 routes: [
                   GoRoute(

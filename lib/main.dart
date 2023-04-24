@@ -1,5 +1,6 @@
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/state.dart';
@@ -13,6 +14,7 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   await PreferencesService().init();
+  await EncryptedPreferencesService().init();
 
   await DBService().init('citizenwallet');
 

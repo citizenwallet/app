@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:archive/archive.dart';
+import 'package:web3dart/web3dart.dart';
 
 BigInt parseIntFromHex(String hex) {
   return BigInt.parse(hex);
