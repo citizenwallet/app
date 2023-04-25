@@ -3,6 +3,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class TextInputModal extends StatelessWidget {
@@ -26,6 +27,7 @@ class TextInputModal extends StatelessWidget {
   }
 
   void handleSubmit(BuildContext context) {
+    HapticFeedback.lightImpact();
     GoRouter.of(context).pop(_controller.value.text);
   }
 
@@ -86,6 +88,7 @@ class TextInputModal extends StatelessWidget {
                         ),
                         onSubmitted: (_) {
                           FocusManager.instance.primaryFocus?.unfocus();
+                          handleSubmit(context);
                         },
                       ),
                       const SizedBox(

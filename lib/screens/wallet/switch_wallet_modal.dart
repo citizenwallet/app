@@ -4,10 +4,12 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -68,7 +70,64 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
     await widget.logic.openWalletFromDB(address);
 
+    HapticFeedback.heavyImpact();
+
     navigator.pop();
+  }
+
+  void handleEdit(BuildContext context, String address, String name) async {
+    final option = await showCupertinoModalPopup<String?>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('edit');
+                },
+                child: const Text('Edit'),
+              ),
+              // CupertinoActionSheetAction(
+              //   isDestructiveAction: true,
+              //   onPressed: () {
+              //     Navigator.of(dialogContext).pop('delete');
+              //   },
+              //   child: const Text('Delete'),
+              // ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          );
+        });
+
+    if (option == null) {
+      return;
+    }
+
+    if (option == 'edit') {
+      final newName = await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => TextInputModal(
+          title: 'Edit Wallet',
+          placeholder: 'Enter wallet name',
+          initialValue: name,
+        ),
+      );
+
+      if (newName == null || newName.isEmpty) {
+        return;
+      }
+
+      await widget.logic.editWallet(address, newName);
+
+      HapticFeedback.heavyImpact();
+    }
   }
 
   void handleWalletTap(String address) async {
@@ -76,11 +135,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
     await widget.logic.openWalletFromDB(address);
 
+    HapticFeedback.heavyImpact();
+
     navigator.pop();
   }
 
   Future<void> handleRefresh() async {
     await widget.logic.loadDBWallets();
+
+    HapticFeedback.heavyImpact();
   }
 
   @override
@@ -115,60 +178,63 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: 'Switch Wallet',
-                  actionButton: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: () => handleCreate(context),
-                        child: Icon(
-                          CupertinoIcons.plus,
-                          color: ThemeColors.primary.resolveFrom(context),
-                        ),
-                      ),
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: () => handleDismiss(context),
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          color: ThemeColors.touchable.resolveFrom(context),
-                        ),
-                      ),
-                    ],
+                  title: 'Wallets',
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => handleDismiss(context),
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: ThemeColors.touchable.resolveFrom(context),
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      CupertinoSliverRefreshControl(
-                        onRefresh: handleRefresh,
-                      ),
-                      if (dbWalletsLoading && dbWallets.isEmpty)
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: 1,
-                            (context, index) {
-                              return CupertinoActivityIndicator(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              );
-                            },
+                  child: Stack(
+                    children: [
+                      CustomScrollView(
+                        slivers: [
+                          CupertinoSliverRefreshControl(
+                            onRefresh: handleRefresh,
                           ),
-                        ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          childCount: dbWalletsLoading && dbWallets.isEmpty
-                              ? 0
-                              : dbWallets.length,
-                          (context, index) {
-                            final wallet = dbWallets[index];
+                          if (dbWalletsLoading && dbWallets.isEmpty)
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                childCount: 1,
+                                (context, index) {
+                                  return CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  );
+                                },
+                              ),
+                            ),
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              childCount: dbWalletsLoading && dbWallets.isEmpty
+                                  ? 0
+                                  : dbWallets.length,
+                              (context, index) {
+                                final wallet = dbWallets[index];
 
-                            return WalletRow(
-                              key: Key(wallet.address),
-                              wallet,
-                              onTap: handleWalletTap,
-                            );
-                          },
+                                return WalletRow(
+                                  key: Key(wallet.address),
+                                  wallet,
+                                  onTap: () => handleWalletTap(wallet.address),
+                                  onMore: () => handleEdit(
+                                      context, wallet.address, wallet.name),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        bottom: 20,
+                        left: 20,
+                        right: 20,
+                        child: Button(
+                          text: 'Create Wallet',
+                          onPressed: () => handleCreate(context),
                         ),
                       ),
                     ],

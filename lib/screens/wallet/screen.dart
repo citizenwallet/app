@@ -7,10 +7,10 @@ import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -77,6 +77,8 @@ class WalletScreenState extends State<WalletScreen> {
 
   Future<void> handleRefresh() async {
     await _logic.loadTransactions();
+
+    HapticFeedback.heavyImpact();
   }
 
   void handleSwitchWalletModal(BuildContext context) async {
@@ -123,6 +125,8 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    HapticFeedback.lightImpact();
+
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
@@ -132,12 +136,14 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void handleSendModal(BuildContext context) async {
+  void handleSendModal() async {
     final sendLoading = context.read<WalletState>().transactionSendLoading;
 
     if (sendLoading) {
       return;
     }
+
+    HapticFeedback.lightImpact();
 
     await showCupertinoModalPopup(
       context: context,
@@ -150,9 +156,13 @@ class WalletScreenState extends State<WalletScreen> {
 
   void handleCopyWalletQR() {
     _logic.copyWalletQRToClipboard();
+
+    HapticFeedback.heavyImpact();
   }
 
   void handleTransactionTap(String transactionId) {
+    HapticFeedback.lightImpact();
+
     GoRouter.of(context).push('/wallets/transactions/$transactionId');
   }
 
@@ -360,47 +370,25 @@ class WalletScreenState extends State<WalletScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Button(
-                          text: 'Send',
-                          maxWidth: 140,
-                          minWidth: 140,
-                          onPressed: () => handleSendModal(context),
-                          prefix: const SizedBox(width: 20),
-                          suffix: SizedBox(
-                            width: 40,
-                            child: !sendLoading
-                                ? Icon(
-                                    CupertinoIcons.up_arrow,
-                                    color:
-                                        ThemeColors.white.resolveFrom(context),
-                                  )
-                                : CupertinoActivityIndicator(
-                                    color: ThemeColors.background
-                                        .resolveFrom(context),
-                                  ),
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: handleSendModal,
+                          borderRadius: BorderRadius.circular(25),
+                          color: ThemeColors.primary.resolveFrom(context),
+                          child: Icon(
+                            CupertinoIcons.arrow_up,
+                            color: ThemeColors.touchable.resolveFrom(context),
                           ),
                         ),
                         const SizedBox(width: 20),
-                        Button(
-                          text: 'Receive',
-                          maxWidth: 140,
-                          minWidth: 140,
-                          onPressed: () {
-                            handleReceive();
-                          },
-                          prefix: const SizedBox(width: 15),
-                          suffix: SizedBox(
-                            width: 40,
-                            child: !sendLoading
-                                ? Icon(
-                                    CupertinoIcons.down_arrow,
-                                    color:
-                                        ThemeColors.white.resolveFrom(context),
-                                  )
-                                : CupertinoActivityIndicator(
-                                    color: ThemeColors.background
-                                        .resolveFrom(context),
-                                  ),
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: handleReceive,
+                          borderRadius: BorderRadius.circular(25),
+                          color: ThemeColors.primary.resolveFrom(context),
+                          child: Icon(
+                            CupertinoIcons.arrow_down,
+                            color: ThemeColors.touchable.resolveFrom(context),
                           ),
                         ),
                       ],

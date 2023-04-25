@@ -37,6 +37,8 @@ flutter:
   assets:
     - .env
     - assets/wallet.svg
+    - assets/icons/wallet_simple.svg
+    - assets/icons/coin.svg
     - assets/icons/profile.svg
     - assets/data/native_chains.json
     - assets/data/chains.json

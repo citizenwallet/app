@@ -21,13 +21,6 @@ class RouterShell extends StatelessWidget {
       ),
     ),
     const BottomNavigationBarItem(
-      label: 'Cards',
-      icon: Icon(CupertinoIcons.creditcard),
-      activeIcon: Icon(
-        CupertinoIcons.creditcard_fill,
-      ),
-    ),
-    const BottomNavigationBarItem(
       label: 'Settings',
       icon: Icon(CupertinoIcons.settings),
       activeIcon: Icon(CupertinoIcons.settings_solid),
@@ -36,8 +29,7 @@ class RouterShell extends StatelessWidget {
 
   final routes = {
     '/wallets': 0,
-    '/cards': 1,
-    '/settings': 2,
+    '/settings': 1,
   };
 
   @override
@@ -61,9 +53,6 @@ class RouterShell extends StatelessWidget {
                   GoRouter.of(context).go('/wallets');
                   break;
                 case 1:
-                  GoRouter.of(context).go('/cards');
-                  break;
-                case 2:
                   GoRouter.of(context).go('/settings');
                   break;
                 default:

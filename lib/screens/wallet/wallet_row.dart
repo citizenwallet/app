@@ -5,18 +5,20 @@ import 'package:flutter/cupertino.dart';
 
 class WalletRow extends StatelessWidget {
   final DBWallet wallet;
-  final void Function(String address)? onTap;
+  final void Function()? onTap;
+  final void Function()? onMore;
 
   const WalletRow(
     this.wallet, {
     super.key,
     this.onTap,
+    this.onMore,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTap?.call(wallet.address),
+      onTap: onTap,
       child: Container(
         key: super.key,
         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -32,9 +34,11 @@ class WalletRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const ProfileCircle(
+            ProfileCircle(
               size: 50,
-              imageUrl: 'assets/wallet.svg',
+              imageUrl: 'assets/icons/wallet_simple.svg',
+              borderColor: ThemeColors.subtle.resolveFrom(context),
+              backgroundColor: ThemeColors.subtle.resolveFrom(context),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -64,6 +68,18 @@ class WalletRow extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(
+              width: 10,
+            ),
+            if (onMore != null)
+              CupertinoButton(
+                padding: const EdgeInsets.all(5),
+                onPressed: onMore,
+                child: Icon(
+                  CupertinoIcons.ellipsis,
+                  color: ThemeColors.touchable.resolveFrom(context),
+                ),
+              ),
             const SizedBox(width: 10),
           ],
         ),

@@ -112,6 +112,11 @@ class WalletSelectionState extends State<WalletSelection> {
                             },
                           ),
                         ),
+                        const SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 60,
+                          ),
+                        ),
                       ],
                     ),
             ),

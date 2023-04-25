@@ -1,10 +1,8 @@
 import 'package:citizenwallet/router/shell.dart';
-import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
-import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +14,6 @@ GoRouter createRouter(
 ) =>
     GoRouter(
         initialLocation: '/',
-        // initialLocation: '/wallet/0x0b772F674eD6fB67C5647Be0fbBd2FBe95156D60',
-        // initialLocation: PreferencesService().firstLaunch ? '/' : '/wallets',
         debugLogDiagnostics: kDebugMode,
         navigatorKey: rootNavigatorKey,
         observers: observers,
@@ -67,16 +63,6 @@ GoRouter createRouter(
                     ),
                   ),
                 ],
-              ),
-              GoRoute(
-                name: 'Cards',
-                path: '/cards',
-                parentNavigatorKey: shellNavigatorKey,
-                pageBuilder: (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  name: state.name,
-                  child: const CardsScreen(),
-                ),
               ),
               GoRoute(
                 name: 'Settings',

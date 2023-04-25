@@ -43,6 +43,7 @@ class TransactionRow extends StatelessWidget {
           children: [
             const ProfileCircle(
               size: 50,
+              imageUrl: 'assets/icons/coin.svg',
             ),
             const SizedBox(width: 10),
             Expanded(

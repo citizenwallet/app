@@ -227,6 +227,20 @@ class WalletLogic {
     return null;
   }
 
+  Future<void> editWallet(String address, String name) async {
+    try {
+      await _db.wallet.updateNameByAddress(address, name);
+
+      loadDBWallets();
+
+      return;
+    } catch (e) {
+      print(e);
+    }
+
+    _state.createDBWalletError();
+  }
+
   void onBlockHash(String hash) async {
     try {
       _state.incomingTransactionsRequest();

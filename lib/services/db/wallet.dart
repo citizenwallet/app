@@ -129,6 +129,18 @@ class WalletTable extends DBTable {
     );
   }
 
+  /// update wallet name using the wallet address
+  Future<void> updateNameByAddress(String address, String name) async {
+    await db.update(
+      this.name,
+      {
+        'name': name,
+      },
+      where: 'address = ?',
+      whereArgs: [address],
+    );
+  }
+
   /// update raw wallet using address
   Future<void> updateRawWallet(String address, String wallet) async {
     await db.update(
