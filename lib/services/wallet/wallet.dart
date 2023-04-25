@@ -129,7 +129,20 @@ class WalletService {
     _chainId = await _ethClient.getChainId();
   }
 
-  Future<Chain?> _fetchChainById(BigInt id) async {
+  Future<void> switchChain(Chain chain) {
+    dispose();
+
+    _chain = chain;
+
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
+
+    return init();
+  }
+
+  Future<Chain?> fetchChainById(BigInt id) async {
     final List rawNativeChains = jsonDecode(
         await rootBundle.loadString('assets/data/native_chains.json'));
 

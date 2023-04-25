@@ -1,5 +1,48 @@
+import 'dart:convert';
+
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:sqflite/sqlite_api.dart';
+
+// class representing a wallet from WalletTable
+class DBWallet {
+  final int id;
+  final String type;
+  final String name;
+  final String address;
+  final int balance;
+  final String wallet;
+
+  DBWallet({
+    required this.id,
+    required this.type,
+    required this.name,
+    required this.address,
+    required this.balance,
+    required this.wallet,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'wallet_type': type,
+      'name': name,
+      'address': address,
+      'balance': balance,
+      'wallet': wallet,
+    };
+  }
+
+  factory DBWallet.fromMap(Map<String, dynamic> map) {
+    return DBWallet(
+      id: map['id'],
+      type: map['wallet_type'],
+      name: map['name'],
+      address: map['address'],
+      balance: map['balance'],
+      wallet: map['wallet'],
+    );
+  }
+}
 
 class WalletTable extends DBTable {
   WalletTable(Database db) : super(db);
@@ -27,49 +70,48 @@ class WalletTable extends DBTable {
   }
 
   /// get all regular wallets
-  Future<List<Map<String, dynamic>>> getRegularWallets() async {
+  Future<List<DBWallet>> getRegularWallets() async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
       where: 'wallet_type = ?',
       whereArgs: ['regular'],
     );
 
-    return maps;
+    return maps.map((e) => DBWallet.fromMap(e)).toList();
   }
 
   /// get all card wallets
-  Future<List<Map<String, dynamic>>> getCardWallets() async {
+  Future<List<DBWallet>> getCardWallets() async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
       where: 'wallet_type = ?',
       whereArgs: ['card'],
     );
 
-    return maps;
+    return maps.map((e) => DBWallet.fromMap(e)).toList();
   }
 
   // get wallet by chainId and address
-  Future<Map<String, dynamic>> getWallet(String address) async {
+  Future<DBWallet> getWallet(String address) async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
       where: 'address = ?',
       whereArgs: [address],
     );
 
-    return maps.first;
+    return DBWallet.fromMap(maps.first);
   }
 
   /// create a new wallet
-  Future<void> create(String type, String name, String address, int balance,
-      String wallet) async {
+  Future<void> create(DBWallet wallet) async {
     await db.insert(
-      this.name,
+      name,
       {
-        'wallet_type': type,
-        'name': name,
-        'address': address,
-        'balance': balance,
-        'wallet': wallet,
+        'wallet_type': wallet.type,
+        'name': wallet.name,
+        'address': wallet.address,
+        'balance': wallet.balance,
+        'wallet': wallet.wallet,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );

@@ -1,6 +1,7 @@
 import 'package:citizenwallet/screens/wallet/password_modal.dart';
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -75,6 +76,24 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> handleRefresh() async {
+    await _logic.loadTransactions();
+  }
+
+  void handleSwitchWalletModal(BuildContext context) async {
+    final sendLoading = context.read<WalletState>().transactionSendLoading;
+
+    if (sendLoading) {
+      return;
+    }
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => SwitchWalletModal(
+        logic: _logic,
+      ),
+    );
+
     await _logic.loadTransactions();
   }
 
@@ -164,7 +183,7 @@ class WalletScreenState extends State<WalletScreen> {
               children: [
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDisplayWalletQR(context),
+                  onPressed: () => handleSwitchWalletModal(context),
                   child: Icon(
                     CupertinoIcons.chevron_down,
                     color: ThemeColors.primary.resolveFrom(context),

@@ -5,29 +5,28 @@ import 'dart:math';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/wallet.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
   late WalletState _state;
   late WalletService _wallet;
   final DBService _db = DBService();
+  final PreferencesService _preferences = PreferencesService();
 
-  late StreamSubscription<String> _blockSubscription;
+  StreamSubscription<String>? _blockSubscription;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -45,25 +44,13 @@ class WalletLogic {
     try {
       _state.switchChainRequest();
 
-      final dbWallet = await _db.wallet.getWallet(_wallet.address.hex);
+      final chain = await _wallet.fetchChainById(BigInt.from(chainId));
 
-      final qrWallet = QR.fromCompressedJson(dbWallet['wallet']).toQRWallet();
-
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        jsonEncode(qrWallet.data.wallet),
-        dotenv.get('TEST_WALLET_PASSWORD'),
-      );
-
-      if (wallet == null) {
-        throw Exception('chain not found');
+      if (chain == null) {
+        throw Exception('Chain not found');
       }
 
-      _wallet.dispose();
-
-      _wallet = wallet;
-
-      await _wallet.init();
+      await _wallet.switchChain(chain);
 
       final balance = await _wallet.balance;
       final currency = _wallet.nativeCurrency;
@@ -78,7 +65,7 @@ class WalletLogic {
         ),
       );
 
-      await PreferencesService().setChainId(chainId);
+      await _preferences.setChainId(chainId);
 
       return;
     } catch (e) {
@@ -89,33 +76,26 @@ class WalletLogic {
     _state.switchChainError();
   }
 
-  Future<void> openWallet(String address, String password) async {
-    // final random = Random.secure();
-
-    // final wallet = Wallet.createNew(
-    //   EthPrivateKey.fromHex(dotenv.get('TEST_PRIVATE_KEY')),
-    //   dotenv.get('TEST_WALLET_PASSWORD'),
-    //   random,
-    // );
-
-    // _wallet = WalletService.fromWalletFile(
-    //   dotenv.get('DEFAULT_RPC_URL'),
-    //   wallet.toJson(),
-    //   dotenv.get('TEST_WALLET_PASSWORD'),
-    // );
-
+  Future<void> openWalletFromDB(String address) async {
     try {
       _state.loadWallet();
 
-      final int chainId = PreferencesService().chainId;
+      final int chainId = _preferences.chainId;
 
       _state.setChainId(chainId);
 
       final dbWallet = await _db.wallet.getWallet(address);
 
+      final password =
+          await EncryptedPreferencesService().getWalletPassword(address);
+
+      if (password == null) {
+        throw Exception('password not found');
+      }
+
       final wallet = await walletServiceFromChain(
         BigInt.from(chainId),
-        dbWallet['wallet'],
+        dbWallet.wallet,
         password,
       );
 
@@ -125,16 +105,64 @@ class WalletLogic {
 
       _wallet = wallet;
 
-      // _wallet = WalletService.fromWalletFile(
-      //   dotenv.get('DEFAULT_RPC_URL'),
-      //   dotenv.get('TEST_WALLET'),
-      //   dotenv.get('TEST_WALLET_PASSWORD'),
-      // );
+      await _wallet.init();
+
+      final balance = await _wallet.balance;
+      final currency = _wallet.nativeCurrency;
+
+      cleanupBlockSubscription();
+
+      _blockSubscription = _wallet.blockStream.listen(onBlockHash);
+
+      await _preferences.setLastWallet(address);
+
+      _state.loadWalletSuccess(
+        CWWallet(
+          balance,
+          name: currency.name,
+          address: _wallet.address.hex,
+          symbol: currency.symbol,
+          decimalDigits: currency.decimals,
+        ),
+      );
+
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.loadWalletError();
+  }
+
+  Future<void> openWallet(String address, String password) async {
+    try {
+      _state.loadWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
+
+      final dbWallet = await _db.wallet.getWallet(address);
+
+      final wallet = await walletServiceFromChain(
+        BigInt.from(chainId),
+        dbWallet.wallet,
+        password,
+      );
+
+      if (wallet == null) {
+        throw Exception('chain not found');
+      }
+
+      _wallet = wallet;
 
       await _wallet.init();
 
       final balance = await _wallet.balance;
       final currency = _wallet.nativeCurrency;
+
+      cleanupBlockSubscription();
 
       _blockSubscription = _wallet.blockStream.listen(onBlockHash);
 
@@ -155,6 +183,48 @@ class WalletLogic {
     }
 
     _state.loadWalletError();
+  }
+
+  Future<String?> createWallet(String name) async {
+    try {
+      _state.createDBWallet();
+
+      final credentials = EthPrivateKey.createRandom(Random.secure());
+
+      final password = getRandomString(64);
+
+      final address = credentials.address.hex.toLowerCase();
+
+      await EncryptedPreferencesService().setWalletPassword(address, password);
+
+      final Wallet wallet =
+          Wallet.createNew(credentials, password, Random.secure());
+
+      final DBWallet dbwallet = DBWallet(
+        id: 0,
+        type: 'regular',
+        name: name,
+        address: address,
+        balance: 0,
+        wallet: wallet.toJson(),
+      );
+
+      await _db.wallet.create(dbwallet);
+
+      await _preferences.setLastWallet(address);
+
+      _state.createDBWalletSuccess(
+        dbwallet,
+      );
+
+      return credentials.address.hex;
+    } catch (e) {
+      print(e);
+    }
+
+    _state.createDBWalletError();
+
+    return null;
   }
 
   void onBlockHash(String hash) async {
@@ -404,7 +474,7 @@ class WalletLogic {
       final raw = await _db.wallet.getWallet(_wallet.address.hex);
 
       final qrData = QRWalletData(
-        wallet: jsonDecode(raw['wallet']),
+        wallet: jsonDecode(raw.wallet),
         address: _wallet.address.hex,
         publicKey: _wallet.publicKey,
       );
@@ -487,7 +557,7 @@ class WalletLogic {
     try {
       final dbWallet = await _db.wallet.getWallet(address);
 
-      return dbWallet['wallet'];
+      return dbWallet.wallet;
     } catch (e) {
       print('error');
       print(e);
@@ -496,11 +566,33 @@ class WalletLogic {
     return null;
   }
 
+  Future<void> loadDBWallets() async {
+    try {
+      _state.loadDBWallets();
+
+      final wallets = await _db.wallet.getRegularWallets();
+
+      _state.loadDBWalletsSuccess(wallets);
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.loadDBWalletsError();
+  }
+
+  void cleanupBlockSubscription() {
+    if (_blockSubscription != null) {
+      _blockSubscription!.cancel();
+    }
+  }
+
   void dispose() {
     _addressController.dispose();
     _amountController.dispose();
     _messageController.dispose();
     _wallet.dispose();
-    _blockSubscription.cancel();
+    cleanupBlockSubscription();
   }
 }

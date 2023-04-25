@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/wallet.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
@@ -114,13 +115,16 @@ class AppLogic {
       final Wallet wallet =
           Wallet.createNew(credentials, password, Random.secure());
 
-      await _db.wallet.create(
-        'regular',
-        name,
-        address.toLowerCase(),
-        0,
-        wallet.toJson(),
+      final DBWallet dbwallet = DBWallet(
+        id: 0,
+        type: 'regular',
+        name: name,
+        address: address,
+        balance: 0,
+        wallet: wallet.toJson(),
       );
+
+      await _db.wallet.create(dbwallet);
 
       await _preferences.setLastWallet(address);
 
@@ -146,13 +150,16 @@ class AppLogic {
 
       final address = wallet.data.address.toLowerCase();
 
-      await _db.wallet.create(
-        'regular',
-        name,
-        address,
-        0,
-        jsonEncode(wallet.data.wallet),
+      final DBWallet dbwallet = DBWallet(
+        id: 0,
+        type: 'regular',
+        name: name,
+        address: address,
+        balance: 0,
+        wallet: jsonEncode(wallet.data.wallet),
       );
+
+      await _db.wallet.create(dbwallet);
 
       await _preferences.setLastWallet(address);
 

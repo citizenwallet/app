@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/db/wallet.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -31,6 +32,11 @@ class WalletState with ChangeNotifier {
   String walletQR = '';
 
   bool isInvalidPassword = false;
+
+  List<DBWallet> dbWallets = [];
+
+  bool dbWalletsLoading = false;
+  bool dbWalletsError = false;
 
   void setChainId(int chainId) {
     this.chainId = chainId;
@@ -66,6 +72,7 @@ class WalletState with ChangeNotifier {
 
   void loadWalletSuccess(CWWallet wallet) {
     this.wallet = wallet;
+    transactions = [];
 
     loading = false;
     error = false;
@@ -105,8 +112,7 @@ class WalletState with ChangeNotifier {
   }
 
   void loadTransactionsSuccess(List<CWTransaction> transactions) {
-    this.transactions.clear();
-    this.transactions.addAll(transactions);
+    this.transactions = transactions;
 
     transactionsLoading = false;
     transactionsError = false;
@@ -251,6 +257,46 @@ class WalletState with ChangeNotifier {
 
   void setInvalidPassword(bool invalid) {
     isInvalidPassword = invalid;
+    notifyListeners();
+  }
+
+  void loadDBWallets() {
+    dbWalletsLoading = true;
+    dbWalletsError = false;
+    notifyListeners();
+  }
+
+  void loadDBWalletsSuccess(List<DBWallet> wallets) {
+    dbWallets = wallets;
+
+    dbWalletsLoading = false;
+    dbWalletsError = false;
+    notifyListeners();
+  }
+
+  void loadDBWalletsError() {
+    dbWalletsLoading = false;
+    dbWalletsError = true;
+    notifyListeners();
+  }
+
+  void createDBWallet() {
+    dbWalletsLoading = true;
+    dbWalletsError = false;
+    notifyListeners();
+  }
+
+  void createDBWalletSuccess(DBWallet wallet) {
+    dbWallets.insert(0, wallet);
+
+    dbWalletsLoading = false;
+    dbWalletsError = false;
+    notifyListeners();
+  }
+
+  void createDBWalletError() {
+    dbWalletsLoading = false;
+    dbWalletsError = true;
     notifyListeners();
   }
 }
