@@ -14,12 +14,17 @@ class EncryptedPreferencesService {
         accessibility: KeychainAccessibility.unlocked,
       );
 
+  MacOsOptions _getMacOsOptions() => const MacOsOptions(
+        accessibility: KeychainAccessibility.unlocked,
+      );
+
   late FlutterSecureStorage _preferences;
 
   Future init() async {
     _preferences = FlutterSecureStorage(
       iOptions: _getIOSOptions(),
       aOptions: _getAndroidOptions(),
+      mOptions: _getMacOsOptions(),
     );
   }
 
@@ -28,6 +33,12 @@ class EncryptedPreferencesService {
   }
 
   Future<void> setWalletPassword(String address, String password) async {
+    final savedValue =
+        await _preferences.read(key: 'w_${address.toLowerCase()}');
+    if (savedValue != null) {
+      await _preferences.delete(key: 'w_${address.toLowerCase()}');
+    }
+
     await _preferences.write(
         key: 'w_${address.toLowerCase()}', value: password);
   }

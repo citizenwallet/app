@@ -50,6 +50,8 @@ class WalletLogic {
         throw Exception('Chain not found');
       }
 
+      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+
       await _wallet.switchChain(chain);
 
       final balance = await _wallet.balance;
@@ -62,6 +64,7 @@ class WalletLogic {
           address: _wallet.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
+          locked: dbwallet.locked,
         ),
       );
 
@@ -86,17 +89,16 @@ class WalletLogic {
 
       final dbWallet = await _db.wallet.getWallet(address);
 
-      final password =
-          await EncryptedPreferencesService().getWalletPassword(address);
+      // final password =
+      //     await EncryptedPreferencesService().getWalletPassword(address);
 
-      if (password == null) {
-        throw Exception('password not found');
-      }
+      // if (password == null) {
+      //   throw Exception('password not found');
+      // }
 
       final wallet = await walletServiceFromChain(
         BigInt.from(chainId),
-        dbWallet.wallet,
-        password,
+        address,
       );
 
       if (wallet == null) {
@@ -123,6 +125,7 @@ class WalletLogic {
           address: _wallet.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
+          locked: dbWallet.locked,
         ),
       );
 
@@ -135,7 +138,7 @@ class WalletLogic {
     _state.loadWalletError();
   }
 
-  Future<void> openWallet(String address, String password) async {
+  Future<void> openWallet(String address) async {
     try {
       _state.loadWallet();
 
@@ -147,8 +150,7 @@ class WalletLogic {
 
       final wallet = await walletServiceFromChain(
         BigInt.from(chainId),
-        dbWallet.wallet,
-        password,
+        address,
       );
 
       if (wallet == null) {
@@ -173,6 +175,7 @@ class WalletLogic {
           address: _wallet.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
+          locked: dbWallet.locked,
         ),
       );
 
@@ -201,12 +204,13 @@ class WalletLogic {
           Wallet.createNew(credentials, password, Random.secure());
 
       final DBWallet dbwallet = DBWallet(
-        id: 0,
         type: 'regular',
         name: name,
         address: address,
+        publicKey: wallet.privateKey.encodedPublicKey,
         balance: 0,
         wallet: wallet.toJson(),
+        locked: false,
       );
 
       await _db.wallet.create(dbwallet);
@@ -218,6 +222,42 @@ class WalletLogic {
       );
 
       return credentials.address.hex;
+    } catch (e) {
+      print(e);
+    }
+
+    _state.createDBWalletError();
+
+    return null;
+  }
+
+  Future<QRWallet?> importWallet(String qrWallet, String name) async {
+    try {
+      _state.createDBWallet();
+
+      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
+
+      await wallet.verifyData();
+
+      final address = wallet.data.address.toLowerCase();
+
+      final DBWallet dbwallet = DBWallet(
+        type: 'regular',
+        name: name,
+        address: address,
+        publicKey: wallet.data.publicKey,
+        balance: 0,
+        wallet: jsonEncode(wallet.data.wallet),
+        locked: true,
+      );
+
+      await _db.wallet.create(dbwallet);
+
+      await _preferences.setLastWallet(address);
+
+      _state.createDBWalletSuccess(dbwallet);
+
+      return wallet;
     } catch (e) {
       print(e);
     }
@@ -267,6 +307,72 @@ class WalletLogic {
     }
 
     _state.incomingTransactionsRequestError();
+  }
+
+  // takes a user password, sets a random password for the wallet and saves it in encrypted storage
+  Future<void> unlockWallet(String address, String password) async {
+    try {
+      _state.updateWallet();
+
+      final dbwallet = await _db.wallet.getWallet(address);
+
+      final Wallet wallet = Wallet.fromJson(dbwallet.wallet, password);
+
+      final newPassword = getRandomString(64);
+
+      final random = Random.secure();
+
+      final Wallet newWallet =
+          Wallet.createNew(wallet.privateKey, newPassword, random);
+
+      await _db.wallet.unlock(address, newWallet.toJson());
+
+      await EncryptedPreferencesService()
+          .setWalletPassword(address, newPassword);
+
+      _state.updateWalletSuccess();
+
+      await loadDBWallets();
+      return;
+    } catch (e) {
+      print(e);
+    }
+
+    _state.updateWalletError();
+  }
+
+  // takes a user password and locks a wallet
+  Future<void> lockWallet(String address, String password) async {
+    try {
+      _state.updateWallet();
+
+      final dbwallet = await _db.wallet.getWallet(address);
+
+      final savedPassword =
+          await EncryptedPreferencesService().getWalletPassword(address);
+
+      if (savedPassword == null) {
+        throw Exception('password not found');
+      }
+
+      final Wallet wallet = Wallet.fromJson(dbwallet.wallet, savedPassword);
+
+      final random = Random.secure();
+
+      final Wallet newWallet =
+          Wallet.createNew(wallet.privateKey, password, random);
+
+      await _db.wallet.lock(address, newWallet.toJson());
+
+      _state.updateWalletSuccess();
+
+      await loadDBWallets();
+      return;
+    } catch (e) {
+      print(e);
+    }
+
+    _state.updateWalletError();
   }
 
   Future<void> loadTransactions() async {
@@ -329,10 +435,21 @@ class WalletLogic {
         throw Exception('invalid amount');
       }
 
+      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+
+      final savedPassword = await EncryptedPreferencesService()
+          .getWalletPassword(_wallet.address.hex);
+
+      if (savedPassword == null) {
+        throw Exception('password not found');
+      }
+
       final hash = await _wallet.sendTransaction(
         to: to,
         amount: doubleAmount.toInt(),
         message: message,
+        walletFile: dbwallet.wallet,
+        password: savedPassword,
       );
 
       _state.sendTransactionSuccess(CWTransaction.pending(
@@ -376,9 +493,10 @@ class WalletLogic {
       final qrWallet = qr.toQRWallet();
 
       final verified = await qrWallet.verifyData();
-      if (!verified) {
-        throw signatureException;
-      }
+      // TODO: implement a visual warning that the code is not signed
+      // if (!verified) {
+      //   throw signatureException;
+      // }
 
       _addressController.text = qrWallet.data.address;
       _state.setHasAddress(qrWallet.data.address.isNotEmpty);
@@ -419,9 +537,10 @@ class WalletLogic {
       final qrTransaction = qr.toQRTransactionRequest();
 
       final verified = await qrTransaction.verifyData();
-      if (!verified) {
-        throw signatureException;
-      }
+      // TODO: implement a visual warning that the code is not signed
+      // if (!verified) {
+      //   throw signatureException;
+      // }
 
       _addressController.text = qrTransaction.data.address;
       _state.setHasAddress(qrTransaction.data.address.isNotEmpty);
@@ -450,18 +569,29 @@ class WalletLogic {
           ? 0
           : double.tryParse(_amountController.text) ?? 0;
 
+      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+
       final qrData = QRTransactionRequestData(
         chainId: _wallet.chainId,
-        address: _wallet.address.hex,
+        address: dbwallet.address,
         amount: amount,
-        publicKey: _wallet.publicKey,
+        publicKey: dbwallet.publicKey,
       );
 
       final qr = QRTransactionRequest(raw: qrData.toJson());
 
-      final signer = Signer(_wallet.privateKey);
+      final savedPassword = await EncryptedPreferencesService()
+          .getWalletPassword(dbwallet.address);
 
-      await qr.generateSignature(signer);
+      if (savedPassword != null) {
+        final credentials = _wallet.unlock(dbwallet.wallet, savedPassword);
+
+        if (credentials != null) {
+          final signer = Signer(credentials);
+
+          await qr.generateSignature(signer);
+        }
+      }
 
       final compressed = qr.toCompressedJson();
 
@@ -481,23 +611,28 @@ class WalletLogic {
 
   void updateWalletQR() async {
     try {
-      if (_wallet.wallet == null) {
-        throw Exception('wallet not set');
-      }
-
-      final raw = await _db.wallet.getWallet(_wallet.address.hex);
+      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
 
       final qrData = QRWalletData(
-        wallet: jsonDecode(raw.wallet),
-        address: _wallet.address.hex,
-        publicKey: _wallet.publicKey,
+        wallet: jsonDecode(dbwallet.wallet),
+        address: dbwallet.address,
+        publicKey: dbwallet.publicKey,
       );
 
       final qr = QRWallet(raw: qrData.toJson());
 
-      final signer = Signer(_wallet.privateKey);
+      final savedPassword = await EncryptedPreferencesService()
+          .getWalletPassword(dbwallet.address);
 
-      await qr.generateSignature(signer);
+      if (savedPassword != null) {
+        final credentials = _wallet.unlock(dbwallet.wallet, savedPassword);
+
+        if (credentials != null) {
+          final signer = Signer(credentials);
+
+          await qr.generateSignature(signer);
+        }
+      }
 
       final compressed = qr.toCompressedJson();
 

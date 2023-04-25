@@ -6,20 +6,39 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
-class TextInputModal extends StatelessWidget {
-  late TextEditingController _controller;
-
+class TextInputModal extends StatefulWidget {
   final String title;
   final String placeholder;
   final String initialValue;
+  final bool secure;
+  final bool confirm;
 
-  TextInputModal({
+  const TextInputModal({
     super.key,
     this.title = 'Submit',
     this.placeholder = 'Enter text',
     this.initialValue = '',
-  }) {
-    _controller = TextEditingController(text: initialValue);
+    this.secure = false,
+    this.confirm = false,
+  });
+
+  @override
+  TextInputModalState createState() => TextInputModalState();
+}
+
+class TextInputModalState extends State<TextInputModal> {
+  late TextEditingController _controller;
+  final TextEditingController _confirmController = TextEditingController();
+
+  final FocusNode focusNode = FocusNode();
+
+  bool _invalid = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = TextEditingController(text: widget.initialValue);
   }
 
   void handleDismiss(BuildContext context) {
@@ -27,6 +46,31 @@ class TextInputModal extends StatelessWidget {
   }
 
   void handleSubmit(BuildContext context) {
+    if (widget.confirm) {
+      focusNode.requestFocus();
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+    HapticFeedback.lightImpact();
+    GoRouter.of(context).pop(_controller.value.text);
+  }
+
+  void handleSubmitConfirm(BuildContext context) {
+    final isMatching = _controller.value.text == _confirmController.value.text;
+    if (!isMatching) {
+      setState(() {
+        _invalid = true;
+      });
+
+      HapticFeedback.lightImpact();
+      return;
+    }
+
+    setState(() {
+      _invalid = false;
+    });
+
     HapticFeedback.lightImpact();
     GoRouter.of(context).pop(_controller.value.text);
   }
@@ -53,7 +97,7 @@ class TextInputModal extends StatelessWidget {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: title,
+                  title: widget.title,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -70,27 +114,80 @@ class TextInputModal extends StatelessWidget {
                     children: [
                       CupertinoTextField(
                         controller: _controller,
-                        placeholder: placeholder,
+                        placeholder: widget.placeholder,
                         maxLines: 1,
+                        autofocus: true,
                         autocorrect: false,
                         enableSuggestions: false,
+                        obscureText: widget.secure,
                         textInputAction: TextInputAction.done,
                         decoration: BoxDecoration(
                           color: const CupertinoDynamicColor.withBrightness(
                             color: CupertinoColors.white,
                             darkColor: CupertinoColors.black,
                           ),
-                          border: Border.all(
-                            color: ThemeColors.border.resolveFrom(context),
-                          ),
+                          border: _invalid
+                              ? Border.all(
+                                  color:
+                                      ThemeColors.danger.resolveFrom(context),
+                                )
+                              : Border.all(
+                                  color:
+                                      ThemeColors.border.resolveFrom(context),
+                                ),
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5.0)),
                         ),
                         onSubmitted: (_) {
-                          FocusManager.instance.primaryFocus?.unfocus();
                           handleSubmit(context);
                         },
                       ),
+                      if (widget.confirm)
+                        const SizedBox(
+                          height: 20,
+                        ),
+                      if (widget.confirm)
+                        const Text(
+                          'Confirm password',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                      if (widget.confirm)
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      if (widget.confirm)
+                        CupertinoTextField(
+                          controller: _confirmController,
+                          placeholder: widget.placeholder,
+                          maxLines: 1,
+                          autofocus: true,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          obscureText: widget.secure,
+                          textInputAction: TextInputAction.done,
+                          focusNode: focusNode,
+                          decoration: BoxDecoration(
+                            color: const CupertinoDynamicColor.withBrightness(
+                              color: CupertinoColors.white,
+                              darkColor: CupertinoColors.black,
+                            ),
+                            border: _invalid
+                                ? Border.all(
+                                    color:
+                                        ThemeColors.danger.resolveFrom(context),
+                                  )
+                                : Border.all(
+                                    color:
+                                        ThemeColors.border.resolveFrom(context),
+                                  ),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                          onSubmitted: (_) {
+                            handleSubmitConfirm(context);
+                          },
+                        ),
                       const SizedBox(
                         height: 20,
                       ),
@@ -107,7 +204,9 @@ class TextInputModal extends StatelessWidget {
                                 color: ThemeColors.white.resolveFrom(context),
                               ),
                             ),
-                            onPressed: () => handleSubmit(context),
+                            onPressed: widget.confirm
+                                ? () => handleSubmitConfirm(context)
+                                : () => handleSubmit(context),
                           )
                         ],
                       ),

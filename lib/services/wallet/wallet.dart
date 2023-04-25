@@ -14,10 +14,11 @@ import 'package:http/http.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
+final Exception lockedWalletException = Exception('Wallet is locked');
+
 Future<WalletService?> walletServiceFromChain(
   BigInt chainId,
-  String walletFile,
-  String password,
+  String address,
 ) async {
   final List rawNativeChains =
       jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
@@ -29,8 +30,7 @@ Future<WalletService?> walletServiceFromChain(
   if (i >= 0) {
     return WalletService.fromWalletFile(
       nativeChains[i],
-      walletFile,
-      password,
+      address,
     );
   }
 
@@ -46,8 +46,7 @@ Future<WalletService?> walletServiceFromChain(
 
   return WalletService.fromWalletFile(
     chains[ii],
-    walletFile,
-    password,
+    address,
   );
 }
 
@@ -55,9 +54,10 @@ class WalletService {
   String? _clientVersion;
   BigInt? _chainId;
   Chain? _chain;
-  late Wallet? _wallet;
-  late EthPrivateKey _credentials;
+  // Wallet? _wallet;
+  // EthPrivateKey? _credentials;
   late EthereumAddress _address;
+  Uint8List? _publicKey;
 
   final Client _client = Client();
 
@@ -74,8 +74,8 @@ class WalletService {
 
     final Random key = Random.secure();
 
-    _credentials = EthPrivateKey.createRandom(key);
-    _address = _credentials.address;
+    // _credentials = EthPrivateKey.createRandom(key);
+    // _address = _credentials!.address;
   }
 
   /// creates using an existing private key from a hex string
@@ -86,27 +86,28 @@ class WalletService {
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    _credentials = EthPrivateKey.fromHex(privateKey);
-    _address = _credentials.address;
+    // _credentials = EthPrivateKey.fromHex(privateKey);
+    // _address = _credentials!.address;
   }
 
   /// creates using a wallet file
   /// init before using
   WalletService.fromWalletFile(
     this._chain,
-    String walletFile,
-    String password,
+    String address,
   ) {
     final url = _chain!.rpc.first;
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    Wallet wallet = Wallet.fromJson(walletFile, password);
+    _address = EthereumAddress.fromHex(address);
 
-    _wallet = wallet;
-    _credentials = wallet.privateKey;
-    _address = _credentials.address;
+    // Wallet wallet = Wallet.fromJson(walletFile, password);
+
+    // _wallet = wallet;
+    // _credentials = wallet.privateKey;
+    _address = EthereumAddress.fromHex(address);
   }
 
   /// creates using a signer
@@ -120,13 +121,29 @@ class WalletService {
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    _credentials = signer.privateKey;
-    _address = _credentials.address;
+    // _credentials = signer.privateKey;
+    _address = signer.privateKey.address;
   }
 
   Future<void> init() async {
     _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
+  }
+
+  EthPrivateKey? unlock(String walletFile, String password) {
+    try {
+      Wallet wallet = Wallet.fromJson(walletFile, password);
+
+      return wallet.privateKey;
+    } catch (e) {
+      print(e);
+    }
+
+    // _wallet = wallet;
+    // _credentials = wallet.privateKey;
+    // _address = _credentials!.address;
+
+    return null;
   }
 
   Future<void> switchChain(Chain chain) {
@@ -181,28 +198,56 @@ class WalletService {
   }
 
   /// retrieve the private key as a v3 wallet
-  String toWalletFile(String password) {
+  String toWalletFile(String walletFile, String password) {
+    final credentials = unlock(walletFile, password);
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
     final Random random = Random.secure();
-    Wallet wallet = Wallet.createNew(_credentials, password, random);
+    Wallet wallet = Wallet.createNew(credentials, password, random);
 
     return wallet.toJson();
   }
 
-  EthPrivateKey get privateKey => _credentials;
+  // EthPrivateKey get privateKey {
+  //   if (_credentials == null) {
+  //     throw lockedWalletException;
+  //   }
+
+  //   return _credentials!;
+  // }
 
   /// retrieve the private key as a hex string
-  String get privateKeyHex =>
-      bytesToHex(_credentials.privateKey, include0x: true);
+  // String get privateKeyHex {
+  //   if (_credentials == null) {
+  //     throw lockedWalletException;
+  //   }
 
-  Uint8List get publicKey => _credentials.encodedPublicKey;
-  String get publicKeyHex =>
-      bytesToHex(_credentials.encodedPublicKey, include0x: true);
+  //   return bytesToHex(_credentials!.privateKey, include0x: true);
+  // }
+
+  Uint8List get publicKey {
+    if (_publicKey == null) {
+      throw lockedWalletException;
+    }
+
+    return _publicKey!;
+  }
+
+  String get publicKeyHex {
+    if (_publicKey == null) {
+      throw lockedWalletException;
+    }
+
+    return bytesToHex(_publicKey!, include0x: true);
+  }
 
   /// retrieve chain id
   int get chainId => _chainId!.toInt();
 
   /// retrieve raw wallet that was used to instantiate this service
-  Wallet? get wallet => _wallet;
+  // Wallet? get wallet => _wallet;
 
   /// retrieve chain symbol
   NativeCurrency get nativeCurrency => _chain!.nativeCurrency;
@@ -279,16 +324,23 @@ class WalletService {
     required String to,
     required int amount,
     String message = '',
+    required String walletFile,
+    String password = '',
   }) async {
+    final credentials = unlock(walletFile, password);
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
-      from: address,
+      from: credentials.address,
       value: EtherAmount.fromInt(EtherUnit.ether, amount),
       data: Message(message: message).toBytes(),
     );
 
     return await _ethClient.sendTransaction(
-      _credentials,
+      credentials,
       transaction,
       chainId: _chainId!.toInt(),
     );

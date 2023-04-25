@@ -1,45 +1,50 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:sqflite/sqlite_api.dart';
+import 'package:web3dart/crypto.dart';
 
 // class representing a wallet from WalletTable
 class DBWallet {
-  final int id;
   final String type;
   final String name;
   final String address;
+  final Uint8List publicKey;
   final int balance;
   final String wallet;
+  final bool locked;
 
   DBWallet({
-    required this.id,
     required this.type,
     required this.name,
     required this.address,
+    required this.publicKey,
     required this.balance,
     required this.wallet,
+    this.locked = true,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'wallet_type': type,
       'name': name,
       'address': address,
+      'public_key': bytesToHex(publicKey, include0x: true),
       'balance': balance,
       'wallet': wallet,
+      'locked': locked ? 1 : 0,
     };
   }
 
   factory DBWallet.fromMap(Map<String, dynamic> map) {
     return DBWallet(
-      id: map['id'],
       type: map['wallet_type'],
       name: map['name'],
       address: map['address'],
+      publicKey: hexToBytes(map['public_key']),
       balance: map['balance'],
       wallet: map['wallet'],
+      locked: map['locked'] == 1,
     );
   }
 }
@@ -53,12 +58,13 @@ class WalletTable extends DBTable {
   @override
   String get createQuery => '''
     CREATE TABLE $name (
-      id INTEGER PRIMARY KEY,
+      address TEXT NOT NULL PRIMARY KEY,
       wallet_type TEXT NOT NULL,
       name TEXT NOT NULL,
-      address TEXT NOT NULL,
+      public_key TEXT NOT NULL,
       balance INTEGER NOT NULL,
-      wallet TEXT NOT NULL
+      wallet TEXT NOT NULL,
+      locked INTEGER DEFAULT 0
     )
   ''';
 
@@ -107,25 +113,15 @@ class WalletTable extends DBTable {
     await db.insert(
       name,
       {
+        'address': wallet.address,
         'wallet_type': wallet.type,
         'name': wallet.name,
-        'address': wallet.address,
+        'public_key': bytesToHex(wallet.publicKey, include0x: true),
         'balance': wallet.balance,
         'wallet': wallet.wallet,
+        'locked': wallet.locked ? 1 : 0,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  /// update wallet name using the wallet id
-  Future<void> updateName(int id, String name) async {
-    await db.update(
-      this.name,
-      {
-        'name': name,
-      },
-      where: 'id = ?',
-      whereArgs: [id],
     );
   }
 
@@ -159,6 +155,32 @@ class WalletTable extends DBTable {
       name,
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  // lock wallet by address
+  Future<void> lock(String address, String wallet) async {
+    await db.update(
+      name,
+      {
+        'locked': 1,
+        'wallet': wallet,
+      },
+      where: 'address = ?',
+      whereArgs: [address],
+    );
+  }
+
+  // unlock wallet by address
+  Future<void> unlock(String address, String wallet) async {
+    await db.update(
+      name,
+      {
+        'locked': 0,
+        'wallet': wallet,
+      },
+      where: 'address = ?',
+      whereArgs: [address],
     );
   }
 }

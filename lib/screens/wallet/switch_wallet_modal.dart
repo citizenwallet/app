@@ -7,6 +7,7 @@ import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -68,14 +69,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       return;
     }
 
-    await widget.logic.openWalletFromDB(address);
+    // await widget.logic.openWalletFromDB(address);
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop();
+    navigator.pop(address);
   }
 
-  void handleEdit(BuildContext context, String address, String name) async {
+  void handleMore(
+      BuildContext context, String address, String name, bool locked) async {
     final option = await showCupertinoModalPopup<String?>(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -87,6 +89,12 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                   Navigator.of(dialogContext).pop('edit');
                 },
                 child: const Text('Edit'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(locked ? 'unlock' : 'lock');
+                },
+                child: Text(locked ? 'Unlock' : 'Lock'),
               ),
               // CupertinoActionSheetAction(
               //   isDestructiveAction: true,
@@ -127,17 +135,98 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       await widget.logic.editWallet(address, newName);
 
       HapticFeedback.heavyImpact();
+      return;
     }
+
+    if (option == 'lock') {
+      final password = await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => TextInputModal(
+          title: 'Set Password',
+          placeholder: 'Enter wallet password',
+          secure: true,
+          confirm: true,
+        ),
+      );
+
+      if (password == null || password.isEmpty) {
+        return;
+      }
+
+      await widget.logic.lockWallet(address, password);
+
+      HapticFeedback.heavyImpact();
+      return;
+    }
+
+    if (option == 'unlock') {
+      final password = await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => TextInputModal(
+          title: 'Enter Password',
+          placeholder: 'Enter wallet password',
+          secure: true,
+        ),
+      );
+
+      if (password == null || password.isEmpty) {
+        return;
+      }
+
+      await widget.logic.unlockWallet(address, password);
+
+      HapticFeedback.heavyImpact();
+      return;
+    }
+  }
+
+  void handleImport(BuildContext context) async {
+    final navigator = GoRouter.of(context);
+
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const Scanner(
+        modalKey: 'import-wallet-wallet-list-scanner',
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    final newName = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => TextInputModal(
+        title: 'Edit Wallet',
+        placeholder: 'Enter wallet name',
+        initialValue: 'New Wallet',
+      ),
+    );
+
+    final wallet =
+        await widget.logic.importWallet(result, newName ?? 'New Wallet');
+
+    if (wallet == null) {
+      return;
+    }
+
+    HapticFeedback.heavyImpact();
+
+    navigator.pop(wallet.data.address.toLowerCase());
   }
 
   void handleWalletTap(String address) async {
     final navigator = GoRouter.of(context);
 
-    await widget.logic.openWalletFromDB(address);
+    // await widget.logic.openWalletFromDB(address);
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop();
+    navigator.pop(address);
   }
 
   Future<void> handleRefresh() async {
@@ -220,10 +309,18 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                                   key: Key(wallet.address),
                                   wallet,
                                   onTap: () => handleWalletTap(wallet.address),
-                                  onMore: () => handleEdit(
-                                      context, wallet.address, wallet.name),
+                                  onMore: () => handleMore(
+                                      context,
+                                      wallet.address,
+                                      wallet.name,
+                                      wallet.locked),
                                 );
                               },
+                            ),
+                          ),
+                          const SliverToBoxAdapter(
+                            child: SizedBox(
+                              height: 120,
                             ),
                           ),
                         ],
@@ -232,9 +329,18 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                         bottom: 20,
                         left: 20,
                         right: 20,
-                        child: Button(
-                          text: 'Create Wallet',
-                          onPressed: () => handleCreate(context),
+                        child: Column(
+                          children: [
+                            Button(
+                              text: 'Create Wallet',
+                              onPressed: () => handleCreate(context),
+                            ),
+                            const SizedBox(height: 10),
+                            Button(
+                              text: 'Import Wallet',
+                              onPressed: () => handleImport(context),
+                            ),
+                          ],
                         ),
                       ),
                     ],

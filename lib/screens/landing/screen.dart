@@ -4,6 +4,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/screen_description.dart';
+import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +47,16 @@ class LandingScreenState extends State<LandingScreen>
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
 
-    final address = await _appLogic.createWallet('New Wallet');
+    final name = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => TextInputModal(
+        title: 'Wallet Name',
+        placeholder: 'Enter wallet name',
+      ),
+    );
+
+    final address = await _appLogic.createWallet(name ?? 'New Wallet');
 
     if (address == null) {
       return;
@@ -68,7 +78,16 @@ class LandingScreenState extends State<LandingScreen>
     );
 
     if (result != null && await _appLogic.isVerifiedWallet(result)) {
-      final wallet = await _appLogic.importWallet(result, 'New Wallet');
+      final name = await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => TextInputModal(
+          title: 'Wallet Name',
+          placeholder: 'Enter wallet name',
+        ),
+      );
+
+      final wallet = await _appLogic.importWallet(result, name ?? 'New Wallet');
 
       if (wallet == null) {
         return;

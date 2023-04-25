@@ -7,6 +7,7 @@ import 'package:citizenwallet/screens/wallets/wallet_header.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,25 +52,8 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    final navigator = GoRouter.of(context);
-
-    final password = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => PasswordModal(
-        address: widget.address!,
-        logic: _logic,
-      ),
-    );
-
-    if (password == null) {
-      navigator.go('/');
-      return;
-    }
-
     await _logic.openWallet(
       widget.address!,
-      password,
     );
 
     await _logic.loadTransactions();
@@ -88,7 +72,9 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    await showCupertinoModalPopup(
+    final navigator = GoRouter.of(context);
+
+    final address = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => SwitchWalletModal(
@@ -96,7 +82,15 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    await _logic.loadTransactions();
+    if (address == null) {
+      return;
+    }
+
+    navigator.go('/wallet/${address.toLowerCase()}');
+
+    await delay(const Duration(milliseconds: 500));
+
+    onLoad();
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
@@ -364,36 +358,39 @@ class WalletScreenState extends State<WalletScreen> {
                       ),
                     ],
                   ),
-                  Positioned(
-                    bottom: 10,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: handleSendModal,
-                          borderRadius: BorderRadius.circular(25),
-                          color: ThemeColors.primary.resolveFrom(context),
-                          child: Icon(
-                            CupertinoIcons.arrow_up,
-                            color: ThemeColors.touchable.resolveFrom(context),
+                  if (wallet != null)
+                    Positioned(
+                      bottom: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (!wallet.locked)
+                            CupertinoButton(
+                              padding: const EdgeInsets.all(5),
+                              onPressed: handleSendModal,
+                              borderRadius: BorderRadius.circular(25),
+                              color: ThemeColors.primary.resolveFrom(context),
+                              child: Icon(
+                                CupertinoIcons.arrow_up,
+                                color:
+                                    ThemeColors.touchable.resolveFrom(context),
+                              ),
+                            ),
+                          const SizedBox(width: 20),
+                          CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            onPressed: handleReceive,
+                            borderRadius: BorderRadius.circular(25),
+                            color: ThemeColors.primary.resolveFrom(context),
+                            child: Icon(
+                              CupertinoIcons.arrow_down,
+                              color: ThemeColors.touchable.resolveFrom(context),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 20),
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: handleReceive,
-                          borderRadius: BorderRadius.circular(25),
-                          color: ThemeColors.primary.resolveFrom(context),
-                          child: Icon(
-                            CupertinoIcons.arrow_down,
-                            color: ThemeColors.touchable.resolveFrom(context),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

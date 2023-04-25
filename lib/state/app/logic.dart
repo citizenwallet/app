@@ -116,12 +116,13 @@ class AppLogic {
           Wallet.createNew(credentials, password, Random.secure());
 
       final DBWallet dbwallet = DBWallet(
-        id: 0,
         type: 'regular',
         name: name,
         address: address,
+        publicKey: wallet.privateKey.encodedPublicKey,
         balance: 0,
         wallet: wallet.toJson(),
+        locked: false,
       );
 
       await _db.wallet.create(dbwallet);
@@ -151,12 +152,13 @@ class AppLogic {
       final address = wallet.data.address.toLowerCase();
 
       final DBWallet dbwallet = DBWallet(
-        id: 0,
         type: 'regular',
         name: name,
         address: address,
+        publicKey: wallet.data.publicKey,
         balance: 0,
         wallet: jsonEncode(wallet.data.wallet),
+        locked: true,
       );
 
       await _db.wallet.create(dbwallet);

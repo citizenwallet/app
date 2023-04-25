@@ -85,6 +85,24 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateWallet() {
+    loading = true;
+    error = false;
+    notifyListeners();
+  }
+
+  void updateWalletSuccess() {
+    loading = false;
+    error = false;
+    notifyListeners();
+  }
+
+  void updateWalletError() {
+    loading = false;
+    error = true;
+    notifyListeners();
+  }
+
   void updateWalletBalance() {
     loading = true;
     error = false;

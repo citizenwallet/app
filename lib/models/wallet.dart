@@ -6,6 +6,7 @@ class CWWallet {
   double _balance;
   final String symbol;
   final int decimalDigits;
+  final bool locked;
 
   CWWallet(
     this._balance, {
@@ -13,6 +14,7 @@ class CWWallet {
     required this.address,
     required this.symbol,
     this.decimalDigits = 2,
+    this.locked = true,
   });
 
   double get balance => _balance;
@@ -29,7 +31,8 @@ class CWWallet {
         address = json['address'],
         _balance = json['balance'],
         symbol = json['symbol'],
-        decimalDigits = json['decimalDigits'];
+        decimalDigits = json['decimalDigits'],
+        locked = json['locked'];
 
   // Convert a Conversation object into a Map object.
   // The keys must correspond to the names of the columns in the database.
@@ -39,6 +42,7 @@ class CWWallet {
         'balance': _balance,
         'symbol': symbol,
         'decimalDigits': decimalDigits,
+        'locked': locked,
       };
 
   void setBalance(double balance) {
