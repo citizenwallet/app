@@ -1,18 +1,23 @@
 import 'package:citizenwallet/models/transaction.dart';
+import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TransactionScreen extends StatefulWidget {
+  final String? address;
   final String? transactionId;
 
   const TransactionScreen({
     Key? key,
+    required this.address,
     required this.transactionId,
   }) : super(key: key);
 
@@ -21,17 +26,57 @@ class TransactionScreen extends StatefulWidget {
 }
 
 class TransactionScreenState extends State<TransactionScreen> {
+  late WalletLogic logic;
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+
+      logic = WalletLogic(context);
+
+      if (widget.address != null) {
+        logic.instantiateWalletFromDB(widget.address!);
+      }
     });
   }
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();
+  }
+
+  void handleReply(String address) async {
+    logic.prepareReplyTransaction(address);
+
+    HapticFeedback.lightImpact();
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => SendModal(
+        logic: logic,
+      ),
+    );
+  }
+
+  void handleReplay(
+    String address,
+    double amount,
+    String message,
+  ) async {
+    logic.prepareReplayTransaction(address, amount: amount, message: message);
+
+    HapticFeedback.lightImpact();
+
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => SendModal(
+        logic: logic,
+      ),
+    );
   }
 
   @override
@@ -41,8 +86,16 @@ class TransactionScreenState extends State<TransactionScreen> {
         state.transactions
             .firstWhere((element) => element.id == widget.transactionId));
 
-    if (wallet == null || transaction == null) {
+    final loading = context.select((WalletState state) => state.loading);
+
+    if (wallet == null || transaction == null || widget.address == null) {
       return const SizedBox();
+    }
+
+    if (loading) {
+      return CupertinoActivityIndicator(
+        color: ThemeColors.subtle.resolveFrom(context),
+      );
     }
 
     final isIncoming = transaction.isIncoming(wallet.address);
@@ -94,10 +147,13 @@ class TransactionScreenState extends State<TransactionScreen> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              // transaction.from,
-                              transaction.to == wallet.address
-                                  ? 'Me'
-                                  : 'Unknown',
+                              transaction.isIncoming(wallet.address)
+                                  ? transaction.from == wallet.address
+                                      ? 'Me'
+                                      : 'Unknown'
+                                  : transaction.to == wallet.address
+                                      ? 'Me'
+                                      : 'Unknown',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
@@ -229,6 +285,48 @@ class TransactionScreenState extends State<TransactionScreen> {
                           ),
                         ),
                       ),
+                      if (!wallet.locked && !loading)
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              transaction.isIncoming(wallet.address)
+                                  ? CupertinoButton(
+                                      padding: const EdgeInsets.all(5),
+                                      onPressed: () =>
+                                          handleReply(transaction.from),
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: ThemeColors.primary
+                                          .resolveFrom(context),
+                                      child: Icon(
+                                        CupertinoIcons.reply,
+                                        color: ThemeColors.white
+                                            .resolveFrom(context),
+                                      ),
+                                    )
+                                  : CupertinoButton(
+                                      padding: const EdgeInsets.all(5),
+                                      onPressed: () => handleReplay(
+                                        transaction.to,
+                                        transaction.amount,
+                                        transaction.title,
+                                      ),
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: ThemeColors.primary
+                                          .resolveFrom(context),
+                                      child: Icon(
+                                        CupertinoIcons.refresh_thick,
+                                        color: ThemeColors.white
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),

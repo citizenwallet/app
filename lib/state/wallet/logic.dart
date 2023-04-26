@@ -90,6 +90,42 @@ class WalletLogic {
     _state.switchChainError();
   }
 
+  Future<void> instantiateWalletFromDB(String address) async {
+    try {
+      _state.instantiateWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
+
+      final dbWallet = await _db.wallet.getWallet(address);
+
+      final wallet = await walletServiceFromChain(
+        BigInt.from(chainId),
+        address,
+      );
+
+      if (wallet == null) {
+        throw Exception('chain not found');
+      }
+
+      _wallet = wallet;
+
+      final walletService = walletServiceCheck();
+
+      await walletService.init();
+
+      _state.instantiateWalletSuccess();
+
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.instantiateWalletError();
+  }
+
   Future<void> openWalletFromDB(String address) async {
     try {
       _state.loadWallet();
@@ -99,13 +135,6 @@ class WalletLogic {
       _state.setChainId(chainId);
 
       final dbWallet = await _db.wallet.getWallet(address);
-
-      // final password =
-      //     await EncryptedPreferencesService().getWalletPassword(address);
-
-      // if (password == null) {
-      //   throw Exception('password not found');
-      // }
 
       final wallet = await walletServiceFromChain(
         BigInt.from(chainId),
@@ -847,6 +876,35 @@ class WalletLogic {
     }
 
     _state.loadDBWalletsError();
+  }
+
+  void prepareReplyTransaction(String address) {
+    try {
+      _addressController.text = address;
+      _state.setHasAddress(address.isNotEmpty);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void prepareReplayTransaction(
+    String address, {
+    double amount = 0,
+    String message = '',
+  }) {
+    try {
+      _addressController.text = address;
+      _state.setHasAddress(address.isNotEmpty);
+
+      final walletService = walletServiceCheck();
+
+      _amountController.text =
+          amount.toStringAsFixed(walletService.nativeCurrency.decimals);
+
+      _messageController.text = message;
+    } catch (e) {
+      print(e);
+    }
   }
 
   void cleanupBlockSubscription() {

@@ -54,8 +54,13 @@ class TransactionRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    // transaction.from,
-                    transaction.to == wallet.address ? 'Me' : 'Unknown',
+                    transaction.isIncoming(wallet.address)
+                        ? transaction.from == wallet.address
+                            ? 'Me'
+                            : 'Unknown'
+                        : transaction.to == wallet.address
+                            ? 'Me'
+                            : 'Unknown',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

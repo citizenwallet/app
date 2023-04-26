@@ -59,6 +59,7 @@ GoRouter createRouter(
                     path: 'transactions/:transactionId',
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => TransactionScreen(
+                      address: state.params['address'],
                       transactionId: state.params['transactionId'],
                     ),
                   ),

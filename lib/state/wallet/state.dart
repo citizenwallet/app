@@ -64,13 +64,33 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void instantiateWallet() {
+    loading = true;
+    error = false;
+    notifyListeners();
+  }
+
+  void instantiateWalletSuccess() {
+    loading = false;
+    error = false;
+    notifyListeners();
+  }
+
+  void instantiateWalletError() {
+    loading = false;
+    error = true;
+    notifyListeners();
+  }
+
   void loadWallet() {
     loading = true;
     error = false;
     notifyListeners();
   }
 
-  void loadWalletSuccess(CWWallet wallet) {
+  void loadWalletSuccess(
+    CWWallet wallet,
+  ) {
     this.wallet = wallet;
     transactions = [];
 
