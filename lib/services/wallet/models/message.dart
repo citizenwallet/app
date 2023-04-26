@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/base64.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/crypto.dart';
@@ -54,7 +55,7 @@ class Message {
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       version: json['version'],
-      message: json['message'],
+      message: base64String.decode(json['message']),
       date: DateTime.parse(json['date']),
       attachment: json['attachment'] != null
           ? MessageAttachment.fromJson(json['attachment'])
@@ -69,30 +70,34 @@ class Message {
   }
 
   factory Message.fromHexString(String hex) {
-    final bytes = hexToBytes(hex.replaceFirst(hexPadding, ''));
+    final bytes = hexToBytes(hex);
 
-    return Message.fromBytes(bytes);
+    return Message.fromBytes(decompressBytes(bytes));
   }
 
   Map<String, dynamic> toJson() {
     if (attachment == null) {
       return {
         'version': version,
-        'message': message,
+        'message': base64String.encode(message),
         'date': date.toIso8601String(),
       };
     }
 
     return {
       'version': version,
-      'message': message,
+      'message': base64String.encode(message),
       'date': date.toIso8601String(),
       'attachment': attachment!.toJson(),
     };
   }
 
+  String toCompressed() {
+    return compress(jsonEncode(toJson()));
+  }
+
   Uint8List toBytes() {
-    return convertStringToUint8List(jsonEncode(toJson()));
+    return compressBytes(convertStringToUint8List(jsonEncode(toJson())));
   }
 
   @override

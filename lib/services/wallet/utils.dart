@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:archive/archive.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/web3dart.dart';
 
 BigInt parseIntFromHex(String hex) {
@@ -48,8 +50,18 @@ String compress(String data) {
   return base64.encode(gZipData!);
 }
 
+Uint8List compressBytes(Uint8List data) {
+  final gZipData = GZipEncoder().encode(data, level: 6);
+  return convertBytesToUint8List(gZipData!);
+}
+
 String decompress(String data) {
   final decodeBase64Data = base64.decode(data);
   final decodegZipData = GZipDecoder().decodeBytes(decodeBase64Data);
   return utf8.decode(decodegZipData);
+}
+
+Uint8List decompressBytes(Uint8List data) {
+  final decodegZipData = GZipDecoder().decodeBytes(data);
+  return convertBytesToUint8List(decodegZipData);
 }
