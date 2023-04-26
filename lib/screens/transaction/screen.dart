@@ -281,7 +281,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                       ),
                       if (!wallet.locked && !loading)
                         Positioned(
-                          bottom: 0,
+                          bottom: 20,
                           left: 0,
                           right: 0,
                           child: Row(

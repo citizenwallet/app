@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class DBTable {
@@ -54,7 +56,14 @@ class DBService {
   }
 
   Future<void> init(String name) async {
-    final path = join(await getDatabasesPath(), '$name.db');
+    if (kIsWeb) {
+      // Change default factory on the web
+      databaseFactory = databaseFactoryFfiWeb;
+      // path = 'my_web_web.db';
+    }
+
+    final path =
+        kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
     _db = await openDB(path);
   }
 

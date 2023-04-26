@@ -132,9 +132,9 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
 
     await delay(const Duration(milliseconds: 1000));
 
-    navigator.pop('${capture.barcodes[0].rawValue}');
-
     _animationController.stop();
+
+    navigator.pop('${capture.barcodes[0].rawValue}');
   }
 
   void handleChanged() {
@@ -150,11 +150,11 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
 
     await delay(const Duration(milliseconds: 1000));
 
+    _animationController.stop();
+
     if (_textController.value.text.isNotEmpty) {
       navigator.pop(_textController.value.text);
     }
-
-    _animationController.stop();
   }
 
   @override
