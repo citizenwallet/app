@@ -78,27 +78,30 @@ class LandingScreenState extends State<LandingScreen>
       barrierDismissible: true,
       builder: (_) => const Scanner(
         modalKey: 'import-qr-scanner',
+        confirm: true,
       ),
     );
 
-    if (result != null && await _appLogic.isVerifiedWallet(result)) {
-      final name = await showCupertinoModalPopup<String?>(
-        context: context,
-        barrierDismissible: true,
-        builder: (modalContext) => TextInputModal(
-          title: 'Wallet Name',
-          placeholder: 'Enter wallet name',
-        ),
-      );
-
-      final wallet = await _appLogic.importWallet(result, name ?? 'New Wallet');
-
-      if (wallet == null) {
-        return;
-      }
-
-      navigator.go('/wallet/${wallet.data.address.toLowerCase()}');
+    if (result == null) {
+      return;
     }
+
+    final name = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => TextInputModal(
+        title: 'Wallet Name',
+        placeholder: 'Enter wallet name',
+      ),
+    );
+
+    final wallet = await _appLogic.importWallet(result, name ?? 'New Wallet');
+
+    if (wallet == null) {
+      return;
+    }
+
+    navigator.go('/wallet/${wallet.data.address.toLowerCase()}');
   }
 
   @override
