@@ -106,12 +106,13 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    _logic.updateWalletQR();
+    _logic.updateWalletQR(onlyHex: true);
 
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => QRModal(
+        title: 'Share address',
         qrCode: modalContext.select((WalletState state) => state.walletQR),
         onCopy: handleCopyWalletQR,
       ),

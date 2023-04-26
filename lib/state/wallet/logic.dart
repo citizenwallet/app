@@ -665,13 +665,18 @@ class WalletLogic {
     _state.parseQRAddressError();
   }
 
-  void updateReceiveQR() async {
+  void updateReceiveQR({bool? onlyHex}) async {
     try {
+      final walletService = walletServiceCheck();
+
+      if (onlyHex != null && onlyHex) {
+        _state.updateReceiveQR(walletService.address.hex);
+        return;
+      }
+
       final double amount = _amountController.text.isEmpty
           ? 0
           : double.tryParse(_amountController.text) ?? 0;
-
-      final walletService = walletServiceCheck();
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
@@ -714,9 +719,14 @@ class WalletLogic {
     Clipboard.setData(ClipboardData(text: _state.receiveQR));
   }
 
-  void updateWalletQR() async {
+  void updateWalletQR({bool? onlyHex}) async {
     try {
       final walletService = walletServiceCheck();
+
+      if (onlyHex != null && onlyHex) {
+        _state.updateWalletQR(walletService.address.hex);
+        return;
+      }
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 

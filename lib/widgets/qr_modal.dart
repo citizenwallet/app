@@ -9,13 +9,17 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 typedef QrSelector<T> = String Function(T);
 
 class QRModal extends StatelessWidget {
+  final String title;
   final String qrCode;
   final void Function()? onCopy;
+  final void Function({bool? onlyHex})? onUpdate;
 
   const QRModal({
     Key? key,
+    this.title = 'Wallet',
     required this.qrCode,
     this.onCopy,
+    this.onUpdate,
   }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
@@ -49,7 +53,7 @@ class QRModal extends StatelessWidget {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: 'Wallet',
+                  title: title,
                   actionButton: GestureDetector(
                     onTap: () => handleDismiss(context),
                     child: Icon(

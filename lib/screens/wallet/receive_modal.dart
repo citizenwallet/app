@@ -33,7 +33,7 @@ class ReceiveModalState extends State<ReceiveModal> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
 
-      widget.logic.updateReceiveQR();
+      widget.logic.updateReceiveQR(onlyHex: true);
     });
   }
 
