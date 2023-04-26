@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -144,6 +145,47 @@ class AppLogic {
   Future<QRWallet?> importWallet(String qrWallet, String name) async {
     try {
       _appState.importLoadingReq();
+
+      // check if it is a private key and create a new wallet from the private key with auto-password
+      final isPrivateKey = isValidPrivateKey(qrWallet);
+      if (isPrivateKey) {
+        final credentials = stringToPrivateKey(qrWallet);
+        if (credentials == null) {
+          throw Exception('Invalid private key');
+        }
+
+        final password = getRandomString(64);
+
+        final address = credentials.address.hex.toLowerCase();
+
+        await EncryptedPreferencesService()
+            .setWalletPassword(address, password);
+
+        final wallet = Wallet.createNew(credentials, password, Random.secure());
+
+        final DBWallet dbwallet = DBWallet(
+          type: 'regular',
+          name: name,
+          address: address,
+          publicKey: wallet.privateKey.encodedPublicKey,
+          balance: 0,
+          wallet: wallet.toJson(),
+          locked: false,
+        );
+
+        await _db.wallet.create(dbwallet);
+
+        await _preferences.setLastWallet(address);
+
+        _appState.importLoadingSuccess();
+
+        return QRWallet(
+            raw: QRWalletData(
+          wallet: jsonDecode(wallet.toJson()),
+          address: address,
+          publicKey: wallet.privateKey.encodedPublicKey,
+        ).toJson());
+      }
 
       final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
 
