@@ -92,12 +92,6 @@ class TransactionScreenState extends State<TransactionScreen> {
       return const SizedBox();
     }
 
-    if (loading) {
-      return CupertinoActivityIndicator(
-        color: ThemeColors.subtle.resolveFrom(context),
-      );
-    }
-
     final isIncoming = transaction.isIncoming(wallet.address);
 
     return GestureDetector(
