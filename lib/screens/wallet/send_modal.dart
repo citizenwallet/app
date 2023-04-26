@@ -50,8 +50,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
-
-      handleQRScan();
     });
   }
 
@@ -108,6 +106,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     if (_isSending) {
       return;
     }
+
+    FocusManager.instance.primaryFocus?.unfocus();
 
     setState(() {
       _isSending = true;

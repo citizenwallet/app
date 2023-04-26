@@ -54,15 +54,18 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final address = await _logic.openWallet(
+    final address = _logic.lastWallet;
+
+    if (widget.address! == 'last' && address != null) {
+      navigator.push('/wallet/${address.toLowerCase()}');
+      return;
+    }
+
+    await _logic.openWallet(
       widget.address!,
     );
 
     await _logic.loadTransactions();
-
-    if (widget.address! == 'last' && address != null) {
-      navigator.go('/wallet/${address.toLowerCase()}');
-    }
   }
 
   Future<void> handleRefresh() async {
@@ -93,11 +96,7 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    navigator.go('/wallet/${address.toLowerCase()}');
-
-    await delay(const Duration(milliseconds: 500));
-
-    onLoad();
+    navigator.push('/wallet/${address.toLowerCase()}');
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
@@ -164,7 +163,8 @@ class WalletScreenState extends State<WalletScreen> {
   void handleTransactionTap(String transactionId) {
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context).push('/wallets/transactions/$transactionId');
+    GoRouter.of(context)
+        .push('/wallet/${widget.address!}/transactions/$transactionId');
   }
 
   @override

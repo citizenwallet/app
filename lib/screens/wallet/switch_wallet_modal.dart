@@ -195,6 +195,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       barrierDismissible: true,
       builder: (_) => const Scanner(
         modalKey: 'import-wallet-wallet-list-scanner',
+        confirm: true,
       ),
     );
 

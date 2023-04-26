@@ -12,6 +12,7 @@ import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -150,6 +151,8 @@ class WalletLogic {
     _state.loadWalletError();
   }
 
+  String? get lastWallet => _preferences.lastWallet;
+
   Future<String?> openWallet(String? paramAddress) async {
     try {
       _state.loadWallet();
@@ -257,6 +260,47 @@ class WalletLogic {
   Future<QRWallet?> importWallet(String qrWallet, String name) async {
     try {
       _state.createDBWallet();
+
+      // check if it is a private key and create a new wallet from the private key with auto-password
+      final isPrivateKey = isValidPrivateKey(qrWallet);
+      if (isPrivateKey) {
+        final credentials = stringToPrivateKey(qrWallet);
+        if (credentials == null) {
+          throw Exception('Invalid private key');
+        }
+
+        final password = getRandomString(64);
+
+        final address = credentials.address.hex.toLowerCase();
+
+        await EncryptedPreferencesService()
+            .setWalletPassword(address, password);
+
+        final wallet = Wallet.createNew(credentials, password, Random.secure());
+
+        final DBWallet dbwallet = DBWallet(
+          type: 'regular',
+          name: name,
+          address: address,
+          publicKey: wallet.privateKey.encodedPublicKey,
+          balance: 0,
+          wallet: wallet.toJson(),
+          locked: false,
+        );
+
+        await _db.wallet.create(dbwallet);
+
+        await _preferences.setLastWallet(address);
+
+        _state.createDBWalletSuccess(dbwallet);
+
+        return QRWallet(
+            raw: QRWalletData(
+          wallet: jsonDecode(wallet.toJson()),
+          address: address,
+          publicKey: wallet.privateKey.encodedPublicKey,
+        ).toJson());
+      }
 
       final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
 
@@ -515,6 +559,24 @@ class WalletLogic {
     _state.setHasAddress(_addressController.text.isNotEmpty);
   }
 
+  void updateAddressFromHexCapture(String raw) async {
+    try {
+      _state.parseQRAddress();
+
+      _addressController.text = raw;
+      _state.setHasAddress(raw.isNotEmpty);
+
+      _state.parseQRAddressSuccess();
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _addressController.text = '';
+    _state.parseQRAddressError();
+  }
+
   void updateAddressFromWalletCapture(String raw) async {
     try {
       _state.parseQRAddress();
@@ -545,6 +607,13 @@ class WalletLogic {
 
   void updateFromCapture(String raw) {
     try {
+      final isHex = isHexValue(raw);
+
+      if (isHex) {
+        updateAddressFromHexCapture(raw);
+        return;
+      }
+
       final qr = QR.fromCompressedJson(raw);
 
       switch (qr.type) {
@@ -780,8 +849,12 @@ class WalletLogic {
     _addressController.dispose();
     _amountController.dispose();
     _messageController.dispose();
-    final walletService = walletServiceCheck();
-    walletService.dispose();
+    try {
+      final walletService = walletServiceCheck();
+      walletService.dispose();
+    } catch (e) {
+      print(e);
+    }
     cleanupBlockSubscription();
   }
 }

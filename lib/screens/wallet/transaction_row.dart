@@ -44,6 +44,8 @@ class TransactionRow extends StatelessWidget {
             const ProfileCircle(
               size: 50,
               imageUrl: 'assets/icons/coin.svg',
+              backgroundColor: ThemeColors.transparent,
+              borderColor: ThemeColors.transparent,
             ),
             const SizedBox(width: 10),
             Expanded(

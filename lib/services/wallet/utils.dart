@@ -13,6 +13,35 @@ bool isZeroHexValue(String hex) {
   return hex == zeroHexValue || hex == hexPadding;
 }
 
+bool isHexValue(String hex) {
+  return hex.startsWith(hexPadding);
+}
+
+EthPrivateKey? stringToPrivateKey(String privateKey) {
+  try {
+    final String formattedPrivateKey = privateKey.startsWith(hexPadding)
+        ? privateKey
+        : '$hexPadding$privateKey';
+
+    return EthPrivateKey.fromHex(formattedPrivateKey);
+  } catch (e) {
+    return null;
+  }
+}
+
+bool isValidPrivateKey(String privateKey) {
+  try {
+    final String formattedPrivateKey = privateKey.startsWith(hexPadding)
+        ? privateKey
+        : '$hexPadding$privateKey';
+
+    EthPrivateKey.fromHex(formattedPrivateKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 String compress(String data) {
   final enCodedData = utf8.encode(data);
   final gZipData = GZipEncoder().encode(enCodedData, level: 6);

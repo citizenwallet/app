@@ -69,6 +69,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                               children: const [
                                 ProfileCircle(
                                   size: 80,
+                                  imageUrl: 'assets/icons/coin.svg',
+                                  backgroundColor: ThemeColors.transparent,
+                                  borderColor: ThemeColors.transparent,
                                 ),
                               ],
                             ),
