@@ -233,7 +233,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                                   child: Center(
                                     child: CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: () => handleDismiss(context),
+                                      onPressed: handleToggleTorch,
                                       child: Icon(
                                         _torchState == TorchState.off
                                             ? CupertinoIcons.lightbulb

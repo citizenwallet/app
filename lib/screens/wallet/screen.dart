@@ -85,6 +85,7 @@ class WalletScreenState extends State<WalletScreen> {
       barrierDismissible: true,
       builder: (modalContext) => SwitchWalletModal(
         logic: _logic,
+        currentAddress: widget.address,
       ),
     );
 

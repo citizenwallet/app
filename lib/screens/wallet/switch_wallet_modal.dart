@@ -16,8 +16,13 @@ import 'package:provider/provider.dart';
 
 class SwitchWalletModal extends StatefulWidget {
   final WalletLogic logic;
+  final String? currentAddress;
 
-  const SwitchWalletModal({Key? key, required this.logic}) : super(key: key);
+  const SwitchWalletModal({
+    Key? key,
+    required this.logic,
+    this.currentAddress,
+  }) : super(key: key);
 
   @override
   SwitchWalletModalState createState() => SwitchWalletModalState();
@@ -44,7 +49,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   }
 
   void handleDismiss(BuildContext context) {
-    GoRouter.of(context).pop();
+    GoRouter.of(context).pop(widget.currentAddress);
   }
 
   void handleCreate(BuildContext context) async {
@@ -106,7 +111,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
-                Navigator.of(dialogContext).pop();
+                Navigator.of(dialogContext).pop(widget.currentAddress);
               },
               child: const Text('Cancel'),
             ),
@@ -306,12 +311,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                                 return WalletRow(
                                   key: Key(wallet.address),
                                   wallet,
+                                  isSelected:
+                                      widget.currentAddress == wallet.address,
                                   onTap: () => handleWalletTap(wallet.address),
                                   onMore: () => handleMore(
-                                      context,
-                                      wallet.address,
-                                      wallet.name,
-                                      wallet.locked),
+                                    context,
+                                    wallet.address,
+                                    wallet.name,
+                                    wallet.locked,
+                                  ),
                                 );
                               },
                             ),

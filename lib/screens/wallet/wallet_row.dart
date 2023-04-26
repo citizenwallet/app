@@ -5,12 +5,14 @@ import 'package:flutter/cupertino.dart';
 
 class WalletRow extends StatelessWidget {
   final DBWallet wallet;
+  final bool isSelected;
   final void Function()? onTap;
   final void Function()? onMore;
 
   const WalletRow(
     this.wallet, {
     super.key,
+    this.isSelected = false,
     this.onTap,
     this.onMore,
   });
@@ -32,7 +34,9 @@ class WalletRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 width: 2,
-                color: ThemeColors.uiBackground.resolveFrom(context),
+                color: isSelected
+                    ? ThemeColors.primary.resolveFrom(context)
+                    : ThemeColors.uiBackground.resolveFrom(context),
               ),
             ),
             child: Row(

@@ -79,7 +79,7 @@ class TextInputModalState extends State<TextInputModal> {
   Widget build(BuildContext context) {
     return DismissibleModalPopup(
       modalKey: 'text-input-modal',
-      maxHeight: 300,
+      maxHeight: 350,
       paddingSides: 10,
       onUpdate: (details) {
         if (details.direction == DismissDirection.down &&
@@ -109,9 +109,12 @@ class TextInputModalState extends State<TextInputModal> {
                 ),
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
                       CupertinoTextField(
                         controller: _controller,
                         placeholder: widget.placeholder,
@@ -120,7 +123,9 @@ class TextInputModalState extends State<TextInputModal> {
                         autocorrect: false,
                         enableSuggestions: false,
                         obscureText: widget.secure,
-                        textInputAction: TextInputAction.done,
+                        textInputAction: widget.confirm
+                            ? TextInputAction.next
+                            : TextInputAction.done,
                         decoration: BoxDecoration(
                           color: const CupertinoDynamicColor.withBrightness(
                             color: CupertinoColors.white,
@@ -148,7 +153,7 @@ class TextInputModalState extends State<TextInputModal> {
                         ),
                       if (widget.confirm)
                         const Text(
-                          'Confirm password',
+                          'Confirm',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
