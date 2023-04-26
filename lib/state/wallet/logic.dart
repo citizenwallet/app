@@ -22,7 +22,7 @@ import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
   late WalletState _state;
-  late WalletService _wallet;
+  WalletService? _wallet;
   final DBService _db = DBService();
   final PreferencesService _preferences = PreferencesService();
 
@@ -40,28 +40,38 @@ class WalletLogic {
     _state = context.read<WalletState>();
   }
 
+  WalletService walletServiceCheck() {
+    if (_wallet == null) {
+      throw Exception('Wallet service not initialized');
+    }
+
+    return _wallet!;
+  }
+
   Future<void> switchChain(int chainId) async {
     try {
       _state.switchChainRequest();
 
-      final chain = await _wallet.fetchChainById(BigInt.from(chainId));
+      final walletService = walletServiceCheck();
+
+      final chain = await walletService.fetchChainById(BigInt.from(chainId));
 
       if (chain == null) {
         throw Exception('Chain not found');
       }
 
-      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
-      await _wallet.switchChain(chain);
+      await walletService.switchChain(chain);
 
-      final balance = await _wallet.balance;
-      final currency = _wallet.nativeCurrency;
+      final balance = await walletService.balance;
+      final currency = walletService.nativeCurrency;
 
       _state.switchChainSuccess(
         CWWallet(
           balance,
           name: currency.name,
-          address: _wallet.address.hex,
+          address: walletService.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
           locked: dbwallet.locked,
@@ -107,22 +117,24 @@ class WalletLogic {
 
       _wallet = wallet;
 
-      await _wallet.init();
+      final walletService = walletServiceCheck();
 
-      final balance = await _wallet.balance;
-      final currency = _wallet.nativeCurrency;
+      await walletService.init();
+
+      final balance = await walletService.balance;
+      final currency = walletService.nativeCurrency;
 
       cleanupBlockSubscription();
 
-      _blockSubscription = _wallet.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
       await _preferences.setLastWallet(address);
 
       _state.loadWalletSuccess(
         CWWallet(
           balance,
-          name: currency.name,
-          address: _wallet.address.hex,
+          name: dbWallet.name,
+          address: walletService.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
           locked: dbWallet.locked,
@@ -138,13 +150,19 @@ class WalletLogic {
     _state.loadWalletError();
   }
 
-  Future<void> openWallet(String address) async {
+  Future<String?> openWallet(String? paramAddress) async {
     try {
       _state.loadWallet();
 
       final int chainId = _preferences.chainId;
 
       _state.setChainId(chainId);
+
+      final String? address = paramAddress ?? _preferences.lastWallet;
+
+      if (address == null) {
+        throw Exception('address not found');
+      }
 
       final dbWallet = await _db.wallet.getWallet(address);
 
@@ -159,33 +177,38 @@ class WalletLogic {
 
       _wallet = wallet;
 
-      await _wallet.init();
+      final walletService = walletServiceCheck();
 
-      final balance = await _wallet.balance;
-      final currency = _wallet.nativeCurrency;
+      await walletService.init();
+
+      final balance = await walletService.balance;
+      final currency = walletService.nativeCurrency;
 
       cleanupBlockSubscription();
 
-      _blockSubscription = _wallet.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
       _state.loadWalletSuccess(
         CWWallet(
           balance,
-          name: currency.name,
-          address: _wallet.address.hex,
+          name: dbWallet.name,
+          address: walletService.address.hex,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
           locked: dbWallet.locked,
         ),
       );
 
-      return;
+      _preferences.setLastWallet(address);
+
+      return address;
     } catch (e) {
       print('error');
       print(e);
     }
 
     _state.loadWalletError();
+    return null;
   }
 
   Future<String?> createWallet(String name) async {
@@ -285,14 +308,16 @@ class WalletLogic {
     try {
       _state.incomingTransactionsRequest();
 
-      final transactions = await _wallet.transactionsForBlockHash(hash);
+      final walletService = walletServiceCheck();
+
+      final transactions = await walletService.transactionsForBlockHash(hash);
 
       _state.incomingTransactionsRequestSuccess(
         transactions
             .map((e) => CWTransaction(
                   e.value.getInEther.toDouble(),
                   id: e.hash,
-                  chainId: _wallet.chainId,
+                  chainId: walletService.chainId,
                   from: e.from.hex,
                   to: e.to.hex,
                   title: e.input?.message ?? '',
@@ -379,14 +404,16 @@ class WalletLogic {
     try {
       _state.loadTransactions();
 
-      final transactions = await _wallet.transactions();
+      final walletService = walletServiceCheck();
+
+      final transactions = await walletService.transactions();
 
       _state.loadTransactionsSuccess(
         transactions
             .map((e) => CWTransaction(
                   e.value.getInEther.toDouble(),
                   id: e.hash,
-                  chainId: _wallet.chainId,
+                  chainId: walletService.chainId,
                   from: e.from.hex,
                   to: e.to.hex,
                   title: e.input?.message ?? '',
@@ -407,7 +434,9 @@ class WalletLogic {
     try {
       _state.updateWalletBalance();
 
-      final balance = await _wallet.balance;
+      final walletService = walletServiceCheck();
+
+      final balance = await walletService.balance;
 
       _state.updateWalletBalanceSuccess(balance);
       return;
@@ -435,16 +464,18 @@ class WalletLogic {
         throw Exception('invalid amount');
       }
 
-      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+      final walletService = walletServiceCheck();
+
+      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
       final savedPassword = await EncryptedPreferencesService()
-          .getWalletPassword(_wallet.address.hex);
+          .getWalletPassword(walletService.address.hex);
 
       if (savedPassword == null) {
         throw Exception('password not found');
       }
 
-      final hash = await _wallet.sendTransaction(
+      final hash = await walletService.sendTransaction(
         to: to,
         amount: doubleAmount.toInt(),
         message: message,
@@ -547,8 +578,10 @@ class WalletLogic {
       _state.parseQRAddressSuccess();
 
       if (qrTransaction.data.amount >= 0) {
+        final walletService = walletServiceCheck();
+
         _amountController.text = qrTransaction.data.amount
-            .toStringAsFixed(_wallet.nativeCurrency.decimals);
+            .toStringAsFixed(walletService.nativeCurrency.decimals);
       }
 
       if (qrTransaction.data.message != '') {
@@ -569,10 +602,12 @@ class WalletLogic {
           ? 0
           : double.tryParse(_amountController.text) ?? 0;
 
-      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+      final walletService = walletServiceCheck();
+
+      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
       final qrData = QRTransactionRequestData(
-        chainId: _wallet.chainId,
+        chainId: walletService.chainId,
         address: dbwallet.address,
         amount: amount,
         publicKey: dbwallet.publicKey,
@@ -584,7 +619,8 @@ class WalletLogic {
           .getWalletPassword(dbwallet.address);
 
       if (savedPassword != null) {
-        final credentials = _wallet.unlock(dbwallet.wallet, savedPassword);
+        final credentials =
+            walletService.unlock(dbwallet.wallet, savedPassword);
 
         if (credentials != null) {
           final signer = Signer(credentials);
@@ -611,7 +647,9 @@ class WalletLogic {
 
   void updateWalletQR() async {
     try {
-      final dbwallet = await _db.wallet.getWallet(_wallet.address.hex);
+      final walletService = walletServiceCheck();
+
+      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
       final qrData = QRWalletData(
         wallet: jsonDecode(dbwallet.wallet),
@@ -625,7 +663,8 @@ class WalletLogic {
           .getWalletPassword(dbwallet.address);
 
       if (savedPassword != null) {
-        final credentials = _wallet.unlock(dbwallet.wallet, savedPassword);
+        final credentials =
+            walletService.unlock(dbwallet.wallet, savedPassword);
 
         if (credentials != null) {
           final signer = Signer(credentials);
@@ -741,7 +780,8 @@ class WalletLogic {
     _addressController.dispose();
     _amountController.dispose();
     _messageController.dispose();
-    _wallet.dispose();
+    final walletService = walletServiceCheck();
+    walletService.dispose();
     cleanupBlockSubscription();
   }
 }

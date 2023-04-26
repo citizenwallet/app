@@ -51,7 +51,7 @@ class WalletState with ChangeNotifier {
 
   void switchChainSuccess(CWWallet wallet) {
     transactions = [];
-    wallet = wallet;
+    this.wallet = wallet;
 
     loading = false;
     error = false;

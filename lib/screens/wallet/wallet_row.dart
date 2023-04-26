@@ -87,15 +87,16 @@ class WalletRow extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-            top: 18,
-            right: 4,
-            child: Icon(
-              wallet.locked ? CupertinoIcons.lock : CupertinoIcons.lock_open,
-              size: 22,
-              color: ThemeColors.subtleEmphasis.resolveFrom(context),
+          if (wallet.locked)
+            Positioned(
+              top: 18,
+              right: 4,
+              child: Icon(
+                CupertinoIcons.lock,
+                size: 18,
+                color: ThemeColors.text.resolveFrom(context),
+              ),
             ),
-          ),
         ],
       ),
     );

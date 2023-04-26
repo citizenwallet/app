@@ -69,7 +69,7 @@ class AppLogic {
       final String? lastWallet = _preferences.lastWallet;
 
       if (lastWallet == null) {
-        return null;
+        throw Exception('No last wallet');
       }
 
       await _db.wallet.getWallet(lastWallet);

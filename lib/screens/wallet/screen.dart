@@ -52,11 +52,17 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    await _logic.openWallet(
+    final navigator = GoRouter.of(context);
+
+    final address = await _logic.openWallet(
       widget.address!,
     );
 
     await _logic.loadTransactions();
+
+    if (widget.address! == 'last' && address != null) {
+      navigator.go('/wallet/${address.toLowerCase()}');
+    }
   }
 
   Future<void> handleRefresh() async {

@@ -56,7 +56,11 @@ class LandingScreenState extends State<LandingScreen>
       ),
     );
 
-    final address = await _appLogic.createWallet(name ?? 'New Wallet');
+    if (name == null) {
+      return;
+    }
+
+    final address = await _appLogic.createWallet(name);
 
     if (address == null) {
       return;

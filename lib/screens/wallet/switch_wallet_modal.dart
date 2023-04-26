@@ -222,8 +222,6 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   void handleWalletTap(String address) async {
     final navigator = GoRouter.of(context);
 
-    // await widget.logic.openWalletFromDB(address);
-
     HapticFeedback.heavyImpact();
 
     navigator.pop(address);
