@@ -26,6 +26,7 @@ class WalletScreen extends StatefulWidget {
 }
 
 class WalletScreenState extends State<WalletScreen> {
+  final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
 
   @override
@@ -36,6 +37,8 @@ class WalletScreenState extends State<WalletScreen> {
       // make initial requests here
       _logic = WalletLogic(context);
 
+      _scrollController.addListener(onScrollUpdate);
+
       onLoad();
     });
   }
@@ -44,7 +47,27 @@ class WalletScreenState extends State<WalletScreen> {
   void dispose() {
     _logic.dispose();
 
+    _scrollController.removeListener(onScrollUpdate);
+
     super.dispose();
+  }
+
+  void onScrollUpdate() {
+    if (_scrollController.position.atEdge) {
+      bool isTop = _scrollController.position.pixels == 0;
+      if (isTop) {
+        print('At the top');
+      } else {
+        print('At the bottom');
+        final transactions = context.read<WalletState>().transactions;
+
+        if (transactions.isEmpty) {
+          return;
+        }
+
+        _logic.loadAdditionalTransactions(transactions.length);
+      }
+    }
   }
 
   void onLoad() async {
@@ -219,6 +242,7 @@ class WalletScreenState extends State<WalletScreen> {
                 alignment: Alignment.center,
                 children: [
                   CustomScrollView(
+                    controller: _scrollController,
                     slivers: [
                       CupertinoSliverRefreshControl(
                         onRefresh: handleRefresh,
@@ -359,6 +383,17 @@ class WalletScreenState extends State<WalletScreen> {
                           },
                         ),
                       ),
+                      if (transactionsLoading && transactions.isNotEmpty)
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            childCount: 1,
+                            (context, index) {
+                              return CupertinoActivityIndicator(
+                                color: ThemeColors.subtle.resolveFrom(context),
+                              );
+                            },
+                          ),
+                        ),
                       const SliverToBoxAdapter(
                         child: SizedBox(
                           height: 60,

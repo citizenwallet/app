@@ -503,6 +503,36 @@ class WalletLogic {
     _state.loadTransactionsError();
   }
 
+  Future<void> loadAdditionalTransactions(int offset) async {
+    try {
+      _state.loadAdditionalTransactions();
+
+      final walletService = walletServiceCheck();
+
+      final transactions = await walletService.transactions(offset: offset);
+
+      _state.loadAdditionalTransactionsSuccess(
+        transactions
+            .map((e) => CWTransaction(
+                  e.value.getInEther.toDouble(),
+                  id: e.hash,
+                  chainId: walletService.chainId,
+                  from: e.from.hex,
+                  to: e.to.hex,
+                  title: e.input?.message ?? '',
+                  date: e.timestamp,
+                ))
+            .toList(),
+      );
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.loadAdditionalTransactionsError();
+  }
+
   Future<void> updateBalance() async {
     try {
       _state.updateWalletBalance();

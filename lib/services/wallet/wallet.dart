@@ -347,8 +347,10 @@ class WalletService {
   }
 
   /// retrieves list of latest transactions for this wallet within a limit and offset
-  Future<List<WalletTransaction>> transactions(
-      {int offset = 0, int limit = 20}) async {
+  Future<List<WalletTransaction>> transactions({
+    int offset = 0,
+    int limit = 10,
+  }) async {
     final List<WalletTransaction> transactions = [];
 
     // get the end block number
