@@ -1,6 +1,6 @@
 [
     {
-        "name": "Citizen Chain",
+        "name": "Citizen Chain Devnet",
         "chain": "CC",
         "icon": "citizen_chain",
         "rpc": [
@@ -22,8 +22,8 @@
         },
         "infoURL": "https://citizenwallet.xyz",
         "shortName": "cc",
-        "chainId": 9999999999999999,
-        "networkId": 9999999999999999,
+        "chainId": 1682515751360,
+        "networkId": 1682515751360,
         "slip44": 60,
         "ens": {
             "registry": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
