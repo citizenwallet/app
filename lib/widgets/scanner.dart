@@ -42,7 +42,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
       detectionSpeed: DetectionSpeed.normal,
       facing: CameraFacing.back,
       torchEnabled: false,
-      autoStart: false,
+      autoStart: true,
       formats: <BarcodeFormat>[BarcodeFormat.qrCode],
     );
 
@@ -61,9 +61,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void onLoad() async {
-    await delay(const Duration(milliseconds: 125));
-
-    await _controller.start();
+    await delay(const Duration(milliseconds: 250));
 
     _controller.torchState.addListener(() {
       setState(() {
@@ -71,7 +69,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
       });
     });
 
-    await delay(const Duration(milliseconds: 125));
+    await delay(const Duration(milliseconds: 250));
 
     setState(() {
       _opacity = 1;
