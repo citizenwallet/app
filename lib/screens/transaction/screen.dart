@@ -1,11 +1,12 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -61,6 +62,12 @@ class TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
+  void handleCopy(String transactionId) {
+    Clipboard.setData(ClipboardData(text: transactionId));
+
+    HapticFeedback.lightImpact();
+  }
+
   void handleReplay(
     String address,
     double amount,
@@ -93,6 +100,10 @@ class TransactionScreenState extends State<TransactionScreen> {
     }
 
     final isIncoming = transaction.isIncoming(wallet.address);
+
+    final from = transaction.isIncoming(wallet.address)
+        ? transaction.from
+        : transaction.to;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -140,21 +151,26 @@ class TransactionScreenState extends State<TransactionScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Text(
-                              transaction.isIncoming(wallet.address)
-                                  ? transaction.from == wallet.address
-                                      ? 'Me'
-                                      : 'Unknown'
-                                  : transaction.to == wallet.address
-                                      ? 'Me'
-                                      : 'Unknown',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () => handleCopy(wallet.address),
+                                  child: Chip(
+                                    formatHexAddress(from),
+                                    color: ThemeColors.subtleEmphasis
+                                        .resolveFrom(context),
+                                    textColor: ThemeColors.touchable
+                                        .resolveFrom(context),
+                                    suffix: Icon(
+                                      CupertinoIcons.square_on_square,
+                                      size: 12,
+                                      color: ThemeColors.touchable
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 30),
                             Text(
@@ -253,13 +269,35 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   width: 20,
                                 ),
                                 Expanded(
-                                  child: SelectableText(
-                                    transaction.id,
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                  child: GestureDetector(
+                                    onTap: () => handleCopy(transaction.id),
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              formatHexAddress(transaction.id),
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                color: ThemeColors.text
+                                                    .resolveFrom(context),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.square_on_square,
+                                            size: 12,
+                                            color: ThemeColors.touchable
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

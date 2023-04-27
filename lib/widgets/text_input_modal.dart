@@ -78,7 +78,6 @@ class TextInputModalState extends State<TextInputModal> {
   @override
   Widget build(BuildContext context) {
     return DismissibleModalPopup(
-      modalKey: 'text-input-modal',
       maxHeight: 350,
       paddingSides: 10,
       onUpdate: (details) {
@@ -205,7 +204,7 @@ class TextInputModalState extends State<TextInputModal> {
                             suffix: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                               child: Icon(
-                                CupertinoIcons.doc_on_clipboard,
+                                CupertinoIcons.square_on_square,
                                 color: ThemeColors.white.resolveFrom(context),
                               ),
                             ),

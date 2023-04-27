@@ -15,6 +15,17 @@ bool isZeroHexValue(String hex) {
   return hex == zeroHexValue || hex == hexPadding;
 }
 
+String formatHexAddress(String address) {
+  if (isZeroHexValue(address)) {
+    return address;
+  }
+
+  final first = address.substring(0, 6);
+  final last = address.substring(address.length - 4, address.length);
+
+  return '$first...$last';
+}
+
 bool isHexValue(String hex) {
   return hex.startsWith(hexPadding);
 }

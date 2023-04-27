@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,11 +64,11 @@ class WalletRow extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        wallet.address,
+                        formatHexAddress(wallet.address),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.normal,
                           color: ThemeColors.subtleText.resolveFrom(context),
                         ),

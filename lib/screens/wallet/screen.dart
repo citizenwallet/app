@@ -4,10 +4,12 @@ import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallets/wallet_header.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,10 +57,7 @@ class WalletScreenState extends State<WalletScreen> {
   void onScrollUpdate() {
     if (_scrollController.position.atEdge) {
       bool isTop = _scrollController.position.pixels == 0;
-      if (isTop) {
-        print('At the top');
-      } else {
-        print('At the bottom');
+      if (!isTop) {
         final transactions = context.read<WalletState>().transactions;
 
         if (transactions.isEmpty) {
@@ -103,6 +102,8 @@ class WalletScreenState extends State<WalletScreen> {
     if (sendLoading) {
       return;
     }
+
+    HapticFeedback.mediumImpact();
 
     final navigator = GoRouter.of(context);
 
@@ -212,18 +213,73 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            title: wallet?.name ?? 'Wallet',
+            titleWidget: CupertinoButton(
+              padding: const EdgeInsets.all(5),
+              onPressed: () => handleSwitchWalletModal(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: ThemeColors.surfaceSubtle.resolveFrom(context),
+                ),
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  wallet?.name ?? 'Wallet',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Chip(
+                                formatHexAddress(
+                                    wallet?.address ?? zeroHexValue),
+                                color: ThemeColors.subtleEmphasis
+                                    .resolveFrom(context),
+                                textColor:
+                                    ThemeColors.touchable.resolveFrom(context),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Icon(
+                      CupertinoIcons.chevron_down,
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             actionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleSwitchWalletModal(context),
-                  child: Icon(
-                    CupertinoIcons.chevron_down,
-                    color: ThemeColors.primary.resolveFrom(context),
-                  ),
-                ),
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDisplayWalletQR(context),
@@ -275,7 +331,7 @@ class WalletScreenState extends State<WalletScreen> {
                                             .resolveFrom(context),
                                       )
                                     : Text(
-                                        formattedBalance,
+                                        '$formattedBalance (${wallet?.currencyName})',
                                         key: const Key(
                                             'wallet-balance-shrunken'),
                                         style: const TextStyle(
@@ -314,7 +370,7 @@ class WalletScreenState extends State<WalletScreen> {
                                               .resolveFrom(context),
                                         )
                                       : Text(
-                                          formattedBalance,
+                                          '$formattedBalance (${wallet?.currencyName})',
                                           key: const Key('wallet-balance'),
                                           style: const TextStyle(
                                             fontSize: 16,

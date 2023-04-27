@@ -5,70 +5,81 @@ const String mockWalletId = '0x0000000';
 
 final CWWallet mockWallet = CWWallet(
   10000,
-  name: 'Citizen Coin',
+  name: 'Citizen Chain',
   address: '0x0000000',
+  currencyName: 'Citizen Coin',
   symbol: 'CC',
 );
 
 final List<CWWallet> mockWallets = [
   CWWallet(
     10000,
-    name: 'Citizen Coin',
+    name: 'Citizen Chain',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'CC',
   ),
   CWWallet(
     7999,
     name: 'Another Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'AC',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
   CWWallet(
     10000,
     name: 'Coin',
     address: '0x0000000',
+    currencyName: 'Citizen Coin',
     symbol: 'C',
   ),
 ];

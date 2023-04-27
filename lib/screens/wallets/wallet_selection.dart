@@ -53,7 +53,6 @@ class WalletSelectionState extends State<WalletSelection> {
     final badgeTextColor = ThemeColors.surfaceText.resolveFrom(context);
 
     return DismissibleModalPopup(
-      modalKey: 'wallet-selection',
       maxHeight: 120,
       paddingSides: 0,
       topRadius: 0,

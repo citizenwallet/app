@@ -252,7 +252,6 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     );
 
     return DismissibleModalPopup(
-      modalKey: 'send-form',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

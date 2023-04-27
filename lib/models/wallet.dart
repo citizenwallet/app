@@ -4,6 +4,7 @@ class CWWallet {
   final String name;
   final String address;
   double _balance;
+  final String currencyName;
   final String symbol;
   final int decimalDigits;
   final bool locked;
@@ -12,6 +13,7 @@ class CWWallet {
     this._balance, {
     required this.name,
     required this.address,
+    required this.currencyName,
     required this.symbol,
     this.decimalDigits = 2,
     this.locked = true,
@@ -30,6 +32,7 @@ class CWWallet {
       : name = json['name'],
         address = json['address'],
         _balance = json['balance'],
+        currencyName = json['currencyName'],
         symbol = json['symbol'],
         decimalDigits = json['decimalDigits'],
         locked = json['locked'];
@@ -40,6 +43,7 @@ class CWWallet {
         'name': name,
         'address': address,
         'balance': _balance,
+        'currencyName': currencyName,
         'symbol': symbol,
         'decimalDigits': decimalDigits,
         'locked': locked,

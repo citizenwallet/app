@@ -75,7 +75,6 @@ class ReceiveModalState extends State<ReceiveModal> {
     );
 
     return DismissibleModalPopup(
-      modalKey: 'send-form',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {
@@ -131,7 +130,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                             suffix: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                               child: Icon(
-                                CupertinoIcons.doc_on_clipboard,
+                                CupertinoIcons.square_on_square,
                                 color: ThemeColors.white.resolveFrom(context),
                               ),
                             ),

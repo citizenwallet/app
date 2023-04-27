@@ -34,7 +34,6 @@ class QRModal extends StatelessWidget {
     final qrSize = width - 40;
 
     return DismissibleModalPopup(
-      modalKey: 'wallet-qr-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {
@@ -92,7 +91,7 @@ class QRModal extends StatelessWidget {
                               suffix: Padding(
                                 padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                 child: Icon(
-                                  CupertinoIcons.doc_on_clipboard,
+                                  CupertinoIcons.square_on_square,
                                   color: ThemeColors.white.resolveFrom(context),
                                 ),
                               ),

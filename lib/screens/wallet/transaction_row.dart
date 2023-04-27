@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,8 @@ class TransactionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncoming = transaction.isIncoming(wallet.address);
+    final address =
+        formatHexAddress(isIncoming ? transaction.from : transaction.to);
     return GestureDetector(
       onTap: () => onTap?.call(transaction.id),
       child: AnimatedContainer(
@@ -54,13 +57,8 @@ class TransactionRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    transaction.isIncoming(wallet.address)
-                        ? transaction.from == wallet.address
-                            ? 'Me'
-                            : 'Unknown'
-                        : transaction.to == wallet.address
-                            ? 'Me'
-                            : 'Unknown',
+                    // '${transaction.isIncoming(wallet.address) ? transaction.from == wallet.address ? 'Me' : 'Unknown' : transaction.to == wallet.address ? 'Me' : 'Unknown'} $address',
+                    address,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

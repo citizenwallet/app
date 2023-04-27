@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 class Header extends StatefulWidget {
-  final String title;
+  final String? title;
+  final Widget? titleWidget;
   final String? subTitle;
   final Widget? subTitleWidget;
   final Widget? actionButton;
@@ -12,7 +13,8 @@ class Header extends StatefulWidget {
 
   const Header({
     super.key,
-    required this.title,
+    this.title,
+    this.titleWidget,
     this.subTitleWidget,
     this.subTitle,
     this.actionButton,
@@ -58,17 +60,20 @@ class HeaderState extends State<Header> {
                     CupertinoIcons.back,
                   ),
                 ),
-              Expanded(
-                child: Text(
-                  widget.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+              if (widget.titleWidget == null && widget.title != null)
+                Expanded(
+                  child: Text(
+                    widget.title!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
+              if (widget.titleWidget != null)
+                Expanded(child: widget.titleWidget!),
               if (widget.actionButton != null)
                 Container(
                   height: 60.0,

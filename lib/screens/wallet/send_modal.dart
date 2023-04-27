@@ -173,7 +173,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final width = MediaQuery.of(context).size.width;
 
     return DismissibleModalPopup(
-      modalKey: 'send-form',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

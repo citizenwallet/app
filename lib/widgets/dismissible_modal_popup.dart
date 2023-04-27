@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 
 class DismissibleModalPopup extends StatelessWidget {
   final Widget child;
-  final String modalKey;
   final double? maxHeight;
   final double paddingSides;
   final double paddingTopBottom;
@@ -14,7 +13,6 @@ class DismissibleModalPopup extends StatelessWidget {
   const DismissibleModalPopup({
     super.key,
     required this.child,
-    required this.modalKey,
     this.maxHeight = 200,
     this.paddingSides = 10,
     this.paddingTopBottom = 10,
@@ -26,7 +24,7 @@ class DismissibleModalPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key(modalKey),
+      key: UniqueKey(),
       direction: DismissDirection.down,
       onUpdate: onUpdate,
       onDismissed: onDismissed,

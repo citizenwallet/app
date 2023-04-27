@@ -93,7 +93,6 @@ class PasswordModalState extends State<PasswordModal> {
     );
 
     return DismissibleModalPopup(
-      modalKey: 'wallet-password-verify-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

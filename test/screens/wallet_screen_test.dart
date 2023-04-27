@@ -47,6 +47,7 @@ void main() {
         1000,
         name: 'test',
         address: '0x123',
+        currencyName: 'Citizen Coin',
         symbol: 'ETH',
       );
 
@@ -124,12 +125,14 @@ void main() {
           30,
           name: 'test',
           address: '0x123',
+          currencyName: 'Citizen Coin',
           symbol: 'ETH',
         ),
         CWWallet(
           10,
           name: 'test',
           address: '0x456',
+          currencyName: 'Citizen Coin',
           symbol: 'BTC',
         ),
       ];

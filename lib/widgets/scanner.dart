@@ -165,7 +165,6 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DismissibleModalPopup(
-      modalKey: widget.modalKey,
       maxHeight: height,
       paddingSides: 0,
       paddingTopBottom: 0,
