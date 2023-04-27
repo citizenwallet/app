@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -14,11 +15,15 @@ import 'package:provider/provider.dart';
 
 class TransactionScreen extends StatefulWidget {
   final String? address;
+  final String? qr;
+  final String? password;
   final String? transactionId;
 
   const TransactionScreen({
     Key? key,
-    required this.address,
+    this.address,
+    this.qr,
+    this.password,
     required this.transactionId,
   }) : super(key: key);
 
@@ -40,6 +45,19 @@ class TransactionScreenState extends State<TransactionScreen> {
 
       if (widget.address != null) {
         logic.instantiateWalletFromDB(widget.address!);
+        return;
+      }
+
+      if (widget.qr != null && widget.password != null) {
+        try {
+          final wallet = QR.fromCompressedJson(widget.qr!).toQRWallet();
+
+          logic.instantiateWalletFromFile(wallet, widget.password!);
+        } catch (e) {
+          print(e);
+        }
+
+        return;
       }
     });
   }

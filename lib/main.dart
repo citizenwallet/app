@@ -5,6 +5,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,9 @@ class MyAppState extends State<MyApp> {
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   MyAppState() {
-    router = createRouter(_rootNavigatorKey, _shellNavigatorKey, []);
+    router = kIsWeb
+        ? createWebRouter(_rootNavigatorKey, _shellNavigatorKey, [])
+        : createRouter(_rootNavigatorKey, _shellNavigatorKey, []);
   }
 
   @override

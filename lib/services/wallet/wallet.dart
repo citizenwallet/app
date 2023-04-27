@@ -28,7 +28,7 @@ Future<WalletService?> walletServiceFromChain(
 
   final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
   if (i >= 0) {
-    return WalletService.fromWalletFile(
+    return WalletService.fromAddress(
       nativeChains[i],
       address,
     );
@@ -44,9 +44,46 @@ Future<WalletService?> walletServiceFromChain(
     return null;
   }
 
-  return WalletService.fromWalletFile(
+  return WalletService.fromAddress(
     chains[ii],
     address,
+  );
+}
+
+Future<WalletService?> walletServiceFromWallet(
+  BigInt chainId,
+  String walletFile,
+  String password,
+) async {
+  final List rawNativeChains =
+      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
+
+  final List<Chain> nativeChains =
+      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
+
+  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (i >= 0) {
+    return WalletService.fromWalletFile(
+      nativeChains[i],
+      walletFile,
+      password,
+    );
+  }
+
+  final List rawChains =
+      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
+
+  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
+
+  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (ii < 0) {
+    return null;
+  }
+
+  return WalletService.fromWalletFile(
+    chains[ii],
+    walletFile,
+    password,
   );
 }
 
@@ -93,6 +130,26 @@ class WalletService {
   /// creates using a wallet file
   /// init before using
   WalletService.fromWalletFile(
+    this._chain,
+    String walletFile,
+    String password,
+  ) {
+    final url = _chain!.rpc.first;
+
+    _ethClient = Web3Client(url, _client);
+    _api = APIService(baseURL: url);
+
+    Wallet wallet = Wallet.fromJson(walletFile, password);
+
+    _address = wallet.privateKey.address;
+
+    // _wallet = wallet;
+    // _credentials = wallet.privateKey;
+  }
+
+  /// creates using a wallet file
+  /// init before using
+  WalletService.fromAddress(
     this._chain,
     String address,
   ) {

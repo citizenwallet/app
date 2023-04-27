@@ -127,6 +127,42 @@ class WalletLogic {
     _state.instantiateWalletError();
   }
 
+  Future<void> instantiateWalletFromFile(
+      QRWallet qrWallet, String password) async {
+    try {
+      _state.instantiateWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
+
+      final wallet = await walletServiceFromWallet(
+        BigInt.from(chainId),
+        jsonEncode(qrWallet.data.wallet),
+        password,
+      );
+
+      if (wallet == null) {
+        throw Exception('chain not found');
+      }
+
+      _wallet = wallet;
+
+      final walletService = walletServiceCheck();
+
+      await walletService.init();
+
+      _state.instantiateWalletSuccess();
+
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.instantiateWalletError();
+  }
+
   Future<void> openWalletFromDB(String address) async {
     try {
       _state.loadWallet();
@@ -180,6 +216,61 @@ class WalletLogic {
     }
 
     _state.loadWalletError();
+  }
+
+  Future<bool> openWalletFromQR(QRWallet qrWallet, String password) async {
+    try {
+      _state.loadWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
+
+      final wallet = await walletServiceFromWallet(
+        BigInt.from(chainId),
+        jsonEncode(qrWallet.data.wallet),
+        password,
+      );
+
+      if (wallet == null) {
+        throw Exception('chain not found');
+      }
+
+      _wallet = wallet;
+
+      final walletService = walletServiceCheck();
+
+      await walletService.init();
+
+      final balance = await walletService.balance;
+      final currency = walletService.nativeCurrency;
+
+      cleanupBlockSubscription();
+
+      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+
+      await _preferences.setLastWallet(wallet.address.hex);
+
+      _state.loadWalletSuccess(
+        CWWallet(
+          balance,
+          name: 'Quick Wallet',
+          address: walletService.address.hex,
+          currencyName: currency.name,
+          symbol: currency.symbol,
+          decimalDigits: currency.decimals,
+          locked: false,
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.loadWalletError();
+    return false;
   }
 
   String? get lastWallet => _preferences.lastWallet;
