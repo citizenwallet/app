@@ -2,6 +2,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 
 class DismissibleModalPopup extends StatelessWidget {
+  final String? modaleKey;
   final Widget child;
   final double? maxHeight;
   final double paddingSides;
@@ -13,6 +14,7 @@ class DismissibleModalPopup extends StatelessWidget {
   const DismissibleModalPopup({
     super.key,
     required this.child,
+    this.modaleKey,
     this.maxHeight = 200,
     this.paddingSides = 10,
     this.paddingTopBottom = 10,
@@ -24,7 +26,7 @@ class DismissibleModalPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: UniqueKey(),
+      key: modaleKey != null ? Key(modaleKey!) : UniqueKey(),
       direction: DismissDirection.down,
       onUpdate: onUpdate,
       onDismissed: onDismissed,

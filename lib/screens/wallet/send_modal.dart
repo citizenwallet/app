@@ -173,6 +173,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final width = MediaQuery.of(context).size.width;
 
     return DismissibleModalPopup(
+      modaleKey: 'send-form',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {
@@ -431,6 +432,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   : null,
                               isComplete: _isSending,
                               onSlide: (percentage) {
+                                print('percentage: $percentage');
                                 if (percentage == 1) {
                                   setState(() {
                                     _percentage = 1;
