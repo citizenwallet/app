@@ -48,10 +48,18 @@ GoRouter createRouter(
                   name: 'Transaction',
                   path: 'transactions/:transactionId',
                   parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => TransactionScreen(
-                    address: state.params['address'],
-                    transactionId: state.params['transactionId'],
-                  ),
+                  builder: (context, state) {
+                    if (state.extra == null) {
+                      return const SizedBox();
+                    }
+
+                    final extra = state.extra as Map<String, dynamic>;
+
+                    return TransactionScreen(
+                      transactionId: state.params['transactionId'],
+                      logic: extra['logic'],
+                    );
+                  },
                 ),
               ],
             ),
@@ -113,12 +121,15 @@ GoRouter createWebRouter(
                   path: 'transactions/:transactionId',
                   parentNavigatorKey: rootNavigatorKey,
                   builder: (context, state) {
+                    if (state.extra == null) {
+                      return const SizedBox();
+                    }
+
                     final extra = state.extra as Map<String, dynamic>;
 
                     return TransactionScreen(
-                      qr: state.params['qr'],
-                      password: extra['password'],
                       transactionId: state.params['transactionId'],
+                      logic: extra['logic'],
                     );
                   },
                 ),

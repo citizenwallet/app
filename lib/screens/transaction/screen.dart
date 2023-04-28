@@ -1,6 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -14,17 +13,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TransactionScreen extends StatefulWidget {
-  final String? address;
-  final String? qr;
-  final String? password;
   final String? transactionId;
+  final WalletLogic logic;
 
   const TransactionScreen({
     Key? key,
-    this.address,
-    this.qr,
-    this.password,
     required this.transactionId,
+    required this.logic,
   }) : super(key: key);
 
   @override
@@ -32,33 +27,12 @@ class TransactionScreen extends StatefulWidget {
 }
 
 class TransactionScreenState extends State<TransactionScreen> {
-  late WalletLogic logic;
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
-
-      logic = WalletLogic(context);
-
-      if (widget.address != null) {
-        logic.instantiateWalletFromDB(widget.address!);
-        return;
-      }
-
-      if (widget.qr != null && widget.password != null) {
-        try {
-          final wallet = QR.fromCompressedJson(widget.qr!).toQRWallet();
-
-          logic.instantiateWalletFromFile(wallet, widget.password!);
-        } catch (e) {
-          print(e);
-        }
-
-        return;
-      }
     });
   }
 
@@ -67,7 +41,7 @@ class TransactionScreenState extends State<TransactionScreen> {
   }
 
   void handleReply(String address) async {
-    logic.prepareReplyTransaction(address);
+    widget.logic.prepareReplyTransaction(address);
 
     HapticFeedback.lightImpact();
 
@@ -75,7 +49,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       context: context,
       barrierDismissible: true,
       builder: (_) => SendModal(
-        logic: logic,
+        logic: widget.logic,
       ),
     );
   }
@@ -91,7 +65,8 @@ class TransactionScreenState extends State<TransactionScreen> {
     double amount,
     String message,
   ) async {
-    logic.prepareReplayTransaction(address, amount: amount, message: message);
+    widget.logic
+        .prepareReplayTransaction(address, amount: amount, message: message);
 
     HapticFeedback.lightImpact();
 
@@ -99,7 +74,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       context: context,
       barrierDismissible: true,
       builder: (_) => SendModal(
-        logic: logic,
+        logic: widget.logic,
       ),
     );
   }
@@ -113,7 +88,7 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final loading = context.select((WalletState state) => state.loading);
 
-    if (wallet == null || transaction == null || widget.address == null) {
+    if (wallet == null || transaction == null) {
       return const SizedBox();
     }
 

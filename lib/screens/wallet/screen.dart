@@ -186,8 +186,9 @@ class WalletScreenState extends State<WalletScreen> {
   void handleTransactionTap(String transactionId) {
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context)
-        .push('/wallet/${widget.address!}/transactions/$transactionId');
+    GoRouter.of(context).push(
+        '/wallet/${widget.address!}/transactions/$transactionId',
+        extra: {'logic': _logic});
   }
 
   @override

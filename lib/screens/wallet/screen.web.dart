@@ -196,7 +196,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     GoRouter.of(context).push(
         '/wallet/${widget.qr}/transactions/$transactionId',
-        extra: {'password': _password});
+        extra: {'logic': _logic});
   }
 
   @override
