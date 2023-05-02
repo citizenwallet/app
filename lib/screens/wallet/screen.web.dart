@@ -1,37 +1,53 @@
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_header.dart';
+import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
+import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
+import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-class WalletScreen extends StatefulWidget {
-  final String title = 'Wallet';
-  final String? address;
+class BurnerWalletScreen extends StatefulWidget {
+  final String qr;
 
-  const WalletScreen(this.address, {super.key});
+  const BurnerWalletScreen(
+    this.qr, {
+    super.key,
+  });
 
   @override
-  WalletScreenState createState() => WalletScreenState();
+  BurnerWalletScreenState createState() => BurnerWalletScreenState();
 }
 
-class WalletScreenState extends State<WalletScreen> {
+class BurnerWalletScreenState extends State<BurnerWalletScreen> {
+  QRWallet? _wallet;
+
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
+
+  String? _password;
 
   @override
   void initState() {
     super.initState();
+
+    try {
+      _wallet = QR.fromCompressedJson(widget.qr).toQRWallet();
+    } catch (e) {
+      print(e);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -71,23 +87,39 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
-  void onLoad() async {
-    if (widget.address == null) {
+  void onLoad({bool? retry}) async {
+    if (_wallet == null) {
       return;
     }
 
     final navigator = GoRouter.of(context);
 
-    final address = _logic.lastWallet;
+    _password = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (modalContext) => TextInputModal(
+        title: 'Unlock',
+        placeholder: 'Enter wallet password',
+        secure: true,
+        retry: retry ?? false,
+      ),
+    );
 
-    if (widget.address! == 'last' && address != null) {
-      navigator.push('/wallet/${address.toLowerCase()}');
+    if (_password == null || _password!.isEmpty) {
       return;
     }
 
-    await _logic.openWallet(
-      widget.address!,
+    await delay(const Duration(milliseconds: 250));
+
+    final ok = await _logic.openWalletFromQR(
+      _wallet!,
+      _password!,
     );
+
+    if (!ok) {
+      onLoad(retry: true);
+      return;
+    }
 
     await _logic.loadTransactions();
   }
@@ -96,33 +128,6 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.loadTransactions();
 
     HapticFeedback.heavyImpact();
-  }
-
-  void handleSwitchWalletModal(BuildContext context) async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
-    HapticFeedback.mediumImpact();
-
-    final navigator = GoRouter.of(context);
-
-    final address = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => SwitchWalletModal(
-        logic: _logic,
-        currentAddress: widget.address,
-      ),
-    );
-
-    if (address == null) {
-      return;
-    }
-
-    navigator.push('/wallet/${address.toLowerCase()}');
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
@@ -188,10 +193,14 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleTransactionTap(String transactionId) {
+    if (_wallet == null) {
+      return;
+    }
+
     HapticFeedback.lightImpact();
 
     GoRouter.of(context).push(
-        '/wallet/${widget.address!}/transactions/$transactionId',
+        '/wallet/${widget.qr}/transactions/$transactionId',
         extra: {'logic': _logic});
   }
 
@@ -216,69 +225,36 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            titleWidget: CupertinoButton(
-              padding: const EdgeInsets.all(5),
-              onPressed: () => handleSwitchWalletModal(context),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                ),
-                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  wallet?.name ?? 'Wallet',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Chip(
-                                formatHexAddress(
-                                    wallet?.address ?? zeroHexValue),
-                                color: ThemeColors.subtleEmphasis
-                                    .resolveFrom(context),
-                                textColor:
-                                    ThemeColors.touchable.resolveFrom(context),
-                              ),
-                            ],
-                          ),
-                        ],
+            titleWidget: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        wallet?.name ?? 'Locked',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: ThemeColors.text.resolveFrom(context),
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Icon(
-                      CupertinoIcons.chevron_down,
-                      color: ThemeColors.primary.resolveFrom(context),
-                    ),
-                  ],
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Chip(
+                        formatHexAddress(wallet?.address ?? zeroHexValue),
+                        color: ThemeColors.subtleEmphasis.resolveFrom(context),
+                        textColor: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
             actionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -334,7 +310,9 @@ class WalletScreenState extends State<WalletScreen> {
                                             .resolveFrom(context),
                                       )
                                     : Text(
-                                        '$formattedBalance (${wallet?.currencyName})',
+                                        wallet == null
+                                            ? '...'
+                                            : '$formattedBalance (${wallet.currencyName})',
                                         key: const Key(
                                             'wallet-balance-shrunken'),
                                         style: const TextStyle(
@@ -373,7 +351,9 @@ class WalletScreenState extends State<WalletScreen> {
                                               .resolveFrom(context),
                                         )
                                       : Text(
-                                          '$formattedBalance (${wallet?.currencyName})',
+                                          wallet == null
+                                              ? '...'
+                                              : '$formattedBalance (${wallet.currencyName})',
                                           key: const Key('wallet-balance'),
                                           style: const TextStyle(
                                             fontSize: 16,
@@ -460,6 +440,29 @@ class WalletScreenState extends State<WalletScreen> {
                       ),
                     ],
                   ),
+                  if (loading && wallet == null)
+                    Positioned(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            width: 200,
+                            child: Center(
+                              child: Lottie.asset(
+                                'assets/lottie/piggie_bank.json',
+                                height: 200,
+                                width: 200,
+                                animate: true,
+                                repeat: true,
+                                // controller: _controller,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (wallet != null)
                     Positioned(
                       bottom: 10,

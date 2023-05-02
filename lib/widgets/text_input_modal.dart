@@ -12,6 +12,7 @@ class TextInputModal extends StatefulWidget {
   final String initialValue;
   final bool secure;
   final bool confirm;
+  final bool retry;
 
   const TextInputModal({
     super.key,
@@ -20,6 +21,7 @@ class TextInputModal extends StatefulWidget {
     this.initialValue = '',
     this.secure = false,
     this.confirm = false,
+    this.retry = false,
   });
 
   @override
@@ -122,6 +124,11 @@ class TextInputModalState extends State<TextInputModal> {
                         autocorrect: false,
                         enableSuggestions: false,
                         obscureText: widget.secure,
+                        autofillHints: widget.secure
+                            ? const [
+                                AutofillHints.password,
+                              ]
+                            : null,
                         textInputAction: widget.confirm
                             ? TextInputAction.next
                             : TextInputAction.done,
@@ -130,7 +137,7 @@ class TextInputModalState extends State<TextInputModal> {
                             color: CupertinoColors.white,
                             darkColor: CupertinoColors.black,
                           ),
-                          border: _invalid
+                          border: _invalid || widget.retry == true
                               ? Border.all(
                                   color:
                                       ThemeColors.danger.resolveFrom(context),
@@ -169,6 +176,11 @@ class TextInputModalState extends State<TextInputModal> {
                           autocorrect: false,
                           enableSuggestions: false,
                           obscureText: widget.secure,
+                          autofillHints: widget.secure
+                              ? const [
+                                  AutofillHints.password,
+                                ]
+                              : null,
                           textInputAction: TextInputAction.done,
                           focusNode: focusNode,
                           decoration: BoxDecoration(

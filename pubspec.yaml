@@ -27,8 +27,8 @@ dependencies:
   pointycastle: ^3.7.3
   pretty_qr_code: ^2.0.3
   archive: ^3.3.7
-  throttled: ^1.0.1
   sqflite_common_ffi_web: ^0.3.5
+  rate_limiter: ^1.0.0
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
@@ -47,4 +47,5 @@ flutter:
     - assets/lottie/wallet_loader.json
     - assets/lottie/wallet_receive.json
     - assets/lottie/qr_scan_success.json
+    - assets/lottie/piggie_bank.json
   uses-material-design: false

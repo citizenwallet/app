@@ -10,8 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:qr/qr.dart';
-import 'package:throttled/throttled.dart';
+import 'package:rate_limiter/rate_limiter.dart';
 
 class ReceiveModal extends StatefulWidget {
   final WalletLogic logic;
@@ -26,6 +25,8 @@ class ReceiveModalState extends State<ReceiveModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
+  late void Function() debouncedQRCode;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,11 @@ class ReceiveModalState extends State<ReceiveModal> {
       // initial requests go here
 
       widget.logic.updateReceiveQR(onlyHex: true);
+
+      debouncedQRCode = debounce(
+        widget.logic.updateReceiveQR,
+        const Duration(milliseconds: 500),
+      );
     });
   }
 
@@ -51,12 +57,7 @@ class ReceiveModalState extends State<ReceiveModal> {
   }
 
   void handleThrottledUpdateQRCode() {
-    throttle(
-      'updateReceiveQR',
-      widget.logic.updateReceiveQR,
-      cooldown: const Duration(milliseconds: 500),
-      leaky: true,
-    );
+    debouncedQRCode();
   }
 
   @override

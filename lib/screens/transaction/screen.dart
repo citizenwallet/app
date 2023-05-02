@@ -13,13 +13,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TransactionScreen extends StatefulWidget {
-  final String? address;
   final String? transactionId;
+  final WalletLogic logic;
 
   const TransactionScreen({
     Key? key,
-    required this.address,
     required this.transactionId,
+    required this.logic,
   }) : super(key: key);
 
   @override
@@ -27,20 +27,12 @@ class TransactionScreen extends StatefulWidget {
 }
 
 class TransactionScreenState extends State<TransactionScreen> {
-  late WalletLogic logic;
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
-
-      logic = WalletLogic(context);
-
-      if (widget.address != null) {
-        logic.instantiateWalletFromDB(widget.address!);
-      }
     });
   }
 
@@ -49,7 +41,7 @@ class TransactionScreenState extends State<TransactionScreen> {
   }
 
   void handleReply(String address) async {
-    logic.prepareReplyTransaction(address);
+    widget.logic.prepareReplyTransaction(address);
 
     HapticFeedback.lightImpact();
 
@@ -57,7 +49,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       context: context,
       barrierDismissible: true,
       builder: (_) => SendModal(
-        logic: logic,
+        logic: widget.logic,
       ),
     );
   }
@@ -73,7 +65,8 @@ class TransactionScreenState extends State<TransactionScreen> {
     double amount,
     String message,
   ) async {
-    logic.prepareReplayTransaction(address, amount: amount, message: message);
+    widget.logic
+        .prepareReplayTransaction(address, amount: amount, message: message);
 
     HapticFeedback.lightImpact();
 
@@ -81,7 +74,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       context: context,
       barrierDismissible: true,
       builder: (_) => SendModal(
-        logic: logic,
+        logic: widget.logic,
       ),
     );
   }
@@ -95,7 +88,7 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final loading = context.select((WalletState state) => state.loading);
 
-    if (wallet == null || transaction == null || widget.address == null) {
+    if (wallet == null || transaction == null) {
       return const SizedBox();
     }
 
