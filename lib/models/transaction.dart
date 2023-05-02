@@ -1,10 +1,48 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/utils/currency.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
+      TransactionAuthor.bank: [dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase()],
+      TransactionAuthor.bar: [dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase()],
+    };
+
+TransactionAuthor getTransactionAuthor(String own, String from, String to) {
+  final knownAuthors = createKnownAuthorsMap();
+
+  // is it the bank?
+  if (!knownAuthors[TransactionAuthor.bank]!.contains(own.toLowerCase()) &&
+      (knownAuthors[TransactionAuthor.bank]!.contains(from) ||
+          knownAuthors[TransactionAuthor.bank]!.contains(to))) {
+    return TransactionAuthor.bank;
+  }
+
+  // is it the bar?
+  if (!knownAuthors[TransactionAuthor.bar]!.contains(own.toLowerCase()) &&
+      (knownAuthors[TransactionAuthor.bar]!.contains(from) ||
+          knownAuthors[TransactionAuthor.bar]!.contains(to))) {
+    return TransactionAuthor.bar;
+  }
+
+  return TransactionAuthor.unknown;
+}
 
 enum TransactionState {
   pending,
   success,
   failed,
+}
+
+enum TransactionAuthor {
+  self('assets/icons/anonymous_user.svg'),
+  unknown('assets/icons/anonymous_user.svg'),
+  known('assets/icons/anonymous_user.svg'),
+  bar('assets/icons/bar_icon.svg'),
+  bank('assets/icons/citizenbank.svg');
+
+  const TransactionAuthor(this.icon);
+
+  final String icon;
 }
 
 class CWTransaction {

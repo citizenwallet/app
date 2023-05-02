@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 class ProfileCircle extends StatelessWidget {
   final String? imageUrl;
   final double size;
+  final double padding;
   final double? borderWidth;
   final Color? borderColor;
   final Color? backgroundColor;
@@ -12,6 +13,7 @@ class ProfileCircle extends StatelessWidget {
     Key? key,
     this.imageUrl,
     this.size = 50,
+    this.padding = 0,
     this.borderWidth,
     this.borderColor,
     this.backgroundColor,
@@ -30,6 +32,7 @@ class ProfileCircle extends StatelessWidget {
           width: borderWidth ?? 0,
         ),
       ),
+      padding: EdgeInsets.all(padding),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
         child: SvgPicture.asset(

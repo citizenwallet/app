@@ -485,19 +485,19 @@ class WalletLogic {
 
       final transactions = await walletService.transactionsForBlockHash(hash);
 
+      final cwtransactions = transactions.map((e) => CWTransaction(
+            e.value.getInEther.toDouble(),
+            id: e.hash,
+            chainId: walletService.chainId,
+            from: e.from.hex,
+            to: e.to.hex,
+            title: e.input?.message ?? '',
+            date: e.timestamp,
+            blockNumber: e.blockNumber.blockNum,
+          ));
+
       _state.incomingTransactionsRequestSuccess(
-        transactions
-            .map((e) => CWTransaction(
-                  e.value.getInEther.toDouble(),
-                  id: e.hash,
-                  chainId: walletService.chainId,
-                  from: e.from.hex,
-                  to: e.to.hex,
-                  title: e.input?.message ?? '',
-                  date: e.timestamp,
-                  blockNumber: e.blockNumber.blockNum,
-                ))
-            .toList(),
+        cwtransactions.toList(),
       );
       return;
     } catch (e) {
@@ -582,19 +582,19 @@ class WalletLogic {
 
       final transactions = await walletService.transactions();
 
+      final cwtransactions = transactions.map((e) => CWTransaction(
+            e.value.getInEther.toDouble(),
+            id: e.hash,
+            chainId: walletService.chainId,
+            from: e.from.hex,
+            to: e.to.hex,
+            title: e.input?.message ?? '',
+            date: e.timestamp,
+            blockNumber: e.blockNumber.blockNum,
+          ));
+
       _state.loadTransactionsSuccess(
-        transactions
-            .map((e) => CWTransaction(
-                  e.value.getInEther.toDouble(),
-                  id: e.hash,
-                  chainId: walletService.chainId,
-                  from: e.from.hex,
-                  to: e.to.hex,
-                  title: e.input?.message ?? '',
-                  date: e.timestamp,
-                  blockNumber: e.blockNumber.blockNum,
-                ))
-            .toList(),
+        cwtransactions.toList(),
       );
       return;
     } catch (e) {
@@ -613,19 +613,19 @@ class WalletLogic {
 
       final transactions = await walletService.transactions(offset: offset);
 
+      final cwtransactions = transactions.map((e) => CWTransaction(
+            e.value.getInEther.toDouble(),
+            id: e.hash,
+            chainId: walletService.chainId,
+            from: e.from.hex,
+            to: e.to.hex,
+            title: e.input?.message ?? '',
+            date: e.timestamp,
+            blockNumber: e.blockNumber.blockNum,
+          ));
+
       _state.loadAdditionalTransactionsSuccess(
-        transactions
-            .map((e) => CWTransaction(
-                  e.value.getInEther.toDouble(),
-                  id: e.hash,
-                  chainId: walletService.chainId,
-                  from: e.from.hex,
-                  to: e.to.hex,
-                  title: e.input?.message ?? '',
-                  date: e.timestamp,
-                  blockNumber: e.blockNumber.blockNum,
-                ))
-            .toList(),
+        cwtransactions.toList(),
       );
       return;
     } catch (e) {
@@ -696,12 +696,14 @@ class WalletLogic {
         password: savedPassword,
       );
 
-      _state.sendTransactionSuccess(CWTransaction.pending(
+      final transaction = CWTransaction.pending(
         doubleAmount,
         id: hash,
         title: message,
         date: DateTime.now(),
-      ));
+      );
+
+      _state.sendTransactionSuccess(transaction);
 
       clearInputControllers();
 
@@ -742,12 +744,14 @@ class WalletLogic {
         message: message,
       );
 
-      _state.sendTransactionSuccess(CWTransaction.pending(
+      final transaction = CWTransaction.pending(
         doubleAmount,
         id: hash,
         title: message,
         date: DateTime.now(),
-      ));
+      );
+
+      _state.sendTransactionSuccess(transaction);
 
       clearInputControllers();
 

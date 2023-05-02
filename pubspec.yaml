@@ -38,8 +38,12 @@ flutter:
     - .env
     - assets/wallet.svg
     - assets/icons/wallet_simple.svg
+    - assets/icons/app.svg
     - assets/icons/coin.svg
     - assets/icons/profile.svg
+    - assets/icons/anonymous_user.svg
+    - assets/icons/bar_icon.svg
+    - assets/icons/citizenbank.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
     - assets/lottie/success.json

@@ -44,11 +44,13 @@ class TransactionRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const ProfileCircle(
+            ProfileCircle(
               size: 50,
-              imageUrl: 'assets/icons/coin.svg',
-              backgroundColor: ThemeColors.transparent,
-              borderColor: ThemeColors.transparent,
+              imageUrl: getTransactionAuthor(
+                      wallet.address, transaction.from, transaction.to)
+                  .icon,
+              backgroundColor: ThemeColors.white,
+              borderColor: ThemeColors.subtle,
             ),
             const SizedBox(width: 10),
             Expanded(

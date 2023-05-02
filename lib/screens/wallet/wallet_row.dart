@@ -44,9 +44,10 @@ class WalletRow extends StatelessWidget {
               children: [
                 const ProfileCircle(
                   size: 50,
-                  imageUrl: 'assets/icons/wallet_simple.svg',
-                  backgroundColor: ThemeColors.transparent,
-                  borderColor: ThemeColors.transparent,
+                  padding: 5,
+                  imageUrl: 'assets/icons/app.svg',
+                  backgroundColor: ThemeColors.white,
+                  borderColor: ThemeColors.subtle,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

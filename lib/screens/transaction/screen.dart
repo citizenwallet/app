@@ -117,12 +117,14 @@ class TransactionScreenState extends State<TransactionScreen> {
                             const SizedBox(height: 60),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 ProfileCircle(
                                   size: 80,
-                                  imageUrl: 'assets/icons/coin.svg',
-                                  backgroundColor: ThemeColors.transparent,
-                                  borderColor: ThemeColors.transparent,
+                                  imageUrl: getTransactionAuthor(wallet.address,
+                                          transaction.from, transaction.to)
+                                      .icon,
+                                  backgroundColor: ThemeColors.white,
+                                  borderColor: ThemeColors.subtle,
                                 ),
                               ],
                             ),
