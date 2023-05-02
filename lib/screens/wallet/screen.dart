@@ -250,22 +250,6 @@ class WalletScreenState extends State<WalletScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Chip(
-                                formatHexAddress(
-                                    wallet?.address ?? zeroHexValue),
-                                color: ThemeColors.subtleEmphasis
-                                    .resolveFrom(context),
-                                textColor:
-                                    ThemeColors.touchable.resolveFrom(context),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -317,7 +301,7 @@ class WalletScreenState extends State<WalletScreen> {
                                 ThemeColors.uiBackground.resolveFrom(context),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const Text(
                                   'Balance',
@@ -352,14 +336,34 @@ class WalletScreenState extends State<WalletScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: Text(
-                                    'Balance',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'Balance',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Chip(
+                                        formatHexAddress(
+                                            wallet?.address ?? zeroHexValue),
+                                        color: ThemeColors.subtleEmphasis
+                                            .resolveFrom(context),
+                                        textColor: ThemeColors.touchable
+                                            .resolveFrom(context),
+                                        maxWidth: 150,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Padding(
