@@ -15,8 +15,10 @@ import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
@@ -221,6 +223,10 @@ class WalletLogic {
   Future<bool> openWalletFromQR(QRWallet qrWallet, String password) async {
     try {
       _state.loadWallet();
+
+      if (kIsWeb) {
+        await delay(const Duration(milliseconds: 250));
+      }
 
       final int chainId = _preferences.chainId;
 

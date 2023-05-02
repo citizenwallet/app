@@ -47,4 +47,5 @@ flutter:
     - assets/lottie/wallet_loader.json
     - assets/lottie/wallet_receive.json
     - assets/lottie/qr_scan_success.json
+    - assets/lottie/piggie_bank.json
   uses-material-design: false

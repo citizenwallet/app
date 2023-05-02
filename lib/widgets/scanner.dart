@@ -2,18 +2,19 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class Scanner extends StatefulWidget {
-  final String modalKey;
+  final String? modalKey;
   final bool confirm;
 
   const Scanner({
     Key? key,
-    this.modalKey = 'scanner',
+    this.modalKey,
     this.confirm = false,
   }) : super(key: key);
 
@@ -46,12 +47,12 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
       formats: <BarcodeFormat>[BarcodeFormat.qrCode],
     );
 
-    super.initState();
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
+
+    super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -61,6 +62,10 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void onLoad() async {
+    // await delay(const Duration(milliseconds: 250));
+
+    // _controller.start();
+
     await delay(const Duration(milliseconds: 250));
 
     _controller.torchState.addListener(() {
@@ -95,6 +100,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void handleDetection(BarcodeCapture capture) async {
+    print('detected');
     if (_complete) return;
 
     if (capture.barcodes.isEmpty) {
@@ -163,6 +169,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DismissibleModalPopup(
+      key: widget.modalKey == null ? UniqueKey() : Key(widget.modalKey!),
       maxHeight: height,
       paddingSides: 0,
       paddingTopBottom: 0,
@@ -202,6 +209,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                             child: MobileScanner(
                               controller: _controller,
                               onDetect: handleDetection,
+                              startDelay: kIsWeb ? true : false,
                               fit: BoxFit.cover,
                               placeholderBuilder: (p0, p1) {
                                 return Container(

@@ -16,6 +16,7 @@ import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
@@ -431,6 +432,29 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       ),
                     ],
                   ),
+                  if (loading && wallet == null)
+                    Positioned(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            width: 200,
+                            child: Center(
+                              child: Lottie.asset(
+                                'assets/lottie/piggie_bank.json',
+                                height: 200,
+                                width: 200,
+                                animate: true,
+                                repeat: true,
+                                // controller: _controller,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (wallet != null)
                     Positioned(
                       bottom: 10,
