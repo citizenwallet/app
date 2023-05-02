@@ -252,6 +252,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     );
 
     return DismissibleModalPopup(
+      modaleKey: 'switch-wallet-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

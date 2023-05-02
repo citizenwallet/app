@@ -32,6 +32,7 @@ class QRModal extends StatelessWidget {
     final qrSize = width - 40;
 
     return DismissibleModalPopup(
+      modaleKey: 'qr-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

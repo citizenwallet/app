@@ -93,6 +93,7 @@ class PasswordModalState extends State<PasswordModal> {
     );
 
     return DismissibleModalPopup(
+      modaleKey: 'password-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {

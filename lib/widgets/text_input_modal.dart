@@ -80,6 +80,7 @@ class TextInputModalState extends State<TextInputModal> {
   @override
   Widget build(BuildContext context) {
     return DismissibleModalPopup(
+      modaleKey: 'text-input-modal',
       maxHeight: 350,
       paddingSides: 10,
       onUpdate: (details) {

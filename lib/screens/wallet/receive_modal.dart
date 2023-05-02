@@ -76,6 +76,7 @@ class ReceiveModalState extends State<ReceiveModal> {
     );
 
     return DismissibleModalPopup(
+      modaleKey: 'receive-modal',
       maxHeight: height,
       paddingSides: 10,
       onUpdate: (details) {
