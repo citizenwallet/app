@@ -84,9 +84,7 @@ GoRouter createWebRouter(
   List<NavigatorObserver> observers,
 ) =>
     GoRouter(
-      // initialLocation: '/',
-      initialLocation:
-          '/wallet/H4sIAO15SmQA_0VS224cIQz9l3nelYwNGPKYRpH6FREY06yySbYzmzRR1H-vYbftjLjY2MfnGL6Wd123w-vLcuN2y_nzpMvN8nN9-FWORz0vu6WVc1luvparw3ayfp7Or3N3OD3qaglFt73DtJfzaikX96ms5XkbYYd3C4FeOoukHDSIay1nlzJX0CohQITl99_Es35YncW5VGNyQaShz5hajZapDgoxQancRGKF6rRG33ul5qF18A0L9V6yEXlq3YC2Sfhi_ifVno5qogl3iy3JZduYlLRbTrMVWzkOFhmcA68MGpuVceyxeMiaSssSuPdGLCAld4jRVcwgoQXVokl91z5kPRcxJJJgXp_Ep5I0N5aQgCB1jGqIAl0rRnSF0SNHbqGjaBJXfaZWaSAdmgG12gJprfuuDfc-KO5TkbgXNJ6-J8pSTO2_e6XR2cdyePlu2Y6Id0tpbdVtG9fyAZUZ7yN7vYv9NvK3ED3fKvR62_D-VnNwId7ZBVln3urxIA9P-mmZ6lmQ1IXm2OVeI7HnJEQeFUMMlCAEdlCrXU3vpjX2pio9hBKg9OhjB0cgbLeamDhBJ1Nd1DEkIomxBOwWxNX0-hZBoA0QKcraRj-2w4-Xcn5bdSrhisiISMVGJqRE3mZnqxUnsoH2dvL0ewo22GZnI8yzMCMvPm97sjVPa_jIPGM3vjC9A9FkW-Y4s1dpa7YxbG-WqTP_OHFzxsHHPjGedOVJs8qIHbV4Yo91IIerggs20lDlpk1m54k7WOPUNXLSjOGpzV-ZwWTjZqybf5po_lobJ0uauHlWGHa48oyD5zhj6_gfMYIDHC4EAAA=',
+      initialLocation: '/',
       debugLogDiagnostics: kDebugMode,
       navigatorKey: rootNavigatorKey,
       observers: observers,
@@ -134,16 +132,6 @@ GoRouter createWebRouter(
                   },
                 ),
               ],
-            ),
-            GoRoute(
-              name: 'Settings',
-              path: '/settings',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: const SettingsScreen(),
-              ),
             ),
           ],
         ),

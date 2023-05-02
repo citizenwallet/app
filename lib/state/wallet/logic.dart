@@ -881,6 +881,13 @@ class WalletLogic {
   }
 
   void updateReceiveQR({bool? onlyHex}) async {
+    print('updating...');
+    return kIsWeb
+        ? updateReceiveQRUnlocked(onlyHex: onlyHex)
+        : updateReceiveQRLocked(onlyHex: onlyHex);
+  }
+
+  void updateReceiveQRLocked({bool? onlyHex}) async {
     try {
       final walletService = walletServiceCheck();
 
@@ -917,6 +924,50 @@ class WalletLogic {
           await qr.generateSignature(signer);
         }
       }
+
+      final compressed = qr.toCompressedJson();
+
+      _state.updateReceiveQR(compressed);
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.clearReceiveQR();
+  }
+
+  void updateReceiveQRUnlocked({bool? onlyHex}) async {
+    try {
+      final walletService = walletServiceCheck();
+
+      if (onlyHex != null && onlyHex) {
+        _state.updateReceiveQR(walletService.address.hex);
+        return;
+      }
+
+      final double amount = _amountController.text.isEmpty
+          ? 0
+          : double.tryParse(_amountController.text) ?? 0;
+
+      final credentials = walletService.unlock();
+
+      if (credentials == null) {
+        throw 'Could not retrieve credentials from wallet';
+      }
+
+      final qrData = QRTransactionRequestData(
+        chainId: walletService.chainId,
+        address: credentials.address.hex,
+        amount: amount,
+        publicKey: credentials.encodedPublicKey,
+      );
+
+      final qr = QRTransactionRequest(raw: qrData.toJson());
+
+      final signer = Signer(credentials);
+
+      await qr.generateSignature(signer);
 
       final compressed = qr.toCompressedJson();
 

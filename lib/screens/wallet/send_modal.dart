@@ -15,7 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:throttled/throttled.dart';
+import 'package:rate_limiter/rate_limiter.dart';
 
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
@@ -28,6 +28,8 @@ class SendModal extends StatefulWidget {
 
 class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   late final AnimationController _controller;
+
+  late void Function() debouncedAddressUpdate;
 
   final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
@@ -50,6 +52,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+
+      debouncedAddressUpdate = debounce(
+        widget.logic.updateAddress,
+        const Duration(milliseconds: 500),
+      );
     });
   }
 
@@ -80,12 +87,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   // }
 
   void handleThrottledUpdateAddress() {
-    throttle(
-      'updateSendAddress',
-      widget.logic.updateAddress,
-      cooldown: const Duration(milliseconds: 500),
-      leaky: true,
-    );
+    debouncedAddressUpdate();
   }
 
   void handleQRScan() async {

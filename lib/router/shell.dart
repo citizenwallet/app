@@ -1,5 +1,6 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 class RouterShell extends StatelessWidget {
@@ -43,23 +44,24 @@ class RouterShell extends StatelessWidget {
           Expanded(
             child: child,
           ),
-          CupertinoTabBar(
-            items: items,
-            currentIndex: routes[state.location] ?? 0,
-            backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
-            onTap: (index) {
-              switch (index) {
-                case 0:
-                  GoRouter.of(context).go('/wallet/last');
-                  break;
-                case 1:
-                  GoRouter.of(context).go('/settings');
-                  break;
-                default:
-                // GoRouter.of(context).go('/404');
-              }
-            },
-          ),
+          if (!kIsWeb)
+            CupertinoTabBar(
+              items: items,
+              currentIndex: routes[state.location] ?? 0,
+              backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+              onTap: (index) {
+                switch (index) {
+                  case 0:
+                    GoRouter.of(context).go('/wallet/last');
+                    break;
+                  case 1:
+                    GoRouter.of(context).go('/settings');
+                    break;
+                  default:
+                  // GoRouter.of(context).go('/404');
+                }
+              },
+            ),
         ],
       )),
     );
