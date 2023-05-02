@@ -16,6 +16,8 @@ import 'package:web3dart/web3dart.dart';
 
 final Exception lockedWalletException = Exception('Wallet is locked');
 
+const int defaultPageSize = 10;
+
 Future<WalletService?> walletServiceFromChain(
   BigInt chainId,
   String address,
@@ -92,7 +94,7 @@ class WalletService {
   BigInt? _chainId;
   Chain? _chain;
   // Wallet? _wallet;
-  // EthPrivateKey? _credentials;
+  EthPrivateKey? _credentials;
   late EthereumAddress _address;
   Uint8List? _publicKey;
 
@@ -144,7 +146,7 @@ class WalletService {
     _address = wallet.privateKey.address;
 
     // _wallet = wallet;
-    // _credentials = wallet.privateKey;
+    _credentials = wallet.privateKey;
   }
 
   /// creates using a wallet file
@@ -187,18 +189,26 @@ class WalletService {
     _chainId = await _ethClient.getChainId();
   }
 
-  EthPrivateKey? unlock(String walletFile, String password) {
+  EthPrivateKey? unlock({String? walletFile, String? password}) {
     try {
-      Wallet wallet = Wallet.fromJson(walletFile, password);
+      if (walletFile == null && password == null && _credentials == null) {
+        throw Exception('No wallet file or password provided');
+      }
+
+      if (walletFile == null && password == null && _credentials != null) {
+        return _credentials;
+      }
+
+      if (walletFile == null && password == null) {
+        throw Exception('No wallet file or password provided');
+      }
+
+      Wallet wallet = Wallet.fromJson(walletFile!, password!);
 
       return wallet.privateKey;
     } catch (e) {
       print(e);
     }
-
-    // _wallet = wallet;
-    // _credentials = wallet.privateKey;
-    // _address = _credentials!.address;
 
     return null;
   }
@@ -256,7 +266,7 @@ class WalletService {
 
   /// retrieve the private key as a v3 wallet
   String toWalletFile(String walletFile, String password) {
-    final credentials = unlock(walletFile, password);
+    final credentials = unlock(walletFile: walletFile, password: password);
     if (credentials == null) {
       throw lockedWalletException;
     }
@@ -381,10 +391,10 @@ class WalletService {
     required String to,
     required int amount,
     String message = '',
-    required String walletFile,
-    String password = '',
+    String? walletFile,
+    String? password,
   }) async {
-    final credentials = unlock(walletFile, password);
+    final credentials = unlock(walletFile: walletFile, password: password);
     if (credentials == null) {
       throw lockedWalletException;
     }
@@ -406,21 +416,24 @@ class WalletService {
   /// retrieves list of latest transactions for this wallet within a limit and offset
   Future<List<WalletTransaction>> transactions({
     int offset = 0,
-    int limit = 10,
+    int limit = defaultPageSize,
   }) async {
     final List<WalletTransaction> transactions = [];
 
-    // get the end block number
-    final int endBlock = max(
-      firstBlockNumber,
-      (await _ethClient.getBlockNumber()) - offset,
-    );
+    final int lastBlock = await _ethClient.getBlockNumber();
 
     // get the start block number
-    final int startBlock = max(firstBlockNumber, endBlock - limit);
+    final int startBlock =
+        max(offset == 0 ? lastBlock : offset, firstBlockNumber);
+
+    // get the end block number
+    final int endBlock = max(
+      startBlock - limit,
+      firstBlockNumber,
+    );
 
     // iterate through blocks
-    for (int i = startBlock; i < endBlock; i++) {
+    for (int i = startBlock; i >= endBlock; i--) {
       final WalletBlock? block = await _getBlockByNumber(blockNumber: i);
       if (block == null) {
         continue;
@@ -431,7 +444,7 @@ class WalletService {
         if (transaction.from == address || transaction.to == address) {
           transaction.setTimestamp(block.timestamp);
           transaction.setDirection(address);
-          transactions.insert(0, transaction);
+          transactions.add(transaction);
         }
       }
     }

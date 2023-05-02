@@ -62,7 +62,11 @@ class WalletScreenState extends State<WalletScreen> {
           return;
         }
 
-        _logic.loadAdditionalTransactions(transactions.length);
+        if (transactions.last.blockNumber == 0) {
+          return;
+        }
+
+        _logic.loadAdditionalTransactions(transactions.last.blockNumber + 1);
       }
     }
   }

@@ -15,6 +15,7 @@ class CWTransaction {
   final String title;
   final double _amount;
   final DateTime date;
+  final int blockNumber;
 
   TransactionState state = TransactionState.success;
 
@@ -26,6 +27,7 @@ class CWTransaction {
     this.to = '0x',
     required this.title,
     required this.date,
+    this.blockNumber = 0,
     this.state = TransactionState.success,
   });
   CWTransaction.pending(
@@ -36,6 +38,7 @@ class CWTransaction {
     this.to = '0x',
     required this.title,
     required this.date,
+    this.blockNumber = 0,
     this.state = TransactionState.pending,
   });
 
@@ -62,6 +65,7 @@ class CWTransaction {
         title = json['title'],
         _amount = json['amount'],
         date = DateTime.parse(json['date']),
+        blockNumber = json['blockNumber'],
         state = json['state'] ?? TransactionState.success;
 
   // Convert a Conversation object into a Map object.
@@ -73,6 +77,7 @@ class CWTransaction {
         'to': to,
         'title': title,
         'amount': _amount,
+        'blockNumber': blockNumber,
         'date': date.toIso8601String(),
       };
 

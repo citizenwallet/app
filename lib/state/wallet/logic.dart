@@ -260,7 +260,7 @@ class WalletLogic {
       _state.loadWalletSuccess(
         CWWallet(
           balance,
-          name: 'Quick Wallet',
+          name: 'Web Wallet',
           address: walletService.address.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
@@ -495,6 +495,7 @@ class WalletLogic {
                   to: e.to.hex,
                   title: e.input?.message ?? '',
                   date: e.timestamp,
+                  blockNumber: e.blockNumber.blockNum,
                 ))
             .toList(),
       );
@@ -591,6 +592,7 @@ class WalletLogic {
                   to: e.to.hex,
                   title: e.input?.message ?? '',
                   date: e.timestamp,
+                  blockNumber: e.blockNumber.blockNum,
                 ))
             .toList(),
       );
@@ -621,6 +623,7 @@ class WalletLogic {
                   to: e.to.hex,
                   title: e.input?.message ?? '',
                   date: e.timestamp,
+                  blockNumber: e.blockNumber.blockNum,
                 ))
             .toList(),
       );
@@ -653,6 +656,13 @@ class WalletLogic {
 
   Future<bool> sendTransaction(String amount, String to,
       {String message = ''}) async {
+    return kIsWeb
+        ? sendTransactionFromUnlocked(amount, to, message: message)
+        : sendTransactionFromLocked(amount, to, message: message);
+  }
+
+  Future<bool> sendTransactionFromLocked(String amount, String to,
+      {String message = ''}) async {
     try {
       _state.sendTransaction();
 
@@ -684,6 +694,52 @@ class WalletLogic {
         message: message,
         walletFile: dbwallet.wallet,
         password: savedPassword,
+      );
+
+      _state.sendTransactionSuccess(CWTransaction.pending(
+        doubleAmount,
+        id: hash,
+        title: message,
+        date: DateTime.now(),
+      ));
+
+      clearInputControllers();
+
+      await updateBalance();
+
+      return true;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    _state.sendTransactionError();
+
+    return false;
+  }
+
+  Future<bool> sendTransactionFromUnlocked(String amount, String to,
+      {String message = ''}) async {
+    try {
+      _state.sendTransaction();
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      var doubleAmount = double.tryParse(amount.replaceAll(',', '.'));
+      if (doubleAmount == null) {
+        _state.setInvalidAmount(true);
+        throw Exception('invalid amount');
+      }
+
+      final walletService = walletServiceCheck();
+
+      final hash = await walletService.sendTransaction(
+        to: to,
+        amount: doubleAmount.toInt(),
+        message: message,
       );
 
       _state.sendTransactionSuccess(CWTransaction.pending(
@@ -852,8 +908,8 @@ class WalletLogic {
           .getWalletPassword(dbwallet.address);
 
       if (savedPassword != null) {
-        final credentials =
-            walletService.unlock(dbwallet.wallet, savedPassword);
+        final credentials = walletService.unlock(
+            walletFile: dbwallet.wallet, password: savedPassword);
 
         if (credentials != null) {
           final signer = Signer(credentials);
@@ -901,8 +957,8 @@ class WalletLogic {
           .getWalletPassword(dbwallet.address);
 
       if (savedPassword != null) {
-        final credentials =
-            walletService.unlock(dbwallet.wallet, savedPassword);
+        final credentials = walletService.unlock(
+            walletFile: dbwallet.wallet, password: savedPassword);
 
         if (credentials != null) {
           final signer = Signer(credentials);

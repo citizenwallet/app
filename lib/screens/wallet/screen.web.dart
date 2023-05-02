@@ -78,7 +78,11 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
           return;
         }
 
-        _logic.loadAdditionalTransactions(transactions.length);
+        if (transactions.last.blockNumber == 0) {
+          return;
+        }
+
+        _logic.loadAdditionalTransactions(transactions.last.blockNumber + 1);
       }
     }
   }
@@ -230,7 +234,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        wallet?.name ?? '...',
+                        wallet?.name ?? 'Locked',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -306,7 +310,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                             .resolveFrom(context),
                                       )
                                     : Text(
-                                        '$formattedBalance (${wallet?.currencyName})',
+                                        wallet == null
+                                            ? '...'
+                                            : '$formattedBalance (${wallet.currencyName})',
                                         key: const Key(
                                             'wallet-balance-shrunken'),
                                         style: const TextStyle(
@@ -345,7 +351,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                               .resolveFrom(context),
                                         )
                                       : Text(
-                                          '$formattedBalance (${wallet?.currencyName})',
+                                          wallet == null
+                                              ? '...'
+                                              : '$formattedBalance (${wallet.currencyName})',
                                           key: const Key('wallet-balance'),
                                           style: const TextStyle(
                                             fontSize: 16,

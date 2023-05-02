@@ -170,7 +170,15 @@ class WalletState with ChangeNotifier {
   }
 
   void loadAdditionalTransactionsSuccess(List<CWTransaction> transactions) {
-    this.transactions.addAll(transactions);
+    // this.transactions.addAll(transactions);
+    for (final transaction in transactions) {
+      final index = this.transactions.indexWhere((t) => t.id == transaction.id);
+      if (index == -1) {
+        this.transactions.add(transaction);
+      } else {
+        this.transactions[index] = transaction;
+      }
+    }
 
     transactionsLoading = false;
     transactionsError = false;
