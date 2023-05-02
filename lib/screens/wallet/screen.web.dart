@@ -240,6 +240,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         formatHexAddress(wallet?.address ?? zeroHexValue),
                         color: ThemeColors.subtleEmphasis.resolveFrom(context),
                         textColor: ThemeColors.touchable.resolveFrom(context),
+                        maxWidth: 150,
                       ),
                     ],
                   ),
