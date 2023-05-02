@@ -72,32 +72,32 @@ class SettingsScreenState extends State<SettingsScreen> {
                     onChanged: onChanged,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Text(
-                    'Wallet',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SettingsRow(
-                  label: 'Setting 1',
-                  trailing: Text('Property 1'),
-                ),
-                const SettingsRow(
-                  label: 'Setting 2',
-                  trailing: Text('Property 2'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                  child: Button(
-                    text: 'Clear App Data',
-                    color: CupertinoColors.systemRed,
-                    onPressed: handleAppReset,
-                  ),
-                ),
+                // const Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                //   child: Text(
+                //     'Wallet',
+                //     style: TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                // const SettingsRow(
+                //   label: 'Setting 1',
+                //   trailing: Text('Property 1'),
+                // ),
+                // const SettingsRow(
+                //   label: 'Setting 2',
+                //   trailing: Text('Property 2'),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                //   child: Button(
+                //     text: 'Clear App Data',
+                //     color: CupertinoColors.systemRed,
+                //     onPressed: handleAppReset,
+                //   ),
+                // ),
               ],
             ),
           ),
