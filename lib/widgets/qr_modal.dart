@@ -6,8 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
-typedef QrSelector<T> = String Function(T);
-
 class QRModal extends StatelessWidget {
   final String title;
   final String qrCode;

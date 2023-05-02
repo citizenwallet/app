@@ -10,6 +10,7 @@ class DismissibleModalPopup extends StatelessWidget {
   final double topRadius;
   final void Function(DismissUpdateDetails)? onUpdate;
   final void Function(DismissDirection)? onDismissed;
+  final bool blockDismiss;
 
   const DismissibleModalPopup({
     super.key,
@@ -21,6 +22,7 @@ class DismissibleModalPopup extends StatelessWidget {
     this.topRadius = 10,
     this.onUpdate,
     this.onDismissed,
+    this.blockDismiss = false,
   });
 
   @override
@@ -30,6 +32,9 @@ class DismissibleModalPopup extends StatelessWidget {
       direction: DismissDirection.down,
       onUpdate: onUpdate,
       onDismissed: onDismissed,
+      confirmDismiss: (_) async {
+        return !blockDismiss;
+      },
       child: Container(
         constraints: maxHeight != null
             ? BoxConstraints(

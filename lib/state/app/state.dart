@@ -3,6 +3,9 @@ import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppState with ChangeNotifier {
+  String walletPassword = '';
+  bool hasCopiedPassword = false;
+
   bool walletLoading = false;
   bool walletError = false;
 
@@ -36,6 +39,34 @@ class AppState with ChangeNotifier {
   void importLoadingSuccess() {
     walletLoading = false;
     walletError = false;
+    notifyListeners();
+  }
+
+  void importLoadingWebReq() {
+    hasCopiedPassword = false;
+    walletPassword = '';
+    walletLoading = true;
+    walletError = false;
+    notifyListeners();
+  }
+
+  void importLoadingWebError() {
+    walletPassword = '';
+    walletLoading = false;
+    walletError = true;
+    notifyListeners();
+  }
+
+  void importLoadingWebSuccess(String password) {
+    walletPassword = password;
+
+    walletLoading = false;
+    walletError = false;
+    notifyListeners();
+  }
+
+  void hasCopied(bool hasCopied) {
+    hasCopiedPassword = hasCopied;
     notifyListeners();
   }
 

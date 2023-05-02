@@ -62,10 +62,6 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void onLoad() async {
-    // await delay(const Duration(milliseconds: 250));
-
-    // _controller.start();
-
     await delay(const Duration(milliseconds: 250));
 
     _controller.torchState.addListener(() {
@@ -169,7 +165,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DismissibleModalPopup(
-      key: widget.modalKey == null ? UniqueKey() : Key(widget.modalKey!),
+      modaleKey: widget.modalKey,
       maxHeight: height,
       paddingSides: 0,
       paddingTopBottom: 0,

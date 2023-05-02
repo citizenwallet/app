@@ -4,8 +4,10 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/screen_description.dart';
+import 'package:citizenwallet/screens/landing/text_copy_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +52,7 @@ class LandingScreenState extends State<LandingScreen>
     final name = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => TextInputModal(
+      builder: (modalContext) => const TextInputModal(
         title: 'Wallet Name',
         placeholder: 'Enter wallet name',
       ),
@@ -69,10 +71,36 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/${address.toLowerCase()}');
   }
 
+  void handleNewWebWallet() async {
+    final navigator = GoRouter.of(context);
+
+    final wallet = await _appLogic.createWebWallet();
+
+    if (wallet == null) {
+      return;
+    }
+
+    final hasCopied = await showCupertinoModalPopup<bool?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (modalContext) => TextCopyModal(
+        logic: _appLogic,
+        title: 'Copy password',
+      ),
+    );
+
+    if (hasCopied == null || !hasCopied) {
+      return;
+    }
+
+    final qrWallet = wallet.toCompressedJson();
+
+    navigator.go('/wallet/$qrWallet');
+  }
+
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
 
-    // TODO: allow user to enter a private key manually
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
@@ -86,10 +114,21 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
+    if (kIsWeb) {
+      final qrWallet = await _appLogic.importWebWallet(result);
+
+      if (qrWallet == null) {
+        return;
+      }
+
+      navigator.go('/wallet/$qrWallet');
+      return;
+    }
+
     final name = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => TextInputModal(
+      builder: (modalContext) => const TextInputModal(
         title: 'Wallet Name',
         placeholder: 'Enter wallet name',
       ),
@@ -148,7 +187,8 @@ class LandingScreenState extends State<LandingScreen>
                       children: [
                         Button(
                           text: 'New Wallet',
-                          onPressed: handleNewWallet,
+                          onPressed:
+                              kIsWeb ? handleNewWebWallet : handleNewWallet,
                           minWidth: 200,
                           maxWidth: 200,
                         ),

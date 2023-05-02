@@ -142,6 +142,36 @@ class AppLogic {
     return null;
   }
 
+  Future<QRWallet?> createWebWallet() async {
+    try {
+      _appState.importLoadingWebReq();
+
+      await delay(const Duration(milliseconds: 250));
+
+      final credentials = EthPrivateKey.createRandom(Random.secure());
+
+      final password = getRandomString(64);
+
+      final Wallet wallet =
+          Wallet.createNew(credentials, password, Random.secure());
+
+      _appState.importLoadingWebSuccess(password);
+
+      return QRWallet(
+          raw: QRWalletData(
+        wallet: jsonDecode(wallet.toJson()),
+        address: credentials.address.hex,
+        publicKey: wallet.privateKey.encodedPublicKey,
+      ).toJson());
+    } catch (e) {
+      print(e);
+    }
+
+    _appState.importLoadingWebError();
+
+    return null;
+  }
+
   Future<QRWallet?> importWallet(String qrWallet, String name) async {
     try {
       _appState.importLoadingReq();
@@ -217,5 +247,30 @@ class AppLogic {
     _appState.importLoadingError();
 
     return null;
+  }
+
+  Future<QRWallet?> importWebWallet(String qrWallet) async {
+    try {
+      _appState.importLoadingReq();
+
+      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
+
+      await wallet.verifyData();
+
+      _appState.importLoadingSuccess();
+
+      return wallet;
+    } catch (e) {
+      print(e);
+    }
+
+    _appState.importLoadingError();
+
+    return null;
+  }
+
+  void copyPasswordToClipboard() {
+    Clipboard.setData(ClipboardData(text: _appState.walletPassword));
+    _appState.hasCopied(true);
   }
 }
