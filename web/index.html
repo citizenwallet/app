@@ -39,7 +39,32 @@
     <!-- This script adds the flutter initialization JS code -->
     <script src="flutter.js" defer></script>
   </head>
+
+  <style>
+    #wallet-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 10px solid #f3f3f3;
+      border-top: 10px solid #3498db;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+  </style>
   <body>
+    <div id="wallet-loader"></div>
     <script>
       window.addEventListener("load", function (ev) {
         // Download main.dart.js
