@@ -1,5 +1,5 @@
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,7 +29,8 @@ class QRModal extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final qrSize = width - 40;
+    final size = height > width ? width : height;
+    final qrSize = size - 80;
 
     return DismissibleModalPopup(
       modaleKey: 'qr-modal',
@@ -84,18 +85,21 @@ class QRModal extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Button(
-                              text: 'Copy',
-                              color: ThemeColors.primary.resolveFrom(context),
-                              suffix: Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: Icon(
-                                  CupertinoIcons.square_on_square,
-                                  color: ThemeColors.white.resolveFrom(context),
-                                ),
+                            Chip(
+                              onTap: onCopy,
+                              qrCode,
+                              color: ThemeColors.subtleEmphasis
+                                  .resolveFrom(context),
+                              textColor:
+                                  ThemeColors.touchable.resolveFrom(context),
+                              suffix: Icon(
+                                CupertinoIcons.square_on_square,
+                                size: 14,
+                                color:
+                                    ThemeColors.touchable.resolveFrom(context),
                               ),
-                              onPressed: onCopy,
-                            )
+                              borderRadius: 15,
+                            ),
                           ],
                         ),
                       const SizedBox(

@@ -147,21 +147,20 @@ class TransactionScreenState extends State<TransactionScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                GestureDetector(
+                                Chip(
                                   onTap: () => handleCopy(wallet.address),
-                                  child: Chip(
-                                    formatHexAddress(from),
-                                    color: ThemeColors.subtleEmphasis
+                                  formatHexAddress(from),
+                                  color: ThemeColors.subtleEmphasis
+                                      .resolveFrom(context),
+                                  textColor: ThemeColors.touchable
+                                      .resolveFrom(context),
+                                  suffix: Icon(
+                                    CupertinoIcons.square_on_square,
+                                    size: 12,
+                                    color: ThemeColors.touchable
                                         .resolveFrom(context),
-                                    textColor: ThemeColors.touchable
-                                        .resolveFrom(context),
-                                    suffix: Icon(
-                                      CupertinoIcons.square_on_square,
-                                      size: 12,
-                                      color: ThemeColors.touchable
-                                          .resolveFrom(context),
-                                    ),
                                   ),
+                                  maxWidth: 160,
                                 ),
                               ],
                             ),
