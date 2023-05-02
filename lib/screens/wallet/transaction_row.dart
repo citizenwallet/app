@@ -29,7 +29,7 @@ class TransactionRow extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-        height: 80,
+        height: 90,
         decoration: BoxDecoration(
           color: transaction.isPending
               ? ThemeColors.subtleEmphasis.resolveFrom(context)
@@ -66,14 +66,17 @@ class TransactionRow extends StatelessWidget {
                       color: ThemeColors.text.resolveFrom(context),
                     ),
                   ),
-                  Text(
-                    transaction.title == '' ? '...' : transaction.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: ThemeColors.subtleText.resolveFrom(context),
+                  SizedBox(
+                    height: 20,
+                    child: Text(
+                      transaction.title == '' ? '...' : transaction.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: ThemeColors.subtleText.resolveFrom(context),
+                      ),
                     ),
                   ),
                 ],
