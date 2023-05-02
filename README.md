@@ -1,9 +1,13 @@
 <h1 align="center">
-  <img src="./assets/wallet.svg"/><br/>
+  <img src="https://citizenwallet.xyz/_next/image?url=https://lh3.googleusercontent.com/docs/ADP-6oHI7G75vHAQPxHcPl4-96sOXQglA3B7eYxsLC4FzXZ58XGSYf8P4g0V0y4OgjsZT8bB9F8-1cLfxIUxHoVr48nvbLCiIQo-VC_0DbpqAkjTEIILZUbT7au9tE9kZ_HSA3v0MXutjrEHRiWF2a_O29BfCjSrzucRmxzLoQSttZ6LdAl_anVz-u_waJsa9srQ&w=3840&q=75"/><br/>
   Citizen Wallet
 </h1>
 
-Citizen wallet description...
+Receive and send citizen coins to pay at participating events.
+
+Move your leftovers coins to your Citizen Wallet on your smartphone.
+
+[Read more.](https://citizenwallet.xyz/)
 
 # Running the project
 
