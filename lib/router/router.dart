@@ -1,5 +1,6 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
+import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
@@ -93,7 +94,8 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const LandingScreen(),
+          builder: (context, state) =>
+              kIsWeb ? const WebLandingScreen() : const LandingScreen(),
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,

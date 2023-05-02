@@ -14,6 +14,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -150,10 +151,12 @@ class AppLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final password = getRandomString(64);
+      final password = dotenv.get('WEB_BURNER_PASSWORD');
 
       final Wallet wallet =
           Wallet.createNew(credentials, password, Random.secure());
+
+      await delay(const Duration(milliseconds: 250));
 
       _appState.importLoadingWebSuccess(password);
 

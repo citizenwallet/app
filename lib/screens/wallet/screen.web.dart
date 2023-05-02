@@ -15,6 +15,7 @@ import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -37,13 +38,15 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
 
-  String? _password;
+  late String _password;
 
   @override
   void initState() {
     super.initState();
 
     try {
+      _password = dotenv.get('WEB_BURNER_PASSWORD');
+
       _wallet = QR.fromCompressedJson(widget.qr).toQRWallet();
     } catch (e) {
       print(e);
@@ -92,20 +95,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    final navigator = GoRouter.of(context);
-
-    _password = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (modalContext) => TextInputModal(
-        title: 'Unlock',
-        placeholder: 'Enter wallet password',
-        secure: true,
-        retry: retry ?? false,
-      ),
-    );
-
-    if (_password == null || _password!.isEmpty) {
+    if (_password.isEmpty) {
       return;
     }
 
@@ -113,7 +103,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     final ok = await _logic.openWalletFromQR(
       _wallet!,
-      _password!,
+      _password,
     );
 
     if (!ok) {
