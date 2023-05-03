@@ -197,7 +197,7 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      cleanupBlockSubscription();
+      await cleanupBlockSubscription();
 
       _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
@@ -255,7 +255,7 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      cleanupBlockSubscription();
+      await cleanupBlockSubscription();
 
       _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
@@ -319,8 +319,10 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      cleanupBlockSubscription();
+      print('cleaning up...');
+      await cleanupBlockSubscription();
 
+      print('listening...');
       _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
       _state.loadWalletSuccess(
@@ -499,6 +501,8 @@ class WalletLogic {
             date: e.timestamp,
             blockNumber: e.blockNumber.blockNum,
           ));
+
+      await updateBalance();
 
       _state.incomingTransactionsRequestSuccess(
         cwtransactions.toList(),
@@ -1194,9 +1198,9 @@ class WalletLogic {
     }
   }
 
-  void cleanupBlockSubscription() {
+  Future<void> cleanupBlockSubscription() async {
     if (_blockSubscription != null) {
-      _blockSubscription!.cancel();
+      await _blockSubscription!.cancel();
     }
   }
 

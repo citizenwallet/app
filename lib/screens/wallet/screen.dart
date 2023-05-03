@@ -81,6 +81,8 @@ class WalletScreenState extends State<WalletScreen> {
     final address = _logic.lastWallet;
 
     if (widget.address! == 'last' && address != null) {
+      _logic.dispose();
+
       navigator.push('/wallet/${address.toLowerCase()}');
       return;
     }
@@ -121,6 +123,8 @@ class WalletScreenState extends State<WalletScreen> {
     if (address == null) {
       return;
     }
+
+    _logic.dispose();
 
     navigator.push('/wallet/${address.toLowerCase()}');
   }

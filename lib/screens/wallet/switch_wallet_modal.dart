@@ -8,12 +8,10 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/random.dart';
-import 'package:citizenwallet/utils/uint8.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/export_qr_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -67,7 +65,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     final name = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => TextInputModal(
+      builder: (modalContext) => const TextInputModal(
         title: 'Create Wallet',
         placeholder: 'Enter wallet name',
       ),

@@ -56,8 +56,9 @@ class ExportQRModal extends StatelessWidget {
               children: [
                 Header(
                   title: title,
-                  actionButton: GestureDetector(
-                    onTap: () => handleDismiss(context),
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
                       color: ThemeColors.touchable.resolveFrom(context),
