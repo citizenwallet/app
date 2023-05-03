@@ -94,8 +94,7 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) =>
-              kIsWeb ? const WebLandingScreen() : const LandingScreen(),
+          builder: (context, state) => const WebLandingScreen(),
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
@@ -111,8 +110,11 @@ GoRouter createWebRouter(
               pageBuilder: (context, state) => NoTransitionPage(
                 key: state.pageKey,
                 name: state.name,
-                child: BurnerWalletScreen(
-                  state.params['qr'] ?? '',
+                child: WillPopScope(
+                  onWillPop: () async => false,
+                  child: BurnerWalletScreen(
+                    state.params['qr'] ?? '',
+                  ),
                 ),
               ),
               routes: [
@@ -127,9 +129,12 @@ GoRouter createWebRouter(
 
                     final extra = state.extra as Map<String, dynamic>;
 
-                    return TransactionScreen(
-                      transactionId: state.params['transactionId'],
-                      logic: extra['logic'],
+                    return WillPopScope(
+                      onWillPop: () async => false,
+                      child: TransactionScreen(
+                        transactionId: state.params['transactionId'],
+                        logic: extra['logic'],
+                      ),
                     );
                   },
                 ),
