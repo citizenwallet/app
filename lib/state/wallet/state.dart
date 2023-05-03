@@ -129,7 +129,7 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateWalletBalanceSuccess(double balance) {
+  void updateWalletBalanceSuccess(String balance) {
     wallet!.setBalance(balance);
 
     loading = false;

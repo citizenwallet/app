@@ -62,7 +62,7 @@ class TransactionScreenState extends State<TransactionScreen> {
 
   void handleReplay(
     String address,
-    double amount,
+    String amount,
     String message,
   ) async {
     widget.logic
@@ -98,6 +98,9 @@ class TransactionScreenState extends State<TransactionScreen> {
         ? transaction.from
         : transaction.to;
 
+    final author =
+        getTransactionAuthor(wallet.address, transaction.from, transaction.to);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -120,14 +123,31 @@ class TransactionScreenState extends State<TransactionScreen> {
                               children: [
                                 ProfileCircle(
                                   size: 80,
-                                  imageUrl: getTransactionAuthor(wallet.address,
-                                          transaction.from, transaction.to)
-                                      .icon,
+                                  imageUrl: author.icon,
                                   backgroundColor: ThemeColors.white,
                                   borderColor: ThemeColors.subtle,
                                 ),
                               ],
                             ),
+                            if (author == TransactionAuthor.bank ||
+                                author == TransactionAuthor.bar) ...[
+                              const SizedBox(height: 5),
+                              Text(
+                                author.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: transaction.isPending
+                                      ? FontWeight.normal
+                                      : FontWeight.w500,
+                                  color: isIncoming
+                                      ? ThemeColors.primary.resolveFrom(context)
+                                      : ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 20),
                             Text(
                               transaction.formattedAmount(wallet,

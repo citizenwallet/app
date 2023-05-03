@@ -39,15 +39,16 @@ enum TransactionState {
 }
 
 enum TransactionAuthor {
-  self('assets/icons/anonymous_user.svg'),
-  unknown('assets/icons/anonymous_user.svg'),
-  known('assets/icons/anonymous_user.svg'),
-  bar('assets/icons/bar_icon.svg'),
-  bank('assets/icons/citizenbank.svg');
+  self('assets/icons/anonymous_user.svg', 'You'),
+  unknown('assets/icons/anonymous_user.svg', 'Unknown'),
+  known('assets/icons/anonymous_user.svg', 'Known'),
+  bar('assets/icons/bar_icon.svg', 'Bar'),
+  bank('assets/icons/citizenbank.svg', 'Bank');
 
-  const TransactionAuthor(this.icon);
+  const TransactionAuthor(this.icon, this.name);
 
   final String icon;
+  final String name;
 }
 
 class CWTransaction {
@@ -56,7 +57,7 @@ class CWTransaction {
   final String from;
   final String to;
   final String title;
-  final double _amount;
+  final String _amount;
   final DateTime date;
   final int blockNumber;
 
@@ -85,7 +86,7 @@ class CWTransaction {
     this.state = TransactionState.pending,
   });
 
-  double get amount => _amount;
+  String get amount => _amount;
 
   bool get isPending => state == TransactionState.pending;
 
@@ -93,7 +94,7 @@ class CWTransaction {
 
   String formattedAmount(CWWallet wallet, {bool isIncoming = false}) =>
       formatCurrency(
-        amount,
+        double.tryParse(amount) ?? 0.0,
         wallet.symbol,
         decimalDigits: wallet.decimalDigits,
         isIncoming: isIncoming,

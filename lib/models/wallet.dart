@@ -3,7 +3,7 @@ import 'package:citizenwallet/utils/currency.dart';
 class CWWallet {
   final String name;
   final String address;
-  double _balance;
+  String _balance;
   final String currencyName;
   final String symbol;
   final int decimalDigits;
@@ -19,10 +19,10 @@ class CWWallet {
     this.locked = true,
   });
 
-  double get balance => _balance;
+  String get balance => _balance;
 
   get formattedBalance => formatCurrency(
-        balance,
+        double.tryParse(balance) ?? 0.0,
         symbol,
         decimalDigits: decimalDigits,
       );
@@ -49,7 +49,7 @@ class CWWallet {
         'locked': locked,
       };
 
-  void setBalance(double balance) {
+  void setBalance(String balance) {
     _balance = balance;
   }
 }

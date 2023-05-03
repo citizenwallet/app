@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/message.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/crypto.dart';
@@ -328,8 +329,8 @@ class WalletService {
   EthereumAddress get address => _address;
 
   /// retrieves the current balance of the address
-  Future<double> get balance async =>
-      (await _ethClient.getBalance(address)).getInEther.toDouble();
+  Future<String> get balance async => fromGwei(
+      (await _ethClient.getBalance(address)).getValueInUnit(EtherUnit.gwei));
 
   /// retrieves the transaction count for the address
   Future<int> get transactionCount async =>
@@ -391,7 +392,7 @@ class WalletService {
   /// sends a transaction from the wallet to another
   Future<String> sendTransaction({
     required String to,
-    required int amount,
+    required String amount,
     String message = '',
     String? walletFile,
     String? password,
@@ -401,10 +402,12 @@ class WalletService {
       throw lockedWalletException;
     }
 
+    final parsedAmount = BigInt.from(toGwei(amount));
+
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
       from: credentials.address,
-      value: EtherAmount.fromInt(EtherUnit.ether, amount),
+      value: EtherAmount.fromBigInt(EtherUnit.gwei, parsedAmount),
       data: Message(message: message).toBytes(),
     );
 

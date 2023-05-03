@@ -492,7 +492,7 @@ class WalletLogic {
       final transactions = await walletService.transactionsForBlockHash(hash);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            e.value.getInEther.toDouble(),
+            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -633,7 +633,7 @@ class WalletLogic {
       final transactions = await walletService.transactions();
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            e.value.getInEther.toDouble(),
+            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -664,7 +664,7 @@ class WalletLogic {
       final transactions = await walletService.transactions(offset: offset);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            e.value.getInEther.toDouble(),
+            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -721,11 +721,7 @@ class WalletLogic {
         throw Exception('invalid address');
       }
 
-      var doubleAmount = double.tryParse(amount.replaceAll(',', '.'));
-      if (doubleAmount == null) {
-        _state.setInvalidAmount(true);
-        throw Exception('invalid amount');
-      }
+      final doubleAmount = amount.replaceAll(',', '.');
 
       final walletService = walletServiceCheck();
 
@@ -740,7 +736,7 @@ class WalletLogic {
 
       final hash = await walletService.sendTransaction(
         to: to,
-        amount: doubleAmount.toInt(),
+        amount: doubleAmount,
         message: message,
         walletFile: dbwallet.wallet,
         password: savedPassword,
@@ -780,17 +776,13 @@ class WalletLogic {
         throw Exception('invalid address');
       }
 
-      var doubleAmount = double.tryParse(amount.replaceAll(',', '.'));
-      if (doubleAmount == null) {
-        _state.setInvalidAmount(true);
-        throw Exception('invalid amount');
-      }
+      final doubleAmount = amount.replaceAll(',', '.');
 
       final walletService = walletServiceCheck();
 
       final hash = await walletService.sendTransaction(
         to: to,
-        amount: doubleAmount.toInt(),
+        amount: doubleAmount,
         message: message,
       );
 
@@ -1179,17 +1171,14 @@ class WalletLogic {
 
   void prepareReplayTransaction(
     String address, {
-    double amount = 0,
+    String amount = '0.0',
     String message = '',
   }) {
     try {
       _addressController.text = address;
       _state.setHasAddress(address.isNotEmpty);
 
-      final walletService = walletServiceCheck();
-
-      _amountController.text =
-          amount.toStringAsFixed(walletService.nativeCurrency.decimals);
+      _amountController.text = amount;
 
       _messageController.text = message;
     } catch (e) {
