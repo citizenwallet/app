@@ -3,8 +3,13 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
-      TransactionAuthor.bank: [dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase()],
-      TransactionAuthor.bar: [dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase()],
+      TransactionAuthor.bank: [
+        dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),
+        dotenv.get('KNOWN_ADDRESS_BANK2').toLowerCase(),
+      ],
+      TransactionAuthor.bar: [
+        dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase(),
+      ],
     };
 
 TransactionAuthor getTransactionAuthor(String own, String from, String to) {
