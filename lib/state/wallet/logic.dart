@@ -574,6 +574,50 @@ class WalletLogic {
     _state.updateWalletError();
   }
 
+  // takes a password and returns a locked wallet
+  Future<QRWallet?> lockAndReturnWallet(String address, String password) async {
+    try {
+      _state.updateWallet();
+
+      final dbwallet = await _db.wallet.getWallet(address);
+
+      final savedPassword =
+          await EncryptedPreferencesService().getWalletPassword(address);
+
+      if (savedPassword == null) {
+        throw Exception('password not found');
+      }
+
+      final Wallet wallet = Wallet.fromJson(dbwallet.wallet, savedPassword);
+
+      final random = Random.secure();
+
+      final Wallet newWallet =
+          Wallet.createNew(wallet.privateKey, password, random);
+
+      final qrWallet = QRWallet(
+        raw: QRWalletData(
+                wallet: jsonDecode(newWallet.toJson()),
+                address: address,
+                publicKey: wallet.privateKey.encodedPublicKey)
+            .toJson(),
+      );
+
+      final signer = Signer.fromQRWallet(
+        qrWallet,
+        password,
+      );
+
+      qrWallet.generateSignature(signer);
+
+      return qrWallet;
+    } catch (e) {
+      print(e);
+    }
+
+    return null;
+  }
+
   Future<void> loadTransactions() async {
     try {
       _state.loadTransactions();

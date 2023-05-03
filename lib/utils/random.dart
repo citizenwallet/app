@@ -15,3 +15,10 @@ String generateRandomId() {
 
   return '$randomId---$timestamp';
 }
+
+int getRandomNumber({int len = 6}) {
+  final random = Random.secure();
+  final values = List<int>.generate(len, (i) => random.nextInt(9));
+
+  return int.parse(values.join());
+}

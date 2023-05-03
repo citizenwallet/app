@@ -15,10 +15,10 @@ class RouterShell extends StatelessWidget {
 
   final List<BottomNavigationBarItem> items = [
     const BottomNavigationBarItem(
-      label: 'Wallet',
-      icon: Icon(CupertinoIcons.money_euro_circle),
+      label: 'Wallets',
+      icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
       activeIcon: Icon(
-        CupertinoIcons.money_euro_circle_fill,
+        CupertinoIcons.rectangle_on_rectangle_angled,
       ),
     ),
     const BottomNavigationBarItem(

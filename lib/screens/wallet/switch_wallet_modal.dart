@@ -1,18 +1,27 @@
+import 'dart:convert';
+
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/random.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
+import 'package:citizenwallet/widgets/export_qr_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
 
 class SwitchWalletModal extends StatefulWidget {
   final WalletLogic logic;
@@ -93,8 +102,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                 onPressed: () {
                   Navigator.of(dialogContext).pop('edit');
                 },
-                child: const Text('Edit'),
+                child: const Text('Edit name'),
               ),
+              if (!locked)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('export');
+                  },
+                  child: const Text('Export'),
+                ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.of(dialogContext).pop(locked ? 'unlock' : 'lock');
@@ -121,6 +137,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     if (option == null) {
       return;
     }
+
+    HapticFeedback.lightImpact();
 
     if (option == 'edit') {
       final newName = await showCupertinoModalPopup<String?>(
@@ -185,6 +203,49 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       HapticFeedback.heavyImpact();
       return;
     }
+
+    if (option == 'export') {
+      final int pin = getRandomNumber();
+
+      final qrWallet = await widget.logic.lockAndReturnWallet(address, '$pin');
+
+      if (qrWallet == null) {
+        return;
+      }
+
+      final compressedWallet = qrWallet.toCompressedJson();
+
+      await showCupertinoModalPopup(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => ExportQRModal(
+          title: 'Export Wallet',
+          qrCode: compressedWallet,
+          secureCode: '$pin',
+          toCopy: '---------',
+          onCopy: () => handleCopyWalletPrivateKey(qrWallet, '$pin'),
+        ),
+      );
+
+      return;
+    }
+  }
+
+  void handleCopyWalletPrivateKey(QRWallet qrWallet, String password) {
+    final Wallet wallet =
+        Wallet.fromJson(jsonEncode(qrWallet.data.wallet), password);
+
+    final privateKey = wallet.privateKey;
+
+    Clipboard.setData(ClipboardData(text: bytesToHex(privateKey.privateKey)));
+
+    HapticFeedback.heavyImpact();
+  }
+
+  void handleCopyWalletQR(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+
+    HapticFeedback.heavyImpact();
   }
 
   void handleImport(BuildContext context) async {

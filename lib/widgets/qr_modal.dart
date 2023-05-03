@@ -10,14 +10,12 @@ class QRModal extends StatelessWidget {
   final String title;
   final String qrCode;
   final void Function()? onCopy;
-  final void Function({bool? onlyHex})? onUpdate;
 
   const QRModal({
     Key? key,
     this.title = 'Wallet',
     required this.qrCode,
     this.onCopy,
-    this.onUpdate,
   }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
