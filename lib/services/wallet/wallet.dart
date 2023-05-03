@@ -310,6 +310,8 @@ class WalletService {
     return bytesToHex(_publicKey!, include0x: true);
   }
 
+  EthPrivateKey? get privateKey => _credentials;
+
   /// retrieve chain id
   int get chainId => _chainId!.toInt();
 

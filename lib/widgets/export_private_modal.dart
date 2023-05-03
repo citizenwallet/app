@@ -4,20 +4,17 @@ import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 
-class QRModal extends StatelessWidget {
+class ExportPrivateModal extends StatelessWidget {
   final String title;
-  final String qrCode;
   final String copyLabel;
-  final void Function()? onCopy;
+  final void Function() onCopy;
 
-  const QRModal({
+  const ExportPrivateModal({
     Key? key,
     this.title = 'Wallet',
-    required this.qrCode,
-    this.copyLabel = '',
-    this.onCopy,
+    required this.copyLabel,
+    required this.onCopy,
   }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
@@ -62,47 +59,50 @@ class QRModal extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ThemeColors.white.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: PrettyQr(
-                          data: qrCode,
-                          size: qrSize,
-                          roundEdges: false,
-                        ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        'Private Key',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        'Keep this key safe, anyone with access to it has access to the wallet.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.normal),
                       ),
                       const SizedBox(
                         height: 20,
                       ),
-                      if (onCopy != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Chip(
-                              onTap: onCopy,
-                              copyLabel,
-                              color: ThemeColors.subtleEmphasis
-                                  .resolveFrom(context),
-                              textColor:
-                                  ThemeColors.touchable.resolveFrom(context),
-                              suffix: Icon(
-                                CupertinoIcons.square_on_square,
-                                size: 14,
-                                color:
-                                    ThemeColors.touchable.resolveFrom(context),
-                              ),
-                              borderRadius: 15,
-                              maxWidth: 180,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Chip(
+                            onTap: onCopy,
+                            copyLabel,
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            textColor:
+                                ThemeColors.touchable.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: 14,
+                              color: ThemeColors.touchable.resolveFrom(context),
                             ),
-                          ],
-                        ),
+                            borderRadius: 15,
+                            maxWidth: 150,
+                          ),
+                        ],
+                      ),
                       const SizedBox(
                         height: 20,
                       ),

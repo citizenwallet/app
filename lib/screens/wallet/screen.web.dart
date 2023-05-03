@@ -10,15 +10,16 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/chip.dart';
+import 'package:citizenwallet/widgets/export_private_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
-import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/crypto.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String qr;
@@ -134,11 +135,36 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       barrierDismissible: true,
       builder: (modalContext) => QRModal(
         title: 'Share address',
-        qrCode: modalContext
+        qrCode: modalContext.select((WalletState state) => state.walletQR),
+        copyLabel: modalContext
             .select((WalletState state) => formatHexAddress(state.walletQR)),
         onCopy: handleCopyWalletQR,
       ),
     );
+  }
+
+  void handleDisplayWalletExport(BuildContext context) async {
+    await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => ExportPrivateModal(
+        title: 'Export Wallet',
+        copyLabel: '---------',
+        onCopy: handleCopyWalletPrivateKey,
+      ),
+    );
+  }
+
+  void handleCopyWalletPrivateKey() {
+    final privateKey = _logic.privateKey;
+
+    if (privateKey == null) {
+      return;
+    }
+
+    Clipboard.setData(ClipboardData(text: bytesToHex(privateKey.privateKey)));
+
+    HapticFeedback.heavyImpact();
   }
 
   void handleReceive() async {
@@ -251,6 +277,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             actionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: () => handleDisplayWalletExport(context),
+                  child: Icon(
+                    CupertinoIcons.share,
+                    color: ThemeColors.primary.resolveFrom(context),
+                  ),
+                ),
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDisplayWalletQR(context),

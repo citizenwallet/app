@@ -51,6 +51,10 @@ class WalletLogic {
     return _wallet!;
   }
 
+  EthPrivateKey? get privateKey {
+    return walletServiceCheck().privateKey;
+  }
+
   Future<void> switchChain(int chainId) async {
     try {
       _state.switchChainRequest();
@@ -260,7 +264,7 @@ class WalletLogic {
       _state.loadWalletSuccess(
         CWWallet(
           balance,
-          name: 'Web Wallet',
+          name: 'Burner Wallet',
           address: walletService.address.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
@@ -577,8 +581,6 @@ class WalletLogic {
   // takes a password and returns a locked wallet
   Future<QRWallet?> lockAndReturnWallet(String address, String password) async {
     try {
-      _state.updateWallet();
-
       final dbwallet = await _db.wallet.getWallet(address);
 
       final savedPassword =
