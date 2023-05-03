@@ -941,9 +941,11 @@ class WalletLogic {
         return;
       }
 
-      final double amount = _amountController.text.isEmpty
+      final double amount = _amountController.value.text.isEmpty
           ? 0
-          : double.tryParse(_amountController.text) ?? 0;
+          : double.tryParse(
+                  _amountController.value.text.replaceAll(',', '.')) ??
+              0;
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
@@ -951,6 +953,7 @@ class WalletLogic {
         chainId: walletService.chainId,
         address: dbwallet.address,
         amount: amount,
+        message: _messageController.value.text,
         publicKey: dbwallet.publicKey,
       );
 
@@ -991,9 +994,11 @@ class WalletLogic {
         return;
       }
 
-      final double amount = _amountController.text.isEmpty
+      final double amount = _amountController.value.text.isEmpty
           ? 0
-          : double.tryParse(_amountController.text) ?? 0;
+          : double.tryParse(
+                  _amountController.value.text.replaceAll(',', '.')) ??
+              0;
 
       final credentials = walletService.unlock();
 
@@ -1005,6 +1010,7 @@ class WalletLogic {
         chainId: walletService.chainId,
         address: credentials.address.hex,
         amount: amount,
+        message: _messageController.value.text,
         publicKey: credentials.encodedPublicKey,
       );
 
