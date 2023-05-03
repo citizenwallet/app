@@ -72,20 +72,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     GoRouter.of(context).pop();
   }
 
-  // void handleQRAddressScan() async {
-  //   final result = await showCupertinoModalPopup<String?>(
-  //     context: context,
-  //     barrierDismissible: true,
-  //     builder: (_) => const Scanner(
-  //       modalKey: 'send-form-scanner',
-  //     ),
-  //   );
-
-  //   if (result != null) {
-  //     widget.logic.updateAddressFromWalletCapture(result);
-  //   }
-  // }
-
   void handleThrottledUpdateAddress() {
     debouncedAddressUpdate();
   }
