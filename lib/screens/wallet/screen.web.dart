@@ -260,15 +260,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Chip(
-                        formatHexAddress(wallet?.address ?? zeroHexValue),
-                        color: ThemeColors.subtleEmphasis.resolveFrom(context),
-                        textColor: ThemeColors.touchable.resolveFrom(context),
-                        maxWidth: 150,
-                      ),
                     ],
                   ),
                 ),
@@ -356,14 +347,34 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: Text(
-                                    'Balance',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'Balance',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Chip(
+                                        formatHexAddress(
+                                            wallet?.address ?? zeroHexValue),
+                                        color: ThemeColors.subtleEmphasis
+                                            .resolveFrom(context),
+                                        textColor: ThemeColors.touchable
+                                            .resolveFrom(context),
+                                        maxWidth: 150,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Padding(
