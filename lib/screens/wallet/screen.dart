@@ -139,7 +139,8 @@ class WalletScreenState extends State<WalletScreen> {
       barrierDismissible: true,
       builder: (modalContext) => QRModal(
         title: 'Share address',
-        qrCode: modalContext.select((WalletState state) => state.walletQR),
+        qrCode: modalContext
+            .select((WalletState state) => formatHexAddress(state.walletQR)),
         onCopy: handleCopyWalletQR,
       ),
     );
