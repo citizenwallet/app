@@ -646,6 +646,10 @@ class WalletLogic {
       _state.loadTransactionsSuccess(
         cwtransactions.toList(),
       );
+
+      final balance = await walletService.balance;
+
+      _state.updateWalletBalanceSuccess(balance);
       return;
     } catch (e) {
       print('error');
