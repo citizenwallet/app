@@ -139,12 +139,8 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
-                                  fontWeight: transaction.isPending
-                                      ? FontWeight.normal
-                                      : FontWeight.w500,
-                                  color: isIncoming
-                                      ? ThemeColors.primary.resolveFrom(context)
-                                      : ThemeColors.text.resolveFrom(context),
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.text.resolveFrom(context),
                                 ),
                               ),
                             ],
