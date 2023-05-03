@@ -119,7 +119,7 @@ class ExportQRModal extends StatelessWidget {
                             textColor:
                                 ThemeColors.touchable.resolveFrom(context),
                             borderRadius: 30,
-                            maxWidth: 240,
+                            maxWidth: 260,
                           ),
                         ],
                       ),
