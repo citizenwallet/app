@@ -614,7 +614,7 @@ class WalletLogic {
         password,
       );
 
-      qrWallet.generateSignature(signer);
+      await qrWallet.generateSignature(signer);
 
       return qrWallet;
     } catch (e) {
@@ -935,7 +935,6 @@ class WalletLogic {
   }
 
   void updateReceiveQR({bool? onlyHex}) async {
-    print('updating...');
     return kIsWeb
         ? updateReceiveQRUnlocked(onlyHex: onlyHex)
         : updateReceiveQRLocked(onlyHex: onlyHex);
