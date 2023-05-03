@@ -205,7 +205,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     }
 
     if (option == 'export') {
-      final int pin = getRandomNumber();
+      final int pin = getRandomNumber(len: 12);
 
       final qrWallet = await widget.logic.lockAndReturnWallet(address, '$pin');
 
@@ -238,12 +238,6 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     final privateKey = wallet.privateKey;
 
     Clipboard.setData(ClipboardData(text: bytesToHex(privateKey.privateKey)));
-
-    HapticFeedback.heavyImpact();
-  }
-
-  void handleCopyWalletQR(String text) {
-    Clipboard.setData(ClipboardData(text: text));
 
     HapticFeedback.heavyImpact();
   }
