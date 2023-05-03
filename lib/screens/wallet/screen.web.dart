@@ -295,6 +295,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                 children: [
                   CustomScrollView(
                     controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
                       CupertinoSliverRefreshControl(
                         onRefresh: handleRefresh,
@@ -470,13 +471,11 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             },
                           ),
                         ),
-                      if (transactions.length < 10) const SliverFillRemaining(),
-                      if (transactions.length >= 10)
-                        const SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 60,
-                          ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 60,
                         ),
+                      ),
                     ],
                   ),
                   if (loading && wallet == null)
