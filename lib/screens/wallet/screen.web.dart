@@ -470,11 +470,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             },
                           ),
                         ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 60,
+                      if (transactions.length < 10) const SliverFillRemaining(),
+                      if (transactions.length >= 10)
+                        const SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 60,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   if (loading && wallet == null)
