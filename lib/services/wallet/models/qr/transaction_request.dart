@@ -66,7 +66,7 @@ class QRTransactionRequestData {
     return QRTransactionRequestData(
       chainId: json['chainId'],
       address: json['address'],
-      amount: json['amount'],
+      amount: double.tryParse('${json['amount']}') ?? 0.0,
       message: json['message'],
       publicKey: hexToBytes(json['public_key']),
     );
