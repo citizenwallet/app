@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://citizenwallet.xyz/_next/image?url=https://lh3.googleusercontent.com/docs/ADP-6oHI7G75vHAQPxHcPl4-96sOXQglA3B7eYxsLC4FzXZ58XGSYf8P4g0V0y4OgjsZT8bB9F8-1cLfxIUxHoVr48nvbLCiIQo-VC_0DbpqAkjTEIILZUbT7au9tE9kZ_HSA3v0MXutjrEHRiWF2a_O29BfCjSrzucRmxzLoQSttZ6LdAl_anVz-u_waJsa9srQ&w=3840&q=75"/><br/>
+  <img style="height: 100px; width: 100px;" src="https://github.com/daobrussels/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
   Citizen Wallet
 </h1>
 
