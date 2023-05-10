@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/station/station.dart';
 import 'package:citizenwallet/services/wallet/models/block.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -11,6 +12,7 @@ import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -102,6 +104,7 @@ class WalletService {
   final Client _client = Client();
 
   late Web3Client _ethClient;
+  StationService? _station;
   late APIService _api;
 
   /// creates a new random private key
@@ -145,9 +148,9 @@ class WalletService {
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
     _address = wallet.privateKey.address;
+    _credentials = wallet.privateKey;
 
     // _wallet = wallet;
-    _credentials = wallet.privateKey;
   }
 
   /// creates using a wallet file
@@ -167,7 +170,6 @@ class WalletService {
 
     // _wallet = wallet;
     // _credentials = wallet.privateKey;
-    _address = EthereumAddress.fromHex(address);
   }
 
   /// creates using a signer
@@ -188,6 +190,14 @@ class WalletService {
   Future<void> init() async {
     _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
+  }
+
+  Future<void> initUnlocked() async {
+    _clientVersion = await _ethClient.getClientVersion();
+    _chainId = await _ethClient.getChainId();
+
+    final stationUrl = dotenv.get('DEFAULT_STATION_URL');
+    await configStation(stationUrl, _credentials!);
   }
 
   EthPrivateKey? unlock({String? walletFile, String? password}) {
@@ -224,7 +234,7 @@ class WalletService {
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    return init();
+    return _credentials != null ? initUnlocked() : init();
   }
 
   Future<Chain?> fetchChainById(BigInt id) async {
@@ -295,6 +305,14 @@ class WalletService {
   //   return bytesToHex(_credentials!.privateKey, include0x: true);
   // }
 
+  String get url {
+    if (_chain == null) {
+      throw Exception('Chain not set');
+    }
+
+    return _chain!.rpc.first;
+  }
+
   Uint8List get publicKey {
     if (_publicKey == null) {
       throw lockedWalletException;
@@ -308,7 +326,7 @@ class WalletService {
       throw lockedWalletException;
     }
 
-    return bytesToHex(_publicKey!, include0x: true);
+    return bytesToHex(_publicKey!, include0x: false);
   }
 
   EthPrivateKey? get privateKey => _credentials;
@@ -387,6 +405,91 @@ class WalletService {
     }
 
     return null;
+  }
+
+  /// get station config
+  Future<Chain?> configStation(String url, EthPrivateKey privatekey) async {
+    try {
+      _station = StationService(
+        baseURL: url,
+        address: _address.hex,
+        receiverKey: privatekey,
+      );
+
+      final response = await _station!.hello();
+
+      return response;
+    } catch (e) {
+      // error fetching block
+      print(e);
+    }
+
+    return null;
+  }
+
+  /// signs a transaction to prepare for sending
+  Future<String> _signTransaction({
+    required String to,
+    required String amount,
+    String message = '',
+    String? walletFile,
+    String? password,
+  }) async {
+    final credentials = unlock(walletFile: walletFile, password: password);
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
+    final parsedAmount = BigInt.from(toGwei(amount));
+
+    final Transaction transaction = Transaction(
+      to: EthereumAddress.fromHex(to),
+      from: credentials.address,
+      value: EtherAmount.fromBigInt(EtherUnit.gwei, parsedAmount),
+      data: Message(message: message).toBytes(),
+    );
+
+    final tx = await _ethClient.signTransaction(
+      credentials,
+      transaction,
+      chainId: _chainId!.toInt(),
+    );
+
+    return bytesToHex(tx);
+  }
+
+  /// send signed transaction through gas station
+  Future<String> sendGasStationTransaction({
+    required String to,
+    required String amount,
+    String message = '',
+    String? walletFile,
+    String? password,
+  }) async {
+    final data = {
+      'tx': await _signTransaction(
+        to: to,
+        amount: amount,
+        message: message,
+        walletFile: walletFile,
+        password: password,
+      ),
+    };
+
+    final StationRequest req = StationRequest(
+      address: _address.hex,
+      data: jsonEncode(data),
+    );
+
+    final signature = '';
+
+    final response = await _station!.post(
+      url: '/transaction',
+      signature: signature,
+      body: req.toEncodedJson(),
+    );
+
+    return response.result;
   }
 
   /// sends a transaction from the wallet to another

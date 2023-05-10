@@ -97,132 +97,132 @@ class WalletLogic {
     _state.switchChainError();
   }
 
-  Future<void> instantiateWalletFromDB(String address) async {
-    try {
-      _state.instantiateWallet();
+  // Future<void> instantiateWalletFromDB(String address) async {
+  //   try {
+  //     _state.instantiateWallet();
 
-      final int chainId = _preferences.chainId;
+  //     final int chainId = _preferences.chainId;
 
-      _state.setChainId(chainId);
+  //     _state.setChainId(chainId);
 
-      final dbWallet = await _db.wallet.getWallet(address);
+  //     final dbWallet = await _db.wallet.getWallet(address);
 
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
+  //     final wallet = await walletServiceFromChain(
+  //       BigInt.from(chainId),
+  //       address,
+  //     );
 
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
 
-      _wallet = wallet;
+  //     _wallet = wallet;
 
-      final walletService = walletServiceCheck();
+  //     final walletService = walletServiceCheck();
 
-      await walletService.init();
+  //     await walletService.init();
 
-      _state.instantiateWalletSuccess();
+  //     _state.instantiateWalletSuccess();
 
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
-    }
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
 
-    _state.instantiateWalletError();
-  }
+  //   _state.instantiateWalletError();
+  // }
 
-  Future<void> instantiateWalletFromFile(
-      QRWallet qrWallet, String password) async {
-    try {
-      _state.instantiateWallet();
+  // Future<void> instantiateWalletFromFile(
+  //     QRWallet qrWallet, String password) async {
+  //   try {
+  //     _state.instantiateWallet();
 
-      final int chainId = _preferences.chainId;
+  //     final int chainId = _preferences.chainId;
 
-      _state.setChainId(chainId);
+  //     _state.setChainId(chainId);
 
-      final wallet = await walletServiceFromWallet(
-        BigInt.from(chainId),
-        jsonEncode(qrWallet.data.wallet),
-        password,
-      );
+  //     final wallet = await walletServiceFromWallet(
+  //       BigInt.from(chainId),
+  //       jsonEncode(qrWallet.data.wallet),
+  //       password,
+  //     );
 
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
 
-      _wallet = wallet;
+  //     _wallet = wallet;
 
-      final walletService = walletServiceCheck();
+  //     final walletService = walletServiceCheck();
 
-      await walletService.init();
+  //     await walletService.initUnlocked();
 
-      _state.instantiateWalletSuccess();
+  //     _state.instantiateWalletSuccess();
 
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
-    }
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
 
-    _state.instantiateWalletError();
-  }
+  //   _state.instantiateWalletError();
+  // }
 
-  Future<void> openWalletFromDB(String address) async {
-    try {
-      _state.loadWallet();
+  // Future<void> openWalletFromDB(String address) async {
+  //   try {
+  //     _state.loadWallet();
 
-      final int chainId = _preferences.chainId;
+  //     final int chainId = _preferences.chainId;
 
-      _state.setChainId(chainId);
+  //     _state.setChainId(chainId);
 
-      final dbWallet = await _db.wallet.getWallet(address);
+  //     final dbWallet = await _db.wallet.getWallet(address);
 
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
+  //     final wallet = await walletServiceFromChain(
+  //       BigInt.from(chainId),
+  //       address,
+  //     );
 
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
 
-      _wallet = wallet;
+  //     _wallet = wallet;
 
-      final walletService = walletServiceCheck();
+  //     final walletService = walletServiceCheck();
 
-      await walletService.init();
+  //     await walletService.init();
 
-      final balance = await walletService.balance;
-      final currency = walletService.nativeCurrency;
+  //     final balance = await walletService.balance;
+  //     final currency = walletService.nativeCurrency;
 
-      await cleanupBlockSubscription();
+  //     await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+  //     _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
-      await _preferences.setLastWallet(address);
+  //     await _preferences.setLastWallet(address);
 
-      _state.loadWalletSuccess(
-        CWWallet(
-          balance,
-          name: dbWallet.name,
-          address: walletService.address.hex,
-          currencyName: currency.name,
-          symbol: currency.symbol,
-          decimalDigits: currency.decimals,
-          locked: dbWallet.locked,
-        ),
-      );
+  //     _state.loadWalletSuccess(
+  //       CWWallet(
+  //         balance,
+  //         name: dbWallet.name,
+  //         address: walletService.address.hex,
+  //         currencyName: currency.name,
+  //         symbol: currency.symbol,
+  //         decimalDigits: currency.decimals,
+  //         locked: dbWallet.locked,
+  //       ),
+  //     );
 
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
-    }
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
 
-    _state.loadWalletError();
-  }
+  //   _state.loadWalletError();
+  // }
 
   Future<bool> openWalletFromQR(QRWallet qrWallet, String password) async {
     try {
@@ -250,7 +250,7 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      await walletService.init();
+      await walletService.initUnlocked();
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
@@ -301,20 +301,51 @@ class WalletLogic {
 
       final dbWallet = await _db.wallet.getWallet(address);
 
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
+      if (!dbWallet.locked) {
+        // set credentials from preferences
 
-      if (wallet == null) {
-        throw Exception('chain not found');
+        final savedPassword =
+            await EncryptedPreferencesService().getWalletPassword(address);
+
+        if (savedPassword == null) {
+          throw Exception('password not found');
+        }
+
+        final Wallet walletF = Wallet.fromJson(dbWallet.wallet, savedPassword);
+
+        final wallet = await walletServiceFromWallet(
+          BigInt.from(chainId),
+          walletF.toJson(),
+          savedPassword,
+        );
+
+        if (wallet == null) {
+          throw Exception('chain not found');
+        }
+
+        _wallet = wallet;
+
+        final walletService = walletServiceCheck();
+
+        await walletService.initUnlocked();
+      } else {
+        final wallet = await walletServiceFromChain(
+          BigInt.from(chainId),
+          address,
+        );
+
+        if (wallet == null) {
+          throw Exception('chain not found');
+        }
+
+        _wallet = wallet;
+
+        final walletService = walletServiceCheck();
+
+        await walletService.init();
       }
 
-      _wallet = wallet;
-
       final walletService = walletServiceCheck();
-
-      await walletService.init();
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
