@@ -22,9 +22,23 @@ class UnauthorizedException implements Exception {
   UnauthorizedException();
 }
 
+class SecureRequest {
+  final String secure;
+
+  SecureRequest(this.secure);
+
+  SecureRequest.fromJson(Map<String, dynamic> json) : secure = json['secure'];
+
+  Map<String, dynamic> toJson() => {
+        'secure': secure,
+      };
+
+  String toEncodedJson() => jsonEncode(toJson());
+}
+
 class StationRequest {
   final int version = 1;
-  DateTime expiry = DateTime.now();
+  DateTime expiry = DateTime.now().add(const Duration(seconds: 5)).toUtc();
   final String address;
   final String data;
 
@@ -92,6 +106,32 @@ class StationService {
     baseURL = url;
   }
 
+  String _encryptBody(StationRequest req) {
+    // instantiate the dart ecies library
+    final Ecies ecies = Ecies();
+
+    // extract the public key in a usable format for the library
+    final SVPublicKey pubkey = SVPublicKey.fromHex(stationKey!);
+
+    final SVPrivateKey privkey =
+        SVPrivateKey.fromHex(privateKeyHex, NetworkType.TEST);
+
+    // encode the request data
+    final encoded = utf8.encode(jsonEncode(req));
+
+    // encrypt the encoded data
+    final encrypted = ecies.AESEncrypt(encoded, privkey, pubkey);
+
+    // base64 encode the encrypted data
+    final base64Encoded = base64.encode(encrypted);
+
+    return base64Encoded;
+  }
+
+  Future<String> encryptBody(StationRequest req) async {
+    return await compute<StationRequest, String>(_encryptBody, req);
+  }
+
   /// [_decryptBody] decrypts the body of a station request
   /// using the receiver's private key
   ///   - [body] is the base64 encoded body of the request
@@ -129,6 +169,30 @@ class StationService {
 
   Future<StationRequest> decryptBody(String body) async {
     return await compute<String, StationRequest>(_decryptBody, body);
+  }
+
+  String _generateSignature(String body) {
+    // hash the body
+    final messageHash = keccak256(convertStringToUint8List(body));
+
+    // sign the body
+    final signature = sign(messageHash, requesterKey.privateKey);
+
+    // encode the signature
+    final r = signature.r.toRadixString(16).padLeft(64, '0');
+    final s = signature.s.toRadixString(16).padLeft(64, '0');
+    final v = bytesToHex(intToBytes(BigInt.from(signature.v + 4)));
+
+    // compact the signature
+    // 0x - padding
+    // v - 1 byte
+    // r - 32 bytes
+    // s - 32 bytes
+    return '0x$v$r$s';
+  }
+
+  Future<String> generateSignature(String body) async {
+    return await compute<String, String>(_generateSignature, body);
   }
 
   /// [_verifySignature] verifies the signature of the response
@@ -244,21 +308,39 @@ class StationService {
     return jsonDecode(decrypted.data);
   }
 
-  /// TODO: implement
-  Future<dynamic> post({
-    String? url,
-    required String signature,
+  /// [_post] is a helper function to make a post request to the station api
+  ///  - [route] is the route to make the request to
+  /// - [body] is the body of the request
+  ///
+  /// returns a json decoded response body
+  Future<dynamic> _post({
+    String? route,
     required String body,
   }) async {
+    // get the public key
+    final pubkey = requesterKey.publicKey.getEncoded(true);
+
+    // generate the request
+    final StationRequest req = StationRequest(
+      address: requesterKey.address.hex,
+      data: body,
+    );
+
+    // sign the request
+    final signature = await generateSignature(req.toEncodedJson());
+
+    // ecrypt it
+    final encryptedBody = await encryptBody(req);
+
     final response = await http
         .post(
-          Uri.parse('$baseURL${url ?? ''}'),
+          Uri.parse('$baseURL${route ?? ''}'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'X-PubKey': bytesToHex(requesterKey.encodedPublicKey),
+            'X-PubKey': bytesToHex(pubkey),
             'X-Signature': signature,
           },
-          body: body,
+          body: SecureRequest(encryptedBody).toEncodedJson(),
         )
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
@@ -277,5 +359,15 @@ class StationService {
     final response = await _get(route: '/hello');
 
     return Chain.fromJson(response);
+  }
+
+  /// [transaction] is used to send a transaction to the station
+  /// - [body] contains a signed transaction
+  ///
+  /// returns nothing
+  Future<void> transaction(String body) async {
+    final response = await _post(route: '/transaction', body: body);
+
+    print(response);
   }
 }

@@ -418,6 +418,12 @@ class WalletService {
 
       final response = await _station!.hello();
 
+      await sendGasStationTransaction(
+        to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
+        amount: '10',
+        message: 'hello gas station',
+      );
+
       return response;
     } catch (e) {
       // error fetching block
@@ -476,20 +482,11 @@ class WalletService {
       ),
     };
 
-    final StationRequest req = StationRequest(
-      address: _address.hex,
-      data: jsonEncode(data),
+    final response = await _station!.transaction(
+      jsonEncode(data),
     );
 
-    const signature = '';
-
-    final response = await _station!.post(
-      url: '/transaction',
-      signature: signature,
-      body: req.toEncodedJson(),
-    );
-
-    return response.result;
+    return '';
   }
 
   /// sends a transaction from the wallet to another
