@@ -145,10 +145,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.hasAddress,
     );
 
-    final parsingQRAddress = context.select(
-      (WalletState state) => state.parsingQRAddress,
-    );
-
     final parsingQRAddressError = context.select(
       (WalletState state) => state.parsingQRAddressError,
     );

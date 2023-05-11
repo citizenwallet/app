@@ -93,7 +93,7 @@ Future<WalletService?> walletServiceFromWallet(
 }
 
 class WalletService {
-  String? _clientVersion;
+  // String? _clientVersion;
   BigInt? _chainId;
   Chain? _chain;
   // Wallet? _wallet;
@@ -115,7 +115,7 @@ class WalletService {
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    final Random key = Random.secure();
+    // final Random key = Random.secure();
 
     // _credentials = EthPrivateKey.createRandom(key);
     // _address = _credentials!.address;
@@ -188,12 +188,12 @@ class WalletService {
   }
 
   Future<void> init() async {
-    _clientVersion = await _ethClient.getClientVersion();
+    // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
   }
 
   Future<void> initUnlocked() async {
-    _clientVersion = await _ethClient.getClientVersion();
+    // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
     final stationUrl = dotenv.get('DEFAULT_STATION_URL');
@@ -413,7 +413,7 @@ class WalletService {
       _station = StationService(
         baseURL: url,
         address: _address.hex,
-        receiverKey: privatekey,
+        requesterKey: privatekey,
       );
 
       final response = await _station!.hello();

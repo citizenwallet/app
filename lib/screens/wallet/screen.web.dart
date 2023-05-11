@@ -231,9 +231,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final transactions =
         context.select((WalletState state) => state.transactions);
 
-    final sendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
-
     final formattedBalance = wallet?.formattedBalance ?? '';
 
     return GestureDetector(

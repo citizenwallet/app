@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:pointycastle/export.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -62,37 +61,46 @@ class VerificationRequest {
   });
 }
 
+/// [StationService] is a service for interacting with the station api
+///  - [baseURL] is the base url of the station api
+/// - [address] is the address of the requester
+/// - [requesterKey] is the private key of the requester
+/// - [stationKey] is the public key of the station
+///
+/// [StationService] is used to:
+/// - get the station key & configuration
+/// - decrypt station requests
+/// - verify station requests
+/// - send station requests
 class StationService {
   String baseURL;
   final String address;
-  final EthPrivateKey receiverKey;
-  String? senderKey;
+  final EthPrivateKey requesterKey;
+  String? stationKey;
 
   StationService({
     required this.baseURL,
     required this.address,
-    required this.receiverKey,
+    required this.requesterKey,
   });
 
-  String get privateKeyHex => bytesToHex(receiverKey.privateKey);
+  String get privateKeyHex => bytesToHex(requesterKey.privateKey);
 
-  String get publicKeyHex => bytesToHex(receiverKey.encodedPublicKey);
+  String get publicKeyHex => bytesToHex(requesterKey.encodedPublicKey);
 
   void setBaseUrl(String url) {
     baseURL = url;
   }
 
-  Uint8List hkdf(var ephPublicKeyUnc, var sharedSecretEcPointUnc) {
-    var master = Uint8List.fromList(ephPublicKeyUnc + sharedSecretEcPointUnc);
-    var aesKey = Uint8List(32);
-    (HKDFKeyDerivator(SHA256Digest())..init(HkdfParameters(master, 32, null)))
-        .deriveKey(null, 0, aesKey, 0);
-    return aesKey;
-  }
-
-  // with help from:
-  //  - https://stackoverflow.com/a/75571004/7012894
-  //  - https://github.com/twostack/dartsv/tree/master
+  /// [_decryptBody] decrypts the body of a station request
+  /// using the receiver's private key
+  ///   - [body] is the base64 encoded body of the request
+  ///
+  /// and returns the decrypted data as a [StationRequest]
+  ///
+  /// with help from:
+  ///  - https://stackoverflow.com/a/75571004/7012894
+  ///  - https://github.com/twostack/dartsv/tree/master
   StationRequest _decryptBody(String body) {
     // base64 decode the body
     final encryptedData = base64.decode(body);
@@ -101,7 +109,7 @@ class StationService {
     final Ecies ecies = Ecies();
 
     // extract the private key in a usable format for the library
-    final SVPrivateKey pk = SVPrivateKey.fromBigInt(receiverKey.privateKeyInt);
+    final SVPrivateKey pk = SVPrivateKey.fromBigInt(requesterKey.privateKeyInt);
 
     // decrypt the decoded body
     final decrypted = ecies.AESDecrypt(encryptedData, pk);
@@ -123,7 +131,10 @@ class StationService {
     return await compute<String, StationRequest>(_decryptBody, body);
   }
 
-  // verify the signature of the response
+  /// [_verifySignature] verifies the signature of the response
+  ///  - [args] is a [VerificationRequest] object
+  ///
+  /// returns a boolean indicating whether the signature is valid
   Future<bool> _verifySignature(
     VerificationRequest args,
   ) async {
@@ -168,6 +179,11 @@ class StationService {
     return isValid;
   }
 
+  /// [verifySignature] verifies calls the internal [_verifySignature] function on a separate thread
+  /// - [decrypted] is a [StationRequest] object
+  /// - [encodedSignature] is the signature to verify
+  ///
+  /// returns a boolean indicating whether the signature is valid
   Future<bool> verifySignature(
     StationRequest decrypted,
     String encodedSignature,
@@ -181,11 +197,15 @@ class StationService {
     );
   }
 
-  Future<String> _get({String? url}) async {
-    final pubkey = receiverKey.publicKey.getEncoded(true);
+  /// [_get] is a helper function to make a get request to the station api
+  ///   - [route] is the route to make the request to
+  ///
+  /// returns a json decoded response body
+  Future<dynamic> _get({String? route}) async {
+    final pubkey = requesterKey.publicKey.getEncoded(true);
 
     final response = await http.get(
-      Uri.parse('$baseURL${url ?? ''}'),
+      Uri.parse('$baseURL${route ?? ''}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'X-PubKey': bytesToHex(pubkey),
@@ -219,11 +239,12 @@ class StationService {
       throw Exception('error invalid signature');
     }
 
-    senderKey = headerPubKey;
+    stationKey = headerPubKey;
 
-    return decrypted.data;
+    return jsonDecode(decrypted.data);
   }
 
+  /// TODO: implement
   Future<dynamic> post({
     String? url,
     required String signature,
@@ -234,7 +255,7 @@ class StationService {
           Uri.parse('$baseURL${url ?? ''}'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'X-PubKey': bytesToHex(receiverKey.encodedPublicKey),
+            'X-PubKey': bytesToHex(requesterKey.encodedPublicKey),
             'X-Signature': signature,
           },
           body: body,
@@ -248,9 +269,13 @@ class StationService {
     return jsonDecode(response.body);
   }
 
+  /// [hello] is used to fetch the chain information from the station.
+  /// allows us to receive the station's public key in order to make requests
+  ///
+  /// returns a [Chain] object
   Future<Chain> hello() async {
-    final String response = await _get(url: '/hello');
+    final response = await _get(route: '/hello');
 
-    return Chain.fromJson(jsonDecode(response));
+    return Chain.fromJson(response);
   }
 }

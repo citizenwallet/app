@@ -350,10 +350,8 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      print('cleaning up...');
       await cleanupBlockSubscription();
 
-      print('listening...');
       _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
       _state.loadWalletSuccess(
@@ -881,7 +879,7 @@ class WalletLogic {
 
       final qrWallet = qr.toQRWallet();
 
-      final verified = await qrWallet.verifyData();
+      // final verified = await qrWallet.verifyData();
       // TODO: implement a visual warning that the code is not signed
       // if (!verified) {
       //   throw signatureException;
@@ -932,7 +930,7 @@ class WalletLogic {
 
       final qrTransaction = qr.toQRTransactionRequest();
 
-      final verified = await qrTransaction.verifyData();
+      // final verified = await qrTransaction.verifyData();
       // TODO: implement a visual warning that the code is not signed
       // if (!verified) {
       //   throw signatureException;
