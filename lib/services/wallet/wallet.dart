@@ -481,7 +481,7 @@ class WalletService {
       data: jsonEncode(data),
     );
 
-    final signature = '';
+    const signature = '';
 
     final response = await _station!.post(
       url: '/transaction',

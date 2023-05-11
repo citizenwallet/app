@@ -1,11 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/utils/base64.dart';
-import 'package:citizenwallet/utils/uint8.dart';
-import 'package:collection/collection.dart';
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:dartsv/dartsv.dart';
 import 'package:flutter/foundation.dart';
 // import 'package:cryptography/cryptography.dart';
@@ -13,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 // import 'package:pointycastle/digests/keccak.dart';
-import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
 
 import 'package:pointycastle/export.dart';
 import 'package:web3dart/crypto.dart';

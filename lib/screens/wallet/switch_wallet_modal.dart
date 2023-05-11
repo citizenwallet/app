@@ -163,7 +163,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       final password = await showCupertinoModalPopup<String?>(
         context: context,
         barrierDismissible: true,
-        builder: (modalContext) => TextInputModal(
+        builder: (modalContext) => const TextInputModal(
           title: 'Set Password',
           placeholder: 'Enter wallet password',
           secure: true,
@@ -259,7 +259,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     final newName = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => TextInputModal(
+      builder: (modalContext) => const TextInputModal(
         title: 'Edit Wallet',
         placeholder: 'Enter wallet name',
         initialValue: 'New Wallet',
