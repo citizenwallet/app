@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/utils/base64.dart';
+import 'package:citizenwallet/utils/uint8.dart';
+import 'package:convert/convert.dart';
 import 'package:dartsv/dartsv.dart';
 import 'package:flutter/foundation.dart';
-// import 'package:cryptography/cryptography.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-// import 'package:pointycastle/digests/keccak.dart';
 
 import 'package:pointycastle/export.dart';
 import 'package:web3dart/crypto.dart';
@@ -16,7 +15,8 @@ import 'package:web3dart/web3dart.dart';
 const netTimeoutSeconds = 10;
 const streamTimeoutSeconds = 10;
 
-const publicKeyHeader = 'x-pubkey';
+const publicKeyHeaderKey = 'x-pubkey';
+const signatureKeyHeaderKey = 'x-signature';
 
 class UnauthorizedException implements Exception {
   final String message = 'unauthorized';
@@ -26,7 +26,7 @@ class UnauthorizedException implements Exception {
 
 class StationRequest {
   final int version = 1;
-  final DateTime expiry = DateTime.now();
+  DateTime expiry = DateTime.now();
   final String address;
   final String data;
 
@@ -35,16 +35,34 @@ class StationRequest {
     required this.data,
   });
 
+  // from json
+  StationRequest.fromJson(Map<String, dynamic> json)
+      : expiry = DateTime.parse(json['expiry']),
+        address = json['address'],
+        data = base64String.decode(json['data']);
+
   // convert to json
   Map<String, dynamic> toJson() => {
         'version': version,
         'expiry': expiry.toIso8601String(),
         'address': address,
-        'data': data,
+        'data': base64String.encode(data),
       };
 
   // convert to encoded json
   String toEncodedJson() => jsonEncode(toJson());
+}
+
+class VerificationRequest {
+  StationRequest decrypted;
+  String encodedSignature;
+  String senderKey;
+
+  VerificationRequest({
+    required this.decrypted,
+    required this.encodedSignature,
+    required this.senderKey,
+  });
 }
 
 class StationService {
@@ -78,24 +96,94 @@ class StationService {
   // with help from:
   //  - https://stackoverflow.com/a/75571004/7012894
   //  - https://github.com/twostack/dartsv/tree/master
-  String _decodeBody(String body) {
+  StationRequest _decryptBody(String body) {
+    // base64 decode the body
     final encryptedData = base64.decode(body);
 
+    // instantiate the dart ecies library
     final Ecies ecies = Ecies();
 
+    // extract the private key in a usable format for the library
     final SVPrivateKey pk = SVPrivateKey.fromBigInt(receiverKey.privateKeyInt);
 
+    // decrypt the decoded body
     final decrypted = ecies.AESDecrypt(encryptedData, pk);
 
+    // decode the decrypted data
     final decoded = utf8.decode(decrypted);
 
+    print(decoded.length);
+
+    // json decode
     final json = jsonDecode(decoded);
 
-    return base64String.decode(json['data']);
+    // create a station request from the json
+    final sreq = StationRequest.fromJson(json);
+
+    // pass the data to the caller
+    return sreq;
   }
 
-  Future<String> decodeBody(String body) async {
-    return await compute<String, String>(_decodeBody, body);
+  Future<StationRequest> decryptBody(String body) async {
+    return await compute<String, StationRequest>(_decryptBody, body);
+  }
+
+  // verify the signature of the response
+  Future<bool> _verifySignature(
+    VerificationRequest args,
+  ) async {
+    final StationRequest decrypted = args.decrypted;
+    final String encodedSignature = args.encodedSignature;
+    final String senderKey = args.senderKey;
+
+    // check the expiry
+    if (decrypted.expiry.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    final signature = hexToBytes(encodedSignature);
+
+    // https://github.com/simolus3/web3dart/issues/207#issue-1021153710
+    final v = signature.elementAt(0);
+    final r = bytesToInt(signature.getRange(1, 33).toList());
+    final s = bytesToInt(signature.getRange(33, 65).toList());
+    final msg = MsgSignature(
+      r,
+      s,
+      v,
+    );
+
+    final encodedReq = decrypted.toEncodedJson();
+
+    final messageHash =
+        keccak256(convertBytesToUint8List(utf8.encode(encodedReq)));
+
+    final publicKey = ecRecover(messageHash, msg);
+
+    // the address in the header must match the address derived from the signature
+    final address = bytesToHex(publicKeyToAddress(publicKey), include0x: true);
+    if (address.toLowerCase() != decrypted.address.toLowerCase()) {
+      return false;
+    }
+
+    final isValid = isValidSignature(messageHash, msg, publicKey);
+
+    return isValid;
+  }
+
+  Future<bool> verifySignature(
+    StationRequest decrypted,
+    String encodedSignature,
+    String senderKey,
+  ) async {
+    return await compute<VerificationRequest, bool>(
+      _verifySignature,
+      VerificationRequest(
+        decrypted: decrypted,
+        encodedSignature: encodedSignature,
+        senderKey: senderKey,
+      ),
+    );
   }
 
   Future<String> _get({String? url}) async {
@@ -119,10 +207,26 @@ class StationService {
       throw Exception('error invalid response');
     }
 
-    // final sig = response.headers['X-Signature'];
-    senderKey = response.headers[publicKeyHeader];
+    final decrypted = await decryptBody(body['secure']);
 
-    return decodeBody(body['secure']);
+    final sig = response.headers[signatureKeyHeaderKey];
+    if (sig == null) {
+      throw Exception('error missing signature');
+    }
+
+    final headerPubKey = response.headers[publicKeyHeaderKey];
+    if (headerPubKey == null) {
+      throw Exception('error missing send key');
+    }
+
+    final isVerified = await verifySignature(decrypted, sig, headerPubKey);
+    if (!isVerified) {
+      throw Exception('error invalid signature');
+    }
+
+    senderKey = headerPubKey;
+
+    return decrypted.data;
   }
 
   Future<dynamic> post({
