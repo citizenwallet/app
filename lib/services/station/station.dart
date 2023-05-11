@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/utils/base64.dart';
 import 'package:citizenwallet/utils/uint8.dart';
-import 'package:convert/convert.dart';
 import 'package:dartsv/dartsv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -56,12 +55,10 @@ class StationRequest {
 class VerificationRequest {
   StationRequest decrypted;
   String encodedSignature;
-  String senderKey;
 
   VerificationRequest({
     required this.decrypted,
     required this.encodedSignature,
-    required this.senderKey,
   });
 }
 
@@ -112,8 +109,6 @@ class StationService {
     // decode the decrypted data
     final decoded = utf8.decode(decrypted);
 
-    print(decoded.length);
-
     // json decode
     final json = jsonDecode(decoded);
 
@@ -134,23 +129,24 @@ class StationService {
   ) async {
     final StationRequest decrypted = args.decrypted;
     final String encodedSignature = args.encodedSignature;
-    final String senderKey = args.senderKey;
 
     // check the expiry
     if (decrypted.expiry.isBefore(DateTime.now())) {
       return false;
     }
 
+    final wpsig = strip0x(encodedSignature);
+
     final signature = hexToBytes(encodedSignature);
 
+    // How to get R & S from signature
     // https://github.com/simolus3/web3dart/issues/207#issue-1021153710
-    final v = signature.elementAt(0);
-    final r = bytesToInt(signature.getRange(1, 33).toList());
-    final s = bytesToInt(signature.getRange(33, 65).toList());
+    // How to parse R & S so that they don't overflow
+    // https://github.com/c0mm4nd/dart-ecdsa/blob/692b71994ebbd913db22a8cdfc11169d46c2046e/lib/src/signature.dart#L24
     final msg = MsgSignature(
-      r,
-      s,
-      v,
+      hexToInt(wpsig.substring(2, 66)),
+      hexToInt(wpsig.substring(66, 130)),
+      signature.elementAt(0),
     );
 
     final encodedReq = decrypted.toEncodedJson();
@@ -166,6 +162,7 @@ class StationService {
       return false;
     }
 
+    // were the contents of the message signed by the sender?
     final isValid = isValidSignature(messageHash, msg, publicKey);
 
     return isValid;
@@ -174,14 +171,12 @@ class StationService {
   Future<bool> verifySignature(
     StationRequest decrypted,
     String encodedSignature,
-    String senderKey,
   ) async {
     return await compute<VerificationRequest, bool>(
       _verifySignature,
       VerificationRequest(
         decrypted: decrypted,
         encodedSignature: encodedSignature,
-        senderKey: senderKey,
       ),
     );
   }
@@ -219,7 +214,7 @@ class StationService {
       throw Exception('error missing send key');
     }
 
-    final isVerified = await verifySignature(decrypted, sig, headerPubKey);
+    final isVerified = await verifySignature(decrypted, sig);
     if (!isVerified) {
       throw Exception('error invalid signature');
     }
