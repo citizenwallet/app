@@ -347,8 +347,8 @@ class WalletService {
   EthereumAddress get address => _address;
 
   /// retrieves the current balance of the address
-  Future<String> get balance async => fromGwei(
-      (await _ethClient.getBalance(address)).getValueInUnit(EtherUnit.gwei));
+  Future<String> get balance async =>
+      fromGwei((await _ethClient.getBalance(address)).getInWei);
 
   /// retrieves the transaction count for the address
   Future<int> get transactionCount async =>
@@ -418,11 +418,11 @@ class WalletService {
 
       final response = await _station!.hello();
 
-      await sendGasStationTransaction(
-        to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
-        amount: '10',
-        message: 'hello gas station',
-      );
+      // await sendGasStationTransaction(
+      //   to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
+      //   amount: '10',
+      //   message: 'hello gas station',
+      // );
 
       return response;
     } catch (e) {
@@ -446,7 +446,7 @@ class WalletService {
       throw lockedWalletException;
     }
 
-    final parsedAmount = BigInt.from(toGwei(amount));
+    final parsedAmount = toGwei(amount);
 
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
@@ -502,7 +502,7 @@ class WalletService {
       throw lockedWalletException;
     }
 
-    final parsedAmount = BigInt.from(toGwei(amount));
+    final parsedAmount = toGwei(amount);
 
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),

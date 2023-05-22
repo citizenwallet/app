@@ -521,7 +521,7 @@ class WalletLogic {
       final transactions = await walletService.transactionsForBlockHash(hash);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
+            fromGwei(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -662,7 +662,7 @@ class WalletLogic {
       final transactions = await walletService.transactions();
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
+            fromGwei(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -697,7 +697,7 @@ class WalletLogic {
       final transactions = await walletService.transactions(offset: offset);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
+            fromGwei(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,

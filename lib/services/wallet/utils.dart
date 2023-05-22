@@ -1,16 +1,17 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/web3dart.dart';
 
-double toGwei(String amount) {
-  return double.parse(amount) * pow(10, 9);
+final gwei = BigInt.from(10).pow(9);
+
+BigInt toGwei(String amount) {
+  return BigInt.parse(amount) * gwei;
 }
 
-String fromGwei(double amount) {
-  return (amount / pow(10, 9)).toStringAsFixed(2);
+String fromGwei(BigInt amount) {
+  return BigInt.from(amount / gwei).toString();
 }
 
 BigInt parseIntFromHex(String hex) {

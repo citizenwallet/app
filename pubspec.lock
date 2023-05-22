@@ -733,6 +733,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smartcontracts:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v0.0.25"
+      resolved-ref: "55cdb58aeb44bd59ae48a7d993c4bcd4580b237c"
+      url: "https://github.com/daobrussels/smartcontracts.git"
+    source: git
+    version: "1.0.0"
   source_map_stack_trace:
     dependency: transitive
     description:
@@ -1014,5 +1023,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.0.0-417 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.7.0"
