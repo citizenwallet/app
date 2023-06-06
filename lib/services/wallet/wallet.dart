@@ -104,7 +104,7 @@ class WalletService {
   final Client _client = Client();
 
   late Web3Client _ethClient;
-  StationService? _station;
+  // StationService? _station;
   late APIService _api;
 
   /// creates a new random private key
@@ -197,7 +197,7 @@ class WalletService {
     _chainId = await _ethClient.getChainId();
 
     final stationUrl = dotenv.get('DEFAULT_STATION_URL');
-    await configStation(stationUrl, _credentials!);
+    // await configStation(stationUrl, _credentials!);
   }
 
   EthPrivateKey? unlock({String? walletFile, String? password}) {
@@ -408,30 +408,30 @@ class WalletService {
   }
 
   /// get station config
-  Future<Chain?> configStation(String url, EthPrivateKey privatekey) async {
-    try {
-      _station = StationService(
-        baseURL: url,
-        address: _address.hex,
-        requesterKey: privatekey,
-      );
+  // Future<Chain?> configStation(String url, EthPrivateKey privatekey) async {
+  //   try {
+  //     _station = StationService(
+  //       baseURL: url,
+  //       address: _address.hex,
+  //       requesterKey: privatekey,
+  //     );
 
-      final response = await _station!.hello();
+  //     final response = await _station!.hello();
 
-      // await sendGasStationTransaction(
-      //   to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
-      //   amount: '10',
-      //   message: 'hello gas station',
-      // );
+  //     // await sendGasStationTransaction(
+  //     //   to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
+  //     //   amount: '10',
+  //     //   message: 'hello gas station',
+  //     // );
 
-      return response;
-    } catch (e) {
-      // error fetching block
-      print(e);
-    }
+  //     return response;
+  //   } catch (e) {
+  //     // error fetching block
+  //     print(e);
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
   /// signs a transaction to prepare for sending
   Future<String> _signTransaction({
@@ -473,7 +473,7 @@ class WalletService {
     String? password,
   }) async {
     final data = {
-      'tx': await _signTransaction(
+      'data': await _signTransaction(
         to: to,
         amount: amount,
         message: message,
@@ -482,9 +482,9 @@ class WalletService {
       ),
     };
 
-    final response = await _station!.transaction(
-      jsonEncode(data),
-    );
+    // final response = await _station!.transaction(
+    //   jsonEncode(data),
+    // );
 
     return '';
   }

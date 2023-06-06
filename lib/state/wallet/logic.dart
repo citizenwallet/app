@@ -224,7 +224,19 @@ class WalletLogic {
   //   _state.loadWalletError();
   // }
 
-  Future<bool> openWalletFromQR(QRWallet qrWallet, String password) async {
+  Future<void> resetWalletPreferences() async {
+    try {
+      await _preferences.clear();
+
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+  }
+
+  Future<bool> openWalletFromQR(
+      String encodedWallet, QRWallet qrWallet, String password) async {
     try {
       _state.loadWallet();
 
@@ -260,6 +272,7 @@ class WalletLogic {
       _blockSubscription = walletService.blockStream.listen(onBlockHash);
 
       await _preferences.setLastWallet(wallet.address.hex);
+      await _preferences.setLastWalletLink(encodedWallet);
 
       _state.loadWalletSuccess(
         CWWallet(
