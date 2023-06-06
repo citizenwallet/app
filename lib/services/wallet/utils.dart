@@ -4,7 +4,9 @@ import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/web3dart.dart';
 
-final gwei = BigInt.from(10).pow(9);
+// TODO: update with move to ERC20
+// final gwei = BigInt.from(10).pow(9);
+final gwei = BigInt.from(10).pow(18);
 
 BigInt toGwei(String amount) {
   return BigInt.parse(amount) * gwei;
