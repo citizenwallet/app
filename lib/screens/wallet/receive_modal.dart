@@ -49,6 +49,8 @@ class ReceiveModalState extends State<ReceiveModal> {
   }
 
   void handleDismiss(BuildContext context) {
+    widget.logic.clearInputControllers();
+
     GoRouter.of(context).pop();
   }
 
