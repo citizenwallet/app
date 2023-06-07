@@ -792,8 +792,6 @@ class WalletLogic {
         throw Exception('invalid address');
       }
 
-      final doubleAmount = amount.replaceAll(',', '.');
-
       final walletService = walletServiceCheck();
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
@@ -805,17 +803,17 @@ class WalletLogic {
         throw Exception('password not found');
       }
 
-      final hash = await walletService.sendTransaction(
-        to: to,
-        amount: doubleAmount,
-        message: message,
-        walletFile: dbwallet.wallet,
-        password: savedPassword,
+      final doubleAmount = amount.replaceAll(',', '.');
+
+      final hash = await walletService.transferErc20(
+        to,
+        BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      final transaction = CWTransaction.pending(
-        doubleAmount,
-        id: hash,
+      CWTransaction? transaction;
+      transaction = CWTransaction.pending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
       );

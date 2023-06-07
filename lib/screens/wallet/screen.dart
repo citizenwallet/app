@@ -481,9 +481,24 @@ class WalletScreenState extends State<WalletScreen> {
                               onPressed: handleSendModal,
                               borderRadius: BorderRadius.circular(25),
                               color: ThemeColors.primary.resolveFrom(context),
-                              child: Icon(
-                                CupertinoIcons.arrow_up,
-                                color: ThemeColors.white.resolveFrom(context),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 20),
+                                  const Text(
+                                    'Send',
+                                    style: TextStyle(
+                                      color: ThemeColors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Icon(
+                                    CupertinoIcons.arrow_up,
+                                    color:
+                                        ThemeColors.white.resolveFrom(context),
+                                  ),
+                                  const SizedBox(width: 20),
+                                ],
                               ),
                             ),
                           const SizedBox(width: 20),
@@ -492,9 +507,23 @@ class WalletScreenState extends State<WalletScreen> {
                             onPressed: handleReceive,
                             borderRadius: BorderRadius.circular(25),
                             color: ThemeColors.primary.resolveFrom(context),
-                            child: Icon(
-                              CupertinoIcons.arrow_down,
-                              color: ThemeColors.white.resolveFrom(context),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Receive',
+                                  style: TextStyle(
+                                    color: ThemeColors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  CupertinoIcons.arrow_down,
+                                  color: ThemeColors.white.resolveFrom(context),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
                             ),
                           ),
                         ],
