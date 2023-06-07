@@ -16,8 +16,8 @@
         ],
         "faucets": [],
         "nativeCurrency": {
-            "name": "Citizen Coin",
-            "symbol": "CC",
+            "name": "Dai",
+            "symbol": "DAI",
             "decimals": 2
         },
         "infoURL": "https://citizenwallet.xyz",
