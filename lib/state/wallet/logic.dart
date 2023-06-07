@@ -20,6 +20,7 @@ import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -69,7 +70,12 @@ class WalletLogic {
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
-      await walletService.switchChain(chain);
+      await walletService.switchChain(
+        chain,
+        dotenv.get('ERC4337_ENTRYPOINT'),
+        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+        dotenv.get('ERC20_TOKEN_ADDRESS'),
+      );
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
@@ -262,7 +268,11 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      await walletService.initUnlocked();
+      await walletService.initUnlocked(
+        dotenv.get('ERC4337_ENTRYPOINT'),
+        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+        dotenv.get('ERC20_TOKEN_ADDRESS'),
+      );
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
@@ -288,7 +298,7 @@ class WalletLogic {
 
       return true;
     } catch (e) {
-      print('error');
+      print('openWalletFromQR error');
       print(e);
     }
 
@@ -340,7 +350,11 @@ class WalletLogic {
 
         final walletService = walletServiceCheck();
 
-        await walletService.initUnlocked();
+        await walletService.initUnlocked(
+          dotenv.get('ERC4337_ENTRYPOINT'),
+          dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+          dotenv.get('ERC20_TOKEN_ADDRESS'),
+        );
       } else {
         final wallet = await walletServiceFromChain(
           BigInt.from(chainId),
@@ -355,7 +369,11 @@ class WalletLogic {
 
         final walletService = walletServiceCheck();
 
-        await walletService.init();
+        await walletService.init(
+          dotenv.get('ERC4337_ENTRYPOINT'),
+          dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+          dotenv.get('ERC20_TOKEN_ADDRESS'),
+        );
       }
 
       final walletService = walletServiceCheck();
@@ -534,7 +552,7 @@ class WalletLogic {
       final transactions = await walletService.transactionsForBlockHash(hash);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getInWei),
+            fromUnit(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -675,7 +693,7 @@ class WalletLogic {
       final transactions = await walletService.transactions();
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getInWei),
+            fromUnit(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -710,7 +728,7 @@ class WalletLogic {
       final transactions = await walletService.transactions(offset: offset);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getInWei),
+            fromUnit(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,

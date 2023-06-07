@@ -4,20 +4,26 @@ import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/web3dart.dart';
 
-// TODO: update with move to ERC20
 // final gwei = BigInt.from(10).pow(9);
-final gwei = BigInt.from(10).pow(18);
+final ether = BigInt.from(10).pow(18);
+final finney = BigInt.from(10).pow(15);
 
-BigInt toGwei(String amount) {
-  return BigInt.parse(amount) * gwei;
+BigInt toUnit(String amount) {
+  return BigInt.parse(amount) * finney;
 }
 
-String fromGwei(BigInt amount) {
-  return BigInt.from(amount / gwei).toString();
+String fromUnit(BigInt amount) {
+  return BigInt.from(amount / finney).toString();
 }
 
 BigInt parseIntFromHex(String hex) {
   return BigInt.parse(hex);
+}
+
+String bigIntToHex(BigInt value) {
+  final hex = value.toRadixString(16);
+
+  return '0x$hex';
 }
 
 const zeroHexValue = '0x0';
@@ -28,7 +34,7 @@ bool isZeroHexValue(String hex) {
 }
 
 String formatHexAddress(String address) {
-  if (isZeroHexValue(address)) {
+  if (isZeroHexValue(address) || address.length < 6) {
     return address;
   }
 

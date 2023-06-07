@@ -4,6 +4,10 @@ import 'dart:math';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/station/station.dart';
+import 'package:citizenwallet/services/wallet/contracts/derc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
+import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
+import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
 import 'package:citizenwallet/services/wallet/models/block.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -99,18 +103,29 @@ class WalletService {
   // Wallet? _wallet;
   EthPrivateKey? _credentials;
   late EthereumAddress _address;
+  late EthereumAddress _account;
   Uint8List? _publicKey;
+
+  late StackupEntryPoint _contractEntryPoint;
+  late AccountFactory _contractAccountFactory;
+  late Token _contractToken;
+  late SimpleAccount _contractAccount;
 
   final Client _client = Client();
 
   late Web3Client _ethClient;
   // StationService? _station;
   late APIService _api;
+  final APIService _bundlerRPC =
+      APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
+  final APIService _paymasterRPC =
+      APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
+  final String _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
 
   /// creates a new random private key
   /// init before using
   WalletService(this._chain) {
-    final url = _chain!.rpc.first;
+    final url = dotenv.get('ERC4337_RPC_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -124,7 +139,7 @@ class WalletService {
   /// creates using an existing private key from a hex string
   /// init before using
   WalletService.fromKey(this._chain, String privateKey) {
-    final url = _chain!.rpc.first;
+    final url = dotenv.get('ERC4337_RPC_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -140,7 +155,7 @@ class WalletService {
     String walletFile,
     String password,
   ) {
-    final url = _chain!.rpc.first;
+    final url = dotenv.get('ERC4337_RPC_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -159,7 +174,7 @@ class WalletService {
     this._chain,
     String address,
   ) {
-    final url = _chain!.rpc.first;
+    final url = dotenv.get('ERC4337_RPC_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -178,7 +193,7 @@ class WalletService {
     this._chain,
     Signer signer,
   ) {
-    final url = _chain!.rpc.first;
+    final url = dotenv.get('ERC4337_RPC_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -187,17 +202,40 @@ class WalletService {
     _address = signer.privateKey.address;
   }
 
-  Future<void> init() async {
+  Future<void> init(String eaddr, String afaddr, String taddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
+
+    await initContracts(eaddr, afaddr, taddr);
   }
 
-  Future<void> initUnlocked() async {
+  Future<void> initUnlocked(String eaddr, String afaddr, String taddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
-    final stationUrl = dotenv.get('DEFAULT_STATION_URL');
-    // await configStation(stationUrl, _credentials!);
+    await initContracts(eaddr, afaddr, taddr);
+  }
+
+  Future<void> initContracts(String eaddr, String afaddr, String taddr) async {
+    _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
+    await _contractEntryPoint.init();
+
+    _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
+    await _contractAccountFactory.init();
+
+    final credentials = unlock();
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
+    _account =
+        await _contractAccountFactory.getAddress(credentials.address.hex);
+
+    _contractToken = newToken(chainId, _ethClient, taddr);
+    await _contractToken.init();
+
+    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hex);
+    await _contractAccount.init();
   }
 
   EthPrivateKey? unlock({String? walletFile, String? password}) {
@@ -224,7 +262,12 @@ class WalletService {
     return null;
   }
 
-  Future<void> switchChain(Chain chain) {
+  Future<void> switchChain(
+    Chain chain,
+    String eaddr,
+    String afaddr,
+    String taddr,
+  ) {
     dispose();
 
     _chain = chain;
@@ -234,7 +277,9 @@ class WalletService {
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
 
-    return _credentials != null ? initUnlocked() : init();
+    return _credentials != null
+        ? initUnlocked(eaddr, afaddr, taddr)
+        : init(eaddr, afaddr, taddr);
   }
 
   Future<Chain?> fetchChainById(BigInt id) async {
@@ -348,7 +393,7 @@ class WalletService {
 
   /// retrieves the current balance of the address
   Future<String> get balance async =>
-      fromGwei((await _ethClient.getBalance(address)).getInWei);
+      fromUnit(await _contractToken.getBalance(address.hex));
 
   /// retrieves the transaction count for the address
   Future<int> get transactionCount async =>
@@ -446,7 +491,7 @@ class WalletService {
       throw lockedWalletException;
     }
 
-    final parsedAmount = toGwei(amount);
+    final parsedAmount = toUnit(amount);
 
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
@@ -502,7 +547,7 @@ class WalletService {
       throw lockedWalletException;
     }
 
-    final parsedAmount = toGwei(amount);
+    final parsedAmount = toUnit(amount);
 
     final Transaction transaction = Transaction(
       to: EthereumAddress.fromHex(to),
