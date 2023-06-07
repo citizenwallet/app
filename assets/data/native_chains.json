@@ -16,8 +16,8 @@
         ],
         "faucets": [],
         "nativeCurrency": {
-            "name": "Dai",
-            "symbol": "DAI",
+            "name": "Brussels Bar Token",
+            "symbol": "BBT",
             "decimals": 2
         },
         "infoURL": "https://citizenwallet.xyz",
