@@ -18,8 +18,10 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
+import 'package:smartcontracts/contracts/external/DERC20.g.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:web_socket_channel/io.dart';
 
 final Exception lockedWalletException = Exception('Wallet is locked');
 
@@ -112,6 +114,7 @@ class WalletService {
   late SimpleAccount _contractAccount;
 
   final Client _client = Client();
+  late IOWebSocketChannel _channel;
 
   late Web3Client _ethClient;
   // StationService? _station;
@@ -125,7 +128,7 @@ class WalletService {
   /// creates a new random private key
   /// init before using
   WalletService(this._chain) {
-    final url = dotenv.get('ERC4337_RPC_URL');
+    final url = dotenv.get('NODE_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -139,7 +142,7 @@ class WalletService {
   /// creates using an existing private key from a hex string
   /// init before using
   WalletService.fromKey(this._chain, String privateKey) {
-    final url = dotenv.get('ERC4337_RPC_URL');
+    final url = dotenv.get('NODE_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -155,7 +158,7 @@ class WalletService {
     String walletFile,
     String password,
   ) {
-    final url = dotenv.get('ERC4337_RPC_URL');
+    final url = dotenv.get('NODE_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -174,7 +177,7 @@ class WalletService {
     this._chain,
     String address,
   ) {
-    final url = dotenv.get('ERC4337_RPC_URL');
+    final url = dotenv.get('NODE_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -193,7 +196,7 @@ class WalletService {
     this._chain,
     Signer signer,
   ) {
-    final url = dotenv.get('ERC4337_RPC_URL');
+    final url = dotenv.get('NODE_URL');
 
     _ethClient = Web3Client(url, _client);
     _api = APIService(baseURL: url);
@@ -408,8 +411,27 @@ class WalletService {
     return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
   }
 
-  /// allows you to listen to new blocks
-  Stream<String> get blockStream => _ethClient.addedBlocks();
+  /// ERC 20 token methods
+
+  /// listen to erc20 transfer events
+  Stream<Transfer> get erc20TransferStream =>
+      _contractToken.listen(const BlockNum.current());
+
+  /// fetch erc20 transfer events
+  Future<List<TransferEvent>> fetchErc20Transfers() async {
+    try {
+      final currentBlock = await blockNumber;
+
+      return _contractToken.getTransactions(address.hex,
+          BlockNum.exact(currentBlock), BlockNum.exact(currentBlock - 100));
+    } catch (e) {
+      print(e);
+    }
+
+    return [];
+  }
+
+  /// ********************
 
   /// return a block for a given blockNumber
   Future<WalletBlock?> _getBlockByNumber({int? blockNumber}) async {

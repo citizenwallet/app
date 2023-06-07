@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:smartcontracts/contracts/external/DERC20.g.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
@@ -30,7 +31,7 @@ class WalletLogic {
   final DBService _db = DBService();
   final PreferencesService _preferences = PreferencesService();
 
-  StreamSubscription<String>? _blockSubscription;
+  StreamSubscription<Transfer>? _blockSubscription;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -205,7 +206,7 @@ class WalletLogic {
 
   //     await cleanupBlockSubscription();
 
-  //     _blockSubscription = walletService.blockStream.listen(onBlockHash);
+  //     _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
 
   //     await _preferences.setLastWallet(address);
 
@@ -279,7 +280,7 @@ class WalletLogic {
 
       await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
 
       await _preferences.setLastWallet(wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
@@ -383,7 +384,7 @@ class WalletLogic {
 
       await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
 
       _state.loadWalletSuccess(
         CWWallet(
@@ -543,24 +544,30 @@ class WalletLogic {
     _state.createDBWalletError();
   }
 
-  void onBlockHash(String hash) async {
+  void onTransfer(Transfer tx) async {
     try {
       _state.incomingTransactionsRequest();
 
       final walletService = walletServiceCheck();
 
-      final transactions = await walletService.transactionsForBlockHash(hash);
+      final List<CWTransaction> cwtransactions = [];
 
-      final cwtransactions = transactions.map((e) => CWTransaction(
-            fromUnit(e.value.getInWei),
-            id: e.hash,
-            chainId: walletService.chainId,
-            from: e.from.hex,
-            to: e.to.hex,
-            title: e.input?.message ?? '',
-            date: e.timestamp,
-            blockNumber: e.blockNumber.blockNum,
-          ));
+      if (tx.event.removed == false &&
+          (tx.from.hex.toLowerCase() ==
+                  walletService.address.hex.toLowerCase() ||
+              tx.to.hex.toLowerCase() ==
+                  walletService.address.hex.toLowerCase())) {
+        cwtransactions.add(CWTransaction(
+          fromUnit(tx.value),
+          id: tx.event.transactionHash ?? generateRandomId(),
+          chainId: walletService.chainId,
+          from: tx.from.hex,
+          to: tx.to.hex,
+          title: '',
+          date: DateTime.now(),
+          blockNumber: tx.event.blockNum ?? 0,
+        ));
+      }
 
       await updateBalance();
 
@@ -690,17 +697,17 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final transactions = await walletService.transactions();
+      final txs = await walletService.fetchErc20Transfers();
 
-      final cwtransactions = transactions.map((e) => CWTransaction(
-            fromUnit(e.value.getInWei),
-            id: e.hash,
+      final cwtransactions = txs.map((tx) => CWTransaction(
+            fromUnit(tx.value),
+            id: tx.transactionHash ?? generateRandomId(),
             chainId: walletService.chainId,
-            from: e.from.hex,
-            to: e.to.hex,
-            title: e.input?.message ?? '',
-            date: e.timestamp,
-            blockNumber: e.blockNumber.blockNum,
+            from: tx.from.hex,
+            to: tx.to.hex,
+            title: '',
+            date: DateTime.now(),
+            blockNumber: tx.blockNum ?? 0,
           ));
 
       _state.loadTransactionsSuccess(

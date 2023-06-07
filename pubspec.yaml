@@ -37,6 +37,7 @@ dependencies:
   cryptography_flutter: ^2.3.0
   collection: ^1.17.0
   dartsv: ^1.0.1
+  web_socket_channel: ^2.4.0
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
