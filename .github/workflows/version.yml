@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.PAT }}
 
       - name: Copy env file
-        run: echo "${{ secrets.GANACHE_TEST_ENV }}" >> .env
+        run: echo "${{ secrets.SU_MUMBAI_ENV }}" >> .env
 
       - uses: subosito/flutter-action@v2
         with:
