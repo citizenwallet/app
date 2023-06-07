@@ -85,7 +85,7 @@ class WalletLogic {
         CWWallet(
           balance,
           name: currency.name,
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -289,7 +289,7 @@ class WalletLogic {
         CWWallet(
           balance,
           name: 'Burner Wallet',
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -390,7 +390,7 @@ class WalletLogic {
         CWWallet(
           balance,
           name: dbWallet.name,
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -554,9 +554,9 @@ class WalletLogic {
 
       if (tx.event.removed == false &&
           (tx.from.hex.toLowerCase() ==
-                  walletService.address.hex.toLowerCase() ||
+                  walletService.account.hex.toLowerCase() ||
               tx.to.hex.toLowerCase() ==
-                  walletService.address.hex.toLowerCase())) {
+                  walletService.account.hex.toLowerCase())) {
         cwtransactions.add(CWTransaction(
           fromUnit(tx.value),
           id: tx.event.transactionHash ?? generateRandomId(),
@@ -851,15 +851,15 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final hash = await walletService.sendTransaction(
-        to: to,
-        amount: doubleAmount,
-        message: message,
+      final hash = await walletService.transferErc20(
+        to,
+        BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      final transaction = CWTransaction.pending(
-        doubleAmount,
-        id: hash,
+      CWTransaction? transaction;
+      transaction = CWTransaction.pending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
       );
@@ -1008,7 +1008,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(walletService.address.hex);
+        _state.updateReceiveQR(walletService.account.hex);
         return;
       }
 
@@ -1022,7 +1022,7 @@ class WalletLogic {
 
       final qrData = QRTransactionRequestData(
         chainId: walletService.chainId,
-        address: dbwallet.address,
+        address: walletService.account.hex,
         amount: amount,
         message: _messageController.value.text,
         publicKey: dbwallet.publicKey,
@@ -1061,7 +1061,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(walletService.address.hex);
+        _state.updateReceiveQR(walletService.account.hex);
         return;
       }
 
@@ -1079,7 +1079,7 @@ class WalletLogic {
 
       final qrData = QRTransactionRequestData(
         chainId: walletService.chainId,
-        address: credentials.address.hex,
+        address: walletService.account.hex,
         amount: amount,
         message: _messageController.value.text,
         publicKey: credentials.encodedPublicKey,
@@ -1112,7 +1112,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateWalletQR(walletService.address.hex);
+        _state.updateWalletQR(walletService.account.hex);
         return;
       }
 

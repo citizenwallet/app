@@ -12,9 +12,12 @@ import 'package:citizenwallet/services/wallet/models/block.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/message.dart';
+import 'package:citizenwallet/services/wallet/models/paymaster_data.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
+import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
@@ -124,6 +127,8 @@ class WalletService {
   final APIService _paymasterRPC =
       APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
   final String _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
+  final APIService _dataRPC =
+      APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
 
   /// creates a new random private key
   /// init before using
@@ -394,9 +399,12 @@ class WalletService {
   /// retrieve the address
   EthereumAddress get address => _address;
 
+  /// retrieve the account related to this address
+  EthereumAddress get account => _account;
+
   /// retrieves the current balance of the address
   Future<String> get balance async =>
-      fromUnit(await _contractToken.getBalance(address.hex));
+      fromUnit(await _contractToken.getBalance(_account.hex));
 
   /// retrieves the transaction count for the address
   Future<int> get transactionCount async =>
@@ -409,6 +417,62 @@ class WalletService {
     }
 
     return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
+  }
+
+  /// ERC 4337
+
+  /// makes a jsonrpc request from this wallet
+  Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
+    print(jsonEncode(body.toJson()));
+    final rawRespoonse = await _paymasterRPC.post(body: body);
+
+    final response = SUJSONRPCResponse.fromJson(rawRespoonse);
+
+    if (response.error != null) {
+      throw Exception(response.error!.message);
+    }
+
+    return response;
+  }
+
+  /// makes a jsonrpc request from this wallet
+  Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
+    final rawRespoonse = await _bundlerRPC.post(body: body);
+
+    final response = SUJSONRPCResponse.fromJson(rawRespoonse);
+
+    if (response.error != null) {
+      throw Exception(response.error!.message);
+    }
+
+    return response;
+  }
+
+  /// return paymaster data for constructing a user op
+  Future<PaymasterData?> _getPaymasterData(
+    UserOp userop,
+    String eaddr,
+    String ptype,
+  ) async {
+    final body = SUJSONRPCRequest(
+      method: 'pm_sponsorUserOperation',
+      params: [
+        userop.toJson(),
+        eaddr,
+        {'type': ptype},
+      ],
+    );
+
+    try {
+      final response = await _requestPaymaster(body);
+
+      return PaymasterData.fromJson(response.result);
+    } catch (e) {
+      // error fetching block
+      print(e);
+    }
+
+    return null;
   }
 
   /// ERC 20 token methods
@@ -429,6 +493,133 @@ class WalletService {
     }
 
     return [];
+  }
+
+  /// submit a user op
+  Future<String?> _submitUserOp(
+    UserOp userop,
+    String eaddr,
+  ) async {
+    final body = SUJSONRPCRequest(
+      method: 'eth_sendUserOperation',
+      params: [userop.toJson(), eaddr],
+    );
+
+    try {
+      final response = await _requestBundler(body);
+
+      return response.result;
+    } catch (e) {
+      // error fetching block
+      print(e);
+    }
+
+    return null;
+  }
+
+  /// retrieve a user op by hash and return its hash
+  Future<String?> _fetchUserOp(
+    String hash,
+  ) async {
+    try {
+      final response = await _dataRPC.get(
+        url: '/$hash',
+        headers: {
+          'SU-ACCESS-KEY': dotenv.get('ERC4337_SU_ACCESS_KEY'),
+        },
+      );
+
+      return response.data.transactionHash;
+    } catch (e) {
+      // error fetching block
+      print(e);
+    }
+
+    return null;
+  }
+
+  /// transfer erc20 tokens to an address
+  Future<String?> transferErc20(String to, BigInt amount) async {
+    try {
+      // safely retrieve credentials if unlocks
+      final credentials = unlock();
+      if (credentials == null) {
+        throw lockedWalletException;
+      }
+
+      // instantiate user op with default values
+      final userop = UserOp.defaultUserOp();
+
+      // use the account hex as the sender
+      userop.sender = _account.hex;
+
+      // determine the appropriate nonce
+      final nonce = await _contractEntryPoint.getNonce(_account.hex);
+      userop.nonce = nonce;
+
+      // if it's the first user op from this account, we need to deploy the account contract
+      if (nonce == BigInt.zero) {
+        // construct the init code to deploy the account
+        userop.initCode = _contractAccountFactory.createAccountInitCode(
+          credentials.address.hex,
+          BigInt.zero,
+        );
+      }
+
+      // set the appropriate call data for the transfer
+      // we need to call account.execute which will call token.transfer
+      userop.callData = _contractAccount.executeCallData(
+        _contractToken.addr,
+        BigInt.zero,
+        _contractToken.transferCallData(
+          to,
+          EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+        ),
+      );
+
+      // set the appropriate gas fees based on network
+      final fees = await _ethClient.getGasInEIP1559();
+      if (fees.isEmpty) {
+        throw Exception('unable to estimate fees');
+      }
+
+      final fee = fees.first;
+
+      userop.maxPriorityFeePerGas = fee.maxPriorityFeePerGas;
+      userop.maxFeePerGas = fee.maxFeePerGas;
+
+      // submit the user op to the paymaster in order to receive information to complete the user op
+      final paymasterData = await _getPaymasterData(
+        userop,
+        _contractEntryPoint.addr,
+        _paymasterType,
+      );
+
+      if (paymasterData == null) {
+        throw Exception('paymaster data is null');
+      }
+
+      // add the received data to the user op
+      userop.paymasterAndData = paymasterData.paymasterAndData;
+      userop.preVerificationGas = paymasterData.preVerificationGas;
+      userop.verificationGasLimit = paymasterData.verificationGasLimit;
+      userop.callGasLimit = paymasterData.callGasLimit;
+
+      // now we can sign the user op
+      userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
+
+      // send the user op
+      final opHash = await _submitUserOp(userop, _contractEntryPoint.addr);
+      if (opHash != null) {
+        return await _fetchUserOp(opHash);
+      }
+
+      return null;
+    } catch (e) {
+      print(e);
+    }
+
+    return null;
   }
 
   /// ********************
