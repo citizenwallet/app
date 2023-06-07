@@ -14,6 +14,10 @@ class PreferencesService {
     _preferences = await SharedPreferences.getInstance();
   }
 
+  Future clear() async {
+    await _preferences.clear();
+  }
+
   Future setDarkMode(bool darkMode) async {
     await _preferences.setBool('darkMode', darkMode);
   }
@@ -42,4 +46,10 @@ class PreferencesService {
   }
 
   String? get lastWallet => _preferences.getString('lastWallet');
+
+  Future setLastWalletLink(String link) async {
+    await _preferences.setString('lastWalletLink', link);
+  }
+
+  String? get lastWalletLink => _preferences.getString('lastWalletLink');
 }

@@ -143,6 +143,22 @@ class AppLogic {
     return null;
   }
 
+  Future<String?> getLastEncodedWallet() async {
+    try {
+      final String? lastWallet = _preferences.lastWalletLink;
+
+      if (lastWallet == null) {
+        throw Exception('No last wallet');
+      }
+
+      return lastWallet;
+    } catch (e) {
+      print(e);
+    }
+
+    return null;
+  }
+
   Future<QRWallet?> createWebWallet() async {
     try {
       _appState.importLoadingWebReq();

@@ -34,6 +34,13 @@ class WebLandingScreenState extends State<WebLandingScreen>
 
     await delay(const Duration(milliseconds: 500));
 
+    final lastEncodedWallet = await _appLogic.getLastEncodedWallet();
+
+    if (lastEncodedWallet != null) {
+      navigator.go('/wallet/$lastEncodedWallet');
+      return;
+    }
+
     final wallet = await _appLogic.createWebWallet();
 
     if (wallet == null) {

@@ -2,6 +2,8 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+const String pendingTransactionId = 'PENDING_TRANSACTION';
+
 Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
       TransactionAuthor.bank: [
         dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),

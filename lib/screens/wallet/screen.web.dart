@@ -22,10 +22,10 @@ import 'package:provider/provider.dart';
 import 'package:web3dart/crypto.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
-  final String qr;
+  final String encoded;
 
   const BurnerWalletScreen(
-    this.qr, {
+    this.encoded, {
     super.key,
   });
 
@@ -44,14 +44,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   @override
   void initState() {
     super.initState();
-
-    try {
-      _password = dotenv.get('WEB_BURNER_PASSWORD');
-
-      _wallet = QR.fromCompressedJson(widget.qr).toQRWallet();
-    } catch (e) {
-      print(e);
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -92,6 +84,24 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void onLoad({bool? retry}) async {
+    final navigator = GoRouter.of(context);
+    await delay(const Duration(milliseconds: 250));
+    try {
+      _password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      _wallet = QR.fromCompressedJson(widget.encoded).toQRWallet();
+    } catch (e) {
+      // something is wrong with the encoding
+      print(e);
+
+      // try and reset preferences so we don't end up in a loop
+      await _logic.resetWalletPreferences();
+
+      // go back to the home screen
+      navigator.go('/');
+      return;
+    }
+
     if (_wallet == null) {
       return;
     }
@@ -103,6 +113,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await delay(const Duration(milliseconds: 250));
 
     final ok = await _logic.openWalletFromQR(
+      widget.encoded,
       _wallet!,
       _password,
     );
@@ -217,7 +228,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.lightImpact();
 
     GoRouter.of(context).push(
-        '/wallet/${widget.qr}/transactions/$transactionId',
+        '/wallet/${widget.encoded}/transactions/$transactionId',
         extra: {'logic': _logic});
   }
 
@@ -230,9 +241,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         context.select((WalletState state) => state.transactionsLoading);
     final transactions =
         context.select((WalletState state) => state.transactions);
-
-    final sendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
 
     final formattedBalance = wallet?.formattedBalance ?? '';
 
@@ -514,9 +522,24 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                               onPressed: handleSendModal,
                               borderRadius: BorderRadius.circular(25),
                               color: ThemeColors.primary.resolveFrom(context),
-                              child: Icon(
-                                CupertinoIcons.arrow_up,
-                                color: ThemeColors.white.resolveFrom(context),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 20),
+                                  const Text(
+                                    'Send',
+                                    style: TextStyle(
+                                      color: ThemeColors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Icon(
+                                    CupertinoIcons.arrow_up,
+                                    color:
+                                        ThemeColors.white.resolveFrom(context),
+                                  ),
+                                  const SizedBox(width: 20),
+                                ],
                               ),
                             ),
                           const SizedBox(width: 20),
@@ -525,9 +548,23 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             onPressed: handleReceive,
                             borderRadius: BorderRadius.circular(25),
                             color: ThemeColors.primary.resolveFrom(context),
-                            child: Icon(
-                              CupertinoIcons.arrow_down,
-                              color: ThemeColors.white.resolveFrom(context),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Receive',
+                                  style: TextStyle(
+                                    color: ThemeColors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  CupertinoIcons.arrow_down,
+                                  color: ThemeColors.white.resolveFrom(context),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
                             ),
                           ),
                         ],

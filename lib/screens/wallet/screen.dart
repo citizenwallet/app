@@ -211,9 +211,6 @@ class WalletScreenState extends State<WalletScreen> {
     final transactions =
         context.select((WalletState state) => state.transactions);
 
-    final sendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
-
     final formattedBalance = wallet?.formattedBalance ?? '';
 
     return GestureDetector(

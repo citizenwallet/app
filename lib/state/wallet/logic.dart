@@ -20,7 +20,9 @@ import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:smartcontracts/contracts/external/DERC20.g.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
@@ -29,7 +31,7 @@ class WalletLogic {
   final DBService _db = DBService();
   final PreferencesService _preferences = PreferencesService();
 
-  StreamSubscription<String>? _blockSubscription;
+  StreamSubscription<Transfer>? _blockSubscription;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -69,7 +71,12 @@ class WalletLogic {
 
       final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
-      await walletService.switchChain(chain);
+      await walletService.switchChain(
+        chain,
+        dotenv.get('ERC4337_ENTRYPOINT'),
+        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+        dotenv.get('ERC20_TOKEN_ADDRESS'),
+      );
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
@@ -78,7 +85,7 @@ class WalletLogic {
         CWWallet(
           balance,
           name: currency.name,
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -97,134 +104,146 @@ class WalletLogic {
     _state.switchChainError();
   }
 
-  Future<void> instantiateWalletFromDB(String address) async {
+  // Future<void> instantiateWalletFromDB(String address) async {
+  //   try {
+  //     _state.instantiateWallet();
+
+  //     final int chainId = _preferences.chainId;
+
+  //     _state.setChainId(chainId);
+
+  //     final dbWallet = await _db.wallet.getWallet(address);
+
+  //     final wallet = await walletServiceFromChain(
+  //       BigInt.from(chainId),
+  //       address,
+  //     );
+
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
+
+  //     _wallet = wallet;
+
+  //     final walletService = walletServiceCheck();
+
+  //     await walletService.init();
+
+  //     _state.instantiateWalletSuccess();
+
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
+
+  //   _state.instantiateWalletError();
+  // }
+
+  // Future<void> instantiateWalletFromFile(
+  //     QRWallet qrWallet, String password) async {
+  //   try {
+  //     _state.instantiateWallet();
+
+  //     final int chainId = _preferences.chainId;
+
+  //     _state.setChainId(chainId);
+
+  //     final wallet = await walletServiceFromWallet(
+  //       BigInt.from(chainId),
+  //       jsonEncode(qrWallet.data.wallet),
+  //       password,
+  //     );
+
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
+
+  //     _wallet = wallet;
+
+  //     final walletService = walletServiceCheck();
+
+  //     await walletService.initUnlocked();
+
+  //     _state.instantiateWalletSuccess();
+
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
+
+  //   _state.instantiateWalletError();
+  // }
+
+  // Future<void> openWalletFromDB(String address) async {
+  //   try {
+  //     _state.loadWallet();
+
+  //     final int chainId = _preferences.chainId;
+
+  //     _state.setChainId(chainId);
+
+  //     final dbWallet = await _db.wallet.getWallet(address);
+
+  //     final wallet = await walletServiceFromChain(
+  //       BigInt.from(chainId),
+  //       address,
+  //     );
+
+  //     if (wallet == null) {
+  //       throw Exception('chain not found');
+  //     }
+
+  //     _wallet = wallet;
+
+  //     final walletService = walletServiceCheck();
+
+  //     await walletService.init();
+
+  //     final balance = await walletService.balance;
+  //     final currency = walletService.nativeCurrency;
+
+  //     await cleanupBlockSubscription();
+
+  //     _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
+
+  //     await _preferences.setLastWallet(address);
+
+  //     _state.loadWalletSuccess(
+  //       CWWallet(
+  //         balance,
+  //         name: dbWallet.name,
+  //         address: walletService.address.hex,
+  //         currencyName: currency.name,
+  //         symbol: currency.symbol,
+  //         decimalDigits: currency.decimals,
+  //         locked: dbWallet.locked,
+  //       ),
+  //     );
+
+  //     return;
+  //   } catch (e) {
+  //     print('error');
+  //     print(e);
+  //   }
+
+  //   _state.loadWalletError();
+  // }
+
+  Future<void> resetWalletPreferences() async {
     try {
-      _state.instantiateWallet();
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
-
-      final dbWallet = await _db.wallet.getWallet(address);
-
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
-
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
-
-      _wallet = wallet;
-
-      final walletService = walletServiceCheck();
-
-      await walletService.init();
-
-      _state.instantiateWalletSuccess();
+      await _preferences.clear();
 
       return;
     } catch (e) {
       print('error');
       print(e);
     }
-
-    _state.instantiateWalletError();
   }
 
-  Future<void> instantiateWalletFromFile(
-      QRWallet qrWallet, String password) async {
-    try {
-      _state.instantiateWallet();
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
-
-      final wallet = await walletServiceFromWallet(
-        BigInt.from(chainId),
-        jsonEncode(qrWallet.data.wallet),
-        password,
-      );
-
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
-
-      _wallet = wallet;
-
-      final walletService = walletServiceCheck();
-
-      await walletService.init();
-
-      _state.instantiateWalletSuccess();
-
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
-    }
-
-    _state.instantiateWalletError();
-  }
-
-  Future<void> openWalletFromDB(String address) async {
-    try {
-      _state.loadWallet();
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
-
-      final dbWallet = await _db.wallet.getWallet(address);
-
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
-
-      if (wallet == null) {
-        throw Exception('chain not found');
-      }
-
-      _wallet = wallet;
-
-      final walletService = walletServiceCheck();
-
-      await walletService.init();
-
-      final balance = await walletService.balance;
-      final currency = walletService.nativeCurrency;
-
-      await cleanupBlockSubscription();
-
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
-
-      await _preferences.setLastWallet(address);
-
-      _state.loadWalletSuccess(
-        CWWallet(
-          balance,
-          name: dbWallet.name,
-          address: walletService.address.hex,
-          currencyName: currency.name,
-          symbol: currency.symbol,
-          decimalDigits: currency.decimals,
-          locked: dbWallet.locked,
-        ),
-      );
-
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
-    }
-
-    _state.loadWalletError();
-  }
-
-  Future<bool> openWalletFromQR(QRWallet qrWallet, String password) async {
+  Future<bool> openWalletFromQR(
+      String encodedWallet, QRWallet qrWallet, String password) async {
     try {
       _state.loadWallet();
 
@@ -250,22 +269,27 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      await walletService.init();
+      await walletService.initUnlocked(
+        dotenv.get('ERC4337_ENTRYPOINT'),
+        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+        dotenv.get('ERC20_TOKEN_ADDRESS'),
+      );
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
       await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
 
       await _preferences.setLastWallet(wallet.address.hex);
+      await _preferences.setLastWalletLink(encodedWallet);
 
       _state.loadWalletSuccess(
         CWWallet(
           balance,
           name: 'Burner Wallet',
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -275,7 +299,7 @@ class WalletLogic {
 
       return true;
     } catch (e) {
-      print('error');
+      print('openWalletFromQR error');
       print(e);
     }
 
@@ -301,35 +325,72 @@ class WalletLogic {
 
       final dbWallet = await _db.wallet.getWallet(address);
 
-      final wallet = await walletServiceFromChain(
-        BigInt.from(chainId),
-        address,
-      );
+      if (!dbWallet.locked) {
+        // set credentials from preferences
 
-      if (wallet == null) {
-        throw Exception('chain not found');
+        final savedPassword =
+            await EncryptedPreferencesService().getWalletPassword(address);
+
+        if (savedPassword == null) {
+          throw Exception('password not found');
+        }
+
+        final Wallet walletF = Wallet.fromJson(dbWallet.wallet, savedPassword);
+
+        final wallet = await walletServiceFromWallet(
+          BigInt.from(chainId),
+          walletF.toJson(),
+          savedPassword,
+        );
+
+        if (wallet == null) {
+          throw Exception('chain not found');
+        }
+
+        _wallet = wallet;
+
+        final walletService = walletServiceCheck();
+
+        await walletService.initUnlocked(
+          dotenv.get('ERC4337_ENTRYPOINT'),
+          dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+          dotenv.get('ERC20_TOKEN_ADDRESS'),
+        );
+      } else {
+        final wallet = await walletServiceFromChain(
+          BigInt.from(chainId),
+          address,
+        );
+
+        if (wallet == null) {
+          throw Exception('chain not found');
+        }
+
+        _wallet = wallet;
+
+        final walletService = walletServiceCheck();
+
+        await walletService.init(
+          dotenv.get('ERC4337_ENTRYPOINT'),
+          dotenv.get('ERC4337_ACCOUNT_FACTORY'),
+          dotenv.get('ERC20_TOKEN_ADDRESS'),
+        );
       }
 
-      _wallet = wallet;
-
       final walletService = walletServiceCheck();
-
-      await walletService.init();
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      print('cleaning up...');
       await cleanupBlockSubscription();
 
-      print('listening...');
-      _blockSubscription = walletService.blockStream.listen(onBlockHash);
+      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
 
       _state.loadWalletSuccess(
         CWWallet(
           balance,
           name: dbWallet.name,
-          address: walletService.address.hex,
+          address: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -483,24 +544,30 @@ class WalletLogic {
     _state.createDBWalletError();
   }
 
-  void onBlockHash(String hash) async {
+  void onTransfer(Transfer tx) async {
     try {
       _state.incomingTransactionsRequest();
 
       final walletService = walletServiceCheck();
 
-      final transactions = await walletService.transactionsForBlockHash(hash);
+      final List<CWTransaction> cwtransactions = [];
 
-      final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
-            id: e.hash,
-            chainId: walletService.chainId,
-            from: e.from.hex,
-            to: e.to.hex,
-            title: e.input?.message ?? '',
-            date: e.timestamp,
-            blockNumber: e.blockNumber.blockNum,
-          ));
+      if (tx.event.removed == false &&
+          (tx.from.hex.toLowerCase() ==
+                  walletService.account.hex.toLowerCase() ||
+              tx.to.hex.toLowerCase() ==
+                  walletService.account.hex.toLowerCase())) {
+        cwtransactions.add(CWTransaction(
+          fromUnit(tx.value),
+          id: tx.event.transactionHash ?? generateRandomId(),
+          chainId: walletService.chainId,
+          from: tx.from.hex,
+          to: tx.to.hex,
+          title: '',
+          date: DateTime.now(),
+          blockNumber: tx.event.blockNum ?? 0,
+        ));
+      }
 
       await updateBalance();
 
@@ -630,17 +697,17 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final transactions = await walletService.transactions();
+      final txs = await walletService.fetchErc20Transfers();
 
-      final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
-            id: e.hash,
+      final cwtransactions = txs.map((tx) => CWTransaction(
+            fromUnit(tx.value),
+            id: tx.transactionHash ?? generateRandomId(),
             chainId: walletService.chainId,
-            from: e.from.hex,
-            to: e.to.hex,
-            title: e.input?.message ?? '',
-            date: e.timestamp,
-            blockNumber: e.blockNumber.blockNum,
+            from: tx.from.hex,
+            to: tx.to.hex,
+            title: '',
+            date: DateTime.now(),
+            blockNumber: tx.blockNum ?? 0,
           ));
 
       _state.loadTransactionsSuccess(
@@ -668,7 +735,7 @@ class WalletLogic {
       final transactions = await walletService.transactions(offset: offset);
 
       final cwtransactions = transactions.map((e) => CWTransaction(
-            fromGwei(e.value.getValueInUnit(EtherUnit.gwei)),
+            fromUnit(e.value.getInWei),
             id: e.hash,
             chainId: walletService.chainId,
             from: e.from.hex,
@@ -784,15 +851,15 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final hash = await walletService.sendTransaction(
-        to: to,
-        amount: doubleAmount,
-        message: message,
+      final hash = await walletService.transferErc20(
+        to,
+        BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      final transaction = CWTransaction.pending(
-        doubleAmount,
-        id: hash,
+      CWTransaction? transaction;
+      transaction = CWTransaction.pending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
       );
@@ -850,7 +917,7 @@ class WalletLogic {
 
       final qrWallet = qr.toQRWallet();
 
-      final verified = await qrWallet.verifyData();
+      // final verified = await qrWallet.verifyData();
       // TODO: implement a visual warning that the code is not signed
       // if (!verified) {
       //   throw signatureException;
@@ -901,7 +968,7 @@ class WalletLogic {
 
       final qrTransaction = qr.toQRTransactionRequest();
 
-      final verified = await qrTransaction.verifyData();
+      // final verified = await qrTransaction.verifyData();
       // TODO: implement a visual warning that the code is not signed
       // if (!verified) {
       //   throw signatureException;
@@ -941,7 +1008,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(walletService.address.hex);
+        _state.updateReceiveQR(walletService.account.hex);
         return;
       }
 
@@ -955,7 +1022,7 @@ class WalletLogic {
 
       final qrData = QRTransactionRequestData(
         chainId: walletService.chainId,
-        address: dbwallet.address,
+        address: walletService.account.hex,
         amount: amount,
         message: _messageController.value.text,
         publicKey: dbwallet.publicKey,
@@ -994,7 +1061,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(walletService.address.hex);
+        _state.updateReceiveQR(walletService.account.hex);
         return;
       }
 
@@ -1012,7 +1079,7 @@ class WalletLogic {
 
       final qrData = QRTransactionRequestData(
         chainId: walletService.chainId,
-        address: credentials.address.hex,
+        address: walletService.account.hex,
         amount: amount,
         message: _messageController.value.text,
         publicKey: credentials.encodedPublicKey,
@@ -1045,7 +1112,7 @@ class WalletLogic {
       final walletService = walletServiceCheck();
 
       if (onlyHex != null && onlyHex) {
-        _state.updateWalletQR(walletService.address.hex);
+        _state.updateWalletQR(walletService.account.hex);
         return;
       }
 

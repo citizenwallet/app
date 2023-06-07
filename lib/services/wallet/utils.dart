@@ -1,20 +1,29 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/web3dart.dart';
 
-double toGwei(String amount) {
-  return double.parse(amount) * pow(10, 9);
+// final gwei = BigInt.from(10).pow(9);
+final ether = BigInt.from(10).pow(18);
+final finney = BigInt.from(10).pow(15);
+
+BigInt toUnit(String amount) {
+  return BigInt.parse(amount) * finney;
 }
 
-String fromGwei(double amount) {
-  return (amount / pow(10, 9)).toStringAsFixed(2);
+String fromUnit(BigInt amount) {
+  return BigInt.from(amount / finney).toString();
 }
 
 BigInt parseIntFromHex(String hex) {
   return BigInt.parse(hex);
+}
+
+String bigIntToHex(BigInt value) {
+  final hex = value.toRadixString(16);
+
+  return '0x$hex';
 }
 
 const zeroHexValue = '0x0';
@@ -25,7 +34,7 @@ bool isZeroHexValue(String hex) {
 }
 
 String formatHexAddress(String address) {
-  if (isZeroHexValue(address)) {
+  if (isZeroHexValue(address) || address.length < 6) {
     return address;
   }
 

@@ -199,8 +199,10 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void sendTransactionSuccess(CWTransaction transaction) {
-    transactions.insert(0, transaction);
+  void sendTransactionSuccess(CWTransaction? transaction) {
+    if (transaction != null) {
+      transactions.insert(0, transaction);
+    }
     transactionSendLoading = false;
     transactionSendError = false;
     notifyListeners();
@@ -227,6 +229,11 @@ class WalletState with ChangeNotifier {
         this.transactions[index] = transaction;
       }
     }
+
+    this.transactions = this
+        .transactions
+        .where((element) => element.id != pendingTransactionId)
+        .toList();
 
     transactionsLoading = false;
     transactionsError = false;
