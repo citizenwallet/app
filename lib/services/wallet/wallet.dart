@@ -423,7 +423,6 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
-    print(jsonEncode(body.toJson()));
     final rawRespoonse = await _paymasterRPC.post(body: body);
 
     final response = SUJSONRPCResponse.fromJson(rawRespoonse);

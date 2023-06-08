@@ -1279,7 +1279,7 @@ class WalletLogic {
       _addressController.text = address;
       _state.setHasAddress(address.isNotEmpty);
 
-      _amountController.text = amount;
+      _amountController.text = (double.parse(amount) / 1000).toStringAsFixed(2);
 
       _messageController.text = message;
     } catch (e) {
