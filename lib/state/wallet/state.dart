@@ -246,6 +246,11 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void resetInvalidInputs() {
+    invalidAmount = false;
+    invalidAddress = false;
+  }
+
   void setInvalidAmount(bool invalid) {
     invalidAmount = invalid;
     notifyListeners();

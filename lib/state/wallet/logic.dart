@@ -782,6 +782,13 @@ class WalletLogic {
         : sendTransactionFromLocked(amount, to, message: message);
   }
 
+  bool validateSendFields(String amount, String to) {
+    _state.setInvalidAddress(to.isEmpty);
+    _state.setInvalidAmount(amount.isEmpty);
+
+    return to.isNotEmpty && amount.isNotEmpty;
+  }
+
   Future<bool> sendTransactionFromLocked(String amount, String to,
       {String message = ''}) async {
     try {
@@ -793,8 +800,6 @@ class WalletLogic {
       }
 
       final walletService = walletServiceCheck();
-
-      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
 
       final savedPassword = await EncryptedPreferencesService()
           .getWalletPassword(walletService.address.hex);
@@ -883,6 +888,10 @@ class WalletLogic {
     _addressController.clear();
     _amountController.clear();
     _messageController.clear();
+  }
+
+  void resetInputErrorState() {
+    _state.resetInvalidInputs();
   }
 
   void updateAddress() {
