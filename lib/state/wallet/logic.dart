@@ -810,20 +810,24 @@ class WalletLogic {
 
       final doubleAmount = amount.replaceAll(',', '.');
 
+      _state.sendingTransaction(CWTransaction.sending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: pendingTransactionId,
+        title: message,
+        date: DateTime.now(),
+      ));
+
       final hash = await walletService.transferErc20(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      CWTransaction? transaction;
-      transaction = CWTransaction.pending(
+      _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
         id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
-      );
-
-      _state.sendTransactionSuccess(transaction);
+      ));
 
       clearInputControllers();
 
@@ -854,20 +858,24 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
+      _state.sendingTransaction(CWTransaction.sending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: pendingTransactionId,
+        title: message,
+        date: DateTime.now(),
+      ));
+
       final hash = await walletService.transferErc20(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      CWTransaction? transaction;
-      transaction = CWTransaction.pending(
+      _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
         id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
-      );
-
-      _state.sendTransactionSuccess(transaction);
+      ));
 
       clearInputControllers();
 

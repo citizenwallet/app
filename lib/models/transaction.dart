@@ -35,6 +35,7 @@ TransactionAuthor getTransactionAuthor(String own, String from, String to) {
 }
 
 enum TransactionState {
+  sending,
   pending,
   success,
   failed,
@@ -76,6 +77,17 @@ class CWTransaction {
     this.blockNumber = 0,
     this.state = TransactionState.success,
   });
+  CWTransaction.sending(
+    this._amount, {
+    required this.id,
+    this.chainId = 0,
+    this.from = '0x',
+    this.to = '0x',
+    required this.title,
+    required this.date,
+    this.blockNumber = 0,
+    this.state = TransactionState.sending,
+  });
   CWTransaction.pending(
     this._amount, {
     required this.id,
@@ -90,6 +102,7 @@ class CWTransaction {
 
   String get amount => _amount;
 
+  bool get isSending => state == TransactionState.sending;
   bool get isPending => state == TransactionState.pending;
 
   bool isIncoming(String to) => this.to == to;
