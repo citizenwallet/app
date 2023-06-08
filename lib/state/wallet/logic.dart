@@ -961,6 +961,15 @@ class WalletLogic {
         return;
       }
 
+      final includesHex = includesHexValue(raw);
+      if (includesHex) {
+        final hex = extractHexFromText(raw);
+        if (hex.isNotEmpty) {
+          updateAddressFromHexCapture(hex);
+          return;
+        }
+      }
+
       final qr = QR.fromCompressedJson(raw);
 
       switch (qr.type) {

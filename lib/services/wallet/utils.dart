@@ -48,6 +48,16 @@ bool isHexValue(String hex) {
   return hex.startsWith(hexPadding);
 }
 
+bool includesHexValue(String hex) {
+  return hex.contains(hexPadding);
+}
+
+String extractHexFromText(String text) {
+  final hex = RegExp(r'0x[a-fA-F0-9]+').stringMatch(text);
+
+  return hex ?? '';
+}
+
 EthPrivateKey? stringToPrivateKey(String privateKey) {
   try {
     final String formattedPrivateKey = privateKey.startsWith(hexPadding)
