@@ -24,7 +24,9 @@ class TransactionRow extends StatelessWidget {
         formatHexAddress(isIncoming ? transaction.from : transaction.to);
 
     return GestureDetector(
-      onTap: () => onTap?.call(transaction.id),
+      onTap: transaction.isPending || transaction.isSending
+          ? null
+          : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
         key: super.key,
         duration: const Duration(milliseconds: 300),
