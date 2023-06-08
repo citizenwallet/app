@@ -22,8 +22,11 @@ class TransactionRow extends StatelessWidget {
     final isIncoming = transaction.isIncoming(wallet.address);
     final address =
         formatHexAddress(isIncoming ? transaction.from : transaction.to);
+
     return GestureDetector(
-      onTap: () => onTap?.call(transaction.id),
+      onTap: transaction.isPending || transaction.isSending
+          ? null
+          : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
         key: super.key,
         duration: const Duration(milliseconds: 300),
@@ -31,27 +34,41 @@ class TransactionRow extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
         height: 90,
         decoration: BoxDecoration(
-          color: transaction.isPending
+          color: transaction.isPending || transaction.isSending
               ? ThemeColors.subtleEmphasis.resolveFrom(context)
               : ThemeColors.subtle.resolveFrom(context),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             width: 2,
-            color: transaction.isPending
-                ? ThemeColors.secondary.resolveFrom(context)
-                : ThemeColors.uiBackground.resolveFrom(context),
+            color: switch (transaction.state) {
+              TransactionState.sending =>
+                ThemeColors.secondary.resolveFrom(context),
+              TransactionState.pending =>
+                ThemeColors.primary.resolveFrom(context),
+              _ => ThemeColors.uiBackground.resolveFrom(context),
+            },
           ),
         ),
         child: Row(
           children: [
-            ProfileCircle(
-              size: 50,
-              imageUrl: getTransactionAuthor(
-                      wallet.address, transaction.from, transaction.to)
-                  .icon,
-              backgroundColor: ThemeColors.white,
-              borderColor: ThemeColors.subtle,
-            ),
+            transaction.state == TransactionState.sending
+                ? SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Center(
+                      child: CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    ),
+                  )
+                : ProfileCircle(
+                    size: 50,
+                    imageUrl: getTransactionAuthor(
+                            wallet.address, transaction.from, transaction.to)
+                        .icon,
+                    backgroundColor: ThemeColors.white,
+                    borderColor: ThemeColors.subtle,
+                  ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

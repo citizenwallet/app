@@ -199,8 +199,23 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void sendingTransaction(CWTransaction? transaction) {
+    if (transaction != null) {
+      transactions = transactions
+          .where((element) => element.id != pendingTransactionId)
+          .toList();
+
+      transactions.insert(0, transaction);
+    }
+    notifyListeners();
+  }
+
   void sendTransactionSuccess(CWTransaction? transaction) {
     if (transaction != null) {
+      transactions = transactions
+          .where((element) => element.id != pendingTransactionId)
+          .toList();
+
       transactions.insert(0, transaction);
     }
     transactionSendLoading = false;
@@ -244,6 +259,11 @@ class WalletState with ChangeNotifier {
     transactionsLoading = false;
     transactionsError = true;
     notifyListeners();
+  }
+
+  void resetInvalidInputs() {
+    invalidAmount = false;
+    invalidAddress = false;
   }
 
   void setInvalidAmount(bool invalid) {

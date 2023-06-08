@@ -782,6 +782,13 @@ class WalletLogic {
         : sendTransactionFromLocked(amount, to, message: message);
   }
 
+  bool validateSendFields(String amount, String to) {
+    _state.setInvalidAddress(to.isEmpty);
+    _state.setInvalidAmount(amount.isEmpty);
+
+    return to.isNotEmpty && amount.isNotEmpty;
+  }
+
   Future<bool> sendTransactionFromLocked(String amount, String to,
       {String message = ''}) async {
     try {
@@ -794,8 +801,6 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final dbwallet = await _db.wallet.getWallet(walletService.address.hex);
-
       final savedPassword = await EncryptedPreferencesService()
           .getWalletPassword(walletService.address.hex);
 
@@ -805,20 +810,24 @@ class WalletLogic {
 
       final doubleAmount = amount.replaceAll(',', '.');
 
+      _state.sendingTransaction(CWTransaction.sending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: pendingTransactionId,
+        title: message,
+        date: DateTime.now(),
+      ));
+
       final hash = await walletService.transferErc20(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      CWTransaction? transaction;
-      transaction = CWTransaction.pending(
+      _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
         id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
-      );
-
-      _state.sendTransactionSuccess(transaction);
+      ));
 
       clearInputControllers();
 
@@ -849,20 +858,24 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
+      _state.sendingTransaction(CWTransaction.sending(
+        '${double.parse(doubleAmount) * 1000}',
+        id: pendingTransactionId,
+        title: message,
+        date: DateTime.now(),
+      ));
+
       final hash = await walletService.transferErc20(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      CWTransaction? transaction;
-      transaction = CWTransaction.pending(
+      _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
         id: hash ?? pendingTransactionId,
         title: message,
         date: DateTime.now(),
-      );
-
-      _state.sendTransactionSuccess(transaction);
+      ));
 
       clearInputControllers();
 
@@ -883,6 +896,10 @@ class WalletLogic {
     _addressController.clear();
     _amountController.clear();
     _messageController.clear();
+  }
+
+  void resetInputErrorState() {
+    _state.resetInvalidInputs();
   }
 
   void updateAddress() {
@@ -942,6 +959,15 @@ class WalletLogic {
       if (isHex) {
         updateAddressFromHexCapture(raw);
         return;
+      }
+
+      final includesHex = includesHexValue(raw);
+      if (includesHex) {
+        final hex = extractHexFromText(raw);
+        if (hex.isNotEmpty) {
+          updateAddressFromHexCapture(hex);
+          return;
+        }
       }
 
       final qr = QR.fromCompressedJson(raw);
@@ -1253,7 +1279,7 @@ class WalletLogic {
       _addressController.text = address;
       _state.setHasAddress(address.isNotEmpty);
 
-      _amountController.text = amount;
+      _amountController.text = (double.parse(amount) / 1000).toStringAsFixed(2);
 
       _messageController.text = message;
     } catch (e) {

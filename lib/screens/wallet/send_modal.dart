@@ -13,7 +13,6 @@ import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
@@ -27,8 +26,6 @@ class SendModal extends StatefulWidget {
 }
 
 class SendModalState extends State<SendModal> with TickerProviderStateMixin {
-  late final AnimationController _controller;
-
   late void Function() debouncedAddressUpdate;
 
   final FocusNode amountFocuseNode = FocusNode();
@@ -38,16 +35,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   final double animationSize = 200;
 
   bool _isSending = false;
-  double _percentage = 0;
 
   @override
   void initState() {
     super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
 
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -60,14 +51,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     });
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   void handleDismiss(BuildContext context) {
     widget.logic.clearInputControllers();
+    widget.logic.resetInputErrorState();
 
     GoRouter.of(context).pop();
   }
@@ -103,31 +89,33 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     HapticFeedback.lightImpact();
 
-    _controller.repeat();
-
     final navigator = GoRouter.of(context);
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    final isValid = widget.logic.validateSendFields(
+      widget.logic.amountController.value.text,
+      widget.logic.addressController.value.text,
+    );
 
-    final confirm = await widget.logic.sendTransaction(
+    if (!isValid) {
+      setState(() {
+        _isSending = false;
+      });
+
+      return;
+    }
+
+    widget.logic.sendTransaction(
       widget.logic.amountController.value.text,
       widget.logic.addressController.value.text,
       message: widget.logic.messageController.value.text,
     );
 
-    _controller.stop();
+    await Future.delayed(const Duration(milliseconds: 250));
 
-    if (confirm) {
-      HapticFeedback.heavyImpact();
+    HapticFeedback.heavyImpact();
 
-      navigator.pop();
-      return;
-    }
-
-    setState(() {
-      _isSending = false;
-      _percentage = 0;
-    });
+    navigator.pop();
+    return;
   }
 
   @override
@@ -383,27 +371,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                      Positioned(
-                        bottom: 90,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: animationSize,
-                              width: animationSize,
-                              child: Center(
-                                child: Lottie.asset(
-                                  'assets/lottie/wallet_loader.json',
-                                  height: (_percentage * animationSize),
-                                  width: (_percentage * animationSize),
-                                  controller: _controller,
-                                ),
-                              ),
-                            ),
-                          ],
+                      if (_isSending)
+                        Positioned(
+                          bottom: 90,
+                          child: CupertinoActivityIndicator(
+                            color: ThemeColors.subtle.resolveFrom(context),
+                          ),
                         ),
-                      ),
                       Positioned(
                         bottom: 0,
                         child: SizedBox(
@@ -415,22 +389,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   ? () => handleSend(context)
                                   : null,
                               isComplete: _isSending,
-                              onSlide: (percentage) {
-                                if (percentage == 1) {
-                                  setState(() {
-                                    _percentage = 1;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _percentage = percentage;
-                                  });
-                                }
-                              },
                               completionLabel:
                                   _isSending ? 'Sending...' : 'Slide to send',
                               thumbColor:
                                   ThemeColors.primary.resolveFrom(context),
-                              width: width * 0.8,
+                              width: width * 0.5,
                               child: SizedBox(
                                 height: 50,
                                 width: 50,
