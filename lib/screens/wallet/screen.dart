@@ -244,7 +244,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: 32,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -284,96 +284,74 @@ class WalletScreenState extends State<WalletScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      CupertinoSliverRefreshControl(
-                        onRefresh: handleRefresh,
-                      ),
-                      SliverPersistentHeader(
-                        pinned: true,
-                        floating: true,
-                        delegate: WalletHeader(
-                          expandedHeight: 80,
-                          minHeight: 40,
-                          shrunkenChild: Container(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Balance',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                loading && formattedBalance.isEmpty
-                                    ? CupertinoActivityIndicator(
-                                        key: const Key(
-                                            'wallet-balance-shrunken-loading'),
-                                        color: ThemeColors.subtle
-                                            .resolveFrom(context),
-                                      )
-                                    : Text(
-                                        '$formattedBalance (${wallet?.currencyName})',
-                                        key: const Key(
-                                            'wallet-balance-shrunken'),
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                              ],
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  CupertinoSliverRefreshControl(
+                    onRefresh: handleRefresh,
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    floating: true,
+                    delegate: WalletHeader(
+                      expandedHeight: 130,
+                      minHeight: 40,
+                      shrunkenChild: Container(
+                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              wallet?.currencyName ?? 'Token',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          child: Container(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Balance',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      Chip(
-                                        formatHexAddress(
-                                            wallet?.address ?? zeroHexValue),
-                                        color: ThemeColors.subtleEmphasis
-                                            .resolveFrom(context),
-                                        textColor: ThemeColors.touchable
-                                            .resolveFrom(context),
-                                        maxWidth: 150,
-                                      ),
-                                    ],
+                            loading && formattedBalance.isEmpty
+                                ? CupertinoActivityIndicator(
+                                    key: const Key(
+                                        'wallet-balance-shrunken-loading'),
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  )
+                                : Text(
+                                    '$formattedBalance',
+                                    key: const Key('wallet-balance-shrunken'),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                    ),
                                   ),
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                  child: loading && formattedBalance.isEmpty
+                          ],
+                        ),
+                      ),
+                      child: Container(
+                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    wallet?.currencyName ?? 'Token',
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  loading && formattedBalance.isEmpty
                                       ? CupertinoActivityIndicator(
                                           key: const Key(
                                               'wallet-balance-loading'),
@@ -381,154 +359,169 @@ class WalletScreenState extends State<WalletScreen> {
                                               .resolveFrom(context),
                                         )
                                       : Text(
-                                          '$formattedBalance (${wallet?.currencyName})',
+                                          '$formattedBalance',
                                           key: const Key('wallet-balance'),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal,
                                           ),
                                         ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          childCount: 1,
-                          (context, index) {
-                            return const Padding(
-                              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                              child: Text(
-                                'Transactions',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      if (transactionsLoading && transactions.isEmpty)
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: 1,
-                            (context, index) {
-                              return CupertinoActivityIndicator(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              );
-                            },
-                          ),
-                        ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          childCount:
-                              transactionsLoading && transactions.isEmpty
-                                  ? 0
-                                  : transactions.length,
-                          (context, index) {
-                            if (transactionsLoading && transactions.isEmpty) {
-                              return CupertinoActivityIndicator(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              );
-                            }
-
-                            if (wallet == null) {
-                              return const SizedBox();
-                            }
-
-                            final transaction = transactions[index];
-
-                            return TransactionRow(
-                              key: Key(transaction.id),
-                              transaction: transaction,
-                              wallet: wallet,
-                              onTap: handleTransactionTap,
-                            );
-                          },
-                        ),
-                      ),
-                      if (transactionsLoading && transactions.isNotEmpty)
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: 1,
-                            (context, index) {
-                              return CupertinoActivityIndicator(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              );
-                            },
-                          ),
-                        ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 60,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (wallet != null)
-                    Positioned(
-                      bottom: 10,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (!wallet.locked)
-                            CupertinoButton(
-                              padding: const EdgeInsets.all(5),
-                              onPressed: handleSendModal,
-                              borderRadius: BorderRadius.circular(25),
-                              color: ThemeColors.primary.resolveFrom(context),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 20),
-                                  const Text(
-                                    'Send',
-                                    style: TextStyle(
-                                      color: ThemeColors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Icon(
-                                    CupertinoIcons.arrow_up,
-                                    color:
-                                        ThemeColors.white.resolveFrom(context),
-                                  ),
-                                  const SizedBox(width: 20),
                                 ],
                               ),
                             ),
-                          const SizedBox(width: 20),
-                          CupertinoButton(
-                            padding: const EdgeInsets.all(5),
-                            onPressed: handleReceive,
-                            borderRadius: BorderRadius.circular(25),
-                            color: ThemeColors.primary.resolveFrom(context),
-                            child: Row(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Receive',
-                                  style: TextStyle(
-                                    color: ThemeColors.white,
-                                    fontSize: 20,
+                                if (wallet?.locked == false)
+                                  CupertinoButton(
+                                    padding: const EdgeInsets.all(5),
+                                    onPressed: handleSendModal,
+                                    borderRadius: BorderRadius.circular(30),
+                                    color: ThemeColors.primary
+                                        .resolveFrom(context),
+                                    child: SizedBox(
+                                      height: 80,
+                                      width: 80,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.arrow_up,
+                                            size: 40,
+                                            color: ThemeColors.white
+                                                .resolveFrom(context),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          const Text(
+                                            'Send',
+                                            style: TextStyle(
+                                              color: ThemeColors.white,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                if (wallet?.locked == false)
+                                  const SizedBox(width: 40),
+                                CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: handleReceive,
+                                  borderRadius: BorderRadius.circular(30),
+                                  color:
+                                      ThemeColors.primary.resolveFrom(context),
+                                  child: SizedBox(
+                                    height: 80,
+                                    width: 80,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.arrow_down,
+                                          size: 40,
+                                          color: ThemeColors.white
+                                              .resolveFrom(context),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Receive',
+                                          style: TextStyle(
+                                            color: ThemeColors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(width: 5),
-                                Icon(
-                                  CupertinoIcons.arrow_down,
-                                  color: ThemeColors.white.resolveFrom(context),
-                                ),
-                                const SizedBox(width: 10),
                               ],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                      child: Text(
+                        'Transactions',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (transactionsLoading && transactions.isEmpty)
+                    SliverToBoxAdapter(
+                      child: CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    ),
+                  if (!transactionsLoading && transactions.isEmpty)
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 300,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.ellipsis,
+                              size: 40,
+                              color: ThemeColors.white.resolveFrom(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      childCount: transactionsLoading && transactions.isEmpty
+                          ? 0
+                          : transactions.length,
+                      (context, index) {
+                        if (transactionsLoading && transactions.isEmpty) {
+                          return CupertinoActivityIndicator(
+                            color: ThemeColors.subtle.resolveFrom(context),
+                          );
+                        }
+
+                        if (wallet == null) {
+                          return const SizedBox();
+                        }
+
+                        final transaction = transactions[index];
+
+                        return TransactionRow(
+                          key: Key(transaction.id),
+                          transaction: transaction,
+                          wallet: wallet,
+                          onTap: handleTransactionTap,
+                        );
+                      },
+                    ),
+                  ),
+                  if (transactionsLoading && transactions.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 20,
+                    ),
+                  ),
                 ],
               ),
             ),
