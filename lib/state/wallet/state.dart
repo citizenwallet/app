@@ -14,6 +14,9 @@ class WalletState with ChangeNotifier {
   bool transactionsLoading = false;
   bool transactionsError = false;
 
+  int transactionsOffset = 0;
+  int transactionsTotal = 0;
+  DateTime transactionsMaxDate = DateTime.now();
   List<CWTransaction> transactions = [];
 
   bool transactionSendLoading = false;
@@ -149,7 +152,15 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadTransactionsSuccess(List<CWTransaction> transactions) {
+  void loadTransactionsSuccess(
+    List<CWTransaction> transactions, {
+    int offset = 0,
+    int total = 0,
+    DateTime? maxDate,
+  }) {
+    transactionsOffset = offset;
+    transactionsTotal = total;
+    transactionsMaxDate = maxDate ?? DateTime.now();
     this.transactions = transactions;
 
     transactionsLoading = false;
@@ -169,8 +180,10 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadAdditionalTransactionsSuccess(List<CWTransaction> transactions) {
-    // this.transactions.addAll(transactions);
+  void loadAdditionalTransactionsSuccess(List<CWTransaction> transactions,
+      {int offset = 0, int total = 0}) {
+    transactionsOffset = offset;
+    transactionsTotal = total;
     for (final transaction in transactions) {
       final index = this.transactions.indexWhere((t) => t.id == transaction.id);
       if (index == -1) {

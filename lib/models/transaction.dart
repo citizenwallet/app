@@ -7,7 +7,6 @@ const String pendingTransactionId = 'PENDING_TRANSACTION';
 Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
       TransactionAuthor.bank: [
         dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),
-        dotenv.get('KNOWN_ADDRESS_BANK2').toLowerCase(),
       ],
       TransactionAuthor.bar: [
         dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase(),
