@@ -6,7 +6,8 @@ import 'package:web3dart/web3dart.dart';
 
 // final gwei = BigInt.from(10).pow(9);
 final ether = BigInt.from(10).pow(18);
-final finney = BigInt.from(10).pow(15);
+// final finney = BigInt.from(10).pow(15);
+final finney = BigInt.from(10).pow(3);
 
 BigInt toUnit(String amount) {
   return BigInt.parse(amount) * finney;
