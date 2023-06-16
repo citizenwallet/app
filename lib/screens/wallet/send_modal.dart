@@ -188,29 +188,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Button(
-                                text: 'Scan',
-                                color: ThemeColors.surfaceSubtle
-                                    .resolveFrom(context),
-                                labelColor:
-                                    ThemeColors.text.resolveFrom(context),
-                                suffix: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                  child: Icon(
-                                    CupertinoIcons.qrcode_viewfinder,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                                onPressed: handleQRScan,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
                           const Text(
                             'To',
                             style: TextStyle(
@@ -371,6 +348,29 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             maxLines: 4,
                             maxLength: 256,
                             focusNode: messageFocusNode,
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Button(
+                                text: 'Scan',
+                                color: ThemeColors.surfaceSubtle
+                                    .resolveFrom(context),
+                                labelColor:
+                                    ThemeColors.text.resolveFrom(context),
+                                suffix: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Icon(
+                                    CupertinoIcons.qrcode_viewfinder,
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                                onPressed: handleQRScan,
+                              ),
+                            ],
                           ),
                           const SizedBox(
                             height: 90,
