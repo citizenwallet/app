@@ -22,7 +22,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:smartcontracts/contracts/external/DERC20.g.dart';
+// import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic {
@@ -401,9 +402,10 @@ class WalletLogic {
       _preferences.setLastWallet(address);
 
       return address;
-    } catch (e) {
+    } catch (e, trace) {
       print('error');
       print(e);
+      print(trace);
     }
 
     _state.loadWalletError();
@@ -697,21 +699,31 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final txs = await walletService.fetchErc20Transfers();
+      final maxDate = DateTime.now();
 
-      final cwtransactions = txs.map((tx) => CWTransaction(
-            fromUnit(tx.value),
-            id: tx.transactionHash ?? generateRandomId(),
-            chainId: walletService.chainId,
-            from: tx.from.hex,
-            to: tx.to.hex,
-            title: '',
-            date: DateTime.now(),
-            blockNumber: tx.blockNum ?? 0,
-          ));
+      final (txs, pagination) = await walletService.fetchErc20Transfers(
+        offset: 0,
+        limit: 10,
+        maxDate: maxDate,
+      );
+
+      final cwtransactions = txs.map(
+        (tx) => CWTransaction(
+          fromUnit(tx.value),
+          id: tx.hash,
+          chainId: walletService.chainId,
+          from: tx.from.hex,
+          to: tx.to.hex,
+          title: '',
+          date: tx.createdAt,
+        ),
+      );
 
       _state.loadTransactionsSuccess(
         cwtransactions.toList(),
+        offset: pagination.offset,
+        total: pagination.total,
+        maxDate: maxDate,
       );
 
       final balance = await walletService.balance;
@@ -726,27 +738,34 @@ class WalletLogic {
     _state.loadTransactionsError();
   }
 
-  Future<void> loadAdditionalTransactions(int offset) async {
+  Future<void> loadAdditionalTransactions(int limit) async {
     try {
       _state.loadAdditionalTransactions();
 
       final walletService = walletServiceCheck();
 
-      final transactions = await walletService.transactions(offset: offset);
+      final (txs, pagination) = await walletService.fetchErc20Transfers(
+        offset: _state.transactionsOffset + limit,
+        limit: limit,
+        maxDate: _state.transactionsMaxDate,
+      );
 
-      final cwtransactions = transactions.map((e) => CWTransaction(
-            fromUnit(e.value.getInWei),
-            id: e.hash,
-            chainId: walletService.chainId,
-            from: e.from.hex,
-            to: e.to.hex,
-            title: e.input?.message ?? '',
-            date: e.timestamp,
-            blockNumber: e.blockNumber.blockNum,
-          ));
+      final cwtransactions = txs.map(
+        (tx) => CWTransaction(
+          fromUnit(tx.value),
+          id: tx.hash,
+          chainId: walletService.chainId,
+          from: tx.from.hex,
+          to: tx.to.hex,
+          title: '',
+          date: DateTime.now(),
+        ),
+      );
 
       _state.loadAdditionalTransactionsSuccess(
         cwtransactions.toList(),
+        offset: pagination.offset,
+        total: pagination.total,
       );
       return;
     } catch (e) {

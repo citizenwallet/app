@@ -7,7 +7,6 @@ const String pendingTransactionId = 'PENDING_TRANSACTION';
 Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
       TransactionAuthor.bank: [
         dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),
-        dotenv.get('KNOWN_ADDRESS_BANK2').toLowerCase(),
       ],
       TransactionAuthor.bar: [
         dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase(),
@@ -107,13 +106,18 @@ class CWTransaction {
 
   bool isIncoming(String to) => this.to == to;
 
-  String formattedAmount(CWWallet wallet, {bool isIncoming = false}) =>
-      formatCurrency(
+  String get formattedAmount => formatAmount(
         double.tryParse(amount) ?? 0.0,
-        wallet.symbol,
-        decimalDigits: wallet.decimalDigits,
-        isIncoming: isIncoming,
+        decimalDigits: 2,
       );
+
+  // String formattedAmount(CWWallet wallet, {bool isIncoming = false}) =>
+  //     formatCurrency(
+  //       double.tryParse(amount) ?? 0.0,
+  //       wallet.symbol,
+  //       decimalDigits: wallet.decimalDigits,
+  //       isIncoming: isIncoming,
+  //     );
 
   // convert to Transaction object from JSON
   CWTransaction.fromJson(Map<String, dynamic> json)

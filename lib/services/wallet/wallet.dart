@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/station/station.dart';
-import 'package:citizenwallet/services/wallet/contracts/derc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
 import 'package:citizenwallet/services/wallet/models/block.dart';
@@ -21,10 +22,12 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
-import 'package:smartcontracts/contracts/external/DERC20.g.dart';
+import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:stream_channel/stream_channel.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 final Exception lockedWalletException = Exception('Wallet is locked');
 
@@ -113,15 +116,17 @@ class WalletService {
 
   late StackupEntryPoint _contractEntryPoint;
   late AccountFactory _contractAccountFactory;
-  late Token _contractToken;
+  late ERC20Contract _contractToken;
   late SimpleAccount _contractAccount;
 
   final Client _client = Client();
-  late IOWebSocketChannel _channel;
+
+  final _url = dotenv.get('NODE_URL');
 
   late Web3Client _ethClient;
   // StationService? _station;
   late APIService _api;
+  final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
   final APIService _bundlerRPC =
       APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
   final APIService _paymasterRPC =
@@ -133,10 +138,11 @@ class WalletService {
   /// creates a new random private key
   /// init before using
   WalletService(this._chain) {
-    final url = dotenv.get('NODE_URL');
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(
+      _url,
+      _client,
+    );
+    _api = APIService(baseURL: _url);
 
     // final Random key = Random.secure();
 
@@ -147,10 +153,8 @@ class WalletService {
   /// creates using an existing private key from a hex string
   /// init before using
   WalletService.fromKey(this._chain, String privateKey) {
-    final url = dotenv.get('NODE_URL');
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(_url, _client);
+    _api = APIService(baseURL: _url);
 
     // _credentials = EthPrivateKey.fromHex(privateKey);
     // _address = _credentials!.address;
@@ -163,10 +167,8 @@ class WalletService {
     String walletFile,
     String password,
   ) {
-    final url = dotenv.get('NODE_URL');
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(_url, _client);
+    _api = APIService(baseURL: _url);
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
 
@@ -182,10 +184,8 @@ class WalletService {
     this._chain,
     String address,
   ) {
-    final url = dotenv.get('NODE_URL');
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(_url, _client);
+    _api = APIService(baseURL: _url);
 
     _address = EthereumAddress.fromHex(address);
 
@@ -201,10 +201,8 @@ class WalletService {
     this._chain,
     Signer signer,
   ) {
-    final url = dotenv.get('NODE_URL');
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(_url, _client);
+    _api = APIService(baseURL: _url);
 
     // _credentials = signer.privateKey;
     _address = signer.privateKey.address;
@@ -239,7 +237,7 @@ class WalletService {
     _account =
         await _contractAccountFactory.getAddress(credentials.address.hex);
 
-    _contractToken = newToken(chainId, _ethClient, taddr);
+    _contractToken = newERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
     _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hex);
@@ -280,10 +278,8 @@ class WalletService {
 
     _chain = chain;
 
-    final url = _chain!.rpc.first;
-
-    _ethClient = Web3Client(url, _client);
-    _api = APIService(baseURL: url);
+    _ethClient = Web3Client(_url, _client);
+    _api = APIService(baseURL: _url);
 
     return _credentials != null
         ? initUnlocked(eaddr, afaddr, taddr)
@@ -358,13 +354,7 @@ class WalletService {
   //   return bytesToHex(_credentials!.privateKey, include0x: true);
   // }
 
-  String get url {
-    if (_chain == null) {
-      throw Exception('Chain not set');
-    }
-
-    return _chain!.rpc.first;
-  }
+  String get url => _url;
 
   Uint8List get publicKey {
     if (_publicKey == null) {
@@ -481,17 +471,42 @@ class WalletService {
       _contractToken.listen(const BlockNum.current());
 
   /// fetch erc20 transfer events
-  Future<List<TransferEvent>> fetchErc20Transfers() async {
+  ///
+  /// [limit] number of seconds to go back, uses block time to calculate
+  ///
+  /// [toBlock] block number to fetch up to, leave blank to use current block
+  Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers(
+      {int? offset, int? limit, DateTime? maxDate}) async {
     try {
-      final currentBlock = await blockNumber;
+      final List<TransferEvent> tx = [];
 
-      return _contractToken.getTransactions(address.hex,
-          BlockNum.exact(currentBlock), BlockNum.exact(currentBlock - 100));
+      var url = '/logs/transfers/${_contractToken.addr}/${_account.hex}?';
+      if (offset != null) {
+        url += '&offset=$offset';
+      }
+      if (limit != null) {
+        url += '&limit=$limit';
+      }
+      if (maxDate != null) {
+        url +=
+            '&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+      }
+
+      final response = await _indexer.get(url: url, headers: {
+        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+      });
+
+      // convert response array into TransferEvent list
+      for (final item in response['array']) {
+        tx.add(TransferEvent.fromJson(item));
+      }
+
+      return (tx, Pagination.fromJson(response['meta']));
     } catch (e) {
       print(e);
     }
 
-    return [];
+    return ([] as List<TransferEvent>, Pagination.empty());
   }
 
   /// submit a user op
@@ -608,10 +623,7 @@ class WalletService {
       userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
 
       // send the user op
-      final opHash = await _submitUserOp(userop, _contractEntryPoint.addr);
-      if (opHash != null) {
-        return await _fetchUserOp(opHash);
-      }
+      await _submitUserOp(userop, _contractEntryPoint.addr);
 
       return null;
     } catch (e) {

@@ -63,7 +63,7 @@ class Token {
   }
 
   Future<List<TransferEvent>> getTransactions(
-      String owner, BlockNum toBlock, BlockNum fromBlock) async {
+      String owner, BlockNum fromBlock, BlockNum toBlock) async {
     final event = rcontract.event('Transfer');
 
     final filter = FilterOptions(
