@@ -145,21 +145,42 @@ class TransactionScreenState extends State<TransactionScreen> {
                               ),
                             ],
                             const SizedBox(height: 20),
-                            Text(
-                              transaction.formattedAmount(wallet,
-                                  isIncoming: isIncoming),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: transaction.isPending
-                                    ? FontWeight.normal
-                                    : FontWeight.w500,
-                                color: isIncoming
-                                    ? ThemeColors.primary.resolveFrom(context)
-                                    : ThemeColors.text.resolveFrom(context),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  isIncoming
+                                      ? '+ ${transaction.formattedAmount}'
+                                      : '- ${transaction.formattedAmount}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                    color: isIncoming
+                                        ? ThemeColors.primary
+                                            .resolveFrom(context)
+                                        : ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  wallet.symbol,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: isIncoming
+                                        ? ThemeColors.primary
+                                            .resolveFrom(context)
+                                        : ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 10),
                             Row(

@@ -396,7 +396,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                       CupertinoButton(
                                         padding: const EdgeInsets.all(5),
                                         onPressed: handleSendModal,
-                                        borderRadius: BorderRadius.circular(30),
+                                        borderRadius: BorderRadius.circular(20),
                                         color: ThemeColors.primary
                                             .resolveFrom(context),
                                         child: SizedBox(
@@ -431,7 +431,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                     CupertinoButton(
                                       padding: const EdgeInsets.all(5),
                                       onPressed: handleReceive,
-                                      borderRadius: BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.circular(20),
                                       color: ThemeColors.primary
                                           .resolveFrom(context),
                                       child: SizedBox(

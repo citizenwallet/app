@@ -314,13 +314,37 @@ class WalletScreenState extends State<WalletScreen> {
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
                                   )
-                                : Text(
-                                    '$formattedBalance',
-                                    key: const Key('wallet-balance-shrunken'),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        formattedBalance,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.end,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal,
+                                          color: ThemeColors.text
+                                              .resolveFrom(context),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        wallet?.symbol ?? '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.end,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: ThemeColors.text
+                                              .resolveFrom(context),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                           ],
                         ),
@@ -355,13 +379,38 @@ class WalletScreenState extends State<WalletScreen> {
                                           color: ThemeColors.subtle
                                               .resolveFrom(context),
                                         )
-                                      : Text(
-                                          '$formattedBalance',
-                                          key: const Key('wallet-balance'),
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.normal,
-                                          ),
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              formattedBalance,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.normal,
+                                                color: ThemeColors.text
+                                                    .resolveFrom(context),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              wallet?.symbol ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: ThemeColors.text
+                                                    .resolveFrom(context),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                 ],
                               ),
@@ -374,7 +423,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   CupertinoButton(
                                     padding: const EdgeInsets.all(5),
                                     onPressed: handleSendModal,
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(20),
                                     color: ThemeColors.primary
                                         .resolveFrom(context),
                                     child: SizedBox(
@@ -409,7 +458,7 @@ class WalletScreenState extends State<WalletScreen> {
                                 CupertinoButton(
                                   padding: const EdgeInsets.all(5),
                                   onPressed: handleReceive,
-                                  borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.circular(20),
                                   color:
                                       ThemeColors.primary.resolveFrom(context),
                                   child: SizedBox(

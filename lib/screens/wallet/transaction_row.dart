@@ -30,8 +30,8 @@ class TransactionRow extends StatelessWidget {
       child: AnimatedContainer(
         key: super.key,
         duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+        margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         height: 90,
         decoration: BoxDecoration(
           color: transaction.isPending || transaction.isSending
@@ -49,78 +49,152 @@ class TransactionRow extends StatelessWidget {
             },
           ),
         ),
-        child: Row(
+        child: Stack(
           children: [
-            transaction.state == TransactionState.sending
-                ? SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: Center(
-                      child: CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
+            Row(
+              children: [
+                transaction.state == TransactionState.sending
+                    ? SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Center(
+                          child: CupertinoActivityIndicator(
+                            color: ThemeColors.subtle.resolveFrom(context),
+                          ),
+                        ),
+                      )
+                    : ProfileCircle(
+                        size: 50,
+                        imageUrl: getTransactionAuthor(wallet.address,
+                                transaction.from, transaction.to)
+                            .icon,
+                        backgroundColor: ThemeColors.white,
+                        borderColor: ThemeColors.subtle,
                       ),
-                    ),
-                  )
-                : ProfileCircle(
-                    size: 50,
-                    imageUrl: getTransactionAuthor(
-                            wallet.address, transaction.from, transaction.to)
-                        .icon,
-                    backgroundColor: ThemeColors.white,
-                    borderColor: ThemeColors.subtle,
-                  ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    // '${transaction.isIncoming(wallet.address) ? transaction.from == wallet.address ? 'Me' : 'Unknown' : transaction.to == wallet.address ? 'Me' : 'Unknown'} $address',
-                    address,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                    child: Text(
-                      transaction.title == '' ? '...' : transaction.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: ThemeColors.subtleText.resolveFrom(context),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        // '${transaction.isIncoming(wallet.address) ? transaction.from == wallet.address ? 'Me' : 'Unknown' : transaction.to == wallet.address ? 'Me' : 'Unknown'} $address',
+                        address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: ThemeColors.text.resolveFrom(context),
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        height: 20,
+                        child: Text(
+                          transaction.title == '' ? '...' : transaction.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: ThemeColors.subtleText.resolveFrom(context),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 120,
-              child: Text(
-                transaction.formattedAmount(wallet, isIncoming: isIncoming),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: transaction.isPending
-                      ? FontWeight.normal
-                      : FontWeight.w500,
-                  color: isIncoming
-                      ? ThemeColors.primary.resolveFrom(context)
-                      : ThemeColors.text.resolveFrom(context),
                 ),
-              ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 120,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        isIncoming
+                            ? '+ ${transaction.formattedAmount}'
+                            : '- ${transaction.formattedAmount}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                          color: isIncoming
+                              ? ThemeColors.primary.resolveFrom(context)
+                              : ThemeColors.text.resolveFrom(context),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        wallet.symbol,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isIncoming
+                              ? ThemeColors.primary.resolveFrom(context)
+                              : ThemeColors.text.resolveFrom(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
             ),
-            const SizedBox(width: 10),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: ThemeColors.white,
+                ),
+                child: (transaction.state == TransactionState.success)
+                    ? const Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned(
+                            left: 1,
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.checkmark_alt,
+                                color: ThemeColors.black,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 5,
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.checkmark_alt,
+                                color: ThemeColors.black,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: Icon(
+                          switch (transaction.state) {
+                            TransactionState.sending => CupertinoIcons.arrow_up,
+                            TransactionState.pending =>
+                              CupertinoIcons.checkmark_alt,
+                            _ => CupertinoIcons.checkmark_alt,
+                          },
+                          color: ThemeColors.black,
+                          size: 14,
+                        ),
+                      ),
+              ),
+            )
           ],
         ),
       ),

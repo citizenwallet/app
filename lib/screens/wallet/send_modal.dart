@@ -44,11 +44,17 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
 
+      onLoad();
+
       debouncedAddressUpdate = debounce(
         widget.logic.updateAddress,
         const Duration(milliseconds: 500),
       );
     });
+  }
+
+  void onLoad() {
+    handleQRScan();
   }
 
   void handleDismiss(BuildContext context) {

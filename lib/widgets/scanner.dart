@@ -162,6 +162,8 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
+    final size = (height > width ? width : height) - 40;
+
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DismissibleModalPopup(
@@ -226,6 +228,17 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                               },
                             ),
                           ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: size,
+                      width: size,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          width: 2,
+                          color: ThemeColors.white,
                         ),
                       ),
                     ),
@@ -299,7 +312,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                     ),
                     if (widget.confirm)
                       Positioned(
-                        bottom: bottomInset <= 120 ? 120 : bottomInset,
+                        bottom: bottomInset <= 100 ? 100 : bottomInset,
                         child: Container(
                           height: 50,
                           width: width - 40,

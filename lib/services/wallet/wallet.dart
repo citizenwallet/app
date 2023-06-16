@@ -623,10 +623,7 @@ class WalletService {
       userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
 
       // send the user op
-      final opHash = await _submitUserOp(userop, _contractEntryPoint.addr);
-      if (opHash != null) {
-        return await _fetchUserOp(opHash);
-      }
+      await _submitUserOp(userop, _contractEntryPoint.addr);
 
       return null;
     } catch (e) {
