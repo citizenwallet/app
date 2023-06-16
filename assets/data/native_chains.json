@@ -16,8 +16,8 @@
         ],
         "faucets": [],
         "nativeCurrency": {
-            "name": "Brussels Bar Token",
-            "symbol": "BBT",
+            "name": "USD Coin",
+            "symbol": "USDC",
             "decimals": 2
         },
         "infoURL": "https://citizenwallet.xyz",
