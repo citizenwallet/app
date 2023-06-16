@@ -56,7 +56,6 @@ class WalletScreenState extends State<WalletScreen> {
     if (_scrollController.position.atEdge) {
       bool isTop = _scrollController.position.pixels == 0;
       if (!isTop) {
-        print('reached bottom...');
         final total = context.read<WalletState>().transactionsTotal;
         final offset = context.read<WalletState>().transactionsOffset;
 
