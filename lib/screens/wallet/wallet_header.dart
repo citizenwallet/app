@@ -4,7 +4,7 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final double minHeight;
   final Widget child;
-  final Widget shrunkenChild;
+  final Widget Function(double shrink) shrunkenChild;
 
   WalletHeader({
     required this.expandedHeight,
@@ -28,18 +28,20 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
         constraints: BoxConstraints(
           minHeight: minHeight,
         ),
-        child: SizedBox.expand(child: shrunkenChild),
+        child: SizedBox.expand(
+            child: shrunkenChild((shrinkOffset / expandedHeight).clamp(0, 1))),
       );
     }
 
     return AnimatedOpacity(
-      opacity: (shrinkOffset / expandedHeight).clamp(0, 1),
+      opacity: 1,
       duration: Duration.zero,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: minHeight,
         ),
-        child: SizedBox.expand(child: shrunkenChild),
+        child: SizedBox.expand(
+            child: shrunkenChild((shrinkOffset / expandedHeight).clamp(0, 1))),
       ),
     );
   }

@@ -506,7 +506,7 @@ class WalletService {
       print(e);
     }
 
-    return ([] as List<TransferEvent>, Pagination.empty());
+    return (<TransferEvent>[], Pagination.empty());
   }
 
   /// submit a user op
