@@ -49,6 +49,10 @@ class RouterShell extends StatelessWidget {
               items: items,
               currentIndex: routes[state.location] ?? 0,
               backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              border: Border(
+                  top: BorderSide(
+                      color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                      width: 0.0)),
               onTap: (index) {
                 switch (index) {
                   case 0:
