@@ -1,5 +1,6 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,6 +48,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         direction: Axis.vertical,
         children: [
           Header(
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             title: widget.title,
           ),
           Expanded(
