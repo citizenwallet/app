@@ -27,6 +27,7 @@ class SendModal extends StatefulWidget {
 
 class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   late void Function() debouncedAddressUpdate;
+  late void Function() debouncedAmountUpdate;
 
   final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
@@ -50,6 +51,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
         widget.logic.updateAddress,
         const Duration(milliseconds: 500),
       );
+
+      debouncedAmountUpdate = debounce(
+        widget.logic.updateAmount,
+        const Duration(milliseconds: 500),
+      );
     });
   }
 
@@ -66,6 +72,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   void handleThrottledUpdateAddress() {
     debouncedAddressUpdate();
+  }
+
+  void handleThrottledUpdateAmount() {
+    debouncedAmountUpdate();
   }
 
   void handleQRScan() async {
@@ -116,6 +126,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       message: widget.logic.messageController.value.text,
     );
 
+    widget.logic.clearInputControllers();
+    widget.logic.resetInputErrorState();
+
     await Future.delayed(const Duration(milliseconds: 250));
 
     HapticFeedback.heavyImpact();
@@ -137,6 +150,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
+    );
+
+    final hasAmount = context.select(
+      (WalletState state) => state.hasAmount,
     );
 
     final parsingQRAddressError = context.select(
@@ -331,6 +348,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             inputFormatters: [
                               amountFormatter,
                             ],
+                            onChanged: (_) => handleThrottledUpdateAmount(),
                             onSubmitted: (_) {
                               messageFocusNode.requestFocus();
                             },
@@ -394,11 +412,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               onCompleted: !_isSending
                                   ? () => handleSend(context)
                                   : null,
+                              enabled: hasAddress &&
+                                  hasAmount &&
+                                  !invalidAmount &&
+                                  !invalidAddress,
                               isComplete: _isSending,
                               completionLabel:
-                                  _isSending ? 'Sending...' : 'Slide to send',
-                              thumbColor:
-                                  ThemeColors.primary.resolveFrom(context),
+                                  _isSending ? 'Sending...' : 'Send',
+                              thumbColor: ThemeColors.surfacePrimary
+                                  .resolveFrom(context),
                               width: width * 0.5,
                               child: SizedBox(
                                 height: 50,
@@ -406,8 +428,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                 child: Center(
                                   child: Icon(
                                     CupertinoIcons.arrow_right,
-                                    color:
-                                        ThemeColors.white.resolveFrom(context),
+                                    color: ThemeColors.surfaceText
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               ),

@@ -29,6 +29,7 @@ class WalletState with ChangeNotifier {
   bool invalidAmount = false;
 
   bool hasAddress = false;
+  bool hasAmount = false;
 
   String receiveQR = '';
 
@@ -277,6 +278,8 @@ class WalletState with ChangeNotifier {
   void resetInvalidInputs() {
     invalidAmount = false;
     invalidAddress = false;
+    hasAddress = false;
+    hasAmount = false;
   }
 
   void setInvalidAmount(bool invalid) {
@@ -327,6 +330,14 @@ class WalletState with ChangeNotifier {
       parsingQRAddress = false;
       parsingQRAddressError = false;
       invalidAddress = false;
+    }
+    notifyListeners();
+  }
+
+  void setHasAmount(bool hasAmount) {
+    this.hasAmount = hasAmount;
+    if (hasAmount) {
+      invalidAmount = false;
     }
     notifyListeners();
   }

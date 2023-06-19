@@ -925,6 +925,10 @@ class WalletLogic {
     _state.setHasAddress(_addressController.text.isNotEmpty);
   }
 
+  void updateAmount() {
+    _state.setHasAmount(_amountController.text.isNotEmpty);
+  }
+
   void updateAddressFromHexCapture(String raw) async {
     try {
       _state.parseQRAddress();
