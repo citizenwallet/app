@@ -219,7 +219,7 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            color: ThemeColors.white.resolveFrom(context),
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             titleWidget: CupertinoButton(
               padding: const EdgeInsets.all(5),
               onPressed: () => handleSwitchWalletModal(context),
@@ -297,7 +297,7 @@ class WalletScreenState extends State<WalletScreen> {
                     refreshIndicatorExtent,
                   ) =>
                       Container(
-                    color: ThemeColors.white.resolveFrom(context),
+                    color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                     child: CupertinoSliverRefreshControl.buildRefreshIndicator(
                       context,
                       mode,
@@ -319,7 +319,8 @@ class WalletScreenState extends State<WalletScreen> {
                         children: [
                           Container(
                             height: progressiveClamp(130, 240, shrink),
-                            color: ThemeColors.white.resolveFrom(context),
+                            color: ThemeColors.uiBackgroundAlt
+                                .resolveFrom(context),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -329,8 +330,8 @@ class WalletScreenState extends State<WalletScreen> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color: ThemeColors.surfaceText
-                                        .resolveFrom(context),
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(
@@ -355,7 +356,7 @@ class WalletScreenState extends State<WalletScreen> {
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.normal,
-                                              color: ThemeColors.surfaceText
+                                              color: ThemeColors.text
                                                   .resolveFrom(context),
                                             ),
                                           ),
@@ -375,7 +376,7 @@ class WalletScreenState extends State<WalletScreen> {
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
-                                                color: ThemeColors.surfaceText
+                                                color: ThemeColors.text
                                                     .resolveFrom(context),
                                               ),
                                             ),
@@ -484,7 +485,8 @@ class WalletScreenState extends State<WalletScreen> {
                         children: [
                           Container(
                             height: 240,
-                            color: ThemeColors.white.resolveFrom(context),
+                            color: ThemeColors.uiBackgroundAlt
+                                .resolveFrom(context),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -494,8 +496,8 @@ class WalletScreenState extends State<WalletScreen> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color: ThemeColors.surfaceText
-                                        .resolveFrom(context),
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(
@@ -520,7 +522,7 @@ class WalletScreenState extends State<WalletScreen> {
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.normal,
-                                              color: ThemeColors.surfaceText
+                                              color: ThemeColors.text
                                                   .resolveFrom(context),
                                             ),
                                           ),
@@ -540,7 +542,7 @@ class WalletScreenState extends State<WalletScreen> {
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
-                                                color: ThemeColors.surfaceText
+                                                color: ThemeColors.text
                                                     .resolveFrom(context),
                                               ),
                                             ),

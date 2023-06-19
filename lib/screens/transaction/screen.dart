@@ -363,11 +363,11 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       onPressed: () =>
                                           handleReply(transaction.from),
                                       borderRadius: BorderRadius.circular(25),
-                                      color: ThemeColors.primary
+                                      color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
                                       child: Icon(
                                         CupertinoIcons.reply,
-                                        color: ThemeColors.white
+                                        color: ThemeColors.surfaceText
                                             .resolveFrom(context),
                                       ),
                                     )
@@ -379,11 +379,11 @@ class TransactionScreenState extends State<TransactionScreen> {
                                         transaction.title,
                                       ),
                                       borderRadius: BorderRadius.circular(25),
-                                      color: ThemeColors.primary
+                                      color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
                                       child: Icon(
                                         CupertinoIcons.refresh_thick,
-                                        color: ThemeColors.white
+                                        color: ThemeColors.surfaceText
                                             .resolveFrom(context),
                                       ),
                                     ),

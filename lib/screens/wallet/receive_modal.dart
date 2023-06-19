@@ -7,6 +7,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -130,12 +131,16 @@ class ReceiveModalState extends State<ReceiveModal> {
                         children: [
                           Button(
                             text: 'Copy',
-                            color: ThemeColors.primary.resolveFrom(context),
+                            color:
+                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            labelColor:
+                                ThemeColors.surfaceText.resolveFrom(context),
                             suffix: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                               child: Icon(
                                 CupertinoIcons.square_on_square,
-                                color: ThemeColors.white.resolveFrom(context),
+                                color: ThemeColors.surfaceText
+                                    .resolveFrom(context),
                               ),
                             ),
                             onPressed: handleCopy,

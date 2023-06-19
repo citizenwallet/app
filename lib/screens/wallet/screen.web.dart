@@ -250,7 +250,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            color: ThemeColors.white.resolveFrom(context),
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             titleWidget: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -266,7 +266,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
                     ],
@@ -333,7 +333,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         children: [
                           Container(
                             height: progressiveClamp(130, 240, shrink),
-                            color: ThemeColors.white.resolveFrom(context),
+                            color: ThemeColors.uiBackgroundAlt
+                                .resolveFrom(context),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -343,8 +344,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color: ThemeColors.surfaceText
-                                        .resolveFrom(context),
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(
@@ -369,7 +370,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.normal,
-                                              color: ThemeColors.surfaceText
+                                              color: ThemeColors.text
                                                   .resolveFrom(context),
                                             ),
                                           ),
@@ -389,7 +390,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
-                                                color: ThemeColors.surfaceText
+                                                color: ThemeColors.text
                                                     .resolveFrom(context),
                                               ),
                                             ),
@@ -498,7 +499,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         children: [
                           Container(
                             height: 240,
-                            color: ThemeColors.white.resolveFrom(context),
+                            color: ThemeColors.uiBackgroundAlt
+                                .resolveFrom(context),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -508,8 +510,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color: ThemeColors.surfaceText
-                                        .resolveFrom(context),
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(
@@ -534,7 +536,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.normal,
-                                              color: ThemeColors.surfaceText
+                                              color: ThemeColors.text
                                                   .resolveFrom(context),
                                             ),
                                           ),
@@ -554,7 +556,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
-                                                color: ThemeColors.surfaceText
+                                                color: ThemeColors.text
                                                     .resolveFrom(context),
                                               ),
                                             ),

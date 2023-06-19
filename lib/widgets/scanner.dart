@@ -357,7 +357,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   color: _isTextEmpty
                                       ? ThemeColors.subtle.resolveFrom(context)
-                                      : ThemeColors.primary
+                                      : ThemeColors.surfacePrimary
                                           .resolveFrom(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -374,7 +374,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                                       color: _isTextEmpty
                                           ? ThemeColors.subtleText
                                               .resolveFrom(context)
-                                          : ThemeColors.white
+                                          : ThemeColors.surfaceText
                                               .resolveFrom(context),
                                     ),
                                   ),
