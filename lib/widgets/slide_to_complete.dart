@@ -132,8 +132,8 @@ class SlideToCompleteState extends State<SlideToComplete>
                   if (widget.enabled) const SizedBox(width: 30),
                   Text(
                     widget.completionLabel,
-                    style: TextStyle(
-                      color: ThemeColors.surfaceText.resolveFrom(context),
+                    style: const TextStyle(
+                      color: ThemeColors.black,
                       fontSize: 16,
                     ),
                   ),
@@ -143,10 +143,10 @@ class SlideToCompleteState extends State<SlideToComplete>
                       animation: _controller,
                       builder: (context, child) => Opacity(
                         opacity: _controller.view.value,
-                        child: Icon(
+                        child: const Icon(
                           CupertinoIcons.chevron_right,
                           size: 14,
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.black,
                         ),
                       ),
                     ),
@@ -154,10 +154,10 @@ class SlideToCompleteState extends State<SlideToComplete>
                       animation: _controller,
                       builder: (context, child) => Opacity(
                         opacity: _controller.view.value,
-                        child: Icon(
+                        child: const Icon(
                           CupertinoIcons.chevron_right,
                           size: 14,
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.black,
                         ),
                       ),
                     ),
@@ -165,10 +165,10 @@ class SlideToCompleteState extends State<SlideToComplete>
                       animation: _controller,
                       builder: (context, child) => Opacity(
                         opacity: _controller.view.value,
-                        child: Icon(
+                        child: const Icon(
                           CupertinoIcons.chevron_right,
                           size: 14,
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.black,
                         ),
                       ),
                     ),

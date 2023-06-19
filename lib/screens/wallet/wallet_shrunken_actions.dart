@@ -119,15 +119,14 @@ class WalletShrunkenActions extends StatelessWidget {
                           Icon(
                             CupertinoIcons.arrow_up,
                             size: progressiveClamp(20, 40, shrink),
-                            color: ThemeColors.surfaceText.resolveFrom(context),
+                            color: ThemeColors.black,
                           ),
                           const SizedBox(width: 10),
-                          Text(
+                          const Text(
                             'Send',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color:
-                                  ThemeColors.surfaceText.resolveFrom(context),
+                              color: ThemeColors.black,
                               fontSize: 14,
                             ),
                           ),
@@ -152,14 +151,14 @@ class WalletShrunkenActions extends StatelessWidget {
                         Icon(
                           CupertinoIcons.arrow_down,
                           size: progressiveClamp(20, 40, shrink),
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.black,
                         ),
                         const SizedBox(width: 10),
-                        Text(
+                        const Text(
                           'Receive',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: ThemeColors.surfaceText.resolveFrom(context),
+                            color: ThemeColors.black,
                             fontSize: 14,
                           ),
                         ),

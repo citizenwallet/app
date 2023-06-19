@@ -422,14 +422,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               thumbColor: ThemeColors.surfacePrimary
                                   .resolveFrom(context),
                               width: width * 0.5,
-                              child: SizedBox(
+                              child: const SizedBox(
                                 height: 50,
                                 width: 50,
                                 child: Center(
                                   child: Icon(
                                     CupertinoIcons.arrow_right,
-                                    color: ThemeColors.surfaceText
-                                        .resolveFrom(context),
+                                    color: ThemeColors.black,
                                   ),
                                 ),
                               ),

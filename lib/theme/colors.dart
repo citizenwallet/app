@@ -52,12 +52,12 @@ class ThemeColors {
   );
 
   static const uiBackgroundAlt = CupertinoDynamicColor.withBrightness(
-    color: CupertinoColors.extraLightBackgroundGray,
+    color: Color.fromARGB(255, 230, 230, 230),
     darkColor: Color.fromARGB(255, 30, 30, 30),
   );
 
   static const surfacePrimary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(7, 153, 98, 1),
+    color: Color.fromARGB(255, 200, 255, 148),
     darkColor: Color.fromARGB(255, 200, 255, 148),
   );
 

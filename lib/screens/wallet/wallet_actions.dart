@@ -104,7 +104,7 @@ class WalletActions extends StatelessWidget {
                     onPressed: handleSendModal,
                     borderRadius: BorderRadius.circular(20),
                     color: ThemeColors.surfacePrimary.resolveFrom(context),
-                    child: SizedBox(
+                    child: const SizedBox(
                       height: 80,
                       width: 80,
                       child: Column(
@@ -114,15 +114,14 @@ class WalletActions extends StatelessWidget {
                           Icon(
                             CupertinoIcons.arrow_up,
                             size: 40,
-                            color: ThemeColors.surfaceText.resolveFrom(context),
+                            color: ThemeColors.black,
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Text(
                             'Send',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color:
-                                  ThemeColors.surfaceText.resolveFrom(context),
+                              color: ThemeColors.black,
                               fontSize: 14,
                             ),
                           ),
@@ -136,7 +135,7 @@ class WalletActions extends StatelessWidget {
                   onPressed: handleReceive,
                   borderRadius: BorderRadius.circular(20),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
-                  child: SizedBox(
+                  child: const SizedBox(
                     height: 80,
                     width: 80,
                     child: Column(
@@ -146,14 +145,14 @@ class WalletActions extends StatelessWidget {
                         Icon(
                           CupertinoIcons.arrow_down,
                           size: 40,
-                          color: ThemeColors.surfaceText.resolveFrom(context),
+                          color: ThemeColors.black,
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text(
                           'Receive',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: ThemeColors.surfaceText.resolveFrom(context),
+                            color: ThemeColors.black,
                             fontSize: 14,
                           ),
                         ),

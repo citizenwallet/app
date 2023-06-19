@@ -395,8 +395,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                               text: 'Create Wallet',
                               color: ThemeColors.surfacePrimary
                                   .resolveFrom(context),
-                              labelColor:
-                                  ThemeColors.surfaceText.resolveFrom(context),
+                              labelColor: ThemeColors.black,
                               onPressed: () => handleCreate(context),
                             ),
                             const SizedBox(height: 10),
@@ -404,8 +403,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                               text: 'Import Wallet',
                               color: ThemeColors.surfacePrimary
                                   .resolveFrom(context),
-                              labelColor:
-                                  ThemeColors.surfaceText.resolveFrom(context),
+                              labelColor: ThemeColors.black,
                               onPressed: () => handleImport(context),
                             ),
                           ],

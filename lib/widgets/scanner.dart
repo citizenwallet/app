@@ -374,8 +374,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
                                       color: _isTextEmpty
                                           ? ThemeColors.subtleText
                                               .resolveFrom(context)
-                                          : ThemeColors.surfaceText
-                                              .resolveFrom(context),
+                                          : ThemeColors.black,
                                     ),
                                   ),
                                 ),
