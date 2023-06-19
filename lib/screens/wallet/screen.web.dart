@@ -1,9 +1,6 @@
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/screens/wallet/transaction_row.dart';
-import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
-import 'package:citizenwallet/screens/wallet/wallet_header.dart';
-import 'package:citizenwallet/screens/wallet/wallet_shrunken_actions.dart';
+import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -11,8 +8,6 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/utils/ratio.dart';
-import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/export_private_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
@@ -20,7 +15,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -234,17 +228,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    final loading = context.select((WalletState state) => state.loading);
     final wallet = context.select((WalletState state) => state.wallet);
-
-    final transactionsLoading =
-        context.select((WalletState state) => state.transactionsLoading);
-    final transactions =
-        context.select((WalletState state) => state.transactions);
-
-    final formattedBalance = wallet?.formattedBalance ?? '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -299,123 +283,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             ),
           ),
           Expanded(
-            child: CustomScrollView(
+            child: WalletScrollView(
               controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                CupertinoSliverRefreshControl(
-                  onRefresh: handleRefresh,
-                  builder: (
-                    context,
-                    mode,
-                    pulledExtent,
-                    refreshTriggerPullDistance,
-                    refreshIndicatorExtent,
-                  ) =>
-                      Container(
-                    color: ThemeColors.white.resolveFrom(context),
-                    child: CupertinoSliverRefreshControl.buildRefreshIndicator(
-                      context,
-                      mode,
-                      pulledExtent,
-                      refreshTriggerPullDistance,
-                      refreshIndicatorExtent,
-                    ),
-                  ),
-                ),
-                SliverPersistentHeader(
-                  pinned: true,
-                  floating: false,
-                  delegate: WalletHeader(
-                    expandedHeight: 300,
-                    minHeight: 180,
-                    shrunkenChild: (shrink) => WalletShrunkenActions(
-                      shrink: shrink,
-                      handleSendModal: handleSendModal,
-                      handleReceive: handleReceive,
-                    ),
-                    child: WalletActions(
-                      handleSendModal: handleSendModal,
-                      handleReceive: handleReceive,
-                    ),
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: Text(
-                      'Transactions',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                if (transactionsLoading && transactions.isEmpty)
-                  SliverFillRemaining(
-                    child: Center(
-                      child: CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      ),
-                    ),
-                  ),
-                if (!transactionsLoading && transactions.isEmpty)
-                  SliverFillRemaining(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          CupertinoIcons.ellipsis,
-                          size: 40,
-                          color: ThemeColors.white.resolveFrom(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    childCount: transactionsLoading && transactions.isEmpty
-                        ? 0
-                        : transactions.length,
-                    (context, index) {
-                      if (transactionsLoading && transactions.isEmpty) {
-                        return CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        );
-                      }
-
-                      if (wallet == null) {
-                        return const SizedBox();
-                      }
-
-                      final transaction = transactions[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        child: TransactionRow(
-                          key: Key(transaction.id),
-                          transaction: transaction,
-                          wallet: wallet,
-                          onTap: handleTransactionTap,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                if (transactionsLoading && transactions.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoActivityIndicator(
-                      color: ThemeColors.subtle.resolveFrom(context),
-                    ),
-                  ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 20,
-                  ),
-                ),
-              ],
+              handleRefresh: handleRefresh,
+              handleSendModal: handleSendModal,
+              handleReceive: handleReceive,
+              handleTransactionTap: handleTransactionTap,
             ),
           ),
         ],

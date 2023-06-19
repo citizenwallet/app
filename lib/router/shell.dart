@@ -37,7 +37,7 @@ class RouterShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       key: Key(state.location),
-      backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
       child: SafeArea(
           child: Column(
         children: [
@@ -48,7 +48,7 @@ class RouterShell extends StatelessWidget {
             CupertinoTabBar(
               items: items,
               currentIndex: routes[state.location] ?? 0,
-              backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+              backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               onTap: (index) {
                 switch (index) {
                   case 0:
