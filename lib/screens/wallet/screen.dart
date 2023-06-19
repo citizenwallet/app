@@ -401,7 +401,7 @@ class WalletScreenState extends State<WalletScreen> {
                                     padding: const EdgeInsets.all(5),
                                     onPressed: handleSendModal,
                                     borderRadius: BorderRadius.circular(
-                                        progressiveClamp(10, 20, shrink)),
+                                        progressiveClamp(14, 20, shrink)),
                                     color: ThemeColors.surfacePrimary
                                         .resolveFrom(context),
                                     child: SizedBox(
@@ -440,7 +440,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   padding: const EdgeInsets.all(5),
                                   onPressed: handleReceive,
                                   borderRadius: BorderRadius.circular(
-                                      progressiveClamp(10, 20, shrink)),
+                                      progressiveClamp(14, 20, shrink)),
                                   color: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
                                   child: SizedBox(
