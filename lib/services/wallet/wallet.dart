@@ -67,6 +67,40 @@ Future<WalletService?> walletServiceFromChain(
   );
 }
 
+Future<WalletService?> walletServiceFromKey(
+  BigInt chainId,
+  String privateKey,
+) async {
+  final List rawNativeChains =
+      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
+
+  final List<Chain> nativeChains =
+      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
+
+  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (i >= 0) {
+    return WalletService.fromKey(
+      nativeChains[i],
+      privateKey,
+    );
+  }
+
+  final List rawChains =
+      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
+
+  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
+
+  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (ii < 0) {
+    return null;
+  }
+
+  return WalletService.fromKey(
+    chains[ii],
+    privateKey,
+  );
+}
+
 Future<WalletService?> walletServiceFromWallet(
   BigInt chainId,
   String walletFile,
@@ -156,8 +190,8 @@ class WalletService {
     _ethClient = Web3Client(_url, _client);
     _api = APIService(baseURL: _url);
 
-    // _credentials = EthPrivateKey.fromHex(privateKey);
-    // _address = _credentials!.address;
+    _credentials = EthPrivateKey.fromHex(privateKey);
+    _address = _credentials!.address;
   }
 
   /// creates using a wallet file

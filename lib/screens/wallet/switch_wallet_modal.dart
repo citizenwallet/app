@@ -266,16 +266,16 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       ),
     );
 
-    final wallet =
+    final address =
         await widget.logic.importWallet(result, newName ?? 'New Wallet');
 
-    if (wallet == null) {
+    if (address == null) {
       return;
     }
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(wallet.data.address.toLowerCase());
+    navigator.pop(address);
   }
 
   void handleWalletTap(String address) async {

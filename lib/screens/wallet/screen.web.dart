@@ -120,6 +120,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await _logic.loadTransactions();
   }
 
+  void handleRetry() {
+    onLoad();
+  }
+
   Future<void> handleRefresh() async {
     await _logic.loadTransactions();
 
@@ -133,7 +137,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    _logic.updateWalletQR(onlyHex: true);
+    _logic.updateWalletQR();
 
     await showCupertinoModalPopup(
       context: context,
@@ -289,6 +293,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
               handleSendModal: handleSendModal,
               handleReceive: handleReceive,
               handleTransactionTap: handleTransactionTap,
+              handleRetry: handleRetry,
             ),
           ),
         ],

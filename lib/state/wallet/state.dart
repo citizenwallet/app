@@ -1,12 +1,17 @@
+import 'dart:math';
+
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
   bool loading = false;
   bool error = false;
+
+  Exception? errorException;
 
   int chainId = PreferencesService().chainId;
   CWWallet? wallet;
@@ -100,12 +105,14 @@ class WalletState with ChangeNotifier {
 
     loading = false;
     error = false;
+    errorException = null;
     notifyListeners();
   }
 
-  void loadWalletError() {
+  void loadWalletError({Exception? exception}) {
     loading = false;
     error = true;
+    errorException = exception;
     notifyListeners();
   }
 

@@ -134,13 +134,13 @@ class LandingScreenState extends State<LandingScreen>
       ),
     );
 
-    final wallet = await _appLogic.importWallet(result, name ?? 'New Wallet');
+    final address = await _appLogic.importWallet(result, name ?? 'New Wallet');
 
-    if (wallet == null) {
+    if (address == null) {
       return;
     }
 
-    navigator.go('/wallet/${wallet.data.address.toLowerCase()}');
+    navigator.go('/wallet/$address');
   }
 
   @override

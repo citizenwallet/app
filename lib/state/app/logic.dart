@@ -16,10 +16,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
   final PreferencesService _preferences = PreferencesService();
+  final EncryptedPreferencesService _encPrefs = EncryptedPreferencesService();
   late AppState _appState;
   final DBService _db = DBService();
 
@@ -74,7 +76,24 @@ class AppLogic {
         throw Exception('No last wallet');
       }
 
-      await _db.wallet.getWallet(lastWallet);
+      final dbWallet = await _encPrefs.getWalletBackup(lastWallet);
+
+      if (dbWallet == null) {
+        // attempt to see if there are any other wallets backed up
+        final dbWallets = await _encPrefs.getAllWalletBackups();
+
+        if (dbWallets.isNotEmpty) {
+          final dbWallet = dbWallets[0];
+
+          await _preferences.setLastWallet(dbWallet.address);
+
+          _appState.importLoadingSuccess();
+
+          return dbWallet.address;
+        }
+
+        throw Exception('No wallet backup');
+      }
 
       await delay(const Duration(milliseconds: 250));
 
@@ -108,28 +127,13 @@ class AppLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final password = getRandomString(64);
-
-      final address = credentials.address.hex.toLowerCase();
-
-      await EncryptedPreferencesService().setWalletPassword(address, password);
-
-      final Wallet wallet =
-          Wallet.createNew(credentials, password, Random.secure());
-
-      final DBWallet dbwallet = DBWallet(
-        type: 'regular',
+      await _encPrefs.setWalletBackup(BackupWallet(
+        address: credentials.address.hex,
+        privateKey: (bytesToHex(credentials.privateKey)),
         name: name,
-        address: address,
-        publicKey: wallet.privateKey.encodedPublicKey,
-        balance: 0,
-        wallet: wallet.toJson(),
-        locked: false,
-      );
+      ));
 
-      await _db.wallet.create(dbwallet);
-
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(credentials.address.hex);
 
       _appState.importLoadingSuccess();
 
@@ -191,7 +195,7 @@ class AppLogic {
     return null;
   }
 
-  Future<QRWallet?> importWallet(String qrWallet, String name) async {
+  Future<String?> importWallet(String qrWallet, String name) async {
     try {
       _appState.importLoadingReq();
 
@@ -203,37 +207,19 @@ class AppLogic {
           throw Exception('Invalid private key');
         }
 
-        final password = getRandomString(64);
-
-        final address = credentials.address.hex.toLowerCase();
-
-        await EncryptedPreferencesService()
-            .setWalletPassword(address, password);
-
-        final wallet = Wallet.createNew(credentials, password, Random.secure());
-
-        final DBWallet dbwallet = DBWallet(
-          type: 'regular',
-          name: name,
-          address: address,
-          publicKey: wallet.privateKey.encodedPublicKey,
-          balance: 0,
-          wallet: wallet.toJson(),
-          locked: false,
+        await _encPrefs.setWalletBackup(
+          BackupWallet(
+            address: credentials.address.hex,
+            privateKey: bytesToHex(credentials.privateKey),
+            name: name,
+          ),
         );
 
-        await _db.wallet.create(dbwallet);
-
-        await _preferences.setLastWallet(address);
+        await _preferences.setLastWallet(credentials.address.hex);
 
         _appState.importLoadingSuccess();
 
-        return QRWallet(
-            raw: QRWalletData(
-          wallet: jsonDecode(wallet.toJson()),
-          address: address,
-          publicKey: wallet.privateKey.encodedPublicKey,
-        ).toJson());
+        return credentials.address.hex;
       }
 
       final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
@@ -242,23 +228,24 @@ class AppLogic {
 
       final address = wallet.data.address.toLowerCase();
 
-      final DBWallet dbwallet = DBWallet(
-        type: 'regular',
-        name: name,
-        address: address,
-        publicKey: wallet.data.publicKey,
-        balance: 0,
-        wallet: jsonEncode(wallet.data.wallet),
-        locked: true,
-      );
+      // TODO: remove this
+      // final DBWallet dbwallet = DBWallet(
+      //   type: 'regular',
+      //   name: name,
+      //   address: address,
+      //   publicKey: wallet.data.publicKey,
+      //   balance: 0,
+      //   wallet: jsonEncode(wallet.data.wallet),
+      //   locked: true,
+      // );
 
-      await _db.wallet.create(dbwallet);
+      // await _db.wallet.create(dbwallet);
 
       await _preferences.setLastWallet(address);
 
       _appState.importLoadingSuccess();
 
-      return wallet;
+      return address;
     } catch (e) {
       print(e);
     }
