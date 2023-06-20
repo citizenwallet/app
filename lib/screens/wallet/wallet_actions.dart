@@ -1,14 +1,18 @@
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/ratio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
+  final double shrink;
+
   final void Function() handleSendModal;
   final void Function() handleReceive;
 
   const WalletActions({
     Key? key,
+    this.shrink = 0,
     required this.handleSendModal,
     required this.handleReceive,
   }) : super(key: key);
@@ -27,7 +31,7 @@ class WalletActions extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 240,
+            height: progressiveClamp(130, 240, shrink),
             color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -102,22 +106,23 @@ class WalletActions extends StatelessWidget {
                   CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: handleSendModal,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius:
+                        BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                     color: ThemeColors.surfacePrimary.resolveFrom(context),
-                    child: const SizedBox(
-                      height: 80,
-                      width: 80,
+                    child: SizedBox(
+                      height: progressiveClamp(54, 80, shrink),
+                      width: progressiveClamp(54, 80, shrink),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
                             CupertinoIcons.arrow_up,
-                            size: 40,
+                            size: progressiveClamp(20, 40, shrink),
                             color: ThemeColors.black,
                           ),
-                          SizedBox(width: 10),
-                          Text(
+                          const SizedBox(width: 10),
+                          const Text(
                             'Send',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -133,22 +138,23 @@ class WalletActions extends StatelessWidget {
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: handleReceive,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius:
+                      BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
-                  child: const SizedBox(
-                    height: 80,
-                    width: 80,
+                  child: SizedBox(
+                    height: progressiveClamp(54, 80, shrink),
+                    width: progressiveClamp(54, 80, shrink),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
                           CupertinoIcons.arrow_down,
-                          size: 40,
+                          size: progressiveClamp(20, 40, shrink),
                           color: ThemeColors.black,
                         ),
-                        SizedBox(width: 10),
-                        Text(
+                        const SizedBox(width: 10),
+                        const Text(
                           'Receive',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,

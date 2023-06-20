@@ -1,9 +1,8 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
-import 'package:citizenwallet/screens/wallet/wallet_header.dart';
-import 'package:citizenwallet/screens/wallet/wallet_shrunken_actions.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +13,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function() handleSendModal;
   final void Function() handleReceive;
   final void Function(String) handleTransactionTap;
+  final void Function() handleRetry;
 
   const WalletScrollView({
     Key? key,
@@ -22,6 +22,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleSendModal,
     required this.handleReceive,
     required this.handleTransactionTap,
+    required this.handleRetry,
   }) : super(key: key);
 
   @override
@@ -60,15 +61,11 @@ class WalletScrollView extends StatelessWidget {
         SliverPersistentHeader(
           pinned: true,
           floating: false,
-          delegate: WalletHeader(
+          delegate: PersistentHeaderDelegate(
             expandedHeight: 300,
             minHeight: 180,
-            shrunkenChild: (shrink) => WalletShrunkenActions(
+            builder: (context, shrink) => WalletActions(
               shrink: shrink,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
-            ),
-            child: WalletActions(
               handleSendModal: handleSendModal,
               handleReceive: handleReceive,
             ),
@@ -109,7 +106,7 @@ class WalletScrollView extends StatelessWidget {
                   Icon(
                     CupertinoIcons.ellipsis,
                     size: 40,
-                    color: ThemeColors.white.resolveFrom(context),
+                    color: ThemeColors.text.resolveFrom(context),
                   ),
                 ],
               ),

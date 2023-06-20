@@ -1,15 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
-class WalletHeader extends SliverPersistentHeaderDelegate {
+class PersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final double minHeight;
-  // final Widget child;
   final Widget Function(BuildContext context, double shrink) builder;
 
-  WalletHeader({
+  PersistentHeaderDelegate({
     required this.expandedHeight,
     this.minHeight = 60,
-    // required this.child,
     required this.builder,
   });
 
