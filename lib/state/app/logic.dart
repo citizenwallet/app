@@ -72,11 +72,10 @@ class AppLogic {
       _appState.importLoadingReq();
       final String? lastWallet = _preferences.lastWallet;
 
-      if (lastWallet == null) {
-        throw Exception('No last wallet');
+      BackupWallet? dbWallet;
+      if (lastWallet != null) {
+        dbWallet = await _encPrefs.getWalletBackup(lastWallet);
       }
-
-      final dbWallet = await _encPrefs.getWalletBackup(lastWallet);
 
       if (dbWallet == null) {
         // attempt to see if there are any other wallets backed up
@@ -99,7 +98,7 @@ class AppLogic {
 
       _appState.importLoadingSuccess();
 
-      return lastWallet;
+      return dbWallet.address;
     } catch (e) {
       print(e);
     }
