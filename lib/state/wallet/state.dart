@@ -257,19 +257,22 @@ class WalletState with ChangeNotifier {
   }
 
   void incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
-    for (final transaction in transactions) {
-      final index = this.transactions.indexWhere((t) => t.id == transaction.id);
-      if (index == -1) {
-        this.transactions.insert(0, transaction);
-      } else {
-        this.transactions[index] = transaction;
+    if (transactions.isNotEmpty) {
+      for (final transaction in transactions) {
+        final index =
+            this.transactions.indexWhere((t) => t.id == transaction.id);
+        if (index == -1) {
+          this.transactions.insert(0, transaction);
+        } else {
+          this.transactions[index] = transaction;
+        }
       }
-    }
 
-    this.transactions = this
-        .transactions
-        .where((element) => element.id != pendingTransactionId)
-        .toList();
+      this.transactions = this
+          .transactions
+          .where((element) => element.id != pendingTransactionId)
+          .toList();
+    }
 
     transactionsLoading = false;
     transactionsError = false;

@@ -574,18 +574,17 @@ class WalletLogic {
   }
 
   void onTransfer(Transfer tx) async {
-    try {
-      _state.incomingTransactionsRequest();
+    final walletService = walletServiceCheck();
 
-      final walletService = walletServiceCheck();
+    if (tx.event.removed == false &&
+        (tx.from.hex.toLowerCase() == walletService.account.hex.toLowerCase() ||
+            tx.to.hex.toLowerCase() ==
+                walletService.account.hex.toLowerCase())) {
+      try {
+        final List<CWTransaction> cwtransactions = [];
 
-      final List<CWTransaction> cwtransactions = [];
+        _state.incomingTransactionsRequest();
 
-      if (tx.event.removed == false &&
-          (tx.from.hex.toLowerCase() ==
-                  walletService.account.hex.toLowerCase() ||
-              tx.to.hex.toLowerCase() ==
-                  walletService.account.hex.toLowerCase())) {
         cwtransactions.add(CWTransaction(
           fromUnit(tx.value),
           id: tx.event.transactionHash ?? generateRandomId(),
@@ -596,20 +595,23 @@ class WalletLogic {
           date: DateTime.now(),
           blockNumber: tx.event.blockNum ?? 0,
         ));
+
+        updateBalance();
+
+        HapticFeedback.lightImpact();
+
+        _state.incomingTransactionsRequestSuccess(
+          cwtransactions.toList(),
+        );
+
+        return;
+      } catch (e) {
+        print('error');
+        print(e);
       }
 
-      await updateBalance();
-
-      _state.incomingTransactionsRequestSuccess(
-        cwtransactions.toList(),
-      );
-      return;
-    } catch (e) {
-      print('error');
-      print(e);
+      _state.incomingTransactionsRequestError();
     }
-
-    _state.incomingTransactionsRequestError();
   }
 
   // takes a password and returns a wallet
