@@ -67,6 +67,40 @@ Future<WalletService?> walletServiceFromChain(
   );
 }
 
+Future<WalletService?> walletServiceFromKey(
+  BigInt chainId,
+  String privateKey,
+) async {
+  final List rawNativeChains =
+      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
+
+  final List<Chain> nativeChains =
+      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
+
+  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (i >= 0) {
+    return WalletService.fromKey(
+      nativeChains[i],
+      privateKey,
+    );
+  }
+
+  final List rawChains =
+      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
+
+  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
+
+  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
+  if (ii < 0) {
+    return null;
+  }
+
+  return WalletService.fromKey(
+    chains[ii],
+    privateKey,
+  );
+}
+
 Future<WalletService?> walletServiceFromWallet(
   BigInt chainId,
   String walletFile,
@@ -156,8 +190,8 @@ class WalletService {
     _ethClient = Web3Client(_url, _client);
     _api = APIService(baseURL: _url);
 
-    // _credentials = EthPrivateKey.fromHex(privateKey);
-    // _address = _credentials!.address;
+    _credentials = EthPrivateKey.fromHex(privateKey);
+    _address = _credentials!.address;
   }
 
   /// creates using a wallet file
@@ -506,7 +540,7 @@ class WalletService {
       print(e);
     }
 
-    return ([] as List<TransferEvent>, Pagination.empty());
+    return (<TransferEvent>[], Pagination.empty());
   }
 
   /// submit a user op
@@ -553,7 +587,7 @@ class WalletService {
   }
 
   /// transfer erc20 tokens to an address
-  Future<String?> transferErc20(String to, BigInt amount) async {
+  Future<bool> transferErc20(String to, BigInt amount) async {
     try {
       // safely retrieve credentials if unlocks
       final credentials = unlock();
@@ -599,8 +633,12 @@ class WalletService {
 
       final fee = fees.first;
 
-      userop.maxPriorityFeePerGas = fee.maxPriorityFeePerGas;
-      userop.maxFeePerGas = fee.maxFeePerGas;
+      // ensure we avoid errors by increasing the gas fees
+      final manualFeeIncrease = BigInt.from(2);
+
+      userop.maxPriorityFeePerGas =
+          fee.maxPriorityFeePerGas * manualFeeIncrease;
+      userop.maxFeePerGas = fee.maxFeePerGas * manualFeeIncrease;
 
       // submit the user op to the paymaster in order to receive information to complete the user op
       final paymasterData = await _getPaymasterData(
@@ -623,14 +661,14 @@ class WalletService {
       userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
 
       // send the user op
-      await _submitUserOp(userop, _contractEntryPoint.addr);
+      final result = await _submitUserOp(userop, _contractEntryPoint.addr);
 
-      return null;
+      return result != null;
     } catch (e) {
       print(e);
     }
 
-    return null;
+    return false;
   }
 
   /// ********************

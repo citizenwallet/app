@@ -213,12 +213,15 @@ class TextInputModalState extends State<TextInputModal> {
                         children: [
                           Button(
                             text: 'Confirm',
-                            color: ThemeColors.primary.resolveFrom(context),
-                            suffix: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            color:
+                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            labelColor: ThemeColors.black,
+                            suffix: const Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                               child: Icon(
                                 CupertinoIcons.square_on_square,
-                                color: ThemeColors.white.resolveFrom(context),
+                                size: 14,
+                                color: ThemeColors.black,
                               ),
                             ),
                             onPressed: widget.confirm

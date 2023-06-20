@@ -35,15 +35,9 @@ class StackupEntryPoint {
   }
 
   Future<BigInt> getNonce(String addr) async {
-    print(addr);
-
     final nonce =
         await contract.getNonce(EthereumAddress.fromHex(addr), BigInt.from(0));
 
-    print(nonce.toString());
-
-    // final uri = await contract.uri(tokenId);
-    // return '/$uri';
     return nonce;
   }
 

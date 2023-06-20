@@ -1,12 +1,17 @@
+import 'dart:math';
+
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
   bool loading = false;
   bool error = false;
+
+  Exception? errorException;
 
   int chainId = PreferencesService().chainId;
   CWWallet? wallet;
@@ -29,6 +34,7 @@ class WalletState with ChangeNotifier {
   bool invalidAmount = false;
 
   bool hasAddress = false;
+  bool hasAmount = false;
 
   String receiveQR = '';
 
@@ -99,12 +105,14 @@ class WalletState with ChangeNotifier {
 
     loading = false;
     error = false;
+    errorException = null;
     notifyListeners();
   }
 
-  void loadWalletError() {
+  void loadWalletError({Exception? exception}) {
     loading = false;
     error = true;
+    errorException = exception;
     notifyListeners();
   }
 
@@ -249,19 +257,22 @@ class WalletState with ChangeNotifier {
   }
 
   void incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
-    for (final transaction in transactions) {
-      final index = this.transactions.indexWhere((t) => t.id == transaction.id);
-      if (index == -1) {
-        this.transactions.insert(0, transaction);
-      } else {
-        this.transactions[index] = transaction;
+    if (transactions.isNotEmpty) {
+      for (final transaction in transactions) {
+        final index =
+            this.transactions.indexWhere((t) => t.id == transaction.id);
+        if (index == -1) {
+          this.transactions.insert(0, transaction);
+        } else {
+          this.transactions[index] = transaction;
+        }
       }
-    }
 
-    this.transactions = this
-        .transactions
-        .where((element) => element.id != pendingTransactionId)
-        .toList();
+      this.transactions = this
+          .transactions
+          .where((element) => element.id != pendingTransactionId)
+          .toList();
+    }
 
     transactionsLoading = false;
     transactionsError = false;
@@ -277,6 +288,8 @@ class WalletState with ChangeNotifier {
   void resetInvalidInputs() {
     invalidAmount = false;
     invalidAddress = false;
+    hasAddress = false;
+    hasAmount = false;
   }
 
   void setInvalidAmount(bool invalid) {
@@ -327,6 +340,14 @@ class WalletState with ChangeNotifier {
       parsingQRAddress = false;
       parsingQRAddressError = false;
       invalidAddress = false;
+    }
+    notifyListeners();
+  }
+
+  void setHasAmount(bool hasAmount) {
+    this.hasAmount = hasAmount;
+    if (hasAmount) {
+      invalidAmount = false;
     }
     notifyListeners();
   }

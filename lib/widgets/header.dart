@@ -10,6 +10,8 @@ class Header extends StatefulWidget {
   final Widget? actionButton;
   final bool showBackButton;
   final bool transparent;
+  final bool showBorder;
+  final Color? color;
 
   const Header({
     super.key,
@@ -20,6 +22,8 @@ class Header extends StatefulWidget {
     this.actionButton,
     this.showBackButton = false,
     this.transparent = false,
+    this.showBorder = false,
+    this.color,
   });
 
   @override
@@ -40,10 +44,13 @@ class HeaderState extends State<Header> {
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent.resolveFrom(context)
-            : ThemeColors.uiBackground.resolveFrom(context),
-        border: Border(
-          bottom: BorderSide(color: ThemeColors.border.resolveFrom(context)),
-        ),
+            : widget.color ?? ThemeColors.uiBackground.resolveFrom(context),
+        border: widget.showBorder
+            ? Border(
+                bottom:
+                    BorderSide(color: ThemeColors.border.resolveFrom(context)),
+              )
+            : null,
       ),
       padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
       child: Column(

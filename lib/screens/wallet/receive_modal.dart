@@ -3,9 +3,11 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -67,7 +69,8 @@ class ReceiveModalState extends State<ReceiveModal> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final qrSize = width - 40;
+    final qrSize = (width < height ? width : (height - 100)) - 40;
+    final minQRSize = qrSize / 2;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -80,7 +83,7 @@ class ReceiveModalState extends State<ReceiveModal> {
     return DismissibleModalPopup(
       modaleKey: 'receive-modal',
       maxHeight: height,
-      paddingSides: 10,
+      paddingSides: 0,
       onUpdate: (details) {
         if (details.direction == DismissDirection.down &&
             FocusManager.instance.primaryFocus?.hasFocus == true) {
@@ -108,128 +111,212 @@ class ReceiveModalState extends State<ReceiveModal> {
                   ),
                 ),
                 Expanded(
-                  child: ListView(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ThemeColors.white.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: PrettyQr(
-                          data: qrCode,
-                          size: qrSize,
-                          roundEdges: false,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Button(
-                            text: 'Copy',
-                            color: ThemeColors.primary.resolveFrom(context),
-                            suffix: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                              child: Icon(
-                                CupertinoIcons.square_on_square,
-                                color: ThemeColors.white.resolveFrom(context),
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverPersistentHeader(
+                        pinned: true,
+                        floating: false,
+                        delegate: PersistentHeaderDelegate(
+                          expandedHeight: qrSize + 110,
+                          minHeight: minQRSize + 80,
+                          blur: true,
+                          builder: (context, shrink) => Flex(
+                            direction: Axis.vertical,
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  width: progressiveClamp(
+                                    minQRSize + 20,
+                                    qrSize + 20,
+                                    shrink,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: progressiveClamp(
+                                        minQRSize + 20,
+                                        qrSize + 20,
+                                        shrink,
+                                      ),
+                                      width: progressiveClamp(
+                                        minQRSize + 20,
+                                        qrSize + 20,
+                                        shrink,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: ThemeColors.white
+                                            .resolveFrom(context),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: const EdgeInsets.all(10),
+                                      child: PrettyQr(
+                                        key: const Key('receive-qr-code'),
+                                        data: qrCode,
+                                        size: progressiveClamp(
+                                          minQRSize,
+                                          qrSize,
+                                          shrink,
+                                        ),
+                                        roundEdges: false,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            onPressed: handleCopy,
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text(
-                        'Amount',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                      CupertinoTextField(
-                        controller: widget.logic.amountController,
-                        placeholder: formatCurrency(1050.00, ''),
-                        prefix: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            child: Text(
-                              wallet?.symbol ?? '',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w500),
-                              textAlign: TextAlign.center,
-                            ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Button(
+                                text: 'Copy',
+                                color: ThemeColors.surfacePrimary
+                                    .resolveFrom(context),
+                                labelColor: ThemeColors.black,
+                                suffix: const Padding(
+                                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Icon(
+                                    CupertinoIcons.square_on_square,
+                                    size: 14,
+                                    color: ThemeColors.black,
+                                  ),
+                                ),
+                                onPressed: handleCopy,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            ],
                           ),
                         ),
-                        decoration: invalidAmount
-                            ? BoxDecoration(
-                                color:
-                                    const CupertinoDynamicColor.withBrightness(
-                                  color: CupertinoColors.white,
-                                  darkColor: CupertinoColors.black,
-                                ),
-                                border: Border.all(
-                                  color: ThemeColors.danger,
-                                ),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0)),
-                              )
-                            : BoxDecoration(
-                                color:
-                                    const CupertinoDynamicColor.withBrightness(
-                                  color: CupertinoColors.white,
-                                  darkColor: CupertinoColors.black,
-                                ),
-                                border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
-                                ),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0)),
-                              ),
-                        maxLines: 1,
-                        maxLength: 25,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 10,
                         ),
-                        textInputAction: TextInputAction.next,
-                        inputFormatters: [
-                          amountFormatter,
-                        ],
-                        onChanged: (_) {
-                          handleThrottledUpdateQRCode();
-                        },
-                        onSubmitted: (_) {
-                          messageFocusNode.requestFocus();
-                        },
                       ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Message',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: Text(
+                            'Amount',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      CupertinoTextField(
-                        controller: widget.logic.messageController,
-                        placeholder: 'Enter a message',
-                        maxLines: 4,
-                        maxLength: 256,
-                        focusNode: messageFocusNode,
-                        textInputAction: TextInputAction.done,
-                        onChanged: (_) {
-                          handleThrottledUpdateQRCode();
-                        },
-                        onSubmitted: (_) {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 10,
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: CupertinoTextField(
+                            controller: widget.logic.amountController,
+                            placeholder: formatCurrency(1050.00, ''),
+                            prefix: Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                child: Text(
+                                  wallet?.symbol ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            decoration: invalidAmount
+                                ? BoxDecoration(
+                                    color: const CupertinoDynamicColor
+                                        .withBrightness(
+                                      color: CupertinoColors.white,
+                                      darkColor: CupertinoColors.black,
+                                    ),
+                                    border: Border.all(
+                                      color: ThemeColors.danger,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5.0)),
+                                  )
+                                : BoxDecoration(
+                                    color: const CupertinoDynamicColor
+                                        .withBrightness(
+                                      color: CupertinoColors.white,
+                                      darkColor: CupertinoColors.black,
+                                    ),
+                                    border: Border.all(
+                                      color: ThemeColors.border
+                                          .resolveFrom(context),
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5.0)),
+                                  ),
+                            maxLines: 1,
+                            maxLength: 25,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: true,
+                            ),
+                            textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              amountFormatter,
+                            ],
+                            onChanged: (_) {
+                              handleThrottledUpdateQRCode();
+                            },
+                            onSubmitted: (_) {
+                              messageFocusNode.requestFocus();
+                            },
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 20,
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: Text(
+                            'Message',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 10,
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: CupertinoTextField(
+                            controller: widget.logic.messageController,
+                            placeholder: 'Enter a message',
+                            maxLines: 4,
+                            maxLength: 256,
+                            focusNode: messageFocusNode,
+                            textInputAction: TextInputAction.done,
+                            onChanged: (_) {
+                              handleThrottledUpdateQRCode();
+                            },
+                            onSubmitted: (_) {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 160,
+                        ),
                       ),
                     ],
                   ),

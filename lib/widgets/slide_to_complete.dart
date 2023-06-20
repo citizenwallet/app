@@ -7,6 +7,7 @@ class SlideToComplete extends StatefulWidget {
   final double width;
   final double childWidth;
   final bool isComplete;
+  final bool enabled;
   final void Function()? onCompleted;
   final void Function(double percentage)? onSlide;
 
@@ -19,6 +20,7 @@ class SlideToComplete extends StatefulWidget {
     this.width = 200,
     this.childWidth = 50,
     this.isComplete = false,
+    this.enabled = true,
     this.onCompleted,
     this.onSlide,
     this.thumbColor = CupertinoColors.systemGrey,
@@ -28,15 +30,26 @@ class SlideToComplete extends StatefulWidget {
   SlideToCompleteState createState() => SlideToCompleteState();
 }
 
-class SlideToCompleteState extends State<SlideToComplete> {
+class SlideToCompleteState extends State<SlideToComplete>
+    with SingleTickerProviderStateMixin {
   final double radius = 10;
 
   int _duration = 0;
   double _offset = 0;
 
+  late AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      value: 0,
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    _controller.repeat();
   }
 
   @override
@@ -49,6 +62,12 @@ class SlideToCompleteState extends State<SlideToComplete> {
         _offset = 0;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,28 +113,69 @@ class SlideToCompleteState extends State<SlideToComplete> {
         child: Stack(
           children: [
             AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: widget.width,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: ThemeColors.primary.resolveFrom(context),
-                  borderRadius: BorderRadius.circular(radius),
-                  border: Border.all(
-                    color: widget.isComplete
-                        ? ThemeColors.primary.resolveFrom(context)
-                        : ThemeColors.background.resolveFrom(context),
-                    width: 2,
-                  ),
+              duration: const Duration(milliseconds: 200),
+              width: widget.width,
+              height: 50,
+              decoration: BoxDecoration(
+                color: ThemeColors.surfacePrimary.resolveFrom(context),
+                borderRadius: BorderRadius.circular(radius),
+                border: Border.all(
+                  color: widget.isComplete
+                      ? ThemeColors.surfacePrimary.resolveFrom(context)
+                      : ThemeColors.background.resolveFrom(context),
+                  width: 2,
                 ),
-                child: Center(
-                  child: Text(
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.enabled) const SizedBox(width: 30),
+                  Text(
                     widget.completionLabel,
-                    style: TextStyle(
-                      color: ThemeColors.white.resolveFrom(context),
+                    style: const TextStyle(
+                      color: ThemeColors.black,
                       fontSize: 16,
                     ),
                   ),
-                )),
+                  if (widget.enabled) ...[
+                    const SizedBox(width: 5),
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => Opacity(
+                        opacity: _controller.view.value,
+                        child: const Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 14,
+                          color: ThemeColors.black,
+                        ),
+                      ),
+                    ),
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => Opacity(
+                        opacity: _controller.view.value,
+                        child: const Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 14,
+                          color: ThemeColors.black,
+                        ),
+                      ),
+                    ),
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => Opacity(
+                        opacity: _controller.view.value,
+                        child: const Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 14,
+                          color: ThemeColors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,

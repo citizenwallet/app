@@ -1,7 +1,6 @@
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/screens/wallet/transaction_row.dart';
-import 'package:citizenwallet/screens/wallet/wallet_header.dart';
+import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -9,7 +8,6 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/export_private_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
@@ -17,7 +15,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -123,6 +120,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await _logic.loadTransactions();
   }
 
+  void handleRetry() {
+    onLoad();
+  }
+
   Future<void> handleRefresh() async {
     await _logic.loadTransactions();
 
@@ -136,7 +137,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    _logic.updateWalletQR(onlyHex: true);
+    _logic.updateWalletQR();
 
     await showCupertinoModalPopup(
       context: context,
@@ -231,15 +232,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loading = context.select((WalletState state) => state.loading);
     final wallet = context.select((WalletState state) => state.wallet);
-
-    final transactionsLoading =
-        context.select((WalletState state) => state.transactionsLoading);
-    final transactions =
-        context.select((WalletState state) => state.transactions);
-
-    final formattedBalance = wallet?.formattedBalance ?? '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -247,6 +240,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             titleWidget: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -293,282 +287,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      CupertinoSliverRefreshControl(
-                        onRefresh: handleRefresh,
-                      ),
-                      SliverPersistentHeader(
-                        pinned: true,
-                        floating: true,
-                        delegate: WalletHeader(
-                          expandedHeight: 130,
-                          minHeight: 40,
-                          shrunkenChild: Container(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  wallet?.currencyName ?? 'Token',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                loading && formattedBalance.isEmpty
-                                    ? CupertinoActivityIndicator(
-                                        key: const Key(
-                                            'wallet-balance-shrunken-loading'),
-                                        color: ThemeColors.subtle
-                                            .resolveFrom(context),
-                                      )
-                                    : Text(
-                                        '$formattedBalance',
-                                        key: const Key(
-                                            'wallet-balance-shrunken'),
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                              ],
-                            ),
-                          ),
-                          child: Container(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        wallet?.currencyName ?? 'Token',
-                                        style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      loading && formattedBalance.isEmpty
-                                          ? CupertinoActivityIndicator(
-                                              key: const Key(
-                                                  'wallet-balance-loading'),
-                                              color: ThemeColors.subtle
-                                                  .resolveFrom(context),
-                                            )
-                                          : Text(
-                                              '$formattedBalance',
-                                              key: const Key('wallet-balance'),
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                            ),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (wallet?.locked == false)
-                                      CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: handleSendModal,
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: ThemeColors.primary
-                                            .resolveFrom(context),
-                                        child: SizedBox(
-                                          height: 80,
-                                          width: 80,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                CupertinoIcons.arrow_up,
-                                                size: 40,
-                                                color: ThemeColors.white
-                                                    .resolveFrom(context),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              const Text(
-                                                'Send',
-                                                style: TextStyle(
-                                                  color: ThemeColors.white,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    if (wallet?.locked == false)
-                                      const SizedBox(width: 40),
-                                    CupertinoButton(
-                                      padding: const EdgeInsets.all(5),
-                                      onPressed: handleReceive,
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: ThemeColors.primary
-                                          .resolveFrom(context),
-                                      child: SizedBox(
-                                        height: 80,
-                                        width: 80,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              CupertinoIcons.arrow_down,
-                                              size: 40,
-                                              color: ThemeColors.white
-                                                  .resolveFrom(context),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            const Text(
-                                              'Receive',
-                                              style: TextStyle(
-                                                color: ThemeColors.white,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          child: Text(
-                            'Transactions',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (transactionsLoading && transactions.isEmpty)
-                        SliverToBoxAdapter(
-                          child: CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
-                        ),
-                      if (!transactionsLoading && transactions.isEmpty)
-                        SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 300,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.ellipsis,
-                                  size: 40,
-                                  color: ThemeColors.white.resolveFrom(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          childCount:
-                              transactionsLoading && transactions.isEmpty
-                                  ? 0
-                                  : transactions.length,
-                          (context, index) {
-                            if (transactionsLoading && transactions.isEmpty) {
-                              return CupertinoActivityIndicator(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              );
-                            }
-
-                            if (wallet == null) {
-                              return const SizedBox();
-                            }
-
-                            final transaction = transactions[index];
-
-                            return TransactionRow(
-                              key: Key(transaction.id),
-                              transaction: transaction,
-                              wallet: wallet,
-                              onTap: handleTransactionTap,
-                            );
-                          },
-                        ),
-                      ),
-                      if (transactionsLoading && transactions.isNotEmpty)
-                        SliverToBoxAdapter(
-                          child: CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
-                        ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (loading && wallet == null)
-                    Positioned(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 200,
-                            width: 200,
-                            child: Center(
-                              child: Lottie.asset(
-                                'assets/lottie/piggie_bank.json',
-                                height: 200,
-                                width: 200,
-                                animate: true,
-                                repeat: true,
-                                // controller: _controller,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+            child: WalletScrollView(
+              controller: _scrollController,
+              handleRefresh: handleRefresh,
+              handleSendModal: handleSendModal,
+              handleReceive: handleReceive,
+              handleTransactionTap: handleTransactionTap,
+              handleRetry: handleRetry,
             ),
           ),
         ],

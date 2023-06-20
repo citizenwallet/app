@@ -26,7 +26,7 @@ class Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      color: color ?? ThemeColors.primary.resolveFrom(context),
+      color: color ?? ThemeColors.surfacePrimary.resolveFrom(context),
       onPressed: onPressed,
       padding: const EdgeInsets.all(0),
       child: ConstrainedBox(
@@ -45,7 +45,7 @@ class Button extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 18,
-                color: labelColor ?? CupertinoColors.white,
+                color: labelColor ?? CupertinoColors.black,
               ),
             ),
             if (suffix != null) suffix!,

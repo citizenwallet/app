@@ -134,13 +134,13 @@ class LandingScreenState extends State<LandingScreen>
       ),
     );
 
-    final wallet = await _appLogic.importWallet(result, name ?? 'New Wallet');
+    final address = await _appLogic.importWallet(result, name ?? 'New Wallet');
 
-    if (wallet == null) {
+    if (address == null) {
       return;
     }
 
-    navigator.go('/wallet/${wallet.data.address.toLowerCase()}');
+    navigator.go('/wallet/$address');
   }
 
   @override
@@ -153,54 +153,83 @@ class LandingScreenState extends State<LandingScreen>
         child: Flex(
           direction: Axis.vertical,
           children: [
-            ScreenDescription(
-              topPadding: 0,
-              title: Text(
-                'Citizen Wallet',
-                style: TextStyle(
-                  color: ThemeColors.text.resolveFrom(context),
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              heading: Text(
-                'Create and manage your own currencies',
-                style: TextStyle(
-                  color: ThemeColors.text.resolveFrom(context),
-                  fontSize: 24,
-                  fontWeight: FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              image: SvgPicture.asset(
-                'assets/wallet.svg',
-                semanticsLabel: 'A wallet',
-                height: 140,
-                width: 140,
-              ),
-              action: walletLoading
-                  ? CupertinoActivityIndicator(
-                      color: ThemeColors.subtle.resolveFrom(context),
-                    )
-                  : Column(
-                      children: [
-                        Button(
-                          text: 'New Wallet',
-                          onPressed:
-                              kIsWeb ? handleNewWebWallet : handleNewWallet,
-                          minWidth: 200,
-                          maxWidth: 200,
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CustomScrollView(
+                    slivers: [
+                      SliverFillRemaining(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Citizen Wallet',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 34,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 30),
+                            Text(
+                              'The wallet for the rest of us',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 20,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 60),
+                          ],
                         ),
-                        const SizedBox(height: 40),
-                        Button(
-                          text: 'Import a wallet',
-                          onPressed: handleImportWallet,
-                          minWidth: 200,
-                          maxWidth: 200,
-                        )
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 40,
+                    child: walletLoading
+                        ? CupertinoActivityIndicator(
+                            color: ThemeColors.subtle.resolveFrom(context),
+                          )
+                        : Column(
+                            children: [
+                              Button(
+                                text: 'New Wallet',
+                                onPressed: kIsWeb
+                                    ? handleNewWebWallet
+                                    : handleNewWallet,
+                                minWidth: 200,
+                                maxWidth: 200,
+                              ),
+                              const SizedBox(height: 10),
+                              CupertinoButton(
+                                onPressed: handleImportWallet,
+                                child: Text(
+                                  'Import Wallet',
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              // Button(
+                              //   text: 'Import a wallet',
+                              //   onPressed: handleImportWallet,
+                              //   minWidth: 200,
+                              //   maxWidth: 200,
+                              // )
+                            ],
+                          ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
