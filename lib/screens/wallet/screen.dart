@@ -33,6 +33,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
+      print('loading again');
       _logic = WalletLogic(context);
 
       _scrollController.addListener(onScrollUpdate);
@@ -43,9 +44,9 @@ class WalletScreenState extends State<WalletScreen> {
 
   @override
   void dispose() {
-    _logic.dispose();
-
     _scrollController.removeListener(onScrollUpdate);
+
+    _logic.dispose();
 
     super.dispose();
   }

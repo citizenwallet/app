@@ -148,6 +148,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         copyLabel: modalContext
             .select((WalletState state) => formatHexAddress(state.walletQR)),
         onCopy: handleCopyWalletQR,
+        externalLink:
+            '${dotenv.get('SCAN_URL')}/address/${modalContext.select((WalletState state) => state.walletQR)}',
       ),
     );
   }
