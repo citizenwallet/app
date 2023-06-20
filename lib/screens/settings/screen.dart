@@ -1,11 +1,14 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
@@ -34,6 +37,12 @@ class SettingsScreenState extends State<SettingsScreen> {
     HapticFeedback.mediumImpact();
   }
 
+  void handleOpenContract(String address) {
+    final Uri url = Uri.parse('${dotenv.get('SCAN_URL')}/address/$address');
+
+    launchUrl(url, mode: LaunchMode.inAppWebView);
+  }
+
   void handleAppReset() {
     print('reset');
   }
@@ -41,6 +50,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final darkMode = context.select((AppState state) => state.darkMode);
+
+    final wallet = context.select((WalletState state) => state.wallet);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -72,6 +83,22 @@ class SettingsScreenState extends State<SettingsScreen> {
                     value: darkMode,
                     onChanged: onChanged,
                   ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Account',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  label: 'Contract',
+                  onTap: wallet != null
+                      ? () => handleOpenContract(wallet.address)
+                      : null,
                 ),
                 // const Padding(
                 //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
