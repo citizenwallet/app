@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)xyz.citizenwallet.app</string>
+		<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys</string>
 	</array>
 </dict>
 </plist>
