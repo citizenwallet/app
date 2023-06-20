@@ -55,18 +55,15 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Flex(
-        direction: Axis.vertical,
+      child: Stack(
+        alignment: Alignment.topCenter,
         children: [
-          Header(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            title: widget.title,
-          ),
           Expanded(
             child: ListView(
               scrollDirection: Axis.vertical,
               padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
               children: [
+                const SizedBox(height: 60),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
@@ -128,6 +125,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                 // ),
               ],
             ),
+          ),
+          Header(
+            blur: true,
+            transparent: true,
+            title: widget.title,
           ),
         ],
       ),

@@ -210,7 +210,8 @@ class WalletScreenState extends State<WalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            blur: true,
+            color: ThemeColors.transparent,
             titleWidget: CupertinoButton(
               padding: const EdgeInsets.all(5),
               onPressed: () => handleSwitchWalletModal(context),

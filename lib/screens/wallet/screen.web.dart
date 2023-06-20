@@ -240,7 +240,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            blur: true,
+            color: ThemeColors.transparent,
             titleWidget: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
