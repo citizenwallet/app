@@ -59,39 +59,56 @@ class WebLandingScreenState extends State<WebLandingScreen>
         child: Flex(
           direction: Axis.vertical,
           children: [
-            ScreenDescription(
-              topPadding: 0,
-              title: Text(
-                'Citizen Wallet',
-                style: TextStyle(
-                  color: ThemeColors.text.resolveFrom(context),
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              heading: Text(
-                'Create and manage your own currencies',
-                style: TextStyle(
-                  color: ThemeColors.text.resolveFrom(context),
-                  fontSize: 24,
-                  fontWeight: FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              image: SizedBox(
-                height: 200,
-                width: 200,
-                child: Center(
-                  child: Lottie.asset(
-                    'assets/lottie/piggie_bank.json',
-                    height: 200,
-                    width: 200,
-                    animate: true,
-                    repeat: true,
-                    // controller: _controller,
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CustomScrollView(
+                    slivers: [
+                      SliverFillRemaining(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Citizen Wallet',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 34,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 30),
+                            Text(
+                              'The wallet for the rest of us',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 20,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              height: 200,
+                              width: 200,
+                              child: Center(
+                                child: Lottie.asset(
+                                  'assets/lottie/piggie_bank.json',
+                                  height: 200,
+                                  width: 200,
+                                  animate: true,
+                                  repeat: true,
+                                  // controller: _controller,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ),
             ),
           ],
