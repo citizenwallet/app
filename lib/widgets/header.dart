@@ -1,4 +1,5 @@
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,6 +11,7 @@ class Header extends StatefulWidget {
   final Widget? actionButton;
   final bool showBackButton;
   final bool transparent;
+  final bool blur;
   final bool showBorder;
   final Color? color;
 
@@ -22,6 +24,7 @@ class Header extends StatefulWidget {
     this.actionButton,
     this.showBackButton = false,
     this.transparent = false,
+    this.blur = false,
     this.showBorder = false,
     this.color,
   });
@@ -37,13 +40,14 @@ class HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final headerContainer = Container(
       constraints: const BoxConstraints(
         minHeight: 60,
+        maxHeight: 60,
       ),
       decoration: BoxDecoration(
         color: widget.transparent
-            ? ThemeColors.transparent.resolveFrom(context)
+            ? ThemeColors.transparent
             : widget.color ?? ThemeColors.uiBackground.resolveFrom(context),
         border: widget.showBorder
             ? Border(
@@ -118,5 +122,11 @@ class HeaderState extends State<Header> {
         ],
       ),
     );
+
+    if (!widget.blur) {
+      return headerContainer;
+    }
+
+    return BlurryChild(child: headerContainer);
   }
 }
