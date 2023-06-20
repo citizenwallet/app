@@ -9,8 +9,9 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
-import 'package:citizenwallet/widgets/export_qr_modal.dart';
+import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
@@ -110,18 +111,12 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                   child: const Text('Export'),
                 ),
               CupertinoActionSheetAction(
+                isDestructiveAction: true,
                 onPressed: () {
-                  Navigator.of(dialogContext).pop(locked ? 'unlock' : 'lock');
+                  Navigator.of(dialogContext).pop('delete');
                 },
-                child: Text(locked ? 'Unlock' : 'Lock'),
+                child: const Text('Delete'),
               ),
-              // CupertinoActionSheetAction(
-              //   isDestructiveAction: true,
-              //   onPressed: () {
-              //     Navigator.of(dialogContext).pop('delete');
-              //   },
-              //   child: const Text('Delete'),
-              // ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
@@ -159,83 +154,51 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       return;
     }
 
-    if (option == 'lock') {
-      final password = await showCupertinoModalPopup<String?>(
-        context: context,
-        barrierDismissible: true,
-        builder: (modalContext) => const TextInputModal(
-          title: 'Set Password',
-          placeholder: 'Enter wallet password',
-          secure: true,
-          confirm: true,
-        ),
-      );
-
-      if (password == null || password.isEmpty) {
-        return;
-      }
-
-      await widget.logic.lockWallet(address, password);
-
-      HapticFeedback.heavyImpact();
-      return;
-    }
-
-    if (option == 'unlock') {
-      final password = await showCupertinoModalPopup<String?>(
-        context: context,
-        barrierDismissible: true,
-        builder: (modalContext) => const TextInputModal(
-          title: 'Enter Password',
-          placeholder: 'Enter wallet password',
-          secure: true,
-        ),
-      );
-
-      if (password == null || password.isEmpty) {
-        return;
-      }
-
-      await widget.logic.unlockWallet(address, password);
-
-      HapticFeedback.heavyImpact();
-      return;
-    }
-
     if (option == 'export') {
-      final int pin = getRandomNumber(len: 12);
+      final privateKey = await widget.logic.returnWallet(address);
 
-      final qrWallet = await widget.logic.lockAndReturnWallet(address, '$pin');
-
-      if (qrWallet == null) {
+      if (privateKey == null) {
         return;
       }
-
-      final compressedWallet = qrWallet.toCompressedJson();
 
       await showCupertinoModalPopup(
         context: context,
         barrierDismissible: true,
-        builder: (modalContext) => ExportQRModal(
+        builder: (modalContext) => ExportWalletModal(
           title: 'Export Wallet',
-          qrCode: compressedWallet,
-          secureCode: '$pin',
-          toCopy: '---------',
-          onCopy: () => handleCopyWalletPrivateKey(qrWallet, '$pin'),
+          toCopy: '-----------',
+          onCopy: () => handleCopyWalletPrivateKey(privateKey),
         ),
       );
 
       return;
     }
+
+    if (option == 'delete') {
+      final confirm = await showCupertinoModalPopup(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => ConfirmModal(
+          title: 'Delete wallet',
+          details: [
+            'Are you sure you want to delete this wallet?',
+            'This action cannot be undone.',
+          ],
+        ),
+      );
+
+      print('confirm: $confirm');
+
+      if (confirm == null || !confirm) {
+        return;
+      }
+
+      await widget.logic.deleteWallet(address);
+    }
   }
 
-  void handleCopyWalletPrivateKey(QRWallet qrWallet, String password) {
-    final Wallet wallet =
-        Wallet.fromJson(jsonEncode(qrWallet.data.wallet), password);
-
-    final privateKey = wallet.privateKey;
-
-    Clipboard.setData(ClipboardData(text: bytesToHex(privateKey.privateKey)));
+  void handleCopyWalletPrivateKey(String privateKey) {
+    Clipboard.setData(ClipboardData(text: privateKey));
 
     HapticFeedback.heavyImpact();
   }

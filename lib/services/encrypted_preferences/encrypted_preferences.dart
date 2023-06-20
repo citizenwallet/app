@@ -107,6 +107,8 @@ class EncryptedPreferencesService {
       ));
     }
 
+    backups.sort((a, b) => a.name.compareTo(b.name));
+
     return backups;
   }
 
