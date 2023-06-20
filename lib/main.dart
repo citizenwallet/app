@@ -15,7 +15,9 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   await PreferencesService().init();
-  await EncryptedPreferencesService().init();
+  await EncryptedPreferencesService().init(dotenv.get(
+    'ENCRYPTED_STORAGE_GROUP_ID',
+  ));
 
   await DBService().init('citizenwallet');
 

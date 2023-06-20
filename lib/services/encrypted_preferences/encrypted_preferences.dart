@@ -44,23 +44,25 @@ class EncryptedPreferencesService {
         encryptedSharedPreferences: true,
       );
 
-  IOSOptions _getIOSOptions() => const IOSOptions(
+  IOSOptions _getIOSOptions(String groupId) => IOSOptions(
+        groupId: groupId,
         accessibility: KeychainAccessibility.unlocked,
         synchronizable: true,
       );
 
-  MacOsOptions _getMacOsOptions() => const MacOsOptions(
+  MacOsOptions _getMacOsOptions(String groupId) => MacOsOptions(
+        groupId: groupId,
         accessibility: KeychainAccessibility.unlocked,
         synchronizable: true,
       );
 
   late FlutterSecureStorage _preferences;
 
-  Future init() async {
+  Future init(String groupId) async {
     _preferences = FlutterSecureStorage(
-      iOptions: _getIOSOptions(),
+      iOptions: _getIOSOptions(groupId),
       aOptions: _getAndroidOptions(),
-      mOptions: _getMacOsOptions(),
+      mOptions: _getMacOsOptions(groupId),
     );
   }
 
