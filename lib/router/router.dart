@@ -71,7 +71,7 @@ GoRouter createRouter(
               pageBuilder: (context, state) => NoTransitionPage(
                 key: state.pageKey,
                 name: state.name,
-                child: const SettingsScreen(),
+                child: SettingsScreen(),
               ),
             ),
           ],

@@ -1,7 +1,6 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,8 +11,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
+  final String scanUrl = dotenv.get('SCAN_URL');
+  final String scanName = dotenv.get('SCAN_NAME');
 
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
 
   @override
   SettingsScreenState createState() => SettingsScreenState();
@@ -38,7 +39,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   void handleOpenContract(String address) {
-    final Uri url = Uri.parse('${dotenv.get('SCAN_URL')}/address/$address');
+    final Uri url = Uri.parse('${widget.scanUrl}/address/$address');
 
     launchUrl(url, mode: LaunchMode.inAppWebView);
   }
@@ -96,7 +97,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SettingsRow(
-                  label: 'Contract',
+                  label: 'View on ${widget.scanName}',
                   onTap: wallet != null
                       ? () => handleOpenContract(wallet.address)
                       : null,
