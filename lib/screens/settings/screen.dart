@@ -1,6 +1,7 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
@@ -110,6 +111,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                   onTap: wallet != null
                       ? () => handleOpenContract(wallet.account)
                       : null,
+                ),
+                SettingsRow(
+                  label: 'Private key (backed up)',
+                  trailing: Icon(
+                    CupertinoIcons.checkmark_alt,
+                    color: ThemeColors.primary.resolveFrom(context),
+                  ),
                 ),
                 // const Padding(
                 //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
