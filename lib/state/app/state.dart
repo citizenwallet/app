@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppState with ChangeNotifier {
@@ -12,6 +13,13 @@ class AppState with ChangeNotifier {
   CupertinoThemeData get theme {
     return CupertinoThemeData(
       brightness: _darkMode ? Brightness.dark : Brightness.light,
+      textTheme: CupertinoTextThemeData(
+        textStyle: TextStyle(
+          color:
+              _darkMode ? ThemeColors.text.darkColor : ThemeColors.text.color,
+          fontSize: 16,
+        ),
+      ),
     );
   }
 
