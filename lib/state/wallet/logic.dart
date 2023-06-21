@@ -346,13 +346,6 @@ class WalletLogic {
       if (dbWallet.privateKey.isNotEmpty) {
         // set credentials from preferences
 
-        // final savedPassword =
-        //     await EncryptedPreferencesService().getWalletPassword(address);
-
-        // if (savedPassword == null) {
-        //   throw NotFoundException();
-        // }
-
         final wallet = await walletServiceFromKey(
           BigInt.from(chainId),
           dbWallet.privateKey,
@@ -436,28 +429,21 @@ class WalletLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final password = getRandomString(64);
-
       final address = credentials.address.hex.toLowerCase();
-
-      await EncryptedPreferencesService().setWalletPassword(address, password);
-
-      final Wallet wallet =
-          Wallet.createNew(credentials, password, Random.secure());
 
       final DBWallet dbwallet = DBWallet(
         type: 'regular',
         name: name,
         address: address,
-        publicKey: wallet.privateKey.encodedPublicKey,
+        publicKey: credentials.encodedPublicKey,
         balance: 0,
-        wallet: wallet.toJson(),
+        wallet: '',
         locked: false,
       );
 
       await _encPrefs.setWalletBackup(BackupWallet(
         address: address,
-        privateKey: bytesToHex(wallet.privateKey.privateKey),
+        privateKey: bytesToHex(credentials.privateKey),
         name: name,
       ));
 
@@ -774,13 +760,6 @@ class WalletLogic {
       }
 
       final walletService = walletServiceCheck();
-
-      final savedPassword = await EncryptedPreferencesService()
-          .getWalletPassword(walletService.address.hex);
-
-      if (savedPassword == null) {
-        throw Exception('password not found');
-      }
 
       final doubleAmount = amount.replaceAll(',', '.');
 
@@ -1132,19 +1111,20 @@ class WalletLogic {
     Clipboard.setData(ClipboardData(text: _state.walletQR));
   }
 
+// TODO: remove this
   Future<String?> tryUnlockWallet(String strwallet, String address) async {
     try {
-      final password =
-          await EncryptedPreferencesService().getWalletPassword(address);
+      // final password =
+      //     await EncryptedPreferencesService().getWalletPassword(address);
 
-      if (password == null) {
-        return null;
-      }
+      // if (password == null) {
+      //   return null;
+      // }
 
-      // attempt to unlock the wallet
-      Wallet.fromJson(strwallet, password);
+      // // attempt to unlock the wallet
+      // Wallet.fromJson(strwallet, password);
 
-      return password;
+      return '';
     } catch (e) {
       print(e);
     }

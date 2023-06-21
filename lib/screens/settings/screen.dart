@@ -2,14 +2,17 @@ import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
+import 'package:citizenwallet/widgets/settings_sub_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
@@ -35,7 +38,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  void onChanged(bool enabled) {
+  void onToggleDarkMode(bool enabled) {
     _appLogic.setDarkMode(enabled);
     HapticFeedback.mediumImpact();
   }
@@ -50,6 +53,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
+  void handleLockApp() {
+    print('lock');
+  }
+
   void handleAppReset() {
     print('reset');
   }
@@ -59,6 +66,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     final darkMode = context.select((AppState state) => state.darkMode);
 
     final wallet = context.select((WalletState state) => state.wallet);
+
+    final packageInfo = context.select((AppState state) => state.packageInfo);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -89,12 +98,49 @@ class SettingsScreenState extends State<SettingsScreen> {
                   label: 'Dark mode',
                   trailing: CupertinoSwitch(
                     value: darkMode,
-                    onChanged: onChanged,
+                    onChanged: onToggleDarkMode,
                   ),
                 ),
                 SettingsRow(
                   label: 'About',
-                  onTap: wallet != null ? () => handleOpenAbout() : null,
+                  onTap: handleOpenAbout,
+                ),
+                if (packageInfo != null)
+                  SettingsSubRow(
+                      '${packageInfo.version} (${packageInfo.buildNumber})'),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Security',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  label: 'App protection',
+                  trailing: CupertinoSwitch(
+                    value: darkMode,
+                    onChanged: onToggleDarkMode,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'Automatic lock',
+                  subLabel:
+                      'Automatically locks the app whenever it is closed.',
+                  trailing: CupertinoSwitch(
+                    value: false,
+                    onChanged: onToggleDarkMode,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'On send',
+                  subLabel: 'Ask for authentication every time you send.',
+                  trailing: CupertinoSwitch(
+                    value: false,
+                    onChanged: onToggleDarkMode,
+                  ),
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -112,39 +158,61 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ? () => handleOpenContract(wallet.account)
                       : null,
                 ),
-                SettingsRow(
-                  label: 'Private key (backed up)',
+                const SettingsRow(
+                  label: 'Wallets',
+                  subLabel:
+                      "All your wallets are automatically backed up to your device's keychain and synced to the cloud.",
                   trailing: Icon(
-                    CupertinoIcons.checkmark_alt,
-                    color: ThemeColors.primary.resolveFrom(context),
+                    CupertinoIcons.cloud,
+                    color: ThemeColors.white,
                   ),
                 ),
-                // const Padding(
-                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                //   child: Text(
-                //     'Wallet',
-                //     style: TextStyle(
-                //       fontSize: 22,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
-                // const SettingsRow(
-                //   label: 'Setting 1',
-                //   trailing: Text('Property 1'),
-                // ),
-                // const SettingsRow(
-                //   label: 'Setting 2',
-                //   trailing: Text('Property 2'),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                //   child: Button(
-                //     text: 'Clear App Data',
-                //     color: CupertinoColors.systemRed,
-                //     onPressed: handleAppReset,
-                //   ),
-                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                      child: Button(
+                        text: 'Lock app',
+                        suffix: const Padding(
+                          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          child: Icon(
+                            CupertinoIcons.lock,
+                            color: ThemeColors.black,
+                          ),
+                        ),
+                        minWidth: 160,
+                        maxWidth: 160,
+                        onPressed: handleLockApp,
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
+                  child: Text(
+                    'Danger Zone',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                      child: Button(
+                        text: 'Clear data & backups',
+                        minWidth: 220,
+                        maxWidth: 220,
+                        color: CupertinoColors.systemRed,
+                        onPressed: handleAppReset,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

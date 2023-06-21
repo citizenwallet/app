@@ -2,6 +2,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class AppState with ChangeNotifier {
   String walletPassword = '';
@@ -9,6 +10,8 @@ class AppState with ChangeNotifier {
 
   bool walletLoading = false;
   bool walletError = false;
+
+  PackageInfo? packageInfo;
 
   CupertinoThemeData get theme {
     return CupertinoThemeData(
@@ -36,6 +39,12 @@ class AppState with ChangeNotifier {
 
   AppState() {
     _darkMode = PreferencesService().darkMode;
+    onLoad();
+  }
+
+  onLoad() async {
+    packageInfo = await PackageInfo.fromPlatform();
+    notifyListeners();
   }
 
   void importLoadingReq() {

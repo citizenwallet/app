@@ -66,22 +66,6 @@ class EncryptedPreferencesService {
     );
   }
 
-  Future<void> setWalletPassword(String address, String password) async {
-    final saved =
-        await _preferences.containsKey(key: 'w_${address.toLowerCase()}');
-    if (saved) {
-      await _preferences.delete(key: 'w_${address.toLowerCase()}');
-    }
-
-    await _preferences.write(
-        key: 'w_${address.toLowerCase()}', value: password);
-  }
-
-  // get wallet password
-  Future<String?> getWalletPassword(String address) async {
-    return _preferences.read(key: 'w_${address.toLowerCase()}');
-  }
-
   // handle wallet backups
   // use the prefix as a query to find a wallet backup
   // use the prefix + wallet address as a way to query the backup
