@@ -1,7 +1,6 @@
-<h1 align="center">
-  <img style="height: 100px; width: 100px;" src="https://github.com/daobrussels/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
-  Citizen Wallet
-</h1>
+![citizen wallet logo](https://github.com/daobrussels/citizenwallet/blob/main/assets/logo.png "citizen wallet logo")
+
+# Citizen Wallet
 
 Receive and send citizen coins to pay at participating events.
 
