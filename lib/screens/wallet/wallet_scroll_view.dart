@@ -112,37 +112,30 @@ class WalletScrollView extends StatelessWidget {
               ),
             ),
           ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            childCount: transactionsLoading && transactions.isEmpty
-                ? 0
-                : transactions.length,
-            (context, index) {
-              if (transactionsLoading && transactions.isEmpty) {
-                return CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
+        if (transactions.isNotEmpty)
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              childCount: transactions.length,
+              (context, index) {
+                if (wallet == null) {
+                  return const SizedBox();
+                }
+
+                final transaction = transactions[index];
+
+                return Container(
+                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: TransactionRow(
+                    key: Key(transaction.id),
+                    transaction: transaction,
+                    wallet: wallet,
+                    onTap: handleTransactionTap,
+                  ),
                 );
-              }
-
-              if (wallet == null) {
-                return const SizedBox();
-              }
-
-              final transaction = transactions[index];
-
-              return Container(
-                color: ThemeColors.uiBackground.resolveFrom(context),
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: TransactionRow(
-                  key: Key(transaction.id),
-                  transaction: transaction,
-                  wallet: wallet,
-                  onTap: handleTransactionTap,
-                ),
-              );
-            },
+              },
+            ),
           ),
-        ),
         if (transactionsLoading && transactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(

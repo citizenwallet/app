@@ -100,8 +100,11 @@ class WalletState with ChangeNotifier {
   void loadWalletSuccess(
     CWWallet wallet,
   ) {
+    if (this.wallet != null && this.wallet!.address != wallet.address) {
+      transactions = [];
+    }
+
     this.wallet = wallet;
-    transactions = [];
 
     loading = false;
     error = false;

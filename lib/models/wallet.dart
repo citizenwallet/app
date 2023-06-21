@@ -3,6 +3,7 @@ import 'package:citizenwallet/utils/currency.dart';
 class CWWallet {
   final String name;
   final String address;
+  final String account;
   String _balance;
   final String currencyName;
   final String symbol;
@@ -13,6 +14,7 @@ class CWWallet {
     this._balance, {
     required this.name,
     required this.address,
+    required this.account,
     required this.currencyName,
     required this.symbol,
     this.decimalDigits = 2,
@@ -30,6 +32,7 @@ class CWWallet {
   CWWallet.fromJson(Map<String, dynamic> json)
       : name = json['name'],
         address = json['address'],
+        account = json['account'],
         _balance = json['balance'],
         currencyName = json['currencyName'],
         symbol = json['symbol'],
@@ -41,6 +44,7 @@ class CWWallet {
   Map<String, dynamic> toJson() => {
         'name': name,
         'address': address,
+        'account': account,
         'balance': _balance,
         'currencyName': currencyName,
         'symbol': symbol,

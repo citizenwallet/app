@@ -19,7 +19,7 @@ class TransactionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncoming = transaction.isIncoming(wallet.address);
+    final isIncoming = transaction.isIncoming(wallet.account);
     final address =
         formatHexAddress(isIncoming ? transaction.from : transaction.to);
 
@@ -65,7 +65,7 @@ class TransactionRow extends StatelessWidget {
                       )
                     : ProfileCircle(
                         size: 50,
-                        imageUrl: getTransactionAuthor(wallet.address,
+                        imageUrl: getTransactionAuthor(wallet.account,
                                 transaction.from, transaction.to)
                             .icon,
                         backgroundColor: ThemeColors.white,

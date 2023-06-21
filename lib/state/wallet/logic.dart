@@ -93,7 +93,8 @@ class WalletLogic {
         CWWallet(
           balance,
           name: currency.name,
-          address: walletService.account.hex,
+          address: walletService.address.hex,
+          account: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -301,7 +302,8 @@ class WalletLogic {
         CWWallet(
           balance,
           name: 'Burner Wallet',
-          address: walletService.account.hex,
+          address: walletService.address.hex,
+          account: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -403,7 +405,8 @@ class WalletLogic {
         CWWallet(
           balance,
           name: dbWallet.name,
-          address: walletService.account.hex,
+          address: walletService.address.hex,
+          account: walletService.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,

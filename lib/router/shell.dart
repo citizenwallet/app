@@ -1,7 +1,9 @@
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class RouterShell extends StatelessWidget {
   final Widget child;
@@ -35,6 +37,8 @@ class RouterShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wallet = context.select((WalletState state) => state.wallet);
+
     return CupertinoPageScaffold(
       key: Key(state.location),
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -56,7 +60,8 @@ class RouterShell extends StatelessWidget {
               onTap: (index) {
                 switch (index) {
                   case 0:
-                    GoRouter.of(context).go('/wallet/last');
+                    GoRouter.of(context)
+                        .go('/wallet/${wallet?.address.toLowerCase()}');
                     break;
                   case 1:
                     GoRouter.of(context).go('/settings');

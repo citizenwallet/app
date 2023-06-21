@@ -99,7 +99,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 SettingsRow(
                   label: 'View on ${widget.scanName}',
                   onTap: wallet != null
-                      ? () => handleOpenContract(wallet.address)
+                      ? () => handleOpenContract(wallet.account)
                       : null,
                 ),
                 // const Padding(
