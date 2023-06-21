@@ -6,6 +6,7 @@ import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -42,6 +43,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     final Uri url = Uri.parse('${widget.scanUrl}/address/$address');
 
     launchUrl(url, mode: LaunchMode.inAppWebView);
+  }
+
+  void handleOpenAbout() {
+    GoRouter.of(context).push('/about');
   }
 
   void handleAppReset() {
@@ -85,6 +90,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     value: darkMode,
                     onChanged: onChanged,
                   ),
+                ),
+                SettingsRow(
+                  label: 'About',
+                  onTap: wallet != null ? () => handleOpenAbout() : null,
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),

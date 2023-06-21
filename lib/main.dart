@@ -64,14 +64,12 @@ class MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final darkMode = context.select((AppState state) => state.darkMode);
+    final theme = context.select((AppState state) => state.theme);
 
     return CupertinoApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
-      theme: CupertinoThemeData(
-        brightness: darkMode ? Brightness.dark : Brightness.light,
-      ),
+      theme: theme,
     );
   }
 }

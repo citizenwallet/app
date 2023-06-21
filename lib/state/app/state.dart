@@ -9,6 +9,12 @@ class AppState with ChangeNotifier {
   bool walletLoading = false;
   bool walletError = false;
 
+  CupertinoThemeData get theme {
+    return CupertinoThemeData(
+      brightness: _darkMode ? Brightness.dark : Brightness.light,
+    );
+  }
+
   bool _darkMode = false;
   bool get darkMode => _darkMode;
   set darkMode(bool darkMode) {

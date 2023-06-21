@@ -1,4 +1,5 @@
 import 'package:citizenwallet/router/shell.dart';
+import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -75,6 +76,12 @@ GoRouter createRouter(
               ),
             ),
           ],
+        ),
+        GoRoute(
+          name: 'About',
+          path: '/about',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => const AboutScreen(),
         ),
       ],
     );
