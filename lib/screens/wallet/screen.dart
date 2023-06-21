@@ -33,7 +33,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      print('loading...');
       _logic = WalletLogic(context);
 
       _scrollController.addListener(onScrollUpdate);
@@ -46,7 +45,6 @@ class WalletScreenState extends State<WalletScreen> {
   void dispose() {
     _scrollController.removeListener(onScrollUpdate);
 
-    print('disposing...');
     _logic.dispose();
 
     super.dispose();
@@ -69,7 +67,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    print('onLoad...');
     if (widget.address == null) {
       return;
     }
