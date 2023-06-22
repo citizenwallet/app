@@ -50,6 +50,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       barrierDismissible: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        to: address,
       ),
     );
   }
@@ -75,6 +76,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       barrierDismissible: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        to: address,
       ),
     );
   }

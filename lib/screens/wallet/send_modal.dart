@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
@@ -19,7 +21,13 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
 
-  const SendModal({Key? key, required this.logic}) : super(key: key);
+  final String? to;
+
+  const SendModal({
+    Key? key,
+    required this.logic,
+    this.to,
+  }) : super(key: key);
 
   @override
   SendModalState createState() => SendModalState();
@@ -60,6 +68,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   }
 
   void onLoad() {
+    if (widget.to != null) {
+      return;
+    }
     handleQRScan();
   }
 
@@ -205,87 +216,110 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 20),
-                          const Text(
-                            'To',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          CupertinoTextField(
-                            controller: widget.logic.addressController,
-                            placeholder: 'Enter an address',
-                            maxLines: 1,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (_) => handleThrottledUpdateAddress(),
-                            decoration: invalidAddress ||
-                                    parsingQRAddressError ||
-                                    transactionSendError
-                                ? BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
+                          if (widget.to == null)
+                            const Text(
+                              'To',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                          if (widget.to == null) const SizedBox(height: 10),
+                          if (widget.to != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'To',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Chip(
+                                  formatHexAddress(widget.to!),
+                                  color: ThemeColors.subtleEmphasis
+                                      .resolveFrom(context),
+                                  textColor: ThemeColors.touchable
+                                      .resolveFrom(context),
+                                  maxWidth: 160,
+                                ),
+                              ],
+                            ),
+                          if (widget.to == null)
+                            CupertinoTextField(
+                              controller: widget.logic.addressController,
+                              placeholder: 'Enter an address',
+                              maxLines: 1,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              textInputAction: TextInputAction.next,
+                              onChanged: (_) => handleThrottledUpdateAddress(),
+                              decoration: invalidAddress ||
+                                      parsingQRAddressError ||
+                                      transactionSendError
+                                  ? BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: ThemeColors.danger,
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                    )
+                                  : BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: ThemeColors.border
+                                            .resolveFrom(context),
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
                                     ),
-                                    border: Border.all(
-                                      color: ThemeColors.danger,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
-                                  )
-                                : BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: ThemeColors.border
-                                          .resolveFrom(context),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                              prefix: Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: Icon(
+                                    CupertinoIcons.creditcard,
+                                    color: hasAddress
+                                        ? ThemeColors.text.resolveFrom(context)
+                                        : ThemeColors.subtleEmphasis
+                                            .resolveFrom(context),
                                   ),
-                            prefix: Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: Icon(
-                                  CupertinoIcons.creditcard,
-                                  color: hasAddress
-                                      ? ThemeColors.text.resolveFrom(context)
-                                      : ThemeColors.subtleEmphasis
-                                          .resolveFrom(context),
                                 ),
                               ),
-                            ),
 
-                            /// TODO: selection from contacts
-                            // suffix: GestureDetector(
-                            //   onTap:
-                            //       parsingQRAddress ? null : handleQRAddressScan,
-                            //   child: Center(
-                            //     child: Padding(
-                            //       padding:
-                            //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            //       child: parsingQRAddress
-                            //           ? CupertinoActivityIndicator(
-                            //               color: ThemeColors.background
-                            //                   .resolveFrom(context),
-                            //             )
-                            //           : Icon(
-                            //               CupertinoIcons.person_alt,
-                            //               color: ThemeColors.primary
-                            //                   .resolveFrom(context),
-                            //             ),
-                            //     ),
-                            //   ),
-                            // ),
-                            onSubmitted: (_) {
-                              amountFocuseNode.requestFocus();
-                            },
-                          ),
+                              /// TODO: selection from contacts
+                              // suffix: GestureDetector(
+                              //   onTap:
+                              //       parsingQRAddress ? null : handleQRAddressScan,
+                              //   child: Center(
+                              //     child: Padding(
+                              //       padding:
+                              //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              //       child: parsingQRAddress
+                              //           ? CupertinoActivityIndicator(
+                              //               color: ThemeColors.background
+                              //                   .resolveFrom(context),
+                              //             )
+                              //           : Icon(
+                              //               CupertinoIcons.person_alt,
+                              //               color: ThemeColors.primary
+                              //                   .resolveFrom(context),
+                              //             ),
+                              //     ),
+                              //   ),
+                              // ),
+                              onSubmitted: (_) {
+                                amountFocuseNode.requestFocus();
+                              },
+                            ),
                           const SizedBox(height: 20),
                           const Text(
                             'Amount',
