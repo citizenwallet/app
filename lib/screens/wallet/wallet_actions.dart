@@ -110,8 +110,8 @@ class WalletActions extends StatelessWidget {
                         BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                     color: ThemeColors.surfacePrimary.resolveFrom(context),
                     child: SizedBox(
-                      height: progressiveClamp(54, 80, shrink),
-                      width: progressiveClamp(54, 80, shrink),
+                      height: progressiveClamp(55, 80, shrink),
+                      width: progressiveClamp(55, 80, shrink),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -142,8 +142,8 @@ class WalletActions extends StatelessWidget {
                       BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
                   child: SizedBox(
-                    height: progressiveClamp(54, 80, shrink),
-                    width: progressiveClamp(54, 80, shrink),
+                    height: progressiveClamp(55, 80, shrink),
+                    width: progressiveClamp(55, 80, shrink),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
