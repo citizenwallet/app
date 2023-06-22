@@ -12,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
@@ -27,6 +26,8 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   late AppLogic _appLogic;
+
+  bool _protected = false;
 
   @override
   void initState() {
@@ -53,6 +54,12 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
+  void handleToggleProtection(bool enabled) {
+    setState(() {
+      _protected = enabled;
+    });
+  }
+
   void handleLockApp() {
     print('lock');
   }
@@ -68,6 +75,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final packageInfo = context.select((AppState state) => state.packageInfo);
+
+    final protected = _protected;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -107,7 +116,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (packageInfo != null)
                   SettingsSubRow(
-                      '${packageInfo.version} (${packageInfo.buildNumber})'),
+                      'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
@@ -120,28 +129,41 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 SettingsRow(
                   label: 'App protection',
-                  trailing: CupertinoSwitch(
-                    value: darkMode,
-                    onChanged: onToggleDarkMode,
+                  subLabel: !protected
+                      ? 'We recommend enabling app protection.'
+                      : null,
+                  trailing: Row(
+                    children: [
+                      if (!protected)
+                        const Icon(CupertinoIcons.exclamationmark_triangle,
+                            color: ThemeColors.secondary),
+                      if (!protected) const SizedBox(width: 5),
+                      CupertinoSwitch(
+                        value: protected,
+                        onChanged: handleToggleProtection,
+                      ),
+                    ],
                   ),
                 ),
-                SettingsRow(
-                  label: 'Automatic lock',
-                  subLabel:
-                      'Automatically locks the app whenever it is closed.',
-                  trailing: CupertinoSwitch(
-                    value: false,
-                    onChanged: onToggleDarkMode,
+                if (protected)
+                  SettingsRow(
+                    label: 'Automatic lock',
+                    subLabel:
+                        'Automatically locks the app whenever it is closed.',
+                    trailing: CupertinoSwitch(
+                      value: false,
+                      onChanged: onToggleDarkMode,
+                    ),
                   ),
-                ),
-                SettingsRow(
-                  label: 'On send',
-                  subLabel: 'Ask for authentication every time you send.',
-                  trailing: CupertinoSwitch(
-                    value: false,
-                    onChanged: onToggleDarkMode,
+                if (protected)
+                  SettingsRow(
+                    label: 'On send',
+                    subLabel: 'Ask for authentication every time you send.',
+                    trailing: CupertinoSwitch(
+                      value: false,
+                      onChanged: onToggleDarkMode,
+                    ),
                   ),
-                ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
