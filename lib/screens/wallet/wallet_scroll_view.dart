@@ -52,6 +52,7 @@ class WalletScrollView extends StatelessWidget {
           ) =>
               Container(
             color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
             child: CupertinoSliverRefreshControl.buildRefreshIndicator(
               context,
               mode,

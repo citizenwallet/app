@@ -1,6 +1,7 @@
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/ratio.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
@@ -26,28 +27,29 @@ class WalletActions extends StatelessWidget {
 
     final formattedBalance = wallet?.formattedBalance ?? '';
 
-    return Container(
-      color: ThemeColors.uiBackground.resolveFrom(context),
-      child: Stack(
-        children: [
-          Container(
+    return Stack(
+      children: [
+        BlurryChild(
+          child: Container(
             height: progressiveClamp(130, 240, shrink),
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  wallet?.currencyName ?? 'Token',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.normal,
-                    color: ThemeColors.text.resolveFrom(context),
+                if ((1 - shrink) == 1)
+                  Text(
+                    wallet?.currencyName ?? 'Token',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.normal,
+                      color: ThemeColors.text.resolveFrom(context),
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
+                if ((1 - shrink) == 1)
+                  const SizedBox(
+                    height: 5,
+                  ),
                 loading && formattedBalance.isEmpty
                     ? CupertinoActivityIndicator(
                         color: ThemeColors.subtle.resolveFrom(context),
@@ -62,7 +64,7 @@ class WalletActions extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                              fontSize: 40,
+                              fontSize: progressiveClamp(32, 40, shrink),
                               fontWeight: FontWeight.normal,
                               color: ThemeColors.text.resolveFrom(context),
                             ),
@@ -81,7 +83,7 @@ class WalletActions extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.start,
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: progressiveClamp(18, 22, shrink),
                                 fontWeight: FontWeight.bold,
                                 color: ThemeColors.text.resolveFrom(context),
                               ),
@@ -90,54 +92,34 @@ class WalletActions extends StatelessWidget {
                         ],
                       ),
                 const SizedBox(
-                  height: 20,
+                  height: 30,
                 ),
               ],
             ),
           ),
-          Positioned(
-            width: width,
-            bottom: 15,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (wallet?.locked == false)
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: handleSendModal,
-                    borderRadius:
-                        BorderRadius.circular(progressiveClamp(14, 20, shrink)),
-                    color: ThemeColors.surfacePrimary.resolveFrom(context),
-                    child: SizedBox(
-                      height: progressiveClamp(55, 80, shrink),
-                      width: progressiveClamp(55, 80, shrink),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            CupertinoIcons.arrow_up,
-                            size: progressiveClamp(20, 40, shrink),
-                            color: ThemeColors.black,
-                          ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'Send',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: ThemeColors.black,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (wallet?.locked == false) const SizedBox(width: 40),
+        ),
+        Positioned(
+          width: width,
+          bottom: 0,
+          child: Opacity(
+            opacity: progressiveClamp(0, 1, shrink),
+            child: Container(
+              height: progressiveClamp(50, 60, shrink),
+              color: ThemeColors.uiBackground.resolveFrom(context),
+            ),
+          ),
+        ),
+        Positioned(
+          width: width,
+          bottom: 15,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (wallet?.locked == false)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed: handleReceive,
+                  onPressed: handleSendModal,
                   borderRadius:
                       BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
@@ -149,13 +131,13 @@ class WalletActions extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
-                          CupertinoIcons.arrow_down,
+                          CupertinoIcons.arrow_up,
                           size: progressiveClamp(20, 40, shrink),
                           color: ThemeColors.black,
                         ),
                         const SizedBox(width: 10),
                         const Text(
-                          'Receive',
+                          'Send',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: ThemeColors.black,
@@ -166,11 +148,42 @@ class WalletActions extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            ),
+              if (wallet?.locked == false) const SizedBox(width: 40),
+              CupertinoButton(
+                padding: const EdgeInsets.all(5),
+                onPressed: handleReceive,
+                borderRadius:
+                    BorderRadius.circular(progressiveClamp(14, 20, shrink)),
+                color: ThemeColors.surfacePrimary.resolveFrom(context),
+                child: SizedBox(
+                  height: progressiveClamp(55, 80, shrink),
+                  width: progressiveClamp(55, 80, shrink),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        CupertinoIcons.arrow_down,
+                        size: progressiveClamp(20, 40, shrink),
+                        color: ThemeColors.black,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Receive',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: ThemeColors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

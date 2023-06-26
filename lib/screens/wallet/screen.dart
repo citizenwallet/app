@@ -255,11 +255,19 @@ class WalletScreenState extends State<WalletScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Flex(
-        direction: Axis.vertical,
+      child: Stack(
+        alignment: Alignment.topCenter,
         children: [
+          WalletScrollView(
+            controller: _scrollController,
+            handleRefresh: handleRefresh,
+            handleSendModal: handleSendModal,
+            handleReceive: handleReceive,
+            handleTransactionTap: handleTransactionTap,
+            handleFailedTransactionTap: handleFailedTransaction,
+          ),
           Header(
-            blur: true,
+            transparent: true,
             color: ThemeColors.transparent,
             titleWidget: CupertinoButton(
               padding: const EdgeInsets.all(5),
@@ -321,16 +329,6 @@ class WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-          Expanded(
-            child: WalletScrollView(
-              controller: _scrollController,
-              handleRefresh: handleRefresh,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
-              handleTransactionTap: handleTransactionTap,
-              handleFailedTransactionTap: handleFailedTransaction,
             ),
           ),
         ],
