@@ -23,8 +23,8 @@ class CWWallet {
 
   String get balance => _balance;
 
-  get formattedBalance => formatAmount(
-        double.tryParse(balance) ?? 0.0,
+  String get formattedBalance => formatAmount(
+        double.tryParse(_balance) ?? 0.0,
         decimalDigits: decimalDigits,
       );
 

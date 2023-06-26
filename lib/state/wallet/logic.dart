@@ -814,8 +814,6 @@ class WalletLogic {
 
       clearInputControllers();
 
-      await updateBalance();
-
       return true;
     } catch (e) {
       print('error');
@@ -876,8 +874,6 @@ class WalletLogic {
       ));
 
       clearInputControllers();
-
-      await updateBalance();
 
       return true;
     } catch (e) {

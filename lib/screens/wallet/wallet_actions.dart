@@ -1,3 +1,4 @@
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/ratio.dart';
@@ -25,7 +26,8 @@ class WalletActions extends StatelessWidget {
     final loading = context.select((WalletState state) => state.loading);
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final formattedBalance = wallet?.formattedBalance ?? '';
+    final hasPending = context.select(selectHasPendingTransactions);
+    final formattedBalance = context.select(selectWalletBalance);
 
     return Stack(
       children: [
@@ -66,7 +68,9 @@ class WalletActions extends StatelessWidget {
                             style: TextStyle(
                               fontSize: progressiveClamp(32, 40, shrink),
                               fontWeight: FontWeight.normal,
-                              color: ThemeColors.text.resolveFrom(context),
+                              color: hasPending
+                                  ? ThemeColors.secondary.resolveFrom(context)
+                                  : ThemeColors.text.resolveFrom(context),
                             ),
                           ),
                           const SizedBox(width: 5),

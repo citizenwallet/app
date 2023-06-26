@@ -17,7 +17,7 @@ class ThemeColors {
   );
 
   static const secondary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(244, 188, 81, 1),
+    color: Color.fromARGB(255, 241, 159, 5),
     darkColor: Color.fromRGBO(244, 188, 81, 1),
   );
 
