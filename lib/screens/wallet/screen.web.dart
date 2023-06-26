@@ -120,8 +120,68 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await _logic.loadTransactions();
   }
 
-  void handleRetry() {
-    onLoad();
+  void handleFailedTransaction(String id) async {
+    final option = await showCupertinoModalPopup<String?>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('retry');
+                },
+                child: const Text('Retry'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('edit');
+                },
+                child: const Text('Edit'),
+              ),
+              CupertinoActionSheetAction(
+                isDestructiveAction: true,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('delete');
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          );
+        });
+
+    if (option == null) {
+      return;
+    }
+
+    if (option == 'retry') {
+      _logic.retryTransaction(id);
+    }
+
+    if (option == 'edit') {
+      _logic.prepareEditQueuedTransaction(id);
+
+      HapticFeedback.lightImpact();
+
+      await showCupertinoModalPopup(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => SendModal(
+          logic: _logic,
+          id: id,
+        ),
+      );
+    }
+
+    if (option == 'delete') {
+      _logic.removeQueuedTransaction(id);
+    }
   }
 
   Future<void> handleRefresh() async {
@@ -296,7 +356,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
               handleSendModal: handleSendModal,
               handleReceive: handleReceive,
               handleTransactionTap: handleTransactionTap,
-              handleRetry: handleRetry,
+              handleFailedTransactionTap: handleFailedTransaction,
             ),
           ),
         ],

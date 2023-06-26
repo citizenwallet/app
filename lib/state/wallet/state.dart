@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/wallet.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/state/wallet/utils.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
@@ -26,6 +25,8 @@ class WalletState with ChangeNotifier {
 
   bool transactionSendLoading = false;
   bool transactionSendError = false;
+
+  List<CWTransaction> transactionSendQueue = [];
 
   bool parsingQRAddress = false;
   bool parsingQRAddressError = false;
@@ -223,21 +224,21 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void sendingTransaction(CWTransaction? transaction) {
-    if (transaction != null) {
-      transactions = transactions
-          .where((element) => element.id != pendingTransactionId)
-          .toList();
+  void sendingTransaction(CWTransaction transaction) {
+    sendQueueRemoveTransaction(transaction.id);
 
-      transactions.insert(0, transaction);
-    }
+    transactions =
+        transactions.where((element) => element.id != transaction.id).toList();
+
+    transactions.insert(0, transaction);
+
     notifyListeners();
   }
 
   void sendTransactionSuccess(CWTransaction? transaction) {
     if (transaction != null) {
       transactions = transactions
-          .where((element) => element.id != pendingTransactionId)
+          .where((element) => element.id != transaction.id)
           .toList();
 
       transactions.insert(0, transaction);
@@ -273,7 +274,7 @@ class WalletState with ChangeNotifier {
 
       this.transactions = this
           .transactions
-          .where((element) => element.id != pendingTransactionId)
+          .where((element) => !isPendingTransactionId(element.id))
           .toList();
     }
 
@@ -288,11 +289,24 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetInvalidInputs() {
+  void resetTransactionSendProperties({bool notify = false}) {
+    transactionSendError = false;
+    transactionSendLoading = false;
+
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
+  void resetInvalidInputs({bool notify = false}) {
     invalidAmount = false;
     invalidAddress = false;
     hasAddress = false;
     hasAmount = false;
+
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void setInvalidAmount(bool invalid) {
@@ -407,6 +421,63 @@ class WalletState with ChangeNotifier {
   void createDBWalletError() {
     dbWalletsLoading = false;
     dbWalletsError = true;
+    notifyListeners();
+  }
+
+  // get queued transaction by id
+  CWTransaction? getQueuedTransaction(String id) {
+    return transactionSendQueue.firstWhereOrNull((t) => t.id == id);
+  }
+
+  // get queued transaction by id and set it as pending
+  CWTransaction? attemptRetryQueuedTransaction(String id) {
+    final i = transactionSendQueue.indexWhere((t) => t.id == id);
+
+    if (i < 0) {
+      return null;
+    }
+
+    final tx = transactionSendQueue[i].copyWith(
+      state: TransactionState.pending,
+    );
+
+    transactionSendQueue.removeAt(i);
+
+    notifyListeners();
+
+    return tx;
+  }
+
+  // clear transactions queue
+  void sendQueueClearTransactions() {
+    transactionSendQueue = [];
+    notifyListeners();
+  }
+
+  // update queued transaction
+  void sendQueueUpdateTransaction(CWTransaction transaction) {
+    final index =
+        transactionSendQueue.indexWhere((t) => t.id == transaction.id);
+    if (index != -1) {
+      transactionSendQueue[index] = transaction;
+      notifyListeners();
+    }
+  }
+
+  // add transaction to queue
+  void sendQueueAddTransaction(CWTransaction transaction) {
+    transactionSendQueue.insert(0, transaction);
+
+    transactions =
+        transactions.where((element) => element.id != transaction.id).toList();
+
+    notifyListeners();
+  }
+
+  // remove transaction from queue
+  void sendQueueRemoveTransaction(String id) {
+    transactionSendQueue =
+        transactionSendQueue.where((t) => t.id != id).toList();
     notifyListeners();
   }
 }

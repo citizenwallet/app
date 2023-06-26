@@ -13,7 +13,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function() handleSendModal;
   final void Function() handleReceive;
   final void Function(String) handleTransactionTap;
-  final void Function() handleRetry;
+  final void Function(String) handleFailedTransactionTap;
 
   const WalletScrollView({
     Key? key,
@@ -22,7 +22,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleSendModal,
     required this.handleReceive,
     required this.handleTransactionTap,
-    required this.handleRetry,
+    required this.handleFailedTransactionTap,
   }) : super(key: key);
 
   @override
@@ -33,6 +33,9 @@ class WalletScrollView extends StatelessWidget {
         context.select((WalletState state) => state.transactionsLoading);
     final transactions =
         context.select((WalletState state) => state.transactions);
+
+    final queuedTransactions =
+        context.select((WalletState state) => state.transactionSendQueue);
 
     return CustomScrollView(
       controller: controller,
@@ -71,6 +74,44 @@ class WalletScrollView extends StatelessWidget {
             ),
           ),
         ),
+        if (queuedTransactions.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackground.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: const Text(
+                'Failed',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        if (queuedTransactions.isNotEmpty)
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              childCount: queuedTransactions.length,
+              (context, index) {
+                if (wallet == null) {
+                  return const SizedBox();
+                }
+
+                final transaction = queuedTransactions[index];
+
+                return Container(
+                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: TransactionRow(
+                    key: Key(transaction.id),
+                    transaction: transaction,
+                    wallet: wallet,
+                    onTap: handleFailedTransactionTap,
+                  ),
+                );
+              },
+            ),
+          ),
         SliverToBoxAdapter(
           child: Container(
             color: ThemeColors.uiBackground.resolveFrom(context),

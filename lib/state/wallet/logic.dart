@@ -735,11 +735,26 @@ class WalletLogic {
     _state.updateWalletBalanceError();
   }
 
+  void removeQueuedTransaction(String id) {
+    _state.sendQueueRemoveTransaction(id);
+  }
+
+  Future<bool> retryTransaction(String id) async {
+    final tx = _state.attemptRetryQueuedTransaction(id);
+
+    if (tx == null) {
+      return false;
+    }
+
+    return sendTransactionFromLocked('${double.parse(tx.amount) / 1000}', tx.to,
+        message: tx.title);
+  }
+
   Future<bool> sendTransaction(String amount, String to,
-      {String message = ''}) async {
+      {String message = '', String? id}) async {
     return kIsWeb
-        ? sendTransactionFromUnlocked(amount, to, message: message)
-        : sendTransactionFromLocked(amount, to, message: message);
+        ? sendTransactionFromUnlocked(amount, to, message: message, id: id)
+        : sendTransactionFromLocked(amount, to, message: message, id: id);
   }
 
   bool validateSendFields(String amount, String to) {
@@ -750,7 +765,7 @@ class WalletLogic {
   }
 
   Future<bool> sendTransactionFromLocked(String amount, String to,
-      {String message = ''}) async {
+      {String message = '', String? id}) async {
     try {
       _state.sendTransaction();
 
@@ -763,9 +778,12 @@ class WalletLogic {
 
       final doubleAmount = amount.replaceAll(',', '.');
 
+      final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
       _state.sendingTransaction(CWTransaction.sending(
         '${double.parse(doubleAmount) * 1000}',
-        id: pendingTransactionId,
+        id: tempId,
+        to: to,
         title: message,
         date: DateTime.now(),
       ));
@@ -775,12 +793,21 @@ class WalletLogic {
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
       if (!success) {
+        _state.sendQueueAddTransaction(CWTransaction.failed(
+          '${double.parse(doubleAmount) * 1000}',
+          id: tempId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ));
+
         throw Exception('transaction failed');
       }
 
       _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
-        id: pendingTransactionId,
+        id: tempId,
+        to: to,
         title: message,
         date: DateTime.now(),
       ));
@@ -801,7 +828,7 @@ class WalletLogic {
   }
 
   Future<bool> sendTransactionFromUnlocked(String amount, String to,
-      {String message = ''}) async {
+      {String message = '', String? id}) async {
     try {
       _state.sendTransaction();
 
@@ -814,9 +841,12 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
+      final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
       _state.sendingTransaction(CWTransaction.sending(
         '${double.parse(doubleAmount) * 1000}',
-        id: pendingTransactionId,
+        id: tempId,
+        to: to,
         title: message,
         date: DateTime.now(),
       ));
@@ -826,12 +856,21 @@ class WalletLogic {
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
       if (!success) {
+        _state.sendQueueAddTransaction(CWTransaction.failed(
+          '${double.parse(doubleAmount) * 1000}',
+          id: tempId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ));
+
         throw Exception('transaction failed');
       }
 
       _state.sendTransactionSuccess(CWTransaction.pending(
         '${double.parse(doubleAmount) * 1000}',
-        id: pendingTransactionId,
+        id: tempId,
+        to: to,
         title: message,
         date: DateTime.now(),
       ));
@@ -1167,6 +1206,16 @@ class WalletLogic {
     }
   }
 
+  void prepareEditQueuedTransaction(String id) {
+    final tx = _state.getQueuedTransaction(id);
+
+    if (tx == null) {
+      return;
+    }
+
+    prepareReplayTransaction(tx.to, amount: tx.amount, message: tx.title);
+  }
+
   void prepareReplayTransaction(
     String address, {
     String amount = '0.0',
@@ -1174,11 +1223,13 @@ class WalletLogic {
   }) {
     try {
       _addressController.text = address;
-      _state.setHasAddress(address.isNotEmpty);
 
       _amountController.text = (double.parse(amount) / 1000).toStringAsFixed(2);
 
       _messageController.text = message;
+
+      _state.resetTransactionSendProperties();
+      _state.resetInvalidInputs(notify: true);
     } catch (e) {
       print(e);
     }
@@ -1188,6 +1239,30 @@ class WalletLogic {
     if (_blockSubscription != null) {
       await _blockSubscription!.cancel();
     }
+  }
+
+  void amountIncrease(double bump) {
+    final amount = _amountController.value.text.isEmpty
+        ? 0
+        : double.tryParse(_amountController.value.text.replaceAll(',', '.')) ??
+            0;
+
+    final newAmount = amount + bump;
+
+    _amountController.text =
+        (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
+  }
+
+  void amountDecrease(double bump) {
+    final amount = _amountController.value.text.isEmpty
+        ? 0
+        : double.tryParse(_amountController.value.text.replaceAll(',', '.')) ??
+            0;
+
+    final newAmount = amount - bump;
+
+    _amountController.text =
+        (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
   }
 
   void dispose() {

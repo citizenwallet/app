@@ -17,8 +17,8 @@ class Chip extends StatefulWidget {
   const Chip(
     this.text, {
     super.key,
-    this.color = CupertinoColors.activeBlue,
-    this.textColor = CupertinoColors.white,
+    this.color = ThemeColors.surfacePrimary,
+    this.textColor = CupertinoColors.black,
     this.suffix,
     this.maxWidth = 300,
     this.borderRadius = 15,
