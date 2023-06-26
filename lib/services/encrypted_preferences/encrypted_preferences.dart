@@ -42,6 +42,7 @@ class EncryptedPreferencesService {
 
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
+        storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
       );
 
   IOSOptions _getIOSOptions(String groupId) => IOSOptions(
