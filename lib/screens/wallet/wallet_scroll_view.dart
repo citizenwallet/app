@@ -4,6 +4,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 class WalletScrollView extends StatelessWidget {
@@ -178,15 +179,18 @@ class WalletScrollView extends StatelessWidget {
               },
             ),
           ),
-        if (transactionsLoading && transactions.isNotEmpty)
+        if (transactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
               color: ThemeColors.uiBackground.resolveFrom(context),
-              child: Center(
-                child: CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
-                ),
-              ),
+              height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
+              child: transactionsLoading
+                  ? Center(
+                      child: CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    )
+                  : null,
             ),
           ),
       ],
