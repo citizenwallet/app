@@ -301,15 +301,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          Expanded(
-            child: WalletScrollView(
-              controller: _scrollController,
-              handleRefresh: handleRefresh,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
-              handleTransactionTap: handleTransactionTap,
-              handleFailedTransactionTap: handleFailedTransaction,
-            ),
+          WalletScrollView(
+            controller: _scrollController,
+            handleRefresh: handleRefresh,
+            handleSendModal: handleSendModal,
+            handleReceive: handleReceive,
+            handleTransactionTap: handleTransactionTap,
+            handleFailedTransactionTap: handleFailedTransaction,
           ),
           Header(
             transparent: true,
