@@ -1,6 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/services/db/wallet.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/wallet/utils.dart';
 import 'package:collection/collection.dart';
@@ -43,10 +42,10 @@ class WalletState with ChangeNotifier {
 
   bool isInvalidPassword = false;
 
-  List<DBWallet> dbWallets = [];
+  List<CWWallet> wallets = [];
 
-  bool dbWalletsLoading = false;
-  bool dbWalletsError = false;
+  bool cwWalletsLoading = false;
+  bool cwWalletsError = false;
 
   void setChainId(int chainId) {
     this.chainId = chainId;
@@ -384,43 +383,43 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadDBWallets() {
-    dbWalletsLoading = true;
-    dbWalletsError = false;
+  void loadWallets() {
+    cwWalletsLoading = true;
+    cwWalletsError = false;
     notifyListeners();
   }
 
-  void loadDBWalletsSuccess(List<DBWallet> wallets) {
-    dbWallets = wallets;
+  void loadWalletsSuccess(List<CWWallet> wallets) {
+    this.wallets = wallets;
 
-    dbWalletsLoading = false;
-    dbWalletsError = false;
+    cwWalletsLoading = false;
+    cwWalletsError = false;
     notifyListeners();
   }
 
-  void loadDBWalletsError() {
-    dbWalletsLoading = false;
-    dbWalletsError = true;
+  void loadWalletsError() {
+    cwWalletsLoading = false;
+    cwWalletsError = true;
     notifyListeners();
   }
 
-  void createDBWallet() {
-    dbWalletsLoading = true;
-    dbWalletsError = false;
+  void createWallet() {
+    cwWalletsLoading = true;
+    cwWalletsError = false;
     notifyListeners();
   }
 
-  void createDBWalletSuccess(DBWallet wallet) {
-    dbWallets.insert(0, wallet);
+  void createWalletSuccess(CWWallet wallet) {
+    wallets.insert(0, wallet);
 
-    dbWalletsLoading = false;
-    dbWalletsError = false;
+    cwWalletsLoading = false;
+    cwWalletsError = false;
     notifyListeners();
   }
 
-  void createDBWalletError() {
-    dbWalletsLoading = false;
-    dbWalletsError = true;
+  void createWalletError() {
+    cwWalletsLoading = false;
+    cwWalletsError = true;
     notifyListeners();
   }
 

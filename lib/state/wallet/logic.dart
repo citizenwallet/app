@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/services/db/wallet.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
@@ -425,19 +424,19 @@ class WalletLogic {
 
   Future<String?> createWallet(String name) async {
     try {
-      _state.createDBWallet();
+      _state.createWallet();
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
       final address = credentials.address.hex.toLowerCase();
 
-      final DBWallet dbwallet = DBWallet(
-        type: 'regular',
+      final CWWallet cwwallet = CWWallet(
+        '0.0',
         name: name,
         address: address,
-        publicKey: credentials.encodedPublicKey,
-        balance: 0,
-        wallet: '',
+        account: '',
+        currencyName: '',
+        symbol: '',
         locked: false,
       );
 
@@ -449,8 +448,8 @@ class WalletLogic {
 
       await _preferences.setLastWallet(address);
 
-      _state.createDBWalletSuccess(
-        dbwallet,
+      _state.createWalletSuccess(
+        cwwallet,
       );
 
       return credentials.address.hex;
@@ -458,14 +457,14 @@ class WalletLogic {
       print(e);
     }
 
-    _state.createDBWalletError();
+    _state.createWalletError();
 
     return null;
   }
 
   Future<String?> importWallet(String qrWallet, String name) async {
     try {
-      _state.createDBWallet();
+      _state.createWallet();
 
       // check if it is a private key and create a new wallet from the private key with auto-password
       final isPrivateKey = isValidPrivateKey(qrWallet);
@@ -477,13 +476,13 @@ class WalletLogic {
 
         final address = credentials.address.hex.toLowerCase();
 
-        final DBWallet dbwallet = DBWallet(
-          type: 'regular',
+        final CWWallet cwwallet = CWWallet(
+          '0.0',
           name: name,
           address: address,
-          publicKey: credentials.encodedPublicKey,
-          balance: 0,
-          wallet: '{}',
+          account: '',
+          currencyName: '',
+          symbol: '',
           locked: false,
         );
 
@@ -495,7 +494,7 @@ class WalletLogic {
 
         await _preferences.setLastWallet(address);
 
-        _state.createDBWalletSuccess(dbwallet);
+        _state.createWalletSuccess(cwwallet);
 
         return address;
       }
@@ -506,14 +505,14 @@ class WalletLogic {
 
       final address = wallet.data.address.toLowerCase();
 
-      final DBWallet dbwallet = DBWallet(
-        type: 'regular',
+      final CWWallet cwwallet = CWWallet(
+        '0.0',
         name: name,
         address: address,
-        publicKey: wallet.data.publicKey,
-        balance: 0,
-        wallet: jsonEncode(wallet.data.wallet),
-        locked: true,
+        account: '',
+        currencyName: '',
+        symbol: '',
+        locked: false,
       );
 
       // TODO: fix this, not sure if we can extract the private key from the wallet json like this
@@ -525,14 +524,14 @@ class WalletLogic {
 
       await _preferences.setLastWallet(address);
 
-      _state.createDBWalletSuccess(dbwallet);
+      _state.createWalletSuccess(cwwallet);
 
       return address;
     } catch (e) {
       print(e);
     }
 
-    _state.createDBWalletError();
+    _state.createWalletError();
 
     return null;
   }
@@ -559,7 +558,7 @@ class WalletLogic {
       print(e);
     }
 
-    _state.createDBWalletError();
+    _state.createWalletError();
   }
 
   void onTransfer(Transfer tx) async {
@@ -631,7 +630,7 @@ class WalletLogic {
       print(e);
     }
 
-    _state.createDBWalletError();
+    _state.createWalletError();
   }
 
   Future<void> loadTransactions() async {
@@ -1169,19 +1168,19 @@ class WalletLogic {
 
   Future<void> loadDBWallets() async {
     try {
-      _state.loadDBWallets();
+      _state.loadWallets();
 
       final wallets = await _encPrefs.getAllWalletBackups();
 
-      _state.loadDBWalletsSuccess(wallets
-          .map((w) => DBWallet(
-                type: 'regular',
+      _state.loadWalletsSuccess(wallets
+          .map((w) => CWWallet(
+                '0.0',
                 name: w.name,
                 address: w.address,
-                publicKey: EthPrivateKey.fromHex(w.privateKey).encodedPublicKey,
-                balance: 0,
-                wallet: '{}',
-                locked: w.privateKey.isEmpty,
+                account: '',
+                currencyName: '',
+                symbol: '',
+                locked: false,
               ))
           .toList());
       return;
@@ -1190,7 +1189,7 @@ class WalletLogic {
       print(e);
     }
 
-    _state.loadDBWalletsError();
+    _state.loadWalletsError();
   }
 
   void prepareReplyTransaction(String address) {

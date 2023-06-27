@@ -443,6 +443,18 @@ class WalletService {
     return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
   }
 
+  /// contracts
+
+  // get account address
+  Future<EthereumAddress> getAccountAddress(String addr) async {
+    final credentials = unlock();
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
+    return _contractAccountFactory.getAddress(addr);
+  }
+
   /// ERC 4337
 
   /// makes a jsonrpc request from this wallet
