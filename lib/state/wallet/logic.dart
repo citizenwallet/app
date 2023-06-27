@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/signer.dart';
+import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -21,7 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-// import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:rate_limiter/rate_limiter.dart';
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -43,8 +44,13 @@ class WalletLogic {
   TextEditingController get amountController => _amountController;
   TextEditingController get messageController => _messageController;
 
+  late Throttle updateBalance;
+
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
+
+    updateBalance =
+        throttle(_updateBalance, const Duration(milliseconds: 1000));
   }
 
   WalletService walletServiceCheck() {
@@ -116,133 +122,6 @@ class WalletLogic {
     _state.switchChainError();
   }
 
-  // Future<void> instantiateWalletFromDB(String address) async {
-  //   try {
-  //     _state.instantiateWallet();
-
-  //     final int chainId = _preferences.chainId;
-
-  //     _state.setChainId(chainId);
-
-  //     final dbWallet = await _db.wallet.getWallet(address);
-
-  //     final wallet = await walletServiceFromChain(
-  //       BigInt.from(chainId),
-  //       address,
-  //     );
-
-  //     if (wallet == null) {
-  //       throw Exception('chain not found');
-  //     }
-
-  //     _wallet = wallet;
-
-  //     final walletService = walletServiceCheck();
-
-  //     await walletService.init();
-
-  //     _state.instantiateWalletSuccess();
-
-  //     return;
-  //   } catch (e) {
-  //     print('error');
-  //     print(e);
-  //   }
-
-  //   _state.instantiateWalletError();
-  // }
-
-  // Future<void> instantiateWalletFromFile(
-  //     QRWallet qrWallet, String password) async {
-  //   try {
-  //     _state.instantiateWallet();
-
-  //     final int chainId = _preferences.chainId;
-
-  //     _state.setChainId(chainId);
-
-  //     final wallet = await walletServiceFromWallet(
-  //       BigInt.from(chainId),
-  //       jsonEncode(qrWallet.data.wallet),
-  //       password,
-  //     );
-
-  //     if (wallet == null) {
-  //       throw Exception('chain not found');
-  //     }
-
-  //     _wallet = wallet;
-
-  //     final walletService = walletServiceCheck();
-
-  //     await walletService.initUnlocked();
-
-  //     _state.instantiateWalletSuccess();
-
-  //     return;
-  //   } catch (e) {
-  //     print('error');
-  //     print(e);
-  //   }
-
-  //   _state.instantiateWalletError();
-  // }
-
-  // Future<void> openWalletFromDB(String address) async {
-  //   try {
-  //     _state.loadWallet();
-
-  //     final int chainId = _preferences.chainId;
-
-  //     _state.setChainId(chainId);
-
-  //     final dbWallet = await _db.wallet.getWallet(address);
-
-  //     final wallet = await walletServiceFromChain(
-  //       BigInt.from(chainId),
-  //       address,
-  //     );
-
-  //     if (wallet == null) {
-  //       throw Exception('chain not found');
-  //     }
-
-  //     _wallet = wallet;
-
-  //     final walletService = walletServiceCheck();
-
-  //     await walletService.init();
-
-  //     final balance = await walletService.balance;
-  //     final currency = walletService.nativeCurrency;
-
-  //     await cleanupBlockSubscription();
-
-  //     _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
-
-  //     await _preferences.setLastWallet(address);
-
-  //     _state.loadWalletSuccess(
-  //       CWWallet(
-  //         balance,
-  //         name: dbWallet.name,
-  //         address: walletService.address.hex,
-  //         currencyName: currency.name,
-  //         symbol: currency.symbol,
-  //         decimalDigits: currency.decimals,
-  //         locked: dbWallet.locked,
-  //       ),
-  //     );
-
-  //     return;
-  //   } catch (e) {
-  //     print('error');
-  //     print(e);
-  //   }
-
-  //   _state.loadWalletError();
-  // }
-
   Future<void> resetWalletPreferences() async {
     try {
       await _preferences.clear();
@@ -292,7 +171,7 @@ class WalletLogic {
 
       await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
+      onTransferSubscribe();
 
       await _preferences.setLastWallet(wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
@@ -391,7 +270,7 @@ class WalletLogic {
 
       await cleanupBlockSubscription();
 
-      _blockSubscription = walletService.erc20TransferStream.listen(onTransfer);
+      onTransferSubscribe();
 
       _state.loadWalletSuccess(
         CWWallet(
@@ -561,7 +440,27 @@ class WalletLogic {
     _state.createWalletError();
   }
 
-  void onTransfer(Transfer tx) async {
+  void onTransferSubscribe() async {
+    try {
+      final walletService = walletServiceCheck();
+
+      _blockSubscription?.cancel();
+
+      await delay(const Duration(milliseconds: 250));
+
+      _blockSubscription = walletService.erc20TransferStream
+          .listen(onTransferData, onError: onTransferError);
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+
+    await delay(const Duration(milliseconds: 250));
+
+    onTransferSubscribe();
+  }
+
+  void onTransferData(Transfer tx) async {
     final walletService = walletServiceCheck();
 
     if (tx.event.removed == false &&
@@ -600,6 +499,15 @@ class WalletLogic {
 
       _state.incomingTransactionsRequestError();
     }
+  }
+
+  void onTransferError(Object error) {
+    print('error');
+    print(error);
+
+    _state.incomingTransactionsRequestError();
+
+    onTransferSubscribe();
   }
 
   // takes a password and returns a wallet
@@ -716,7 +624,7 @@ class WalletLogic {
     _state.loadAdditionalTransactionsError();
   }
 
-  Future<void> updateBalance() async {
+  Future<void> _updateBalance() async {
     try {
       _state.updateWalletBalance();
 
@@ -765,6 +673,10 @@ class WalletLogic {
 
   Future<bool> sendTransactionFromLocked(String amount, String to,
       {String message = '', String? id}) async {
+    final doubleAmount = amount.replaceAll(',', '.');
+
+    final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
     try {
       _state.sendTransaction();
 
@@ -774,10 +686,6 @@ class WalletLogic {
       }
 
       final walletService = walletServiceCheck();
-
-      final doubleAmount = amount.replaceAll(',', '.');
-
-      final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
       _state.sendingTransaction(CWTransaction.sending(
         '${double.parse(doubleAmount) * 1000}',
@@ -814,9 +722,36 @@ class WalletLogic {
       clearInputControllers();
 
       return true;
+    } on NetworkCongestedException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+            id: tempId,
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkCongestedException().message),
+      );
+    } on NetworkInvalidBalanceException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+            id: tempId,
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkInvalidBalanceException().message),
+      );
     } catch (e) {
       print('error');
       print(e);
+
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+            id: tempId,
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkUnknownException().message),
+      );
     }
 
     _state.sendTransactionError();
@@ -826,6 +761,10 @@ class WalletLogic {
 
   Future<bool> sendTransactionFromUnlocked(String amount, String to,
       {String message = '', String? id}) async {
+    final doubleAmount = amount.replaceAll(',', '.');
+
+    final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
     try {
       _state.sendTransaction();
 
@@ -834,11 +773,7 @@ class WalletLogic {
         throw Exception('invalid address');
       }
 
-      final doubleAmount = amount.replaceAll(',', '.');
-
       final walletService = walletServiceCheck();
-
-      final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
       _state.sendingTransaction(CWTransaction.sending(
         '${double.parse(doubleAmount) * 1000}',
@@ -875,6 +810,24 @@ class WalletLogic {
       clearInputControllers();
 
       return true;
+    } on NetworkCongestedException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+            id: tempId,
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkCongestedException().message),
+      );
+    } on NetworkInvalidBalanceException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+            id: tempId,
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkInvalidBalanceException().message),
+      );
     } catch (e) {
       print('error');
       print(e);
@@ -1260,10 +1213,7 @@ class WalletLogic {
         (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
   }
 
-  void dispose() {
-    _addressController.dispose();
-    _amountController.dispose();
-    _messageController.dispose();
+  void cleanupWalletService() {
     try {
       final walletService = walletServiceCheck();
       walletService.dispose();
@@ -1271,5 +1221,13 @@ class WalletLogic {
       print(e);
     }
     cleanupBlockSubscription();
+  }
+
+  void dispose() {
+    _addressController.dispose();
+    _amountController.dispose();
+    _messageController.dispose();
+
+    cleanupWalletService();
   }
 }

@@ -86,7 +86,7 @@ class TransactionRow extends StatelessWidget {
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                      if (transaction.title != '')
+                      if (transaction.title != '' && !transaction.isFailed)
                         SizedBox(
                           height: 20,
                           child: Text(
@@ -98,6 +98,20 @@ class TransactionRow extends StatelessWidget {
                               fontWeight: FontWeight.normal,
                               color:
                                   ThemeColors.subtleText.resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                      if (transaction.isFailed && transaction.error != '')
+                        SizedBox(
+                          height: 20,
+                          child: Text(
+                            transaction.error,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: ThemeColors.danger.resolveFrom(context),
                             ),
                           ),
                         ),

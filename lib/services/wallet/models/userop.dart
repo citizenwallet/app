@@ -4,6 +4,28 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
 
+const String gasFeeErrorMessage =
+    'pending ops: replacement op must increase maxFeePerGas and MaxPriorityFeePerGas';
+const String invalidBalanceErrorMessage = 'transfer amount exceeds balance';
+
+class NetworkCongestedException implements Exception {
+  final String message = 'network congestion';
+
+  NetworkCongestedException();
+}
+
+class NetworkInvalidBalanceException implements Exception {
+  final String message = 'insufficient balance';
+
+  NetworkInvalidBalanceException();
+}
+
+class NetworkUnknownException implements Exception {
+  final String message = 'network error';
+
+  NetworkUnknownException();
+}
+
 const String zeroAddress = '0x0000000000000000000000000000000000000000';
 final BigInt defaultCallGasLimit = BigInt.from(35000);
 final BigInt defaultVerificationGasLimit = BigInt.from(70000);

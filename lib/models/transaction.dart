@@ -62,6 +62,7 @@ class CWTransaction {
   final DateTime date;
   final int blockNumber;
 
+  String error = '';
   TransactionState state = TransactionState.success;
 
   CWTransaction(
@@ -107,6 +108,7 @@ class CWTransaction {
     required this.date,
     this.blockNumber = 0,
     this.state = TransactionState.failed,
+    this.error = '',
   });
 
   // copy with
@@ -138,6 +140,7 @@ class CWTransaction {
 
   bool get isSending => state == TransactionState.sending;
   bool get isPending => state == TransactionState.pending;
+  bool get isFailed => state == TransactionState.failed;
 
   bool get isProcessing => isSending || isPending;
 
