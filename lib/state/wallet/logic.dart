@@ -22,7 +22,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:rate_limiter/rate_limiter.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -43,13 +42,8 @@ class WalletLogic {
   TextEditingController get amountController => _amountController;
   TextEditingController get messageController => _messageController;
 
-  late Throttle updateBalance;
-
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
-
-    updateBalance =
-        throttle(_updateBalance, const Duration(milliseconds: 1000));
   }
 
   WalletService walletServiceCheck() {
@@ -611,7 +605,7 @@ class WalletLogic {
     _state.loadAdditionalTransactionsError();
   }
 
-  Future<void> _updateBalance() async {
+  Future<void> updateBalance() async {
     try {
       _state.updateWalletBalance();
 
