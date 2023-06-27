@@ -33,7 +33,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      print('post frame callback...');
       _logic = WalletLogic(context);
 
       _scrollController.addListener(onScrollUpdate);
@@ -48,8 +47,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.dispose();
 
-    print('disposing...');
-
     super.dispose();
   }
 
@@ -58,9 +55,7 @@ class WalletScreenState extends State<WalletScreen> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.address != widget.address) {
-      print('address changed');
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        print('address changed post frame callback...');
         onLoad();
       });
     }
@@ -83,7 +78,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    print('loading...');
     if (widget.address == null) {
       return;
     }
@@ -190,8 +184,6 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     _logic.cleanupWalletService();
-
-    print('switching...');
 
     navigator.go('/wallet/${address.toLowerCase()}');
   }
