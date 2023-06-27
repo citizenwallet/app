@@ -277,10 +277,10 @@ class WalletState with ChangeNotifier {
           .transactions
           .where((element) => !isPendingTransactionId(element.id))
           .toList();
-    }
 
-    transactionsFromDate =
-        DateTime.now().toUtc().subtract(const Duration(seconds: 1));
+      transactionsFromDate =
+          DateTime.now().toUtc().subtract(const Duration(seconds: 1));
+    }
 
     transactionsLoading = false;
     transactionsError = false;

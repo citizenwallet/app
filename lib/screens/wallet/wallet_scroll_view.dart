@@ -32,8 +32,8 @@ class WalletScrollView extends StatelessWidget {
 
     final transactionsLoading =
         context.select((WalletState state) => state.transactionsLoading);
-    final transactions =
-        context.select((WalletState state) => state.transactions);
+
+    final transactions = context.watch<WalletState>().transactions;
 
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
