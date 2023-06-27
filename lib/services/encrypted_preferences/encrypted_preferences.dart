@@ -42,6 +42,7 @@ class EncryptedPreferencesService {
 
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
+        storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
       );
 
   IOSOptions _getIOSOptions(String groupId) => IOSOptions(
@@ -64,22 +65,6 @@ class EncryptedPreferencesService {
       aOptions: _getAndroidOptions(),
       mOptions: _getMacOsOptions(groupId),
     );
-  }
-
-  Future<void> setWalletPassword(String address, String password) async {
-    final saved =
-        await _preferences.containsKey(key: 'w_${address.toLowerCase()}');
-    if (saved) {
-      await _preferences.delete(key: 'w_${address.toLowerCase()}');
-    }
-
-    await _preferences.write(
-        key: 'w_${address.toLowerCase()}', value: password);
-  }
-
-  // get wallet password
-  Future<String?> getWalletPassword(String address) async {
-    return _preferences.read(key: 'w_${address.toLowerCase()}');
   }
 
   // handle wallet backups

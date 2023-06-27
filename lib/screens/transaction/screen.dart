@@ -50,6 +50,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       barrierDismissible: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        to: address,
       ),
     );
   }
@@ -75,6 +76,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       barrierDismissible: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        to: address,
       ),
     );
   }
@@ -92,14 +94,14 @@ class TransactionScreenState extends State<TransactionScreen> {
       return const SizedBox();
     }
 
-    final isIncoming = transaction.isIncoming(wallet.address);
+    final isIncoming = transaction.isIncoming(wallet.account);
 
-    final from = transaction.isIncoming(wallet.address)
+    final from = transaction.isIncoming(wallet.account)
         ? transaction.from
         : transaction.to;
 
     final author =
-        getTransactionAuthor(wallet.address, transaction.from, transaction.to);
+        getTransactionAuthor(wallet.account, transaction.from, transaction.to);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -187,7 +189,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Chip(
-                                  onTap: () => handleCopy(wallet.address),
+                                  onTap: () => handleCopy(wallet.account),
                                   formatHexAddress(from),
                                   color: ThemeColors.subtleEmphasis
                                       .resolveFrom(context),
@@ -357,7 +359,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              transaction.isIncoming(wallet.address)
+                              transaction.isIncoming(wallet.account)
                                   ? CupertinoButton(
                                       padding: const EdgeInsets.all(5),
                                       onPressed: () =>

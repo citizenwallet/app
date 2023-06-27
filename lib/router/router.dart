@@ -1,4 +1,5 @@
 import 'package:citizenwallet/router/shell.dart';
+import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -71,10 +72,16 @@ GoRouter createRouter(
               pageBuilder: (context, state) => NoTransitionPage(
                 key: state.pageKey,
                 name: state.name,
-                child: const SettingsScreen(),
+                child: SettingsScreen(),
               ),
             ),
           ],
+        ),
+        GoRoute(
+          name: 'About',
+          path: '/about',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => const AboutScreen(),
         ),
       ],
     );

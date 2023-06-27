@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:rxdart/rxdart.dart';
 
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class TransferEvent {
@@ -73,8 +75,42 @@ class ERC20Contract {
     return balance;
   }
 
-  Stream<Transfer> listen(BlockNum fromBlock) {
-    return contract.transferEvents(fromBlock: fromBlock);
+  Stream<Transfer> listen(BlockNum fromBlock, EthereumAddress owner) {
+    final event = rcontract.event('Transfer');
+
+    final filter1 = FilterOptions(
+      fromBlock: fromBlock,
+      address: EthereumAddress.fromHex(addr),
+      topics: [
+        [bytesToHex(event.signature, padToEvenLength: true, include0x: true)],
+        [bytesToHex(owner.addressBytes, forcePadLength: 64, include0x: true)],
+      ],
+    );
+
+    final filter2 = FilterOptions(
+      fromBlock: fromBlock,
+      address: EthereumAddress.fromHex(addr),
+      topics: [
+        [bytesToHex(event.signature, padToEvenLength: true, include0x: true)],
+        [],
+        [bytesToHex(owner.addressBytes, forcePadLength: 64, include0x: true)],
+      ],
+    );
+
+    return MergeStream([client.events(filter1), client.events(filter2)])
+        .map((FilterEvent result) {
+      final decoded = event.decodeResults(
+        result.topics!,
+        result.data!,
+      );
+
+      return Transfer(
+        decoded,
+        result,
+      );
+    });
+
+    // return contract.transferEvents(fromBlock: fromBlock);
   }
 
   Uint8List transferCallData(String to, BigInt amount) {

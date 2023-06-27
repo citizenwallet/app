@@ -19,14 +19,13 @@ class TransactionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncoming = transaction.isIncoming(wallet.address);
+    final isIncoming = transaction.isIncoming(wallet.account);
     final address =
         formatHexAddress(isIncoming ? transaction.from : transaction.to);
 
     return GestureDetector(
-      onTap: transaction.isPending || transaction.isSending
-          ? null
-          : () => onTap?.call(transaction.id),
+      onTap:
+          transaction.isProcessing ? null : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
         key: super.key,
         duration: const Duration(milliseconds: 300),
@@ -53,24 +52,25 @@ class TransactionRow extends StatelessWidget {
           children: [
             Row(
               children: [
-                transaction.state == TransactionState.sending
-                    ? SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: Center(
-                          child: CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
+                switch (transaction.state) {
+                  TransactionState.sending => SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                        child: CupertinoActivityIndicator(
+                          color: ThemeColors.subtle.resolveFrom(context),
                         ),
-                      )
-                    : ProfileCircle(
-                        size: 50,
-                        imageUrl: getTransactionAuthor(wallet.address,
-                                transaction.from, transaction.to)
-                            .icon,
-                        backgroundColor: ThemeColors.white,
-                        borderColor: ThemeColors.subtle,
                       ),
+                    ),
+                  _ => ProfileCircle(
+                      size: 50,
+                      imageUrl: getTransactionAuthor(
+                              wallet.account, transaction.from, transaction.to)
+                          .icon,
+                      backgroundColor: ThemeColors.white,
+                      borderColor: ThemeColors.subtle,
+                    ),
+                },
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -78,7 +78,6 @@ class TransactionRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        // '${transaction.isIncoming(wallet.address) ? transaction.from == wallet.address ? 'Me' : 'Unknown' : transaction.to == wallet.address ? 'Me' : 'Unknown'} $address',
                         address,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -87,19 +86,35 @@ class TransactionRow extends StatelessWidget {
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                        child: Text(
-                          transaction.title == '' ? '...' : transaction.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
+                      if (transaction.title != '' && !transaction.isFailed)
+                        SizedBox(
+                          height: 20,
+                          child: Text(
+                            transaction.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color:
+                                  ThemeColors.subtleText.resolveFrom(context),
+                            ),
                           ),
                         ),
-                      ),
+                      if (transaction.isFailed && transaction.error != '')
+                        SizedBox(
+                          height: 20,
+                          child: Text(
+                            transaction.error,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: ThemeColors.danger.resolveFrom(context),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -187,6 +202,8 @@ class TransactionRow extends StatelessWidget {
                             TransactionState.sending => CupertinoIcons.arrow_up,
                             TransactionState.pending =>
                               CupertinoIcons.checkmark_alt,
+                            TransactionState.failed =>
+                              CupertinoIcons.exclamationmark,
                             _ => CupertinoIcons.checkmark_alt,
                           },
                           color: ThemeColors.black,

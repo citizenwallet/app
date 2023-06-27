@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -33,19 +33,19 @@ class DBService {
   DBService._internal();
 
   late Database _db;
-  late WalletTable wallet;
+  late TransactionTable transactions;
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
     final db = await openDatabase(
       path,
       onConfigure: (db) async {
-        // instantiate wallet table
-        wallet = WalletTable(db);
+        // instantiate a transactions table
+        transactions = TransactionTable(db);
       },
       onCreate: (db, version) async {
         // migrate data
-        await wallet.migrate(db, version);
+        await transactions.migrate(db, version);
 
         return;
       },

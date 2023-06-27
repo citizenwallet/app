@@ -1,13 +1,9 @@
-import 'dart:convert';
-
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
-import 'package:citizenwallet/services/db/wallet.dart';
-import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
@@ -19,8 +15,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:web3dart/crypto.dart';
-import 'package:web3dart/web3dart.dart';
 
 class SwitchWalletModal extends StatefulWidget {
   final WalletLogic logic;
@@ -259,12 +253,12 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
-    final dbWalletsLoading = context.select<WalletState, bool>(
-      (state) => state.dbWalletsLoading,
+    final cwWalletsLoading = context.select<WalletState, bool>(
+      (state) => state.cwWalletsLoading,
     );
 
-    final dbWallets = context.select<WalletState, List<DBWallet>>(
-      (state) => state.dbWallets,
+    final cwWallets = context.select<WalletState, List<CWWallet>>(
+      (state) => state.wallets,
     );
 
     return DismissibleModalPopup(
@@ -305,7 +299,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                           CupertinoSliverRefreshControl(
                             onRefresh: handleRefresh,
                           ),
-                          if (dbWalletsLoading && dbWallets.isEmpty)
+                          if (cwWalletsLoading && cwWallets.isEmpty)
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 childCount: 1,
@@ -319,11 +313,11 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                             ),
                           SliverList(
                             delegate: SliverChildBuilderDelegate(
-                              childCount: dbWalletsLoading && dbWallets.isEmpty
+                              childCount: cwWalletsLoading && cwWallets.isEmpty
                                   ? 0
-                                  : dbWallets.length,
+                                  : cwWallets.length,
                               (context, index) {
-                                final wallet = dbWallets[index];
+                                final wallet = cwWallets[index];
 
                                 return WalletRow(
                                   key: Key(wallet.address),

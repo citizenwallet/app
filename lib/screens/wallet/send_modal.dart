@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
@@ -19,7 +21,15 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
 
-  const SendModal({Key? key, required this.logic}) : super(key: key);
+  final String? id;
+  final String? to;
+
+  const SendModal({
+    Key? key,
+    required this.logic,
+    this.id,
+    this.to,
+  }) : super(key: key);
 
   @override
   SendModalState createState() => SendModalState();
@@ -60,6 +70,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   }
 
   void onLoad() {
+    if (widget.to != null || widget.id != null) {
+      return;
+    }
     handleQRScan();
   }
 
@@ -124,6 +137,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       widget.logic.amountController.value.text,
       widget.logic.addressController.value.text,
       message: widget.logic.messageController.value.text,
+      id: widget.id,
     );
 
     widget.logic.clearInputControllers();
@@ -135,6 +149,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     navigator.pop();
     return;
+  }
+
+  void handleIncrement(double amount) {
+    widget.logic.amountIncrease(amount);
+  }
+
+  void handleDecrement(double amount) {
+    widget.logic.amountDecrease(amount);
   }
 
   @override
@@ -205,87 +227,110 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 20),
-                          const Text(
-                            'To',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          CupertinoTextField(
-                            controller: widget.logic.addressController,
-                            placeholder: 'Enter an address',
-                            maxLines: 1,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (_) => handleThrottledUpdateAddress(),
-                            decoration: invalidAddress ||
-                                    parsingQRAddressError ||
-                                    transactionSendError
-                                ? BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
+                          if (widget.to == null)
+                            const Text(
+                              'To',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                          if (widget.to == null) const SizedBox(height: 10),
+                          if (widget.to != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'To',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Chip(
+                                  formatHexAddress(widget.to!),
+                                  color: ThemeColors.subtleEmphasis
+                                      .resolveFrom(context),
+                                  textColor: ThemeColors.touchable
+                                      .resolveFrom(context),
+                                  maxWidth: 160,
+                                ),
+                              ],
+                            ),
+                          if (widget.to == null)
+                            CupertinoTextField(
+                              controller: widget.logic.addressController,
+                              placeholder: 'Enter an address',
+                              maxLines: 1,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              textInputAction: TextInputAction.next,
+                              onChanged: (_) => handleThrottledUpdateAddress(),
+                              decoration: invalidAddress ||
+                                      parsingQRAddressError ||
+                                      transactionSendError
+                                  ? BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: ThemeColors.danger,
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                    )
+                                  : BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: ThemeColors.border
+                                            .resolveFrom(context),
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
                                     ),
-                                    border: Border.all(
-                                      color: ThemeColors.danger,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
-                                  )
-                                : BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: ThemeColors.border
-                                          .resolveFrom(context),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                              prefix: Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: Icon(
+                                    CupertinoIcons.creditcard,
+                                    color: hasAddress
+                                        ? ThemeColors.text.resolveFrom(context)
+                                        : ThemeColors.subtleEmphasis
+                                            .resolveFrom(context),
                                   ),
-                            prefix: Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: Icon(
-                                  CupertinoIcons.creditcard,
-                                  color: hasAddress
-                                      ? ThemeColors.text.resolveFrom(context)
-                                      : ThemeColors.subtleEmphasis
-                                          .resolveFrom(context),
                                 ),
                               ),
-                            ),
 
-                            /// TODO: selection from contacts
-                            // suffix: GestureDetector(
-                            //   onTap:
-                            //       parsingQRAddress ? null : handleQRAddressScan,
-                            //   child: Center(
-                            //     child: Padding(
-                            //       padding:
-                            //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            //       child: parsingQRAddress
-                            //           ? CupertinoActivityIndicator(
-                            //               color: ThemeColors.background
-                            //                   .resolveFrom(context),
-                            //             )
-                            //           : Icon(
-                            //               CupertinoIcons.person_alt,
-                            //               color: ThemeColors.primary
-                            //                   .resolveFrom(context),
-                            //             ),
-                            //     ),
-                            //   ),
-                            // ),
-                            onSubmitted: (_) {
-                              amountFocuseNode.requestFocus();
-                            },
-                          ),
+                              /// TODO: selection from contacts
+                              // suffix: GestureDetector(
+                              //   onTap:
+                              //       parsingQRAddress ? null : handleQRAddressScan,
+                              //   child: Center(
+                              //     child: Padding(
+                              //       padding:
+                              //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              //       child: parsingQRAddress
+                              //           ? CupertinoActivityIndicator(
+                              //               color: ThemeColors.background
+                              //                   .resolveFrom(context),
+                              //             )
+                              //           : Icon(
+                              //               CupertinoIcons.person_alt,
+                              //               color: ThemeColors.primary
+                              //                   .resolveFrom(context),
+                              //             ),
+                              //     ),
+                              //   ),
+                              // ),
+                              onSubmitted: (_) {
+                                amountFocuseNode.requestFocus();
+                              },
+                            ),
                           const SizedBox(height: 20),
                           const Text(
                             'Amount',
@@ -293,76 +338,117 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                 fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
-                          CupertinoTextField(
-                            controller: widget.logic.amountController,
-                            placeholder: formatCurrency(1050.00, ''),
-                            prefix: Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: Text(
-                                  wallet?.symbol ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
-                                  textAlign: TextAlign.center,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 240,
+                                ),
+                                child: CupertinoTextField(
+                                  controller: widget.logic.amountController,
+                                  placeholder: formatCurrency(1050.00, ''),
+                                  prefix: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 10, 0),
+                                      child: Text(
+                                        wallet?.symbol ?? '',
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                  decoration: invalidAmount ||
+                                          transactionSendError
+                                      ? BoxDecoration(
+                                          color: const CupertinoDynamicColor
+                                              .withBrightness(
+                                            color: CupertinoColors.white,
+                                            darkColor: CupertinoColors.black,
+                                          ),
+                                          border: Border.all(
+                                            color: ThemeColors.danger,
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                        )
+                                      : BoxDecoration(
+                                          color: const CupertinoDynamicColor
+                                              .withBrightness(
+                                            color: CupertinoColors.white,
+                                            darkColor: CupertinoColors.black,
+                                          ),
+                                          border: Border.all(
+                                            color: ThemeColors.border
+                                                .resolveFrom(context),
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                        ),
+                                  maxLines: 1,
+                                  maxLength: 25,
+                                  focusNode: amountFocuseNode,
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                    signed: false,
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  inputFormatters: [
+                                    amountFormatter,
+                                  ],
+                                  onChanged: (_) =>
+                                      handleThrottledUpdateAmount(),
+                                  onSubmitted: (_) {
+                                    messageFocusNode.requestFocus();
+                                  },
                                 ),
                               ),
-                            ),
-                            decoration: invalidAmount || transactionSendError
-                                ? BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: ThemeColors.danger,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
-                                  )
-                                : BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: ThemeColors.border
-                                          .resolveFrom(context),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Chip(
+                                    '- 1',
+                                    maxWidth: 64,
+                                    onTap: () => handleDecrement(1),
                                   ),
-                            maxLines: 1,
-                            maxLength: 25,
-                            focusNode: amountFocuseNode,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                              signed: false,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            inputFormatters: [
-                              amountFormatter,
+                                  Chip(
+                                    '- 0.1',
+                                    maxWidth: 64,
+                                    onTap: () => handleDecrement(0.1),
+                                  ),
+                                  Chip(
+                                    '+ 0.1',
+                                    maxWidth: 64,
+                                    onTap: () => handleIncrement(0.1),
+                                  ),
+                                  Chip(
+                                    '+ 1',
+                                    maxWidth: 64,
+                                    onTap: () => handleIncrement(1),
+                                  ),
+                                ],
+                              ),
                             ],
-                            onChanged: (_) => handleThrottledUpdateAmount(),
-                            onSubmitted: (_) {
-                              messageFocusNode.requestFocus();
-                            },
                           ),
                           const SizedBox(height: 20),
                           const Text(
-                            'Message',
+                            'Description',
                             style: TextStyle(
                                 fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
                           CupertinoTextField(
                             controller: widget.logic.messageController,
-                            placeholder: 'Enter a message',
+                            placeholder: 'Enter a description',
                             maxLines: 4,
                             maxLength: 256,
                             focusNode: messageFocusNode,

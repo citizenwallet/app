@@ -4,6 +4,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 class WalletScrollView extends StatelessWidget {
@@ -13,7 +14,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function() handleSendModal;
   final void Function() handleReceive;
   final void Function(String) handleTransactionTap;
-  final void Function() handleRetry;
+  final void Function(String) handleFailedTransactionTap;
 
   const WalletScrollView({
     Key? key,
@@ -22,7 +23,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleSendModal,
     required this.handleReceive,
     required this.handleTransactionTap,
-    required this.handleRetry,
+    required this.handleFailedTransactionTap,
   }) : super(key: key);
 
   @override
@@ -33,6 +34,9 @@ class WalletScrollView extends StatelessWidget {
         context.select((WalletState state) => state.transactionsLoading);
     final transactions =
         context.select((WalletState state) => state.transactions);
+
+    final queuedTransactions =
+        context.select((WalletState state) => state.transactionSendQueue);
 
     return CustomScrollView(
       controller: controller,
@@ -49,6 +53,7 @@ class WalletScrollView extends StatelessWidget {
           ) =>
               Container(
             color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
             child: CupertinoSliverRefreshControl.buildRefreshIndicator(
               context,
               mode,
@@ -71,6 +76,44 @@ class WalletScrollView extends StatelessWidget {
             ),
           ),
         ),
+        if (queuedTransactions.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackground.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: const Text(
+                'Failed',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        if (queuedTransactions.isNotEmpty)
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              childCount: queuedTransactions.length,
+              (context, index) {
+                if (wallet == null) {
+                  return const SizedBox();
+                }
+
+                final transaction = queuedTransactions[index];
+
+                return Container(
+                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: TransactionRow(
+                    key: Key(transaction.id),
+                    transaction: transaction,
+                    wallet: wallet,
+                    onTap: handleFailedTransactionTap,
+                  ),
+                );
+              },
+            ),
+          ),
         SliverToBoxAdapter(
           child: Container(
             color: ThemeColors.uiBackground.resolveFrom(context),
@@ -112,46 +155,42 @@ class WalletScrollView extends StatelessWidget {
               ),
             ),
           ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            childCount: transactionsLoading && transactions.isEmpty
-                ? 0
-                : transactions.length,
-            (context, index) {
-              if (transactionsLoading && transactions.isEmpty) {
-                return CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
+        if (transactions.isNotEmpty)
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              childCount: transactions.length,
+              (context, index) {
+                if (wallet == null) {
+                  return const SizedBox();
+                }
+
+                final transaction = transactions[index];
+
+                return Container(
+                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: TransactionRow(
+                    key: Key(transaction.id),
+                    transaction: transaction,
+                    wallet: wallet,
+                    onTap: handleTransactionTap,
+                  ),
                 );
-              }
-
-              if (wallet == null) {
-                return const SizedBox();
-              }
-
-              final transaction = transactions[index];
-
-              return Container(
-                color: ThemeColors.uiBackground.resolveFrom(context),
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: TransactionRow(
-                  key: Key(transaction.id),
-                  transaction: transaction,
-                  wallet: wallet,
-                  onTap: handleTransactionTap,
-                ),
-              );
-            },
+              },
+            ),
           ),
-        ),
-        if (transactionsLoading && transactions.isNotEmpty)
+        if (transactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
               color: ThemeColors.uiBackground.resolveFrom(context),
-              child: Center(
-                child: CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
-                ),
-              ),
+              height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
+              child: transactionsLoading
+                  ? Center(
+                      child: CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    )
+                  : null,
             ),
           ),
       ],

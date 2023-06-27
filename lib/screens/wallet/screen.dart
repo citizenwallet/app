@@ -33,7 +33,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      print('loading again');
       _logic = WalletLogic(context);
 
       _scrollController.addListener(onScrollUpdate);
@@ -49,6 +48,17 @@ class WalletScreenState extends State<WalletScreen> {
     _logic.dispose();
 
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(WalletScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.address != widget.address) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        onLoad();
+      });
+    }
   }
 
   void onScrollUpdate() {
@@ -72,17 +82,6 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    final navigator = GoRouter.of(context);
-
-    final address = _logic.lastWallet;
-
-    if (widget.address! == 'last' && address != null) {
-      _logic.dispose();
-
-      navigator.push('/wallet/${address.toLowerCase()}');
-      return;
-    }
-
     await _logic.openWallet(
       widget.address!,
     );
@@ -90,8 +89,68 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.loadTransactions();
   }
 
-  void handleRetry() {
-    onLoad();
+  void handleFailedTransaction(String id) async {
+    final option = await showCupertinoModalPopup<String?>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('retry');
+                },
+                child: const Text('Retry'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('edit');
+                },
+                child: const Text('Edit'),
+              ),
+              CupertinoActionSheetAction(
+                isDestructiveAction: true,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop('delete');
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          );
+        });
+
+    if (option == null) {
+      return;
+    }
+
+    if (option == 'retry') {
+      _logic.retryTransaction(id);
+    }
+
+    if (option == 'edit') {
+      _logic.prepareEditQueuedTransaction(id);
+
+      HapticFeedback.lightImpact();
+
+      await showCupertinoModalPopup(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => SendModal(
+          logic: _logic,
+          id: id,
+        ),
+      );
+    }
+
+    if (option == 'delete') {
+      _logic.removeQueuedTransaction(id);
+    }
   }
 
   Future<void> handleRefresh() async {
@@ -124,9 +183,9 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    _logic.dispose();
+    _logic.cleanupWalletService();
 
-    navigator.push('/wallet/${address.toLowerCase()}');
+    navigator.go('/wallet/${address.toLowerCase()}');
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
@@ -207,11 +266,19 @@ class WalletScreenState extends State<WalletScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Flex(
-        direction: Axis.vertical,
+      child: Stack(
+        alignment: Alignment.topCenter,
         children: [
+          WalletScrollView(
+            controller: _scrollController,
+            handleRefresh: handleRefresh,
+            handleSendModal: handleSendModal,
+            handleReceive: handleReceive,
+            handleTransactionTap: handleTransactionTap,
+            handleFailedTransactionTap: handleFailedTransaction,
+          ),
           Header(
-            blur: true,
+            transparent: true,
             color: ThemeColors.transparent,
             titleWidget: CupertinoButton(
               padding: const EdgeInsets.all(5),
@@ -273,16 +340,6 @@ class WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-          Expanded(
-            child: WalletScrollView(
-              controller: _scrollController,
-              handleRefresh: handleRefresh,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
-              handleTransactionTap: handleTransactionTap,
-              handleRetry: handleRetry,
             ),
           ),
         ],

@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
-import 'package:citizenwallet/services/station/station.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
@@ -18,15 +17,12 @@ import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
-import 'package:stream_channel/stream_channel.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final Exception lockedWalletException = Exception('Wallet is locked');
@@ -156,6 +152,7 @@ class WalletService {
   final Client _client = Client();
 
   final _url = dotenv.get('NODE_URL');
+  final _wsurl = dotenv.get('NODE_WS_URL');
 
   late Web3Client _ethClient;
   // StationService? _station;
@@ -175,6 +172,8 @@ class WalletService {
     _ethClient = Web3Client(
       _url,
       _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
     );
     _api = APIService(baseURL: _url);
 
@@ -187,7 +186,12 @@ class WalletService {
   /// creates using an existing private key from a hex string
   /// init before using
   WalletService.fromKey(this._chain, String privateKey) {
-    _ethClient = Web3Client(_url, _client);
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
     _api = APIService(baseURL: _url);
 
     _credentials = EthPrivateKey.fromHex(privateKey);
@@ -201,7 +205,12 @@ class WalletService {
     String walletFile,
     String password,
   ) {
-    _ethClient = Web3Client(_url, _client);
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
     _api = APIService(baseURL: _url);
 
     Wallet wallet = Wallet.fromJson(walletFile, password);
@@ -218,7 +227,12 @@ class WalletService {
     this._chain,
     String address,
   ) {
-    _ethClient = Web3Client(_url, _client);
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
     _api = APIService(baseURL: _url);
 
     _address = EthereumAddress.fromHex(address);
@@ -235,7 +249,12 @@ class WalletService {
     this._chain,
     Signer signer,
   ) {
-    _ethClient = Web3Client(_url, _client);
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
     _api = APIService(baseURL: _url);
 
     // _credentials = signer.privateKey;
@@ -443,6 +462,18 @@ class WalletService {
     return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
   }
 
+  /// contracts
+
+  // get account address
+  Future<EthereumAddress> getAccountAddress(String addr) async {
+    final credentials = unlock();
+    if (credentials == null) {
+      throw lockedWalletException;
+    }
+
+    return _contractAccountFactory.getAddress(addr);
+  }
+
   /// ERC 4337
 
   /// makes a jsonrpc request from this wallet
@@ -472,7 +503,7 @@ class WalletService {
   }
 
   /// return paymaster data for constructing a user op
-  Future<PaymasterData?> _getPaymasterData(
+  Future<(PaymasterData?, Exception?)> _getPaymasterData(
     UserOp userop,
     String eaddr,
     String ptype,
@@ -489,20 +520,28 @@ class WalletService {
     try {
       final response = await _requestPaymaster(body);
 
-      return PaymasterData.fromJson(response.result);
+      return (PaymasterData.fromJson(response.result), null);
     } catch (e) {
-      // error fetching block
       print(e);
+      final strerr = e.toString();
+
+      if (strerr.contains(gasFeeErrorMessage)) {
+        return (null, NetworkCongestedException());
+      }
+
+      if (strerr.contains(invalidBalanceErrorMessage)) {
+        return (null, NetworkInvalidBalanceException());
+      }
     }
 
-    return null;
+    return (null, NetworkUnknownException());
   }
 
   /// ERC 20 token methods
 
   /// listen to erc20 transfer events
   Stream<Transfer> get erc20TransferStream =>
-      _contractToken.listen(const BlockNum.current());
+      _contractToken.listen(const BlockNum.current(), _account);
 
   /// fetch erc20 transfer events
   ///
@@ -543,8 +582,37 @@ class WalletService {
     return (<TransferEvent>[], Pagination.empty());
   }
 
+  /// fetch new erc20 transfer events
+  ///
+  /// [limit] number of seconds to go back, uses block time to calculate
+  ///
+  /// [toBlock] block number to fetch up to, leave blank to use current block
+  Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
+    try {
+      final List<TransferEvent> tx = [];
+
+      var url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+
+      final response = await _indexer.get(url: url, headers: {
+        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+      });
+
+      // convert response array into TransferEvent list
+      for (final item in response['array']) {
+        tx.add(TransferEvent.fromJson(item));
+      }
+
+      return tx;
+    } catch (e) {
+      print(e);
+    }
+
+    return <TransferEvent>[];
+  }
+
   /// submit a user op
-  Future<String?> _submitUserOp(
+  Future<(dynamic, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr,
   ) async {
@@ -556,13 +624,21 @@ class WalletService {
     try {
       final response = await _requestBundler(body);
 
-      return response.result;
+      return (response.result, null);
     } catch (e) {
-      // error fetching block
       print(e);
+      final strerr = e.toString();
+
+      if (strerr.contains(gasFeeErrorMessage)) {
+        return (null, NetworkCongestedException());
+      }
+
+      if (strerr.contains(invalidBalanceErrorMessage)) {
+        return (null, NetworkInvalidBalanceException());
+      }
     }
 
-    return null;
+    return (null, NetworkUnknownException());
   }
 
   /// retrieve a user op by hash and return its hash
@@ -634,21 +710,25 @@ class WalletService {
       final fee = fees.first;
 
       // ensure we avoid errors by increasing the gas fees
-      final manualFeeIncrease = BigInt.from(2);
+      final manualFeeIncrease = BigInt.from(3);
 
       userop.maxPriorityFeePerGas =
           fee.maxPriorityFeePerGas * manualFeeIncrease;
       userop.maxFeePerGas = fee.maxFeePerGas * manualFeeIncrease;
 
       // submit the user op to the paymaster in order to receive information to complete the user op
-      final paymasterData = await _getPaymasterData(
+      final (paymasterData, paymasterErr) = await _getPaymasterData(
         userop,
         _contractEntryPoint.addr,
         _paymasterType,
       );
 
+      if (paymasterErr != null) {
+        throw paymasterErr;
+      }
+
       if (paymasterData == null) {
-        throw Exception('paymaster data is null');
+        throw Exception('unable to get paymaster data');
       }
 
       // add the received data to the user op
@@ -661,14 +741,17 @@ class WalletService {
       userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
 
       // send the user op
-      final result = await _submitUserOp(userop, _contractEntryPoint.addr);
+      final (result, useropErr) =
+          await _submitUserOp(userop, _contractEntryPoint.addr);
+      if (useropErr != null) {
+        throw useropErr;
+      }
 
       return result != null;
     } catch (e) {
       print(e);
+      rethrow;
     }
-
-    return false;
   }
 
   /// ********************

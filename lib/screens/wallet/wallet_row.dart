@@ -1,11 +1,11 @@
-import 'package:citizenwallet/services/db/wallet.dart';
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletRow extends StatelessWidget {
-  final DBWallet wallet;
+  final CWWallet wallet;
   final bool isSelected;
   final void Function()? onTap;
   final void Function()? onMore;

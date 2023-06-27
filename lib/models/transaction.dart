@@ -1,4 +1,3 @@
-import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -63,6 +62,7 @@ class CWTransaction {
   final DateTime date;
   final int blockNumber;
 
+  String error = '';
   TransactionState state = TransactionState.success;
 
   CWTransaction(
@@ -98,11 +98,53 @@ class CWTransaction {
     this.blockNumber = 0,
     this.state = TransactionState.pending,
   });
+  CWTransaction.failed(
+    this._amount, {
+    required this.id,
+    this.chainId = 0,
+    this.from = '0x',
+    this.to = '0x',
+    required this.title,
+    required this.date,
+    this.blockNumber = 0,
+    this.state = TransactionState.failed,
+    this.error = '',
+  });
+
+  // copy with
+  CWTransaction copyWith({
+    String? id,
+    int? chainId,
+    String? from,
+    String? to,
+    String? title,
+    String? amount,
+    DateTime? date,
+    int? blockNumber,
+    TransactionState? state,
+  }) {
+    return CWTransaction(
+      amount ?? _amount,
+      id: id ?? this.id,
+      chainId: chainId ?? this.chainId,
+      from: from ?? this.from,
+      to: to ?? this.to,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      blockNumber: blockNumber ?? this.blockNumber,
+      state: state ?? this.state,
+    );
+  }
 
   String get amount => _amount;
 
   bool get isSending => state == TransactionState.sending;
   bool get isPending => state == TransactionState.pending;
+  bool get isFailed => state == TransactionState.failed;
+
+  bool get isProcessing => isSending || isPending;
+
+  bool get isNotSent => state != TransactionState.sending;
 
   bool isIncoming(String to) => this.to == to;
 

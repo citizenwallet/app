@@ -96,7 +96,6 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void handleDetection(BarcodeCapture capture) async {
-    print('detected');
     if (_complete) return;
 
     if (capture.barcodes.isEmpty) {
