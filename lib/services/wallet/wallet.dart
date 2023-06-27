@@ -582,6 +582,35 @@ class WalletService {
     return (<TransferEvent>[], Pagination.empty());
   }
 
+  /// fetch new erc20 transfer events
+  ///
+  /// [limit] number of seconds to go back, uses block time to calculate
+  ///
+  /// [toBlock] block number to fetch up to, leave blank to use current block
+  Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
+    try {
+      final List<TransferEvent> tx = [];
+
+      var url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+
+      final response = await _indexer.get(url: url, headers: {
+        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+      });
+
+      // convert response array into TransferEvent list
+      for (final item in response['array']) {
+        tx.add(TransferEvent.fromJson(item));
+      }
+
+      return tx;
+    } catch (e) {
+      print(e);
+    }
+
+    return <TransferEvent>[];
+  }
+
   /// submit a user op
   Future<(dynamic, Exception?)> _submitUserOp(
     UserOp userop,
@@ -681,7 +710,7 @@ class WalletService {
       final fee = fees.first;
 
       // ensure we avoid errors by increasing the gas fees
-      final manualFeeIncrease = BigInt.from(2);
+      final manualFeeIncrease = BigInt.from(3);
 
       userop.maxPriorityFeePerGas =
           fee.maxPriorityFeePerGas * manualFeeIncrease;

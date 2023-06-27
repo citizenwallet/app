@@ -23,7 +23,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
-import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -34,7 +33,7 @@ class WalletLogic {
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs = EncryptedPreferencesService();
 
-  StreamSubscription<Transfer>? _blockSubscription;
+  Timer? _transferFetchInterval;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -169,9 +168,7 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      await cleanupBlockSubscription();
-
-      onTransferSubscribe();
+      transferEventSubscribe();
 
       await _preferences.setLastWallet(wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
@@ -268,9 +265,7 @@ class WalletLogic {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      await cleanupBlockSubscription();
-
-      onTransferSubscribe();
+      transferEventSubscribe();
 
       _state.loadWalletSuccess(
         CWWallet(
@@ -440,74 +435,66 @@ class WalletLogic {
     _state.createWalletError();
   }
 
-  void onTransferSubscribe() async {
+  void transferEventSubscribe() async {
+    try {
+      transferEventUnsubscribe();
+
+      _transferFetchInterval = Timer.periodic(
+        const Duration(seconds: 1),
+        fetchNewTransfers,
+      );
+
+      return;
+    } catch (e) {
+      print('error');
+      print(e);
+    }
+  }
+
+  void transferEventUnsubscribe() {
+    if (_transferFetchInterval != null) {
+      _transferFetchInterval!.cancel();
+    }
+  }
+
+  void fetchNewTransfers(Timer timer) async {
     try {
       final walletService = walletServiceCheck();
 
-      _blockSubscription?.cancel();
+      final txs = await walletService
+          .fetchNewErc20Transfers(_state.transactionsFromDate);
 
-      await delay(const Duration(milliseconds: 250));
+      if (txs.isEmpty) {
+        return;
+      }
 
-      _blockSubscription = walletService.erc20TransferStream
-          .listen(onTransferData, onError: onTransferError);
+      final cwtransactions = txs.map(
+        (tx) => CWTransaction(
+          fromUnit(tx.value),
+          id: tx.hash,
+          chainId: walletService.chainId,
+          from: tx.from.hex,
+          to: tx.to.hex,
+          title: '',
+          date: tx.createdAt,
+        ),
+      );
+
+      updateBalance();
+
+      HapticFeedback.lightImpact();
+
+      _state.incomingTransactionsRequestSuccess(
+        cwtransactions.toList(),
+      );
+
+      return;
     } catch (e) {
       print('error');
       print(e);
     }
 
-    await delay(const Duration(milliseconds: 250));
-
-    onTransferSubscribe();
-  }
-
-  void onTransferData(Transfer tx) async {
-    final walletService = walletServiceCheck();
-
-    if (tx.event.removed == false &&
-        (tx.from.hex.toLowerCase() == walletService.account.hex.toLowerCase() ||
-            tx.to.hex.toLowerCase() ==
-                walletService.account.hex.toLowerCase())) {
-      try {
-        final List<CWTransaction> cwtransactions = [];
-
-        _state.incomingTransactionsRequest();
-
-        cwtransactions.add(CWTransaction(
-          fromUnit(tx.value),
-          id: tx.event.transactionHash ?? generateRandomId(),
-          chainId: walletService.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
-          title: '',
-          date: DateTime.now(),
-          blockNumber: tx.event.blockNum ?? 0,
-        ));
-
-        updateBalance();
-
-        HapticFeedback.lightImpact();
-
-        _state.incomingTransactionsRequestSuccess(
-          cwtransactions.toList(),
-        );
-
-        return;
-      } catch (e) {
-        print('error');
-        print(e);
-      }
-
-      _state.incomingTransactionsRequestError();
-    }
-  }
-
-  void onTransferError(Object error) {
-    print('error');
-    print(error);
-
     _state.incomingTransactionsRequestError();
-
-    onTransferSubscribe();
   }
 
   // takes a password and returns a wallet
@@ -547,7 +534,7 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      final maxDate = DateTime.now();
+      final maxDate = DateTime.now().toUtc();
 
       final (txs, pagination) = await walletService.fetchErc20Transfers(
         offset: 0,
@@ -1183,12 +1170,6 @@ class WalletLogic {
     }
   }
 
-  Future<void> cleanupBlockSubscription() async {
-    if (_blockSubscription != null) {
-      await _blockSubscription!.cancel();
-    }
-  }
-
   void amountIncrease(double bump) {
     final amount = _amountController.value.text.isEmpty
         ? 0
@@ -1220,7 +1201,7 @@ class WalletLogic {
     } catch (e) {
       print(e);
     }
-    cleanupBlockSubscription();
+    transferEventUnsubscribe();
   }
 
   void dispose() {

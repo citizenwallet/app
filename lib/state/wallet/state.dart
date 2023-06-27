@@ -19,7 +19,8 @@ class WalletState with ChangeNotifier {
 
   int transactionsOffset = 0;
   int transactionsTotal = 0;
-  DateTime transactionsMaxDate = DateTime.now();
+  DateTime transactionsMaxDate = DateTime.now().toUtc();
+  DateTime transactionsFromDate = DateTime.now().toUtc();
   List<CWTransaction> transactions = [];
 
   bool transactionSendLoading = false;
@@ -171,7 +172,8 @@ class WalletState with ChangeNotifier {
   }) {
     transactionsOffset = offset;
     transactionsTotal = total;
-    transactionsMaxDate = maxDate ?? DateTime.now();
+    transactionsMaxDate = maxDate ?? DateTime.now().toUtc();
+    transactionsFromDate = maxDate ?? DateTime.now().toUtc();
     this.transactions = transactions;
 
     transactionsLoading = false;
@@ -276,6 +278,9 @@ class WalletState with ChangeNotifier {
           .where((element) => !isPendingTransactionId(element.id))
           .toList();
     }
+
+    transactionsFromDate =
+        DateTime.now().toUtc().subtract(const Duration(seconds: 1));
 
     transactionsLoading = false;
     transactionsError = false;
