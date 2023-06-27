@@ -298,11 +298,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Flex(
-        direction: Axis.vertical,
+      child: Stack(
+        alignment: Alignment.topCenter,
         children: [
+          Expanded(
+            child: WalletScrollView(
+              controller: _scrollController,
+              handleRefresh: handleRefresh,
+              handleSendModal: handleSendModal,
+              handleReceive: handleReceive,
+              handleTransactionTap: handleTransactionTap,
+              handleFailedTransactionTap: handleFailedTransaction,
+            ),
+          ),
           Header(
-            blur: true,
+            transparent: true,
             color: ThemeColors.transparent,
             titleWidget: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -347,16 +357,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-          Expanded(
-            child: WalletScrollView(
-              controller: _scrollController,
-              handleRefresh: handleRefresh,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
-              handleTransactionTap: handleTransactionTap,
-              handleFailedTransactionTap: handleFailedTransaction,
             ),
           ),
         ],
