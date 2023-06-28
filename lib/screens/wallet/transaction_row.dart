@@ -202,7 +202,7 @@ class TransactionRow extends StatelessWidget {
                             TransactionState.sending => CupertinoIcons.arrow_up,
                             TransactionState.pending =>
                               CupertinoIcons.checkmark_alt,
-                            TransactionState.failed =>
+                            TransactionState.fail =>
                               CupertinoIcons.exclamationmark,
                             _ => CupertinoIcons.checkmark_alt,
                           },

@@ -36,7 +36,7 @@ enum TransactionState {
   sending,
   pending,
   success,
-  failed,
+  fail,
 }
 
 enum TransactionAuthor {
@@ -54,6 +54,7 @@ enum TransactionAuthor {
 
 class CWTransaction {
   final String id;
+  final String hash;
   final int chainId;
   final String from;
   final String to;
@@ -68,6 +69,7 @@ class CWTransaction {
   CWTransaction(
     this._amount, {
     required this.id,
+    required this.hash,
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
@@ -79,6 +81,7 @@ class CWTransaction {
   CWTransaction.sending(
     this._amount, {
     required this.id,
+    required this.hash,
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
@@ -90,6 +93,7 @@ class CWTransaction {
   CWTransaction.pending(
     this._amount, {
     required this.id,
+    required this.hash,
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
@@ -101,19 +105,21 @@ class CWTransaction {
   CWTransaction.failed(
     this._amount, {
     required this.id,
+    required this.hash,
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
     required this.title,
     required this.date,
     this.blockNumber = 0,
-    this.state = TransactionState.failed,
+    this.state = TransactionState.fail,
     this.error = '',
   });
 
   // copy with
   CWTransaction copyWith({
     String? id,
+    String? hash,
     int? chainId,
     String? from,
     String? to,
@@ -126,6 +132,7 @@ class CWTransaction {
     return CWTransaction(
       amount ?? _amount,
       id: id ?? this.id,
+      hash: hash ?? this.hash,
       chainId: chainId ?? this.chainId,
       from: from ?? this.from,
       to: to ?? this.to,
@@ -140,7 +147,7 @@ class CWTransaction {
 
   bool get isSending => state == TransactionState.sending;
   bool get isPending => state == TransactionState.pending;
-  bool get isFailed => state == TransactionState.failed;
+  bool get isFailed => state == TransactionState.fail;
 
   bool get isProcessing => isSending || isPending;
 
@@ -164,6 +171,7 @@ class CWTransaction {
   // convert to Transaction object from JSON
   CWTransaction.fromJson(Map<String, dynamic> json)
       : id = json['id'],
+        hash = json['hash'],
         chainId = json['chainId'],
         from = json['from'],
         to = json['to'],
@@ -177,6 +185,7 @@ class CWTransaction {
   // The keys must correspond to the names of the columns in the database.
   Map<String, dynamic> toJson() => {
         'id': id,
+        'hash': hash,
         'chainId': chainId,
         'from': from,
         'to': to,

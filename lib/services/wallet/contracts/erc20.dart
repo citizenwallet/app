@@ -9,26 +9,31 @@ import 'package:web3dart/web3dart.dart';
 
 class TransferEvent {
   final String hash;
+  final String txhash;
   final int tokenId;
   final DateTime createdAt;
   final EthereumAddress from;
   final EthereumAddress to;
   final BigInt value;
   final Uint8List data;
+  final String status;
 
   TransferEvent(
     this.hash,
+    this.txhash,
     this.tokenId,
     this.createdAt,
     this.from,
     this.to,
     this.value,
     this.data,
+    this.status,
   );
 
   // instantiate from json
   TransferEvent.fromJson(Map<String, dynamic> json)
       : hash = json['hash'],
+        txhash = json['tx_hash'],
         tokenId = json['token_id'],
         createdAt = DateTime.parse(json['created_at']),
         from = EthereumAddress.fromHex(json['from']),
@@ -36,7 +41,21 @@ class TransferEvent {
         value = BigInt.from(json['value']),
         data = json['data'] != null
             ? Uint8List.fromList(json['data'].codeUnits)
-            : Uint8List(0);
+            : Uint8List(0),
+        status = json['status'];
+
+  // map to json
+  Map<String, dynamic> toJson() => {
+        'hash': hash,
+        'tx_hash': txhash,
+        'token_id': tokenId,
+        'created_at': createdAt.toIso8601String(),
+        'from': from.hex,
+        'to': to.hex,
+        'value': value.toInt(),
+        'data': data.isNotEmpty ? String.fromCharCodes(data) : null,
+        'status': status,
+      };
 }
 
 ERC20Contract newERC20Contract(int chainId, Web3Client client, String addr) {

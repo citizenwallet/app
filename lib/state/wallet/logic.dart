@@ -7,6 +7,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
@@ -17,6 +18,7 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -452,6 +454,7 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void fetchNewTransfers(Timer timer) async {
+    print('checking: ${_state.transactionsFromDate}');
     try {
       final walletService = walletServiceCheck();
 
@@ -463,15 +466,18 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final cwtransactions = txs.map(
-        (tx) => CWTransaction(
-          fromUnit(tx.value),
-          id: tx.hash,
-          chainId: walletService.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
-          title: '',
-          date: tx.createdAt,
-        ),
+        (tx) => CWTransaction(fromUnit(tx.value),
+            id: tx.hash,
+            hash: tx.txhash,
+            chainId: walletService.chainId,
+            from: tx.from.hex,
+            to: tx.to.hex,
+            title: '',
+            date: tx.createdAt,
+            state: TransactionState.values.firstWhereOrNull(
+                  (v) => v.name == tx.status,
+                ) ??
+                TransactionState.success),
       );
 
       updateBalance();
@@ -537,15 +543,18 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final cwtransactions = txs.map(
-        (tx) => CWTransaction(
-          fromUnit(tx.value),
-          id: tx.hash,
-          chainId: walletService.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
-          title: '',
-          date: tx.createdAt,
-        ),
+        (tx) => CWTransaction(fromUnit(tx.value),
+            id: tx.hash,
+            hash: tx.txhash,
+            chainId: walletService.chainId,
+            from: tx.from.hex,
+            to: tx.to.hex,
+            title: '',
+            date: tx.createdAt,
+            state: TransactionState.values.firstWhereOrNull(
+                  (v) => v.name == tx.status,
+                ) ??
+                TransactionState.success),
       );
 
       _state.loadTransactionsSuccess(
@@ -583,11 +592,16 @@ class WalletLogic extends WidgetsBindingObserver {
         (tx) => CWTransaction(
           fromUnit(tx.value),
           id: tx.hash,
+          hash: tx.txhash,
           chainId: walletService.chainId,
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
           date: DateTime.now(),
+          state: TransactionState.values.firstWhereOrNull(
+                (v) => v.name == tx.status,
+              ) ??
+              TransactionState.success,
         ),
       );
 
@@ -655,6 +669,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<bool> sendTransactionFromLocked(String amount, String to,
       {String message = '', String? id}) async {
     final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = double.parse(doubleAmount) * 1000;
 
     final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
@@ -668,45 +683,45 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final walletService = walletServiceCheck();
 
-      _state.sendingTransaction(CWTransaction.sending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
+      final tx = await walletService.addSendingLog(
+        TransferEvent(
+          '',
+          '',
+          0,
+          DateTime.now().toUtc(),
+          walletService.account,
+          EthereumAddress.fromHex(to),
+          EtherAmount.fromBigInt(
+            EtherUnit.finney,
+            BigInt.from(double.parse(doubleAmount) * 1000),
+          ).getInWei,
+          Uint8List(0),
+          TransactionState.sending.name,
+        ),
+      );
+      if (tx == null) {
+        throw Exception('failed to send log');
+      }
 
       final success = await walletService.transferErc20(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
       if (!success) {
-        _state.sendQueueAddTransaction(CWTransaction.failed(
-          '${double.parse(doubleAmount) * 1000}',
-          id: tempId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ));
-
+        await walletService.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      _state.sendTransactionSuccess(CWTransaction.pending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
+      await walletService.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
 
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -714,8 +729,9 @@ class WalletLogic extends WidgetsBindingObserver {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -726,8 +742,9 @@ class WalletLogic extends WidgetsBindingObserver {
       print(e);
 
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -743,6 +760,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<bool> sendTransactionFromUnlocked(String amount, String to,
       {String message = '', String? id}) async {
     final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = double.parse(doubleAmount) * 1000;
 
     final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
@@ -757,8 +775,9 @@ class WalletLogic extends WidgetsBindingObserver {
       final walletService = walletServiceCheck();
 
       _state.sendingTransaction(CWTransaction.sending(
-        '${double.parse(doubleAmount) * 1000}',
+        '$parsedAmount',
         id: tempId,
+        hash: '',
         to: to,
         title: message,
         date: DateTime.now(),
@@ -766,12 +785,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final success = await walletService.transferErc20(
         to,
-        BigInt.from(double.parse(doubleAmount) * 1000),
+        BigInt.from(parsedAmount),
       );
       if (!success) {
         _state.sendQueueAddTransaction(CWTransaction.failed(
-          '${double.parse(doubleAmount) * 1000}',
+          '$parsedAmount',
           id: tempId,
+          hash: '',
           to: to,
           title: message,
           date: DateTime.now(),
@@ -781,8 +801,9 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       _state.sendTransactionSuccess(CWTransaction.pending(
-        '${double.parse(doubleAmount) * 1000}',
+        '$parsedAmount',
         id: tempId,
+        hash: '',
         to: to,
         title: message,
         date: DateTime.now(),
@@ -793,8 +814,9 @@ class WalletLogic extends WidgetsBindingObserver {
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -802,8 +824,9 @@ class WalletLogic extends WidgetsBindingObserver {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
