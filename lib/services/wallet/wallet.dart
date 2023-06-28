@@ -166,6 +166,10 @@ class WalletService {
   final APIService _dataRPC =
       APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
 
+  final Map<String, String> erc4337Headers = {
+    'Origin': dotenv.get('ORIGIN_HEADER')
+  };
+
   /// creates a new random private key
   /// init before using
   WalletService(this._chain) {
@@ -478,7 +482,10 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _paymasterRPC.post(body: body);
+    final rawRespoonse = await _paymasterRPC.post(
+      body: body,
+      headers: erc4337Headers,
+    );
 
     final response = SUJSONRPCResponse.fromJson(rawRespoonse);
 
@@ -491,7 +498,10 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _bundlerRPC.post(body: body);
+    final rawRespoonse = await _bundlerRPC.post(
+      body: body,
+      headers: erc4337Headers,
+    );
 
     final response = SUJSONRPCResponse.fromJson(rawRespoonse);
 

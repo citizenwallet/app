@@ -38,13 +38,23 @@ class APIService {
     return jsonDecode(response.body);
   }
 
-  Future<dynamic> post({String? url, required Object body}) async {
+  Future<dynamic> post({
+    String? url,
+    required Object body,
+    Map<String, String>? headers,
+  }) async {
+    final mergedHeaders = <String, String>{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    if (headers != null) {
+      mergedHeaders.addAll(headers);
+    }
+
     final response = await http
         .post(
           Uri.parse('$baseURL${url ?? ''}'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
+          headers: mergedHeaders,
           body: jsonEncode(body),
         )
         .timeout(const Duration(seconds: netTimeoutSeconds));
