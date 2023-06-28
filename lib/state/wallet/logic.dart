@@ -452,7 +452,6 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void fetchNewTransfers(Timer timer) async {
-    print('fetching...');
     try {
       final walletService = walletServiceCheck();
 
@@ -1211,11 +1210,9 @@ class WalletLogic extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        print('foreground');
         transferEventSubscribe();
         break;
       default:
-        print('background');
         transferEventUnsubscribe();
     }
   }
