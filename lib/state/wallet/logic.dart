@@ -25,7 +25,7 @@ import 'package:provider/provider.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-class WalletLogic {
+class WalletLogic extends WidgetsBindingObserver {
   late WalletState _state;
   WalletService? _wallet;
   final DBService _db = DBService();
@@ -452,6 +452,7 @@ class WalletLogic {
   }
 
   void fetchNewTransfers(Timer timer) async {
+    print('fetching...');
     try {
       final walletService = walletServiceCheck();
 
@@ -1204,5 +1205,18 @@ class WalletLogic {
     _messageController.dispose();
 
     cleanupWalletService();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('foreground');
+        transferEventSubscribe();
+        break;
+      default:
+        print('background');
+        transferEventUnsubscribe();
+    }
   }
 }
