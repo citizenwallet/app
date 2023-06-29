@@ -181,8 +181,6 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
         ),
       );
 
-      print('confirm: $confirm');
-
       if (confirm == null || !confirm) {
         return;
       }
