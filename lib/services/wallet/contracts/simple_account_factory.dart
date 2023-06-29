@@ -41,8 +41,6 @@ class AccountFactory {
         EthereumAddress.fromHex(addr), BigInt.from(0),
         credentials: cred);
 
-    print(account.toString());
-
     // final uri = await contract.uri(tokenId);
     // return '/$uri';
     return account;
