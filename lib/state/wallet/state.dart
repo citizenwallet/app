@@ -144,12 +144,15 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateWalletBalanceSuccess(String balance) {
+  void updateWalletBalanceSuccess(String balance, {bool notify = true}) {
     wallet!.setBalance(balance);
 
     loading = false;
     error = false;
-    notifyListeners();
+
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void updateWalletBalanceError() {
@@ -177,7 +180,7 @@ class WalletState with ChangeNotifier {
                 .firstWhereOrNull((t) => t.state == TransactionState.success)
                 ?.date ??
             DateTime.now().toUtc())
-        .subtract(const Duration(seconds: 1));
+        .subtract(const Duration(minutes: 1));
     this.transactions = transactions;
 
     transactionsLoading = false;
@@ -287,7 +290,7 @@ class WalletState with ChangeNotifier {
                   .firstWhereOrNull((t) => t.state == TransactionState.success)
                   ?.date ??
               DateTime.now().toUtc())
-          .subtract(const Duration(seconds: 1));
+          .subtract(const Duration(minutes: 1));
     }
 
     transactionsLoading = false;
