@@ -224,7 +224,11 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void sendTransaction() {
+  void sendTransaction({String? id}) {
+    if (id != null) {
+      sendQueueRemoveTransaction(id);
+    }
+
     setInvalidAmount(false);
     setInvalidAddress(false);
     transactionSendLoading = true;

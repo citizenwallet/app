@@ -673,7 +673,7 @@ class WalletLogic extends WidgetsBindingObserver {
     var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
     try {
-      _state.sendTransaction();
+      _state.sendTransaction(id: id);
 
       if (to.isEmpty) {
         _state.setInvalidAddress(true);
@@ -735,6 +735,8 @@ class WalletLogic extends WidgetsBindingObserver {
       await walletService.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
 
       return true;
     } on NetworkCongestedException {
@@ -785,7 +787,7 @@ class WalletLogic extends WidgetsBindingObserver {
     var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
     try {
-      _state.sendTransaction();
+      _state.sendTransaction(id: id);
 
       if (to.isEmpty) {
         _state.setInvalidAddress(true);
@@ -847,6 +849,8 @@ class WalletLogic extends WidgetsBindingObserver {
       await walletService.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
 
       return true;
     } on NetworkCongestedException {
