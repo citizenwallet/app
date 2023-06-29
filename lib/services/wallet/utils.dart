@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 // final gwei = BigInt.from(10).pow(9);
 final ether = BigInt.from(10).pow(18);
-// final finney = BigInt.from(10).pow(15);
-final finney = BigInt.from(10).pow(3);
+final finney = BigInt.from(10).pow(15);
+// final finney = BigInt.from(10).pow(3);
 
 BigInt toUnit(String amount) {
   return BigInt.parse(amount) * finney;
@@ -104,4 +105,24 @@ String decompress(String data) {
 Uint8List decompressBytes(Uint8List data) {
   final decodegZipData = GZipDecoder().decodeBytes(data);
   return convertBytesToUint8List(decodegZipData);
+}
+
+String generateSignature((String body, Uint8List privateKey) args) {
+  // hash the body
+  final messageHash = keccak256(convertStringToUint8List(args.$1));
+
+  // sign the body
+  final signature = sign(messageHash, args.$2);
+
+  // encode the signature
+  final r = signature.r.toRadixString(16).padLeft(64, '0');
+  final s = signature.s.toRadixString(16).padLeft(64, '0');
+  final v = bytesToHex(intToBytes(BigInt.from(signature.v + 4)));
+
+  // compact the signature
+  // 0x - padding
+  // v - 1 byte
+  // r - 32 bytes
+  // s - 32 bytes
+  return '0x$v$r$s';
 }

@@ -89,8 +89,6 @@ class Token {
 
     final List<TransferEvent> txs = [];
 
-    print('found ${events.length} events');
-
     for (final e in events) {
       final decoded = event.decodeResults(e.topics!, e.data!);
 

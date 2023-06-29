@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
+import 'package:citizenwallet/services/indexer/signed_request.dart';
+import 'package:citizenwallet/services/indexer/status_update_request.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
@@ -17,6 +20,8 @@ import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/uint8.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
@@ -165,6 +170,10 @@ class WalletService {
   final String _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
   final APIService _dataRPC =
       APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
+
+  final Map<String, String> erc4337Headers = {
+    'Origin': dotenv.get('ORIGIN_HEADER')
+  };
 
   /// creates a new random private key
   /// init before using
@@ -478,7 +487,10 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _paymasterRPC.post(body: body);
+    final rawRespoonse = await _paymasterRPC.post(
+      body: body,
+      headers: erc4337Headers,
+    );
 
     final response = SUJSONRPCResponse.fromJson(rawRespoonse);
 
@@ -491,7 +503,10 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _bundlerRPC.post(body: body);
+    final rawRespoonse = await _bundlerRPC.post(
+      body: body,
+      headers: erc4337Headers,
+    );
 
     final response = SUJSONRPCResponse.fromJson(rawRespoonse);
 
@@ -591,7 +606,7 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      var url =
+      final url =
           '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
@@ -611,8 +626,87 @@ class WalletService {
     return <TransferEvent>[];
   }
 
+  /// add new erc20 transfer events that are sending
+  ///
+  /// [tx] the transfer event to add
+  Future<TransferEvent?> addSendingLog(TransferEvent tx) async {
+    try {
+      final url = '/logs/transfers/${_contractToken.addr}/${_account.hex}';
+
+      final encoded = jsonEncode(
+        tx.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final credentials = unlock();
+      if (credentials == null) {
+        throw lockedWalletException;
+      }
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      final response = await _indexer.post(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      return TransferEvent.fromJson(response['object']);
+    } catch (e) {
+      print(e);
+    }
+
+    return null;
+  }
+
+  /// set status of existing erc20 transfer event that are not success
+  ///
+  /// [status] number of seconds to go back, uses block time to calculate
+  Future<bool> setStatusLog(String hash, TransactionState status) async {
+    try {
+      final url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}/$hash';
+
+      final encoded = jsonEncode(
+        StatusUpdateRequest(status).toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final credentials = unlock();
+      if (credentials == null) {
+        throw lockedWalletException;
+      }
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      await _indexer.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (e) {
+      print(e);
+    }
+
+    return false;
+  }
+
   /// submit a user op
-  Future<(dynamic, Exception?)> _submitUserOp(
+  Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr,
   ) async {
@@ -624,7 +718,7 @@ class WalletService {
     try {
       final response = await _requestBundler(body);
 
-      return (response.result, null);
+      return (response.result as String, null);
     } catch (e) {
       print(e);
       final strerr = e.toString();
@@ -662,8 +756,8 @@ class WalletService {
     return null;
   }
 
-  /// transfer erc20 tokens to an address
-  Future<bool> transferErc20(String to, BigInt amount) async {
+  /// prepare a userop for an erc20 transfer of tokens to an address
+  Future<(String, UserOp)?> prepareErc20Userop(String to, BigInt amount) async {
     try {
       // safely retrieve credentials if unlocks
       final credentials = unlock();
@@ -697,7 +791,8 @@ class WalletService {
         BigInt.zero,
         _contractToken.transferCallData(
           to,
-          EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+          // EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+          EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
         ),
       );
 
@@ -737,9 +832,22 @@ class WalletService {
       userop.verificationGasLimit = paymasterData.verificationGasLimit;
       userop.callGasLimit = paymasterData.callGasLimit;
 
-      // now we can sign the user op
-      userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
+      // get the hash of the user op
+      final hash = userop.getHash(_contractEntryPoint.addr, chainId.toString());
 
+      // now we can sign the user op
+      userop.generateSignature(credentials, hash);
+
+      return (bytesToHex(hash, include0x: true), userop);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  /// submit a user op
+  Future<bool?> submitUserop(UserOp userop) async {
+    try {
       // send the user op
       final (result, useropErr) =
           await _submitUserOp(userop, _contractEntryPoint.addr);

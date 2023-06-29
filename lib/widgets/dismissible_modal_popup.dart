@@ -1,7 +1,7 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 
-class DismissibleModalPopup extends StatelessWidget {
+class DismissibleModalPopup extends StatefulWidget {
   final String? modaleKey;
   final Widget child;
   final double? maxHeight;
@@ -26,36 +26,57 @@ class DismissibleModalPopup extends StatelessWidget {
   });
 
   @override
+  DismissibleModalPopupState createState() => DismissibleModalPopupState();
+}
+
+class DismissibleModalPopupState extends State<DismissibleModalPopup> {
+  bool _dismissed = false;
+
+  void onDismissed(DismissDirection dir) {
+    setState(() {
+      _dismissed = true;
+    });
+
+    if (widget.onDismissed != null) {
+      widget.onDismissed!(dir);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_dismissed) {
+      return const SizedBox();
+    }
+
     return Dismissible(
-      key: modaleKey != null ? Key(modaleKey!) : UniqueKey(),
+      key: widget.modaleKey != null ? Key(widget.modaleKey!) : UniqueKey(),
       direction: DismissDirection.down,
-      onUpdate: onUpdate,
+      onUpdate: widget.onUpdate,
       onDismissed: onDismissed,
       confirmDismiss: (_) async {
-        return !blockDismiss;
+        return !widget.blockDismiss;
       },
       child: Container(
-        constraints: maxHeight != null
+        constraints: widget.maxHeight != null
             ? BoxConstraints(
-                maxHeight:
-                    maxHeight! + MediaQuery.of(context).viewInsets.bottom,
+                maxHeight: widget.maxHeight! +
+                    MediaQuery.of(context).viewInsets.bottom,
               )
             : null,
         padding: EdgeInsets.fromLTRB(
-          paddingSides,
-          paddingTopBottom,
-          paddingSides,
-          paddingTopBottom,
+          widget.paddingSides,
+          widget.paddingTopBottom,
+          widget.paddingSides,
+          widget.paddingTopBottom,
         ),
         decoration: BoxDecoration(
           color: ThemeColors.uiBackground.resolveFrom(context),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(topRadius),
-            topRight: Radius.circular(topRadius),
+            topLeft: Radius.circular(widget.topRadius),
+            topRight: Radius.circular(widget.topRadius),
           ),
         ),
-        child: child,
+        child: widget.child,
       ),
     );
   }

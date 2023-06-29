@@ -42,7 +42,7 @@ GoRouter createRouter(
                 key: state.pageKey,
                 name: state.name,
                 child: WalletScreen(
-                  state.params['address'],
+                  state.pathParameters['address'],
                 ),
               ),
               routes: [
@@ -58,7 +58,7 @@ GoRouter createRouter(
                     final extra = state.extra as Map<String, dynamic>;
 
                     return TransactionScreen(
-                      transactionId: state.params['transactionId'],
+                      transactionId: state.pathParameters['transactionId'],
                       logic: extra['logic'],
                     );
                   },
@@ -120,7 +120,7 @@ GoRouter createWebRouter(
                 child: WillPopScope(
                   onWillPop: () async => false,
                   child: BurnerWalletScreen(
-                    state.params['qr'] ?? '',
+                    state.pathParameters['qr'] ?? '',
                   ),
                 ),
               ),
@@ -139,7 +139,7 @@ GoRouter createWebRouter(
                     return WillPopScope(
                       onWillPop: () async => false,
                       child: TransactionScreen(
-                        transactionId: state.params['transactionId'],
+                        transactionId: state.pathParameters['transactionId'],
                         logic: extra['logic'],
                       ),
                     );

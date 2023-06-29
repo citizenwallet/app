@@ -115,7 +115,7 @@ class UserOp {
   }
 
   // getUserOpHash returns the hash of the user op
-  Uint8List getUserOpHash(String entrypoint, String chainId) {
+  Uint8List getHash(String entrypoint, String chainId) {
     final packed = LengthTrackingByteSink();
 
     final List<AbiType> encoders = [
@@ -170,13 +170,7 @@ class UserOp {
   }
 
   // sign signs the user op
-  void generateSignature(
-      EthPrivateKey credentials, String entrypoint, int chainId) {
-    final hash = getUserOpHash(
-      entrypoint,
-      chainId.toString(),
-    );
-
+  void generateSignature(EthPrivateKey credentials, Uint8List hash) {
     final signature = credentials.signPersonalMessageToUint8List(
       hash,
     );

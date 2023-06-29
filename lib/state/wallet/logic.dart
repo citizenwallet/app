@@ -7,6 +7,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
@@ -17,6 +18,7 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-class WalletLogic {
+class WalletLogic extends WidgetsBindingObserver {
   late WalletState _state;
   WalletService? _wallet;
   final DBService _db = DBService();
@@ -434,7 +436,7 @@ class WalletLogic {
       transferEventUnsubscribe();
 
       _transferFetchInterval = Timer.periodic(
-        const Duration(seconds: 1),
+        const Duration(seconds: 2),
         fetchNewTransfers,
       );
 
@@ -466,11 +468,16 @@ class WalletLogic {
         (tx) => CWTransaction(
           fromUnit(tx.value),
           id: tx.hash,
+          hash: tx.txhash,
           chainId: walletService.chainId,
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
           date: tx.createdAt,
+          state: TransactionState.values.firstWhereOrNull(
+                (v) => v.name == tx.status,
+              ) ??
+              TransactionState.success,
         ),
       );
 
@@ -537,15 +544,18 @@ class WalletLogic {
       );
 
       final cwtransactions = txs.map(
-        (tx) => CWTransaction(
-          fromUnit(tx.value),
-          id: tx.hash,
-          chainId: walletService.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
-          title: '',
-          date: tx.createdAt,
-        ),
+        (tx) => CWTransaction(fromUnit(tx.value),
+            id: tx.hash,
+            hash: tx.txhash,
+            chainId: walletService.chainId,
+            from: tx.from.hex,
+            to: tx.to.hex,
+            title: '',
+            date: tx.createdAt,
+            state: TransactionState.values.firstWhereOrNull(
+                  (v) => v.name == tx.status,
+                ) ??
+                TransactionState.success),
       );
 
       _state.loadTransactionsSuccess(
@@ -583,11 +593,16 @@ class WalletLogic {
         (tx) => CWTransaction(
           fromUnit(tx.value),
           id: tx.hash,
+          hash: tx.txhash,
           chainId: walletService.chainId,
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
           date: DateTime.now(),
+          state: TransactionState.values.firstWhereOrNull(
+                (v) => v.name == tx.status,
+              ) ??
+              TransactionState.success,
         ),
       );
 
@@ -607,13 +622,11 @@ class WalletLogic {
 
   Future<void> updateBalance() async {
     try {
-      _state.updateWalletBalance();
-
       final walletService = walletServiceCheck();
 
       final balance = await walletService.balance;
 
-      _state.updateWalletBalanceSuccess(balance);
+      _state.updateWalletBalanceSuccess(balance, notify: false);
       return;
     } catch (e) {
       print('error');
@@ -655,11 +668,12 @@ class WalletLogic {
   Future<bool> sendTransactionFromLocked(String amount, String to,
       {String message = '', String? id}) async {
     final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = double.parse(doubleAmount) * 1000;
 
-    final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+    var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
     try {
-      _state.sendTransaction();
+      _state.sendTransaction(id: id);
 
       if (to.isEmpty) {
         _state.setInvalidAddress(true);
@@ -668,45 +682,68 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      _state.sendingTransaction(CWTransaction.sending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
-
-      final success = await walletService.transferErc20(
+      final result = await walletService.prepareErc20Userop(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
-      if (!success) {
-        _state.sendQueueAddTransaction(CWTransaction.failed(
-          '${double.parse(doubleAmount) * 1000}',
-          id: tempId,
+      if (result == null) {
+        throw Exception('failed to prepare userop');
+      }
+
+      final (hash, userop) = (result.$1, result.$2);
+
+      tempId = hash;
+
+      _state.sendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: hash,
+          hash: '',
+          chainId: walletService.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
-        ));
+        ),
+      );
 
+      final tx = await walletService.addSendingLog(
+        TransferEvent(
+          hash,
+          '',
+          0,
+          DateTime.now().toUtc(),
+          walletService.account,
+          EthereumAddress.fromHex(to),
+          EtherAmount.fromBigInt(
+            EtherUnit.finney,
+            BigInt.from(double.parse(doubleAmount) * 1000),
+          ).getInWei,
+          Uint8List(0),
+          TransactionState.sending.name,
+        ),
+      );
+      if (tx == null) {
+        throw Exception('failed to send log');
+      }
+
+      final success = await walletService.submitUserop(userop);
+      if (success == null || !success) {
+        await walletService.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      _state.sendTransactionSuccess(CWTransaction.pending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
+      await walletService.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
 
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -714,8 +751,9 @@ class WalletLogic {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -726,8 +764,9 @@ class WalletLogic {
       print(e);
 
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -743,11 +782,12 @@ class WalletLogic {
   Future<bool> sendTransactionFromUnlocked(String amount, String to,
       {String message = '', String? id}) async {
     final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = double.parse(doubleAmount) * 1000;
 
-    final tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+    var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
     try {
-      _state.sendTransaction();
+      _state.sendTransaction(id: id);
 
       if (to.isEmpty) {
         _state.setInvalidAddress(true);
@@ -756,45 +796,68 @@ class WalletLogic {
 
       final walletService = walletServiceCheck();
 
-      _state.sendingTransaction(CWTransaction.sending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
-
-      final success = await walletService.transferErc20(
+      final result = await walletService.prepareErc20Userop(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
-      if (!success) {
-        _state.sendQueueAddTransaction(CWTransaction.failed(
-          '${double.parse(doubleAmount) * 1000}',
-          id: tempId,
+      if (result == null) {
+        throw Exception('failed to prepare userop');
+      }
+
+      final (hash, userop) = (result.$1, result.$2);
+
+      tempId = hash;
+
+      _state.sendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: hash,
+          hash: '',
+          chainId: walletService.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
-        ));
+        ),
+      );
 
+      final tx = await walletService.addSendingLog(
+        TransferEvent(
+          hash,
+          '',
+          0,
+          DateTime.now().toUtc(),
+          walletService.account,
+          EthereumAddress.fromHex(to),
+          EtherAmount.fromBigInt(
+            EtherUnit.finney,
+            BigInt.from(double.parse(doubleAmount) * 1000),
+          ).getInWei,
+          Uint8List(0),
+          TransactionState.sending.name,
+        ),
+      );
+      if (tx == null) {
+        throw Exception('failed to send log');
+      }
+
+      final success = await walletService.submitUserop(userop);
+      if (success == null || !success) {
+        await walletService.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      _state.sendTransactionSuccess(CWTransaction.pending(
-        '${double.parse(doubleAmount) * 1000}',
-        id: tempId,
-        to: to,
-        title: message,
-        date: DateTime.now(),
-      ));
+      await walletService.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
 
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -802,8 +865,9 @@ class WalletLogic {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('${double.parse(doubleAmount) * 1000}',
+        CWTransaction.failed('$parsedAmount',
             id: tempId,
+            hash: '',
             to: to,
             title: message,
             date: DateTime.now(),
@@ -1204,5 +1268,16 @@ class WalletLogic {
     _messageController.dispose();
 
     cleanupWalletService();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        transferEventSubscribe();
+        break;
+      default:
+        transferEventUnsubscribe();
+    }
   }
 }
