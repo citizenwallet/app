@@ -199,7 +199,9 @@ class TransactionRow extends StatelessWidget {
                     : Center(
                         child: Icon(
                           switch (transaction.state) {
-                            TransactionState.sending => CupertinoIcons.arrow_up,
+                            TransactionState.sending => isIncoming
+                                ? CupertinoIcons.arrow_down
+                                : CupertinoIcons.arrow_up,
                             TransactionState.pending =>
                               CupertinoIcons.checkmark_alt,
                             TransactionState.fail =>
