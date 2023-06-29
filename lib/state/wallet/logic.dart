@@ -715,7 +715,7 @@ class WalletLogic extends WidgetsBindingObserver {
           walletService.account,
           EthereumAddress.fromHex(to),
           EtherAmount.fromBigInt(
-            EtherUnit.finney,
+            EtherUnit.kwei,
             BigInt.from(double.parse(doubleAmount) * 1000),
           ).getInWei,
           Uint8List(0),
@@ -829,7 +829,7 @@ class WalletLogic extends WidgetsBindingObserver {
           walletService.account,
           EthereumAddress.fromHex(to),
           EtherAmount.fromBigInt(
-            EtherUnit.finney,
+            EtherUnit.kwei,
             BigInt.from(double.parse(doubleAmount) * 1000),
           ).getInWei,
           Uint8List(0),
