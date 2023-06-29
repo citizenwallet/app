@@ -791,8 +791,8 @@ class WalletService {
         BigInt.zero,
         _contractToken.transferCallData(
           to,
-          // EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
-          EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+          EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+          // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
         ),
       );
 
