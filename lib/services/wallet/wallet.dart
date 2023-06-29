@@ -706,7 +706,7 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<(dynamic, Exception?)> _submitUserOp(
+  Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr,
   ) async {
@@ -718,7 +718,7 @@ class WalletService {
     try {
       final response = await _requestBundler(body);
 
-      return (response.result, null);
+      return (response.result as String, null);
     } catch (e) {
       print(e);
       final strerr = e.toString();
@@ -756,8 +756,8 @@ class WalletService {
     return null;
   }
 
-  /// transfer erc20 tokens to an address
-  Future<bool> transferErc20(String to, BigInt amount) async {
+  /// prepare a userop for an erc20 transfer of tokens to an address
+  Future<(String, UserOp)?> prepareErc20Userop(String to, BigInt amount) async {
     try {
       // safely retrieve credentials if unlocks
       final credentials = unlock();
@@ -832,9 +832,22 @@ class WalletService {
       userop.verificationGasLimit = paymasterData.verificationGasLimit;
       userop.callGasLimit = paymasterData.callGasLimit;
 
-      // now we can sign the user op
-      userop.generateSignature(credentials, _contractEntryPoint.addr, chainId);
+      // get the hash of the user op
+      final hash = userop.getHash(_contractEntryPoint.addr, chainId.toString());
 
+      // now we can sign the user op
+      userop.generateSignature(credentials, hash);
+
+      return (bytesToHex(hash, include0x: true), userop);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  /// submit a user op
+  Future<bool?> submitUserop(UserOp userop) async {
+    try {
       // send the user op
       final (result, useropErr) =
           await _submitUserOp(userop, _contractEntryPoint.addr);
