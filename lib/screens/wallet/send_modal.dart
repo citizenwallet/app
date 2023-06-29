@@ -143,7 +143,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     widget.logic.clearInputControllers();
     widget.logic.resetInputErrorState();
 
-    await Future.delayed(const Duration(milliseconds: 250));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     HapticFeedback.heavyImpact();
 
