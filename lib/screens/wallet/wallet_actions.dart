@@ -1,6 +1,7 @@
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,13 @@ class WalletActions extends StatelessWidget {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final hasPending = context.select(selectHasPendingTransactions);
-    final formattedBalance = context.select(selectWalletBalance);
+    final newBalance = context.select(selectWalletBalance);
+    final formattedBalance = formatAmount(newBalance > 0 ? newBalance : 0.0,
+        decimalDigits: wallet != null ? wallet.decimalDigits : 2);
+
+    final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
+
+    final isIncreasing = newBalance > balance;
 
     return Stack(
       children: [
@@ -69,7 +76,10 @@ class WalletActions extends StatelessWidget {
                               fontSize: progressiveClamp(32, 40, shrink),
                               fontWeight: FontWeight.normal,
                               color: hasPending
-                                  ? ThemeColors.secondary.resolveFrom(context)
+                                  ? isIncreasing
+                                      ? ThemeColors.primary.resolveFrom(context)
+                                      : ThemeColors.secondary
+                                          .resolveFrom(context)
                                   : ThemeColors.text.resolveFrom(context),
                             ),
                           ),
