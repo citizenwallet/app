@@ -78,7 +78,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           'Are you sure you want to delete everything?',
           'This action cannot be undone.',
         ],
-        confirmText: 'Delete everything',
+        confirmText: 'Delete',
       ),
     );
 
