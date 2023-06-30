@@ -25,6 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -536,9 +537,12 @@ class WalletService {
       final response = await _requestPaymaster(body);
 
       return (PaymasterData.fromJson(response.result), null);
-    } catch (e) {
-      print(e);
-      final strerr = e.toString();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+      final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {
         return (null, NetworkCongestedException());
@@ -590,8 +594,11 @@ class WalletService {
       }
 
       return (tx, Pagination.fromJson(response['meta']));
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return (<TransferEvent>[], Pagination.empty());
@@ -619,8 +626,11 @@ class WalletService {
       }
 
       return tx;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return <TransferEvent>[];
@@ -658,8 +668,11 @@ class WalletService {
       );
 
       return TransferEvent.fromJson(response['object']);
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -698,8 +711,11 @@ class WalletService {
       );
 
       return true;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return false;
@@ -719,9 +735,13 @@ class WalletService {
       final response = await _requestBundler(body);
 
       return (response.result as String, null);
-    } catch (e) {
-      print(e);
-      final strerr = e.toString();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {
         return (null, NetworkCongestedException());
@@ -748,9 +768,11 @@ class WalletService {
       );
 
       return response.data.transactionHash;
-    } catch (e) {
-      // error fetching block
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -878,9 +900,11 @@ class WalletService {
       final response = await _request(body);
 
       return WalletBlock.fromJson(response.result);
-    } catch (e) {
-      // error fetching block
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -904,32 +928,6 @@ class WalletService {
 
     return null;
   }
-
-  /// get station config
-  // Future<Chain?> configStation(String url, EthPrivateKey privatekey) async {
-  //   try {
-  //     _station = StationService(
-  //       baseURL: url,
-  //       address: _address.hex,
-  //       requesterKey: privatekey,
-  //     );
-
-  //     final response = await _station!.hello();
-
-  //     // await sendGasStationTransaction(
-  //     //   to: '0xe13b2276bb63fde321719bbf6dca9a70fc40efcc',
-  //     //   amount: '10',
-  //     //   message: 'hello gas station',
-  //     // );
-
-  //     return response;
-  //   } catch (e) {
-  //     // error fetching block
-  //     print(e);
-  //   }
-
-  //   return null;
-  // }
 
   /// signs a transaction to prepare for sending
   Future<String> _signTransaction({

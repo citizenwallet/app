@@ -24,6 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -109,9 +110,11 @@ class WalletLogic extends WidgetsBindingObserver {
       // TODO: HANDLE
       _state.loadWalletError(exception: NotFoundException());
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.switchChainError();
@@ -122,9 +125,11 @@ class WalletLogic extends WidgetsBindingObserver {
       await _preferences.clear();
 
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -183,9 +188,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       return true;
-    } catch (e) {
-      print('openWalletFromQR error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.loadWalletError();
@@ -282,10 +289,16 @@ class WalletLogic extends WidgetsBindingObserver {
     } on NotFoundException {
       _state.loadWalletError(exception: NotFoundException());
 
+      Sentry.captureException(
+        NotFoundException(),
+      );
+
       return null;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.loadWalletError();
@@ -323,8 +336,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       return credentials.address.hex;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.createWalletError();
@@ -397,8 +413,11 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.createWalletSuccess(cwwallet);
 
       return address;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.createWalletError();
@@ -424,8 +443,14 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     } on NotFoundException {
       // HANDLE
-    } catch (e) {
-      print(e);
+      Sentry.captureException(
+        NotFoundException(),
+      );
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.createWalletError();
@@ -441,9 +466,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -488,9 +515,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.incomingTransactionsRequestError();
@@ -505,8 +534,11 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       return dbWallet.privateKey;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -520,8 +552,11 @@ class WalletLogic extends WidgetsBindingObserver {
       loadDBWallets();
 
       return;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.createWalletError();
@@ -567,9 +602,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.updateWalletBalanceSuccess(balance);
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.loadTransactionsError();
@@ -610,9 +647,11 @@ class WalletLogic extends WidgetsBindingObserver {
         total: pagination.total,
       );
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.loadAdditionalTransactionsError();
@@ -632,9 +671,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.updateWalletBalanceSuccess(balance, notify: false);
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.updateWalletBalanceError();
@@ -763,9 +804,11 @@ class WalletLogic extends WidgetsBindingObserver {
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
 
       _state.sendQueueAddTransaction(
         CWTransaction.failed('$parsedAmount',
@@ -877,11 +920,12 @@ class WalletLogic extends WidgetsBindingObserver {
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
-
     _state.sendTransactionError();
 
     return false;
@@ -914,9 +958,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.parseQRAddressSuccess();
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _addressController.text = '';
@@ -942,9 +988,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.parseQRAddressSuccess();
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _addressController.text = '';
@@ -980,8 +1028,11 @@ class WalletLogic extends WidgetsBindingObserver {
           break;
         default:
       }
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -1013,8 +1064,11 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       return;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.parseQRAddressError();
@@ -1070,9 +1124,11 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     } on NotFoundException {
       // HANDLE
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.clearReceiveQR();
@@ -1117,9 +1173,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.updateReceiveQR(compressed);
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.clearReceiveQR();
@@ -1135,9 +1193,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.updateWalletQR(walletService.account.hex);
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.clearWalletQR();
@@ -1161,8 +1221,11 @@ class WalletLogic extends WidgetsBindingObserver {
       // Wallet.fromJson(strwallet, password);
 
       return '';
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -1186,9 +1249,11 @@ class WalletLogic extends WidgetsBindingObserver {
               ))
           .toList());
       return;
-    } catch (e) {
-      print('error');
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _state.loadWalletsError();
@@ -1198,8 +1263,11 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _addressController.text = address;
       _state.setHasAddress(address.isNotEmpty);
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -1227,8 +1295,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.resetTransactionSendProperties();
       _state.resetInvalidInputs(notify: true);
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -1260,8 +1331,11 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       final walletService = walletServiceCheck();
       walletService.dispose();
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
     transferEventUnsubscribe();
   }

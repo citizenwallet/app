@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,16 @@ void main() async {
 
   await DBService().init('citizenwallet');
 
-  runApp(provideAppState(const MyApp()));
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = kDebugMode ? '' : dotenv.get('SENTRY_URL');
+      options.debug = kDebugMode;
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(provideAppState(const MyApp())),
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -123,8 +124,11 @@ bool verifySignature(SignatureVerifier verifier) {
       Signature.fromJson(decodedsig),
       convertBytesToUint8List(verifier.publicKey),
     );
-  } catch (e) {
-    print(e);
+  } catch (exception, stackTrace) {
+    Sentry.captureException(
+      exception,
+      stackTrace: stackTrace,
+    );
   }
 
   return false;
