@@ -194,12 +194,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     _logic.updateWalletQR();
 
     await showCupertinoModalPopup(
@@ -269,6 +263,9 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Stack(
@@ -287,7 +284,9 @@ class WalletScreenState extends State<WalletScreen> {
             color: ThemeColors.transparent,
             titleWidget: CupertinoButton(
               padding: const EdgeInsets.all(5),
-              onPressed: () => handleSwitchWalletModal(context),
+              onPressed: transactionSendLoading
+                  ? null
+                  : () => handleSwitchWalletModal(context),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -327,7 +326,9 @@ class WalletScreenState extends State<WalletScreen> {
                     ),
                     Icon(
                       CupertinoIcons.chevron_down,
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color: transactionSendLoading
+                          ? ThemeColors.subtle.resolveFrom(context)
+                          : ThemeColors.primary.resolveFrom(context),
                     ),
                   ],
                 ),

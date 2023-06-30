@@ -27,6 +27,9 @@ class WalletActions extends StatelessWidget {
     final loading = context.select((WalletState state) => state.loading);
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     final hasPending = context.select(selectHasPendingTransactions);
     final newBalance = context.select(selectWalletBalance);
     final formattedBalance = formatAmount(newBalance > 0 ? newBalance : 0.0,
@@ -147,14 +150,18 @@ class WalletActions extends StatelessWidget {
                         Icon(
                           CupertinoIcons.arrow_up,
                           size: progressiveClamp(20, 40, shrink),
-                          color: ThemeColors.black,
+                          color: transactionSendLoading
+                              ? ThemeColors.subtleEmphasis
+                              : ThemeColors.black,
                         ),
                         const SizedBox(width: 10),
-                        const Text(
-                          'Send',
+                        Text(
+                          transactionSendLoading ? 'Sending' : 'Send',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: ThemeColors.black,
+                            color: transactionSendLoading
+                                ? ThemeColors.subtleEmphasis
+                                : ThemeColors.black,
                             fontSize: 14,
                           ),
                         ),

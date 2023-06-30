@@ -38,6 +38,9 @@ class WalletScrollView extends StatelessWidget {
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     return CustomScrollView(
       controller: controller,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -82,7 +85,7 @@ class WalletScrollView extends StatelessWidget {
               color: ThemeColors.uiBackground.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: const Text(
-                'Failed',
+                'Unable to send',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -108,7 +111,9 @@ class WalletScrollView extends StatelessWidget {
                     key: Key(transaction.id),
                     transaction: transaction,
                     wallet: wallet,
-                    onTap: handleFailedTransactionTap,
+                    onTap: transactionSendLoading
+                        ? null
+                        : handleFailedTransactionTap,
                   ),
                 );
               },

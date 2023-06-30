@@ -39,6 +39,9 @@ class RouterShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     return CupertinoPageScaffold(
       key: Key(state.location),
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -57,19 +60,21 @@ class RouterShell extends StatelessWidget {
                   top: BorderSide(
                       color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                       width: 0.0)),
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    GoRouter.of(context)
-                        .go('/wallet/${wallet?.address.toLowerCase()}');
-                    break;
-                  case 1:
-                    GoRouter.of(context).go('/settings');
-                    break;
-                  default:
-                  // GoRouter.of(context).go('/404');
-                }
-              },
+              onTap: transactionSendLoading
+                  ? null
+                  : (index) {
+                      switch (index) {
+                        case 0:
+                          GoRouter.of(context)
+                              .go('/wallet/${wallet?.address.toLowerCase()}');
+                          break;
+                        case 1:
+                          GoRouter.of(context).go('/settings');
+                          break;
+                        default:
+                        // GoRouter.of(context).go('/404');
+                      }
+                    },
             ),
         ],
       )),

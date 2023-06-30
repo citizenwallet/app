@@ -196,12 +196,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     _logic.updateWalletQR();
 
     await showCupertinoModalPopup(

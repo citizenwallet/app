@@ -90,6 +90,9 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final loading = context.select((WalletState state) => state.loading);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     if (wallet == null || transaction == null) {
       return const SizedBox();
     }
@@ -362,8 +365,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                               transaction.isIncoming(wallet.account)
                                   ? CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: () =>
-                                          handleReply(transaction.from),
+                                      onPressed: transactionSendLoading
+                                          ? null
+                                          : () => handleReply(transaction.from),
                                       borderRadius: BorderRadius.circular(25),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
@@ -375,11 +379,13 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     )
                                   : CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: () => handleReplay(
-                                        transaction.to,
-                                        transaction.amount,
-                                        transaction.title,
-                                      ),
+                                      onPressed: transactionSendLoading
+                                          ? null
+                                          : () => handleReplay(
+                                                transaction.to,
+                                                transaction.amount,
+                                                transaction.title,
+                                              ),
                                       borderRadius: BorderRadius.circular(25),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
