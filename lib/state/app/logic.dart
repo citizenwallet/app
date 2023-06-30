@@ -301,4 +301,23 @@ class AppLogic {
     Clipboard.setData(ClipboardData(text: _appState.walletPassword));
     _appState.hasCopied(true);
   }
+
+  Future<void> clearDataAndBackups() async {
+    try {
+      _appState.deleteBackupLoadingReq();
+
+      await _encPrefs.deleteWalletBackups();
+
+      await _preferences.clear();
+
+      _appState.deleteBackupLoadingSuccess();
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _appState.deleteBackupLoadingError();
+  }
 }

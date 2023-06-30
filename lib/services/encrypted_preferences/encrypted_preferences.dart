@@ -137,4 +137,9 @@ class EncryptedPreferencesService {
       await _preferences.delete(key: '$_backupPrefix${address.toLowerCase()}');
     }
   }
+
+  // delete all wallet backups
+  Future<void> deleteWalletBackups() async {
+    await _preferences.deleteAll();
+  }
 }

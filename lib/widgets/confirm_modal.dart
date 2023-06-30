@@ -10,11 +10,13 @@ const List<String> emptyDetails = [];
 class ConfirmModal extends StatelessWidget {
   final String title;
   final List<String> details;
+  final String? confirmText;
 
   const ConfirmModal({
     Key? key,
     this.title = 'Confirm',
     this.details = emptyDetails,
+    this.confirmText,
   }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
@@ -81,14 +83,15 @@ class ConfirmModal extends StatelessWidget {
                             text: 'Cancel',
                             minWidth: 140,
                             maxWidth: 140,
-                            color: ThemeColors.subtle.resolveFrom(context),
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
                             onPressed: () => handleDismiss(context),
                           ),
                           const SizedBox(
                             width: 10,
                           ),
                           Button(
-                            text: 'Delete wallet',
+                            text: confirmText ?? 'Delete wallet',
                             minWidth: 140,
                             maxWidth: 140,
                             color: ThemeColors.danger.resolveFrom(context),

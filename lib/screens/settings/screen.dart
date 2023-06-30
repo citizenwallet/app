@@ -3,6 +3,7 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/settings_row.dart';
 import 'package:citizenwallet/widgets/settings_sub_row.dart';
@@ -66,7 +67,26 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   void handleAppReset() async {
-    print('reset');
+    final navigator = GoRouter.of(context);
+
+    final confirm = await showCupertinoModalPopup(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => ConfirmModal(
+        title: 'Clear data & backups',
+        details: [
+          'Are you sure you want to delete everything?',
+          'This action cannot be undone.',
+        ],
+        confirmText: 'Delete everything',
+      ),
+    );
+
+    if (confirm == true) {
+      await _appLogic.clearDataAndBackups();
+
+      navigator.go('/');
+    }
   }
 
   @override
@@ -239,6 +259,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             blur: true,
             transparent: true,
             title: widget.title,
+            safePadding: safePadding,
           ),
         ],
       ),

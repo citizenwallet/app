@@ -297,6 +297,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
     final wallet = context.select((WalletState state) => state.wallet);
 
     return GestureDetector(
@@ -313,6 +314,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             handleFailedTransactionTap: handleFailedTransaction,
           ),
           Header(
+            safePadding: safePadding,
             transparent: true,
             color: ThemeColors.transparent,
             titleWidget: Row(
