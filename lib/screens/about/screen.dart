@@ -36,7 +36,7 @@ class AboutScreen extends StatelessWidget {
                     selectable: true,
                     softLineBreak: true,
                     shrinkWrap: true,
-                    padding: EdgeInsets.fromLTRB(10, 40 + safePadding, 10, 10),
+                    padding: EdgeInsets.fromLTRB(10, 80 + safePadding, 10, 10),
                     onTapLink: onTapLink,
                     styleSheet: MarkdownStyleSheet.fromCupertinoTheme(theme),
                     data: snapshot.data ?? '',
