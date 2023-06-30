@@ -279,73 +279,75 @@ class WalletScreenState extends State<WalletScreen> {
             handleTransactionTap: handleTransactionTap,
             handleFailedTransactionTap: handleFailedTransaction,
           ),
-          Header(
-            transparent: true,
-            color: ThemeColors.transparent,
-            titleWidget: CupertinoButton(
-              padding: const EdgeInsets.all(5),
-              onPressed: transactionSendLoading
-                  ? null
-                  : () => handleSwitchWalletModal(context),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                ),
-                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  wallet?.name ?? 'Wallet',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+          SafeArea(
+            child: Header(
+              transparent: true,
+              color: ThemeColors.transparent,
+              titleWidget: CupertinoButton(
+                padding: const EdgeInsets.all(5),
+                onPressed: transactionSendLoading
+                    ? null
+                    : () => handleSwitchWalletModal(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: ThemeColors.surfaceSubtle.resolveFrom(context),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    wallet?.name ?? 'Wallet',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Icon(
-                      CupertinoIcons.chevron_down,
-                      color: transactionSendLoading
-                          ? ThemeColors.subtle.resolveFrom(context)
-                          : ThemeColors.primary.resolveFrom(context),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDisplayWalletQR(context),
-                  child: Icon(
-                    CupertinoIcons.qrcode,
-                    color: ThemeColors.primary.resolveFrom(context),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Icon(
+                        CupertinoIcons.chevron_down,
+                        color: transactionSendLoading
+                            ? ThemeColors.subtle.resolveFrom(context)
+                            : ThemeColors.primary.resolveFrom(context),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
+              actionButton: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => handleDisplayWalletQR(context),
+                    child: Icon(
+                      CupertinoIcons.qrcode,
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

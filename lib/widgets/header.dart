@@ -40,11 +40,10 @@ class HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
+
     final headerContainer = Container(
-      constraints: const BoxConstraints(
-        minHeight: 60,
-        maxHeight: 60,
-      ),
+      height: 60 + safePadding,
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent
@@ -56,7 +55,7 @@ class HeaderState extends State<Header> {
               )
             : null,
       ),
-      padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+      padding: EdgeInsets.fromLTRB(15, safePadding, 15, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,

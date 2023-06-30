@@ -28,6 +28,8 @@ class WalletScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
+
     final wallet = context.select((WalletState state) => state.wallet);
 
     final transactionsLoading =
@@ -54,15 +56,17 @@ class WalletScrollView extends StatelessWidget {
             refreshTriggerPullDistance,
             refreshIndicatorExtent,
           ) =>
-              Container(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
-            child: CupertinoSliverRefreshControl.buildRefreshIndicator(
-              context,
-              mode,
-              pulledExtent,
-              refreshTriggerPullDistance,
-              refreshIndicatorExtent,
+              SafeArea(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
+              child: CupertinoSliverRefreshControl.buildRefreshIndicator(
+                context,
+                mode,
+                pulledExtent,
+                refreshTriggerPullDistance,
+                refreshIndicatorExtent,
+              ),
             ),
           ),
         ),
@@ -70,8 +74,8 @@ class WalletScrollView extends StatelessWidget {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 300,
-            minHeight: 180,
+            expandedHeight: 300 + safePadding,
+            minHeight: 180 + safePadding,
             builder: (context, shrink) => WalletActions(
               shrink: shrink,
               handleSendModal: handleSendModal,
