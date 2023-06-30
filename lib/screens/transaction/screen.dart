@@ -371,10 +371,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       borderRadius: BorderRadius.circular(25),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
-                                      child: Icon(
+                                      child: const Icon(
                                         CupertinoIcons.reply,
-                                        color: ThemeColors.surfaceText
-                                            .resolveFrom(context),
+                                        color: ThemeColors.black,
                                       ),
                                     )
                                   : CupertinoButton(
@@ -389,10 +388,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       borderRadius: BorderRadius.circular(25),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
-                                      child: Icon(
+                                      child: const Icon(
                                         CupertinoIcons.refresh_thick,
-                                        color: ThemeColors.surfaceText
-                                            .resolveFrom(context),
+                                        color: ThemeColors.black,
                                       ),
                                     ),
                             ],
