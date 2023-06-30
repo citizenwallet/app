@@ -95,6 +95,7 @@ class TextInputModalState extends State<TextInputModal> {
         child: CupertinoPageScaffold(
           backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
           child: SafeArea(
+            top: false,
             child: Flex(
               direction: Axis.vertical,
               children: [
