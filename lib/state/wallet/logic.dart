@@ -177,7 +177,8 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.loadWalletSuccess(
         CWWallet(
           balance,
-          name: 'Burner Wallet',
+          name:
+              'Burner Wallet', // on web, acts as a page's title, wallet is fitting here
           address: walletService.address.hex,
           account: walletService.account.hex,
           currencyName: currency.name,

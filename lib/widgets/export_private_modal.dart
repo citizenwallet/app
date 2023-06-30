@@ -72,7 +72,7 @@ class ExportPrivateModal extends StatelessWidget {
                         height: 10,
                       ),
                       const Text(
-                        'Keep this key safe, anyone with access to it has access to the wallet.',
+                        'Keep this key safe, anyone with access to it has access to the account.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal),

@@ -91,7 +91,7 @@ class ConfirmModal extends StatelessWidget {
                             width: 10,
                           ),
                           Button(
-                            text: confirmText ?? 'Delete wallet',
+                            text: confirmText ?? 'Delete account',
                             minWidth: 140,
                             maxWidth: 140,
                             color: ThemeColors.danger.resolveFrom(context),

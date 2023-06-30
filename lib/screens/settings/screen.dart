@@ -199,9 +199,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                     : null,
               ),
               SettingsRow(
-                label: 'Wallets',
+                label: 'Accounts',
                 subLabel:
-                    "All your wallets are automatically backed up to your device's keychain and synced to the cloud.",
+                    "All your accounts are automatically backed up to your device's keychain and synced to the cloud.",
                 trailing: Icon(
                   CupertinoIcons.cloud,
                   color: ThemeColors.subtleEmphasis.resolveFrom(context),

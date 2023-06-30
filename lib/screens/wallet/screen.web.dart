@@ -222,7 +222,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => ExportPrivateModal(
-        title: 'Export Wallet',
+        title: 'Export Account',
         copyLabel: '---------',
         onCopy: handleCopyWalletPrivateKey,
       ),

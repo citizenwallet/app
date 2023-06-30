@@ -21,43 +21,40 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
     final theme = context.select((AppState state) => state.theme);
 
     return CupertinoPageScaffold(
-      child: SafeArea(
-        child: Flex(
-          direction: Axis.vertical,
-          children: [
-            const Header(
-              blur: true,
-              transparent: true,
-              showBackButton: true,
-              title: 'About',
-            ),
-            Expanded(
-              child: FutureBuilder(
-                future: rootBundle.loadString('assets/about/about.md'),
-                builder: (context, AsyncSnapshot<String> snapshot) =>
-                    snapshot.hasData
-                        ? Markdown(
-                            selectable: true,
-                            softLineBreak: true,
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-                            onTapLink: onTapLink,
-                            styleSheet:
-                                MarkdownStyleSheet.fromCupertinoTheme(theme),
-                            data: snapshot.data ?? '',
-                          )
-                        : Center(
-                            child: CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
-                            ),
-                          ),
-              ),
-            ),
-          ],
-        ),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          FutureBuilder(
+            future: rootBundle.loadString('assets/about/about.md'),
+            builder: (context, AsyncSnapshot<String> snapshot) => snapshot
+                    .hasData
+                ? Markdown(
+                    selectable: true,
+                    softLineBreak: true,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.fromLTRB(10, 40 + safePadding, 10, 10),
+                    onTapLink: onTapLink,
+                    styleSheet: MarkdownStyleSheet.fromCupertinoTheme(theme),
+                    data: snapshot.data ?? '',
+                  )
+                : Center(
+                    child: CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
+                    ),
+                  ),
+          ),
+          Header(
+            blur: true,
+            transparent: true,
+            showBackButton: true,
+            title: 'About',
+            safePadding: safePadding,
+          ),
+        ],
       ),
     );
   }

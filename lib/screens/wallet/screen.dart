@@ -14,7 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
-  final String title = 'Wallet';
+  final String title = 'Account';
   final String? address;
 
   const WalletScreen(this.address, {super.key});
@@ -306,7 +306,7 @@ class WalletScreenState extends State<WalletScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    wallet?.name ?? 'Wallet',
+                                    wallet?.name ?? 'Account',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
