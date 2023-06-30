@@ -115,52 +115,52 @@ class SettingsScreenState extends State<SettingsScreen> {
               if (packageInfo != null)
                 SettingsSubRow(
                     'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                child: Text(
-                  'Security',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SettingsRow(
-                label: 'App protection',
-                subLabel:
-                    !protected ? 'We recommend enabling app protection.' : null,
-                trailing: Row(
-                  children: [
-                    if (!protected)
-                      const Icon(CupertinoIcons.exclamationmark_triangle,
-                          color: ThemeColors.secondary),
-                    if (!protected) const SizedBox(width: 5),
-                    CupertinoSwitch(
-                      value: protected,
-                      onChanged: handleToggleProtection,
-                    ),
-                  ],
-                ),
-              ),
-              if (protected)
-                SettingsRow(
-                  label: 'Automatic lock',
-                  subLabel:
-                      'Automatically locks the app whenever it is closed.',
-                  trailing: CupertinoSwitch(
-                    value: false,
-                    onChanged: onToggleDarkMode,
-                  ),
-                ),
-              if (protected)
-                SettingsRow(
-                  label: 'On send',
-                  subLabel: 'Ask for authentication every time you send.',
-                  trailing: CupertinoSwitch(
-                    value: false,
-                    onChanged: onToggleDarkMode,
-                  ),
-                ),
+              // const Padding(
+              //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+              //   child: Text(
+              //     'Security',
+              //     style: TextStyle(
+              //       fontSize: 22,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
+              // SettingsRow(
+              //   label: 'App protection',
+              //   subLabel:
+              //       !protected ? 'We recommend enabling app protection.' : null,
+              //   trailing: Row(
+              //     children: [
+              //       if (!protected)
+              //         const Icon(CupertinoIcons.exclamationmark_triangle,
+              //             color: ThemeColors.secondary),
+              //       if (!protected) const SizedBox(width: 5),
+              //       CupertinoSwitch(
+              //         value: protected,
+              //         onChanged: handleToggleProtection,
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // if (protected)
+              //   SettingsRow(
+              //     label: 'Automatic lock',
+              //     subLabel:
+              //         'Automatically locks the app whenever it is closed.',
+              //     trailing: CupertinoSwitch(
+              //       value: false,
+              //       onChanged: onToggleDarkMode,
+              //     ),
+              //   ),
+              // if (protected)
+              //   SettingsRow(
+              //     label: 'On send',
+              //     subLabel: 'Ask for authentication every time you send.',
+              //     trailing: CupertinoSwitch(
+              //       value: false,
+              //       onChanged: onToggleDarkMode,
+              //     ),
+              //   ),
               const Padding(
                 padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: Text(
@@ -177,36 +177,36 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ? () => handleOpenContract(wallet.account)
                     : null,
               ),
-              const SettingsRow(
+              SettingsRow(
                 label: 'Wallets',
                 subLabel:
                     "All your wallets are automatically backed up to your device's keychain and synced to the cloud.",
                 trailing: Icon(
                   CupertinoIcons.cloud,
-                  color: ThemeColors.white,
+                  color: ThemeColors.subtleEmphasis.resolveFrom(context),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                    child: Button(
-                      text: 'Lock app',
-                      suffix: const Padding(
-                        padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Icon(
-                          CupertinoIcons.lock,
-                          color: ThemeColors.black,
-                        ),
-                      ),
-                      minWidth: 160,
-                      maxWidth: 160,
-                      onPressed: handleLockApp,
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Padding(
+              //       padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+              //       child: Button(
+              //         text: 'Lock app',
+              //         suffix: const Padding(
+              //           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+              //           child: Icon(
+              //             CupertinoIcons.lock,
+              //             color: ThemeColors.black,
+              //           ),
+              //         ),
+              //         minWidth: 160,
+              //         maxWidth: 160,
+              //         onPressed: handleLockApp,
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const Padding(
                 padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
                 child: Text(

@@ -1,4 +1,4 @@
-![citizen wallet logo](https://github.com/daobrussels/citizenwallet/blob/main/assets/logo_small.jpg)
+![citizen wallet logo](https://github.com/citizenwallet/app/blob/main/assets/logo_small.jpg?raw=true)
 
 # Citizen Wallet
 
