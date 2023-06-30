@@ -483,8 +483,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       updateBalance();
 
-      HapticFeedback.lightImpact();
-
       _state.incomingTransactionsRequestSuccess(
         cwtransactions.toList(),
       );
@@ -625,6 +623,12 @@ class WalletLogic extends WidgetsBindingObserver {
       final walletService = walletServiceCheck();
 
       final balance = await walletService.balance;
+
+      final currentBalance = _state.wallet?.doubleBalance ?? 0.0;
+
+      if (currentBalance != (double.parse(balance))) {
+        HapticFeedback.lightImpact();
+      }
 
       _state.updateWalletBalanceSuccess(balance, notify: false);
       return;
