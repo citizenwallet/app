@@ -84,7 +84,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   }
 
   void handleMore(
-      BuildContext context, String address, String name, bool locked) async {
+    BuildContext context,
+    String address,
+    String name,
+    bool locked,
+  ) async {
+    final wallet = context.read<WalletState>().wallet;
+
+    HapticFeedback.heavyImpact();
+
     final option = await showCupertinoModalPopup<String?>(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -104,13 +112,14 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                   },
                   child: const Text('Export'),
                 ),
-              CupertinoActionSheetAction(
-                isDestructiveAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('delete');
-                },
-                child: const Text('Delete'),
-              ),
+              if (wallet != null && wallet.address != address)
+                CupertinoActionSheetAction(
+                  isDestructiveAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('delete');
+                  },
+                  child: const Text('Delete'),
+                ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
