@@ -53,8 +53,8 @@ class LandingScreenState extends State<LandingScreen>
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => const TextInputModal(
-        title: 'Wallet Name',
-        placeholder: 'Enter wallet name',
+        title: 'Account Name',
+        placeholder: 'Enter account name',
       ),
     );
 
@@ -129,12 +129,12 @@ class LandingScreenState extends State<LandingScreen>
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => const TextInputModal(
-        title: 'Wallet Name',
-        placeholder: 'Enter wallet name',
+        title: 'Account Name',
+        placeholder: 'Enter account name',
       ),
     );
 
-    final address = await _appLogic.importWallet(result, name ?? 'New Wallet');
+    final address = await _appLogic.importWallet(result, name ?? 'New Account');
 
     if (address == null) {
       return;
@@ -197,7 +197,7 @@ class LandingScreenState extends State<LandingScreen>
                         : Column(
                             children: [
                               Button(
-                                text: 'New Wallet',
+                                text: 'New Account',
                                 onPressed: kIsWeb
                                     ? handleNewWebWallet
                                     : handleNewWallet,
@@ -208,7 +208,7 @@ class LandingScreenState extends State<LandingScreen>
                               CupertinoButton(
                                 onPressed: handleImportWallet,
                                 child: Text(
-                                  'Import Wallet',
+                                  'Import Account',
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),

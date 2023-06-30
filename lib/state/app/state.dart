@@ -11,6 +11,9 @@ class AppState with ChangeNotifier {
   bool walletLoading = false;
   bool walletError = false;
 
+  bool backupDeleteLoading = false;
+  bool backupDeleteError = false;
+
   PackageInfo? packageInfo;
 
   CupertinoThemeData get theme {
@@ -110,6 +113,24 @@ class AppState with ChangeNotifier {
   void loadChainsError() {
     chainsLoading = false;
     chainsError = true;
+    notifyListeners();
+  }
+
+  void deleteBackupLoadingReq() {
+    backupDeleteLoading = true;
+    backupDeleteError = false;
+    notifyListeners();
+  }
+
+  void deleteBackupLoadingError() {
+    backupDeleteLoading = false;
+    backupDeleteError = true;
+    notifyListeners();
+  }
+
+  void deleteBackupLoadingSuccess() {
+    backupDeleteLoading = false;
+    backupDeleteError = false;
     notifyListeners();
   }
 }

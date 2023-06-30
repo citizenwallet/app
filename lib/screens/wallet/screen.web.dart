@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
@@ -89,9 +90,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       _password = dotenv.get('WEB_BURNER_PASSWORD');
 
       _wallet = QR.fromCompressedJson(widget.encoded).toQRWallet();
-    } catch (e) {
+    } catch (exception, stackTrace) {
       // something is wrong with the encoding
-      print(e);
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
 
       // try and reset preferences so we don't end up in a loop
       await _logic.resetWalletPreferences();
@@ -196,12 +200,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     _logic.updateWalletQR();
 
     await showCupertinoModalPopup(
@@ -224,7 +222,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => ExportPrivateModal(
-        title: 'Export Wallet',
+        title: 'Export Account',
         copyLabel: '---------',
         onCopy: handleCopyWalletPrivateKey,
       ),
@@ -299,6 +297,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
     final wallet = context.select((WalletState state) => state.wallet);
 
     return GestureDetector(
@@ -315,6 +314,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             handleFailedTransactionTap: handleFailedTransaction,
           ),
           Header(
+            safePadding: safePadding,
             transparent: true,
             color: ThemeColors.transparent,
             titleWidget: Row(

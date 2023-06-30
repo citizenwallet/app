@@ -14,6 +14,7 @@ class Header extends StatefulWidget {
   final bool blur;
   final bool showBorder;
   final Color? color;
+  final double safePadding;
 
   const Header({
     super.key,
@@ -27,6 +28,7 @@ class Header extends StatefulWidget {
     this.blur = false,
     this.showBorder = false,
     this.color,
+    this.safePadding = 0,
   });
 
   @override
@@ -41,10 +43,7 @@ class HeaderState extends State<Header> {
   @override
   Widget build(BuildContext context) {
     final headerContainer = Container(
-      constraints: const BoxConstraints(
-        minHeight: 60,
-        maxHeight: 60,
-      ),
+      height: 60 + widget.safePadding,
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent
@@ -56,7 +55,7 @@ class HeaderState extends State<Header> {
               )
             : null,
       ),
-      padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+      padding: EdgeInsets.fromLTRB(15, widget.safePadding, 15, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,

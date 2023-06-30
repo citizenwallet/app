@@ -17,7 +17,7 @@ class RouterShell extends StatelessWidget {
 
   final List<BottomNavigationBarItem> items = [
     const BottomNavigationBarItem(
-      label: 'Wallets',
+      label: 'Wallet',
       icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
       activeIcon: Icon(
         CupertinoIcons.rectangle_on_rectangle_angled,
@@ -39,40 +39,48 @@ class RouterShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
+
     return CupertinoPageScaffold(
       key: Key(state.location),
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
       child: SafeArea(
+          top: false,
           child: Column(
-        children: [
-          Expanded(
-            child: child,
-          ),
-          if (!kIsWeb)
-            CupertinoTabBar(
-              items: items,
-              currentIndex: routes[state.location] ?? 0,
-              backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              border: Border(
-                  top: BorderSide(
-                      color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                      width: 0.0)),
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    GoRouter.of(context)
-                        .go('/wallet/${wallet?.address.toLowerCase()}');
-                    break;
-                  case 1:
-                    GoRouter.of(context).go('/settings');
-                    break;
-                  default:
-                  // GoRouter.of(context).go('/404');
-                }
-              },
-            ),
-        ],
-      )),
+            children: [
+              Expanded(
+                child: child,
+              ),
+              if (!kIsWeb)
+                CupertinoTabBar(
+                  items: items,
+                  currentIndex: routes[state.location] ?? 0,
+                  backgroundColor:
+                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  border: Border(
+                      top: BorderSide(
+                          color:
+                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                          width: 0.0)),
+                  onTap: transactionSendLoading
+                      ? null
+                      : (index) {
+                          switch (index) {
+                            case 0:
+                              GoRouter.of(context).go(
+                                  '/wallet/${wallet?.address.toLowerCase()}');
+                              break;
+                            case 1:
+                              GoRouter.of(context).go('/settings');
+                              break;
+                            default:
+                            // GoRouter.of(context).go('/404');
+                          }
+                        },
+                ),
+            ],
+          )),
     );
   }
 }

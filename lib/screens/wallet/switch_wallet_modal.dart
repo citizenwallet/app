@@ -61,8 +61,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => const TextInputModal(
-        title: 'Create Wallet',
-        placeholder: 'Enter wallet name',
+        title: 'Create Account',
+        placeholder: 'Enter account name',
       ),
     );
 
@@ -84,7 +84,15 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   }
 
   void handleMore(
-      BuildContext context, String address, String name, bool locked) async {
+    BuildContext context,
+    String address,
+    String name,
+    bool locked,
+  ) async {
+    final wallet = context.read<WalletState>().wallet;
+
+    HapticFeedback.heavyImpact();
+
     final option = await showCupertinoModalPopup<String?>(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -104,13 +112,14 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                   },
                   child: const Text('Export'),
                 ),
-              CupertinoActionSheetAction(
-                isDestructiveAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('delete');
-                },
-                child: const Text('Delete'),
-              ),
+              if (wallet != null && wallet.address != address)
+                CupertinoActionSheetAction(
+                  isDestructiveAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('delete');
+                  },
+                  child: const Text('Delete'),
+                ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
@@ -132,8 +141,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => TextInputModal(
-          title: 'Edit Wallet',
-          placeholder: 'Enter wallet name',
+          title: 'Edit Account',
+          placeholder: 'Enter account name',
           initialValue: name,
         ),
       );
@@ -159,7 +168,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ExportWalletModal(
-          title: 'Export Wallet',
+          title: 'Export Account',
           toCopy: '-----------',
           onCopy: () => handleCopyWalletPrivateKey(privateKey),
         ),
@@ -173,9 +182,9 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Delete wallet',
+          title: 'Delete account',
           details: [
-            'Are you sure you want to delete this wallet?',
+            'Are you sure you want to delete this account?',
             'This action cannot be undone.',
           ],
         ),
@@ -215,14 +224,14 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => const TextInputModal(
-        title: 'Edit Wallet',
-        placeholder: 'Enter wallet name',
-        initialValue: 'New Wallet',
+        title: 'Edit Account',
+        placeholder: 'Enter account name',
+        initialValue: 'New Account',
       ),
     );
 
     final address =
-        await widget.logic.importWallet(result, newName ?? 'New Wallet');
+        await widget.logic.importWallet(result, newName ?? 'New Account');
 
     if (address == null) {
       return;
@@ -279,7 +288,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: 'Wallets',
+                  title: 'Accounts',
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -347,7 +356,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                         child: Column(
                           children: [
                             Button(
-                              text: 'Create Wallet',
+                              text: 'Create Account',
                               color: ThemeColors.surfacePrimary
                                   .resolveFrom(context),
                               labelColor: ThemeColors.black,
@@ -355,7 +364,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                             ),
                             const SizedBox(height: 10),
                             Button(
-                              text: 'Import Wallet',
+                              text: 'Import Account',
                               color: ThemeColors.surfacePrimary
                                   .resolveFrom(context),
                               labelColor: ThemeColors.black,

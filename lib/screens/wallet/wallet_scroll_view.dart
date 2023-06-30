@@ -28,6 +28,8 @@ class WalletScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
+
     final wallet = context.select((WalletState state) => state.wallet);
 
     final transactionsLoading =
@@ -37,6 +39,9 @@ class WalletScrollView extends StatelessWidget {
 
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
+
+    final transactionSendLoading =
+        context.select((WalletState state) => state.transactionSendLoading);
 
     return CustomScrollView(
       controller: controller,
@@ -51,15 +56,17 @@ class WalletScrollView extends StatelessWidget {
             refreshTriggerPullDistance,
             refreshIndicatorExtent,
           ) =>
-              Container(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
-            child: CupertinoSliverRefreshControl.buildRefreshIndicator(
-              context,
-              mode,
-              pulledExtent,
-              refreshTriggerPullDistance,
-              refreshIndicatorExtent,
+              SafeArea(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
+              child: CupertinoSliverRefreshControl.buildRefreshIndicator(
+                context,
+                mode,
+                pulledExtent,
+                refreshTriggerPullDistance,
+                refreshIndicatorExtent,
+              ),
             ),
           ),
         ),
@@ -67,8 +74,8 @@ class WalletScrollView extends StatelessWidget {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 300,
-            minHeight: 180,
+            expandedHeight: 300 + safePadding,
+            minHeight: 180 + safePadding,
             builder: (context, shrink) => WalletActions(
               shrink: shrink,
               handleSendModal: handleSendModal,
@@ -82,7 +89,7 @@ class WalletScrollView extends StatelessWidget {
               color: ThemeColors.uiBackground.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: const Text(
-                'Failed',
+                'Unable to send',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -108,7 +115,9 @@ class WalletScrollView extends StatelessWidget {
                     key: Key(transaction.id),
                     transaction: transaction,
                     wallet: wallet,
-                    onTap: handleFailedTransactionTap,
+                    onTap: transactionSendLoading
+                        ? null
+                        : handleFailedTransactionTap,
                   ),
                 );
               },

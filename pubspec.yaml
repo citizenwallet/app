@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.15+11
+version: 1.0.15+12
 publish_to: none
 description: Receive and send ERC20 without gas fees.
 environment:
@@ -45,6 +45,7 @@ dependencies:
   flutter_markdown: ^0.6.15
   package_info_plus: ^4.0.2
   rxdart: ^0.27.7
+  sentry_flutter: ^7.8.0
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:

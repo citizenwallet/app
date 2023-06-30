@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -58,8 +59,11 @@ class AppLogic {
       _appState.loadChainsSuccess(allChains);
 
       return;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.loadChainsError();
@@ -97,8 +101,11 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return dbWallet.address;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.importLoadingError();
@@ -111,8 +118,11 @@ class AppLogic {
       final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
 
       return wallet.verifyData();
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return false;
@@ -135,8 +145,11 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return credentials.address.hex;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.importLoadingError();
@@ -153,8 +166,11 @@ class AppLogic {
       }
 
       return lastWallet;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
@@ -183,8 +199,11 @@ class AppLogic {
         address: credentials.address.hex,
         publicKey: wallet.privateKey.encodedPublicKey,
       ).toJson());
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.importLoadingWebError();
@@ -243,8 +262,11 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.importLoadingError();
@@ -263,8 +285,11 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return wallet;
-    } catch (e) {
-      print(e);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
     _appState.importLoadingError();
@@ -275,5 +300,24 @@ class AppLogic {
   void copyPasswordToClipboard() {
     Clipboard.setData(ClipboardData(text: _appState.walletPassword));
     _appState.hasCopied(true);
+  }
+
+  Future<void> clearDataAndBackups() async {
+    try {
+      _appState.deleteBackupLoadingReq();
+
+      await _encPrefs.deleteWalletBackups();
+
+      await _preferences.clear();
+
+      _appState.deleteBackupLoadingSuccess();
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _appState.deleteBackupLoadingError();
   }
 }

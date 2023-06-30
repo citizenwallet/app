@@ -1,43 +1,62 @@
-![citizen wallet logo](https://github.com/daobrussels/citizenwallet/blob/main/assets/logo_small.jpg)
+![citizen wallet logo](https://github.com/citizenwallet/app/blob/main/assets/logo_small.png?raw=true)
 
 # Citizen Wallet
 
-A mobile wallet to bring citizens to web3.
+A wallet that allows easy token exchange.
 
 ## What is the Citizen Wallet?
 
-It's a crypto wallet that allows you to receive and send USDc tokens (for now) without any prior knowledge of crypto.
-No need to know what a seedphrase is or what are gas fees.
+It allows you to receive and send USDC tokens in a safe and secure way.
 
-## Why did you create the Citizen Wallet? Aren't they enough crypto wallets out there?
+No need to worry about transactions fees.
 
-Our goal is to make web3 work for citizens. We started a few DAOs (allforclimate DAO, DAO.brussels, Regens Unite DAO). Every time we were confronted with the need to onboard non crypto people to web3. Asking them to install Metamask or download a mobile wallet that assumes that you are a trader, was all but ideal.
+## Why did you create the Citizen Wallet? Aren't they enough wallet apps out there?
 
-That's why we started working on a crypto wallet for citizens. One that any DAO or dApp could recommend to their community to start receiving and sending their tokens.
+Our goal is to make token exchange work for citizens. Through founding various organizations (allforclimate DAO, DAO.brussels, Regens Unite DAO), we were confronted with the need to onboard people to complex trading apps. Asking them to install a mobile wallet that assumes that you are a trader was all but ideal.
+
+That's why we started working on a wallet for citizens. One that any organization or event could recommend to their community to start receiving and sending their tokens.
 
 ## Is it secure?
 
-The Citizen Wallet is designed to be used by citizens as their every day wallet. It is good enough and safe enough for keeping small change, like you know, you would do in a regular wallet. Now we wouldn't recommend keeping gold bars in it (nor in your regular wallet).
+The Citizen Wallet is designed to be used by citizens as their every day wallet. It is good enough and safe enough for keeping small change, similar to a physical wallet.
+
+Your account is generated, **owned and controlled by you**. The access key is encrypted and stored on your device's cloud backup. This means that you can **easily migrate to a new device** and bring your accounts with you while making sure that **no one else has access to your accounts**.
 
 ## What if I lose my device?
 
-People won't be able to spend your tokens if they cannot unlock your device. Whenever you get a new device, you can restore your phone, your keychain and you will recover access to your tokens.
-
-## Has it been audited?
-
-Not yet. So use at your own risk for now. You can help us accelerate this process by contributing to the [Citizen Wallet Collective](https://citizenwallet.xyz/contribute).
+People won't be able to exchange your tokens if they cannot unlock your device. Whenever you get a new device, you can restore it and you will **recover access to your tokens**.
 
 ## How does it work?
 
-We are generating a private key that is stored on your device's keychain. When you restore your phone (or get a new one), you will recover your Citizen Wallet with all the funds. No need to write down a seed phrase.
+Citizen Wallet is open source, feel free to [take a look at the internals](https://github.com/citizenwallet/app).
 
-We are using the Polygon blockchain (for now) and the latest [EIP4337](https://eips.ethereum.org/EIPS/eip-4337) standard to make sure you don't have to pay for gas. We will soon make it available for any community with their own community currency.
+## What network do you use?
+
+We use Polygon and the latest [ERC4337](https://eips.ethereum.org/EIPS/eip-4337) standard to make sure that you don't have to pay for transactions.
+
+Our aim is to make it available for any community and network with their own tokens.
+
+## Has it been audited?
+
+While [ERC4337](https://blog.openzeppelin.com/eip-4337-ethereum-account-abstraction-incremental-audit) has been audited, our implementation of it and use of it has not. You can help us accelerate this process by contributing to the [Citizen Wallet Collective](https://citizenwallet.xyz/contribute).
 
 ## Who is behind this?
 
 The Citizen Wallet is an open source project ([Github](https://github.com/citizenwallet)). It's developed by the community for the community. Everyone is invited to contribute to make sure we can keep this as a public good.
 
+## Terminology
+
+`wallet` = the app
+
+`token` = a user-friendly digital unit built on the Ethereum blockchain, adhering to standardized protocols for easy interaction and broad adoption within the Ethereum ecosystem.
+
+`access key` = the private key which represents you
+
+`account` = the smart contract account through which you execute transactions
+
+`smart contract` = a digital agreement that automatically executes and enforces the terms of the contract without the need for intermediaries, providing trust and transparency in various online transactions
+
 ## Quick links
 
 - [Citizen Wallet website](https://citizenwallet.xyz)
-- [EIP4337](https://eips.ethereum.org/EIPS/eip-4337)
+- [ERC4337](https://eips.ethereum.org/EIPS/eip-4337)
