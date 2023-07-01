@@ -440,19 +440,19 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          const Text(
-                            'Description',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          CupertinoTextField(
-                            controller: widget.logic.messageController,
-                            placeholder: 'Enter a description',
-                            maxLines: 4,
-                            maxLength: 256,
-                            focusNode: messageFocusNode,
-                          ),
+                          // const Text(
+                          //   'Description',
+                          //   style: TextStyle(
+                          //       fontSize: 24, fontWeight: FontWeight.bold),
+                          // ),
+                          // const SizedBox(height: 10),
+                          // CupertinoTextField(
+                          //   controller: widget.logic.messageController,
+                          //   placeholder: 'Enter a description',
+                          //   maxLines: 4,
+                          //   maxLength: 256,
+                          //   focusNode: messageFocusNode,
+                          // ),
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

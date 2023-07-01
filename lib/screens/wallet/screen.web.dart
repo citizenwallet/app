@@ -5,6 +5,7 @@ import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -260,9 +261,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleSendModal() async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
+    final blockSending = context.select(selectShouldBlockSending);
 
-    if (sendLoading) {
+    if (blockSending) {
       return;
     }
 

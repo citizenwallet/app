@@ -279,40 +279,40 @@ class ReceiveModalState extends State<ReceiveModal> {
                           height: 20,
                         ),
                       ),
-                      const SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Text(
-                            'Message',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 10,
-                        ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: CupertinoTextField(
-                            controller: widget.logic.messageController,
-                            placeholder: 'Enter a message',
-                            maxLines: 4,
-                            maxLength: 256,
-                            focusNode: messageFocusNode,
-                            textInputAction: TextInputAction.done,
-                            onChanged: (_) {
-                              handleThrottledUpdateQRCode();
-                            },
-                            onSubmitted: (_) {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                          ),
-                        ),
-                      ),
+                      // const SliverToBoxAdapter(
+                      //   child: Padding(
+                      //     padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      //     child: Text(
+                      //       'Description',
+                      //       style: TextStyle(
+                      //           fontSize: 24, fontWeight: FontWeight.bold),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SliverToBoxAdapter(
+                      //   child: SizedBox(
+                      //     height: 10,
+                      //   ),
+                      // ),
+                      // SliverToBoxAdapter(
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      //     child: CupertinoTextField(
+                      //       controller: widget.logic.messageController,
+                      //       placeholder: 'Enter a description',
+                      //       maxLines: 4,
+                      //       maxLength: 256,
+                      //       focusNode: messageFocusNode,
+                      //       textInputAction: TextInputAction.done,
+                      //       onChanged: (_) {
+                      //         handleThrottledUpdateQRCode();
+                      //       },
+                      //       onSubmitted: (_) {
+                      //         FocusManager.instance.primaryFocus?.unfocus();
+                      //       },
+                      //     ),
+                      //   ),
+                      // ),
                       const SliverToBoxAdapter(
                         child: SizedBox(
                           height: 160,

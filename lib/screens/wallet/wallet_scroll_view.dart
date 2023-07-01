@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -40,8 +41,7 @@ class WalletScrollView extends StatelessWidget {
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
 
-    final transactionSendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
+    final blockSending = context.select(selectShouldBlockSending);
 
     return CustomScrollView(
       controller: controller,
@@ -115,9 +115,7 @@ class WalletScrollView extends StatelessWidget {
                     key: Key(transaction.id),
                     transaction: transaction,
                     wallet: wallet,
-                    onTap: transactionSendLoading
-                        ? null
-                        : handleFailedTransactionTap,
+                    onTap: blockSending ? null : handleFailedTransactionTap,
                   ),
                 );
               },

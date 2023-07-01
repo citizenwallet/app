@@ -9,11 +9,11 @@ double selectWalletBalance(WalletState state) {
 
   final pendingBalance =
       state.transactions.where((tx) => tx.isProcessing).fold(0.0, (sum, tx) {
-    if (processed.containsKey(tx.id)) {
+    if (processed.containsKey(tx.hash)) {
       return sum;
     }
 
-    processed[tx.id] = tx.id;
+    processed[tx.hash] = tx.hash;
 
     return tx.isIncoming(state.wallet!.account)
         ? sum + (double.tryParse(tx.amount) ?? 0.0)
@@ -27,5 +27,16 @@ double selectWalletBalance(WalletState state) {
   return balance + pendingBalance;
 }
 
-bool selectHasPendingTransactions(WalletState state) =>
+// selectShouldBlockSending returns true if there is a pending transaction that is outgoing
+bool selectShouldBlockSending(WalletState state) {
+  if (state.wallet == null) {
+    return true;
+  }
+
+  return state.transactions
+          .any((tx) => tx.isPending && !tx.isIncoming(state.wallet!.account)) ||
+      state.transactionSendLoading;
+}
+
+bool selectHasProcessingTransactions(WalletState state) =>
     state.transactions.any((tx) => tx.isProcessing);
