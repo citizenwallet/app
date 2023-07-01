@@ -827,7 +827,7 @@ class WalletService {
       final fee = fees.first;
 
       // ensure we avoid errors by increasing the gas fees
-      final manualFeeIncrease = BigInt.from(3);
+      final manualFeeIncrease = BigInt.from(1);
 
       userop.maxPriorityFeePerGas =
           fee.maxPriorityFeePerGas * manualFeeIncrease;

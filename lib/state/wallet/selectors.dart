@@ -9,11 +9,11 @@ double selectWalletBalance(WalletState state) {
 
   final pendingBalance =
       state.transactions.where((tx) => tx.isProcessing).fold(0.0, (sum, tx) {
-    if (processed.containsKey(tx.id)) {
+    if (processed.containsKey(tx.hash)) {
       return sum;
     }
 
-    processed[tx.id] = tx.id;
+    processed[tx.hash] = tx.hash;
 
     return tx.isIncoming(state.wallet!.account)
         ? sum + (double.tryParse(tx.amount) ?? 0.0)

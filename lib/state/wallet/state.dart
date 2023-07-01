@@ -272,14 +272,21 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
+  bool incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
+    var hasChanges = false;
+
     if (transactions.isNotEmpty) {
       for (final transaction in transactions) {
         final index =
             this.transactions.indexWhere((t) => t.id == transaction.id);
         if (index == -1) {
+          hasChanges = true;
           this.transactions.insert(0, transaction);
         } else {
+          if (this.transactions[index].state != transaction.state) {
+            hasChanges = true;
+          }
+
           this.transactions[index] = transaction;
         }
       }
@@ -300,6 +307,8 @@ class WalletState with ChangeNotifier {
     transactionsLoading = false;
     transactionsError = false;
     notifyListeners();
+
+    return hasChanges;
   }
 
   void incomingTransactionsRequestError() {

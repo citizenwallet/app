@@ -509,11 +509,13 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      updateBalance();
-
-      _state.incomingTransactionsRequestSuccess(
+      final hasChanges = _state.incomingTransactionsRequestSuccess(
         cwtransactions.toList(),
       );
+
+      if (hasChanges) {
+        updateBalance();
+      }
 
       return;
     } catch (exception, stackTrace) {
@@ -664,13 +666,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final balance = await walletService.balance;
 
-      final currentBalance = _state.wallet?.doubleBalance ?? 0.0;
+      HapticFeedback.lightImpact();
 
-      if (currentBalance != (double.parse(balance))) {
-        HapticFeedback.lightImpact();
-      }
+      _state.updateWalletBalanceSuccess(balance, notify: true);
 
-      _state.updateWalletBalanceSuccess(balance, notify: false);
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
