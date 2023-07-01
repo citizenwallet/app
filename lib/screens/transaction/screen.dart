@@ -2,6 +2,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
@@ -90,8 +91,7 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final loading = context.select((WalletState state) => state.loading);
 
-    final transactionSendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
+    final blockSending = context.select(selectShouldBlockSending);
 
     if (wallet == null || transaction == null) {
       return const SizedBox();
@@ -365,7 +365,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                               transaction.isIncoming(wallet.account)
                                   ? CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: transactionSendLoading
+                                      onPressed: blockSending
                                           ? null
                                           : () => handleReply(transaction.from),
                                       borderRadius: BorderRadius.circular(25),
@@ -378,7 +378,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     )
                                   : CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: transactionSendLoading
+                                      onPressed: blockSending
                                           ? null
                                           : () => handleReplay(
                                                 transaction.to,

@@ -27,5 +27,16 @@ double selectWalletBalance(WalletState state) {
   return balance + pendingBalance;
 }
 
-bool selectHasPendingTransactions(WalletState state) =>
+// selectShouldBlockSending returns true if there is a pending transaction that is outgoing
+bool selectShouldBlockSending(WalletState state) {
+  if (state.wallet == null) {
+    return true;
+  }
+
+  return state.transactions
+          .any((tx) => tx.isPending && !tx.isIncoming(state.wallet!.account)) ||
+      state.transactionSendLoading;
+}
+
+bool selectHasProcessingTransactions(WalletState state) =>
     state.transactions.any((tx) => tx.isProcessing);
