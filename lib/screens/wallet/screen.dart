@@ -166,12 +166,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleSwitchWalletModal(BuildContext context) async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     HapticFeedback.mediumImpact();
 
     final navigator = GoRouter.of(context);
@@ -211,12 +205,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleReceive() async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     HapticFeedback.lightImpact();
 
     await showCupertinoModalPopup(
@@ -229,12 +217,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleSendModal() async {
-    final blockSending = context.select(selectShouldBlockSending);
-
-    if (blockSending) {
-      return;
-    }
-
     HapticFeedback.lightImpact();
 
     await showCupertinoModalPopup(
