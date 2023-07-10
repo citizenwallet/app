@@ -18,7 +18,7 @@ class WalletState with ChangeNotifier {
   bool transactionsError = false;
 
   int transactionsOffset = 0;
-  bool transactionsHasMore = true;
+  bool transactionsHasMore = false;
   DateTime transactionsMaxDate = DateTime.now().toUtc();
   DateTime transactionsFromDate = DateTime.now().toUtc();
   List<CWTransaction> transactions = [];
@@ -266,11 +266,11 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void incomingTransactionsRequest() {
-    transactionsLoading = true;
-    transactionsError = false;
-    notifyListeners();
-  }
+  // void incomingTransactionsRequest() {
+  //   transactionsLoading = true;
+  //   transactionsError = false;
+  //   notifyListeners();
+  // }
 
   bool incomingTransactionsRequestSuccess(List<CWTransaction> transactions) {
     var hasChanges = false;
@@ -304,8 +304,8 @@ class WalletState with ChangeNotifier {
           .subtract(const Duration(minutes: 1));
     }
 
-    transactionsLoading = false;
-    transactionsError = false;
+    // transactionsLoading = false;
+    // transactionsError = false;
     notifyListeners();
 
     return hasChanges;
