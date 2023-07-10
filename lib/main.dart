@@ -14,8 +14,17 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  await initSentry(
+    kDebugMode,
+    dotenv.get('SENTRY_URL'),
+    appRunner,
+  );
+}
+
+FutureOr<void> appRunner() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
   await PreferencesService().init();
   await EncryptedPreferencesService().init(dotenv.get(
@@ -24,11 +33,7 @@ void main() async {
 
   await DBService().init('citizenwallet');
 
-  await initSentry(
-    kDebugMode,
-    dotenv.get('SENTRY_URL'),
-    () => runApp(provideAppState(const MyApp())),
-  );
+  runApp(provideAppState(const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
