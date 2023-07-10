@@ -177,14 +177,18 @@ class WalletActions extends StatelessWidget {
                         Icon(
                           CupertinoIcons.arrow_down,
                           size: progressiveClamp(20, 40, shrink),
-                          color: ThemeColors.black,
+                          color: sendLoading
+                              ? ThemeColors.subtleEmphasis
+                              : ThemeColors.black,
                         ),
                         const SizedBox(width: 10),
-                        const Text(
+                        Text(
                           'Receive',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: ThemeColors.black,
+                            color: sendLoading
+                                ? ThemeColors.subtleEmphasis
+                                : ThemeColors.black,
                             fontSize: 14,
                           ),
                         ),
