@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/sentry/sentry.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +12,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,15 +24,10 @@ void main() async {
 
   await DBService().init('citizenwallet');
 
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = kDebugMode ? '' : dotenv.get('SENTRY_URL');
-      options.debug = kDebugMode;
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-    },
-    appRunner: () => runApp(provideAppState(const MyApp())),
+  await initSentry(
+    kDebugMode,
+    dotenv.get('SENTRY_URL'),
+    () => runApp(provideAppState(const MyApp())),
   );
 }
 
