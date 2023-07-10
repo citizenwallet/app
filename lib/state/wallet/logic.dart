@@ -462,7 +462,7 @@ class WalletLogic extends WidgetsBindingObserver {
       transferEventUnsubscribe();
 
       _transferFetchInterval = Timer.periodic(
-        const Duration(seconds: 2),
+        const Duration(seconds: 1),
         fetchNewTransfers,
       );
 
@@ -483,12 +483,16 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void fetchNewTransfers(Timer timer) async {
     try {
+      timer.cancel();
+      await delay(const Duration(seconds: 1));
+
       final walletService = walletServiceCheck();
 
       final txs = await walletService
           .fetchNewErc20Transfers(_state.transactionsFromDate);
 
       if (txs.isEmpty) {
+        transferEventSubscribe();
         return;
       }
 
@@ -517,6 +521,7 @@ class WalletLogic extends WidgetsBindingObserver {
         updateBalance();
       }
 
+      transferEventSubscribe();
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -526,6 +531,7 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.incomingTransactionsRequestError();
+    transferEventSubscribe();
   }
 
   // takes a password and returns a wallet
