@@ -123,7 +123,7 @@ class WalletActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (wallet?.locked == false)
+              if (wallet?.locked == false && !loading)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: blockSending ? () => () : handleSendModal,
@@ -160,37 +160,38 @@ class WalletActions extends StatelessWidget {
                   ),
                 ),
               if (wallet?.locked == false) const SizedBox(width: 40),
-              CupertinoButton(
-                padding: const EdgeInsets.all(5),
-                onPressed: sendLoading ? () => () : handleReceive,
-                borderRadius:
-                    BorderRadius.circular(progressiveClamp(14, 20, shrink)),
-                color: ThemeColors.surfacePrimary.resolveFrom(context),
-                child: SizedBox(
-                  height: progressiveClamp(55, 80, shrink),
-                  width: progressiveClamp(55, 80, shrink),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        CupertinoIcons.arrow_down,
-                        size: progressiveClamp(20, 40, shrink),
-                        color: ThemeColors.black,
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Receive',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+              if (!loading)
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: sendLoading ? () => () : handleReceive,
+                  borderRadius:
+                      BorderRadius.circular(progressiveClamp(14, 20, shrink)),
+                  color: ThemeColors.surfacePrimary.resolveFrom(context),
+                  child: SizedBox(
+                    height: progressiveClamp(55, 80, shrink),
+                    width: progressiveClamp(55, 80, shrink),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          CupertinoIcons.arrow_down,
+                          size: progressiveClamp(20, 40, shrink),
                           color: ThemeColors.black,
-                          fontSize: 14,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Receive',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: ThemeColors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

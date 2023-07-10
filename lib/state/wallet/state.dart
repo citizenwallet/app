@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
-  bool loading = false;
+  bool loading = true;
   bool error = false;
 
   Exception? errorException;
