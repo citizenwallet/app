@@ -28,6 +28,7 @@ class WalletActions extends StatelessWidget {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final blockSending = context.select(selectShouldBlockSending);
+    final sendLoading = context.read<WalletState>().transactionSendLoading;
 
     final hasPending = context.select(selectHasProcessingTransactions);
     final newBalance = context.select(selectWalletBalance);
@@ -125,7 +126,7 @@ class WalletActions extends StatelessWidget {
               if (wallet?.locked == false)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed: handleSendModal,
+                  onPressed: blockSending ? () => () : handleSendModal,
                   borderRadius:
                       BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
@@ -161,7 +162,7 @@ class WalletActions extends StatelessWidget {
               if (wallet?.locked == false) const SizedBox(width: 40),
               CupertinoButton(
                 padding: const EdgeInsets.all(5),
-                onPressed: handleReceive,
+                onPressed: sendLoading ? () => () : handleReceive,
                 borderRadius:
                     BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                 color: ThemeColors.surfacePrimary.resolveFrom(context),
