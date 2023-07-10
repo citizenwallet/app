@@ -162,7 +162,7 @@ class AppLogic {
       final String? lastWallet = _preferences.lastWalletLink;
 
       if (lastWallet == null) {
-        throw Exception('No last wallet');
+        return null;
       }
 
       return lastWallet;
