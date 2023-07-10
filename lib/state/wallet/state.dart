@@ -18,7 +18,7 @@ class WalletState with ChangeNotifier {
   bool transactionsError = false;
 
   int transactionsOffset = 0;
-  int transactionsTotal = 0;
+  bool transactionsHasMore = true;
   DateTime transactionsMaxDate = DateTime.now().toUtc();
   DateTime transactionsFromDate = DateTime.now().toUtc();
   List<CWTransaction> transactions = [];
@@ -170,11 +170,11 @@ class WalletState with ChangeNotifier {
   void loadTransactionsSuccess(
     List<CWTransaction> transactions, {
     int offset = 0,
-    int total = 0,
+    bool hasMore = true,
     DateTime? maxDate,
   }) {
     transactionsOffset = offset;
-    transactionsTotal = total;
+    transactionsHasMore = hasMore;
     transactionsMaxDate = maxDate ?? DateTime.now().toUtc();
     transactionsFromDate = (transactions
                 .firstWhereOrNull((t) => t.state == TransactionState.success)
@@ -201,9 +201,9 @@ class WalletState with ChangeNotifier {
   }
 
   void loadAdditionalTransactionsSuccess(List<CWTransaction> transactions,
-      {int offset = 0, int total = 0}) {
+      {int offset = 0, bool hasMore = true}) {
     transactionsOffset = offset;
-    transactionsTotal = total;
+    transactionsHasMore = hasMore;
     for (final transaction in transactions) {
       final index = this.transactions.indexWhere((t) => t.id == transaction.id);
       if (index == -1) {

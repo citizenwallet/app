@@ -72,10 +72,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (_scrollController.position.atEdge) {
       bool isTop = _scrollController.position.pixels == 0;
       if (!isTop) {
-        final total = context.read<WalletState>().transactionsTotal;
-        final offset = context.read<WalletState>().transactionsOffset;
+        final hasMore = context.read<WalletState>().transactionsHasMore;
 
-        if (offset >= total) {
+        if (!hasMore) {
           return;
         }
 
@@ -243,12 +242,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleReceive() async {
-    final sendLoading = context.read<WalletState>().transactionSendLoading;
-
-    if (sendLoading) {
-      return;
-    }
-
     HapticFeedback.lightImpact();
 
     await showCupertinoModalPopup(
@@ -261,12 +254,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleSendModal() async {
-    final blockSending = context.select(selectShouldBlockSending);
-
-    if (blockSending) {
-      return;
-    }
-
     HapticFeedback.lightImpact();
 
     await showCupertinoModalPopup(
