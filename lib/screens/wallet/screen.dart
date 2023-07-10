@@ -72,8 +72,10 @@ class WalletScreenState extends State<WalletScreen> {
       bool isTop = _scrollController.position.pixels == 0;
       if (!isTop) {
         final hasMore = context.read<WalletState>().transactionsHasMore;
+        final transactionsLoading =
+            context.read<WalletState>().transactionsLoading;
 
-        if (!hasMore) {
+        if (!hasMore || transactionsLoading) {
           return;
         }
 

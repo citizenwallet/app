@@ -59,8 +59,8 @@ class CWTransaction {
   final String from;
   final String to;
   final String title;
-  final String _amount;
-  final DateTime date;
+  String _amount = '0.0';
+  DateTime date = DateTime.now();
   final int blockNumber;
 
   String error = '';
@@ -75,6 +75,16 @@ class CWTransaction {
     this.to = '0x',
     required this.title,
     required this.date,
+    this.blockNumber = 0,
+    this.state = TransactionState.success,
+  });
+  CWTransaction.empty({
+    this.id = 'empty',
+    this.hash = '0x',
+    this.chainId = 0,
+    this.from = '0x',
+    this.to = '0x',
+    this.title = '',
     this.blockNumber = 0,
     this.state = TransactionState.success,
   });

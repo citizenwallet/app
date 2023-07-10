@@ -644,7 +644,7 @@ class WalletLogic extends WidgetsBindingObserver {
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
-          date: DateTime.now(),
+          date: tx.createdAt,
           state: TransactionState.values.firstWhereOrNull(
                 (v) => v.name == tx.status,
               ) ??
