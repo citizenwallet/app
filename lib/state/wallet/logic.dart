@@ -579,9 +579,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final maxDate = DateTime.now().toUtc();
 
+      const limit = 10;
+
       final (txs, pagination) = await walletService.fetchErc20Transfers(
         offset: 0,
-        limit: 10,
+        limit: limit,
         maxDate: maxDate,
       );
 
@@ -603,7 +605,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.loadTransactionsSuccess(
         cwtransactions.toList(),
         offset: pagination.offset,
-        total: pagination.total,
+        hasMore: txs.length >= limit,
         maxDate: maxDate,
       );
 
@@ -653,7 +655,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.loadAdditionalTransactionsSuccess(
         cwtransactions.toList(),
         offset: pagination.offset,
-        total: pagination.total,
+        hasMore: txs.length >= limit,
       );
       return;
     } catch (exception, stackTrace) {
