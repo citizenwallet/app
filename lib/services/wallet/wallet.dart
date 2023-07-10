@@ -567,22 +567,16 @@ class WalletService {
   /// [limit] number of seconds to go back, uses block time to calculate
   ///
   /// [toBlock] block number to fetch up to, leave blank to use current block
-  Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers(
-      {int? offset, int? limit, DateTime? maxDate}) async {
+  Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers({
+    required int offset,
+    required int limit,
+    required DateTime maxDate,
+  }) async {
     try {
       final List<TransferEvent> tx = [];
 
-      var url = '/logs/transfers/${_contractToken.addr}/${_account.hex}?';
-      if (offset != null) {
-        url += '&offset=$offset';
-      }
-      if (limit != null) {
-        url += '&limit=$limit';
-      }
-      if (maxDate != null) {
-        url +=
-            '&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
-      }
+      final url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
@@ -614,7 +608,7 @@ class WalletService {
       final List<TransferEvent> tx = [];
 
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
