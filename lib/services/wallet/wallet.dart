@@ -608,7 +608,7 @@ class WalletService {
       final List<TransferEvent> tx = [];
 
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
