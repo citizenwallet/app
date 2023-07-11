@@ -3,6 +3,7 @@
 *.mode2v3
 *.moved-aside
 *.pbxuser
+*.pbxproj
 *.perspectivev3
 **/*sync/
 .sconsign.dblite
