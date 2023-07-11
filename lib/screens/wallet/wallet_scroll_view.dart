@@ -159,7 +159,7 @@ class WalletScrollView extends StatelessWidget {
                 children: [
                   SvgPicture.asset(
                     'assets/icons/empty_pockets.svg',
-                    semanticsLabel: 'profile icon',
+                    semanticsLabel: 'empty pockets icon',
                     height: 300,
                     width: 300,
                   ),
@@ -245,7 +245,7 @@ class WalletScrollView extends StatelessWidget {
                   : Center(
                       child: SvgPicture.asset(
                         'assets/icons/empty_roll.svg',
-                        semanticsLabel: 'profile icon',
+                        semanticsLabel: 'empty roll icon',
                         height: 100,
                         width: 100,
                       ),
