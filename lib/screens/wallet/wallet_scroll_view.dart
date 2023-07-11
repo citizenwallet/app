@@ -7,6 +7,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class WalletScrollView extends StatelessWidget {
@@ -156,10 +157,11 @@ class WalletScrollView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
-                    CupertinoIcons.ellipsis,
-                    size: 40,
-                    color: ThemeColors.text.resolveFrom(context),
+                  SvgPicture.asset(
+                    'assets/icons/empty_pockets.svg',
+                    semanticsLabel: 'profile icon',
+                    height: 300,
+                    width: 300,
                   ),
                 ],
               ),
@@ -241,10 +243,11 @@ class WalletScrollView extends StatelessWidget {
                       ),
                     )
                   : Center(
-                      child: Icon(
-                        CupertinoIcons.ellipsis,
-                        color: ThemeColors.subtleEmphasis.resolveFrom(context),
-                        size: 40,
+                      child: SvgPicture.asset(
+                        'assets/icons/empty_roll.svg',
+                        semanticsLabel: 'profile icon',
+                        height: 100,
+                        width: 100,
                       ),
                     ),
             ),

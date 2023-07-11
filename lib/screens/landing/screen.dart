@@ -49,18 +49,7 @@ class LandingScreenState extends State<LandingScreen>
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
 
-    final name = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => const TextInputModal(
-        title: 'Account Name',
-        placeholder: 'Enter account name',
-      ),
-    );
-
-    if (name == null) {
-      return;
-    }
+    const name = 'New wallet';
 
     final address = await _appLogic.createWallet(name);
 
