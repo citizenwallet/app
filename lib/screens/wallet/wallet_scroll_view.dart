@@ -238,11 +238,7 @@ class WalletScrollView extends StatelessWidget {
               color: ThemeColors.uiBackground.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
               child: hasMore
-                  ? Center(
-                      child: CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      ),
-                    )
+                  ? null
                   : Center(
                       child: SvgPicture.asset(
                         'assets/icons/empty_roll.svg',

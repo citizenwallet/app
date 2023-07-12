@@ -68,19 +68,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void onScrollUpdate() {
-    if (_scrollController.position.atEdge) {
-      bool isTop = _scrollController.position.pixels == 0;
-      if (!isTop) {
-        final hasMore = context.read<WalletState>().transactionsHasMore;
-        final transactionsLoading =
-            context.read<WalletState>().transactionsLoading;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 140) {
+      final hasMore = context.read<WalletState>().transactionsHasMore;
+      final transactionsLoading =
+          context.read<WalletState>().transactionsLoading;
 
-        if (!hasMore || transactionsLoading) {
-          return;
-        }
-
-        _logic.loadAdditionalTransactions(10);
+      if (!hasMore || transactionsLoading) {
+        return;
       }
+
+      _logic.loadAdditionalTransactions(10);
     }
   }
 
