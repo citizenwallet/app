@@ -6,6 +6,7 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
+import 'package:citizenwallet/widgets/skeleton/transaction_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -222,57 +223,13 @@ class WalletScrollView extends StatelessWidget {
                 return Container(
                   color: ThemeColors.uiBackground.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: TransactionRow(
+                  child: SkeletonTransactionRow(
                     key: Key('loading-$index'),
-                    transaction: CWTransaction.empty(),
-                    wallet: wallet,
-                    loading: true,
                   ),
                 );
               },
             ),
           ),
-        if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
-          // if (transactions.isNotEmpty && wallet != null)
-          //   SliverToBoxAdapter(
-          //     child: Container(
-          //       color: ThemeColors.uiBackground.resolveFrom(context),
-          //       height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
-          //       child: transactionsLoading
-          //           ? Container(
-          //               color: ThemeColors.uiBackground.resolveFrom(context),
-          //               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-          //               child: TransactionRow(
-          //                 key: const Key('loading'),
-          //                 transaction: CWTransaction.empty(),
-          //                 wallet: wallet,
-          //                 loading: true,
-          //               ),
-          //             )
-          //           : null,
-          //     ),
-          //   ),
-          if (transactions.isNotEmpty &&
-              wallet != null &&
-              transactionsLoading &&
-              hasMore)
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                childCount: 10,
-                (context, index) {
-                  return Container(
-                    color: ThemeColors.uiBackground.resolveFrom(context),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: TransactionRow(
-                      key: Key('loading-$index'),
-                      transaction: CWTransaction.empty(),
-                      wallet: wallet,
-                      loading: true,
-                    ),
-                  );
-                },
-              ),
-            ),
         if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
           SliverToBoxAdapter(
             child: Container(
