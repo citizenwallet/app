@@ -55,6 +55,8 @@ flutter:
     - .env
     - assets/about/about.md
     - assets/wallet.svg
+    - assets/icons/empty_pockets.svg
+    - assets/icons/empty_roll.svg
     - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
     - assets/icons/coin.svg

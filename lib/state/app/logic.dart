@@ -93,7 +93,9 @@ class AppLogic {
           return dbWallet.address;
         }
 
-        throw Exception('No wallet backup');
+        _appState.importLoadingError();
+
+        return null;
       }
 
       await delay(const Duration(milliseconds: 250));
