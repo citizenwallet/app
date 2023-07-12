@@ -111,9 +111,10 @@ class HeaderState extends State<Header> {
                   widget.subTitle ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.normal,
+                    color: ThemeColors.subtleText.resolveFrom(context),
                   ),
                 ),
               ),

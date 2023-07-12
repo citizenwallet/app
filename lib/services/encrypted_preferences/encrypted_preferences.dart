@@ -39,12 +39,14 @@ class BackupWallet {
   String get value => '$name|$privateKey';
 }
 
+abstract class EncryptedPreferencesOptions {}
+
 /// EncryptedPreferencesService defines the interface for encrypted preferences
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class EncryptedPreferencesService {
   // init the service
-  Future<void> init();
+  Future<void> init(EncryptedPreferencesOptions options);
 
   // handle wallet backups
   // use the prefix as a query to find a wallet backup

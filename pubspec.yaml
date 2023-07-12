@@ -67,6 +67,7 @@ flutter:
     - assets/icons/citizenbank.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
+    - assets/lottie/chat.json
     - assets/lottie/success.json
     - assets/lottie/app.json
     - assets/lottie/wallet_loader.json

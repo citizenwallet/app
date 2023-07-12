@@ -1,6 +1,14 @@
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+/// AppleEncryptedPreferencesOptions
+class AppleEncryptedPreferencesOptions implements EncryptedPreferencesOptions {
+  final String groupId;
+
+  AppleEncryptedPreferencesOptions({
+    required this.groupId,
+  });
+}
 
 /// AppleEncryptedPreferencesService implements an EncryptedPreferencesService for iOS and macOS
 class AppleEncryptedPreferencesService implements EncryptedPreferencesService {
@@ -24,16 +32,11 @@ class AppleEncryptedPreferencesService implements EncryptedPreferencesService {
   late FlutterSecureStorage _preferences;
 
   @override
-  Future init() async {
-    final groupId = dotenv.get(
-      'ENCRYPTED_STORAGE_GROUP_ID',
-    );
-
-    print(groupId);
-
+  Future init(EncryptedPreferencesOptions options) async {
+    final appleOptions = options as AppleEncryptedPreferencesOptions;
     _preferences = FlutterSecureStorage(
-      iOptions: _getIOSOptions(groupId),
-      mOptions: _getMacOsOptions(groupId),
+      iOptions: _getIOSOptions(appleOptions.groupId),
+      mOptions: _getMacOsOptions(appleOptions.groupId),
     );
   }
 

@@ -1,13 +1,23 @@
+import 'dart:io';
+
+import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
+import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
+import 'package:citizenwallet/screens/landing/apple_backup_disclaimer_modal.dart';
+import 'package:citizenwallet/services/encrypted_preferences/android.dart';
+import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
+import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
+import 'package:citizenwallet/state/android_pin_code/state.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
-import 'package:citizenwallet/screens/landing/text_copy_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -36,6 +46,9 @@ class LandingScreenState extends State<LandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
+    await handleAppleRecover();
+    await handleAndroidRecover();
+
     final address = await _appLogic.loadLastWallet();
 
     if (address == null) {
@@ -44,8 +57,86 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/${address.toLowerCase()}');
   }
 
+  /// handleAppleRecover handles the apple recover flow if needed and then returns
+  Future<void> handleAppleRecover() async {
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      return;
+    }
+
+    // on apple devices we can safely init the encrypted preferences without user input
+    // icloud keychain manages everything for us
+    await getEncryptedPreferencesService().init(
+      AppleEncryptedPreferencesOptions(
+          groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID')),
+    );
+  }
+
+  /// handleAppleBackupDisclaimer handles the apple backup disclaimer flow if needed and then returns
+  Future<void> handleAppleBackupDisclaimer() async {
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      return;
+    }
+
+    await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const AppleBackupDisclaimerModal(),
+    );
+  }
+
+  /// handleAndroidRecover handles the android recovery flow if needed and then returns
+  Future<void> handleAndroidRecover() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    // since shared preferences are backed up by default on android,
+    // it should be possible to figure out if there is a backup available
+    final isConfigured = _appLogic.androidBackupIsConfigured();
+
+    if (!isConfigured) {
+      return;
+    }
+
+    // get the pin code stored in android encrypted preferences
+    final success = await _appLogic.configureAndroidBackup();
+    if (success) {
+      return;
+    }
+
+    // there is a backup available, ask the user to recover it with their pin code
+    await showCupertinoModalPopup<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => ChangeNotifierProvider(
+        create: (_) => AndroidPinCodeState(),
+        child: const AndroidRecoveryModal(),
+      ),
+    );
+  }
+
+  /// handleAndroidBackup handles the android backup flow if needed and then returns
+  Future<void> handleAndroidBackup() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    // no backup configured, ask the user to set up a pin code
+    await showCupertinoModalPopup<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => ChangeNotifierProvider(
+        create: (_) => AndroidPinCodeState(),
+        child: const AndroidPinCodeModal(),
+      ),
+    );
+  }
+
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
+
+    await handleAppleBackupDisclaimer();
+    await handleAndroidBackup();
 
     const name = 'New wallet';
 
@@ -58,35 +149,11 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/${address.toLowerCase()}');
   }
 
-  void handleNewWebWallet() async {
-    final navigator = GoRouter.of(context);
-
-    final wallet = await _appLogic.createWebWallet();
-
-    if (wallet == null) {
-      return;
-    }
-
-    final hasCopied = await showCupertinoModalPopup<bool?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (modalContext) => TextCopyModal(
-        logic: _appLogic,
-        title: 'Copy password',
-      ),
-    );
-
-    if (hasCopied == null || !hasCopied) {
-      return;
-    }
-
-    final qrWallet = wallet.toCompressedJson();
-
-    navigator.go('/wallet/$qrWallet');
-  }
-
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
+
+    await handleAppleBackupDisclaimer();
+    await handleAndroidBackup();
 
     final result = await showCupertinoModalPopup<String?>(
       context: context,
@@ -98,17 +165,6 @@ class LandingScreenState extends State<LandingScreen>
     );
 
     if (result == null) {
-      return;
-    }
-
-    if (kIsWeb) {
-      final qrWallet = await _appLogic.importWebWallet(result);
-
-      if (qrWallet == null) {
-        return;
-      }
-
-      navigator.go('/wallet/$qrWallet');
       return;
     }
 
@@ -150,6 +206,20 @@ class LandingScreenState extends State<LandingScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            SizedBox(
+                              height: 300,
+                              width: 300,
+                              child: Center(
+                                child: Lottie.asset(
+                                  'assets/lottie/chat.json',
+                                  height: 300,
+                                  width: 300,
+                                  animate: true,
+                                  repeat: true,
+                                  // controller: _controller,
+                                ),
+                              ),
+                            ),
                             Text(
                               'Citizen Wallet',
                               style: TextStyle(
@@ -185,9 +255,7 @@ class LandingScreenState extends State<LandingScreen>
                             children: [
                               Button(
                                 text: 'New Account',
-                                onPressed: kIsWeb
-                                    ? handleNewWebWallet
-                                    : handleNewWallet,
+                                onPressed: handleNewWallet,
                                 minWidth: 200,
                                 maxWidth: 200,
                               ),

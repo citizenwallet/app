@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
@@ -315,6 +316,7 @@ class AppLogic {
 
       _appState.deleteBackupLoadingSuccess();
     } catch (exception, stackTrace) {
+      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -322,5 +324,24 @@ class AppLogic {
     }
 
     _appState.deleteBackupLoadingError();
+  }
+
+  bool androidBackupIsConfigured() {
+    return _preferences.androidBackupIsConfigured;
+  }
+
+  Future<bool> configureAndroidBackup() async {
+    try {
+      await getEncryptedPreferencesService().init(
+        AndroidEncryptedPreferencesOptions(),
+      );
+
+      _preferences.setAndroidBackupIsConfigured(true);
+      return true;
+    } catch (e) {
+      print(e);
+    }
+
+    return false;
   }
 }

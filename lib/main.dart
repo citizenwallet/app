@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/sentry/sentry.dart';
 import 'package:citizenwallet/state/app/state.dart';
@@ -27,7 +26,6 @@ FutureOr<void> appRunner() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await PreferencesService().init();
-  await getEncryptedPreferencesService().init();
 
   await DBService().init('citizenwallet');
 

@@ -69,6 +69,20 @@ class WebLandingScreenState extends State<WebLandingScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            SizedBox(
+                              height: 300,
+                              width: 300,
+                              child: Center(
+                                child: Lottie.asset(
+                                  'assets/lottie/chat.json',
+                                  height: 300,
+                                  width: 300,
+                                  animate: true,
+                                  repeat: true,
+                                  // controller: _controller,
+                                ),
+                              ),
+                            ),
                             Text(
                               'Citizen Wallet',
                               style: TextStyle(
@@ -88,21 +102,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              height: 200,
-                              width: 200,
-                              child: Center(
-                                child: Lottie.asset(
-                                  'assets/lottie/piggie_bank.json',
-                                  height: 200,
-                                  width: 200,
-                                  animate: true,
-                                  repeat: true,
-                                  // controller: _controller,
-                                ),
-                              ),
-                            )
+                            const SizedBox(height: 60),
                           ],
                         ),
                       ),
