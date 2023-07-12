@@ -3,12 +3,10 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
-import 'package:citizenwallet/widgets/screen_description.dart';
 import 'package:citizenwallet/screens/landing/text_copy_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -49,18 +47,7 @@ class LandingScreenState extends State<LandingScreen>
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
 
-    final name = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => const TextInputModal(
-        title: 'Account Name',
-        placeholder: 'Enter account name',
-      ),
-    );
-
-    if (name == null) {
-      return;
-    }
+    const name = 'New wallet';
 
     final address = await _appLogic.createWallet(name);
 

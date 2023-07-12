@@ -1,4 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
+import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
@@ -7,6 +8,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class WalletScrollView extends StatelessWidget {
@@ -156,10 +158,11 @@ class WalletScrollView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
-                    CupertinoIcons.ellipsis,
-                    size: 40,
-                    color: ThemeColors.text.resolveFrom(context),
+                  SvgPicture.asset(
+                    'assets/icons/empty_pockets.svg',
+                    semanticsLabel: 'empty pockets icon',
+                    height: 300,
+                    width: 300,
                   ),
                 ],
               ),
@@ -230,6 +233,47 @@ class WalletScrollView extends StatelessWidget {
             ),
           ),
         if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
+          // if (transactions.isNotEmpty && wallet != null)
+          //   SliverToBoxAdapter(
+          //     child: Container(
+          //       color: ThemeColors.uiBackground.resolveFrom(context),
+          //       height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
+          //       child: transactionsLoading
+          //           ? Container(
+          //               color: ThemeColors.uiBackground.resolveFrom(context),
+          //               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          //               child: TransactionRow(
+          //                 key: const Key('loading'),
+          //                 transaction: CWTransaction.empty(),
+          //                 wallet: wallet,
+          //                 loading: true,
+          //               ),
+          //             )
+          //           : null,
+          //     ),
+          //   ),
+          if (transactions.isNotEmpty &&
+              wallet != null &&
+              transactionsLoading &&
+              hasMore)
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                childCount: 10,
+                (context, index) {
+                  return Container(
+                    color: ThemeColors.uiBackground.resolveFrom(context),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: TransactionRow(
+                      key: Key('loading-$index'),
+                      transaction: CWTransaction.empty(),
+                      wallet: wallet,
+                      loading: true,
+                    ),
+                  );
+                },
+              ),
+            ),
+        if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
           SliverToBoxAdapter(
             child: Container(
               color: ThemeColors.uiBackground.resolveFrom(context),
@@ -241,10 +285,11 @@ class WalletScrollView extends StatelessWidget {
                       ),
                     )
                   : Center(
-                      child: Icon(
-                        CupertinoIcons.ellipsis,
-                        color: ThemeColors.subtleEmphasis.resolveFrom(context),
-                        size: 40,
+                      child: SvgPicture.asset(
+                        'assets/icons/empty_roll.svg',
+                        semanticsLabel: 'empty roll icon',
+                        height: 100,
+                        width: 100,
                       ),
                     ),
             ),
