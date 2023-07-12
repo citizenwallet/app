@@ -7,6 +7,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +88,7 @@ class TransactionScreenState extends State<TransactionScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
     final CWTransaction? transaction = context.select((WalletState state) =>
         state.transactions
-            .firstWhere((element) => element.id == widget.transactionId));
+            .firstWhereOrNull((element) => element.id == widget.transactionId));
 
     final loading = context.select((WalletState state) => state.loading);
 
