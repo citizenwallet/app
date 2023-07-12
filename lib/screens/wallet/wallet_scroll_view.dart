@@ -2,6 +2,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -164,6 +165,10 @@ class WalletScrollView extends StatelessWidget {
                     semanticsLabel: 'empty pockets icon',
                     height: 300,
                     width: 300,
+                    colorFilter: ColorFilter.mode(
+                      ThemeColors.text.resolveFrom(context),
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ],
               ),
@@ -247,6 +252,10 @@ class WalletScrollView extends StatelessWidget {
                         semanticsLabel: 'empty roll icon',
                         height: 100,
                         width: 100,
+                        colorFilter: ColorFilter.mode(
+                          ThemeColors.text.resolveFrom(context),
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
             ),
