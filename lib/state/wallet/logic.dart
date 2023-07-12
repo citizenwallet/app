@@ -718,8 +718,12 @@ class WalletLogic extends WidgetsBindingObserver {
     return to.isNotEmpty && amount.isNotEmpty;
   }
 
-  Future<bool> sendTransactionFromLocked(String amount, String to,
-      {String message = '', String? id}) async {
+  Future<bool> sendTransactionFromLocked(
+    String amount,
+    String to, {
+    String message = '',
+    String? id,
+  }) async {
     final doubleAmount = amount.replaceAll(',', '.');
     final parsedAmount = double.parse(doubleAmount) * 1000;
 
