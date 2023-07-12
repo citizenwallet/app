@@ -33,7 +33,8 @@ class WalletLogic extends WidgetsBindingObserver {
   WalletService? _wallet;
   final DBService _db = DBService();
   final PreferencesService _preferences = PreferencesService();
-  final EncryptedPreferencesService _encPrefs = EncryptedPreferencesService();
+  final EncryptedPreferencesService _encPrefs =
+      getEncryptedPreferencesService();
 
   Timer? _transferFetchInterval;
 

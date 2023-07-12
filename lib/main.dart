@@ -27,9 +27,7 @@ FutureOr<void> appRunner() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await PreferencesService().init();
-  await EncryptedPreferencesService().init(dotenv.get(
-    'ENCRYPTED_STORAGE_GROUP_ID',
-  ));
+  await getEncryptedPreferencesService().init();
 
   await DBService().init('citizenwallet');
 

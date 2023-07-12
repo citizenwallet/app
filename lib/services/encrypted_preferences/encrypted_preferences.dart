@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:citizenwallet/services/encrypted_preferences/android.dart';
+import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const String _backupPrefix = 'w_bkp_';
+const String backupPrefix = 'w_bkp_';
 
 class NotFoundException implements Exception {
   final String message = 'not found';
@@ -30,42 +35,16 @@ class BackupWallet {
         'name': name,
       };
 
-  String get key => '$_backupPrefix${address.toLowerCase()}';
+  String get key => '$backupPrefix${address.toLowerCase()}';
   String get value => '$name|$privateKey';
 }
 
-class EncryptedPreferencesService {
-  static final EncryptedPreferencesService _instance =
-      EncryptedPreferencesService._internal();
-  factory EncryptedPreferencesService() => _instance;
-  EncryptedPreferencesService._internal();
-
-  AndroidOptions _getAndroidOptions() => const AndroidOptions(
-        encryptedSharedPreferences: true,
-        storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
-      );
-
-  IOSOptions _getIOSOptions(String groupId) => IOSOptions(
-        groupId: groupId,
-        accessibility: KeychainAccessibility.unlocked,
-        synchronizable: true,
-      );
-
-  MacOsOptions _getMacOsOptions(String groupId) => MacOsOptions(
-        groupId: groupId,
-        accessibility: KeychainAccessibility.unlocked,
-        synchronizable: true,
-      );
-
-  late FlutterSecureStorage _preferences;
-
-  Future init(String groupId) async {
-    _preferences = FlutterSecureStorage(
-      iOptions: _getIOSOptions(groupId),
-      aOptions: _getAndroidOptions(),
-      mOptions: _getMacOsOptions(groupId),
-    );
-  }
+/// EncryptedPreferencesService defines the interface for encrypted preferences
+///
+/// This is used to store wallet backups and the implementation is platform specific.
+abstract class EncryptedPreferencesService {
+  // init the service
+  Future<void> init();
 
   // handle wallet backups
   // use the prefix as a query to find a wallet backup
@@ -74,72 +53,27 @@ class EncryptedPreferencesService {
   // key = wb_$wallet_address, value = $name|$privateKey
 
   // get all wallet backups
-  Future<List<BackupWallet>> getAllWalletBackups() async {
-    final allValues = await _preferences.readAll();
-    final keys = allValues.keys.where((key) => key.startsWith(_backupPrefix));
-
-    final List<BackupWallet> backups = [];
-
-    for (final k in keys) {
-      final parsed = allValues[k]!.split('|');
-      if (parsed.length != 2) {
-        // invalid backup, consider cleaning up in the future
-        continue;
-      }
-
-      backups.add(BackupWallet(
-        address: k.replaceFirst(_backupPrefix, ''),
-        privateKey: parsed[1],
-        name: parsed[0],
-      ));
-    }
-
-    backups.sort((a, b) => a.name.compareTo(b.name));
-
-    return backups;
-  }
+  Future<List<BackupWallet>> getAllWalletBackups();
 
   // set wallet backup
-  Future<void> setWalletBackup(BackupWallet backup) async {
-    final saved = await _preferences.containsKey(key: backup.key);
-    if (saved) {
-      await _preferences.delete(key: backup.key);
-    }
-
-    await _preferences.write(
-      key: backup.key,
-      value: backup.value,
-    );
-  }
+  Future<void> setWalletBackup(BackupWallet backup);
 
   // get wallet backup
-  Future<BackupWallet?> getWalletBackup(String address) async {
-    final value =
-        await _preferences.read(key: '$_backupPrefix${address.toLowerCase()}');
-    if (value == null) {
-      return null;
-    }
-
-    final parsed = value.split('|');
-
-    return BackupWallet(
-      address: address,
-      privateKey: parsed[1],
-      name: parsed[0],
-    );
-  }
+  Future<BackupWallet?> getWalletBackup(String address);
 
   // delete wallet backup
-  Future<void> deleteWalletBackup(String address) async {
-    final saved = await _preferences.containsKey(
-        key: '$_backupPrefix${address.toLowerCase()}');
-    if (saved) {
-      await _preferences.delete(key: '$_backupPrefix${address.toLowerCase()}');
-    }
-  }
+  Future<void> deleteWalletBackup(String address);
 
   // delete all wallet backups
-  Future<void> deleteWalletBackups() async {
-    await _preferences.deleteAll();
+  Future<void> deleteWalletBackups();
+}
+
+EncryptedPreferencesService getEncryptedPreferencesService() {
+  if (kIsWeb) {
+    throw Exception('EncryptedPreferencesService is not supported on web');
   }
+
+  return Platform.isIOS || Platform.isMacOS
+      ? AppleEncryptedPreferencesService()
+      : AndroidEncryptedPreferencesService();
 }
