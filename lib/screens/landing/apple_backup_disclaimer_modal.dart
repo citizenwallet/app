@@ -54,7 +54,7 @@ class AppleBackupDisclaimerModal extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Your accounts will be backed up to your iPhone's Keychain and follow your backup settings.",
+                                "Your accounts will be backed up to your iPhone's Keychain and follow your backup settings automatically.",
                                 style: TextStyle(
                                   color: ThemeColors.text.resolveFrom(context),
                                   fontSize: 20,

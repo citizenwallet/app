@@ -133,7 +133,7 @@ class AndroidPinCodeModalState extends State<AndroidPinCodeModal> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Backups use Android Auto Backup and follow your device's backup settings.",
+                                  "Backups use Android Auto Backup and follow your device's backup settings automatically.",
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -223,7 +223,7 @@ class AndroidPinCodeModalState extends State<AndroidPinCodeModal> {
                                 ),
                                 const SizedBox(height: 20),
                                 Text(
-                                  'You will only be asked for this code again in case you need to set up the app again on a new device or if you re-install the app again on this device.',
+                                  'You will only be asked for this code again in case you need to set up the app on a new device or if you re-install the app on this device.',
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -304,7 +304,7 @@ class AndroidPinCodeModalState extends State<AndroidPinCodeModal> {
                                                   color: hasPinCode
                                                       ? ThemeColors.transparent
                                                           .resolveFrom(context)
-                                                      : ThemeColors.border
+                                                      : ThemeColors.text
                                                           .resolveFrom(context),
                                                 ),
                                                 borderRadius:
@@ -400,7 +400,7 @@ class AndroidPinCodeModalState extends State<AndroidPinCodeModal> {
                                                   color: hasPinCode
                                                       ? ThemeColors.transparent
                                                           .resolveFrom(context)
-                                                      : ThemeColors.border
+                                                      : ThemeColors.text
                                                           .resolveFrom(context),
                                                 ),
                                                 borderRadius:

@@ -3,18 +3,17 @@ import 'dart:io';
 import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
 import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
 import 'package:citizenwallet/screens/landing/apple_backup_disclaimer_modal.dart';
-import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/state/android_pin_code/state.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -59,7 +58,7 @@ class LandingScreenState extends State<LandingScreen>
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns
   Future<void> handleAppleRecover() async {
-    if (!Platform.isIOS && !Platform.isMacOS) {
+    if (!isPlatformApple()) {
       return;
     }
 
@@ -73,7 +72,7 @@ class LandingScreenState extends State<LandingScreen>
 
   /// handleAppleBackupDisclaimer handles the apple backup disclaimer flow if needed and then returns
   Future<void> handleAppleBackupDisclaimer() async {
-    if (!Platform.isIOS && !Platform.isMacOS) {
+    if (!isPlatformApple()) {
       return;
     }
 
@@ -86,7 +85,7 @@ class LandingScreenState extends State<LandingScreen>
 
   /// handleAndroidRecover handles the android recovery flow if needed and then returns
   Future<void> handleAndroidRecover() async {
-    if (!Platform.isAndroid) {
+    if (!isPlatformAndroid()) {
       return;
     }
 
@@ -117,7 +116,7 @@ class LandingScreenState extends State<LandingScreen>
 
   /// handleAndroidBackup handles the android backup flow if needed and then returns
   Future<void> handleAndroidBackup() async {
-    if (!Platform.isAndroid) {
+    if (!isPlatformAndroid()) {
       return;
     }
 

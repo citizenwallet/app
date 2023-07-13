@@ -193,7 +193,7 @@ class AndroidRecoveryModalState extends State<AndroidRecoveryModal> {
                                                 color: hasPinCode
                                                     ? ThemeColors.transparent
                                                         .resolveFrom(context)
-                                                    : ThemeColors.border
+                                                    : ThemeColors.text
                                                         .resolveFrom(context),
                                               ),
                                               borderRadius:
@@ -253,6 +253,15 @@ class AndroidRecoveryModalState extends State<AndroidRecoveryModal> {
                                 ],
                               ),
                               const SizedBox(height: 60),
+                              Text(
+                                'Danger Zone',
+                                style: TextStyle(
+                                  color: ThemeColors.text.resolveFrom(context),
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               Text(
                                 'I would like to delete this backup and start from scratch.',
                                 style: TextStyle(
