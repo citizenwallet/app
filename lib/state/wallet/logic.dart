@@ -442,6 +442,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       loadDBWallets();
 
+      _state.updateCurrentWalletName(name);
+
       return;
     } on NotFoundException {
       // HANDLE

@@ -1,7 +1,7 @@
 import 'package:citizenwallet/utils/currency.dart';
 
 class CWWallet {
-  final String name;
+  String name;
   final String address;
   final String account;
   String _balance;
