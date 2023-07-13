@@ -256,7 +256,7 @@ class AndroidEncryptedPreferencesService
       }
 
       backups.add(BackupWallet(
-        address: decrypted.replaceFirst(backupPrefix, ''),
+        address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
       ));
