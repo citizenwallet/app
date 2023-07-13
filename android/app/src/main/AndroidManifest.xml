@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.citizenwallet">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.citizenwallet.xyz">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.NFC"/>
@@ -11,8 +11,8 @@
         </intent>
     </queries>
 
-    <application android:label="citizenwallet" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
-        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:allowBackup="true" android:fullBackupContent="@xml/backup_rules_legacy" android:dataExtractionRules="@xml/backup_rules" android:windowSoftInputMode="adjustResize">
+    <application android:label="citizenwallet" android:name="${applicationName}" android:icon="@mipmap/ic_launcher" android:allowBackup="true" android:fullBackupContent="@xml/backup_rules_legacy" android:dataExtractionRules="@xml/backup_rules">
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues

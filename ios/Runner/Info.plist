@@ -55,5 +55,7 @@
 		<array>
 			<string>https</string>
 		</array>
+		<key>FLTEnableImpeller</key>
+		<true />
 	</dict>
 </plist>

@@ -33,9 +33,12 @@ class WalletLogic extends WidgetsBindingObserver {
   WalletService? _wallet;
   final DBService _db = DBService();
   final PreferencesService _preferences = PreferencesService();
-  final EncryptedPreferencesService _encPrefs = EncryptedPreferencesService();
+  final EncryptedPreferencesService _encPrefs =
+      getEncryptedPreferencesService();
 
   Timer? _transferFetchInterval;
+  bool _fetchTransfersRegularly = false;
+  String? _fetchRequest;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -169,8 +172,6 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
 
-      transferEventSubscribe();
-
       await _preferences.setLastWallet(wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
 
@@ -268,8 +269,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final balance = await walletService.balance;
       final currency = walletService.nativeCurrency;
-
-      transferEventSubscribe();
 
       _state.loadWalletSuccess(
         CWWallet(
@@ -441,6 +440,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       loadDBWallets();
 
+      _state.updateCurrentWalletName(name);
+
       return;
     } on NotFoundException {
       // HANDLE
@@ -459,12 +460,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void transferEventSubscribe() async {
     try {
-      transferEventUnsubscribe();
+      _fetchRequest = generateRandomId();
 
-      _transferFetchInterval = Timer.periodic(
-        const Duration(seconds: 1),
-        fetchNewTransfers,
-      );
+      fetchNewTransfers(_fetchRequest);
 
       return;
     } catch (exception, stackTrace) {
@@ -476,15 +474,15 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void transferEventUnsubscribe() {
-    if (_transferFetchInterval != null) {
-      _transferFetchInterval!.cancel();
-    }
+    _fetchRequest = null;
   }
 
-  void fetchNewTransfers(Timer timer) async {
+  void fetchNewTransfers(String? id) async {
     try {
-      timer.cancel();
-      await delay(const Duration(seconds: 1));
+      if (_fetchRequest == null || _fetchRequest != id) {
+        // make sure that we only have one request at a time
+        return;
+      }
 
       final walletService = walletServiceCheck();
 
@@ -492,7 +490,9 @@ class WalletLogic extends WidgetsBindingObserver {
           .fetchNewErc20Transfers(_state.transactionsFromDate);
 
       if (txs.isEmpty) {
-        transferEventSubscribe();
+        await delay(const Duration(seconds: 2));
+
+        fetchNewTransfers(id);
         return;
       }
 
@@ -521,7 +521,9 @@ class WalletLogic extends WidgetsBindingObserver {
         updateBalance();
       }
 
-      transferEventSubscribe();
+      await delay(const Duration(seconds: 2));
+
+      fetchNewTransfers(id);
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -531,7 +533,9 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.incomingTransactionsRequestError();
-    transferEventSubscribe();
+    await delay(const Duration(seconds: 2));
+
+    fetchNewTransfers(id);
   }
 
   // takes a password and returns a wallet
@@ -575,6 +579,8 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadTransactions();
 
+      transferEventUnsubscribe();
+
       final walletService = walletServiceCheck();
 
       final maxDate = DateTime.now().toUtc();
@@ -610,6 +616,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final balance = await walletService.balance;
+
+      transferEventSubscribe();
 
       _state.updateWalletBalanceSuccess(balance);
       return;
@@ -1337,6 +1345,14 @@ class WalletLogic extends WidgetsBindingObserver {
 
     _amountController.text =
         (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
+  }
+
+  void pauseFetching() {
+    transferEventUnsubscribe();
+  }
+
+  void resumeFetching() {
+    transferEventSubscribe();
   }
 
   void cleanupWalletService() {

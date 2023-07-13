@@ -2,6 +2,7 @@ import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -200,8 +200,9 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsRow(
                 label: 'Accounts',
-                subLabel:
-                    "All your accounts are automatically backed up to your device's keychain and synced to the cloud.",
+                subLabel: isPlatformApple()
+                    ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
+                    : "All your accounts are automatically backed up to your Google Drive.",
                 trailing: Icon(
                   CupertinoIcons.cloud,
                   color: ThemeColors.subtleEmphasis.resolveFrom(context),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
@@ -20,7 +21,8 @@ import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
   final PreferencesService _preferences = PreferencesService();
-  final EncryptedPreferencesService _encPrefs = EncryptedPreferencesService();
+  final EncryptedPreferencesService _encPrefs =
+      getEncryptedPreferencesService();
   late AppState _appState;
   final DBService _db = DBService();
 
@@ -314,6 +316,7 @@ class AppLogic {
 
       _appState.deleteBackupLoadingSuccess();
     } catch (exception, stackTrace) {
+      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -321,5 +324,24 @@ class AppLogic {
     }
 
     _appState.deleteBackupLoadingError();
+  }
+
+  bool androidBackupIsConfigured() {
+    return _preferences.androidBackupIsConfigured;
+  }
+
+  Future<bool> configureAndroidBackup() async {
+    try {
+      await getEncryptedPreferencesService().init(
+        AndroidEncryptedPreferencesOptions(),
+      );
+
+      _preferences.setAndroidBackupIsConfigured(true);
+      return true;
+    } catch (e) {
+      print(e);
+    }
+
+    return false;
   }
 }

@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.15+19
+version: 1.0.16+0
 publish_to: none
 description: Receive and send ERC20 without gas fees.
 environment:
@@ -67,6 +67,7 @@ flutter:
     - assets/icons/citizenbank.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
+    - assets/lottie/chat.json
     - assets/lottie/success.json
     - assets/lottie/app.json
     - assets/lottie/wallet_loader.json

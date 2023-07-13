@@ -64,4 +64,11 @@ class PreferencesService {
 
   int? getLastBlockNumber(String rpcUrl) =>
       _preferences.getInt('lastBlockNumber$rpcUrl');
+
+  bool get androidBackupIsConfigured =>
+      _preferences.getBool('androidBackupIsConfigured') ?? false;
+
+  Future setAndroidBackupIsConfigured(bool configured) async {
+    await _preferences.setBool('androidBackupIsConfigured', configured);
+  }
 }

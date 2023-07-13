@@ -129,6 +129,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleFailedTransaction(String id) async {
+    _logic.pauseFetching();
+
     final option = await showCupertinoModalPopup<String?>(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -165,6 +167,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         });
 
     if (option == null) {
+      _logic.resumeFetching();
       return;
     }
 
@@ -190,6 +193,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (option == 'delete') {
       _logic.removeQueuedTransaction(id);
     }
+
+    _logic.resumeFetching();
   }
 
   Future<void> handleRefresh() async {
@@ -199,6 +204,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
+    _logic.pauseFetching();
+
     _logic.updateWalletQR();
 
     await showCupertinoModalPopup(
@@ -214,9 +221,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
             '${dotenv.get('SCAN_URL')}/address/${modalContext.select((WalletState state) => state.walletQR)}',
       ),
     );
+
+    _logic.resumeFetching();
   }
 
   void handleDisplayWalletExport(BuildContext context) async {
+    _logic.pauseFetching();
+
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
@@ -226,6 +237,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         onCopy: handleCopyWalletPrivateKey,
       ),
     );
+
+    _logic.resumeFetching();
   }
 
   void handleCopyWalletPrivateKey() {
@@ -243,6 +256,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void handleReceive() async {
     HapticFeedback.lightImpact();
 
+    _logic.pauseFetching();
+
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
@@ -250,10 +265,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         logic: _logic,
       ),
     );
+
+    _logic.resumeFetching();
   }
 
   void handleSendModal() async {
     HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
 
     await showCupertinoModalPopup(
       context: context,
@@ -262,6 +281,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         logic: _logic,
       ),
     );
+
+    _logic.resumeFetching();
   }
 
   void handleCopyWalletQR() {
@@ -270,16 +291,20 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
-  void handleTransactionTap(String transactionId) {
+  void handleTransactionTap(String transactionId) async {
     if (_wallet == null) {
       return;
     }
 
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context).push(
+    _logic.pauseFetching();
+
+    await GoRouter.of(context).push(
         '/wallet/${widget.encoded}/transactions/$transactionId',
         extra: {'logic': _logic});
+
+    _logic.resumeFetching();
   }
 
   @override

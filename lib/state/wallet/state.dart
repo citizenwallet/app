@@ -98,6 +98,13 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateCurrentWalletName(String name) {
+    if (wallet != null) {
+      wallet!.name = name;
+      notifyListeners();
+    }
+  }
+
   void loadWalletSuccess(
     CWWallet wallet,
   ) {
