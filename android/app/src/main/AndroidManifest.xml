@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.citizenwallet">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.citizenwallet.xyz">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.NFC"/>
