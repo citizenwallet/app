@@ -51,7 +51,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   }
 
   void handleDismiss(BuildContext context) {
-    GoRouter.of(context).pop(widget.currentAddress);
+    GoRouter.of(context).pop();
   }
 
   void handleCreate(BuildContext context) async {
@@ -75,8 +75,6 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     if (address == null) {
       return;
     }
-
-    // await widget.logic.openWalletFromDB(address);
 
     HapticFeedback.heavyImpact();
 
