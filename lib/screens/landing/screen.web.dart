@@ -1,7 +1,6 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/screen_description.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';

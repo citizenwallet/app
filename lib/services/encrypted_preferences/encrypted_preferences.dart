@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
+import 'package:citizenwallet/services/encrypted_preferences/web.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/foundation.dart';
 
@@ -70,7 +71,8 @@ abstract class EncryptedPreferencesService {
 
 EncryptedPreferencesService getEncryptedPreferencesService() {
   if (kIsWeb) {
-    throw Exception('EncryptedPreferencesService is not supported on web');
+    print('EncryptedPreferencesService is not supported on web');
+    return WebEncryptedPreferencesService();
   }
 
   return isPlatformApple()
