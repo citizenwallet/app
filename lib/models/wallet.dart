@@ -21,6 +21,29 @@ class CWWallet {
     this.locked = true,
   });
 
+  // copy
+  CWWallet copyWith({
+    String? name,
+    String? address,
+    String? account,
+    String? balance,
+    String? currencyName,
+    String? symbol,
+    int? decimalDigits,
+    bool? locked,
+  }) {
+    return CWWallet(
+      balance ?? _balance,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      account: account ?? this.account,
+      currencyName: currencyName ?? this.currencyName,
+      symbol: symbol ?? this.symbol,
+      decimalDigits: decimalDigits ?? this.decimalDigits,
+      locked: locked ?? this.locked,
+    );
+  }
+
   String get balance => _balance;
   double get doubleBalance => double.tryParse(_balance) ?? 0.0;
 

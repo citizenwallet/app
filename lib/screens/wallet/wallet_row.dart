@@ -2,6 +2,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletRow extends StatelessWidget {
@@ -64,16 +65,23 @@ class WalletRow extends StatelessWidget {
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                      Text(
-                        formatHexAddress(wallet.address),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: ThemeColors.subtleText.resolveFrom(context),
-                        ),
-                      ),
+                      const SizedBox(height: 1),
+                      wallet.account.isEmpty
+                          ? const PulsingContainer(
+                              height: 14,
+                              width: 100,
+                            )
+                          : Text(
+                              formatHexAddress(wallet.account),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color:
+                                    ThemeColors.subtleText.resolveFrom(context),
+                              ),
+                            ),
                     ],
                   ),
                 ),

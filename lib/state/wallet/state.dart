@@ -439,6 +439,17 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateDBWalletAccountAddress(String addr, String accaddr) {
+    final index = wallets.indexWhere((w) => w.address == addr);
+    if (index < 0) {
+      return;
+    }
+
+    wallets[index] = wallets[index].copyWith(account: accaddr);
+
+    notifyListeners();
+  }
+
   void createWallet() {
     cwWalletsLoading = true;
     cwWalletsError = false;
