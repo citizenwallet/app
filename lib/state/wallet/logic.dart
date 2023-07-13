@@ -1268,6 +1268,8 @@ class WalletLogic extends WidgetsBindingObserver {
                 locked: false,
               ))
           .toList());
+
+      await loadDBWalletAccountAddresses(wallets.map((w) => w.address));
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -1277,6 +1279,27 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletsError();
+  }
+
+  Future<void> loadDBWalletAccountAddresses(Iterable<String> addrs) async {
+    try {
+      final walletService = walletServiceCheck();
+
+      for (final addr in addrs) {
+        final account = await walletService.getAccountAddress(addr);
+
+        _state.updateDBWalletAccountAddress(addr, account.hex);
+
+        await delay(const Duration(milliseconds: 250));
+      }
+
+      return;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   void prepareReplyTransaction(String address) {

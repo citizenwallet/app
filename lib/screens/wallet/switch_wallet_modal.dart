@@ -262,9 +262,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       (state) => state.cwWalletsLoading,
     );
 
-    final cwWallets = context.select<WalletState, List<CWWallet>>(
-      (state) => state.wallets,
-    );
+    final cwWallets = context.watch<WalletState>().wallets;
 
     return DismissibleModalPopup(
       modaleKey: 'switch-wallet-modal',
