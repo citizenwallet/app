@@ -18,6 +18,7 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -136,22 +137,23 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<bool> openWalletFromQR(
-      String encodedWallet, QRWallet qrWallet, String password) async {
+  Future<bool> openWalletFromURL(String encodedWallet, String password) async {
     try {
       _state.loadWallet();
-
-      if (kIsWeb) {
-        await delay(const Duration(milliseconds: 250));
-      }
 
       final int chainId = _preferences.chainId;
 
       _state.setChainId(chainId);
 
+      final decoded = encodedWallet.startsWith('v2-')
+          ? convertUint8ListToString(
+              base64Decode(encodedWallet.replaceFirst('v2-', '')))
+          : jsonEncode(
+              QR.fromCompressedJson(encodedWallet).toQRWallet().data.wallet);
+
       final wallet = await walletServiceFromWallet(
         BigInt.from(chainId),
-        jsonEncode(qrWallet.data.wallet),
+        decoded,
         password,
       );
 

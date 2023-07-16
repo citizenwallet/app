@@ -46,9 +46,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
       return;
     }
 
-    final qrWallet = wallet.toCompressedJson();
-
-    navigator.go('/wallet/$qrWallet');
+    navigator.go('/wallet/$wallet');
   }
 
   @override
@@ -102,6 +100,19 @@ class WebLandingScreenState extends State<WebLandingScreen>
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 60),
+                            CupertinoActivityIndicator(
+                              color: ThemeColors.subtle.resolveFrom(context),
+                            ),
+                            const SizedBox(height: 30),
+                            Text(
+                              'Generating your wallet...',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ],
                         ),
                       ),

@@ -270,6 +270,8 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final loading = context.select((WalletState state) => state.loading);
+
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
@@ -278,14 +280,36 @@ class WalletScreenState extends State<WalletScreen> {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          WalletScrollView(
-            controller: _scrollController,
-            handleRefresh: handleRefresh,
-            handleSendModal: handleSendModal,
-            handleReceive: handleReceive,
-            handleTransactionTap: handleTransactionTap,
-            handleFailedTransactionTap: handleFailedTransaction,
-          ),
+          loading || wallet == null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      'Loading',
+                      style: TextStyle(
+                        color: ThemeColors.text.resolveFrom(context),
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                )
+              : WalletScrollView(
+                  controller: _scrollController,
+                  handleRefresh: handleRefresh,
+                  handleSendModal: handleSendModal,
+                  handleReceive: handleReceive,
+                  handleTransactionTap: handleTransactionTap,
+                  handleFailedTransactionTap: handleFailedTransaction,
+                  handleCopyWalletQR: handleCopyWalletQR,
+                ),
           SafeArea(
             child: Header(
               transparent: true,
