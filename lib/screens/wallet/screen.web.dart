@@ -98,7 +98,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         final encoded = jsonEncode(converted);
 
         navigator.go('/wallet/v2-${base64Encode(encoded.codeUnits)}');
-        return;
       }
       // _wallet = QR.fromCompressedJson(widget.encoded).toQRWallet();
     } catch (exception, stackTrace) {
