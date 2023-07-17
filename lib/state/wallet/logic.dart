@@ -1229,6 +1229,19 @@ class WalletLogic extends WidgetsBindingObserver {
     Clipboard.setData(ClipboardData(text: _state.walletQR));
   }
 
+  void copyWalletAccount() {
+    try {
+      final walletService = walletServiceCheck();
+
+      Clipboard.setData(ClipboardData(text: walletService.account.hex));
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
 // TODO: remove this
   Future<String?> tryUnlockWallet(String strwallet, String address) async {
     try {

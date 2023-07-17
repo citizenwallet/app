@@ -254,6 +254,12 @@ class WalletScreenState extends State<WalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
+  void handleCopyAccount() {
+    _logic.copyWalletAccount();
+
+    HapticFeedback.heavyImpact();
+  }
+
   void handleTransactionTap(String transactionId) async {
     HapticFeedback.lightImpact();
 
@@ -308,7 +314,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleReceive: handleReceive,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopyWalletQR: handleCopyWalletQR,
+                  handleCopyWalletQR: handleCopyAccount,
                 ),
           SafeArea(
             child: Header(

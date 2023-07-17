@@ -58,27 +58,63 @@ class WalletScrollView extends StatelessWidget {
     final blockSending = context.select(selectShouldBlockSending);
 
     if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
-      // TODO: clean this up
       return CustomScrollView(
         controller: controller,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            floating: false,
-            delegate: PersistentHeaderDelegate(
-              expandedHeight: 300 + safePadding,
-              minHeight: 180 + safePadding,
-              builder: (context, shrink) => WalletActions(
-                shrink: shrink,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
+          SliverFillRemaining(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                  wallet.currencyName,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.normal,
+                    color: ThemeColors.text.resolveFrom(context),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '0.00',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.normal,
+                        color: ThemeColors.text.resolveFrom(context),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        0,
+                        0,
+                        0,
+                        3,
+                      ),
+                      child: Text(
+                        wallet.symbol,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: ThemeColors.text.resolveFrom(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(
                   height: 20,
                 ),
