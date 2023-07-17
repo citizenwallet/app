@@ -36,7 +36,7 @@ jobs:
         with:
           channel: "stable"
       - run: flutter pub get
-      - run: flutter build web --web-renderer canvaskit
+      - run: flutter build web
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
