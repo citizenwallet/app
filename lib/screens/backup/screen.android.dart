@@ -22,7 +22,7 @@ class AndroidBackupScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 60),
+                      SizedBox(height: 60 + safePadding),
                       Text(
                         "Backups use Android Auto Backup and follow your device's backup settings automatically.",
                         style: TextStyle(

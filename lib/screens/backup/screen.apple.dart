@@ -22,7 +22,7 @@ class AppleBackupScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 60),
+                      SizedBox(height: 60 + safePadding),
                       Text(
                         "Your accounts are backed up to your iPhone's Keychain and follow your backup settings automatically.",
                         style: TextStyle(
