@@ -749,6 +749,18 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final walletService = walletServiceCheck();
 
+      _state.preSendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: tempId,
+          hash: '',
+          chainId: walletService.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
+
       final result = await walletService.prepareErc20Userop(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
@@ -864,6 +876,18 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final walletService = walletServiceCheck();
+
+      _state.preSendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: tempId,
+          hash: '',
+          chainId: walletService.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
 
       final result = await walletService.prepareErc20Userop(
         to,
