@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
 import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
-import 'package:citizenwallet/screens/landing/apple_backup_disclaimer_modal.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/state/android_pin_code/state.dart';
@@ -70,19 +69,6 @@ class LandingScreenState extends State<LandingScreen>
     );
   }
 
-  /// handleAppleBackupDisclaimer handles the apple backup disclaimer flow if needed and then returns
-  Future<void> handleAppleBackupDisclaimer() async {
-    if (!isPlatformApple()) {
-      return;
-    }
-
-    await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => const AppleBackupDisclaimerModal(),
-    );
-  }
-
   /// handleAndroidRecover handles the android recovery flow if needed and then returns
   Future<void> handleAndroidRecover() async {
     if (!isPlatformAndroid()) {
@@ -134,7 +120,6 @@ class LandingScreenState extends State<LandingScreen>
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
 
-    await handleAppleBackupDisclaimer();
     await handleAndroidBackup();
 
     const name = 'New wallet';
@@ -151,7 +136,6 @@ class LandingScreenState extends State<LandingScreen>
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
 
-    await handleAppleBackupDisclaimer();
     await handleAndroidBackup();
 
     final result = await showCupertinoModalPopup<String?>(

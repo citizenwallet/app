@@ -56,6 +56,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
+  void handleOpenBackup() {
+    GoRouter.of(context).push('/backup');
+  }
+
   void handleToggleProtection(bool enabled) {
     setState(() {
       _protected = enabled;
@@ -197,6 +201,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                 onTap: wallet != null
                     ? () => handleOpenContract(wallet.account)
                     : null,
+              ),
+              SettingsRow(
+                label: 'Backup',
+                onTap: handleOpenBackup,
               ),
               SettingsRow(
                 label: 'Accounts',

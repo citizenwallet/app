@@ -10,14 +10,14 @@ import 'package:provider/provider.dart';
 class WalletActions extends StatelessWidget {
   final double shrink;
 
-  final void Function() handleSendModal;
-  final void Function() handleReceive;
+  final void Function()? handleSendModal;
+  final void Function()? handleReceive;
 
   const WalletActions({
     Key? key,
     this.shrink = 0,
-    required this.handleSendModal,
-    required this.handleReceive,
+    this.handleSendModal,
+    this.handleReceive,
   }) : super(key: key);
 
   @override
@@ -123,7 +123,9 @@ class WalletActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (wallet?.locked == false && !loading)
+              if (wallet?.locked == false &&
+                  !loading &&
+                  handleSendModal != null)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: blockSending ? () => () : handleSendModal,
@@ -160,7 +162,7 @@ class WalletActions extends StatelessWidget {
                   ),
                 ),
               if (wallet?.locked == false) const SizedBox(width: 40),
-              if (!loading)
+              if (!loading && handleReceive != null)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: sendLoading ? () => () : handleReceive,

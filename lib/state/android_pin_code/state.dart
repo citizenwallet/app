@@ -18,8 +18,6 @@ class AndroidPinCodeState with ChangeNotifier {
 
   bool obscureText = false;
 
-  bool isUnderstood = false;
-
   bool invalidRecoveryPin = false;
 
   void onPinCodeChanged() {
@@ -34,11 +32,6 @@ class AndroidPinCodeState with ChangeNotifier {
 
   void toggleObscureText() {
     obscureText = !obscureText;
-    notifyListeners();
-  }
-
-  void setIsUnderstood() {
-    isUnderstood = true;
     notifyListeners();
   }
 

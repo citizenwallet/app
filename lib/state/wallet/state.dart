@@ -243,11 +243,24 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void sendingTransaction(CWTransaction transaction) {
+  void preSendingTransaction(CWTransaction transaction) {
     sendQueueRemoveTransaction(transaction.id);
 
     transactions =
         transactions.where((element) => element.id != transaction.id).toList();
+
+    transactions.insert(0, transaction);
+
+    notifyListeners();
+  }
+
+  void sendingTransaction(CWTransaction transaction) {
+    sendQueueRemoveTransaction(transaction.id);
+
+    transactions = transactions
+        .where((element) =>
+            element.id != transaction.id && !isPendingTransactionId(element.id))
+        .toList();
 
     transactions.insert(0, transaction);
 

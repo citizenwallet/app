@@ -180,7 +180,7 @@ class AppLogic {
     return null;
   }
 
-  Future<QRWallet?> createWebWallet() async {
+  Future<String?> createWebWallet() async {
     try {
       _appState.importLoadingWebReq();
 
@@ -197,12 +197,7 @@ class AppLogic {
 
       _appState.importLoadingWebSuccess(password);
 
-      return QRWallet(
-          raw: QRWalletData(
-        wallet: jsonDecode(wallet.toJson()),
-        address: credentials.address.hex,
-        publicKey: wallet.privateKey.encodedPublicKey,
-      ).toJson());
+      return 'v2-${base64Encode(wallet.toJson().codeUnits)}';
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,

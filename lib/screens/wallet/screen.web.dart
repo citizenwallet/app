@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
@@ -32,7 +34,7 @@ class BurnerWalletScreen extends StatefulWidget {
 }
 
 class BurnerWalletScreenState extends State<BurnerWalletScreen> {
-  QRWallet? _wallet;
+  // QRWallet? _wallet;
 
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
@@ -84,11 +86,20 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   void onLoad({bool? retry}) async {
     final navigator = GoRouter.of(context);
-    await delay(const Duration(milliseconds: 250));
+    await delay(const Duration(milliseconds: 350));
     try {
       _password = dotenv.get('WEB_BURNER_PASSWORD');
 
-      _wallet = QR.fromCompressedJson(widget.encoded).toQRWallet();
+      if (!widget.encoded.startsWith('v2-')) {
+        // old format, convert
+        final converted =
+            QR.fromCompressedJson(widget.encoded).toQRWallet().data.wallet;
+
+        final encoded = jsonEncode(converted);
+
+        navigator.go('/wallet/v2-${base64Encode(encoded.codeUnits)}');
+      }
+      // _wallet = QR.fromCompressedJson(widget.encoded).toQRWallet();
     } catch (exception, stackTrace) {
       // something is wrong with the encoding
       await Sentry.captureException(
@@ -104,19 +115,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    if (_wallet == null) {
-      return;
-    }
-
     if (_password.isEmpty) {
       return;
     }
 
-    await delay(const Duration(milliseconds: 250));
-
-    final ok = await _logic.openWalletFromQR(
+    final ok = await _logic.openWalletFromURL(
       widget.encoded,
-      _wallet!,
       _password,
     );
 
@@ -292,10 +296,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleTransactionTap(String transactionId) async {
-    if (_wallet == null) {
-      return;
-    }
-
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
@@ -312,19 +312,43 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final safePadding = MediaQuery.of(context).padding.top;
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final loading = context.select((WalletState state) => state.loading);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          WalletScrollView(
-            controller: _scrollController,
-            handleRefresh: handleRefresh,
-            handleSendModal: handleSendModal,
-            handleReceive: handleReceive,
-            handleTransactionTap: handleTransactionTap,
-            handleFailedTransactionTap: handleFailedTransaction,
-          ),
+          loading || wallet == null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      'Loading',
+                      style: TextStyle(
+                        color: ThemeColors.text.resolveFrom(context),
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                )
+              : WalletScrollView(
+                  controller: _scrollController,
+                  handleRefresh: handleRefresh,
+                  handleSendModal: handleSendModal,
+                  handleReceive: handleReceive,
+                  handleTransactionTap: handleTransactionTap,
+                  handleFailedTransactionTap: handleFailedTransaction,
+                  handleCopyWalletQR: handleCopyWalletQR,
+                ),
           Header(
             safePadding: safePadding,
             transparent: true,
@@ -338,7 +362,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        wallet?.name ?? 'Locked',
+                        'Burner Wallet',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -352,27 +376,29 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                 ),
               ],
             ),
-            actionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDisplayWalletExport(context),
-                  child: Icon(
-                    CupertinoIcons.share,
-                    color: ThemeColors.primary.resolveFrom(context),
+            actionButton: loading
+                ? null
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => handleDisplayWalletExport(context),
+                        child: Icon(
+                          CupertinoIcons.share,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => handleDisplayWalletQR(context),
+                        child: Icon(
+                          CupertinoIcons.qrcode,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDisplayWalletQR(context),
-                  child: Icon(
-                    CupertinoIcons.qrcode,
-                    color: ThemeColors.primary.resolveFrom(context),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

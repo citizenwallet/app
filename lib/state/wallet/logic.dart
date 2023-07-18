@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
@@ -18,6 +19,7 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -36,8 +38,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
 
-  Timer? _transferFetchInterval;
-  bool _fetchTransfersRegularly = false;
+  bool cancelLoadAccounts = false;
   String? _fetchRequest;
 
   final TextEditingController _addressController = TextEditingController();
@@ -136,22 +137,23 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<bool> openWalletFromQR(
-      String encodedWallet, QRWallet qrWallet, String password) async {
+  Future<bool> openWalletFromURL(String encodedWallet, String password) async {
     try {
       _state.loadWallet();
-
-      if (kIsWeb) {
-        await delay(const Duration(milliseconds: 250));
-      }
 
       final int chainId = _preferences.chainId;
 
       _state.setChainId(chainId);
 
+      final decoded = encodedWallet.startsWith('v2-')
+          ? convertUint8ListToString(
+              base64Decode(encodedWallet.replaceFirst('v2-', '')))
+          : jsonEncode(
+              QR.fromCompressedJson(encodedWallet).toQRWallet().data.wallet);
+
       final wallet = await walletServiceFromWallet(
         BigInt.from(chainId),
-        jsonEncode(qrWallet.data.wallet),
+        decoded,
         password,
       );
 
@@ -747,6 +749,18 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final walletService = walletServiceCheck();
 
+      _state.preSendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: tempId,
+          hash: '',
+          chainId: walletService.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
+
       final result = await walletService.prepareErc20Userop(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
@@ -862,6 +876,18 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final walletService = walletServiceCheck();
+
+      _state.preSendingTransaction(
+        CWTransaction.sending(
+          '$parsedAmount',
+          id: tempId,
+          hash: '',
+          chainId: walletService.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
 
       final result = await walletService.prepareErc20Userop(
         to,
@@ -1227,6 +1253,19 @@ class WalletLogic extends WidgetsBindingObserver {
     Clipboard.setData(ClipboardData(text: _state.walletQR));
   }
 
+  void copyWalletAccount() {
+    try {
+      final walletService = walletServiceCheck();
+
+      Clipboard.setData(ClipboardData(text: walletService.account.hex));
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
 // TODO: remove this
   Future<String?> tryUnlockWallet(String strwallet, String address) async {
     try {
@@ -1251,7 +1290,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<void> loadDBWallets() async {
+  Future<CancelableOperation<void>?> loadDBWallets() async {
     try {
       _state.loadWallets();
 
@@ -1269,8 +1308,10 @@ class WalletLogic extends WidgetsBindingObserver {
               ))
           .toList());
 
-      await loadDBWalletAccountAddresses(wallets.map((w) => w.address));
-      return;
+      return CancelableOperation.fromFuture(
+        loadDBWalletAccountAddresses(wallets.map((w) => w.address)),
+        onCancel: () => cancelLoadAccounts = true,
+      );
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1279,13 +1320,20 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletsError();
+    return null;
   }
 
   Future<void> loadDBWalletAccountAddresses(Iterable<String> addrs) async {
+    cancelLoadAccounts = false;
     try {
       final walletService = walletServiceCheck();
 
       for (final addr in addrs) {
+        if (cancelLoadAccounts) {
+          cancelLoadAccounts = false;
+          break;
+        }
+
         final account = await walletService.getAccountAddress(addr);
 
         _state.updateDBWalletAccountAddress(addr, account.hex);

@@ -3,9 +3,9 @@
     "short_name": "citizenwallet",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#c8ff94",
-    "description": "A new Flutter project.",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "The wallet for the rest of us.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
