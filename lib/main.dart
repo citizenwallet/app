@@ -78,6 +78,7 @@ class MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: theme,
+      title: 'Citizen Wallet',
     );
   }
 }
