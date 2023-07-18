@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -34,19 +35,24 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
+  CancelableOperation<void>? _operation;
+
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // initial requests go here
 
-      widget.logic.loadDBWallets();
+      _operation = await widget.logic.loadDBWallets();
     });
   }
 
   @override
   void dispose() {
+    if (_operation != null) {
+      _operation!.cancel();
+    }
     super.dispose();
   }
 

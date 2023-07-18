@@ -47,6 +47,7 @@ dependencies:
   rxdart: ^0.27.7
   sentry_flutter: ^7.8.0
   simple_animations: ^5.0.2
+  async: ^2.11.0
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:

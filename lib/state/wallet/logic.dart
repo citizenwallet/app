@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
@@ -37,8 +38,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
 
-  Timer? _transferFetchInterval;
-  bool _fetchTransfersRegularly = false;
+  bool cancelLoadAccounts = false;
   String? _fetchRequest;
 
   final TextEditingController _addressController = TextEditingController();
@@ -1290,7 +1290,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<void> loadDBWallets() async {
+  Future<CancelableOperation<void>?> loadDBWallets() async {
     try {
       _state.loadWallets();
 
@@ -1308,8 +1308,10 @@ class WalletLogic extends WidgetsBindingObserver {
               ))
           .toList());
 
-      await loadDBWalletAccountAddresses(wallets.map((w) => w.address));
-      return;
+      return CancelableOperation.fromFuture(
+        loadDBWalletAccountAddresses(wallets.map((w) => w.address)),
+        onCancel: () => cancelLoadAccounts = true,
+      );
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1318,13 +1320,20 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletsError();
+    return null;
   }
 
   Future<void> loadDBWalletAccountAddresses(Iterable<String> addrs) async {
+    cancelLoadAccounts = false;
     try {
       final walletService = walletServiceCheck();
 
       for (final addr in addrs) {
+        if (cancelLoadAccounts) {
+          cancelLoadAccounts = false;
+          break;
+        }
+
         final account = await walletService.getAccountAddress(addr);
 
         _state.updateDBWalletAccountAddress(addr, account.hex);
