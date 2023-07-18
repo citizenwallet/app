@@ -360,20 +360,21 @@ class WalletScrollView extends StatelessWidget {
             child: Container(
               color: ThemeColors.uiBackground.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
-              child: hasMore
-                  ? null
-                  : Center(
-                      child: SvgPicture.asset(
-                        'assets/icons/empty_roll.svg',
-                        semanticsLabel: 'empty roll icon',
-                        height: 100,
-                        width: 100,
-                        colorFilter: ColorFilter.mode(
-                          ThemeColors.text.resolveFrom(context),
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+              child: null,
+              // child: hasMore
+              //     ? null
+              //     : Center(
+              //         child: SvgPicture.asset(
+              //           'assets/icons/empty_roll.svg',
+              //           semanticsLabel: 'empty roll icon',
+              //           height: 100,
+              //           width: 100,
+              //           colorFilter: ColorFilter.mode(
+              //             ThemeColors.text.resolveFrom(context),
+              //             BlendMode.srcIn,
+              //           ),
+              //         ),
+              //       ),
             ),
           ),
       ],
