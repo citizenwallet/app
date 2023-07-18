@@ -61,8 +61,4 @@ class AndroidPinCodeLogic {
       );
     }
   }
-
-  void setIsUnderstood() {
-    _state.setIsUnderstood();
-  }
 }
