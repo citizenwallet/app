@@ -2,6 +2,7 @@ import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -149,7 +150,7 @@ class WalletScrollView extends StatelessWidget {
                   children: [
                     Chip(
                       onTap: handleCopyWalletQR,
-                      wallet.account,
+                      formatHexAddress(wallet.account),
                       color: ThemeColors.subtleEmphasis.resolveFrom(context),
                       textColor: ThemeColors.touchable.resolveFrom(context),
                       suffix: Icon(

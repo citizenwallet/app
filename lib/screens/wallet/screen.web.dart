@@ -295,6 +295,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
+  void handleCopyAccount() {
+    _logic.copyWalletAccount();
+
+    HapticFeedback.heavyImpact();
+  }
+
   void handleTransactionTap(String transactionId) async {
     HapticFeedback.lightImpact();
 
@@ -347,7 +353,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   handleReceive: handleReceive,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopyWalletQR: handleCopyWalletQR,
+                  handleCopyWalletQR: handleCopyAccount,
                 ),
           Header(
             safePadding: safePadding,
