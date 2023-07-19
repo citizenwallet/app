@@ -3,6 +3,7 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class ExportWalletModal extends StatelessWidget {
@@ -59,6 +60,17 @@ class ExportWalletModal extends StatelessWidget {
                   child: ListView(
                     scrollDirection: Axis.vertical,
                     children: [
+                      SvgPicture.asset(
+                        'assets/icons/citizenwallet-qrcode.svg',
+                        semanticsLabel:
+                            'QR code to create a new citizen wallet',
+                        height: 300,
+                        width: 300,
+                        colorFilter: ColorFilter.mode(
+                          ThemeColors.text.resolveFrom(context),
+                          BlendMode.srcIn,
+                        ),
+                      ),
                       const SizedBox(
                         height: 10,
                       ),

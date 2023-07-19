@@ -60,6 +60,7 @@ flutter:
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
     - assets/icons/empty_roll.svg
+    - assets/images/citizenwallet-qrcode.svg
     - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
     - assets/icons/coin.svg

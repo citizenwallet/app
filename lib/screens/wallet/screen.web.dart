@@ -4,13 +4,12 @@ import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
-import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/export_private_modal.dart';
+import 'package:citizenwallet/widgets/share_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -235,10 +234,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await showCupertinoModalPopup(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => ExportPrivateModal(
-        title: 'Export Account',
+      builder: (modalContext) => ShareModal(
+        title: 'Share Citizen Wallet',
         copyLabel: '---------',
-        onCopy: handleCopyWalletPrivateKey,
+        onCopyPrivateKey: handleCopyWalletPrivateKey,
       ),
     );
 
@@ -368,7 +367,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Burner Wallet',
+                        'Citizen Wallet',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
