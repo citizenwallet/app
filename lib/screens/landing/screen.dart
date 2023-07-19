@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
 import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';

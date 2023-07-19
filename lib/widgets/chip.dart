@@ -11,6 +11,7 @@ class Chip extends StatefulWidget {
   final Widget? suffix;
   final double maxWidth;
   final double borderRadius;
+  final double fontSize;
 
   final void Function()? onTap;
 
@@ -23,6 +24,7 @@ class Chip extends StatefulWidget {
     this.maxWidth = 300,
     this.borderRadius = 15,
     this.onTap,
+    this.fontSize = 18,
   });
 
   @override
@@ -91,7 +93,7 @@ class ChipState extends State<Chip> {
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: widget.fontSize,
                   fontWeight: FontWeight.normal,
                   color: widget.textColor,
                 ),

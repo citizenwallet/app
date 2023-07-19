@@ -181,7 +181,7 @@ class WalletLogic extends WidgetsBindingObserver {
         CWWallet(
           balance,
           name:
-              'Burner Wallet', // on web, acts as a page's title, wallet is fitting here
+              'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: walletService.address.hex,
           account: walletService.account.hex,
           currencyName: currency.name,
