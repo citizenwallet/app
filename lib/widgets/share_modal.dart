@@ -65,7 +65,7 @@ class ShareModal extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: ListView(
                       scrollDirection: Axis.vertical,
                       children: [
@@ -123,7 +123,7 @@ class ShareModal extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Chip(
-                              "http://localhost:60347/#/wallet/v2-eyJjcnlwdG8iOnsiY2lwaGVyIjoiYWVzLTEyOC1jdHIiLCJjaXBoZXJwYXJhbXMiOnsiaXYiOiIwNTQ4ZjcyOGU4YTE0ZDlkZDNiYTA5ODQxNzc0NTkxOSJ9LCJjaXBoZXJ0ZXh0IjoiYTFjNjQ5ODMwZGMyMzhiMWNmODUzMWI4ZTI3YjgzNDc5MTExN2FjN2ZmNGMzMjVjODdlODBkNTAxZTcwNDBkNSIsImtkZiI6InNjcnlwdCIsImtkZnBhcmFtc",
+                              Uri.base.toString(),
                               onTap: onCopyUrl,
                               fontSize: 12,
                               color: ThemeColors.subtleEmphasis
