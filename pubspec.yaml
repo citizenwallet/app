@@ -109,3 +109,5 @@ sentry:
   upload_sources: false
   project: app
   org: citizen-wallet
+  url: https://sentry.io
+  log_level: DEBUG
