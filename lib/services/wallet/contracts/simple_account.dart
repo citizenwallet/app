@@ -38,8 +38,6 @@ class SimpleAccount {
   Future<BigInt> getBalance(String addr) async {
     final balance = await contract.balanceOf(EthereumAddress.fromHex(addr));
 
-    print(balance.toString());
-
     // final uri = await contract.uri(tokenId);
     // return '/$uri';
     return balance;
