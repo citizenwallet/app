@@ -55,7 +55,7 @@
       padding: 0;
     }
 
-    #wallet-loader-wrapper {
+    .abs-wrapper {
       position: absolute;
       top: 0;
       left: 0;
@@ -148,23 +148,27 @@
       }
     }
   </style>
-  <div id="wallet-loader-wrapper">
-    <div class="lds-spinner">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-  </div>
   <body>
+    <div class="abs-wrapper">
+      <div class="lds-spinner">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+    <noscript class="abs-wrapper">
+      <h1>Unable to load</h1>
+      <p>You need to enable JavaScript to run this app.</p>
+    </noscript>
     <script>
       window.addEventListener("load", function (ev) {
         // Download main.dart.js
