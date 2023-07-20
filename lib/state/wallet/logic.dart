@@ -88,6 +88,7 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('ERC4337_ENTRYPOINT'),
         dotenv.get('ERC4337_ACCOUNT_FACTORY'),
         dotenv.get('ERC20_TOKEN_ADDRESS'),
+        dotenv.get('PROFILE_ADDRESS'),
       );
 
       final balance = await walletService.balance;
@@ -168,6 +169,7 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('ERC4337_ENTRYPOINT'),
         dotenv.get('ERC4337_ACCOUNT_FACTORY'),
         dotenv.get('ERC20_TOKEN_ADDRESS'),
+        dotenv.get('PROFILE_ADDRESS'),
       );
 
       final balance = await walletService.balance;
@@ -244,6 +246,7 @@ class WalletLogic extends WidgetsBindingObserver {
           dotenv.get('ERC4337_ENTRYPOINT'),
           dotenv.get('ERC4337_ACCOUNT_FACTORY'),
           dotenv.get('ERC20_TOKEN_ADDRESS'),
+          dotenv.get('PROFILE_ADDRESS'),
         );
       } else {
         final wallet = await walletServiceFromChain(
@@ -263,6 +266,7 @@ class WalletLogic extends WidgetsBindingObserver {
           dotenv.get('ERC4337_ENTRYPOINT'),
           dotenv.get('ERC4337_ACCOUNT_FACTORY'),
           dotenv.get('ERC20_TOKEN_ADDRESS'),
+          dotenv.get('PROFILE_ADDRESS'),
         );
       }
 

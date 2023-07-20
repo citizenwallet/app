@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
 import 'package:citizenwallet/services/wallet/models/block.dart';
@@ -154,6 +155,7 @@ class WalletService {
   late AccountFactory _contractAccountFactory;
   late ERC20Contract _contractToken;
   late SimpleAccount _contractAccount;
+  late ProfileContract _contractProfile;
 
   final Client _client = Client();
 
@@ -271,23 +273,29 @@ class WalletService {
     _address = signer.privateKey.address;
   }
 
-  Future<void> init(String eaddr, String afaddr, String taddr) async {
+  Future<void> init(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
-    await initContracts(eaddr, afaddr, taddr);
+    await initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
-  Future<void> initUnlocked(String eaddr, String afaddr, String taddr) async {
+  Future<void> initUnlocked(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
-    await initContracts(eaddr, afaddr, taddr);
+    await initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
-  Future<void> initContracts(String eaddr, String afaddr, String taddr) async {
+  Future<void> initContracts(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
+
+    _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
+    await _contractProfile.init();
 
     _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
@@ -336,6 +344,7 @@ class WalletService {
     String eaddr,
     String afaddr,
     String taddr,
+    String prfaddr,
   ) {
     dispose();
 
@@ -345,8 +354,8 @@ class WalletService {
     _api = APIService(baseURL: _url);
 
     return _credentials != null
-        ? initUnlocked(eaddr, afaddr, taddr)
-        : init(eaddr, afaddr, taddr);
+        ? initUnlocked(eaddr, afaddr, taddr, prfaddr)
+        : init(eaddr, afaddr, taddr, prfaddr);
   }
 
   Future<Chain?> fetchChainById(BigInt id) async {
