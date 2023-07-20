@@ -24,7 +24,6 @@ class AppLogic {
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
   late AppState _appState;
-  final DBService _db = DBService();
 
   AppLogic(BuildContext context) {
     _appState = context.read<AppState>();

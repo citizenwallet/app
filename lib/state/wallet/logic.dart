@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -33,7 +32,7 @@ import 'package:web3dart/web3dart.dart';
 class WalletLogic extends WidgetsBindingObserver {
   late WalletState _state;
   WalletService? _wallet;
-  final DBService _db = DBService();
+
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
