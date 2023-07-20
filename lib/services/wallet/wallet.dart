@@ -438,13 +438,19 @@ class WalletService {
   EthPrivateKey? get privateKey => _credentials;
 
   /// retrieve chain id
-  int get chainId => _chainId!.toInt();
+  int get chainId => _chainId != null ? _chainId!.toInt() : 0;
 
   /// retrieve raw wallet that was used to instantiate this service
   // Wallet? get wallet => _wallet;
 
   /// retrieve chain symbol
-  NativeCurrency get nativeCurrency => _chain!.nativeCurrency;
+  NativeCurrency get nativeCurrency =>
+      _chain?.nativeCurrency ??
+      NativeCurrency(
+        name: 'Citizen Coin',
+        symbol: 'CC',
+        decimals: 2,
+      );
 
   /// retrieve the current block number
   Future<int> get blockNumber async => await _ethClient.getBlockNumber();
@@ -542,6 +548,7 @@ class WalletService {
         exception,
         stackTrace: stackTrace,
       );
+
       final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {

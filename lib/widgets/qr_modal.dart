@@ -29,7 +29,7 @@ class QRModal extends StatelessWidget {
   }
 
   void handleOpenLink() {
-    final Uri url = Uri.parse(externalLink!);
+    final Uri url = Uri.parse(externalLink ?? '/');
 
     launchUrl(url, mode: LaunchMode.inAppWebView);
   }
