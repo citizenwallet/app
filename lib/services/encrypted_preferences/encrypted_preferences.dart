@@ -71,7 +71,6 @@ abstract class EncryptedPreferencesService {
 
 EncryptedPreferencesService getEncryptedPreferencesService() {
   if (kIsWeb) {
-    print('EncryptedPreferencesService is not supported on web');
     return WebEncryptedPreferencesService();
   }
 
