@@ -68,6 +68,15 @@
       justify-content: center;
       align-content: center;
     }
+    .padded-wrapper {
+      width: 60%;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+    }
 
     .lds-spinner {
       color: black;
@@ -75,6 +84,7 @@
       position: relative;
       width: 80px;
       height: 80px;
+      transform: scale(0.35);
     }
     .lds-spinner div {
       transform-origin: 40px 40px;
@@ -147,10 +157,120 @@
         opacity: 0;
       }
     }
+
+    .loading-text {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      font-family: system-ui;
+      text-align: center;
+    }
+
+    .spacing {
+      margin-top: 30px;
+    }
+
+    .loading-bar-track {
+      width: 200px;
+      height: 10px;
+
+      background-color: #f3f3f3;
+
+      border-radius: 10px;
+    }
+    .loading-bar {
+      height: 10px;
+
+      background-color: rgba(200, 255, 148, 1);
+
+      border-radius: 10px;
+
+      -webkit-animation-name: pulse; /* Chrome, Safari, Opera */
+      -webkit-animation-duration: 1s; /* Chrome, Safari, Opera */
+      -webkit-animation-iteration-count: infinite;
+      animation-name: pulse;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+
+      transition: width 0.25s ease-in-out;
+    }
+    .loading-bar-0 {
+      width: 0%;
+    }
+    .loading-bar-25 {
+      width: 25%;
+    }
+    .loading-bar-50 {
+      width: 50%;
+    }
+    .loading-bar-75 {
+      width: 75%;
+    }
+    .loading-bar-90 {
+      width: 90%;
+    }
+    .loading-bar-100 {
+      width: 100%;
+    }
+    @-webkit-keyframes pulse {
+      0% {
+        background-color: rgba(200, 255, 148, 1);
+      }
+      25% {
+        background-color: rgba(200, 255, 148, 0.9);
+      }
+      50% {
+        background-color: rgba(200, 255, 148, 0.8);
+      }
+      75% {
+        background-color: rgba(200, 255, 148, 0.8);
+      }
+      85% {
+        background-color: rgba(200, 255, 148, 0.9);
+      }
+      100% {
+        background-color: rgba(200, 255, 148, 1);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        background-color: rgba(200, 255, 148, 1);
+      }
+      25% {
+        background-color: rgba(200, 255, 148, 0.8);
+      }
+      50% {
+        background-color: rgba(200, 255, 148, 0.6);
+      }
+      75% {
+        background-color: rgba(200, 255, 148, 0.6);
+      }
+      85% {
+        background-color: rgba(200, 255, 148, 0.8);
+      }
+      100% {
+        background-color: rgba(200, 255, 148, 1);
+      }
+    }
+    .title {
+      font-family: system-ui;
+      text-align: center;
+    }
+    .sub-title {
+      font-family: system-ui;
+      font-size: 1.2rem;
+      text-align: center;
+    }
   </style>
   <body>
     <div class="abs-wrapper">
-      <div class="lds-spinner">
+      <h1 class="title">Citizen Wallet</h1>
+      <div class="padded-wrapper">
+        <p class="sub-title">
+          Your wallet is being prepared, this can take a few seconds...
+        </p>
+      </div>
+      <div class="lds-spinner spacing">
         <div></div>
         <div></div>
         <div></div>
@@ -164,6 +284,12 @@
         <div></div>
         <div></div>
       </div>
+      <div class="loading-bar-track">
+        <div id="loading-bar" class="loading-bar loading-bar-0"></div>
+      </div>
+      <div class="padded-wrapper spacing">
+        <div id="loading-text" class="loading-text">Setting things up...</div>
+      </div>
     </div>
     <noscript class="abs-wrapper">
       <h1>Unable to load</h1>
@@ -171,15 +297,55 @@
     </noscript>
     <script>
       window.addEventListener("load", function (ev) {
+        var loadingBar = document.querySelector("#loading-bar");
+        loadingBar.classList.remove("loading-bar-0");
+        loadingBar.classList.add("loading-bar-25");
+
+        var loading = document.querySelector("#loading-text");
+        loading.textContent = "Downloading files...";
+
+        var long25Timeout = setTimeout(function () {
+          loading.textContent = "Downloading files (good things take time)...";
+          loadingBar.classList.remove("loading-bar-25");
+          loadingBar.classList.add("loading-bar-50");
+        }, 3000);
+
         // Download main.dart.js
         _flutter.loader.loadEntrypoint({
           serviceWorker: {
             serviceWorkerVersion: serviceWorkerVersion,
           },
           onEntrypointLoaded: function (engineInitializer) {
-            engineInitializer.initializeEngine().then(function (appRunner) {
-              appRunner.runApp();
-            });
+            clearTimeout(long25Timeout);
+
+            loading.textContent = "Installing Citizen Wallet...";
+
+            if (loadingBar.classList.contains("loading-bar-25"))
+              loadingBar.classList.remove("loading-bar-25");
+            if (loadingBar.classList.contains("loading-bar-50"))
+              loadingBar.classList.remove("loading-bar-50");
+            loadingBar.classList.add("loading-bar-75");
+
+            var long75Timeout = setTimeout(function () {
+              loading.textContent =
+                "Installing Citizen Wallet (it's worth it, we promise)...";
+              loadingBar.classList.remove("loading-bar-75");
+              loadingBar.classList.add("loading-bar-90");
+            }, 3000);
+
+            engineInitializer
+              .initializeEngine()
+              .then(function (appRunner) {
+                clearTimeout(long75Timeout);
+
+                loading.textContent = "Launching your wallet...";
+                loadingBar.classList.remove("loading-bar-75");
+                loadingBar.classList.add("loading-bar-100");
+                appRunner.runApp();
+              })
+              .catch(function (error) {
+                loading.textContent = "Error loading wallet";
+              });
           },
         });
       });
