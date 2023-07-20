@@ -53,6 +53,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  sentry_dart_plugin: ^1.4.0
 flutter:
   assets:
     - .env
@@ -101,3 +102,10 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: "assets/logo.jpg"
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  upload_sources: false
+  project: app
+  org: citizen-wallet

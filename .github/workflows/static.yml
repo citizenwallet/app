@@ -25,6 +25,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,7 +38,10 @@ jobs:
         with:
           channel: "stable"
       - run: flutter pub get
-      - run: flutter build web --web-renderer canvaskit
+      - run: flutter build web --source-maps --web-renderer canvaskit
+
+      - name: Upload source maps to Sentry
+        run: flutter packages pub run sentry_dart_plugin
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
