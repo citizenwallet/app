@@ -31,7 +31,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
-    await delay(const Duration(milliseconds: 500));
+    await delay(const Duration(milliseconds: 0));
 
     final lastEncodedWallet = await _appLogic.getLastEncodedWallet();
 
@@ -52,6 +52,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
       child: SafeArea(
         child: Flex(
           direction: Axis.vertical,

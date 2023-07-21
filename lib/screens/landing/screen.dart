@@ -173,6 +173,7 @@ class LandingScreenState extends State<LandingScreen>
         context.select((AppState state) => state.walletLoading);
 
     return CupertinoPageScaffold(
+      backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
       child: SafeArea(
         child: Flex(
           direction: Axis.vertical,
