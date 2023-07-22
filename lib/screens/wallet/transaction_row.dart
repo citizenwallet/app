@@ -44,7 +44,7 @@ class TransactionRow extends StatelessWidget {
                 ThemeColors.secondary.resolveFrom(context),
               TransactionState.pending =>
                 ThemeColors.primary.resolveFrom(context),
-              _ => ThemeColors.uiBackground.resolveFrom(context),
+              _ => ThemeColors.uiBackgroundAlt.resolveFrom(context),
             },
           ),
         ),
@@ -68,7 +68,6 @@ class TransactionRow extends StatelessWidget {
                               wallet.account, transaction.from, transaction.to)
                           .icon,
                       backgroundColor: ThemeColors.white,
-                      borderColor: ThemeColors.subtle,
                     ),
                 },
                 const SizedBox(width: 10),

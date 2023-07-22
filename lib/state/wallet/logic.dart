@@ -151,11 +151,13 @@ class WalletLogic extends WidgetsBindingObserver {
           : jsonEncode(
               QR.fromCompressedJson(encodedWallet).toQRWallet().data.wallet);
 
+      await delay(const Duration(milliseconds: 0));
       final wallet = await walletServiceFromWallet(
         BigInt.from(chainId),
         decoded,
         password,
       );
+      await delay(const Duration(milliseconds: 0));
 
       if (wallet == null) {
         throw Exception('chain not found');
@@ -764,9 +766,13 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final result = await walletService.prepareErc20Userop(
+      final calldata = walletService.erc20TransferCallData(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
+      );
+
+      final result = await walletService.prepareUserop(
+        calldata,
       );
       if (result == null) {
         throw Exception('failed to prepare userop');
@@ -809,7 +815,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final success = await walletService.submitUserop(userop);
-      if (success == null || !success) {
+      if (!success) {
         await walletService.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
@@ -892,15 +898,14 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final result = await walletService.prepareErc20Userop(
+      final calldata = walletService.erc20TransferCallData(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
-      if (result == null) {
-        throw Exception('failed to prepare userop');
-      }
 
-      final (hash, userop) = (result.$1, result.$2);
+      final (hash, userop) = await walletService.prepareUserop(
+        calldata,
+      );
 
       tempId = hash;
 
@@ -937,7 +942,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final success = await walletService.submitUserop(userop);
-      if (success == null || !success) {
+      if (!success) {
         await walletService.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
@@ -1440,6 +1445,10 @@ class WalletLogic extends WidgetsBindingObserver {
       );
     }
     transferEventUnsubscribe();
+  }
+
+  void cleanupWalletState() {
+    _state.cleanup();
   }
 
   void dispose() {

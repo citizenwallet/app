@@ -166,6 +166,9 @@ class WalletService {
   // StationService? _station;
   late APIService _api;
   final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
+  final APIService _indexerIPFS =
+      APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
+  final APIService _ipfs = APIService(baseURL: dotenv.get('IPFS_URL'));
   final APIService _bundlerRPC =
       APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
   final APIService _paymasterRPC =
@@ -572,6 +575,77 @@ class WalletService {
     return (null, NetworkUnknownException());
   }
 
+  /// IPFS
+
+  /// set profile data
+  Future<bool> setProfile(ProfileV1 profile, List<int> image) async {
+    try {
+      final url = '/profiles/${_account.hex}';
+
+      print('sending to $url');
+
+      final encoded = jsonEncode(
+        profile.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final credentials = unlock();
+      if (credentials == null) {
+        throw lockedWalletException;
+      }
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      final resp = await _indexerIPFS.filePut(
+        url: url,
+        file: image,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      print(resp['ipfs_url']);
+
+      // final calldata =
+      //     _contractProfile.setCallData(_account.hex, resp['ipfs_url']);
+
+      // final (_, userop) = await prepareUserop(calldata);
+
+      // return submitUserop(userop);
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// get profile data
+  Future<ProfileV1?> getProfile(String addr) async {
+    try {
+      final url = await _contractProfile.getURL(addr);
+
+      final profileData = await _ipfs.get(url: '/$url');
+
+      return ProfileV1.fromJson(profileData);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return null;
+  }
+
   /// ERC 20 token methods
 
   /// listen to erc20 transfer events
@@ -788,8 +862,20 @@ class WalletService {
     return null;
   }
 
-  /// prepare a userop for an erc20 transfer of tokens to an address
-  Future<(String, UserOp)?> prepareErc20Userop(String to, BigInt amount) async {
+  /// construct erc20 transfer call data
+  Uint8List erc20TransferCallData(
+    String to,
+    BigInt amount,
+  ) {
+    return _contractToken.transferCallData(
+      to,
+      EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+      // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+    );
+  }
+
+  /// prepare a userop for with calldata
+  Future<(String, UserOp)> prepareUserop(Uint8List calldata) async {
     try {
       // safely retrieve credentials if unlocks
       final credentials = unlock();
@@ -821,11 +907,7 @@ class WalletService {
       userop.callData = _contractAccount.executeCallData(
         _contractToken.addr,
         BigInt.zero,
-        _contractToken.transferCallData(
-          to,
-          EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
-          // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
-        ),
+        calldata,
       );
 
       // set the appropriate gas fees based on network
@@ -878,7 +960,7 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool?> submitUserop(UserOp userop) async {
+  Future<bool> submitUserop(UserOp userop) async {
     try {
       // send the user op
       final (result, useropErr) =

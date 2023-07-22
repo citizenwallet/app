@@ -40,9 +40,9 @@ enum TransactionState {
 }
 
 enum TransactionAuthor {
-  self('assets/icons/anonymous_user.svg', 'You'),
-  unknown('assets/icons/anonymous_user.svg', 'Unknown'),
-  known('assets/icons/anonymous_user.svg', 'Known'),
+  self('assets/icons/profile.svg', 'You'),
+  unknown('assets/icons/profile.svg', 'Unknown'),
+  known('assets/icons/profile.svg', 'Known'),
   bar('assets/icons/bar_icon.svg', 'Bar'),
   bank('assets/icons/citizenbank.svg', 'Bank');
 

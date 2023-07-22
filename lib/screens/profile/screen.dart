@@ -1,17 +1,13 @@
-import 'package:citizenwallet/models/transaction.dart';
-import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/chip.dart';
+import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -40,69 +36,23 @@ class ProfileScreenState extends State<ProfileScreen> {
     GoRouter.of(context).pop();
   }
 
-  void handleReply(String address) async {
-    widget.logic.prepareReplyTransaction(address);
-
-    HapticFeedback.lightImpact();
-
-    await showCupertinoModalPopup(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => SendModal(
-        logic: widget.logic,
-        to: address,
-      ),
-    );
-  }
-
-  void handleCopy(String transactionId) {
-    Clipboard.setData(ClipboardData(text: transactionId));
+  void handleCopy(String value) {
+    Clipboard.setData(ClipboardData(text: value));
 
     HapticFeedback.lightImpact();
   }
 
-  void handleReplay(
-    String address,
-    String amount,
-    String message,
-  ) async {
-    widget.logic
-        .prepareReplayTransaction(address, amount: amount, message: message);
-
-    HapticFeedback.lightImpact();
-
-    await showCupertinoModalPopup(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => SendModal(
-        logic: widget.logic,
-        to: address,
-      ),
-    );
+  void handleEdit() {
+    print('edit');
   }
 
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
-    final CWTransaction? transaction = context.select((WalletState state) =>
-        state.transactions.firstWhereOrNull((element) => element.id == ''));
 
-    final loading = context.select((WalletState state) => state.loading);
-
-    final blockSending = context.select(selectShouldBlockSending);
-
-    if (wallet == null || transaction == null) {
+    if (wallet == null) {
       return const SizedBox();
     }
-
-    final isIncoming = transaction.isIncoming(wallet.account);
-
-    final from = transaction.isIncoming(wallet.account)
-        ? transaction.from
-        : transaction.to;
-
-    final author =
-        getTransactionAuthor(wallet.account, transaction.from, transaction.to);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -111,6 +61,17 @@ class ProfileScreenState extends State<ProfileScreen> {
           child: Flex(
             direction: Axis.vertical,
             children: [
+              Header(
+                title: 'Profile',
+                actionButton: CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: () => handleDismiss(context),
+                  child: Icon(
+                    CupertinoIcons.xmark,
+                    color: ThemeColors.touchable.resolveFrom(context),
+                  ),
+                ),
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -119,282 +80,96 @@ class ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Positioned.fill(
                         child: ListView(
+                          controller: ModalScrollController.of(context),
+                          physics: const AlwaysScrollableScrollPhysics(),
                           children: [
-                            const SizedBox(height: 60),
-                            const Text('hello profile'),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ProfileCircle(
-                                  size: 80,
-                                  imageUrl: author.icon,
-                                  backgroundColor: ThemeColors.white,
-                                  borderColor: ThemeColors.subtle,
-                                ),
-                              ],
+                            const ProfileCircle(
+                              size: 160,
+                              imageUrl: 'assets/icons/profile.svg',
+                              backgroundColor: ThemeColors.white,
+                              borderColor: ThemeColors.subtle,
                             ),
-                            if (author == TransactionAuthor.bank ||
-                                author == TransactionAuthor.bar) ...[
-                              const SizedBox(height: 5),
-                              Text(
-                                author.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.normal,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                            ],
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                const SizedBox(
+                                  width: 44,
+                                ),
                                 Text(
-                                  isIncoming
-                                      ? '+ ${transaction.formattedAmount}'
-                                      : '- ${transaction.formattedAmount}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.end,
+                                  '@chicken.little',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    color: ThemeColors.subtleText
+                                        .resolveFrom(context),
+                                    fontSize: 16,
                                     fontWeight: FontWeight.normal,
-                                    color: isIncoming
-                                        ? ThemeColors.primary
-                                            .resolveFrom(context)
-                                        : ThemeColors.text.resolveFrom(context),
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  wallet.symbol,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: isIncoming
-                                        ? ThemeColors.primary
-                                            .resolveFrom(context)
-                                        : ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Chip(
-                                  onTap: () => handleCopy(wallet.account),
-                                  formatHexAddress(from),
-                                  color: ThemeColors.subtleEmphasis
-                                      .resolveFrom(context),
-                                  textColor: ThemeColors.touchable
-                                      .resolveFrom(context),
-                                  suffix: Icon(
+                                CupertinoButton(
+                                  child: Icon(
                                     CupertinoIcons.square_on_square,
-                                    size: 12,
+                                    size: 14,
                                     color: ThemeColors.touchable
                                         .resolveFrom(context),
                                   ),
-                                  maxWidth: 160,
-                                ),
+                                  onPressed: () => handleCopy(wallet.account),
+                                )
                               ],
                             ),
-                            const SizedBox(height: 30),
-                            Text(
-                              'Transaction details',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'When',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
+                                  'Robust Chicken',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.normal,
                                     color:
                                         ThemeColors.text.resolveFrom(context),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                                Text(
-                                  DateFormat.yMd()
-                                      .add_Hm()
-                                      .format(transaction.date),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  'What',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
                                 Expanded(
                                   child: Text(
-                                    transaction.title != ''
-                                        ? transaction.title
-                                        : '...',
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.end,
+                                    'Loves to support the community at the local farmers market 🚜.',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.normal,
                                       color:
                                           ThemeColors.text.resolveFrom(context),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 60),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  'Transaction ID',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => handleCopy(transaction.id),
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              formatHexAddress(transaction.id),
-                                              textAlign: TextAlign.end,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.normal,
-                                                color: ThemeColors.text
-                                                    .resolveFrom(context),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          Icon(
-                                            CupertinoIcons.square_on_square,
-                                            size: 12,
-                                            color: ThemeColors.touchable
-                                                .resolveFrom(context),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                Button(
+                                  text: 'Edit',
+                                  color: ThemeColors.surfacePrimary
+                                      .resolveFrom(context),
+                                  labelColor: ThemeColors.black,
+                                  onPressed: handleEdit,
                                 ),
                               ],
                             ),
                           ],
                         ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        child: CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: () => handleDismiss(context),
-                          child: const Icon(
-                            CupertinoIcons.back,
-                          ),
-                        ),
-                      ),
-                      if (!wallet.locked && !loading)
-                        Positioned(
-                          bottom: 20,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              transaction.isIncoming(wallet.account)
-                                  ? CupertinoButton(
-                                      padding: const EdgeInsets.all(5),
-                                      onPressed: blockSending
-                                          ? null
-                                          : () => handleReply(transaction.from),
-                                      borderRadius: BorderRadius.circular(25),
-                                      color: ThemeColors.surfacePrimary
-                                          .resolveFrom(context),
-                                      child: const Icon(
-                                        CupertinoIcons.reply,
-                                        color: ThemeColors.black,
-                                      ),
-                                    )
-                                  : CupertinoButton(
-                                      padding: const EdgeInsets.all(5),
-                                      onPressed: blockSending
-                                          ? null
-                                          : () => handleReplay(
-                                                transaction.to,
-                                                transaction.amount,
-                                                transaction.title,
-                                              ),
-                                      borderRadius: BorderRadius.circular(25),
-                                      color: ThemeColors.surfacePrimary
-                                          .resolveFrom(context),
-                                      child: const Icon(
-                                        CupertinoIcons.refresh_thick,
-                                        color: ThemeColors.black,
-                                      ),
-                                    ),
-                            ],
-                          ),
-                        ),
+                      )
                     ],
                   ),
                 ),

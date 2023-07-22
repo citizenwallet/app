@@ -1,20 +1,45 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:smartcontracts/apps.dart';
+import 'package:smartcontracts/contracts/apps/Profile.g.dart';
 
 import 'package:web3dart/web3dart.dart';
 
 class ProfileV1 {
+  String address;
   String name;
   String description;
   String image;
+  String imageMedium;
+  String imageSmall;
 
   ProfileV1({
+    this.address = '',
     this.name = 'Unknown',
     this.description = '',
     this.image = 'assets/logo.png',
+    this.imageMedium = 'assets/logo.png',
+    this.imageSmall = 'assets/logo.png',
   });
+
+  // from json
+  ProfileV1.fromJson(Map<String, dynamic> json)
+      : address = json['address'],
+        name = json['name'],
+        description = json['description'],
+        image = json['image'],
+        imageMedium = json['imageMedium'],
+        imageSmall = json['imageSmall'];
+
+  // to json
+  Map<String, dynamic> toJson() => {
+        'address': address,
+        'name': name,
+        'description': description,
+        'image': image,
+        'imageMedium': imageMedium,
+        'imageSmall': imageSmall,
+      };
 }
 
 ProfileContract newProfileContract(
@@ -38,36 +63,23 @@ class ProfileContract {
   }
 
   Future<void> init() async {
-    final abi = await rootBundle.loadString(
-        'packages/smartcontracts/lib/contracts/apps/Profile.abi.json');
+    final abi = await rootBundle
+        .loadString('packages/smartcontracts/contracts/apps/Profile.abi.json');
 
     final cabi = ContractAbi.fromJson(abi, 'Profile');
 
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
 
-  Future<ProfileV1> get(String addr) async {
-    final url = await contract.get(EthereumAddress.fromHex(addr));
-
-    final profile = ProfileV1();
-
-    // fetch profile from url
-
-    // update profile with data
-
-    return profile;
+  Future<String> getURL(String addr) async {
+    return contract.get(EthereumAddress.fromHex(addr));
   }
 
-  Future<void> set(
-      String addr, ProfileV1 profile, Credentials credentials) async {
-    // upload profile to url
-    const url = '';
+  Uint8List setCallData(String addr, String url) {
+    final function = rcontract.function('set');
 
-    // set profile url
-    await contract.set(
-      EthereumAddress.fromHex(addr),
-      url,
-      credentials: credentials,
+    return function.encodeCall(
+      [EthereumAddress.fromHex(addr), url],
     );
   }
 

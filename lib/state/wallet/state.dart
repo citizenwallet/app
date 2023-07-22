@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
+  bool firstLoad = true;
   bool loading = true;
   bool error = false;
 
@@ -114,6 +115,7 @@ class WalletState with ChangeNotifier {
 
     this.wallet = wallet;
 
+    firstLoad = false;
     loading = false;
     error = false;
     errorException = null;
@@ -124,6 +126,27 @@ class WalletState with ChangeNotifier {
     loading = false;
     error = true;
     errorException = exception;
+    notifyListeners();
+  }
+
+  void cleanup() {
+    firstLoad = true;
+
+    transactions = [];
+
+    loading = false;
+    error = false;
+    errorException = null;
+
+    transactionsOffset = 0;
+    transactionsHasMore = false;
+    transactionsMaxDate = DateTime.now().toUtc();
+    transactionsFromDate = DateTime.now().toUtc();
+
+    receiveQR = '';
+    walletQR = '';
+
+    transactionSendQueue = [];
     notifyListeners();
   }
 

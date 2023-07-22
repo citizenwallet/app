@@ -7,6 +7,7 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -194,6 +195,7 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     _logic.cleanupWalletService();
+    _logic.cleanupWalletState();
 
     navigator.go('/wallet/${address.toLowerCase()}');
   }
@@ -380,9 +382,11 @@ class WalletScreenState extends State<WalletScreen> {
                   CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDisplayWalletQR(context),
-                    child: Icon(
-                      CupertinoIcons.qrcode,
-                      color: ThemeColors.primary.resolveFrom(context),
+                    child: const ProfileCircle(
+                      size: 30,
+                      imageUrl: 'assets/icons/profile.svg',
+                      backgroundColor: ThemeColors.white,
+                      borderColor: ThemeColors.subtle,
                     ),
                   ),
                 ],
