@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.17+1
+version: 1.0.17+2
 publish_to: none
 description: Receive and send ERC20 without gas fees.
 environment:
