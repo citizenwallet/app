@@ -61,7 +61,7 @@ class WalletScrollView extends StatelessWidget {
     if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
       return CustomScrollView(
         controller: controller,
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const ScrollPhysics(parent: PageScrollPhysics()),
         slivers: [
           SliverFillRemaining(
             child: Column(
@@ -213,7 +213,7 @@ class WalletScrollView extends StatelessWidget {
         if (queuedTransactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: const Text(
                 'Unable to send',
@@ -236,7 +236,7 @@ class WalletScrollView extends StatelessWidget {
                 final transaction = queuedTransactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -250,7 +250,7 @@ class WalletScrollView extends StatelessWidget {
           ),
         SliverToBoxAdapter(
           child: Container(
-            color: ThemeColors.uiBackground.resolveFrom(context),
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: const Text(
               'Transactions',
@@ -264,7 +264,7 @@ class WalletScrollView extends StatelessWidget {
         if (transactionsLoading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               child: Center(
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
@@ -275,7 +275,7 @@ class WalletScrollView extends StatelessWidget {
         if (!transactionsLoading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -306,7 +306,7 @@ class WalletScrollView extends StatelessWidget {
                 final transaction = transactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -346,7 +346,7 @@ class WalletScrollView extends StatelessWidget {
               childCount: 10,
               (context, index) {
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: SkeletonTransactionRow(
                     key: Key('loading-$index'),
@@ -358,7 +358,7 @@ class WalletScrollView extends StatelessWidget {
         if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
               child: null,
               // child: hasMore

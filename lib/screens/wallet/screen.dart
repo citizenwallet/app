@@ -1,16 +1,16 @@
+import 'package:citizenwallet/screens/profile/screen.dart';
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -145,9 +145,10 @@ class WalletScreenState extends State<WalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await showCupertinoModalPopup(
+      await CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
-        barrierDismissible: true,
+        expand: true,
+        useRootNavigator: true,
         builder: (_) => SendModal(
           logic: _logic,
           id: id,
@@ -175,9 +176,11 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
 
-    final address = await showCupertinoModalPopup<String?>(
+    final address =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (modalContext) => SwitchWalletModal(
         logic: _logic,
         currentAddress: widget.address,
@@ -200,15 +203,12 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => QRModal(
-        title: 'Share address',
-        qrCode: modalContext.select((WalletState state) => state.walletQR),
-        copyLabel: modalContext
-            .select((WalletState state) => formatHexAddress(state.walletQR)),
-        onCopy: handleCopyWalletQR,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => ProfileScreen(
+        logic: _logic,
       ),
     );
 
@@ -220,9 +220,10 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (_) => ReceiveModal(
         logic: _logic,
       ),
@@ -236,9 +237,10 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (_) => SendModal(
         logic: _logic,
       ),
@@ -265,8 +267,9 @@ class WalletScreenState extends State<WalletScreen> {
     _logic.pauseFetching();
 
     await GoRouter.of(context).push(
-        '/wallet/${widget.address!}/transactions/$transactionId',
-        extra: {'logic': _logic});
+      '/wallet/${widget.address!}/transactions/$transactionId',
+      extra: {'logic': _logic},
+    );
 
     _logic.resumeFetching();
   }

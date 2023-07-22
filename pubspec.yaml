@@ -25,7 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^2.3.2
-  mobile_scanner: ^3.2.0
+  mobile_scanner: ^3.3.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
@@ -48,6 +48,7 @@ dependencies:
   sentry_flutter: ^7.8.0
   simple_animations: ^5.0.2
   async: ^2.11.0
+  modal_bottom_sheet: ^3.0.0-pre
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
@@ -83,7 +84,7 @@ flutter:
     - packages/smartcontracts/contracts/external/SimpleAccountFactory.abi.json
     - packages/smartcontracts/contracts/external/EntryPoint.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
-    - packages/smartcontracts/lib/contracts/apps/Profile.abi.json
+    - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
 
 flutter_launcher_icons:

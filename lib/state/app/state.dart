@@ -19,6 +19,9 @@ class AppState with ChangeNotifier {
   CupertinoThemeData get theme {
     return CupertinoThemeData(
       brightness: _darkMode ? Brightness.dark : Brightness.light,
+      scaffoldBackgroundColor: _darkMode
+          ? ThemeColors.uiBackgroundAlt.darkColor
+          : ThemeColors.uiBackgroundAlt.color,
       textTheme: CupertinoTextThemeData(
         textStyle: TextStyle(
           color:

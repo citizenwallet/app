@@ -16,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
@@ -183,9 +184,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await showCupertinoModalPopup(
+      await CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
-        barrierDismissible: true,
+        expand: true,
+        useRootNavigator: true,
         builder: (_) => SendModal(
           logic: _logic,
           id: id,
@@ -211,9 +213,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.updateWalletQR();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (modalContext) => QRModal(
         title: 'Share address',
         qrCode: modalContext.select((WalletState state) => state.walletQR),
@@ -231,9 +234,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void handleDisplayWalletExport(BuildContext context) async {
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (modalContext) => ShareModal(
         title: 'Share Citizen Wallet',
         copyLabel: '---------',
@@ -261,9 +265,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (_) => ReceiveModal(
         logic: _logic,
       ),
@@ -277,9 +282,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
 
-    await showCupertinoModalPopup(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      useRootNavigator: true,
       builder: (_) => SendModal(
         logic: _logic,
       ),
@@ -319,93 +325,99 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     final loading = context.select((WalletState state) => state.loading);
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          loading || wallet == null
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return CupertinoScaffold(
+      transitionBackgroundColor: ThemeColors.transparent,
+      body: CupertinoPageScaffold(
+        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              loading || wallet == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CupertinoActivityIndicator(
+                          color: ThemeColors.subtle.resolveFrom(context),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Loading',
+                          style: TextStyle(
+                            color: ThemeColors.text.resolveFrom(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    )
+                  : WalletScrollView(
+                      controller: _scrollController,
+                      handleRefresh: handleRefresh,
+                      handleSendModal: handleSendModal,
+                      handleReceive: handleReceive,
+                      handleTransactionTap: handleTransactionTap,
+                      handleFailedTransactionTap: handleFailedTransaction,
+                      handleCopyWalletQR: handleCopyAccount,
+                    ),
+              Header(
+                safePadding: safePadding,
+                transparent: true,
+                color: ThemeColors.transparent,
+                titleWidget: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CupertinoActivityIndicator(
-                      color: ThemeColors.subtle.resolveFrom(context),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'Loading',
-                      style: TextStyle(
-                        color: ThemeColors.text.resolveFrom(context),
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Citizen Wallet',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeColors.text.resolveFrom(context),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                )
-              : WalletScrollView(
-                  controller: _scrollController,
-                  handleRefresh: handleRefresh,
-                  handleSendModal: handleSendModal,
-                  handleReceive: handleReceive,
-                  handleTransactionTap: handleTransactionTap,
-                  handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopyWalletQR: handleCopyAccount,
                 ),
-          Header(
-            safePadding: safePadding,
-            transparent: true,
-            color: ThemeColors.transparent,
-            titleWidget: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Citizen Wallet',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
-                        ),
+                actionButton: loading
+                    ? null
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            onPressed: () => handleDisplayWalletExport(context),
+                            child: Icon(
+                              CupertinoIcons.share,
+                              color: ThemeColors.primary.resolveFrom(context),
+                            ),
+                          ),
+                          CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            onPressed: () => handleDisplayWalletQR(context),
+                            child: Icon(
+                              CupertinoIcons.qrcode,
+                              color: ThemeColors.primary.resolveFrom(context),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actionButton: loading
-                ? null
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: () => handleDisplayWalletExport(context),
-                        child: Icon(
-                          CupertinoIcons.share,
-                          color: ThemeColors.primary.resolveFrom(context),
-                        ),
-                      ),
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: () => handleDisplayWalletQR(context),
-                        child: Icon(
-                          CupertinoIcons.qrcode,
-                          color: ThemeColors.primary.resolveFrom(context),
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -52,7 +52,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
       child: SafeArea(
         child: Flex(
           direction: Axis.vertical,

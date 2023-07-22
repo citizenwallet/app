@@ -3,6 +3,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class RouterShell extends StatelessWidget {
@@ -26,7 +27,9 @@ class RouterShell extends StatelessWidget {
     const BottomNavigationBarItem(
       label: 'Settings',
       icon: Icon(CupertinoIcons.settings),
-      activeIcon: Icon(CupertinoIcons.settings_solid),
+      activeIcon: Icon(
+        CupertinoIcons.settings_solid,
+      ),
     ),
   ];
 
@@ -42,10 +45,13 @@ class RouterShell extends StatelessWidget {
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
-    return CupertinoPageScaffold(
+    final app = CupertinoScaffold(
       key: Key(state.location),
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-      child: SafeArea(
+      transitionBackgroundColor: ThemeColors.transparent,
+      body: CupertinoPageScaffold(
+        key: Key(state.location),
+        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        child: SafeArea(
           top: false,
           child: Column(
             children: [
@@ -56,6 +62,7 @@ class RouterShell extends StatelessWidget {
                 CupertinoTabBar(
                   items: items,
                   currentIndex: routes[state.location] ?? 0,
+                  activeColor: ThemeColors.text.resolveFrom(context),
                   backgroundColor:
                       ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   border: Border(
@@ -80,7 +87,16 @@ class RouterShell extends StatelessWidget {
                         },
                 ),
             ],
-          )),
+          ),
+        ),
+      ),
     );
+
+    return kIsWeb
+        ? CupertinoPageScaffold(
+            backgroundColor: ThemeColors.black,
+            child: app,
+          )
+        : app;
   }
 }

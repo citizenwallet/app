@@ -25,7 +25,13 @@ class Scanner extends StatefulWidget {
 class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   late final AnimationController _animationController;
-  late MobileScannerController _controller;
+  final MobileScannerController _controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+    autoStart: false,
+    formats: <BarcodeFormat>[BarcodeFormat.qrCode],
+  );
 
   double _opacity = 0;
   bool _complete = false;
@@ -39,13 +45,7 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
     _hasTorch = false;
     _torchState = TorchState.off;
 
-    _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-      torchEnabled: false,
-      autoStart: true,
-      formats: <BarcodeFormat>[BarcodeFormat.qrCode],
-    );
+    _controller.stop();
 
     _animationController = AnimationController(
       vsync: this,
@@ -62,7 +62,9 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
   }
 
   void onLoad() async {
-    await delay(const Duration(milliseconds: 250));
+    await delay(const Duration(milliseconds: 500));
+
+    _controller.start();
 
     _controller.torchState.addListener(() {
       setState(() {
@@ -165,242 +167,226 @@ class ScannerState extends State<Scanner> with TickerProviderStateMixin {
 
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return DismissibleModalPopup(
-      modaleKey: widget.modalKey,
-      maxHeight: height,
-      paddingSides: 0,
-      paddingTopBottom: 0,
-      onUpdate: (details) {
-        if (details.direction == DismissDirection.down &&
-            FocusManager.instance.primaryFocus?.hasFocus == true) {
-          FocusManager.instance.primaryFocus?.unfocus();
-        }
-      },
-      onDismissed: (_) => handleDismiss(context),
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
-          resizeToAvoidBottomInset: false,
-          child: Flex(
-            direction: Axis.vertical,
-            children: [
-              Expanded(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        height: height,
-                        width: width,
-                        decoration: BoxDecoration(
-                          color: ThemeColors.uiBackground.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: AnimatedOpacity(
-                            opacity: _opacity,
-                            duration: const Duration(milliseconds: 1000),
-                            child: MobileScanner(
-                              controller: _controller,
-                              onDetect: handleDetection,
-                              startDelay: kIsWeb ? true : false,
-                              fit: BoxFit.cover,
-                              placeholderBuilder: (p0, p1) {
-                                return Container(
-                                  height: height,
-                                  width: width,
-                                  decoration: BoxDecoration(
-                                    color: ThemeColors.uiBackground
-                                        .resolveFrom(context),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: CupertinoActivityIndicator(
-                                      color: ThemeColors.subtle
-                                          .resolveFrom(context),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: size,
-                      width: size,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: CupertinoPageScaffold(
+        backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+        resizeToAvoidBottomInset: false,
+        child: Flex(
+          direction: Axis.vertical,
+          children: [
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      height: height,
+                      width: width,
                       decoration: BoxDecoration(
+                        color: ThemeColors.uiBackground.resolveFrom(context),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          width: 2,
-                          color: ThemeColors.white,
-                        ),
                       ),
-                    ),
-                    SafeArea(
-                      child: Flex(
-                        direction: Axis.vertical,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                height: 50,
-                                width: 50,
+                      child: Center(
+                        child: AnimatedOpacity(
+                          opacity: _opacity,
+                          duration: const Duration(milliseconds: 1000),
+                          child: MobileScanner(
+                            controller: _controller,
+                            onDetect: handleDetection,
+                            startDelay: kIsWeb ? true : false,
+                            fit: BoxFit.cover,
+                            placeholderBuilder: (p0, p1) {
+                              return Container(
+                                height: height,
+                                width: width,
                                 decoration: BoxDecoration(
                                   color: ThemeColors.uiBackground
                                       .resolveFrom(context),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                margin:
-                                    const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                                child: Center(
-                                  child: CupertinoButton(
-                                    padding: const EdgeInsets.all(5),
-                                    onPressed: () => handleDismiss(context),
-                                    child: Icon(
-                                      CupertinoIcons.xmark,
-                                      color: ThemeColors.touchable
-                                          .resolveFrom(context),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (_hasTorch)
-                                  Container(
-                                    height: 50,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      color: ThemeColors.uiBackground
-                                          .resolveFrom(context),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    margin: const EdgeInsets.fromLTRB(
-                                        20, 20, 20, 20),
-                                    child: Center(
-                                      child: CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: handleToggleTorch,
-                                        child: Icon(
-                                          _torchState == TorchState.off
-                                              ? CupertinoIcons.lightbulb
-                                              : CupertinoIcons.lightbulb_fill,
-                                          color: ThemeColors.touchable
-                                              .resolveFrom(context),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    if (widget.confirm)
-                      Positioned(
-                        bottom: bottomInset <= 100 ? 100 : bottomInset,
-                        child: Container(
-                          height: 50,
-                          width: width - 40,
-                          decoration: BoxDecoration(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                          margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                          child: Center(
-                            child: CupertinoTextField(
-                              controller: _textController,
-                              placeholder: 'Manual Entry',
-                              maxLines: 1,
-                              autofocus: false,
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              textInputAction: TextInputAction.done,
-                              decoration: BoxDecoration(
-                                color:
-                                    const CupertinoDynamicColor.withBrightness(
-                                  color: CupertinoColors.white,
-                                  darkColor: CupertinoColors.black,
-                                ),
-                                border: Border.all(
-                                  color: ThemeColors.transparent
-                                      .resolveFrom(context),
-                                ),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0)),
-                              ),
-                              onChanged: (_) {
-                                handleChanged();
-                              },
-                              onSubmitted: (_) {
-                                handleSubmit(context);
-                              },
-                              suffix: Container(
-                                height: 35,
-                                width: 35,
-                                decoration: BoxDecoration(
-                                  color: _isTextEmpty
-                                      ? ThemeColors.subtle.resolveFrom(context)
-                                      : ThemeColors.surfacePrimary
-                                          .resolveFrom(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                // margin:
-                                //     const EdgeInsets.fromLTRB(20, 20, 20, 20),
                                 child: Center(
-                                  child: CupertinoButton(
-                                    padding: const EdgeInsets.all(5),
-                                    onPressed: _isTextEmpty
-                                        ? null
-                                        : () => handleSubmit(context),
-                                    child: Icon(
-                                      CupertinoIcons.arrow_right,
-                                      color: _isTextEmpty
-                                          ? ThemeColors.subtleText
-                                              .resolveFrom(context)
-                                          : ThemeColors.black,
-                                    ),
+                                  child: CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
                                   ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ),
                       ),
-                    if (_complete)
-                      Container(
+                    ),
+                  ),
+                  Container(
+                    height: size,
+                    width: size,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        width: 2,
+                        color: ThemeColors.white,
+                      ),
+                    ),
+                  ),
+                  SafeArea(
+                    child: Flex(
+                      direction: Axis.vertical,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: ThemeColors.uiBackground
+                                    .resolveFrom(context),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                              child: Center(
+                                child: CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: () => handleDismiss(context),
+                                  child: Icon(
+                                    CupertinoIcons.xmark,
+                                    color: ThemeColors.touchable
+                                        .resolveFrom(context),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (_hasTorch)
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: ThemeColors.uiBackground
+                                        .resolveFrom(context),
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                                  child: Center(
+                                    child: CupertinoButton(
+                                      padding: const EdgeInsets.all(5),
+                                      onPressed: handleToggleTorch,
+                                      child: Icon(
+                                        _torchState == TorchState.off
+                                            ? CupertinoIcons.lightbulb
+                                            : CupertinoIcons.lightbulb_fill,
+                                        color: ThemeColors.touchable
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  if (widget.confirm)
+                    Positioned(
+                      bottom: bottomInset <= 100 ? 100 : bottomInset,
+                      child: Container(
+                        height: 50,
+                        width: width - 40,
                         decoration: BoxDecoration(
                           color: ThemeColors.uiBackground.resolveFrom(context),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: const EdgeInsets.all(20),
-                        child: Lottie.asset(
-                          'assets/lottie/qr_scan_success.json',
-                          height: 200,
-                          width: 200,
-                          controller: _animationController,
+                        padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                        margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                        child: Center(
+                          child: CupertinoTextField(
+                            controller: _textController,
+                            placeholder: 'Manual Entry',
+                            maxLines: 1,
+                            autofocus: false,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            textInputAction: TextInputAction.done,
+                            decoration: BoxDecoration(
+                              color: const CupertinoDynamicColor.withBrightness(
+                                color: CupertinoColors.white,
+                                darkColor: CupertinoColors.black,
+                              ),
+                              border: Border.all(
+                                color: ThemeColors.transparent
+                                    .resolveFrom(context),
+                              ),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5.0)),
+                            ),
+                            onChanged: (_) {
+                              handleChanged();
+                            },
+                            onSubmitted: (_) {
+                              handleSubmit(context);
+                            },
+                            suffix: Container(
+                              height: 35,
+                              width: 35,
+                              decoration: BoxDecoration(
+                                color: _isTextEmpty
+                                    ? ThemeColors.subtle.resolveFrom(context)
+                                    : ThemeColors.surfacePrimary
+                                        .resolveFrom(context),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // margin:
+                              //     const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                              child: Center(
+                                child: CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: _isTextEmpty
+                                      ? null
+                                      : () => handleSubmit(context),
+                                  child: Icon(
+                                    CupertinoIcons.arrow_right,
+                                    color: _isTextEmpty
+                                        ? ThemeColors.subtleText
+                                            .resolveFrom(context)
+                                        : ThemeColors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                  if (_complete)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: Lottie.asset(
+                        'assets/lottie/qr_scan_success.json',
+                        height: 200,
+                        width: 200,
+                        controller: _animationController,
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
