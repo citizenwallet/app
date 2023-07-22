@@ -183,16 +183,23 @@ class AppLogic {
     try {
       _appState.importLoadingWebReq();
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(const Duration(milliseconds: 0));
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
+      await delay(const Duration(milliseconds: 0));
+
       final password = dotenv.get('WEB_BURNER_PASSWORD');
 
-      final Wallet wallet =
-          Wallet.createNew(credentials, password, Random.secure());
+      final Wallet wallet = Wallet.createNew(
+        credentials,
+        password,
+        Random.secure(),
+        scryptN:
+            512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
+      );
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(const Duration(milliseconds: 0));
 
       _appState.importLoadingWebSuccess(password);
 
