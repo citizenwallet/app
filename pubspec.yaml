@@ -65,6 +65,11 @@ flutter:
     - assets/images/citizenwallet-qrcode.svg
     - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
+    - assets/icons/dark-mode.svg
+    - assets/icons/docs.svg
+    - assets/icons/website.svg
+    - assets/icons/cloud-settings.svg
+    - assets/icons/users.svg
     - assets/icons/coin.svg
     - assets/icons/profile.svg
     - assets/icons/anonymous_user.svg
