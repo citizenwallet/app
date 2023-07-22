@@ -106,7 +106,7 @@ class ReceiveModalState extends State<ReceiveModal> {
               Expanded(
                 child: CustomScrollView(
                   controller: ModalScrollController.of(context),
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: const ScrollPhysics(parent: PageScrollPhysics()),
                   slivers: [
                     SliverPersistentHeader(
                       pinned: true,

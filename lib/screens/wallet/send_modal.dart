@@ -218,7 +218,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                   children: [
                     ListView(
                       controller: ModalScrollController.of(context),
-                      physics: const AlwaysScrollableScrollPhysics(),
+                      physics: const ScrollPhysics(parent: PageScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
                         const SizedBox(height: 20),
