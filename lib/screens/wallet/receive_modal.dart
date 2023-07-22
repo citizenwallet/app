@@ -1,10 +1,11 @@
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/ratio.dart';
-import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
@@ -159,20 +160,22 @@ class ReceiveModalState extends State<ReceiveModal> {
                             const SizedBox(
                               height: 10,
                             ),
-                            Button(
-                              text: 'Copy',
-                              color: ThemeColors.surfacePrimary
+                            Chip(
+                              formatHexAddress(wallet?.account ?? ''),
+                              onTap: handleCopy,
+                              fontSize: 14,
+                              color: ThemeColors.subtleEmphasis
                                   .resolveFrom(context),
-                              labelColor: ThemeColors.black,
-                              suffix: const Padding(
-                                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: Icon(
-                                  CupertinoIcons.square_on_square,
-                                  size: 14,
-                                  color: ThemeColors.black,
-                                ),
+                              textColor:
+                                  ThemeColors.touchable.resolveFrom(context),
+                              suffix: Icon(
+                                CupertinoIcons.square_on_square,
+                                size: 14,
+                                color:
+                                    ThemeColors.touchable.resolveFrom(context),
                               ),
-                              onPressed: handleCopy,
+                              borderRadius: 15,
+                              maxWidth: 150,
                             ),
                             const SizedBox(
                               height: 10,
