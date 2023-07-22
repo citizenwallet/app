@@ -61,7 +61,7 @@ class WalletScrollView extends StatelessWidget {
     if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
       return CustomScrollView(
         controller: controller,
-        physics: const ScrollPhysics(parent: PageScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverFillRemaining(
             child: Column(

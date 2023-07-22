@@ -278,7 +278,7 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final loading = context.select((WalletState state) => state.loading);
+    final firstLoad = context.select((WalletState state) => state.firstLoad);
 
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
@@ -288,7 +288,7 @@ class WalletScreenState extends State<WalletScreen> {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          loading || wallet == null
+          firstLoad || wallet == null
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,

@@ -25,6 +25,7 @@ class WalletActions extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     final loading = context.select((WalletState state) => state.loading);
+    final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
 
     final blockSending = context.select(selectShouldBlockSending);
@@ -124,7 +125,7 @@ class WalletActions extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (wallet?.locked == false &&
-                  !loading &&
+                  (!loading || !firstLoad) &&
                   handleSendModal != null)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
@@ -162,7 +163,7 @@ class WalletActions extends StatelessWidget {
                   ),
                 ),
               if (wallet?.locked == false) const SizedBox(width: 40),
-              if (!loading && handleReceive != null)
+              if ((!loading || !firstLoad) && handleReceive != null)
                 CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: sendLoading ? () => () : handleReceive,
