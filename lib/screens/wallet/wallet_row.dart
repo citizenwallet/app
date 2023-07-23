@@ -30,7 +30,7 @@ class WalletRow extends StatelessWidget {
             key: super.key,
             margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
             padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-            height: 80,
+            height: 84,
             decoration: BoxDecoration(
               color: ThemeColors.subtle.resolveFrom(context),
               borderRadius: BorderRadius.circular(10),
@@ -38,7 +38,7 @@ class WalletRow extends StatelessWidget {
                 width: 2,
                 color: isSelected
                     ? ThemeColors.primary.resolveFrom(context)
-                    : ThemeColors.uiBackground.resolveFrom(context),
+                    : ThemeColors.uiBackgroundAlt.resolveFrom(context),
               ),
             ),
             child: Row(
