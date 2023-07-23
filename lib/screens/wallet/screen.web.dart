@@ -323,7 +323,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final safePadding = MediaQuery.of(context).padding.top;
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final loading = context.select((WalletState state) => state.loading);
+    final firstLoad = context.select((WalletState state) => state.firstLoad);
 
     return CupertinoScaffold(
       transitionBackgroundColor: ThemeColors.transparent,
@@ -334,7 +334,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
           child: Stack(
             alignment: Alignment.topCenter,
             children: [
-              loading || wallet == null
+              firstLoad || wallet == null
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -391,7 +391,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     ),
                   ],
                 ),
-                actionButton: loading
+                actionButton: firstLoad
                     ? null
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.end,
