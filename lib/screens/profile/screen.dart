@@ -81,8 +81,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                       Positioned.fill(
                         child: ListView(
                           controller: ModalScrollController.of(context),
-                          physics:
-                              const ScrollPhysics(parent: PageScrollPhysics()),
+                          physics: const ScrollPhysics(
+                              parent: BouncingScrollPhysics()),
                           children: [
                             const ProfileCircle(
                               size: 160,

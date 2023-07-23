@@ -56,7 +56,8 @@ class ShareModal extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: ListView(
                     controller: ModalScrollController.of(context),
-                    physics: const ScrollPhysics(parent: PageScrollPhysics()),
+                    physics:
+                        const ScrollPhysics(parent: BouncingScrollPhysics()),
                     scrollDirection: Axis.vertical,
                     children: [
                       const SizedBox(

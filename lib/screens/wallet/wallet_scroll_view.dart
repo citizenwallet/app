@@ -61,7 +61,7 @@ class WalletScrollView extends StatelessWidget {
     if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
       return CustomScrollView(
         controller: controller,
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
         slivers: [
           SliverFillRemaining(
             child: Column(
@@ -172,7 +172,7 @@ class WalletScrollView extends StatelessWidget {
 
     return CustomScrollView(
       controller: controller,
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: handleRefresh,
