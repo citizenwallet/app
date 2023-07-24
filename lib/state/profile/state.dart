@@ -14,7 +14,7 @@ class ProfileState with ChangeNotifier {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  String editingImage = '';
+  String? editingImage;
 
   bool loading = false;
   bool error = false;
@@ -31,6 +31,8 @@ class ProfileState with ChangeNotifier {
     usernameController.text = '';
     nameController.text = '';
     descriptionController.text = '';
+
+    editingImage = null;
 
     if (notify) notifyListeners();
   }
@@ -88,6 +90,12 @@ class ProfileState with ChangeNotifier {
   void setProfileError() {
     loading = false;
     error = true;
+
+    notifyListeners();
+  }
+
+  void setEditImage(String image) {
+    editingImage = image;
 
     notifyListeners();
   }

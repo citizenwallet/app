@@ -1,6 +1,6 @@
-import 'package:citizenwallet/screens/profile/edit.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -11,19 +11,23 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({
     Key? key,
   }) : super(key: key);
 
   @override
-  ProfileScreenState createState() => ProfileScreenState();
+  EditProfileScreenState createState() => EditProfileScreenState();
 }
 
-class ProfileScreenState extends State<ProfileScreen> {
+class EditProfileScreenState extends State<EditProfileScreen> {
+  late ProfileLogic _logic;
+
   @override
   void initState() {
     super.initState();
+
+    _logic = ProfileLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -40,18 +44,27 @@ class ProfileScreenState extends State<ProfileScreen> {
     HapticFeedback.lightImpact();
   }
 
-  void handleEdit() async {
-    await showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      builder: (context) => const EditProfileScreen(),
-    );
+  void handleSave(String image) async {
+    final navigator = GoRouter.of(context);
+
+    HapticFeedback.lightImpact();
+
+    await _logic.save(ProfileV1(image: image));
+
+    HapticFeedback.heavyImpact();
+    navigator.pop();
+  }
+
+  void handleSelectPhoto() {
+    HapticFeedback.lightImpact();
+
+    _logic.selectPhoto();
   }
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<ProfileState>();
+    final editingImage =
+        context.select((ProfileState state) => state.editingImage);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -62,7 +75,7 @@ class ProfileScreenState extends State<ProfileScreen> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Profile',
+                title: 'Edit',
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -84,17 +97,37 @@ class ProfileScreenState extends State<ProfileScreen> {
                           physics: const ScrollPhysics(
                               parent: BouncingScrollPhysics()),
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            Stack(
+                              alignment: Alignment.center,
                               children: [
                                 ProfileCircle(
                                   size: 160,
-                                  imageUrl: profile.image != ''
-                                      ? profile.image
-                                      : 'assets/icons/profile.svg',
+                                  imageUrl: editingImage ??
+                                      'assets/icons/profile.svg',
                                   backgroundColor: ThemeColors.white,
                                   borderColor: ThemeColors.subtle,
+                                ),
+                                CupertinoButton(
+                                  onPressed: handleSelectPhoto,
+                                  padding: const EdgeInsets.all(0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: ThemeColors.backgroundTransparent
+                                          .resolveFrom(context),
+                                      borderRadius: BorderRadius.circular(80),
+                                    ),
+                                    padding: const EdgeInsets.all(10),
+                                    height: 160,
+                                    width: 160,
+                                    child: Center(
+                                      child: Icon(
+                                        CupertinoIcons.photo,
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        size: 40,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -169,11 +202,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Button(
-                                  text: 'Edit',
+                                  text: 'Save',
                                   color: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
                                   labelColor: ThemeColors.black,
-                                  onPressed: handleEdit,
+                                  onPressed: () =>
+                                      handleSave(editingImage ?? ''),
                                 ),
                               ],
                             ),

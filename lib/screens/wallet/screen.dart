@@ -209,9 +209,7 @@ class WalletScreenState extends State<WalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => ProfileScreen(
-        logic: _logic,
-      ),
+      builder: (modalContext) => const ProfileScreen(),
     );
 
     _logic.resumeFetching();

@@ -41,6 +41,11 @@ class ThemeColors {
     darkColor: CupertinoColors.black,
   );
 
+  static const backgroundTransparent = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(255, 255, 255, 0.25),
+    darkColor: Color.fromRGBO(0, 0, 0, 0.25),
+  );
+
   static const touchable = CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(50, 50, 50, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.8),

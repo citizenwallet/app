@@ -20,9 +20,9 @@ class ProfileV1 {
     this.username = '',
     this.name = 'Unknown',
     this.description = '',
-    this.image = 'assets/logo.png',
-    this.imageMedium = 'assets/logo.png',
-    this.imageSmall = 'assets/logo.png',
+    this.image = 'assets/icons/profile.svg',
+    this.imageMedium = 'assets/icons/profile.svg',
+    this.imageSmall = 'assets/icons/profile.svg',
   });
 
   // from json
