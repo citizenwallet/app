@@ -33,7 +33,7 @@ import 'package:web3dart/web3dart.dart';
 class WalletLogic extends WidgetsBindingObserver {
   late WalletState _state;
 
-  final WalletService2 _wallet2 = WalletService2();
+  final WalletService2 _wallet = WalletService2();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
@@ -55,7 +55,7 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   EthPrivateKey get privateKey {
-    return _wallet2.credentials;
+    return _wallet.credentials;
   }
 
   Future<void> resetWalletPreferences() async {
@@ -91,7 +91,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await delay(const Duration(milliseconds: 0));
 
-      await _wallet2.init(
+      await _wallet.init(
         convertUint8ListToString(cred.privateKey.privateKey),
         NativeCurrency(
           name: 'USD Coin',
@@ -104,10 +104,10 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('PROFILE_ADDRESS'),
       );
 
-      final balance = await _wallet2.balance;
-      final currency = _wallet2.currency;
+      final balance = await _wallet.balance;
+      final currency = _wallet.currency;
 
-      await _preferences.setLastWallet(_wallet2.address.hex);
+      await _preferences.setLastWallet(_wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
 
       _state.loadWalletSuccess(
@@ -115,8 +115,8 @@ class WalletLogic extends WidgetsBindingObserver {
           balance,
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
-          address: _wallet2.address.hex,
-          account: _wallet2.account.hex,
+          address: _wallet.address.hex,
+          account: _wallet.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -158,7 +158,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      await _wallet2.init(
+      await _wallet.init(
         dbWallet.privateKey,
         NativeCurrency(
           name: 'USD Coin',
@@ -171,15 +171,15 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('PROFILE_ADDRESS'),
       );
 
-      final balance = await _wallet2.balance;
-      final currency = _wallet2.currency;
+      final balance = await _wallet.balance;
+      final currency = _wallet.currency;
 
       _state.loadWalletSuccess(
         CWWallet(
           balance,
           name: dbWallet.name,
-          address: _wallet2.address.hex,
-          account: _wallet2.account.hex,
+          address: _wallet.address.hex,
+          account: _wallet.account.hex,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -389,7 +389,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       final txs =
-          await _wallet2.fetchNewErc20Transfers(_state.transactionsFromDate);
+          await _wallet.fetchNewErc20Transfers(_state.transactionsFromDate);
 
       if (txs.isEmpty) {
         await delay(const Duration(seconds: 2));
@@ -403,7 +403,7 @@ class WalletLogic extends WidgetsBindingObserver {
           fromUnit(tx.value),
           id: tx.hash,
           hash: tx.txhash,
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
@@ -487,7 +487,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       const limit = 10;
 
-      final (txs, pagination) = await _wallet2.fetchErc20Transfers(
+      final (txs, pagination) = await _wallet.fetchErc20Transfers(
         offset: 0,
         limit: limit,
         maxDate: maxDate,
@@ -497,7 +497,7 @@ class WalletLogic extends WidgetsBindingObserver {
         (tx) => CWTransaction(fromUnit(tx.value),
             id: tx.hash,
             hash: tx.txhash,
-            chainId: _wallet2.chainId,
+            chainId: _wallet.chainId,
             from: tx.from.hex,
             to: tx.to.hex,
             title: '',
@@ -515,7 +515,7 @@ class WalletLogic extends WidgetsBindingObserver {
         maxDate: maxDate,
       );
 
-      final balance = await _wallet2.balance;
+      final balance = await _wallet.balance;
 
       transferEventSubscribe();
 
@@ -535,7 +535,7 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadAdditionalTransactions();
 
-      final (txs, pagination) = await _wallet2.fetchErc20Transfers(
+      final (txs, pagination) = await _wallet.fetchErc20Transfers(
         offset: _state.transactionsOffset + limit,
         limit: limit,
         maxDate: _state.transactionsMaxDate,
@@ -546,7 +546,7 @@ class WalletLogic extends WidgetsBindingObserver {
           fromUnit(tx.value),
           id: tx.hash,
           hash: tx.txhash,
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           from: tx.from.hex,
           to: tx.to.hex,
           title: '',
@@ -576,7 +576,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> updateBalance() async {
     try {
-      final balance = await _wallet2.balance;
+      final balance = await _wallet.balance;
 
       HapticFeedback.lightImpact();
 
@@ -646,19 +646,19 @@ class WalletLogic extends WidgetsBindingObserver {
           '$parsedAmount',
           id: tempId,
           hash: '',
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
         ),
       );
 
-      final calldata = _wallet2.erc20TransferCallData(
+      final calldata = _wallet.erc20TransferCallData(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      final (hash, userop) = await _wallet2.prepareUserop(
+      final (hash, userop) = await _wallet.prepareUserop(
         calldata,
       );
 
@@ -669,20 +669,20 @@ class WalletLogic extends WidgetsBindingObserver {
           '$parsedAmount',
           id: hash,
           hash: '',
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
         ),
       );
 
-      final tx = await _wallet2.addSendingLog(
+      final tx = await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
           0,
           DateTime.now().toUtc(),
-          _wallet2.account,
+          _wallet.account,
           EthereumAddress.fromHex(to),
           EtherAmount.fromBigInt(
             EtherUnit.kwei,
@@ -696,13 +696,13 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('failed to send log');
       }
 
-      final success = await _wallet2.submitUserop(userop);
+      final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet2.setStatusLog(tx.hash, TransactionState.fail);
+        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      await _wallet2.setStatusLog(tx.hash, TransactionState.pending);
+      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -771,19 +771,19 @@ class WalletLogic extends WidgetsBindingObserver {
           '$parsedAmount',
           id: tempId,
           hash: '',
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
         ),
       );
 
-      final calldata = _wallet2.erc20TransferCallData(
+      final calldata = _wallet.erc20TransferCallData(
         to,
         BigInt.from(double.parse(doubleAmount) * 1000),
       );
 
-      final (hash, userop) = await _wallet2.prepareUserop(
+      final (hash, userop) = await _wallet.prepareUserop(
         calldata,
       );
 
@@ -794,20 +794,20 @@ class WalletLogic extends WidgetsBindingObserver {
           '$parsedAmount',
           id: hash,
           hash: '',
-          chainId: _wallet2.chainId,
+          chainId: _wallet.chainId,
           to: to,
           title: message,
           date: DateTime.now(),
         ),
       );
 
-      final tx = await _wallet2.addSendingLog(
+      final tx = await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
           0,
           DateTime.now().toUtc(),
-          _wallet2.account,
+          _wallet.account,
           EthereumAddress.fromHex(to),
           EtherAmount.fromBigInt(
             EtherUnit.kwei,
@@ -821,13 +821,13 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('failed to send log');
       }
 
-      final success = await _wallet2.submitUserop(userop);
+      final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet2.setStatusLog(tx.hash, TransactionState.fail);
+        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      await _wallet2.setStatusLog(tx.hash, TransactionState.pending);
+      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -988,7 +988,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (qrTransaction.data.amount >= 0) {
         _amountController.text = qrTransaction.data.amount
-            .toStringAsFixed(_wallet2.currency.decimals);
+            .toStringAsFixed(_wallet.currency.decimals);
       }
 
       if (qrTransaction.data.message != '') {
@@ -1015,7 +1015,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void updateReceiveQRLocked({bool? onlyHex}) async {
     try {
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet2.account.hex);
+        _state.updateReceiveQR(_wallet.account.hex);
         return;
       }
 
@@ -1025,7 +1025,7 @@ class WalletLogic extends WidgetsBindingObserver {
                   _amountController.value.text.replaceAll(',', '.')) ??
               0;
 
-      final dbWallet = await _encPrefs.getWalletBackup(_wallet2.address.hex);
+      final dbWallet = await _encPrefs.getWalletBackup(_wallet.address.hex);
 
       if (dbWallet == null) {
         throw NotFoundException();
@@ -1034,8 +1034,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
 
       final qrData = QRTransactionRequestData(
-        chainId: _wallet2.chainId,
-        address: _wallet2.account.hex,
+        chainId: _wallet.chainId,
+        address: _wallet.account.hex,
         amount: amount,
         message: _messageController.value.text,
         publicKey: credentials.encodedPublicKey,
@@ -1066,7 +1066,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void updateReceiveQRUnlocked({bool? onlyHex}) async {
     try {
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet2.account.hex);
+        _state.updateReceiveQR(_wallet.account.hex);
         return;
       }
 
@@ -1077,16 +1077,16 @@ class WalletLogic extends WidgetsBindingObserver {
               0;
 
       final qrData = QRTransactionRequestData(
-        chainId: _wallet2.chainId,
-        address: _wallet2.account.hex,
+        chainId: _wallet.chainId,
+        address: _wallet.account.hex,
         amount: amount,
         message: _messageController.value.text,
-        publicKey: _wallet2.credentials.encodedPublicKey,
+        publicKey: _wallet.credentials.encodedPublicKey,
       );
 
       final qr = QRTransactionRequest(raw: qrData.toJson());
 
-      final signer = Signer(_wallet2.credentials);
+      final signer = Signer(_wallet.credentials);
 
       await qr.generateSignature(signer);
 
@@ -1110,7 +1110,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void updateWalletQR() async {
     try {
-      _state.updateWalletQR(_wallet2.account.hex);
+      _state.updateWalletQR(_wallet.account.hex);
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -1128,7 +1128,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void copyWalletAccount() {
     try {
-      Clipboard.setData(ClipboardData(text: _wallet2.account.hex));
+      Clipboard.setData(ClipboardData(text: _wallet.account.hex));
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1203,7 +1203,7 @@ class WalletLogic extends WidgetsBindingObserver {
           break;
         }
 
-        final account = await _wallet2.getAccountAddress(addr);
+        final account = await _wallet.getAccountAddress(addr);
 
         _state.updateDBWalletAccountAddress(addr, account.hex);
 
@@ -1297,7 +1297,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void cleanupWalletService() {
     try {
-      _wallet2.dispose();
+      _wallet.dispose();
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
