@@ -8,6 +8,7 @@ import 'package:web3dart/web3dart.dart';
 
 class ProfileV1 {
   String address;
+  String username;
   String name;
   String description;
   String image;
@@ -16,6 +17,7 @@ class ProfileV1 {
 
   ProfileV1({
     this.address = '',
+    this.username = '',
     this.name = 'Unknown',
     this.description = '',
     this.image = 'assets/logo.png',
@@ -26,6 +28,7 @@ class ProfileV1 {
   // from json
   ProfileV1.fromJson(Map<String, dynamic> json)
       : address = json['address'],
+        username = json['username'],
         name = json['name'],
         description = json['description'],
         image = json['image'],
@@ -35,6 +38,7 @@ class ProfileV1 {
   // to json
   Map<String, dynamic> toJson() => {
         'address': address,
+        'username': username,
         'name': name,
         'description': description,
         'image': image,
