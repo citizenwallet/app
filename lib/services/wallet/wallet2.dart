@@ -185,9 +185,11 @@ class WalletService2 {
 
   /// fetch erc20 transfer events
   ///
-  /// [limit] number of seconds to go back, uses block time to calculate
+  /// [offset] number of transfers to skip
   ///
-  /// [toBlock] block number to fetch up to, leave blank to use current block
+  /// [limit] number of transferst to fetch
+  ///
+  /// [maxDate] fetch transfers up to this date
   Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers({
     required int offset,
     required int limit,
@@ -221,9 +223,7 @@ class WalletService2 {
 
   /// fetch new erc20 transfer events
   ///
-  /// [limit] number of seconds to go back, uses block time to calculate
-  ///
-  /// [toBlock] block number to fetch up to, leave blank to use current block
+  /// [fromDate] fetches transfers from this date
   Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
     try {
       final List<TransferEvent> tx = [];
