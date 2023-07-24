@@ -99,7 +99,8 @@ class AppLogic {
         return null;
       }
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(
+          const Duration(milliseconds: 1500)); // smoother launch experience
 
       _appState.importLoadingSuccess();
 
@@ -167,6 +168,8 @@ class AppLogic {
       if (lastWallet == null) {
         return null;
       }
+
+      await delay(const Duration(milliseconds: 1500));
 
       return lastWallet;
     } catch (exception, stackTrace) {
