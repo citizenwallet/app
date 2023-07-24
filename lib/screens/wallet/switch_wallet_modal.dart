@@ -288,8 +288,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                   children: [
                     CustomScrollView(
                       controller: ModalScrollController.of(context),
-                      physics:
-                          const ScrollPhysics(parent: BouncingScrollPhysics()),
+                      scrollBehavior: const CupertinoScrollBehavior(),
                       slivers: [
                         if (cwWalletsLoading && cwWallets.isEmpty)
                           SliverList(

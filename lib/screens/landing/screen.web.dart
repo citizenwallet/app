@@ -62,6 +62,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                 alignment: Alignment.center,
                 children: [
                   CustomScrollView(
+                    scrollBehavior: const CupertinoScrollBehavior(),
                     slivers: [
                       SliverFillRemaining(
                         child: Column(

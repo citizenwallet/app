@@ -183,6 +183,7 @@ class LandingScreenState extends State<LandingScreen>
                 alignment: Alignment.center,
                 children: [
                   CustomScrollView(
+                    scrollBehavior: const CupertinoScrollBehavior(),
                     slivers: [
                       SliverFillRemaining(
                         child: Column(

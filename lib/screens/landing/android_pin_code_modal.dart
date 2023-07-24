@@ -115,6 +115,7 @@ class AndroidPinCodeModalState extends State<AndroidPinCodeModal> {
                 ),
                 Expanded(
                   child: CustomScrollView(
+                    scrollBehavior: const CupertinoScrollBehavior(),
                     slivers: [
                       SliverToBoxAdapter(
                         child: Padding(

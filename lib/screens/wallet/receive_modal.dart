@@ -106,7 +106,7 @@ class ReceiveModalState extends State<ReceiveModal> {
               Expanded(
                 child: CustomScrollView(
                   controller: ModalScrollController.of(context),
-                  physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
+                  scrollBehavior: const CupertinoScrollBehavior(),
                   slivers: [
                     SliverPersistentHeader(
                       pinned: true,

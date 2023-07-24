@@ -14,6 +14,7 @@ class AndroidBackupScreen extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           CustomScrollView(
+            scrollBehavior: const CupertinoScrollBehavior(),
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
