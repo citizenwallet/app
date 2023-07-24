@@ -58,7 +58,10 @@ class WalletScrollView extends StatelessWidget {
 
     final blockSending = context.select(selectShouldBlockSending);
 
-    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
+    if (wallet != null &&
+        wallet.doubleBalance == 0.0 &&
+        transactions.isEmpty &&
+        !transactionsLoading) {
       return CustomScrollView(
         controller: controller,
         physics: const ScrollPhysics(parent: BouncingScrollPhysics()),

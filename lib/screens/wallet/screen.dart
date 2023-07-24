@@ -281,6 +281,7 @@ class WalletScreenState extends State<WalletScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final firstLoad = context.select((WalletState state) => state.firstLoad);
+    final loading = context.select((WalletState state) => state.loading);
 
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
@@ -290,7 +291,7 @@ class WalletScreenState extends State<WalletScreen> {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          firstLoad || wallet == null
+          (firstLoad && loading) || wallet == null
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
