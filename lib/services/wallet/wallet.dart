@@ -141,6 +141,7 @@ Future<WalletService?> walletServiceFromWallet(
   );
 }
 
+@Deprecated('Use WalletService2 instead')
 class WalletService {
   // String? _clientVersion;
   BigInt? _chainId;

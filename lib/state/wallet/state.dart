@@ -54,27 +54,6 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void switchChainRequest() {
-    loading = true;
-    error = false;
-    notifyListeners();
-  }
-
-  void switchChainSuccess(CWWallet wallet) {
-    transactions = [];
-    this.wallet = wallet;
-
-    loading = false;
-    error = false;
-    notifyListeners();
-  }
-
-  void switchChainError() {
-    loading = false;
-    error = true;
-    notifyListeners();
-  }
-
   void instantiateWallet() {
     loading = true;
     error = false;
