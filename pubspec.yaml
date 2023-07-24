@@ -49,6 +49,8 @@ dependencies:
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
+  username_gen: ^1.0.4
+  file_picker: ^5.3.3
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0

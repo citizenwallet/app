@@ -233,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: "21145c9c268d54b1f771d8380c195d2d6f655e0567dc1ca2f9c134c02c819e0a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.3"
   fixnum:
     dependency: transitive
     description:
@@ -278,6 +286,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.15"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: "950e77c2bbe1692bc0874fc7fb491b96a4dc340457f4ea1641443d0a6c1ea360"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.15"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -1198,6 +1214,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  username_gen:
+    dependency: "direct main"
+    description:
+      name: username_gen
+      sha256: "4789542607884e9e9ab8b2329a466b02cadc78df9b3dfba1dc362fda418519d3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   uuid:
     dependency: transitive
     description:
