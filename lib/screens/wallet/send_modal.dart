@@ -152,7 +152,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop();
+    navigator.pop(true);
     return;
   }
 

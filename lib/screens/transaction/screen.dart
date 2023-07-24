@@ -48,7 +48,9 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     HapticFeedback.lightImpact();
 
-    await showCupertinoModalBottomSheet(
+    final navigator = GoRouter.of(context);
+
+    final sent = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
@@ -58,6 +60,10 @@ class TransactionScreenState extends State<TransactionScreen> {
         to: address,
       ),
     );
+
+    if (sent == true) {
+      navigator.pop();
+    }
   }
 
   void handleCopy(String transactionId) {
@@ -76,7 +82,9 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     HapticFeedback.lightImpact();
 
-    await showCupertinoModalBottomSheet(
+    final navigator = GoRouter.of(context);
+
+    final sent = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
@@ -86,6 +94,10 @@ class TransactionScreenState extends State<TransactionScreen> {
         to: address,
       ),
     );
+
+    if (sent == true) {
+      navigator.pop();
+    }
   }
 
   @override
