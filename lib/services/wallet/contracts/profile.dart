@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:smartcontracts/contracts/apps/Profile.g.dart';
 
@@ -75,11 +76,15 @@ class ProfileContract {
     return contract.get(EthereumAddress.fromHex(addr));
   }
 
-  Uint8List setCallData(String addr, String url) {
+  Future<String> getURLFromUsername(String username) async {
+    return contract.getFromUsername(convertStringToUint8List(username));
+  }
+
+  Uint8List setCallData(String addr, String username, String url) {
     final function = rcontract.function('set');
 
     return function.encodeCall(
-      [EthereumAddress.fromHex(addr), url],
+      [EthereumAddress.fromHex(addr), convertStringToUint8List(username), url],
     );
   }
 
