@@ -71,7 +71,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   void onScrollUpdate() {
     if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 140) {
+        _scrollController.position.maxScrollExtent - 300) {
       final hasMore = context.read<WalletState>().transactionsHasMore;
       final transactionsLoading =
           context.read<WalletState>().transactionsLoading;
