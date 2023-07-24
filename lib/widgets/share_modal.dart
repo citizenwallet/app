@@ -37,6 +37,7 @@ class ShareModal extends StatelessWidget {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
+          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [

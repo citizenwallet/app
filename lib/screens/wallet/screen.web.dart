@@ -327,6 +327,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final loading = context.select((WalletState state) => state.loading);
 
     return CupertinoScaffold(
+      topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
       body: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),

@@ -99,6 +99,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final result = await showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
+      topRadius: const Radius.circular(40),
       builder: (_) => const Scanner(
         modalKey: 'send-form-anything-scanner',
       ),
@@ -197,7 +198,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10),
+          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [

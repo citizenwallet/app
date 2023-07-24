@@ -58,6 +58,7 @@ class ProfileScreenState extends State<ProfileScreen> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
         child: SafeArea(
+          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [

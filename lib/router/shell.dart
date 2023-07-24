@@ -47,6 +47,7 @@ class RouterShell extends StatelessWidget {
 
     final app = CupertinoScaffold(
       key: Key(state.location),
+      topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
       body: CupertinoPageScaffold(
         key: Key(state.location),

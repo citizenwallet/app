@@ -51,6 +51,7 @@ class TransactionScreenState extends State<TransactionScreen> {
     await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
+      topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: widget.logic,
@@ -78,6 +79,7 @@ class TransactionScreenState extends State<TransactionScreen> {
     await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
+      topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: widget.logic,
@@ -111,6 +113,7 @@ class TransactionScreenState extends State<TransactionScreen> {
         getTransactionAuthor(wallet.account, transaction.from, transaction.to);
 
     return CupertinoScaffold(
+      topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
       body: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
