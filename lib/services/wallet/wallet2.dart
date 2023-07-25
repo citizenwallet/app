@@ -51,14 +51,20 @@ class WalletService2 {
     'Origin': dotenv.get('ORIGIN_HEADER')
   };
 
-  late EthPrivateKey _credentials;
-  late EthereumAddress _account;
-
-  late StackupEntryPoint _contractEntryPoint;
-  late AccountFactory _contractAccountFactory;
-  late ERC20Contract _contractToken;
-  late SimpleAccount _contractAccount;
-  late ProfileContract _contractProfile;
+  // Declare variables using the `late` keyword, which means they will be initialized at a later time.
+// The variables are related to Ethereum blockchain development.
+  late EthPrivateKey
+      _credentials; // Represents a private key for an Ethereum account.
+  late EthereumAddress _account; // Represents an Ethereum address.
+  late StackupEntryPoint
+      _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
+  late AccountFactory
+      _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
+  late ERC20Contract
+      _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
+  late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
+  late ProfileContract
+      _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
 
   static final WalletService2 _instance = WalletService2._internal();
   factory WalletService2() => _instance;
@@ -98,23 +104,35 @@ class WalletService2 {
     await _initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
+  /// Initializes the Ethereum smart contracts used by the wallet.
+  ///
+  /// [eaddr] The Ethereum address of the entry point for the smart contract.
+  /// [afaddr] The Ethereum address of the account factory smart contract.
+  /// [taddr] The Ethereum address of the ERC20 token smart contract.
+  /// [prfaddr] The Ethereum address of the user profile smart contract.
   Future<void> _initContracts(
       String eaddr, String afaddr, String taddr, String prfaddr) async {
+    // Create a new entry point instance and initialize it.
     _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
 
+    // Create a new user profile contract instance and initialize it.
     _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
     await _contractProfile.init();
 
+    // Create a new account factory instance and initialize it.
     _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
 
+    // Get the Ethereum address for the current account.
     _account =
         await _contractAccountFactory.getAddress(_credentials.address.hex);
 
+    // Create a new ERC20 token contract instance and initialize it.
     _contractToken = newERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
+    // Create a new simple account instance and initialize it.
     _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hex);
     await _contractAccount.init();
   }
@@ -272,7 +290,26 @@ class WalletService2 {
     return _contractAccountFactory.getAddress(addr);
   }
 
-  /// submit a user op
+  /// Submits a user operation to the Ethereum network.
+  ///
+  /// This function sends a JSON-RPC request to the ERC4337 bundler. The entrypoint is specified by the
+  /// [eaddr] parameter, with the [eth_sendUserOperation] method and the given
+  /// [userop] parameter. If the request is successful, the function returns a
+  /// tuple containing the transaction hash as a string and `null`. If the request
+  /// fails, the function returns a tuple containing `null` and an exception
+  /// object representing the type of error that occurred.
+  ///
+  /// If the request fails due to a network congestion error, the function returns
+  /// a [NetworkCongestedException] object. If the request fails due to an invalid
+  /// balance error, the function returns a [NetworkInvalidBalanceException]
+  /// object. If the request fails for any other reason, the function returns a
+  /// [NetworkUnknownException] object.
+  ///
+  /// [userop] The user operation to submit to the Ethereum network.
+  /// [eaddr] The Ethereum address of the node to send the request to.
+  /// A tuple containing the transaction hash as a string and [null] if
+  ///         the request was successful, or [null] and an exception object if the
+  ///         request failed.
   Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr,

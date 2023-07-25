@@ -142,7 +142,7 @@ class WalletScrollView extends StatelessWidget {
                   child: PrettyQr(
                     data: wallet.account,
                     size: qrSize,
-                    roundEdges: false,
+                    roundEdges: !kIsWeb,
                   ),
                 ),
                 const SizedBox(

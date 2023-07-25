@@ -4,6 +4,7 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -76,7 +77,7 @@ class QRModal extends StatelessWidget {
                       child: PrettyQr(
                         data: qrCode,
                         size: qrSize,
-                        roundEdges: false,
+                        roundEdges: !kIsWeb,
                       ),
                     ),
                     const SizedBox(
@@ -122,103 +123,6 @@ class QRModal extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-
-    return DismissibleModalPopup(
-      modaleKey: 'qr-modal',
-      maxHeight: height,
-      paddingSides: 10,
-      onUpdate: (details) {
-        if (details.direction == DismissDirection.down &&
-            FocusManager.instance.primaryFocus?.hasFocus == true) {
-          FocusManager.instance.primaryFocus?.unfocus();
-        }
-      },
-      onDismissed: (_) => handleDismiss(context),
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
-          child: SafeArea(
-            child: Flex(
-              direction: Axis.vertical,
-              children: [
-                Header(
-                  title: title,
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ThemeColors.white.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: PrettyQr(
-                          data: qrCode,
-                          size: qrSize,
-                          roundEdges: false,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      if (onCopy != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Chip(
-                              onTap: onCopy,
-                              copyLabel,
-                              color: ThemeColors.subtleEmphasis
-                                  .resolveFrom(context),
-                              textColor:
-                                  ThemeColors.touchable.resolveFrom(context),
-                              suffix: Icon(
-                                CupertinoIcons.square_on_square,
-                                size: 14,
-                                color:
-                                    ThemeColors.touchable.resolveFrom(context),
-                              ),
-                              borderRadius: 15,
-                              maxWidth: 180,
-                            ),
-                          ],
-                        ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      if (externalLink != null)
-                        const SizedBox(
-                          height: 20,
-                        ),
-                      if (externalLink != null)
-                        Button(
-                          text: 'View Contract ',
-                          suffix: const Icon(
-                            CupertinoIcons.globe,
-                          ),
-                          onPressed: handleOpenLink,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
