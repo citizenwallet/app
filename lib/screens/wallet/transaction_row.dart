@@ -120,7 +120,7 @@ class TransactionRow extends StatelessWidget {
                         height: 20,
                         child: Text(
                           profile != null
-                              ? profile.profile.username
+                              ? '@${profile.profile.username}'
                               : formattedAddress,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

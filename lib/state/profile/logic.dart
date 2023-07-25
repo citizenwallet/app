@@ -20,8 +20,12 @@ class ProfileLogic {
     _profiles = context.read<ProfilesState>();
   }
 
-  void reset() {
-    _state.reset();
+  void resetAll() {
+    _state.resetAll();
+  }
+
+  void resetEdit() {
+    _state.resetEditForm();
   }
 
   Future<void> selectPhoto() async {
@@ -37,9 +41,37 @@ class ProfileLogic {
     }
   }
 
+  Future<void> checkUsername(String username) async {
+    try {
+      _state.setUsernameRequest();
+
+      // network request
+      await delay(const Duration(milliseconds: 1000));
+
+      if (username == 'hello') {
+        _state.setUsernameError();
+        return;
+      }
+
+      _state.setUsernameSuccess();
+      return;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _state.setUsernameError();
+  }
+
   Future<void> save(ProfileV1 profile) async {
     try {
       _state.setProfileRequest();
+
+      profile.username = _state.usernameController.value.text;
+      profile.name = _state.nameController.value.text;
+      profile.description = _state.descriptionController.value.text;
 
       // network call
       await delay(const Duration(milliseconds: 500));
@@ -58,6 +90,8 @@ class ProfileLogic {
         profile.address,
         profile,
       );
+
+      return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -66,5 +100,13 @@ class ProfileLogic {
     }
 
     _state.setProfileError();
+  }
+
+  void updateNameErrorState(String name) {
+    _state.setNameError(name.isEmpty);
+  }
+
+  void updateDescriptionText(String desc) {
+    _state.setDescriptionText(desc);
   }
 }

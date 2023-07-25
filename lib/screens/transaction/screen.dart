@@ -226,10 +226,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 children: [
                                   Chip(
                                     onTap: () => handleCopy(profile != null
-                                        ? profile.profile.username
+                                        ? '@${profile.profile.username}'
                                         : from),
                                     profile != null
-                                        ? profile.profile.username
+                                        ? '@${profile.profile.username}'
                                         : formatHexAddress(from),
                                     color: ThemeColors.subtleEmphasis
                                         .resolveFrom(context),

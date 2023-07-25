@@ -257,7 +257,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
     HapticFeedback.heavyImpact();
 
-    _logic.reset();
+    _logic.resetAll();
 
     navigator.pop(address);
   }

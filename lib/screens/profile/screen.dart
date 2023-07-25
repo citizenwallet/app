@@ -106,7 +106,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   width: 44,
                                 ),
                                 Text(
-                                  '@chicken.little',
+                                  '@${profile.username}',
                                   style: TextStyle(
                                     color: ThemeColors.subtleText
                                         .resolveFrom(context),
@@ -123,7 +123,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                         .resolveFrom(context),
                                   ),
                                   onPressed: () =>
-                                      handleCopy('@chicken.little'),
+                                      handleCopy('@${profile.username}'),
                                 )
                               ],
                             ),
@@ -132,7 +132,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Robust Chicken',
+                                  profile.name,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -150,7 +150,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Loves to support the community at the local farmers market 🚜.',
+                                    profile.description,
                                     style: TextStyle(
                                       color:
                                           ThemeColors.text.resolveFrom(context),

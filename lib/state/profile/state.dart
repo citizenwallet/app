@@ -2,24 +2,30 @@ import 'package:flutter/cupertino.dart';
 
 class ProfileState with ChangeNotifier {
   String address = '';
-  String username = '';
-  String name = '';
+  String username = '@unknown';
+  String name = 'Unknown';
   String description = '';
   String image = '';
   String imageMedium = '';
   String imageSmall = '';
 
-  // editing
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
-  String? editingImage;
-
   bool loading = false;
   bool error = false;
 
-  void reset({notify = false}) {
+  // editing
+  final TextEditingController usernameController = TextEditingController();
+  bool usernameLoading = false;
+  bool usernameError = false;
+
+  final TextEditingController nameController = TextEditingController();
+  bool nameError = false;
+
+  final TextEditingController descriptionController = TextEditingController();
+  String descriptionEdit = '';
+
+  String? editingImage;
+
+  void resetAll({notify = false}) {
     address = '';
     username = '';
     name = '';
@@ -29,8 +35,30 @@ class ProfileState with ChangeNotifier {
     imageSmall = '';
 
     usernameController.text = '';
+    usernameLoading = false;
+    usernameError = false;
+
     nameController.text = '';
+    nameError = false;
+
     descriptionController.text = '';
+    descriptionEdit = '';
+
+    editingImage = null;
+
+    if (notify) notifyListeners();
+  }
+
+  void resetEditForm({notify = false}) {
+    usernameController.text = '';
+    usernameLoading = false;
+    usernameError = false;
+
+    nameController.text = '';
+    nameError = false;
+
+    descriptionController.text = '';
+    descriptionEdit = '';
 
     editingImage = null;
 
@@ -96,6 +124,38 @@ class ProfileState with ChangeNotifier {
 
   void setEditImage(String image) {
     editingImage = image;
+
+    notifyListeners();
+  }
+
+  void setUsernameRequest() {
+    usernameLoading = true;
+
+    notifyListeners();
+  }
+
+  void setUsernameSuccess() {
+    usernameLoading = false;
+    usernameError = false;
+
+    notifyListeners();
+  }
+
+  void setUsernameError() {
+    usernameLoading = false;
+    usernameError = true;
+
+    notifyListeners();
+  }
+
+  void setNameError(bool err) {
+    nameError = err;
+
+    notifyListeners();
+  }
+
+  void setDescriptionText(String desc) {
+    descriptionEdit = desc;
 
     notifyListeners();
   }
