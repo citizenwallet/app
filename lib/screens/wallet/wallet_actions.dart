@@ -40,6 +40,10 @@ class WalletActions extends StatelessWidget {
 
     final isIncreasing = newBalance > balance;
 
+    final buttonSize = progressiveClamp(30, 80, shrink);
+    final buttonIconSize = progressiveClamp(10, 40, shrink);
+    final buttonFontSize = progressiveClamp(8, 14, shrink);
+
     return Stack(
       children: [
         BlurryChild(
@@ -134,15 +138,15 @@ class WalletActions extends StatelessWidget {
                       BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
                   child: SizedBox(
-                    height: progressiveClamp(55, 80, shrink),
-                    width: progressiveClamp(55, 80, shrink),
+                    height: buttonSize,
+                    width: buttonSize,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
                           CupertinoIcons.arrow_up,
-                          size: progressiveClamp(20, 40, shrink),
+                          size: buttonIconSize,
                           color: blockSending
                               ? ThemeColors.subtleEmphasis
                               : ThemeColors.black,
@@ -155,7 +159,7 @@ class WalletActions extends StatelessWidget {
                             color: blockSending
                                 ? ThemeColors.subtleEmphasis
                                 : ThemeColors.black,
-                            fontSize: 14,
+                            fontSize: buttonFontSize,
                           ),
                         ),
                       ],
@@ -171,15 +175,15 @@ class WalletActions extends StatelessWidget {
                       BorderRadius.circular(progressiveClamp(14, 20, shrink)),
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
                   child: SizedBox(
-                    height: progressiveClamp(55, 80, shrink),
-                    width: progressiveClamp(55, 80, shrink),
+                    height: buttonSize,
+                    width: buttonSize,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
                           CupertinoIcons.arrow_down,
-                          size: progressiveClamp(20, 40, shrink),
+                          size: buttonIconSize,
                           color: sendLoading
                               ? ThemeColors.subtleEmphasis
                               : ThemeColors.black,
@@ -192,7 +196,7 @@ class WalletActions extends StatelessWidget {
                             color: sendLoading
                                 ? ThemeColors.subtleEmphasis
                                 : ThemeColors.black,
-                            fontSize: 14,
+                            fontSize: buttonFontSize,
                           ),
                         ),
                       ],

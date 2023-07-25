@@ -9,6 +9,7 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -73,7 +74,7 @@ class ReceiveModalState extends State<ReceiveModal> {
     final width = MediaQuery.of(context).size.width;
 
     final qrSize = (width < height ? width : (height - 100)) - 40;
-    final minQRSize = qrSize / 2;
+    final minQRSize = qrSize * 0.05;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -151,7 +152,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                                         qrSize,
                                         shrink,
                                       ),
-                                      roundEdges: false,
+                                      roundEdges: !kIsWeb,
                                     ),
                                   ),
                                 ),
