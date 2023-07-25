@@ -1,5 +1,6 @@
 import 'package:async/async.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
+import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -36,9 +37,13 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
   CancelableOperation<void>? _operation;
 
+  late ProfileLogic _logic;
+
   @override
   void initState() {
     super.initState();
+
+    _logic = ProfileLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // initial requests go here
@@ -251,6 +256,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     final navigator = GoRouter.of(context);
 
     HapticFeedback.heavyImpact();
+
+    _logic.reset();
 
     navigator.pop(address);
   }

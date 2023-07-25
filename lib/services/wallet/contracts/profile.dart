@@ -17,7 +17,7 @@ class ProfileV1 {
 
   ProfileV1({
     this.address = '',
-    this.username = '',
+    this.username = '@unknown',
     this.name = 'Unknown',
     this.description = '',
     this.image = 'assets/icons/profile.svg',

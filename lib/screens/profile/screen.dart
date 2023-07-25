@@ -1,6 +1,5 @@
 import 'package:citizenwallet/screens/profile/edit.dart';
 import 'package:citizenwallet/state/profile/state.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';

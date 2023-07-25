@@ -1,6 +1,7 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -49,7 +50,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     HapticFeedback.lightImpact();
 
-    await _logic.save(ProfileV1(image: image));
+    final wallet = context.read<WalletState>().wallet;
+
+    await _logic.save(ProfileV1(
+      address: wallet?.account ?? '',
+      image: image,
+      imageMedium: image,
+      imageSmall: image,
+    ));
 
     HapticFeedback.heavyImpact();
     navigator.pop();

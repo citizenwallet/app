@@ -3,6 +3,7 @@ import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -284,6 +285,8 @@ class WalletScreenState extends State<WalletScreen> {
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
+    final imageSmall = context.select((ProfileState state) => state.imageSmall);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Stack(
@@ -381,9 +384,11 @@ class WalletScreenState extends State<WalletScreen> {
                   CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDisplayWalletQR(context),
-                    child: const ProfileCircle(
+                    child: ProfileCircle(
                       size: 30,
-                      imageUrl: 'assets/icons/profile.svg',
+                      imageUrl: imageSmall != ''
+                          ? imageSmall
+                          : 'assets/icons/profile.svg',
                       backgroundColor: ThemeColors.white,
                       borderColor: ThemeColors.subtle,
                     ),

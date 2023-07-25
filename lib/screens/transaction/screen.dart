@@ -1,6 +1,7 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -102,6 +103,8 @@ class TransactionScreenState extends State<TransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
+
     final wallet = context.select((WalletState state) => state.wallet);
     final CWTransaction? transaction = context.select((WalletState state) =>
         state.transactions
@@ -124,6 +127,9 @@ class TransactionScreenState extends State<TransactionScreen> {
     final author =
         getTransactionAuthor(wallet.account, transaction.from, transaction.to);
 
+    final profile =
+        context.select((ProfilesState state) => state.profiles[from]);
+
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
@@ -132,46 +138,48 @@ class TransactionScreenState extends State<TransactionScreen> {
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(left: 10, right: 10),
             child: Flex(
               direction: Axis.vertical,
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
                         Positioned.fill(
                           child: ListView(
                             children: [
-                              const SizedBox(height: 60),
+                              SizedBox(height: safePadding),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ProfileCircle(
                                     size: 80,
-                                    imageUrl: author.icon,
+                                    imageUrl: profile != null
+                                        ? profile.profile.imageMedium
+                                        : author.icon,
                                     backgroundColor: ThemeColors.white,
                                     borderColor: ThemeColors.subtle,
                                   ),
                                 ],
                               ),
-                              if (author == TransactionAuthor.bank ||
-                                  author == TransactionAuthor.bar) ...[
-                                const SizedBox(height: 5),
-                                Text(
-                                  author.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
+                              const SizedBox(height: 5),
+                              Text(
+                                profile != null
+                                    ? profile.profile.name
+                                    : author.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.text.resolveFrom(context),
                                 ),
-                              ],
+                              ),
                               const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -217,8 +225,12 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Chip(
-                                    onTap: () => handleCopy(wallet.account),
-                                    formatHexAddress(from),
+                                    onTap: () => handleCopy(profile != null
+                                        ? profile.profile.username
+                                        : from),
+                                    profile != null
+                                        ? profile.profile.username
+                                        : formatHexAddress(from),
                                     color: ThemeColors.subtleEmphasis
                                         .resolveFrom(context),
                                     textColor: ThemeColors.touchable
@@ -244,6 +256,62 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   fontWeight: FontWeight.bold,
                                   color: ThemeColors.text.resolveFrom(context),
                                 ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Transaction ID',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => handleCopy(transaction.id),
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            5, 0, 5, 0),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                formatHexAddress(
+                                                    transaction.id),
+                                                textAlign: TextAlign.end,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.normal,
+                                                  color: ThemeColors.text
+                                                      .resolveFrom(context),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Icon(
+                                              CupertinoIcons.square_on_square,
+                                              size: 12,
+                                              color: ThemeColors.touchable
+                                                  .resolveFrom(context),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 20),
                               Row(
@@ -312,73 +380,18 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Transaction ID',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => handleCopy(transaction.id),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            5, 0, 5, 0),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                formatHexAddress(
-                                                    transaction.id),
-                                                textAlign: TextAlign.end,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.normal,
-                                                  color: ThemeColors.text
-                                                      .resolveFrom(context),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            Icon(
-                                              CupertinoIcons.square_on_square,
-                                              size: 12,
-                                              color: ThemeColors.touchable
-                                                  .resolveFrom(context),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ),
                         Positioned(
-                          top: 0,
+                          top: safePadding,
                           left: 0,
                           child: CupertinoButton(
                             padding: const EdgeInsets.all(5),
                             onPressed: () => handleDismiss(context),
-                            child: const Icon(
+                            child: Icon(
                               CupertinoIcons.back,
+                              color: ThemeColors.primary.resolveFrom(context),
                             ),
                           ),
                         ),

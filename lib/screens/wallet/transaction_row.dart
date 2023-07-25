@@ -1,9 +1,11 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 class TransactionRow extends StatelessWidget {
   final CWTransaction transaction;
@@ -20,8 +22,11 @@ class TransactionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncoming = transaction.isIncoming(wallet.account);
-    final address =
-        formatHexAddress(isIncoming ? transaction.from : transaction.to);
+    final address = isIncoming ? transaction.from : transaction.to;
+    final formattedAddress = formatHexAddress(address);
+
+    final profile =
+        context.select((ProfilesState state) => state.profiles[address]);
 
     return GestureDetector(
       onTap:
@@ -52,24 +57,50 @@ class TransactionRow extends StatelessWidget {
           children: [
             Row(
               children: [
-                switch (transaction.state) {
-                  TransactionState.sending => SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Center(
-                        child: CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
+                Stack(
+                  children: [
+                    switch (transaction.state) {
+                      TransactionState.sending => SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: CupertinoActivityIndicator(
+                              color: ThemeColors.subtle.resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                      _ => ProfileCircle(
+                          size: 50,
+                          imageUrl: profile != null
+                              ? profile.profile.imageMedium
+                              : getTransactionAuthor(
+                                  wallet.account,
+                                  transaction.from,
+                                  transaction.to,
+                                ).icon,
+                          backgroundColor: ThemeColors.white,
+                        ),
+                    },
+                    if (transaction.title != '')
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          height: 20,
+                          width: 20,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: ThemeColors.background.resolveFrom(context),
+                          ),
+                          child: Icon(
+                            CupertinoIcons.text_alignleft,
+                            size: 14,
+                            color: ThemeColors.subtleText.resolveFrom(context),
+                          ),
                         ),
                       ),
-                    ),
-                  _ => ProfileCircle(
-                      size: 50,
-                      imageUrl: getTransactionAuthor(
-                              wallet.account, transaction.from, transaction.to)
-                          .icon,
-                      backgroundColor: ThemeColors.white,
-                    ),
-                },
+                  ],
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -77,7 +108,7 @@ class TransactionRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        address,
+                        profile != null ? profile.profile.name : 'Unknown',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -85,21 +116,21 @@ class TransactionRow extends StatelessWidget {
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                      if (transaction.title != '' && !transaction.isFailed)
-                        SizedBox(
-                          height: 20,
-                          child: Text(
-                            transaction.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color:
-                                  ThemeColors.subtleText.resolveFrom(context),
-                            ),
+                      SizedBox(
+                        height: 20,
+                        child: Text(
+                          profile != null
+                              ? profile.profile.username
+                              : formattedAddress,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: ThemeColors.subtleText.resolveFrom(context),
                           ),
                         ),
+                      ),
                       if (transaction.isFailed && transaction.error != '')
                         SizedBox(
                           height: 20,

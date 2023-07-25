@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
