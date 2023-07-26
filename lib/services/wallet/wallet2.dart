@@ -34,6 +34,8 @@ class WalletService2 {
   final _wsurl = dotenv.get('NODE_WS_URL');
   late Web3Client _ethClient;
 
+  final String ipfsUrl = dotenv.get('IPFS_URL');
+
   final APIService _ipfs = APIService(baseURL: dotenv.get('IPFS_URL'));
   final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
   final APIService _indexerIPFS =
@@ -80,6 +82,9 @@ class WalletService2 {
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
+
+  String get erc20Address => _contractToken.addr;
+  String get profileAddress => _contractProfile.addr;
 
   Future<void> init(
     String privateKey,
@@ -138,11 +143,13 @@ class WalletService2 {
   }
 
   /// set profile data
-  Future<bool> setProfile(ProfileV1 profile, List<int> image) async {
+  Future<bool> setProfile(
+    ProfileRequest profile, {
+    required List<int> image,
+    required String fileType,
+  }) async {
     try {
       final url = '/profiles/${_account.hex}';
-
-      print('sending to $url');
 
       final encoded = jsonEncode(
         profile.toJson(),
@@ -156,6 +163,7 @@ class WalletService2 {
       final resp = await _indexerIPFS.filePut(
         url: url,
         file: image,
+        fileType: fileType,
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
@@ -164,12 +172,17 @@ class WalletService2 {
         body: body.toJson(),
       );
 
-      print(resp['ipfs_url']);
+      final String profileUrl = resp['object']['ipfs_url'];
 
-      // final calldata =
-      //     _contractProfile.setCallData(_account.hex, resp['ipfs_url']);
+      final calldata = _contractProfile.setCallData(
+          _account.hex, profile.username, profileUrl);
 
-      // final (_, userop) = await prepareUserop(calldata);
+      final (_, userop) = await prepareUserop(profileAddress, calldata);
+
+      final success = await submitUserop(userop);
+      if (!success) {
+        throw Exception('profile update failed');
+      }
 
       // return submitUserop(userop);
       return true;
@@ -190,7 +203,11 @@ class WalletService2 {
 
       final profileData = await _ipfs.get(url: '/$url');
 
-      return ProfileV1.fromJson(profileData);
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -415,7 +432,8 @@ class WalletService2 {
   }
 
   /// prepare a userop for with calldata
-  Future<(String, UserOp)> prepareUserop(Uint8List calldata) async {
+  Future<(String, UserOp)> prepareUserop(
+      String dest, Uint8List calldata) async {
     try {
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -439,7 +457,7 @@ class WalletService2 {
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
       userop.callData = _contractAccount.executeCallData(
-        _contractToken.addr,
+        dest,
         BigInt.zero,
         calldata,
       );

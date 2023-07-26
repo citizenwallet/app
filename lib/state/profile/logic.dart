@@ -69,19 +69,17 @@ class ProfileLogic {
     _state.setUsernameError();
   }
 
-  Future<void> save(ProfileV1 profile) async {
+  Future<void> loadProfile() async {
     try {
       _state.setProfileRequest();
 
-      profile.username = _state.usernameController.value.text;
-      profile.name = _state.nameController.value.text;
-      profile.description = _state.descriptionController.value.text;
-
-      // network call
-      await delay(const Duration(milliseconds: 500));
+      final profile = await _wallet.getProfile(_wallet.account.hex);
+      if (profile == null) {
+        throw Exception('Failed to load profile');
+      }
 
       _state.setProfileSuccess(
-        address: profile.address,
+        account: profile.account,
         username: profile.username,
         name: profile.name,
         description: profile.description,
@@ -91,7 +89,49 @@ class ProfileLogic {
       );
 
       _profiles.isLoaded(
-        profile.address,
+        profile.account,
+        profile,
+      );
+
+      return;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  Future<void> save(ProfileV1 profile) async {
+    try {
+      _state.setProfileRequest();
+
+      profile.username = _state.usernameController.value.text;
+      profile.name = _state.nameController.value.text;
+      profile.description = _state.descriptionController.value.text;
+
+      final (photo, extension) = await _photos.photoToData(profile.image);
+      final success = await _wallet.setProfile(
+        ProfileRequest.fromProfileV1(profile),
+        image: photo,
+        fileType: extension,
+      );
+      if (!success) {
+        throw Exception('Failed to save profile');
+      }
+
+      _state.setProfileSuccess(
+        account: profile.account,
+        username: profile.username,
+        name: profile.name,
+        description: profile.description,
+        image: profile.image,
+        imageMedium: profile.imageMedium,
+        imageSmall: profile.imageSmall,
+      );
+
+      _profiles.isLoaded(
+        profile.account,
         profile,
       );
 

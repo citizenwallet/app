@@ -602,6 +602,7 @@ class WalletService {
       final resp = await _indexerIPFS.filePut(
         url: url,
         file: image,
+        fileType: '',
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,

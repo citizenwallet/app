@@ -110,7 +110,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     final wallet = context.read<WalletState>().wallet;
 
     await _logic.save(ProfileV1(
-      address: wallet?.account ?? '',
+      account: wallet?.account ?? '',
       image: image,
       imageMedium: image,
       imageSmall: image,
@@ -128,6 +128,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loading = context.select((ProfileState state) => state.loading);
+
     final editingImage =
         context.select((ProfileState state) => state.editingImage);
 
@@ -146,6 +148,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         context.select((ProfileState state) => state.descriptionEdit);
 
     final isInvalid = usernameError || nameError;
+
+    print('editingImage: $editingImage');
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -400,15 +404,21 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Button(
-                                  text: 'Save',
-                                  color: ThemeColors.surfacePrimary
-                                      .resolveFrom(context),
-                                  labelColor: ThemeColors.black,
-                                  onPressed: isInvalid
-                                      ? null
-                                      : () => handleSave(editingImage ?? ''),
-                                ),
+                                loading
+                                    ? CupertinoActivityIndicator(
+                                        color: ThemeColors.subtle
+                                            .resolveFrom(context),
+                                      )
+                                    : Button(
+                                        text: 'Save',
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        labelColor: ThemeColors.black,
+                                        onPressed: isInvalid
+                                            ? null
+                                            : () =>
+                                                handleSave(editingImage ?? ''),
+                                      ),
                               ],
                             ),
                           ],

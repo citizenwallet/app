@@ -23,6 +23,8 @@ class ProfileCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final asset = imageUrl ?? 'assets/icons/profile.svg';
 
+    final network = asset.startsWith('http');
+
     return Container(
       width: size,
       height: size,
@@ -38,19 +40,34 @@ class ProfileCircle extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
         child: asset.endsWith('.svg')
-            ? SvgPicture.asset(
-                asset,
-                semanticsLabel: 'profile icon',
-                height: size,
-                width: size,
-              )
-            : Image.asset(
-                asset,
-                semanticLabel: 'profile icon',
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
-              ),
+            ? network
+                ? SvgPicture.network(
+                    asset,
+                    semanticsLabel: 'profile icon',
+                    height: size,
+                    width: size,
+                  )
+                : SvgPicture.asset(
+                    asset,
+                    semanticsLabel: 'profile icon',
+                    height: size,
+                    width: size,
+                  )
+            : network
+                ? Image.network(
+                    asset,
+                    semanticLabel: 'profile icon',
+                    height: size,
+                    width: size,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    asset,
+                    semanticLabel: 'profile icon',
+                    height: size,
+                    width: size,
+                    fit: BoxFit.cover,
+                  ),
       ),
     );
   }

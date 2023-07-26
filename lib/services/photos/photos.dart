@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/photos/file.dart';
 import 'package:file_picker/file_picker.dart';
 
 class PhotosService {
@@ -15,5 +16,10 @@ class PhotosService {
     }
 
     return null;
+  }
+
+  Future<(List<int>, String)> photoToData(String path) async {
+    final bytes = await pathToFile(path);
+    return (bytes, path.split('.').last);
   }
 }

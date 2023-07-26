@@ -69,6 +69,7 @@ class APIService {
   Future<dynamic> filePut({
     String? url,
     required List<int> file,
+    required String fileType,
     Object? body,
     Map<String, String>? headers,
   }) async {
@@ -88,9 +89,9 @@ class APIService {
     request.headers.addAll(mergedHeaders);
 
     final httpImage = http.MultipartFile.fromBytes(
-      'image',
+      'file',
       file,
-      filename: 'image.jpg',
+      filename: 'image.$fileType',
     );
     request.files.add(httpImage);
 

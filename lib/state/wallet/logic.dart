@@ -659,6 +659,7 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
+        _wallet.erc20Address,
         calldata,
       );
 
@@ -784,6 +785,7 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
+        _wallet.erc20Address,
         calldata,
       );
 

@@ -1,8 +1,14 @@
 import 'package:flutter/foundation.dart';
 
-Uint8List convertStringToUint8List(String str) {
-  final List<int> codeUnits = str.codeUnits;
+Uint8List convertStringToUint8List(String str, {int? forcePadLength}) {
+  final List<int> codeUnits =
+      (forcePadLength == null ? str : str.padLeft(forcePadLength)).codeUnits;
   return Uint8List.fromList(codeUnits);
+}
+
+List<int> convertStringToListInt(String str) {
+  final List<int> codeUnits = str.codeUnits;
+  return codeUnits;
 }
 
 String convertUint8ListToString(Uint8List uint8list) {

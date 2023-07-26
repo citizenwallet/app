@@ -3,6 +3,7 @@ import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -28,12 +29,14 @@ class WalletScreen extends StatefulWidget {
 class WalletScreenState extends State<WalletScreen> {
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
+  late ProfileLogic _profileLogic;
 
   @override
   void initState() {
     super.initState();
 
     _logic = WalletLogic(context);
+    _profileLogic = ProfileLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
 
@@ -91,6 +94,8 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.openWallet(
       widget.address!,
     );
+
+    await _profileLogic.loadProfile();
 
     await _logic.loadTransactions();
   }

@@ -1,4 +1,5 @@
 import 'package:citizenwallet/screens/profile/edit.dart';
+import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -20,13 +21,22 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
+  late ProfileLogic _logic;
+
   @override
   void initState() {
     super.initState();
 
+    _logic = ProfileLogic(context);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+      onLoad();
     });
+  }
+
+  void onLoad() {
+    _logic.loadProfile();
   }
 
   void handleDismiss(BuildContext context) {
@@ -51,6 +61,8 @@ class ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileState>();
+
+    final loading = profile.loading;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -167,13 +179,18 @@ class ProfileScreenState extends State<ProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Button(
-                                  text: 'Edit',
-                                  color: ThemeColors.surfacePrimary
-                                      .resolveFrom(context),
-                                  labelColor: ThemeColors.black,
-                                  onPressed: handleEdit,
-                                ),
+                                loading
+                                    ? CupertinoActivityIndicator(
+                                        color: ThemeColors.subtle
+                                            .resolveFrom(context),
+                                      )
+                                    : Button(
+                                        text: 'Edit',
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        labelColor: ThemeColors.black,
+                                        onPressed: handleEdit,
+                                      ),
                               ],
                             ),
                           ],

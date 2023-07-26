@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
 class ProfileState with ChangeNotifier {
-  String address = '';
-  String username = '@unknown';
+  String account = '';
+  String username = 'unknown';
   String name = 'Unknown';
   String description = '';
   String image = '';
@@ -26,7 +26,7 @@ class ProfileState with ChangeNotifier {
   String? editingImage;
 
   void resetAll({notify = false}) {
-    address = '';
+    account = '';
     username = '';
     name = '';
     description = '';
@@ -77,7 +77,7 @@ class ProfileState with ChangeNotifier {
   }
 
   void set({
-    required String address,
+    required String account,
     required String username,
     required String name,
     required String description,
@@ -85,7 +85,7 @@ class ProfileState with ChangeNotifier {
     required String imageMedium,
     required String imageSmall,
   }) {
-    this.address = address;
+    this.account = account;
     this.username = username;
     this.name = name;
     this.description = description;
@@ -104,7 +104,7 @@ class ProfileState with ChangeNotifier {
   }
 
   void setProfileSuccess({
-    required String address,
+    required String account,
     required String username,
     required String name,
     required String description,
@@ -112,7 +112,7 @@ class ProfileState with ChangeNotifier {
     required String imageMedium,
     required String imageSmall,
   }) {
-    this.address = address;
+    this.account = account;
     this.username = username;
     this.name = name;
     this.description = description;
