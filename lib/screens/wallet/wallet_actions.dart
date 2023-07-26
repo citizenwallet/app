@@ -40,9 +40,9 @@ class WalletActions extends StatelessWidget {
 
     final isIncreasing = newBalance > balance;
 
-    final buttonSize = progressiveClamp(30, 80, shrink);
-    final buttonIconSize = progressiveClamp(10, 40, shrink);
-    final buttonFontSize = progressiveClamp(8, 14, shrink);
+    final buttonSize = progressiveClamp(50, 80, shrink);
+    final buttonIconSize = progressiveClamp(18, 40, shrink);
+    final buttonFontSize = progressiveClamp(10, 14, shrink);
 
     return Stack(
       children: [
