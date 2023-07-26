@@ -117,17 +117,23 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 const SizedBox(
                                   width: 44,
                                 ),
-                                Text(
-                                  '@${profile.username}',
-                                  style: TextStyle(
-                                    color: ThemeColors.subtleText
-                                        .resolveFrom(context),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
+                                Expanded(
+                                  child: Text(
+                                    '@${profile.username}',
+                                    style: TextStyle(
+                                      color: ThemeColors.subtleText
+                                          .resolveFrom(context),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                                 CupertinoButton(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                   child: Icon(
                                     CupertinoIcons.square_on_square,
                                     size: 14,
