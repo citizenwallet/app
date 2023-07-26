@@ -1,6 +1,7 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
@@ -19,11 +20,13 @@ import 'package:provider/provider.dart';
 class TransactionScreen extends StatefulWidget {
   final String? transactionId;
   final WalletLogic logic;
+  final ProfilesLogic profilesLogic;
 
   const TransactionScreen({
     Key? key,
     required this.transactionId,
     required this.logic,
+    required this.profilesLogic,
   }) : super(key: key);
 
   @override
@@ -58,6 +61,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        profilesLogic: widget.profilesLogic,
         to: address,
       ),
     );
@@ -92,6 +96,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: widget.logic,
+        profilesLogic: widget.profilesLogic,
         to: address,
       ),
     );

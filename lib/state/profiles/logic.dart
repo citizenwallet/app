@@ -9,6 +9,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
   late ProfilesState _state;
   final WalletService2 _wallet = WalletService2();
 
+  late Debounce debouncedSearchProfile;
+
   late Debounce debouncedLoad;
   List<String> toLoad = [];
   bool stopLoading = false;
@@ -18,6 +20,13 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
     debouncedLoad = debounce(
       _loadProfile,
+      const Duration(milliseconds: 500),
+    );
+
+    debouncedSearchProfile = debounce(
+      (String username) {
+        _searchProfile(username);
+      },
       const Duration(milliseconds: 500),
     );
   }
@@ -64,6 +73,38 @@ class ProfilesLogic extends WidgetsBindingObserver {
     }
   }
 
+  Future<void> _searchProfile(String username) async {
+    try {
+      _state.isSearching();
+
+      final localUsername = _state.getLocalUsername(username);
+      if (localUsername != null) {
+        // no need to fetch if it is already stored locally
+        _state.isSearchingSuccess(localUsername);
+        return;
+      }
+
+      final profile = await _wallet.getProfileByUsername(username);
+      if (profile == null) {
+        throw Exception('Profile not found');
+      }
+
+      _state.isSearchingSuccess(profile);
+    } catch (e) {
+      //
+    }
+
+    _state.isSearchingError();
+  }
+
+  Future<void> searchProfile(String username) async {
+    debouncedSearchProfile();
+  }
+
+  void clearSearch() {
+    _state.clearSearch();
+  }
+
   void pause() {
     debouncedLoad.cancel();
     stopLoading = true;
@@ -75,6 +116,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   void dispose() {
+    _state.clearSearch();
+    debouncedSearchProfile.cancel();
     pause();
   }
 

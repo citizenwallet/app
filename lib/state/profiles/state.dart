@@ -29,6 +29,11 @@ class ProfileItem {
 
 class ProfilesState with ChangeNotifier {
   Map<String, ProfileItem> profiles = {};
+  Map<String, ProfileV1> usernames = {};
+
+  ProfileV1? searchedProfile;
+  bool searchLoading = false;
+  bool searchError = false;
 
   void isLoading(String address) {
     if (profiles[address] == null) {
@@ -42,6 +47,7 @@ class ProfilesState with ChangeNotifier {
   void isLoaded(String address, ProfileV1 profile) {
     profiles[address] = ProfileItem(profile);
     profiles[address]!.isLoaded(profile);
+    usernames[profile.username] = profile;
     notifyListeners();
   }
 
@@ -53,6 +59,37 @@ class ProfilesState with ChangeNotifier {
     profiles.remove(address);
 
     notifyListeners();
+  }
+
+  void clearSearch() {
+    searchedProfile = null;
+    searchLoading = false;
+    searchError = false;
+    notifyListeners();
+  }
+
+  void isSearching() {
+    searchLoading = true;
+    searchError = false;
+    notifyListeners();
+  }
+
+  void isSearchingSuccess(ProfileV1 profile) {
+    searchedProfile = profile;
+    searchLoading = false;
+    searchError = false;
+    notifyListeners();
+  }
+
+  void isSearchingError() {
+    searchedProfile = null;
+    searchLoading = false;
+    searchError = true;
+    notifyListeners();
+  }
+
+  ProfileV1? getLocalUsername(String address) {
+    return usernames[address];
   }
 
   bool exists(String address) {

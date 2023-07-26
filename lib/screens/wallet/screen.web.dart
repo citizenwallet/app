@@ -198,6 +198,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         useRootNavigator: true,
         builder: (_) => SendModal(
           logic: _logic,
+          profilesLogic: _profilesLogic,
           id: id,
         ),
       );
@@ -304,6 +305,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: _logic,
+        profilesLogic: _profilesLogic,
       ),
     );
 
@@ -330,8 +332,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
 
     await GoRouter.of(context).push(
-        '/wallet/${widget.encoded}/transactions/$transactionId',
-        extra: {'logic': _logic});
+      '/wallet/${widget.encoded}/transactions/$transactionId',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
 
     _logic.resumeFetching();
     _profilesLogic.resume();

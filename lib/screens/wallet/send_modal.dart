@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
-import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
@@ -21,6 +22,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
+  final ProfilesLogic profilesLogic;
 
   final String? id;
   final String? to;
@@ -28,6 +30,7 @@ class SendModal extends StatefulWidget {
   const SendModal({
     Key? key,
     required this.logic,
+    required this.profilesLogic,
     this.id,
     this.to,
   }) : super(key: key);
@@ -70,19 +73,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     });
   }
 
-  void onLoad() async {
-    if (widget.to != null || widget.id != null) {
-      return;
-    }
-    await delay(const Duration(milliseconds: 250));
-    handleQRScan();
-  }
+  void onLoad() async {}
 
   void handleDismiss(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();
 
     widget.logic.clearInputControllers();
     widget.logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
 
     GoRouter.of(context).pop();
   }
@@ -147,6 +145,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     widget.logic.clearInputControllers();
     widget.logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
 
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -189,6 +188,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final transactionSendError = context.select(
       (WalletState state) => state.transactionSendError,
+    );
+
+    final searchedProfile = context.select(
+      (ProfilesState state) => state.searchedProfile,
+    );
+    final searchLoading = context.select(
+      (ProfilesState state) => state.searchLoading,
     );
 
     final width = MediaQuery.of(context).size.width;
@@ -254,7 +260,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         if (widget.to == null)
                           CupertinoTextField(
                             controller: widget.logic.addressController,
-                            placeholder: 'Enter an address',
+                            placeholder: '@username or address',
                             maxLines: 1,
                             autocorrect: false,
                             enableSuggestions: false,
@@ -292,37 +298,39 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: Icon(
-                                  CupertinoIcons.creditcard,
-                                  color: hasAddress
-                                      ? ThemeColors.text.resolveFrom(context)
-                                      : ThemeColors.subtleEmphasis
-                                          .resolveFrom(context),
+                                child: searchLoading
+                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CupertinoActivityIndicator(
+                                          color: ThemeColors.subtle
+                                              .resolveFrom(context),
+                                        ),
+                                      )
+                                    : Icon(
+                                        CupertinoIcons.profile_circled,
+                                        color: hasAddress
+                                            ? ThemeColors.text
+                                                .resolveFrom(context)
+                                            : ThemeColors.subtleEmphasis
+                                                .resolveFrom(context),
+                                      ),
+                              ),
+                            ),
+                            suffix: GestureDetector(
+                              onTap: handleQRScan,
+                              child: Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: Icon(
+                                    CupertinoIcons.qrcode,
+                                    color: ThemeColors.primary
+                                        .resolveFrom(context),
+                                  ),
                                 ),
                               ),
                             ),
-
-                            /// TODO: selection from contacts
-                            // suffix: GestureDetector(
-                            //   onTap:
-                            //       parsingQRAddress ? null : handleQRAddressScan,
-                            //   child: Center(
-                            //     child: Padding(
-                            //       padding:
-                            //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            //       child: parsingQRAddress
-                            //           ? CupertinoActivityIndicator(
-                            //               color: ThemeColors.background
-                            //                   .resolveFrom(context),
-                            //             )
-                            //           : Icon(
-                            //               CupertinoIcons.person_alt,
-                            //               color: ThemeColors.primary
-                            //                   .resolveFrom(context),
-                            //             ),
-                            //     ),
-                            //   ),
-                            // ),
                             onSubmitted: (_) {
                               amountFocuseNode.requestFocus();
                             },

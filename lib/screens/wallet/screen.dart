@@ -166,6 +166,7 @@ class WalletScreenState extends State<WalletScreen> {
         useRootNavigator: true,
         builder: (_) => SendModal(
           logic: _logic,
+          profilesLogic: _profilesLogic,
           id: id,
         ),
       );
@@ -265,6 +266,7 @@ class WalletScreenState extends State<WalletScreen> {
       useRootNavigator: true,
       builder: (_) => SendModal(
         logic: _logic,
+        profilesLogic: _profilesLogic,
       ),
     );
 
@@ -292,7 +294,10 @@ class WalletScreenState extends State<WalletScreen> {
 
     await GoRouter.of(context).push(
       '/wallet/${widget.address!}/transactions/$transactionId',
-      extra: {'logic': _logic},
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
     );
 
     _logic.resumeFetching();

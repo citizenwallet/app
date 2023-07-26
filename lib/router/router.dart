@@ -64,6 +64,7 @@ GoRouter createRouter(
                     return TransactionScreen(
                       transactionId: state.pathParameters['transactionId'],
                       logic: extra['logic'],
+                      profilesLogic: extra['profilesLogic'],
                     );
                   },
                 ),
@@ -153,6 +154,7 @@ GoRouter createWebRouter(
                       child: TransactionScreen(
                         transactionId: state.pathParameters['transactionId'],
                         logic: extra['logic'],
+                        profilesLogic: extra['profilesLogic'],
                       ),
                     );
                   },
