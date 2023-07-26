@@ -65,6 +65,17 @@ class ProfileState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
+  void startEdit() {
+    usernameController.text = username;
+    nameController.text = name;
+    descriptionController.text = description;
+    descriptionEdit = description;
+
+    editingImage = image == '' ? null : image;
+
+    notifyListeners();
+  }
+
   void set({
     required String address,
     required String username,

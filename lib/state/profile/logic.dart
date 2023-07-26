@@ -28,6 +28,10 @@ class ProfileLogic {
     _state.resetEditForm();
   }
 
+  void startEdit() {
+    _state.startEdit();
+  }
+
   Future<void> selectPhoto() async {
     try {
       final photo = await _photos.selectPhoto();

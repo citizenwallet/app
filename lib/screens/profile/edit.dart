@@ -65,7 +65,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+      onLoad();
     });
+  }
+
+  void onLoad() {
+    _logic.startEdit();
   }
 
   @override
