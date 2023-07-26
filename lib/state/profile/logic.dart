@@ -46,24 +46,22 @@ class ProfileLogic {
   }
 
   Future<void> checkUsername(String username) async {
+    if (username == '') {
+      _state.setUsernameError();
+    }
+
     try {
       _state.setUsernameRequest();
 
-      // network request
-      await delay(const Duration(milliseconds: 1000));
-
-      if (username == 'hello') {
-        _state.setUsernameError();
-        return;
+      final exists = await _wallet.profileExists(username);
+      if (exists) {
+        throw Exception('Already exists');
       }
 
       _state.setUsernameSuccess();
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+    } catch (exception) {
+      //
     }
 
     _state.setUsernameError();
@@ -94,12 +92,11 @@ class ProfileLogic {
       );
 
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+    } catch (exception) {
+      //
     }
+
+    _state.setProfileError();
   }
 
   Future<void> save(ProfileV1 profile) async {

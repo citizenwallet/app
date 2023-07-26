@@ -208,14 +208,43 @@ class WalletService2 {
       profile.parseIPFSImageURLs(ipfsUrl);
 
       return profile;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+    } catch (exception) {
+      //
     }
 
     return null;
+  }
+
+  /// get profile data by username
+  Future<ProfileV1?> getProfileByUsername(String username) async {
+    try {
+      final url = await _contractProfile.getURLFromUsername(username);
+
+      final profileData = await _ipfs.get(url: '/$url');
+
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
+  /// profileExists checks whether there is a profile for this username
+  Future<bool> profileExists(String username) async {
+    try {
+      final url = await _contractProfile.getURLFromUsername(username);
+
+      return url != '';
+    } catch (exception) {
+      //
+    }
+
+    return false;
   }
 
   /// fetch erc20 transfer events

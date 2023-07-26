@@ -125,7 +125,8 @@ class ProfileContract {
   }
 
   Future<String> getURLFromUsername(String username) async {
-    return contract.getFromUsername(convertStringToUint8List(username));
+    return contract.getFromUsername(
+        convertStringToUint8List(username, forcePadLength: 32));
   }
 
   Uint8List setCallData(String addr, String username, String url) {
