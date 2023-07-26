@@ -4,23 +4,54 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-class TransactionRow extends StatelessWidget {
+class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
   final CWWallet wallet;
   final void Function(String transactionId)? onTap;
+  final void Function(String address)? onLoadProfile;
 
   const TransactionRow({
     super.key,
     required this.transaction,
     required this.wallet,
     this.onTap,
+    this.onLoadProfile,
   });
 
   @override
+  TransactionRowState createState() => TransactionRowState();
+}
+
+class TransactionRowState extends State<TransactionRow> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // initial requests go here
+      onLoad();
+    });
+  }
+
+  void onLoad() {
+    final transaction = widget.transaction;
+    final wallet = widget.wallet;
+    final isIncoming = transaction.isIncoming(wallet.account);
+    final address = isIncoming ? transaction.from : transaction.to;
+
+    if (widget.onLoadProfile != null) widget.onLoadProfile!(address);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final transaction = widget.transaction;
+    final wallet = widget.wallet;
+    final onTap = widget.onTap;
+
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
     final formattedAddress = formatHexAddress(address);
@@ -32,7 +63,7 @@ class TransactionRow extends StatelessWidget {
       onTap:
           transaction.isProcessing ? null : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
-        key: super.key,
+        key: widget.key,
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -69,17 +100,23 @@ class TransactionRow extends StatelessWidget {
                             ),
                           ),
                         ),
-                      _ => ProfileCircle(
-                          size: 50,
-                          imageUrl: profile != null
-                              ? profile.profile.imageMedium
-                              : getTransactionAuthor(
-                                  wallet.account,
-                                  transaction.from,
-                                  transaction.to,
-                                ).icon,
-                          backgroundColor: ThemeColors.white,
-                        ),
+                      _ => profile != null && profile.loading
+                          ? const PulsingContainer(
+                              height: 50,
+                              width: 50,
+                              borderRadius: 25,
+                            )
+                          : ProfileCircle(
+                              size: 50,
+                              imageUrl: profile != null
+                                  ? profile.profile.imageMedium
+                                  : getTransactionAuthor(
+                                      wallet.account,
+                                      transaction.from,
+                                      transaction.to,
+                                    ).icon,
+                              backgroundColor: ThemeColors.white,
+                            ),
                     },
                     if (transaction.title != '')
                       Positioned(
@@ -107,30 +144,44 @@ class TransactionRow extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        profile != null ? profile.profile.name : 'Unknown',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                        child: Text(
-                          profile != null
-                              ? '@${profile.profile.username}'
-                              : formattedAddress,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
-                          ),
-                        ),
-                      ),
+                      profile != null && profile.loading
+                          ? const PulsingContainer(
+                              width: 100,
+                            )
+                          : Text(
+                              profile != null
+                                  ? profile.profile.name
+                                  : 'Unknown',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: ThemeColors.text.resolveFrom(context),
+                              ),
+                            ),
+                      if (profile != null && profile.loading)
+                        const SizedBox(height: 2),
+                      profile != null && profile.loading
+                          ? const PulsingContainer(
+                              height: 20,
+                              width: 80,
+                            )
+                          : SizedBox(
+                              height: 20,
+                              child: Text(
+                                profile != null
+                                    ? '@${profile.profile.username}'
+                                    : formattedAddress,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.subtleText
+                                      .resolveFrom(context),
+                                ),
+                              ),
+                            ),
                       if (transaction.isFailed && transaction.error != '')
                         SizedBox(
                           height: 20,

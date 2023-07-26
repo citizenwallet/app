@@ -1,6 +1,5 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
-import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -24,6 +23,8 @@ class WalletScrollView extends StatelessWidget {
   final void Function(String) handleFailedTransactionTap;
   final void Function() handleCopyWalletQR;
 
+  final void Function(String) handleProfileLoad;
+
   const WalletScrollView({
     Key? key,
     required this.controller,
@@ -33,6 +34,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
     required this.handleCopyWalletQR,
+    required this.handleProfileLoad,
   }) : super(key: key);
 
   @override
@@ -247,6 +249,7 @@ class WalletScrollView extends StatelessWidget {
                     transaction: transaction,
                     wallet: wallet,
                     onTap: blockSending ? null : handleFailedTransactionTap,
+                    onLoadProfile: handleProfileLoad,
                   ),
                 );
               },
@@ -317,6 +320,7 @@ class WalletScrollView extends StatelessWidget {
                     transaction: transaction,
                     wallet: wallet,
                     onTap: handleTransactionTap,
+                    onLoadProfile: handleProfileLoad,
                   ),
                 );
               },

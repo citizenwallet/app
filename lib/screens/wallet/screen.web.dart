@@ -5,6 +5,7 @@ import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -38,6 +39,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
+  late ProfilesLogic _profilesLogic;
 
   late String _password;
 
@@ -46,6 +48,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     super.initState();
 
     _logic = WalletLogic(context);
+    _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
 
@@ -318,6 +321,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic.resumeFetching();
   }
 
+  void handleProfileLoad(String address) async {
+    await _profilesLogic.loadProfile(address);
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -365,6 +372,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopyWalletQR: handleCopyAccount,
+                      handleProfileLoad: handleProfileLoad,
                     ),
               Header(
                 safePadding: safePadding,

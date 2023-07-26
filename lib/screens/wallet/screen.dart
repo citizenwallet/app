@@ -5,6 +5,7 @@ import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -30,6 +31,7 @@ class WalletScreenState extends State<WalletScreen> {
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
+  late ProfilesLogic _profilesLogic;
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic = WalletLogic(context);
     _profileLogic = ProfileLogic(context);
+    _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
 
@@ -280,6 +283,10 @@ class WalletScreenState extends State<WalletScreen> {
     _logic.resumeFetching();
   }
 
+  void handleProfileLoad(String address) async {
+    await _profilesLogic.loadProfile(address);
+  }
+
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
@@ -326,6 +333,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopyWalletQR: handleCopyAccount,
+                  handleProfileLoad: handleProfileLoad,
                 ),
           SafeArea(
             child: Header(

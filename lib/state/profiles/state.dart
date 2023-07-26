@@ -54,4 +54,8 @@ class ProfilesState with ChangeNotifier {
 
     notifyListeners();
   }
+
+  bool exists(String address) {
+    return profiles[address] != null && profiles[address]!.error == false;
+  }
 }
