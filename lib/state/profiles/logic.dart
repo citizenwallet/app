@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class ProfilesLogic {
+class ProfilesLogic extends WidgetsBindingObserver {
   late ProfilesState _state;
   final WalletService2 _wallet = WalletService2();
 
   late Debounce debouncedLoad;
   List<String> toLoad = [];
+  bool stopLoading = false;
 
   ProfilesLogic(BuildContext context) {
     _state = context.read<ProfilesState>();
@@ -22,10 +23,17 @@ class ProfilesLogic {
   }
 
   _loadProfile() async {
+    if (stopLoading) {
+      return;
+    }
+
     final toLoadCopy = [...toLoad];
     toLoad = [];
 
     for (final addr in toLoadCopy) {
+      if (stopLoading) {
+        return;
+      }
       try {
         _state.isLoading(addr);
 
@@ -53,6 +61,23 @@ class ProfilesLogic {
       }
     } catch (exception) {
       //
+    }
+  }
+
+  void dispose() {
+    debouncedLoad.cancel();
+    stopLoading = true;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        dispose();
+        break;
+      default:
+        stopLoading = false;
+        debouncedLoad();
     }
   }
 }

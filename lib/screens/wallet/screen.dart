@@ -42,6 +42,7 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
+    WidgetsBinding.instance.addObserver(_profilesLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -57,8 +58,10 @@ class WalletScreenState extends State<WalletScreen> {
     _scrollController.removeListener(onScrollUpdate);
 
     WidgetsBinding.instance.removeObserver(_logic);
+    WidgetsBinding.instance.removeObserver(_profilesLogic);
 
     _logic.dispose();
+    _profilesLogic.dispose();
 
     super.dispose();
   }

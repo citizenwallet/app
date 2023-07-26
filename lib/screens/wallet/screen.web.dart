@@ -51,6 +51,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
+    WidgetsBinding.instance.addObserver(_profilesLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -64,8 +65,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(_logic);
+    WidgetsBinding.instance.removeObserver(_profilesLogic);
 
     _logic.dispose();
+    _profilesLogic.dispose();
 
     _scrollController.removeListener(onScrollUpdate);
 
