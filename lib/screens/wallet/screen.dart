@@ -108,6 +108,7 @@ class WalletScreenState extends State<WalletScreen> {
 
   void handleFailedTransaction(String id) async {
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -146,6 +147,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (option == null) {
       _logic.resumeFetching();
+      _profilesLogic.resume();
       return;
     }
 
@@ -174,6 +176,7 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   Future<void> handleRefresh() async {
@@ -188,6 +191,7 @@ class WalletScreenState extends State<WalletScreen> {
     final navigator = GoRouter.of(context);
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     final address =
         await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
@@ -201,6 +205,7 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
 
     if (address == null) {
       return;
@@ -216,6 +221,7 @@ class WalletScreenState extends State<WalletScreen> {
     _logic.updateWalletQR();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -225,12 +231,14 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleReceive() async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -242,12 +250,14 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleSendModal() async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -259,6 +269,7 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleCopyWalletQR() {
@@ -277,6 +288,7 @@ class WalletScreenState extends State<WalletScreen> {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await GoRouter.of(context).push(
       '/wallet/${widget.address!}/transactions/$transactionId',
@@ -284,6 +296,7 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleProfileLoad(String address) async {

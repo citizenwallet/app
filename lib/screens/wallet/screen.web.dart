@@ -140,6 +140,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   void handleFailedTransaction(String id) async {
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -178,6 +179,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     if (option == null) {
       _logic.resumeFetching();
+      _profilesLogic.resume();
       return;
     }
 
@@ -206,6 +208,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     }
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   Future<void> handleRefresh() async {
@@ -216,6 +219,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   void handleDisplayWalletQR(BuildContext context) async {
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     _logic.updateWalletQR();
 
@@ -235,10 +239,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleDisplayWalletExport(BuildContext context) async {
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -252,6 +258,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleCopyWalletPrivateKey() {
@@ -270,6 +277,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -281,12 +289,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleSendModal() async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -298,6 +308,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     );
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleCopyWalletQR() {
@@ -316,12 +327,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
+    _profilesLogic.pause();
 
     await GoRouter.of(context).push(
         '/wallet/${widget.encoded}/transactions/$transactionId',
         extra: {'logic': _logic});
 
     _logic.resumeFetching();
+    _profilesLogic.resume();
   }
 
   void handleProfileLoad(String address) async {

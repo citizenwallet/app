@@ -64,20 +64,28 @@ class ProfilesLogic extends WidgetsBindingObserver {
     }
   }
 
-  void dispose() {
+  void pause() {
     debouncedLoad.cancel();
     stopLoading = true;
+  }
+
+  void resume() {
+    stopLoading = false;
+    debouncedLoad();
+  }
+
+  void dispose() {
+    pause();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        dispose();
+        pause();
         break;
       default:
-        stopLoading = false;
-        debouncedLoad();
+        resume();
     }
   }
 }
