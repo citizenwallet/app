@@ -1,7 +1,7 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 

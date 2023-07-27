@@ -84,6 +84,27 @@ class ProfileV1 {
         'image_small': imageSmall,
       };
 
+  // with copy
+  ProfileV1 copyWith({
+    String? account,
+    String? username,
+    String? name,
+    String? description,
+    String? image,
+    String? imageMedium,
+    String? imageSmall,
+  }) {
+    return ProfileV1(
+      account: account ?? this.account,
+      username: username ?? this.username,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      image: image ?? this.image,
+      imageMedium: imageMedium ?? this.imageMedium,
+      imageSmall: imageSmall ?? this.imageSmall,
+    );
+  }
+
   void parseIPFSImageURLs(String url) {
     image = image.replaceFirst(ipfsPrefix, '$url/');
     imageMedium = imageMedium.replaceFirst(ipfsPrefix, '$url/');

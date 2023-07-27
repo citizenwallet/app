@@ -1,3 +1,4 @@
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -46,6 +47,10 @@ class ProfileCircle extends StatelessWidget {
                     semanticsLabel: 'profile icon',
                     height: size,
                     width: size,
+                    placeholderBuilder: (_) => PulsingContainer(
+                      height: size,
+                      width: size,
+                    ),
                   )
                 : SvgPicture.asset(
                     asset,
@@ -60,6 +65,19 @@ class ProfileCircle extends StatelessWidget {
                     height: size,
                     width: size,
                     fit: BoxFit.cover,
+                    frameBuilder: (_, child, frame, loaded) => loaded
+                        ? child
+                        : AnimatedOpacity(
+                            opacity: frame == null ? 0 : 1,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeOut,
+                            child: frame == null
+                                ? PulsingContainer(
+                                    height: size,
+                                    width: size,
+                                  )
+                                : child,
+                          ),
                   )
                 : Image.asset(
                     asset,

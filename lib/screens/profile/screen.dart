@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -64,6 +64,10 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     final loading = profile.loading;
 
+    final error = profile.error;
+
+    final hasNoProfile = !loading && error && profile.username == '';
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -110,57 +114,59 @@ class ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(
-                                  width: 44,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    '@${profile.username}',
-                                    style: TextStyle(
-                                      color: ThemeColors.subtleText
+                            if (!hasNoProfile)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 44,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '@${profile.username}',
+                                      style: TextStyle(
+                                        color: ThemeColors.subtleText
+                                            .resolveFrom(context),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  CupertinoButton(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                    child: Icon(
+                                      CupertinoIcons.square_on_square,
+                                      size: 14,
+                                      color: ThemeColors.touchable
                                           .resolveFrom(context),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    onPressed: () =>
+                                        handleCopy('@${profile.username}'),
+                                  )
+                                ],
+                              ),
+                            if (!hasNoProfile)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    profile.name,
+                                    style: TextStyle(
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                     textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                CupertinoButton(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  child: Icon(
-                                    CupertinoIcons.square_on_square,
-                                    size: 14,
-                                    color: ThemeColors.touchable
-                                        .resolveFrom(context),
-                                  ),
-                                  onPressed: () =>
-                                      handleCopy('@${profile.username}'),
-                                )
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  profile.name,
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +174,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    profile.description,
+                                    hasNoProfile
+                                        ? "It looks like you don't have a profile yet."
+                                        : profile.description,
                                     style: TextStyle(
                                       color:
                                           ThemeColors.text.resolveFrom(context),
@@ -191,7 +199,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                             .resolveFrom(context),
                                       )
                                     : Button(
-                                        text: 'Edit',
+                                        text: hasNoProfile ? 'Create' : 'Edit',
                                         color: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         labelColor: ThemeColors.black,

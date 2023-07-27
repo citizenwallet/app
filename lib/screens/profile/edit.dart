@@ -6,7 +6,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -423,7 +423,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

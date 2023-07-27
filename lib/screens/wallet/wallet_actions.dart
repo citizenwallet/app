@@ -48,7 +48,14 @@ class WalletActions extends StatelessWidget {
       children: [
         BlurryChild(
           child: SafeArea(
-            child: SizedBox(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: ThemeColors.subtle.resolveFrom(context),
+                  ),
+                ),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,

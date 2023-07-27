@@ -3,7 +3,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
   final CWWallet wallet;
+  final Map<String, ProfileItem> profiles;
   final void Function(String transactionId)? onTap;
   final void Function(String address)? onLoadProfile;
 
@@ -18,6 +19,7 @@ class TransactionRow extends StatefulWidget {
     super.key,
     required this.transaction,
     required this.wallet,
+    required this.profiles,
     this.onTap,
     this.onLoadProfile,
   });
@@ -56,8 +58,7 @@ class TransactionRowState extends State<TransactionRow> {
     final address = isIncoming ? transaction.from : transaction.to;
     final formattedAddress = formatHexAddress(address);
 
-    final profile =
-        context.select((ProfilesState state) => state.profiles[address]);
+    final profile = widget.profiles[address];
 
     return GestureDetector(
       onTap:

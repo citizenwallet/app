@@ -77,7 +77,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
     try {
       _state.isSearching();
 
-      final localUsername = _state.getLocalUsername(username);
+      final localUsername =
+          _state.getLocalUsername(username.replaceFirst('@', ''));
       if (localUsername != null) {
         // no need to fetch if it is already stored locally
         _state.isSearchingSuccess(localUsername);
@@ -97,8 +98,34 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSearchingError();
   }
 
+  Future<void> getProfile(String addr) async {
+    try {
+      _state.isSearching();
+
+      final profile = await _wallet.getProfile(addr);
+
+      if (profile != null) {
+        _state.isSearchingSuccess(profile);
+        _state.isSelected();
+        return;
+      }
+    } catch (exception) {
+      //
+    }
+
+    _state.isSearchingError();
+  }
+
   Future<void> searchProfile(String username) async {
-    debouncedSearchProfile();
+    debouncedSearchProfile([username]);
+  }
+
+  void selectProfile() {
+    _state.isSelected();
+  }
+
+  void deSelectProfile() {
+    _state.isDeSelected();
   }
 
   void clearSearch() {

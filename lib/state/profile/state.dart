@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 class ProfileState with ChangeNotifier {
   String account = '';
-  String username = 'unknown';
-  String name = 'Unknown';
+  String username = '';
+  String name = '';
   String description = '';
   String image = '';
   String imageMedium = '';

@@ -8,7 +8,7 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
