@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 class ProfileState with ChangeNotifier {
   String account = '';
@@ -23,7 +24,8 @@ class ProfileState with ChangeNotifier {
   final TextEditingController descriptionController = TextEditingController();
   String descriptionEdit = '';
 
-  String? editingImage;
+  Uint8List? editingImage;
+  String? editingImageExt;
 
   void resetAll({notify = false}) {
     account = '';
@@ -65,13 +67,14 @@ class ProfileState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  void startEdit() {
+  void startEdit(Uint8List? image, String? ext) {
     usernameController.text = username;
     nameController.text = name;
     descriptionController.text = description;
     descriptionEdit = description;
 
-    editingImage = image == '' ? null : image;
+    editingImage = image;
+    editingImageExt = ext;
 
     notifyListeners();
   }
@@ -133,8 +136,9 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setEditImage(String image) {
+  void setEditImage(Uint8List image, String ext) {
     editingImage = image;
+    editingImageExt = ext;
 
     notifyListeners();
   }

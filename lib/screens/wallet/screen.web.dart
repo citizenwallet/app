@@ -1,15 +1,19 @@
 import 'dart:convert';
 
+import 'package:citizenwallet/screens/profile/screen.dart';
 import 'package:citizenwallet/screens/wallet/receive_modal.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profile/logic.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/share_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
@@ -39,6 +43,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
+  late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
 
   late String _password;
@@ -48,6 +53,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     super.initState();
 
     _logic = WalletLogic(context);
+    _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
@@ -135,6 +141,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
+    await _profileLogic.loadProfile();
+
     await _logic.loadTransactions();
   }
 
@@ -219,24 +227,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
+    _logic.updateWalletQR();
+
     _logic.pauseFetching();
     _profilesLogic.pause();
-
-    _logic.updateWalletQR();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => QRModal(
-        title: 'Share address',
-        qrCode: modalContext.select((WalletState state) => state.walletQR),
-        copyLabel: modalContext
-            .select((WalletState state) => formatHexAddress(state.walletQR)),
-        onCopy: handleCopyWalletQR,
-        externalLink:
-            '${dotenv.get('SCAN_URL')}/address/${modalContext.select((WalletState state) => state.walletQR)}',
-      ),
+      builder: (modalContext) => const ProfileScreen(),
     );
 
     _logic.resumeFetching();
@@ -355,6 +355,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
 
+    final imageSmall = context.select((ProfileState state) => state.imageSmall);
+
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
@@ -439,9 +441,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                           CupertinoButton(
                             padding: const EdgeInsets.all(5),
                             onPressed: () => handleDisplayWalletQR(context),
-                            child: Icon(
-                              CupertinoIcons.qrcode,
-                              color: ThemeColors.primary.resolveFrom(context),
+                            child: ProfileCircle(
+                              size: 30,
+                              imageUrl: imageSmall != ''
+                                  ? imageSmall
+                                  : 'assets/icons/profile.svg',
+                              backgroundColor: ThemeColors.white,
+                              borderColor: ThemeColors.subtle,
                             ),
                           ),
                         ],

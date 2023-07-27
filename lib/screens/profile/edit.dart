@@ -102,19 +102,20 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     HapticFeedback.lightImpact();
   }
 
-  void handleSave(String image) async {
+  void handleSave(Uint8List image, String ext) async {
     final navigator = GoRouter.of(context);
 
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
 
-    await _logic.save(ProfileV1(
-      account: wallet?.account ?? '',
-      image: image,
-      imageMedium: image,
-      imageSmall: image,
-    ));
+    await _logic.save(
+      ProfileV1(
+        account: wallet?.account ?? '',
+      ),
+      image,
+      ext,
+    );
 
     HapticFeedback.heavyImpact();
     navigator.pop();
@@ -130,8 +131,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final loading = context.select((ProfileState state) => state.loading);
 
+    final image = context.select((ProfileState state) => state.image);
     final editingImage =
         context.select((ProfileState state) => state.editingImage);
+    final editingImageExt =
+        context.select((ProfileState state) => state.editingImageExt);
 
     final usernameController = context.watch<ProfileState>().usernameController;
     final usernameLoading =
@@ -148,8 +152,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         context.select((ProfileState state) => state.descriptionEdit);
 
     final isInvalid = usernameError || nameError;
-
-    print('editingImage: $editingImage');
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -185,13 +187,21 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                             Stack(
                               alignment: Alignment.center,
                               children: [
-                                ProfileCircle(
-                                  size: 160,
-                                  imageUrl: editingImage ??
-                                      'assets/icons/profile.svg',
-                                  backgroundColor: ThemeColors.white,
-                                  borderColor: ThemeColors.subtle,
-                                ),
+                                editingImage != null
+                                    ? ProfileCircle(
+                                        size: 160,
+                                        imageBytes: editingImage,
+                                        backgroundColor: ThemeColors.white,
+                                        borderColor: ThemeColors.subtle,
+                                      )
+                                    : ProfileCircle(
+                                        size: 160,
+                                        imageUrl: image != ''
+                                            ? image
+                                            : 'assets/icons/profile.svg',
+                                        backgroundColor: ThemeColors.white,
+                                        borderColor: ThemeColors.subtle,
+                                      ),
                                 CupertinoButton(
                                   onPressed: handleSelectPhoto,
                                   padding: const EdgeInsets.all(0),
@@ -414,10 +424,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                         color: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         labelColor: ThemeColors.black,
-                                        onPressed: isInvalid
+                                        onPressed: isInvalid ||
+                                                editingImage == null ||
+                                                editingImageExt == null
                                             ? null
-                                            : () =>
-                                                handleSave(editingImage ?? ''),
+                                            : () => handleSave(
+                                                editingImage, editingImageExt),
                                       ),
                               ],
                             ),

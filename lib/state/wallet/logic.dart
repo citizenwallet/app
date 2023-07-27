@@ -92,7 +92,7 @@ class WalletLogic extends WidgetsBindingObserver {
       await delay(const Duration(milliseconds: 0));
 
       await _wallet.init(
-        convertUint8ListToString(cred.privateKey.privateKey),
+        bytesToHex(cred.privateKey.privateKey),
         NativeCurrency(
           name: 'USD Coin',
           symbol: 'USDC',

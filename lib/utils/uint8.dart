@@ -22,3 +22,7 @@ String convertLinstInListToString(List<int> uint8list) {
 Uint8List convertBytesToUint8List(List<int> bytes) {
   return Uint8List.fromList(bytes);
 }
+
+List<int> convertUint8ListToBytes(Uint8List bytes) {
+  return bytes.toList();
+}

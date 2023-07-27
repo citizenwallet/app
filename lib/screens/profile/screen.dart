@@ -56,6 +56,8 @@ class ProfileScreenState extends State<ProfileScreen> {
       topRadius: const Radius.circular(40),
       builder: (context) => const EditProfileScreen(),
     );
+
+    _logic.loadProfile();
   }
 
   @override

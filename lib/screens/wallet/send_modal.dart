@@ -96,10 +96,12 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       }
 
       await widget.profilesLogic.getProfile(addr);
+      amountFocuseNode.requestFocus();
     }
 
     if (widget.to != null) {
       await widget.profilesLogic.getProfile(widget.to!);
+      amountFocuseNode.requestFocus();
     }
   }
 
@@ -159,6 +161,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     if (result != null) {
       widget.logic.updateFromCapture(result);
+
+      final addr = widget.logic.addressController.value.text;
+      if (addr.isEmpty) {
+        return;
+      }
+
+      await widget.profilesLogic.getProfile(addr);
+      amountFocuseNode.requestFocus();
     }
   }
 

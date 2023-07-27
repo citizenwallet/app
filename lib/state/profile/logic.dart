@@ -4,7 +4,9 @@ import 'package:citizenwallet/services/wallet/wallet2.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -28,15 +30,30 @@ class ProfileLogic {
     _state.resetEditForm();
   }
 
-  void startEdit() {
-    _state.startEdit();
+  void startEdit() async {
+    if (_state.image == '') {
+      _state.startEdit(null, null);
+      return;
+    }
+
+    try {
+      final isNetwork = _state.image.startsWith('http');
+      if (isNetwork) {
+        return;
+      }
+
+      final (b, ext) = await _photos.photoToData(_state.image);
+      _state.startEdit(convertBytesToUint8List(b), ext);
+    } catch (e) {
+      //
+    }
   }
 
   Future<void> selectPhoto() async {
     try {
-      final photo = await _photos.selectPhoto();
+      final result = await _photos.selectPhoto();
 
-      if (photo != null) _state.setEditImage(photo);
+      if (result != null) _state.setEditImage(result.$1, result.$2);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -100,7 +117,7 @@ class ProfileLogic {
     _state.setProfileError();
   }
 
-  Future<void> save(ProfileV1 profile) async {
+  Future<void> save(ProfileV1 profile, Uint8List image, String ext) async {
     try {
       _state.setProfileRequest();
 
@@ -108,11 +125,10 @@ class ProfileLogic {
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
-      final (photo, extension) = await _photos.photoToData(profile.image);
       final success = await _wallet.setProfile(
         ProfileRequest.fromProfileV1(profile),
-        image: photo,
-        fileType: extension,
+        image: convertBytesToUint8List(image),
+        fileType: ext,
       );
       if (!success) {
         throw Exception('Failed to save profile');

@@ -551,7 +551,6 @@ class WalletService2 {
 
       return result != null;
     } catch (e) {
-      print(e);
       rethrow;
     }
   }

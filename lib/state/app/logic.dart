@@ -320,7 +320,6 @@ class AppLogic {
 
       _appState.deleteBackupLoadingSuccess();
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -343,7 +342,7 @@ class AppLogic {
       _preferences.setAndroidBackupIsConfigured(true);
       return true;
     } catch (e) {
-      print(e);
+      //
     }
 
     return false;
