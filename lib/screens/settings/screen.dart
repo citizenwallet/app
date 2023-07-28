@@ -206,11 +206,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                     : null,
               ),
               SettingsRow(
-                label: 'Backup',
-                icon: 'assets/icons/cloud-settings.svg',
-                onTap: handleOpenBackup,
-              ),
-              SettingsRow(
                 label: 'Accounts',
                 icon: 'assets/icons/users.svg',
                 subLabel: isPlatformApple()
@@ -220,6 +215,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   CupertinoIcons.cloud,
                   color: ThemeColors.surfacePrimary.resolveFrom(context),
                 ),
+                onTap: handleOpenBackup,
               ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.center,

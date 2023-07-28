@@ -1,7 +1,7 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
-import 'package:citizenwallet/screens/backup/screen.android.dart';
-import 'package:citizenwallet/screens/backup/screen.apple.dart';
+import 'package:citizenwallet/screens/accounts/screen.android.dart';
+import 'package:citizenwallet/screens/accounts/screen.apple.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -93,8 +93,8 @@ GoRouter createRouter(
           path: '/backup',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) => isPlatformAndroid()
-              ? const AndroidBackupScreen()
-              : const AppleBackupScreen(),
+              ? const AndroidAccountsScreen()
+              : const AppleAccountsScreen(),
         ),
       ],
     );

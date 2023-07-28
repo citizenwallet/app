@@ -2,8 +2,8 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 
-class AndroidBackupScreen extends StatelessWidget {
-  const AndroidBackupScreen({Key? key}) : super(key: key);
+class AppleAccountsScreen extends StatelessWidget {
+  const AppleAccountsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class AndroidBackupScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 60 + safePadding),
                       Text(
-                        "Backups use Android Auto Backup and follow your device's backup settings automatically.",
+                        "Your accounts are backed up to your iPhone's Keychain and follow your backup settings automatically.",
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -34,7 +34,16 @@ class AndroidBackupScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'If you install the app again on another device which shares the same Google account, the encrypted backup will be used to restore your accounts.',
+                        "Enabling \"Sync this iPhone\" will ensure that your iPhone's keychain gets backed up to iCloud.",
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'You can check if syncing is enabled in your Settings app by going to: Apple ID > iCloud > Passwords and Keychain.',
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -70,7 +79,7 @@ class AndroidBackupScreen extends StatelessWidget {
             blur: true,
             transparent: true,
             showBackButton: true,
-            title: 'Backup',
+            title: 'Accounts',
             safePadding: safePadding,
           ),
         ],
