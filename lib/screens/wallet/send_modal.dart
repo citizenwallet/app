@@ -222,17 +222,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     return;
   }
 
-  void handleIncrement(double amount) {
-    widget.logic.amountIncrease(amount);
-  }
-
-  void handleDecrement(double amount) {
-    widget.logic.amountDecrease(amount);
-  }
-
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+    final balance =
+        double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
+    final formattedBalance = formatAmount(
+      balance,
+      decimalDigits: wallet != null ? wallet.decimalDigits : 2,
+    );
 
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
@@ -240,6 +238,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final invalidAmount = context.select(
       (WalletState state) => state.invalidAmount,
     );
+
+    print('invalidAmount $invalidAmount');
 
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
@@ -304,6 +304,47 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         children: [
                           const SizedBox(height: 20),
                           const Text(
+                            'My Balance',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                formattedBalance,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  0,
+                                  0,
+                                  0,
+                                  3,
+                                ),
+                                child: Text(
+                                  wallet?.symbol ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
                             'To',
                             style: TextStyle(
                                 fontSize: 24, fontWeight: FontWeight.bold),
@@ -346,8 +387,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         darkColor: CupertinoColors.black,
                                       ),
                                       border: Border.all(
-                                        color: ThemeColors.border
-                                            .resolveFrom(context),
+                                        color: hasAddress
+                                            ? ThemeColors.text
+                                                .resolveFrom(context)
+                                            : ThemeColors.transparent
+                                                .resolveFrom(context),
                                       ),
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(5.0)),
@@ -402,13 +446,19 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 240,
-                                ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 child: CupertinoTextField(
                                   controller: widget.logic.amountController,
                                   placeholder: formatCurrency(1050.00, ''),
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
                                   prefix: Center(
                                     child: Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -443,8 +493,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                             darkColor: CupertinoColors.black,
                                           ),
                                           border: Border.all(
-                                            color: ThemeColors.border
-                                                .resolveFrom(context),
+                                            color: hasAmount
+                                                ? ThemeColors.text
+                                                    .resolveFrom(context)
+                                                : ThemeColors.transparent
+                                                    .resolveFrom(context),
                                           ),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(5.0)),
@@ -470,33 +523,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Chip(
-                                    '- 1',
-                                    maxWidth: 64,
-                                    onTap: () => handleDecrement(1),
-                                  ),
-                                  Chip(
-                                    '- 0.1',
-                                    maxWidth: 64,
-                                    onTap: () => handleDecrement(0.1),
-                                  ),
-                                  Chip(
-                                    '+ 0.1',
-                                    maxWidth: 64,
-                                    onTap: () => handleIncrement(0.1),
-                                  ),
-                                  Chip(
-                                    '+ 1',
-                                    maxWidth: 64,
-                                    onTap: () => handleIncrement(1),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -513,29 +539,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           //   maxLength: 256,
                           //   focusNode: messageFocusNode,
                           // ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Button(
-                                text: 'Scan',
-                                color: ThemeColors.surfaceSubtle
-                                    .resolveFrom(context),
-                                labelColor:
-                                    ThemeColors.text.resolveFrom(context),
-                                suffix: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                  child: Icon(
-                                    CupertinoIcons.qrcode_viewfinder,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                                onPressed: handleQRScan,
-                              ),
-                            ],
-                          ),
                           const SizedBox(
                             height: 90,
                           ),

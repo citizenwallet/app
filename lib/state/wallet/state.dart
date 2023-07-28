@@ -411,10 +411,10 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setHasAmount(bool hasAmount) {
+  void setHasAmount(bool hasAmount, bool? invalidAmount) {
     this.hasAmount = hasAmount;
-    if (hasAmount) {
-      invalidAmount = false;
+    if (hasAmount || invalidAmount != null) {
+      this.invalidAmount = invalidAmount ?? false;
     }
     notifyListeners();
   }

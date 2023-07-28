@@ -615,9 +615,20 @@ class WalletLogic extends WidgetsBindingObserver {
         : sendTransactionFromLocked(amount, to, message: message, id: id);
   }
 
+  bool isInvalidAmount(String amount) {
+    final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
+    final doubleAmount =
+        (double.tryParse(amount.replaceAll(',', '.')) ?? 0.0) * 1000;
+
+    return doubleAmount == 0 || doubleAmount > balance;
+  }
+
   bool validateSendFields(String amount, String to) {
     _state.setInvalidAddress(to.isEmpty);
-    _state.setInvalidAmount(amount.isEmpty);
+
+    _state.setInvalidAmount(
+      isInvalidAmount(amount),
+    );
 
     return to.isNotEmpty && amount.isNotEmpty;
   }
@@ -882,7 +893,10 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void updateAmount() {
-    _state.setHasAmount(_amountController.text.isNotEmpty);
+    _state.setHasAmount(
+      _amountController.text.isNotEmpty,
+      isInvalidAmount(_amountController.value.text),
+    );
   }
 
   void updateAddressFromHexCapture(String raw) async {
@@ -1263,30 +1277,6 @@ class WalletLogic extends WidgetsBindingObserver {
         stackTrace: stackTrace,
       );
     }
-  }
-
-  void amountIncrease(double bump) {
-    final amount = _amountController.value.text.isEmpty
-        ? 0
-        : double.tryParse(_amountController.value.text.replaceAll(',', '.')) ??
-            0;
-
-    final newAmount = amount + bump;
-
-    _amountController.text =
-        (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
-  }
-
-  void amountDecrease(double bump) {
-    final amount = _amountController.value.text.isEmpty
-        ? 0
-        : double.tryParse(_amountController.value.text.replaceAll(',', '.')) ??
-            0;
-
-    final newAmount = amount - bump;
-
-    _amountController.text =
-        (newAmount >= 0 ? newAmount : 0).toStringAsFixed(2);
   }
 
   void pauseFetching() {
