@@ -10,8 +10,8 @@ class PreferencesService {
 
   late SharedPreferences _preferences;
 
-  Future init() async {
-    _preferences = await SharedPreferences.getInstance();
+  Future init(SharedPreferences pref) async {
+    _preferences = pref;
   }
 
   Future clear() async {

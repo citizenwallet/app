@@ -38,6 +38,7 @@ jobs:
         with:
           channel: "stable"
       - run: flutter pub get
+      - run: flutter test
       - run: flutter build web --source-maps --web-renderer canvaskit
 
       - name: Upload source maps to Sentry

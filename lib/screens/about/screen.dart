@@ -33,6 +33,7 @@ class AboutScreen extends StatelessWidget {
             builder: (context, AsyncSnapshot<String> snapshot) => snapshot
                     .hasData
                 ? Markdown(
+                    key: const Key('about-markdown'),
                     selectable: true,
                     softLineBreak: true,
                     shrinkWrap: true,

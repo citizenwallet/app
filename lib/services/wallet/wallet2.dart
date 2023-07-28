@@ -196,6 +196,92 @@ class WalletService2 {
     return false;
   }
 
+  /// update profile data
+  Future<bool> updateProfile(ProfileV1 profile) async {
+    try {
+      final url = '/profiles/${_account.hex}';
+
+      final encoded = jsonEncode(
+        profile.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, _credentials.privateKey));
+
+      final resp = await _indexerIPFS.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      final String profileUrl = resp['object']['ipfs_url'];
+
+      final calldata = _contractProfile.setCallData(
+          _account.hex, profile.username, profileUrl);
+
+      final (_, userop) = await prepareUserop(profileAddress, calldata);
+
+      final success = await submitUserop(userop);
+      if (!success) {
+        throw Exception('profile update failed');
+      }
+
+      // return submitUserop(userop);
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// set profile data
+  Future<bool> unpinCurrentProfile() async {
+    try {
+      final url = '/profiles/${_account.hex}';
+
+      final encoded = jsonEncode(
+        {
+          'account': _account.hex,
+          'date': DateTime.now().toUtc().toIso8601String(),
+        },
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, _credentials.privateKey));
+
+      await _indexerIPFS.delete(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
   /// get profile data
   Future<ProfileV1?> getProfile(String addr) async {
     try {

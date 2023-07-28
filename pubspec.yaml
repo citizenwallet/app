@@ -57,10 +57,13 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  mocktail: ^0.3.0
+  nock: ^1.2.2
   sentry_dart_plugin: ^1.4.0
 flutter:
   assets:
     - .env
+    - assets/logo_small.png
     - assets/about/about.md
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
