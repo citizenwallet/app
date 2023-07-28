@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -12,6 +14,7 @@ import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
@@ -130,8 +133,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     debouncedAmountUpdate();
   }
 
-  void handleSelectProfile() {
-    widget.profilesLogic.selectProfile();
+  void handleSelectProfile(ProfileV1? profile) {
+    widget.profilesLogic.selectProfile(profile);
     amountFocuseNode.requestFocus();
   }
 
@@ -143,7 +146,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void handleAddressFieldSubmitted(String? value) {
     final searchedProfile = context.read<ProfilesState>().searchedProfile;
     if (searchedProfile != null) {
-      widget.profilesLogic.selectProfile();
+      widget.profilesLogic.selectProfile(null);
     }
 
     amountFocuseNode.requestFocus();
@@ -254,9 +257,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.transactionSendError,
     );
 
-    final searchedProfile = context.select(
-      (ProfilesState state) => state.searchedProfile,
-    );
+    final profileSuggestions = context.select(selectProfileSuggestions);
     final searchLoading = context.select(
       (ProfilesState state) => state.searchLoading,
     );
@@ -566,78 +567,41 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            child: ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
+                            child: CustomScrollView(
+                              scrollBehavior: const CupertinoScrollBehavior(),
                               scrollDirection: Axis.horizontal,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: CupertinoButton(
-                                    onPressed: handleSelectProfile,
-                                    padding: const EdgeInsets.all(0),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        if (!searchLoading &&
-                                            searchedProfile != null)
-                                          ProfileCircle(
-                                            size: 80,
-                                            imageUrl:
-                                                searchedProfile.imageMedium,
-                                          ),
-                                        if (searchLoading)
-                                          const PulsingContainer(
-                                            height: 80,
-                                            width: 80,
-                                            borderRadius: 40,
-                                          ),
-                                        if (!searchLoading &&
-                                            searchedProfile != null)
-                                          Positioned(
-                                            bottom: 2,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: ThemeColors
-                                                    .backgroundTransparent75
-                                                    .resolveFrom(context),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                  Radius.circular(12),
-                                                ),
-                                                border: Border.all(
-                                                  color: ThemeColors.subtle
-                                                      .resolveFrom(context),
-                                                ),
-                                              ),
-                                              constraints: const BoxConstraints(
-                                                maxWidth: 80,
-                                              ),
-                                              padding: const EdgeInsets.all(4),
-                                              child: Text(
-                                                '@${searchedProfile.username}',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: ThemeColors.text
-                                                        .resolveFrom(context)),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                        if (searchLoading)
-                                          const Positioned(
-                                            bottom: 2,
-                                            child: PulsingContainer(
-                                              height: 14,
-                                              width: 80,
-                                              borderRadius: 10,
-                                            ),
-                                          ),
-                                      ],
+                              slivers: [
+                                if (searchLoading)
+                                  const SliverToBoxAdapter(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                      child: ProfileBadge(
+                                        loading: true,
+                                      ),
                                     ),
                                   ),
-                                ),
+                                if (!searchLoading)
+                                  SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      childCount: profileSuggestions.length,
+                                      (context, index) {
+                                        final profile =
+                                            profileSuggestions[index];
+
+                                        return Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 10, 0),
+                                          child: ProfileBadge(
+                                            profile: profile,
+                                            loading: false,
+                                            onTap: () =>
+                                                handleSelectProfile(profile),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
                               ],
                             ),
                           ),

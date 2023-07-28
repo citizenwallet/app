@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet2.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -75,12 +76,13 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> _searchProfile(String value) async {
     try {
-      _state.isSearching();
+      _state.isSearching(value);
 
       final localUsername =
           _state.getLocalUsername(value.replaceFirst('@', ''));
       if (localUsername != null) {
         // no need to fetch if it is already stored locally
+        await delay(const Duration(milliseconds: 500));
         _state.isSearchingSuccess(localUsername);
         return;
       }
@@ -93,6 +95,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       }
 
       _state.isSearchingSuccess(profile);
+      return;
     } catch (e) {
       //
     }
@@ -102,13 +105,13 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> getProfile(String addr) async {
     try {
-      _state.isSearching();
+      _state.isSearching(null);
 
       final profile = await _wallet.getProfile(addr);
 
       if (profile != null) {
         _state.isSearchingSuccess(profile);
-        _state.isSelected();
+        _state.isSelected(null);
         return;
       }
     } catch (exception) {
@@ -119,11 +122,12 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<void> searchProfile(String username) async {
+    _state.isSearching(null);
     debouncedSearchProfile([username]);
   }
 
-  void selectProfile() {
-    _state.isSelected();
+  void selectProfile(ProfileV1? profile) {
+    _state.isSelected(profile);
   }
 
   void deSelectProfile() {

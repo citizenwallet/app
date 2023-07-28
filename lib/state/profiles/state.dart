@@ -32,6 +32,7 @@ class ProfilesState with ChangeNotifier {
   Map<String, ProfileV1> usernames = {};
 
   ProfileV1? searchedProfile;
+  List<ProfileV1> searchResults = [];
   bool searchLoading = false;
   bool searchError = false;
 
@@ -65,6 +66,7 @@ class ProfilesState with ChangeNotifier {
 
   void clearSearch() {
     searchedProfile = null;
+    searchResults = [];
     searchLoading = false;
     searchError = false;
 
@@ -72,13 +74,25 @@ class ProfilesState with ChangeNotifier {
     notifyListeners();
   }
 
-  void isSearching() {
+  void isSearching(String? value) {
+    if (value != null) {
+      searchResults = value == ''
+          ? []
+          : profiles.values
+              .where((element) => element.profile.username
+                  .toLowerCase()
+                  .contains(value.toLowerCase()))
+              .map((element) => element.profile)
+              .toList();
+    }
+
     searchLoading = true;
     searchError = false;
     notifyListeners();
   }
 
   void isSearchingSuccess(ProfileV1 profile) {
+    searchResults = [];
     searchedProfile = profile;
     searchLoading = false;
     searchError = false;
@@ -92,7 +106,13 @@ class ProfilesState with ChangeNotifier {
     notifyListeners();
   }
 
-  void isSelected() {
+  void isSelected(ProfileV1? profile) {
+    if (profile != null) {
+      selectedProfile = profile.copyWith();
+      notifyListeners();
+      return;
+    }
+
     if (searchedProfile == null) {
       return;
     }
