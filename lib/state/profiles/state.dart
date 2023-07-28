@@ -64,14 +64,14 @@ class ProfilesState with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearSearch() {
+  void clearSearch({bool notify = true}) {
     searchedProfile = null;
     searchResults = [];
     searchLoading = false;
     searchError = false;
 
     selectedProfile = null;
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   void isSearching(String? value) {

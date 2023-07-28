@@ -149,7 +149,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   void dispose() {
-    _state.clearSearch();
+    _state.clearSearch(notify: false);
     debouncedSearchProfile.cancel();
     pause();
   }

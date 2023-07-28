@@ -63,15 +63,6 @@ void main() async {
         ],
       );
 
-      // final logoSmall = await rootBundle.loadString('assets/logo_small.png');
-
-      // nock("https://github.com/citizenwallet/app/blob/main/assets")
-      //     .get("/logo_small.png?raw=true")
-      //     .reply(
-      //       200,
-      //       File(logoSmall),
-      //     );
-
       await widgetTester.pumpAndSettle();
 
       expect(find.text('Settings'), findsOneWidget);
