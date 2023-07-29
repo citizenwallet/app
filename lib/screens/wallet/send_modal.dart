@@ -168,7 +168,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
         return;
       }
 
-      await widget.profilesLogic.getProfile(addr);
+      final profile = await widget.profilesLogic.getProfile(addr);
+      if (profile != null) {
+        widget.logic.addressController.text = profile.username;
+      }
+
       amountFocuseNode.requestFocus();
     }
   }

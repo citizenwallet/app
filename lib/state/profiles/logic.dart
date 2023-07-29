@@ -105,7 +105,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSearchingError();
   }
 
-  Future<void> getProfile(String addr) async {
+  Future<ProfileV1?> getProfile(String addr) async {
     try {
       _state.isSearching(null);
 
@@ -114,13 +114,14 @@ class ProfilesLogic extends WidgetsBindingObserver {
       if (profile != null) {
         _state.isSearchingSuccess(profile);
         _state.isSelected(null);
-        return;
+        return profile;
       }
     } catch (exception) {
       //
     }
 
     _state.isSearchingError();
+    return null;
   }
 
   Future<void> searchProfile(String username) async {
