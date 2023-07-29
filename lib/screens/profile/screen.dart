@@ -10,11 +10,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final String account;
+
   const ProfileScreen({
     Key? key,
+    required this.account,
   }) : super(key: key);
 
   @override
@@ -61,6 +65,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     final profile = context.watch<ProfileState>();
 
     final loading = profile.loading;
@@ -100,25 +106,95 @@ class ProfileScreenState extends State<ProfileScreen> {
                           physics: const ScrollPhysics(
                               parent: BouncingScrollPhysics()),
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                loading
-                                    ? const PulsingContainer(
-                                        height: 160,
-                                        width: 160,
-                                        borderRadius: 80,
-                                      )
-                                    : ProfileCircle(
-                                        size: 160,
-                                        imageUrl: profile.image != ''
-                                            ? profile.image
-                                            : 'assets/icons/profile.svg',
-                                        backgroundColor: ThemeColors.white,
-                                        borderColor: ThemeColors.subtle,
+                            SizedBox(
+                              height: 400,
+                              width: width,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    decoration: BoxDecoration(
+                                      color: ThemeColors.white
+                                          .resolveFrom(context),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: EdgeInsets.fromLTRB(
+                                      40,
+                                      40,
+                                      40,
+                                      (loading || hasNoProfile) ? 40 : 60,
+                                    ),
+                                    margin: const EdgeInsets.only(top: 80),
+                                    child: PrettyQr(
+                                      data: widget.account,
+                                      size: 200,
+                                      roundEdges: false,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 10,
+                                    child: loading
+                                        ? const PulsingContainer(
+                                            height: 100,
+                                            width: 100,
+                                            borderRadius: 50,
+                                          )
+                                        : ProfileCircle(
+                                            size: 100,
+                                            imageUrl: profile.image != ''
+                                                ? profile.image
+                                                : 'assets/icons/profile.svg',
+                                            backgroundColor: ThemeColors.white,
+                                            borderColor: ThemeColors.subtle,
+                                          ),
+                                  ),
+                                  if (!hasNoProfile && !loading)
+                                    Positioned(
+                                      bottom: 16,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(
+                                            width: 44,
+                                          ),
+                                          ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 200,
+                                            ),
+                                            child: Text(
+                                              '@${profile.username}',
+                                              style: TextStyle(
+                                                color: ThemeColors.black
+                                                    .resolveFrom(context),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          CupertinoButton(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 0, 0, 0),
+                                            child: Icon(
+                                              CupertinoIcons.square_on_square,
+                                              size: 14,
+                                              color: ThemeColors.black
+                                                  .resolveFrom(context),
+                                            ),
+                                            onPressed: () => handleCopy(
+                                                '@${profile.username}'),
+                                          ),
+                                        ],
                                       ),
-                              ],
+                                    ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 20),
                             if (!hasNoProfile && !loading)
@@ -126,53 +202,17 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const SizedBox(
-                                    width: 44,
-                                  ),
-                                  ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 200),
+                                  Expanded(
                                     child: Text(
-                                      '@${profile.username}',
+                                      profile.name,
                                       style: TextStyle(
-                                        color: ThemeColors.subtleText
+                                        color: ThemeColors.text
                                             .resolveFrom(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.normal,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                       textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                  CupertinoButton(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                    child: Icon(
-                                      CupertinoIcons.square_on_square,
-                                      size: 14,
-                                      color: ThemeColors.touchable
-                                          .resolveFrom(context),
-                                    ),
-                                    onPressed: () =>
-                                        handleCopy('@${profile.username}'),
-                                  ),
-                                ],
-                              ),
-                            if (!hasNoProfile && !loading)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    profile.name,
-                                    style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),
@@ -198,28 +238,31 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ],
                               ),
-                            const SizedBox(height: 60),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                loading
-                                    ? CupertinoActivityIndicator(
-                                        color: ThemeColors.subtle
-                                            .resolveFrom(context),
-                                      )
-                                    : Button(
-                                        text: hasNoProfile ? 'Create' : 'Edit',
-                                        color: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        labelColor: ThemeColors.black,
-                                        onPressed: handleEdit,
-                                      ),
-                              ],
-                            ),
+                            const SizedBox(height: 80),
                           ],
                         ),
-                      )
+                      ),
+                      Positioned(
+                        bottom: 20,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            loading
+                                ? CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  )
+                                : Button(
+                                    text: hasNoProfile ? 'Create' : 'Edit',
+                                    color: ThemeColors.surfacePrimary
+                                        .resolveFrom(context),
+                                    labelColor: ThemeColors.black,
+                                    onPressed: handleEdit,
+                                  ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -229,11 +229,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic.pauseFetching();
     _profilesLogic.pause();
 
+    final wallet = context.read<WalletState>().wallet;
+
+    if (wallet == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      return;
+    }
+
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => const ProfileScreen(),
+      builder: (modalContext) => ProfileScreen(
+        account: wallet.account,
+      ),
     );
 
     _logic.resumeFetching();
