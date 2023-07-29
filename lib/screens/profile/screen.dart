@@ -5,6 +5,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -66,7 +67,7 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     final error = profile.error;
 
-    final hasNoProfile = !loading && error && profile.username == '';
+    final hasNoProfile = error && profile.username == '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -103,18 +104,24 @@ class ProfileScreenState extends State<ProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                ProfileCircle(
-                                  size: 160,
-                                  imageUrl: profile.image != ''
-                                      ? profile.image
-                                      : 'assets/icons/profile.svg',
-                                  backgroundColor: ThemeColors.white,
-                                  borderColor: ThemeColors.subtle,
-                                ),
+                                loading
+                                    ? const PulsingContainer(
+                                        height: 160,
+                                        width: 160,
+                                        borderRadius: 80,
+                                      )
+                                    : ProfileCircle(
+                                        size: 160,
+                                        imageUrl: profile.image != ''
+                                            ? profile.image
+                                            : 'assets/icons/profile.svg',
+                                        backgroundColor: ThemeColors.white,
+                                        borderColor: ThemeColors.subtle,
+                                      ),
                               ],
                             ),
                             const SizedBox(height: 20),
-                            if (!hasNoProfile)
+                            if (!hasNoProfile && !loading)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -152,7 +159,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ],
                               ),
-                            if (!hasNoProfile)
+                            if (!hasNoProfile && !loading)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -170,26 +177,27 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    hasNoProfile
-                                        ? "It looks like you don't have a profile yet."
-                                        : profile.description,
-                                    style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
+                            if (!loading)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      hasNoProfile
+                                          ? "It looks like you don't have a profile yet."
+                                          : profile.description,
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                             const SizedBox(height: 60),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
