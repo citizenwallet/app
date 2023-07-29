@@ -3,14 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 class PulsingContainer extends StatelessWidget {
-  final double height;
-  final double width;
+  final double? height;
+  final double? width;
+  final EdgeInsetsGeometry? padding;
   final double borderRadius;
 
   const PulsingContainer({
     super.key,
-    this.height = 24,
-    this.width = 24,
+    this.height,
+    this.width,
+    this.padding,
     this.borderRadius = 5,
   });
 
@@ -20,6 +22,7 @@ class PulsingContainer extends StatelessWidget {
       builder: (context, value, child) => Container(
         height: height,
         width: width,
+        padding: padding,
         decoration: BoxDecoration(
           color: value,
           borderRadius: BorderRadius.circular(borderRadius),

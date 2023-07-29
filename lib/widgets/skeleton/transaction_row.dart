@@ -36,6 +36,7 @@ class SkeletonTransactionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PulsingContainer(
+                  height: 24,
                   width: 100,
                 ),
               ],
@@ -49,10 +50,12 @@ class SkeletonTransactionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PulsingContainer(
+                  height: 24,
                   width: 50,
                 ),
                 SizedBox(width: 5),
                 PulsingContainer(
+                  height: 24,
                   width: 40,
                 ),
               ],

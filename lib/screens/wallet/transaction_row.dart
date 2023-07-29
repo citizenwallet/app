@@ -147,6 +147,7 @@ class TransactionRowState extends State<TransactionRow> {
                     children: [
                       profile != null && profile.loading
                           ? const PulsingContainer(
+                              height: 24,
                               width: 100,
                             )
                           : Text(
