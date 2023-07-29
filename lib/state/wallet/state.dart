@@ -86,11 +86,14 @@ class WalletState with ChangeNotifier {
     }
   }
 
-  void loadWalletSuccess(
+  void setWallet(
     CWWallet wallet,
   ) {
     this.wallet = wallet;
+    notifyListeners();
+  }
 
+  void loadWalletSuccess() {
     cleaningUp = false;
     firstLoad = false;
     loading = false;

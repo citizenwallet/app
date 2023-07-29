@@ -374,10 +374,10 @@ class WalletScreenState extends State<WalletScreen> {
               color: ThemeColors.transparent,
               titleWidget: CupertinoButton(
                 padding: const EdgeInsets.all(5),
-                onPressed: transactionSendLoading
+                onPressed: transactionSendLoading || cleaningUp
                     ? null
                     : () => handleSwitchWalletModal(context),
-                child: (cleaningUp || wallet == null)
+                child: wallet == null
                     ? const PulsingContainer(
                         height: 30,
                         padding: EdgeInsets.fromLTRB(10, 5, 10, 5),

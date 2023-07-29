@@ -111,12 +111,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
-      await loadAdditionalData();
-
-      await _preferences.setLastWallet(_wallet.address.hex);
-      await _preferences.setLastWalletLink(encodedWallet);
-
-      _state.loadWalletSuccess(
+      _state.setWallet(
         CWWallet(
           balance,
           name:
@@ -129,6 +124,13 @@ class WalletLogic extends WidgetsBindingObserver {
           locked: false,
         ),
       );
+
+      await loadAdditionalData();
+
+      await _preferences.setLastWallet(_wallet.address.hex);
+      await _preferences.setLastWalletLink(encodedWallet);
+
+      _state.loadWalletSuccess();
 
       return true;
     } catch (exception, stackTrace) {
@@ -181,9 +183,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
-      await loadAdditionalData();
-
-      _state.loadWalletSuccess(
+      _state.setWallet(
         CWWallet(
           balance,
           name: dbWallet.name,
@@ -195,6 +195,10 @@ class WalletLogic extends WidgetsBindingObserver {
           locked: dbWallet.privateKey.isEmpty,
         ),
       );
+
+      await loadAdditionalData();
+
+      _state.loadWalletSuccess();
 
       _preferences.setLastWallet(address);
 

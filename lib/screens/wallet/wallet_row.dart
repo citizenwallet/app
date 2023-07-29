@@ -36,7 +36,6 @@ class WalletRowState extends State<WalletRow> {
     if (widget.onLoadProfile != null &&
         oldWidget.wallet.account != widget.wallet.account &&
         widget.wallet.account.isNotEmpty) {
-      print('onLoadProfile: ${widget.wallet.account}');
       widget.onLoadProfile!(widget.wallet.account);
     }
   }
