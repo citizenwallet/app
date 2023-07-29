@@ -54,7 +54,7 @@ class ProfileBadge extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(4),
                 child: Text(
-                  '@${profile!.name}',
+                  profile!.name,
                   style: TextStyle(
                       fontSize: 12,
                       color: ThemeColors.text.resolveFrom(context)),
