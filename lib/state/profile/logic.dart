@@ -118,7 +118,7 @@ class ProfileLogic {
     _state.setProfileError();
   }
 
-  Future<void> save(ProfileV1 profile, Uint8List image, String ext) async {
+  Future<bool> save(ProfileV1 profile, Uint8List image, String ext) async {
     try {
       _state.setProfileRequest();
 
@@ -150,7 +150,7 @@ class ProfileLogic {
         profile,
       );
 
-      return;
+      return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -159,9 +159,10 @@ class ProfileLogic {
     }
 
     _state.setProfileError();
+    return false;
   }
 
-  Future<void> update(ProfileV1 profile) async {
+  Future<bool> update(ProfileV1 profile) async {
     try {
       _state.setProfileRequest();
 
@@ -177,11 +178,14 @@ class ProfileLogic {
         throw Exception('Failed to load profile');
       }
 
-      if (existing != profile) {
-        final success = await _wallet.updateProfile(profile);
-        if (!success) {
-          throw Exception('Failed to save profile');
-        }
+      if (existing == profile) {
+        _state.setProfileNoChangeSuccess();
+        return true;
+      }
+
+      final success = await _wallet.updateProfile(profile);
+      if (!success) {
+        throw Exception('Failed to save profile');
       }
 
       _state.setProfileSuccess(
@@ -199,7 +203,7 @@ class ProfileLogic {
         profile,
       );
 
-      return;
+      return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -208,6 +212,7 @@ class ProfileLogic {
     }
 
     _state.setProfileError();
+    return false;
   }
 
   void updateNameErrorState(String name) {

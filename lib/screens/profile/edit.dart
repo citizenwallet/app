@@ -109,13 +109,17 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     final wallet = context.read<WalletState>().wallet;
 
-    await _logic.save(
+    final success = await _logic.save(
       ProfileV1(
         account: wallet?.account ?? '',
       ),
       image,
       ext,
     );
+
+    if (!success) {
+      return;
+    }
 
     HapticFeedback.heavyImpact();
     navigator.pop();
@@ -128,11 +132,15 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     final wallet = context.read<WalletState>().wallet;
 
-    await _logic.update(
+    final success = await _logic.update(
       ProfileV1(
         account: wallet?.account ?? '',
       ),
     );
+
+    if (!success) {
+      return;
+    }
 
     HapticFeedback.heavyImpact();
     navigator.pop();
@@ -147,6 +155,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final loading = context.select((ProfileState state) => state.loading);
+    final error = context.select((ProfileState state) => state.error);
 
     final image = context.select((ProfileState state) => state.image);
     final editingImage =
@@ -451,6 +460,22 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                       ),
                               ],
                             ),
+                            const SizedBox(height: 10),
+                            if (!loading && error)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Failed to save profile.",
+                                    style: TextStyle(
+                                      color: ThemeColors.danger
+                                          .resolveFrom(context),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ),

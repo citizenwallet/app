@@ -454,6 +454,7 @@ class WalletService2 {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
+      print('eth_sendUserOperation exception: $exception');
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -525,6 +526,7 @@ class WalletService2 {
 
       return (PaymasterData.fromJson(response.result), null);
     } catch (exception, stackTrace) {
+      print('pm_sponsorUserOperation exception: $exception');
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,

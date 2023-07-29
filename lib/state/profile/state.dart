@@ -129,6 +129,13 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setProfileNoChangeSuccess() {
+    loading = false;
+    error = false;
+
+    notifyListeners();
+  }
+
   void setProfileError() {
     loading = false;
     error = true;

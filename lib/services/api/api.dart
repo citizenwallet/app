@@ -32,7 +32,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error fetching data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -60,7 +60,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -88,7 +88,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -116,7 +116,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -158,7 +158,7 @@ class APIService {
     ).timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
