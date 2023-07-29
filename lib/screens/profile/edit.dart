@@ -470,7 +470,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                     style: TextStyle(
                                       color: ThemeColors.danger
                                           .resolveFrom(context),
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ),

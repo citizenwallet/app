@@ -90,7 +90,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   void onLoad() async {
     nameFocusNode.addListener(handleNameFocus);
-
+    amountFocuseNode.requestFocus();
     if (widget.id != null) {
       // there is a retry id
       final addr = widget.logic.addressController.value.text;
@@ -99,12 +99,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       }
 
       await widget.profilesLogic.getProfile(addr);
-      amountFocuseNode.requestFocus();
     }
 
     if (widget.to != null) {
       await widget.profilesLogic.getProfile(widget.to!);
-      amountFocuseNode.requestFocus();
     }
   }
 
@@ -135,7 +133,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   void handleSelectProfile(ProfileV1? profile) {
     widget.profilesLogic.selectProfile(profile);
-    amountFocuseNode.requestFocus();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void handleDeSelectProfile() {
@@ -149,7 +147,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       widget.profilesLogic.selectProfile(null);
     }
 
-    amountFocuseNode.requestFocus();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void handleQRScan() async {
@@ -239,8 +237,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.invalidAmount,
     );
 
-    print('invalidAmount $invalidAmount');
-
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
     );
@@ -304,9 +300,112 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         children: [
                           const SizedBox(height: 20),
                           const Text(
-                            'My Balance',
+                            'Amount',
                             style: TextStyle(
                                 fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                child: CupertinoTextField(
+                                  controller: widget.logic.amountController,
+                                  placeholder: formatCurrency(1050.00, ''),
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
+                                  prefix: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 10, 0),
+                                      child: Text(
+                                        wallet?.symbol ?? '',
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                  decoration: invalidAmount ||
+                                          transactionSendError
+                                      ? BoxDecoration(
+                                          color: const CupertinoDynamicColor
+                                              .withBrightness(
+                                            color: CupertinoColors.white,
+                                            darkColor: CupertinoColors.black,
+                                          ),
+                                          border: Border.all(
+                                            color: ThemeColors.danger,
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                        )
+                                      : BoxDecoration(
+                                          color: const CupertinoDynamicColor
+                                              .withBrightness(
+                                            color: CupertinoColors.white,
+                                            darkColor: CupertinoColors.black,
+                                          ),
+                                          border: Border.all(
+                                            color: hasAmount
+                                                ? ThemeColors.text
+                                                    .resolveFrom(context)
+                                                : ThemeColors.transparent
+                                                    .resolveFrom(context),
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                        ),
+                                  maxLines: 1,
+                                  maxLength: 25,
+                                  focusNode: amountFocuseNode,
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                    signed: false,
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  inputFormatters: [
+                                    amountFormatter,
+                                  ],
+                                  onChanged: (_) =>
+                                      handleThrottledUpdateAmount(),
+                                  onSubmitted: (_) {
+                                    nameFocusNode.requestFocus();
+                                  },
+                                ),
+                              ),
+                              if (invalidAmount &&
+                                  (double.tryParse(widget.logic.amountController
+                                              .value.text) ??
+                                          0.0) >
+                                      0)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Insufficient funds.",
+                                      style: TextStyle(
+                                        color: ThemeColors.danger
+                                            .resolveFrom(context),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 10),
                           Row(
@@ -314,32 +413,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                formattedBalance,
+                                'Current balance: $formattedBalance ${wallet?.symbol ?? ''}',
                                 style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  0,
-                                  0,
-                                  0,
-                                  3,
-                                ),
-                                child: Text(
-                                  wallet?.symbol ?? '',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
+                                    fontWeight: FontWeight.normal),
                               ),
                             ],
                           ),
@@ -435,97 +512,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               ),
                               onSubmitted: handleAddressFieldSubmitted,
                             ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Amount',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                child: CupertinoTextField(
-                                  controller: widget.logic.amountController,
-                                  placeholder: formatCurrency(1050.00, ''),
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                  ),
-                                  prefix: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 0, 10, 0),
-                                      child: Text(
-                                        wallet?.symbol ?? '',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  decoration: invalidAmount ||
-                                          transactionSendError
-                                      ? BoxDecoration(
-                                          color: const CupertinoDynamicColor
-                                              .withBrightness(
-                                            color: CupertinoColors.white,
-                                            darkColor: CupertinoColors.black,
-                                          ),
-                                          border: Border.all(
-                                            color: ThemeColors.danger,
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5.0)),
-                                        )
-                                      : BoxDecoration(
-                                          color: const CupertinoDynamicColor
-                                              .withBrightness(
-                                            color: CupertinoColors.white,
-                                            darkColor: CupertinoColors.black,
-                                          ),
-                                          border: Border.all(
-                                            color: hasAmount
-                                                ? ThemeColors.text
-                                                    .resolveFrom(context)
-                                                : ThemeColors.transparent
-                                                    .resolveFrom(context),
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5.0)),
-                                        ),
-                                  maxLines: 1,
-                                  maxLength: 25,
-                                  focusNode: amountFocuseNode,
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                    signed: false,
-                                  ),
-                                  textInputAction: TextInputAction.next,
-                                  inputFormatters: [
-                                    amountFormatter,
-                                  ],
-                                  onChanged: (_) =>
-                                      handleThrottledUpdateAmount(),
-                                  onSubmitted: (_) {
-                                    messageFocusNode.requestFocus();
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
+                          // const SizedBox(height: 20),
                           // const Text(
                           //   'Description',
                           //   style: TextStyle(
