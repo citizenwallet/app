@@ -92,7 +92,8 @@ class ProfileLogic {
       final profile = await _wallet.getProfile(_wallet.account.hex);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
-        throw Exception('Failed to load profile');
+        _state.setProfileNoChangeSuccess();
+        return;
       }
 
       _state.setProfileSuccess(

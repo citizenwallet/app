@@ -434,7 +434,9 @@ class WalletScreenState extends State<WalletScreen> {
                 children: [
                   CupertinoButton(
                     padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDisplayWalletQR(context),
+                    onPressed: (firstLoad || wallet == null)
+                        ? null
+                        : () => handleDisplayWalletQR(context),
                     child: cleaningUp || wallet == null
                         ? const PulsingContainer(
                             height: 30,

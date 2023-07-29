@@ -17,6 +17,7 @@ import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/share_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr_modal.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -363,6 +364,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final loading = context.select((WalletState state) => state.loading);
 
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
+    final username = context.select((ProfileState state) => state.username);
+
+    final hasNoProfile = imageSmall == '' && username == '';
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -432,33 +436,58 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     ),
                   ],
                 ),
-                actionButton: (firstLoad || wallet == null)
-                    ? null
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CupertinoButton(
-                            padding: const EdgeInsets.all(5),
-                            onPressed: () => handleDisplayWalletExport(context),
-                            child: Icon(
-                              CupertinoIcons.share,
-                              color: ThemeColors.primary.resolveFrom(context),
-                            ),
-                          ),
-                          CupertinoButton(
-                            padding: const EdgeInsets.all(5),
-                            onPressed: () => handleDisplayWalletQR(context),
-                            child: ProfileCircle(
-                              size: 30,
-                              imageUrl: imageSmall != ''
-                                  ? imageSmall
-                                  : 'assets/icons/profile.svg',
-                              backgroundColor: ThemeColors.white,
-                              borderColor: ThemeColors.subtle,
-                            ),
-                          ),
-                        ],
+                actionButton: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (!firstLoad && wallet != null)
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => handleDisplayWalletExport(context),
+                        child: Icon(
+                          CupertinoIcons.share,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
                       ),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: (firstLoad || wallet == null)
+                          ? null
+                          : () => handleDisplayWalletQR(context),
+                      child: wallet == null
+                          ? const PulsingContainer(
+                              height: 30,
+                              width: 30,
+                              borderRadius: 15,
+                            )
+                          : Stack(
+                              children: [
+                                ProfileCircle(
+                                  size: 30,
+                                  imageUrl: !hasNoProfile
+                                      ? imageSmall
+                                      : 'assets/icons/profile.svg',
+                                  backgroundColor: ThemeColors.white,
+                                  borderColor: ThemeColors.subtle,
+                                ),
+                                if (hasNoProfile)
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: Container(
+                                      height: 10,
+                                      width: 10,
+                                      decoration: BoxDecoration(
+                                        color: ThemeColors.danger
+                                            .resolveFrom(context),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

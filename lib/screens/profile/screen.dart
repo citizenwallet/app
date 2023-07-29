@@ -71,9 +71,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     final loading = profile.loading;
 
-    final error = profile.error;
-
-    final hasNoProfile = error && profile.username == '';
+    final hasNoProfile =
+        profile.name == '' && profile.username == '' && profile.image == '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
