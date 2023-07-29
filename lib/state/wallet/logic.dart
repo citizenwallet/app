@@ -71,7 +71,11 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<bool> openWalletFromURL(String encodedWallet, String password) async {
+  Future<bool> openWalletFromURL(
+    String encodedWallet,
+    String password,
+    Future<void> Function() loadAdditionalData,
+  ) async {
     try {
       _state.loadWallet();
 
@@ -107,6 +111,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
+      await loadAdditionalData();
+
       await _preferences.setLastWallet(_wallet.address.hex);
       await _preferences.setLastWalletLink(encodedWallet);
 
@@ -138,7 +144,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
   String? get lastWallet => _preferences.lastWallet;
 
-  Future<String?> openWallet(String? paramAddress) async {
+  Future<String?> openWallet(
+      String? paramAddress, Future<void> Function() loadAdditionalData) async {
     try {
       _state.loadWallet();
 
@@ -173,6 +180,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
+
+      await loadAdditionalData();
 
       _state.loadWalletSuccess(
         CWWallet(

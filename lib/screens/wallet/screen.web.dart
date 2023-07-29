@@ -131,19 +131,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    final ok = await _logic.openWalletFromURL(
-      widget.encoded,
-      _password,
-    );
+    final ok =
+        await _logic.openWalletFromURL(widget.encoded, _password, () async {
+      _profileLogic.loadProfile();
+      await _logic.loadTransactions();
+    });
 
     if (!ok) {
       onLoad(retry: true);
       return;
     }
-
-    await _profileLogic.loadProfile();
-
-    await _logic.loadTransactions();
   }
 
   void handleFailedTransaction(String id) async {

@@ -88,9 +88,9 @@ class WalletState with ChangeNotifier {
   void loadWalletSuccess(
     CWWallet wallet,
   ) {
-    if (this.wallet != null && this.wallet!.address != wallet.address) {
-      transactions = [];
-    }
+    // if (this.wallet != null && this.wallet!.address != wallet.address) {
+    //   transactions = [];
+    // }
 
     this.wallet = wallet;
 
@@ -113,7 +113,7 @@ class WalletState with ChangeNotifier {
 
     transactions = [];
 
-    loading = false;
+    loading = true;
     error = false;
     errorException = null;
 
@@ -190,7 +190,7 @@ class WalletState with ChangeNotifier {
                 ?.date ??
             DateTime.now().toUtc())
         .subtract(const Duration(minutes: 1));
-    this.transactions = transactions;
+    this.transactions = [...transactions];
 
     transactionsLoading = false;
     transactionsError = false;

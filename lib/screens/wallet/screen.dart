@@ -97,13 +97,10 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    await _logic.openWallet(
-      widget.address!,
-    );
-
-    await _profileLogic.loadProfile();
-
-    await _logic.loadTransactions();
+    await _logic.openWallet(widget.address!, () async {
+      _profileLogic.loadProfile();
+      await _logic.loadTransactions();
+    });
   }
 
   void handleFailedTransaction(String id) async {
@@ -205,10 +202,9 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-
     if (address == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
       return;
     }
 
