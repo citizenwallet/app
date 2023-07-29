@@ -570,6 +570,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       final profile = profileSuggestions[index];
 
                                       return Padding(
+                                        key: Key(profile.username),
                                         padding: const EdgeInsets.fromLTRB(
                                             10, 0, 10, 0),
                                         child: ProfileBadge(
