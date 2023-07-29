@@ -191,7 +191,6 @@ class WalletScreenState extends State<WalletScreen> {
     final navigator = GoRouter.of(context);
 
     _logic.pauseFetching();
-    _profilesLogic.pause();
 
     final address =
         await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
@@ -206,7 +205,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (address == null) {
       _logic.resumeFetching();
-      _profilesLogic.resume();
       return;
     }
 

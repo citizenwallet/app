@@ -1,17 +1,19 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
-class WalletRow extends StatelessWidget {
+class WalletRow extends StatefulWidget {
   final CWWallet wallet;
   final bool isSelected;
   final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
+  final void Function(String)? onLoadProfile;
 
   const WalletRow(
     this.wallet, {
@@ -20,20 +22,41 @@ class WalletRow extends StatelessWidget {
     this.profiles = const {},
     this.onTap,
     this.onMore,
+    this.onLoadProfile,
   });
 
   @override
+  WalletRowState createState() => WalletRowState();
+}
+
+class WalletRowState extends State<WalletRow> {
+  @override
+  void didUpdateWidget(WalletRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.onLoadProfile != null &&
+        oldWidget.wallet.account != widget.wallet.account &&
+        widget.wallet.account.isNotEmpty) {
+      print('onLoadProfile: ${widget.wallet.account}');
+      widget.onLoadProfile!(widget.wallet.account);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final wallet = widget.wallet;
+    final isSelected = widget.isSelected;
+    final profiles = widget.profiles;
+    final onTap = widget.onTap;
+    final onMore = widget.onMore;
+
     final profile =
         wallet.account.isEmpty ? null : profiles[wallet.account]?.profile;
 
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        key: super.key,
         children: [
           Container(
-            key: super.key,
             margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             height: 84,

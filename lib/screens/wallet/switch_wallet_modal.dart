@@ -1,6 +1,7 @@
 import 'package:async/async.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -39,17 +40,19 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   CancelableOperation<void>? _operation;
 
   late ProfileLogic _logic;
+  late ProfilesLogic _profilesLogic;
 
   @override
   void initState() {
     super.initState();
 
     _logic = ProfileLogic(context);
+    _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // initial requests go here
 
-      _operation = await widget.logic.loadDBWallets();
+      onLoad();
     });
   }
 
@@ -59,6 +62,10 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       _operation!.cancel();
     }
     super.dispose();
+  }
+
+  void onLoad() async {
+    _operation = await widget.logic.loadDBWallets();
   }
 
   void handleDismiss(BuildContext context) {
@@ -263,6 +270,10 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     navigator.pop(address);
   }
 
+  void handleLoadProfile(String address) {
+    _profilesLogic.loadProfile(address);
+  }
+
   @override
   Widget build(BuildContext context) {
     final cwWalletsLoading = context.select<WalletState, bool>(
@@ -333,6 +344,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                                   wallet.name,
                                   wallet.locked,
                                 ),
+                                onLoadProfile: handleLoadProfile,
                               );
                             },
                           ),
