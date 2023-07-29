@@ -121,6 +121,23 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     navigator.pop();
   }
 
+  void handleUpdate() async {
+    final navigator = GoRouter.of(context);
+
+    HapticFeedback.lightImpact();
+
+    final wallet = context.read<WalletState>().wallet;
+
+    await _logic.update(
+      ProfileV1(
+        account: wallet?.account ?? '',
+      ),
+    );
+
+    HapticFeedback.heavyImpact();
+    navigator.pop();
+  }
+
   void handleSelectPhoto() {
     HapticFeedback.lightImpact();
 
@@ -424,12 +441,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                         color: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         labelColor: ThemeColors.black,
-                                        onPressed: isInvalid ||
-                                                editingImage == null ||
-                                                editingImageExt == null
+                                        onPressed: isInvalid
                                             ? null
-                                            : () => handleSave(
-                                                editingImage, editingImageExt),
+                                            : editingImage == null ||
+                                                    editingImageExt == null
+                                                ? () => handleUpdate()
+                                                : () => handleSave(editingImage,
+                                                    editingImageExt),
                                       ),
                               ],
                             ),

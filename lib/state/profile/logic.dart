@@ -39,6 +39,7 @@ class ProfileLogic {
     try {
       final isNetwork = _state.image.startsWith('http');
       if (isNetwork) {
+        _state.startEdit(null, null);
         return;
       }
 
@@ -132,6 +133,55 @@ class ProfileLogic {
       );
       if (!success) {
         throw Exception('Failed to save profile');
+      }
+
+      _state.setProfileSuccess(
+        account: profile.account,
+        username: profile.username,
+        name: profile.name,
+        description: profile.description,
+        image: profile.image,
+        imageMedium: profile.imageMedium,
+        imageSmall: profile.imageSmall,
+      );
+
+      _profiles.isLoaded(
+        profile.account,
+        profile,
+      );
+
+      return;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _state.setProfileError();
+  }
+
+  Future<void> update(ProfileV1 profile) async {
+    try {
+      _state.setProfileRequest();
+
+      profile.username = _state.usernameController.value.text;
+      profile.name = _state.nameController.value.text;
+      profile.description = _state.descriptionController.value.text;
+      profile.image = _state.image;
+      profile.imageMedium = _state.imageMedium;
+      profile.imageSmall = _state.imageSmall;
+
+      final existing = await _wallet.getProfile(profile.account);
+      if (existing == null) {
+        throw Exception('Failed to load profile');
+      }
+
+      if (existing != profile) {
+        final success = await _wallet.updateProfile(profile);
+        if (!success) {
+          throw Exception('Failed to save profile');
+        }
       }
 
       _state.setProfileSuccess(

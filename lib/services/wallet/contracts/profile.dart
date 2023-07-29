@@ -110,6 +110,23 @@ class ProfileV1 {
     imageMedium = imageMedium.replaceFirst(ipfsPrefix, '$url/');
     imageSmall = imageSmall.replaceFirst(ipfsPrefix, '$url/');
   }
+
+  // check equality
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProfileV1 &&
+          runtimeType == other.runtimeType &&
+          account == other.account &&
+          username == other.username &&
+          name == other.name &&
+          description == other.description &&
+          image == other.image &&
+          imageMedium == other.imageMedium &&
+          imageSmall == other.imageSmall;
+
+  @override
+  int get hashCode => super.hashCode;
 }
 
 ProfileContract newProfileContract(

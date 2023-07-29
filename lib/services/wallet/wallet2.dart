@@ -184,7 +184,6 @@ class WalletService2 {
         throw Exception('profile update failed');
       }
 
-      // return submitUserop(userop);
       return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -232,7 +231,6 @@ class WalletService2 {
         throw Exception('profile update failed');
       }
 
-      // return submitUserop(userop);
       return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
