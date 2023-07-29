@@ -1,6 +1,7 @@
 import 'package:async/async.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -270,6 +271,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
     final cwWallets = context.watch<WalletState>().wallets;
 
+    final profiles = context.watch<ProfilesState>().profiles;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -320,6 +323,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                               return WalletRow(
                                 key: Key(wallet.address),
                                 wallet,
+                                profiles: profiles,
                                 isSelected:
                                     widget.currentAddress == wallet.address,
                                 onTap: () => handleWalletTap(wallet.address),

@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 class WalletRow extends StatelessWidget {
   final CWWallet wallet;
   final bool isSelected;
+  final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
 
@@ -15,12 +17,16 @@ class WalletRow extends StatelessWidget {
     this.wallet, {
     super.key,
     this.isSelected = false,
+    this.profiles = const {},
     this.onTap,
     this.onMore,
   });
 
   @override
   Widget build(BuildContext context) {
+    final profile =
+        wallet.account.isEmpty ? null : profiles[wallet.account]?.profile;
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -29,7 +35,7 @@ class WalletRow extends StatelessWidget {
           Container(
             key: super.key,
             margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             height: 84,
             decoration: BoxDecoration(
               color: ThemeColors.subtle.resolveFrom(context),
@@ -42,10 +48,12 @@ class WalletRow extends StatelessWidget {
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const ProfileCircle(
+                ProfileCircle(
                   size: 50,
-                  imageUrl: 'assets/icons/profile.svg',
+                  imageUrl: profile?.imageSmall ?? 'assets/icons/profile.svg',
                   backgroundColor: ThemeColors.white,
                   borderColor: ThemeColors.subtle,
                 ),
@@ -56,7 +64,7 @@ class WalletRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        wallet.name,
+                        profile?.name ?? wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -71,7 +79,9 @@ class WalletRow extends StatelessWidget {
                               width: 100,
                             )
                           : Text(
-                              formatHexAddress(wallet.account),
+                              profile != null
+                                  ? '@${profile.username}'
+                                  : formatHexAddress(wallet.account),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
