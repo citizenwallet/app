@@ -45,21 +45,22 @@ class ProfilesLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        _state.isLoading(addr);
-
         final profile = await _wallet.getProfile(addr);
 
         if (profile != null) {
+          _state.isLoading(addr);
+
+          await delay(const Duration(milliseconds: 250));
+
           _state.isLoaded(addr, profile);
-          await delay(const Duration(milliseconds: 125));
           return;
         }
       } catch (exception) {
         //
       }
 
-      _state.isError(addr);
       await delay(const Duration(milliseconds: 125));
+      _state.isError(addr);
     }
   }
 
