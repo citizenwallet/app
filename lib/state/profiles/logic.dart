@@ -53,7 +53,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
           await delay(const Duration(milliseconds: 250));
 
           _state.isLoaded(addr, profile);
-          return;
+          continue;
         }
       } catch (exception) {
         //
