@@ -403,7 +403,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   child: searchLoading
                                       ? SizedBox(
                                           height: 20,
-                                          width: 20,
+                                          width: 24,
                                           child: CupertinoActivityIndicator(
                                             color: ThemeColors.subtle
                                                 .resolveFrom(context),
@@ -556,7 +556,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                       bottom: 0,
                       left: 0,
                       child: AnimatedOpacity(
-                        opacity: _isNameFocused ? 1 : 0,
+                        opacity: _isNameFocused && profileSuggestions.isNotEmpty
+                            ? 1
+                            : 0,
                         duration: const Duration(milliseconds: 250),
                         child: BlurryChild(
                           child: Container(
@@ -574,37 +576,25 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               scrollBehavior: const CupertinoScrollBehavior(),
                               scrollDirection: Axis.horizontal,
                               slivers: [
-                                if (searchLoading)
-                                  const SliverToBoxAdapter(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                      child: ProfileBadge(
-                                        loading: true,
-                                      ),
-                                    ),
-                                  ),
-                                if (!searchLoading)
-                                  SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                      childCount: profileSuggestions.length,
-                                      (context, index) {
-                                        final profile =
-                                            profileSuggestions[index];
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    childCount: profileSuggestions.length,
+                                    (context, index) {
+                                      final profile = profileSuggestions[index];
 
-                                        return Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 0, 10, 0),
-                                          child: ProfileBadge(
-                                            profile: profile,
-                                            loading: false,
-                                            onTap: () =>
-                                                handleSelectProfile(profile),
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 10, 0),
+                                        child: ProfileBadge(
+                                          profile: profile,
+                                          loading: false,
+                                          onTap: () =>
+                                              handleSelectProfile(profile),
+                                        ),
+                                      );
+                                    },
                                   ),
+                                ),
                               ],
                             ),
                           ),

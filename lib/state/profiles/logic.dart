@@ -76,10 +76,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> _searchProfile(String value) async {
     try {
-      _state.isSearching(value);
+      final cleanValue = value.replaceFirst('@', '');
 
-      final localUsername =
-          _state.getLocalUsername(value.replaceFirst('@', ''));
+      _state.isSearching(cleanValue);
+
+      final localUsername = _state.getLocalUsername(cleanValue);
       if (localUsername != null) {
         // no need to fetch if it is already stored locally
         await delay(const Duration(milliseconds: 500));
@@ -87,9 +88,9 @@ class ProfilesLogic extends WidgetsBindingObserver {
         return;
       }
 
-      final profile = value.startsWith('0x')
-          ? await _wallet.getProfile(value)
-          : await _wallet.getProfileByUsername(value);
+      final profile = cleanValue.startsWith('0x')
+          ? await _wallet.getProfile(cleanValue)
+          : await _wallet.getProfileByUsername(cleanValue);
       if (profile == null) {
         throw Exception('Profile not found');
       }
