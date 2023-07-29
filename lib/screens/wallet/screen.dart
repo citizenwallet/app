@@ -9,6 +9,7 @@ import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
@@ -211,6 +212,8 @@ class WalletScreenState extends State<WalletScreen> {
     _logic.cleanupWalletService();
     _logic.cleanupWalletState();
 
+    await delay(const Duration(milliseconds: 250));
+
     navigator.go('/wallet/${address.toLowerCase()}');
   }
 
@@ -308,6 +311,7 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
 
@@ -321,7 +325,7 @@ class WalletScreenState extends State<WalletScreen> {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          (firstLoad && loading) || wallet == null
+          (firstLoad && loading) || wallet == null || cleaningUp
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -379,7 +383,9 @@ class WalletScreenState extends State<WalletScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    wallet?.name ?? 'Account',
+                                    cleaningUp || wallet == null
+                                        ? ''
+                                        : wallet.name,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -400,7 +406,9 @@ class WalletScreenState extends State<WalletScreen> {
                       ),
                       Icon(
                         CupertinoIcons.chevron_down,
-                        color: transactionSendLoading
+                        color: transactionSendLoading ||
+                                cleaningUp ||
+                                wallet == null
                             ? ThemeColors.subtle.resolveFrom(context)
                             : ThemeColors.primary.resolveFrom(context),
                       ),
@@ -414,14 +422,18 @@ class WalletScreenState extends State<WalletScreen> {
                   CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDisplayWalletQR(context),
-                    child: ProfileCircle(
-                      size: 30,
-                      imageUrl: imageSmall != ''
-                          ? imageSmall
-                          : 'assets/icons/profile.svg',
-                      backgroundColor: ThemeColors.white,
-                      borderColor: ThemeColors.subtle,
-                    ),
+                    child: cleaningUp || wallet == null
+                        ? CupertinoActivityIndicator(
+                            color: ThemeColors.subtle.resolveFrom(context),
+                          )
+                        : ProfileCircle(
+                            size: 30,
+                            imageUrl: imageSmall != ''
+                                ? imageSmall
+                                : 'assets/icons/profile.svg',
+                            backgroundColor: ThemeColors.white,
+                            borderColor: ThemeColors.subtle,
+                          ),
                   ),
                 ],
               ),

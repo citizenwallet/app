@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
+  bool cleaningUp = false;
   bool firstLoad = true;
   bool loading = true;
   bool error = false;
@@ -88,12 +89,9 @@ class WalletState with ChangeNotifier {
   void loadWalletSuccess(
     CWWallet wallet,
   ) {
-    // if (this.wallet != null && this.wallet!.address != wallet.address) {
-    //   transactions = [];
-    // }
-
     this.wallet = wallet;
 
+    cleaningUp = false;
     firstLoad = false;
     loading = false;
     error = false;
@@ -109,6 +107,7 @@ class WalletState with ChangeNotifier {
   }
 
   void cleanup() {
+    cleaningUp = true;
     firstLoad = true;
 
     transactions = [];

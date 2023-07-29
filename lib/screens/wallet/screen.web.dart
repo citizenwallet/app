@@ -422,7 +422,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     ),
                   ],
                 ),
-                actionButton: firstLoad
+                actionButton: (firstLoad || wallet == null)
                     ? null
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.end,
