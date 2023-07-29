@@ -31,7 +31,7 @@
 		<key>NSCameraUsageDescription</key>
 		<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Citizen Wallet needs gallery acces in order to scan QR codes. Scanning is done on device.</string>
+		<string>Citizen Wallet needs photo library access in order to pick a profile photo.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>

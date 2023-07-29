@@ -1,25 +1,35 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/selectors.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
-import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile/profile_badge.dart';
+import 'package:citizenwallet/widgets/profile/profile_chip.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
 class SendModal extends StatefulWidget {
   final WalletLogic logic;
+  final ProfilesLogic profilesLogic;
 
   final String? id;
   final String? to;
@@ -27,6 +37,7 @@ class SendModal extends StatefulWidget {
   const SendModal({
     Key? key,
     required this.logic,
+    required this.profilesLogic,
     this.id,
     this.to,
   }) : super(key: key);
@@ -39,6 +50,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
 
+  final FocusNode nameFocusNode = FocusNode();
   final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
@@ -46,6 +58,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   final double animationSize = 200;
 
   bool _isSending = false;
+  bool _isNameFocused = false;
 
   @override
   void initState() {
@@ -69,32 +82,79 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     });
   }
 
-  void onLoad() {
-    if (widget.to != null || widget.id != null) {
-      return;
+  @override
+  void dispose() {
+    nameFocusNode.removeListener(handleNameFocus);
+    super.dispose();
+  }
+
+  void onLoad() async {
+    nameFocusNode.addListener(handleNameFocus);
+    amountFocuseNode.requestFocus();
+    if (widget.id != null) {
+      // there is a retry id
+      final addr = widget.logic.addressController.value.text;
+      if (addr.isEmpty) {
+        return;
+      }
+
+      await widget.profilesLogic.getProfile(addr);
     }
-    handleQRScan();
+
+    if (widget.to != null) {
+      await widget.profilesLogic.getProfile(widget.to!);
+    }
+  }
+
+  void handleNameFocus() {
+    setState(() {
+      _isNameFocused = nameFocusNode.hasFocus;
+    });
   }
 
   void handleDismiss(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     widget.logic.clearInputControllers();
     widget.logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
 
     GoRouter.of(context).pop();
   }
 
-  void handleThrottledUpdateAddress() {
+  void handleThrottledUpdateAddress(String username) {
     debouncedAddressUpdate();
+    widget.profilesLogic.searchProfile(username);
   }
 
   void handleThrottledUpdateAmount() {
     debouncedAmountUpdate();
   }
 
+  void handleSelectProfile(ProfileV1? profile) {
+    widget.profilesLogic.selectProfile(profile);
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  void handleDeSelectProfile() {
+    widget.profilesLogic.deSelectProfile();
+    nameFocusNode.requestFocus();
+  }
+
+  void handleAddressFieldSubmitted(String? value) {
+    final searchedProfile = context.read<ProfilesState>().searchedProfile;
+    if (searchedProfile != null) {
+      widget.profilesLogic.selectProfile(null);
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void handleQRScan() async {
-    final result = await showCupertinoModalPopup<String?>(
+    final result = await showCupertinoModalBottomSheet<String?>(
       context: context,
-      barrierDismissible: true,
+      expand: true,
+      topRadius: const Radius.circular(40),
       builder: (_) => const Scanner(
         modalKey: 'send-form-anything-scanner',
       ),
@@ -102,10 +162,22 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     if (result != null) {
       widget.logic.updateFromCapture(result);
+
+      final addr = widget.logic.addressController.value.text;
+      if (addr.isEmpty) {
+        return;
+      }
+
+      final profile = await widget.profilesLogic.getProfile(addr);
+      if (profile != null) {
+        widget.logic.addressController.text = profile.username;
+      }
+
+      amountFocuseNode.requestFocus();
     }
   }
 
-  void handleSend(BuildContext context) async {
+  void handleSend(BuildContext context, String? selectedAddress) async {
     if (_isSending) {
       return;
     }
@@ -122,7 +194,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final isValid = widget.logic.validateSendFields(
       widget.logic.amountController.value.text,
-      widget.logic.addressController.value.text,
+      selectedAddress ?? widget.logic.addressController.value.text,
     );
 
     if (!isValid) {
@@ -135,33 +207,32 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     widget.logic.sendTransaction(
       widget.logic.amountController.value.text,
-      widget.logic.addressController.value.text,
+      selectedAddress ?? widget.logic.addressController.value.text,
       message: widget.logic.messageController.value.text,
       id: widget.id,
     );
 
     widget.logic.clearInputControllers();
     widget.logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
 
     await Future.delayed(const Duration(milliseconds: 500));
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop();
+    navigator.pop(true);
     return;
-  }
-
-  void handleIncrement(double amount) {
-    widget.logic.amountIncrease(amount);
-  }
-
-  void handleDecrement(double amount) {
-    widget.logic.amountDecrease(amount);
   }
 
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+    final balance =
+        double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
+    final formattedBalance = formatAmount(
+      balance,
+      decimalDigits: wallet != null ? wallet.decimalDigits : 2,
+    );
 
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
@@ -186,151 +257,51 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.transactionSendError,
     );
 
-    final height = MediaQuery.of(context).size.height;
+    final profileSuggestions = context.select(selectProfileSuggestions);
+    final searchLoading = context.select(
+      (ProfilesState state) => state.searchLoading,
+    );
+
+    final selectedProfile = context.select(
+      (ProfilesState state) => state.selectedProfile,
+    );
+
     final width = MediaQuery.of(context).size.width;
 
-    return DismissibleModalPopup(
-      modaleKey: 'send-form',
-      maxHeight: height,
-      paddingSides: 10,
-      onUpdate: (details) {
-        if (details.direction == DismissDirection.down &&
-            FocusManager.instance.primaryFocus?.hasFocus == true) {
-          FocusManager.instance.primaryFocus?.unfocus();
-        }
-      },
-      onDismissed: (_) => handleDismiss(context),
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
-          child: SafeArea(
-            child: Flex(
-              direction: Axis.vertical,
-              children: [
-                Header(
-                  title: 'Send',
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: CupertinoPageScaffold(
+        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        child: SafeArea(
+          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
+          child: Flex(
+            direction: Axis.vertical,
+            children: [
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Header(
+                    title: 'Send',
+                    actionButton: CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => handleDismiss(context),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ListView(
+                  )),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: ListView(
+                        controller: ModalScrollController.of(context),
+                        physics: const ScrollPhysics(
+                            parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          const SizedBox(height: 20),
-                          if (widget.to == null)
-                            const Text(
-                              'To',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                          if (widget.to == null) const SizedBox(height: 10),
-                          if (widget.to != null)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'To',
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Chip(
-                                  formatHexAddress(widget.to!),
-                                  color: ThemeColors.subtleEmphasis
-                                      .resolveFrom(context),
-                                  textColor: ThemeColors.touchable
-                                      .resolveFrom(context),
-                                  maxWidth: 160,
-                                ),
-                              ],
-                            ),
-                          if (widget.to == null)
-                            CupertinoTextField(
-                              controller: widget.logic.addressController,
-                              placeholder: 'Enter an address',
-                              maxLines: 1,
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => handleThrottledUpdateAddress(),
-                              decoration: invalidAddress ||
-                                      parsingQRAddressError ||
-                                      transactionSendError
-                                  ? BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.danger,
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    )
-                                  : BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.border
-                                            .resolveFrom(context),
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    ),
-                              prefix: Center(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: Icon(
-                                    CupertinoIcons.creditcard,
-                                    color: hasAddress
-                                        ? ThemeColors.text.resolveFrom(context)
-                                        : ThemeColors.subtleEmphasis
-                                            .resolveFrom(context),
-                                  ),
-                                ),
-                              ),
-
-                              /// TODO: selection from contacts
-                              // suffix: GestureDetector(
-                              //   onTap:
-                              //       parsingQRAddress ? null : handleQRAddressScan,
-                              //   child: Center(
-                              //     child: Padding(
-                              //       padding:
-                              //           const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                              //       child: parsingQRAddress
-                              //           ? CupertinoActivityIndicator(
-                              //               color: ThemeColors.background
-                              //                   .resolveFrom(context),
-                              //             )
-                              //           : Icon(
-                              //               CupertinoIcons.person_alt,
-                              //               color: ThemeColors.primary
-                              //                   .resolveFrom(context),
-                              //             ),
-                              //     ),
-                              //   ),
-                              // ),
-                              onSubmitted: (_) {
-                                amountFocuseNode.requestFocus();
-                              },
-                            ),
                           const SizedBox(height: 20),
                           const Text(
                             'Amount',
@@ -342,13 +313,19 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 240,
-                                ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 child: CupertinoTextField(
                                   controller: widget.logic.amountController,
                                   placeholder: formatCurrency(1050.00, ''),
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
                                   prefix: Center(
                                     child: Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -383,8 +360,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                             darkColor: CupertinoColors.black,
                                           ),
                                           border: Border.all(
-                                            color: ThemeColors.border
-                                                .resolveFrom(context),
+                                            color: hasAmount
+                                                ? ThemeColors.text
+                                                    .resolveFrom(context)
+                                                : ThemeColors.transparent
+                                                    .resolveFrom(context),
                                           ),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(5.0)),
@@ -406,40 +386,137 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   onChanged: (_) =>
                                       handleThrottledUpdateAmount(),
                                   onSubmitted: (_) {
-                                    messageFocusNode.requestFocus();
+                                    nameFocusNode.requestFocus();
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Chip(
-                                    '- 1',
-                                    maxWidth: 64,
-                                    onTap: () => handleDecrement(1),
-                                  ),
-                                  Chip(
-                                    '- 0.1',
-                                    maxWidth: 64,
-                                    onTap: () => handleDecrement(0.1),
-                                  ),
-                                  Chip(
-                                    '+ 0.1',
-                                    maxWidth: 64,
-                                    onTap: () => handleIncrement(0.1),
-                                  ),
-                                  Chip(
-                                    '+ 1',
-                                    maxWidth: 64,
-                                    onTap: () => handleIncrement(1),
-                                  ),
-                                ],
+                              if (invalidAmount &&
+                                  (double.tryParse(widget.logic.amountController
+                                              .value.text) ??
+                                          0.0) >
+                                      0)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Insufficient funds.",
+                                      style: TextStyle(
+                                        color: ThemeColors.danger
+                                            .resolveFrom(context),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Current balance: $formattedBalance ${wallet?.symbol ?? ''}',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
+                          const Text(
+                            'To',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          if (selectedProfile != null)
+                            ProfileChip(
+                              selectedProfile: selectedProfile,
+                              handleDeSelect: handleDeSelectProfile,
+                            ),
+                          if (selectedProfile == null)
+                            CupertinoTextField(
+                              controller: widget.logic.addressController,
+                              placeholder: '@username or address',
+                              maxLines: 1,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              focusNode: nameFocusNode,
+                              textInputAction: TextInputAction.next,
+                              onChanged: handleThrottledUpdateAddress,
+                              decoration: invalidAddress ||
+                                      parsingQRAddressError ||
+                                      transactionSendError
+                                  ? BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: ThemeColors.danger,
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                    )
+                                  : BoxDecoration(
+                                      color: const CupertinoDynamicColor
+                                          .withBrightness(
+                                        color: CupertinoColors.white,
+                                        darkColor: CupertinoColors.black,
+                                      ),
+                                      border: Border.all(
+                                        color: hasAddress
+                                            ? ThemeColors.text
+                                                .resolveFrom(context)
+                                            : ThemeColors.transparent
+                                                .resolveFrom(context),
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                    ),
+                              prefix: Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: searchLoading
+                                      ? SizedBox(
+                                          height: 20,
+                                          width: 24,
+                                          child: CupertinoActivityIndicator(
+                                            color: ThemeColors.subtle
+                                                .resolveFrom(context),
+                                          ),
+                                        )
+                                      : Icon(
+                                          CupertinoIcons.profile_circled,
+                                          color: hasAddress
+                                              ? ThemeColors.text
+                                                  .resolveFrom(context)
+                                              : ThemeColors.subtleEmphasis
+                                                  .resolveFrom(context),
+                                        ),
+                                ),
+                              ),
+                              suffix: GestureDetector(
+                                onTap: handleQRScan,
+                                child: Center(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                    child: Icon(
+                                      CupertinoIcons.qrcode,
+                                      color: ThemeColors.primary
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSubmitted: handleAddressFieldSubmitted,
+                            ),
+                          // const SizedBox(height: 20),
                           // const Text(
                           //   'Description',
                           //   style: TextStyle(
@@ -453,41 +530,70 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           //   maxLength: 256,
                           //   focusNode: messageFocusNode,
                           // ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Button(
-                                text: 'Scan',
-                                color: ThemeColors.surfaceSubtle
-                                    .resolveFrom(context),
-                                labelColor:
-                                    ThemeColors.text.resolveFrom(context),
-                                suffix: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                  child: Icon(
-                                    CupertinoIcons.qrcode_viewfinder,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                  ),
-                                ),
-                                onPressed: handleQRScan,
-                              ),
-                            ],
-                          ),
                           const SizedBox(
                             height: 90,
                           ),
                         ],
                       ),
-                      if (_isSending)
-                        Positioned(
-                          bottom: 90,
-                          child: CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
+                    ),
+                    if (_isSending)
+                      Positioned(
+                        bottom: 90,
+                        child: CupertinoActivityIndicator(
+                          color: ThemeColors.subtle.resolveFrom(context),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: AnimatedOpacity(
+                        opacity: _isNameFocused && profileSuggestions.isNotEmpty
+                            ? 1
+                            : 0,
+                        duration: const Duration(milliseconds: 250),
+                        child: BlurryChild(
+                          child: Container(
+                            height: 100,
+                            width: width,
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                            child: CustomScrollView(
+                              scrollBehavior: const CupertinoScrollBehavior(),
+                              scrollDirection: Axis.horizontal,
+                              slivers: [
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    childCount: profileSuggestions.length,
+                                    (context, index) {
+                                      final profile = profileSuggestions[index];
+
+                                      return Padding(
+                                        key: Key(profile.username),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 10, 0),
+                                        child: ProfileBadge(
+                                          profile: profile,
+                                          loading: false,
+                                          onTap: () =>
+                                              handleSelectProfile(profile),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                      ),
+                    ),
+                    if (!_isNameFocused)
                       Positioned(
                         bottom: 0,
                         child: SizedBox(
@@ -496,7 +602,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                             child: SlideToComplete(
                               onCompleted: !_isSending
-                                  ? () => handleSend(context)
+                                  ? () => handleSend(
+                                        context,
+                                        selectedProfile?.account,
+                                      )
                                   : null,
                               enabled: hasAddress &&
                                   hasAmount &&
@@ -522,11 +631,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -32,7 +32,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error fetching data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -60,7 +60,7 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);
@@ -88,7 +88,77 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('error sending data');
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  Future<dynamic> delete({
+    String? url,
+    required Object body,
+    Map<String, String>? headers,
+  }) async {
+    final mergedHeaders = <String, String>{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    if (headers != null) {
+      mergedHeaders.addAll(headers);
+    }
+
+    final response = await http
+        .delete(
+          Uri.parse('$baseURL${url ?? ''}'),
+          headers: mergedHeaders,
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: netTimeoutSeconds));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  Future<dynamic> filePut({
+    String? url,
+    required List<int> file,
+    required String fileType,
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    final mergedHeaders = <String, String>{
+      'Accept': 'application/json',
+      // 'Content-Type': 'application/json; charset=UTF-8',
+    };
+    if (headers != null) {
+      mergedHeaders.addAll(headers);
+    }
+
+    final request = http.MultipartRequest(
+      'PUT',
+      Uri.parse('$baseURL${url ?? ''}'),
+    );
+
+    request.headers.addAll(mergedHeaders);
+
+    final httpImage = http.MultipartFile.fromBytes(
+      'file',
+      file,
+      filename: 'image.$fileType',
+    );
+    request.files.add(httpImage);
+
+    if (body != null) request.fields['body'] = jsonEncode(body);
+
+    final response = await http.Response.fromStream(
+      await request.send(),
+    ).timeout(const Duration(seconds: netTimeoutSeconds));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
     return jsonDecode(response.body);

@@ -6,6 +6,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletState with ChangeNotifier {
+  bool cleaningUp = false;
+  bool firstLoad = true;
   bool loading = true;
   bool error = false;
 
@@ -53,27 +55,6 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void switchChainRequest() {
-    loading = true;
-    error = false;
-    notifyListeners();
-  }
-
-  void switchChainSuccess(CWWallet wallet) {
-    transactions = [];
-    this.wallet = wallet;
-
-    loading = false;
-    error = false;
-    notifyListeners();
-  }
-
-  void switchChainError() {
-    loading = false;
-    error = true;
-    notifyListeners();
-  }
-
   void instantiateWallet() {
     loading = true;
     error = false;
@@ -105,15 +86,16 @@ class WalletState with ChangeNotifier {
     }
   }
 
-  void loadWalletSuccess(
+  void setWallet(
     CWWallet wallet,
   ) {
-    if (this.wallet != null && this.wallet!.address != wallet.address) {
-      transactions = [];
-    }
-
     this.wallet = wallet;
+    notifyListeners();
+  }
 
+  void loadWalletSuccess() {
+    cleaningUp = false;
+    firstLoad = false;
     loading = false;
     error = false;
     errorException = null;
@@ -124,6 +106,28 @@ class WalletState with ChangeNotifier {
     loading = false;
     error = true;
     errorException = exception;
+    notifyListeners();
+  }
+
+  void cleanup() {
+    cleaningUp = true;
+    firstLoad = true;
+
+    transactions = [];
+
+    loading = true;
+    error = false;
+    errorException = null;
+
+    transactionsOffset = 0;
+    transactionsHasMore = false;
+    transactionsMaxDate = DateTime.now().toUtc();
+    transactionsFromDate = DateTime.now().toUtc();
+
+    receiveQR = '';
+    walletQR = '';
+
+    transactionSendQueue = [];
     notifyListeners();
   }
 
@@ -188,7 +192,7 @@ class WalletState with ChangeNotifier {
                 ?.date ??
             DateTime.now().toUtc())
         .subtract(const Duration(minutes: 1));
-    this.transactions = transactions;
+    this.transactions = [...transactions];
 
     transactionsLoading = false;
     transactionsError = false;
@@ -409,10 +413,10 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setHasAmount(bool hasAmount) {
+  void setHasAmount(bool hasAmount, bool? invalidAmount) {
     this.hasAmount = hasAmount;
-    if (hasAmount) {
-      invalidAmount = false;
+    if (hasAmount || invalidAmount != null) {
+      this.invalidAmount = invalidAmount ?? false;
     }
     notifyListeners();
   }

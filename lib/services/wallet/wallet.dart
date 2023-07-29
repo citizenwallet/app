@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
 import 'package:citizenwallet/services/wallet/models/block.dart';
@@ -140,6 +141,7 @@ Future<WalletService?> walletServiceFromWallet(
   );
 }
 
+@Deprecated('Use WalletService2 instead')
 class WalletService {
   // String? _clientVersion;
   BigInt? _chainId;
@@ -154,6 +156,7 @@ class WalletService {
   late AccountFactory _contractAccountFactory;
   late ERC20Contract _contractToken;
   late SimpleAccount _contractAccount;
+  late ProfileContract _contractProfile;
 
   final Client _client = Client();
 
@@ -164,6 +167,9 @@ class WalletService {
   // StationService? _station;
   late APIService _api;
   final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
+  final APIService _indexerIPFS =
+      APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
+  final APIService _ipfs = APIService(baseURL: dotenv.get('IPFS_URL'));
   final APIService _bundlerRPC =
       APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
   final APIService _paymasterRPC =
@@ -271,23 +277,29 @@ class WalletService {
     _address = signer.privateKey.address;
   }
 
-  Future<void> init(String eaddr, String afaddr, String taddr) async {
+  Future<void> init(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
-    await initContracts(eaddr, afaddr, taddr);
+    await initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
-  Future<void> initUnlocked(String eaddr, String afaddr, String taddr) async {
+  Future<void> initUnlocked(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     // _clientVersion = await _ethClient.getClientVersion();
     _chainId = await _ethClient.getChainId();
 
-    await initContracts(eaddr, afaddr, taddr);
+    await initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
-  Future<void> initContracts(String eaddr, String afaddr, String taddr) async {
+  Future<void> initContracts(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
     _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
+
+    _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
+    await _contractProfile.init();
 
     _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
@@ -336,6 +348,7 @@ class WalletService {
     String eaddr,
     String afaddr,
     String taddr,
+    String prfaddr,
   ) {
     dispose();
 
@@ -345,8 +358,8 @@ class WalletService {
     _api = APIService(baseURL: _url);
 
     return _credentials != null
-        ? initUnlocked(eaddr, afaddr, taddr)
-        : init(eaddr, afaddr, taddr);
+        ? initUnlocked(eaddr, afaddr, taddr, prfaddr)
+        : init(eaddr, afaddr, taddr, prfaddr);
   }
 
   Future<Chain?> fetchChainById(BigInt id) async {
@@ -561,6 +574,78 @@ class WalletService {
     }
 
     return (null, NetworkUnknownException());
+  }
+
+  /// IPFS
+
+  /// set profile data
+  Future<bool> setProfile(ProfileV1 profile, List<int> image) async {
+    try {
+      final url = '/profiles/${_account.hex}';
+
+      print('sending to $url');
+
+      final encoded = jsonEncode(
+        profile.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final credentials = unlock();
+      if (credentials == null) {
+        throw lockedWalletException;
+      }
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      final resp = await _indexerIPFS.filePut(
+        url: url,
+        file: image,
+        fileType: '',
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hex,
+        },
+        body: body.toJson(),
+      );
+
+      print(resp['ipfs_url']);
+
+      // final calldata =
+      //     _contractProfile.setCallData(_account.hex, resp['ipfs_url']);
+
+      // final (_, userop) = await prepareUserop(calldata);
+
+      // return submitUserop(userop);
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// get profile data
+  Future<ProfileV1?> getProfile(String addr) async {
+    try {
+      final url = await _contractProfile.getURL(addr);
+
+      final profileData = await _ipfs.get(url: '/$url');
+
+      return ProfileV1.fromJson(profileData);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return null;
   }
 
   /// ERC 20 token methods
@@ -779,8 +864,20 @@ class WalletService {
     return null;
   }
 
-  /// prepare a userop for an erc20 transfer of tokens to an address
-  Future<(String, UserOp)?> prepareErc20Userop(String to, BigInt amount) async {
+  /// construct erc20 transfer call data
+  Uint8List erc20TransferCallData(
+    String to,
+    BigInt amount,
+  ) {
+    return _contractToken.transferCallData(
+      to,
+      EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+      // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+    );
+  }
+
+  /// prepare a userop for with calldata
+  Future<(String, UserOp)> prepareUserop(Uint8List calldata) async {
     try {
       // safely retrieve credentials if unlocks
       final credentials = unlock();
@@ -812,11 +909,7 @@ class WalletService {
       userop.callData = _contractAccount.executeCallData(
         _contractToken.addr,
         BigInt.zero,
-        _contractToken.transferCallData(
-          to,
-          EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
-          // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
-        ),
+        calldata,
       );
 
       // set the appropriate gas fees based on network
@@ -869,7 +962,7 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool?> submitUserop(UserOp userop) async {
+  Future<bool> submitUserop(UserOp userop) async {
     try {
       // send the user op
       final (result, useropErr) =

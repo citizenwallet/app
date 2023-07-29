@@ -44,6 +44,17 @@
     </script>
     <!-- This script adds the flutter initialization JS code -->
     <script src="flutter.js" defer></script>
+
+    <meta
+      name="theme-color"
+      content="rgba(30, 30, 30, 1)"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content="rgba(230, 230, 230, 1)"
+      media="(prefers-color-scheme: light)"
+    />
   </head>
 
   <style>
@@ -55,19 +66,106 @@
       padding: 0;
     }
 
-    .abs-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      align-content: center;
+    @media (prefers-color-scheme: light) {
+      .body {
+        background-color: rgba(230, 230, 230, 1);
+      }
+
+      .abs-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        color: black;
+        background-color: rgba(230, 230, 230, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-content: center;
+
+        transition: opacity 0.25s ease-in-out;
+
+        opacity: 1;
+      }
+
+      .abs-wrapper-loaded {
+        opacity: 0;
+      }
+
+      .lds-spinner {
+        color: black;
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+        transform: scale(0.35);
+      }
+
+      .lds-spinner div:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 3px;
+        left: 37px;
+        width: 6px;
+        height: 18px;
+        border-radius: 20%;
+        background: rgba(0, 0, 0, 0.25);
+      }
     }
+
+    @media (prefers-color-scheme: dark) {
+      .body {
+        background-color: rgba(30, 30, 30, 1);
+      }
+
+      .abs-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        color: white;
+        background-color: rgba(30, 30, 30, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-content: center;
+
+        transition: opacity 0.25s ease-in-out;
+
+        opacity: 1;
+      }
+
+      .abs-wrapper-loaded {
+        opacity: 0;
+      }
+
+      .lds-spinner {
+        color: white;
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+        transform: scale(0.35);
+      }
+
+      .lds-spinner div:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 3px;
+        left: 37px;
+        width: 6px;
+        height: 18px;
+        border-radius: 20%;
+        background: rgba(255, 255, 255, 0.45);
+      }
+    }
+
     .padded-wrapper {
       width: 60%;
 
@@ -78,29 +176,11 @@
       align-content: center;
     }
 
-    .lds-spinner {
-      color: black;
-      display: inline-block;
-      position: relative;
-      width: 80px;
-      height: 80px;
-      transform: scale(0.35);
-    }
     .lds-spinner div {
       transform-origin: 40px 40px;
       animation: lds-spinner 1.2s linear infinite;
     }
-    .lds-spinner div:after {
-      content: " ";
-      display: block;
-      position: absolute;
-      top: 3px;
-      left: 37px;
-      width: 6px;
-      height: 18px;
-      border-radius: 20%;
-      background: rgba(0, 0, 0, 0.25);
-    }
+
     .lds-spinner div:nth-child(1) {
       transform: rotate(0deg);
       animation-delay: -1.1s;
@@ -268,8 +348,8 @@
       text-align: center;
     }
   </style>
-  <body>
-    <div class="abs-wrapper">
+  <body class="body">
+    <div id="loading-wrapper" class="abs-wrapper">
       <h1 class="title">Citizen Wallet</h1>
       <div class="padded-wrapper">
         <p class="sub-title">Your wallet is being prepared.</p>
@@ -348,6 +428,10 @@
                 clearTimeout(long75Timeout);
 
                 loading.textContent = "Launching your wallet...";
+
+                var loadingWrapper = document.querySelector("#loading-wrapper");
+                loadingWrapper.classList.add("abs-wrapper-loaded");
+
                 loadingBar.classList.remove("loading-bar-75");
                 loadingBar.classList.add("loading-bar-100");
                 appRunner.runApp();

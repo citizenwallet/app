@@ -36,7 +36,7 @@ class AndroidPinCodeLogic {
       _state.setInvalidRecoveryPin(false);
       return true;
     } catch (e) {
-      print(e);
+      //
     }
 
     _state.setInvalidRecoveryPin(true);
@@ -54,7 +54,6 @@ class AndroidPinCodeLogic {
 
       await _preferences.clear();
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

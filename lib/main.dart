@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -24,7 +25,7 @@ void main() async {
 FutureOr<void> appRunner() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await PreferencesService().init();
+  await PreferencesService().init(await SharedPreferences.getInstance());
 
   runApp(provideAppState(const MyApp()));
 }

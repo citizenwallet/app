@@ -233,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: "21145c9c268d54b1f771d8380c195d2d6f655e0567dc1ca2f9c134c02c819e0a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.3"
   fixnum:
     dependency: transitive
     description:
@@ -278,6 +286,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.15"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: "950e77c2bbe1692bc0874fc7fb491b96a4dc340457f4ea1641443d0a6c1ea360"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.15"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -604,10 +620,26 @@ packages:
     dependency: "direct main"
     description:
       name: mobile_scanner
-      sha256: da55204e5439bc8dc058df56231a7a1d513c6ec9cbad84492f56d493382d296f
+      sha256: "54dd914e1bb5758b3db7aa02e56d65d80285ba0705e0e5fa5cfbb11e27344c4b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
+  mocktail:
+    dependency: "direct dev"
+    description:
+      name: mocktail
+      sha256: "80a996cd9a69284b3dc521ce185ffe9150cde69767c2d3a0720147d93c0cef53"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
+  modal_bottom_sheet:
+    dependency: "direct main"
+    description:
+      name: modal_bottom_sheet
+      sha256: "3bba63c62d35c931bce7f8ae23a47f9a05836d8cb3c11122ada64e0b2f3d718f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0-pre"
   nested:
     dependency: transitive
     description:
@@ -616,6 +648,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nock:
+    dependency: "direct dev"
+    description:
+      name: nock
+      sha256: "8c3b80d0212741e30f46eac098561c86af79f6f96954d549b2b7e02a615c1166"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.2"
   node_preamble:
     dependency: transitive
     description:
@@ -953,9 +993,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.47"
-      resolved-ref: e4463a2ecd2060ae9c68c6c6e8f4c7372ce56c36
-      url: "https://github.com/daobrussels/smartcontracts.git"
+      ref: "v0.0.50"
+      resolved-ref: d6704083d082855e52bb0b9fa03f0dd32a07cb8d
+      url: "https://github.com/citizenwallet/smartcontracts.git"
     source: git
     version: "1.0.0"
   source_map_stack_trace:
@@ -1118,6 +1158,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  universal_io:
+    dependency: "direct main"
+    description:
+      name: universal_io
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   unorm_dart:
     dependency: transitive
     description:
@@ -1190,6 +1238,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  username_gen:
+    dependency: "direct main"
+    description:
+      name: username_gen
+      sha256: "4789542607884e9e9ab8b2329a466b02cadc78df9b3dfba1dc362fda418519d3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   uuid:
     dependency: transitive
     description:

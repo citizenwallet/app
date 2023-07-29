@@ -1,7 +1,7 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
-import 'package:citizenwallet/screens/backup/screen.android.dart';
-import 'package:citizenwallet/screens/backup/screen.apple.dart';
+import 'package:citizenwallet/screens/accounts/screen.android.dart';
+import 'package:citizenwallet/screens/accounts/screen.apple.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -9,6 +9,7 @@ import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/utils/platform.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,6 +64,7 @@ GoRouter createRouter(
                     return TransactionScreen(
                       transactionId: state.pathParameters['transactionId'],
                       logic: extra['logic'],
+                      profilesLogic: extra['profilesLogic'],
                     );
                   },
                 ),
@@ -91,8 +93,8 @@ GoRouter createRouter(
           path: '/backup',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) => isPlatformAndroid()
-              ? const AndroidBackupScreen()
-              : const AppleBackupScreen(),
+              ? const AndroidAccountsScreen()
+              : const AppleAccountsScreen(),
         ),
       ],
     );
@@ -152,6 +154,7 @@ GoRouter createWebRouter(
                       child: TransactionScreen(
                         transactionId: state.pathParameters['transactionId'],
                         logic: extra['logic'],
+                        profilesLogic: extra['profilesLogic'],
                       ),
                     );
                   },

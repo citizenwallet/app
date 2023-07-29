@@ -5,7 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 extension PumpApp on WidgetTester {
-  Future<void> pumpAppWithRouter(Widget widget) async {
+  Future<void> pumpAppWithRouter(Widget widget,
+      {List<RouteBase> routes = const []}) async {
     await pumpWidget(
       provideAppState(
         CupertinoApp.router(
@@ -16,6 +17,7 @@ extension PumpApp on WidgetTester {
                 path: '/',
                 builder: (context, state) => widget,
               ),
+              ...routes,
             ],
           ),
           theme: CupertinoThemeData(

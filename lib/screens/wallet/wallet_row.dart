@@ -1,36 +1,64 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
-class WalletRow extends StatelessWidget {
+class WalletRow extends StatefulWidget {
   final CWWallet wallet;
   final bool isSelected;
+  final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
+  final void Function(String)? onLoadProfile;
 
   const WalletRow(
     this.wallet, {
     super.key,
     this.isSelected = false,
+    this.profiles = const {},
     this.onTap,
     this.onMore,
+    this.onLoadProfile,
   });
 
   @override
+  WalletRowState createState() => WalletRowState();
+}
+
+class WalletRowState extends State<WalletRow> {
+  @override
+  void didUpdateWidget(WalletRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.onLoadProfile != null &&
+        oldWidget.wallet.account != widget.wallet.account &&
+        widget.wallet.account.isNotEmpty) {
+      widget.onLoadProfile!(widget.wallet.account);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final wallet = widget.wallet;
+    final isSelected = widget.isSelected;
+    final profiles = widget.profiles;
+    final onTap = widget.onTap;
+    final onMore = widget.onMore;
+
+    final profile =
+        wallet.account.isEmpty ? null : profiles[wallet.account]?.profile;
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        key: super.key,
         children: [
           Container(
-            key: super.key,
             margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-            height: 80,
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            height: 84,
             decoration: BoxDecoration(
               color: ThemeColors.subtle.resolveFrom(context),
               borderRadius: BorderRadius.circular(10),
@@ -38,15 +66,16 @@ class WalletRow extends StatelessWidget {
                 width: 2,
                 color: isSelected
                     ? ThemeColors.primary.resolveFrom(context)
-                    : ThemeColors.uiBackground.resolveFrom(context),
+                    : ThemeColors.uiBackgroundAlt.resolveFrom(context),
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const ProfileCircle(
+                ProfileCircle(
                   size: 50,
-                  padding: 5,
-                  imageUrl: 'assets/icons/app.svg',
+                  imageUrl: profile?.imageSmall ?? 'assets/icons/profile.svg',
                   backgroundColor: ThemeColors.white,
                   borderColor: ThemeColors.subtle,
                 ),
@@ -57,7 +86,7 @@ class WalletRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        wallet.name,
+                        profile?.name ?? wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -72,7 +101,9 @@ class WalletRow extends StatelessWidget {
                               width: 100,
                             )
                           : Text(
-                              formatHexAddress(wallet.account),
+                              profile != null
+                                  ? '@${profile.username}'
+                                  : formatHexAddress(wallet.account),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(

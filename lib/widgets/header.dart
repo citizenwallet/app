@@ -47,7 +47,7 @@ class HeaderState extends State<Header> {
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent
-            : widget.color ?? ThemeColors.uiBackground.resolveFrom(context),
+            : widget.color ?? ThemeColors.uiBackgroundAlt.resolveFrom(context),
         border: widget.showBorder
             ? Border(
                 bottom:

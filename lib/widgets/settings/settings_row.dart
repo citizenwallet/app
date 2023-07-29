@@ -1,8 +1,10 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SettingsRow extends StatelessWidget {
   final String label;
+  final String? icon;
   final String? subLabel;
   final Widget? trailing;
   final void Function()? onTap;
@@ -11,6 +13,7 @@ class SettingsRow extends StatelessWidget {
   const SettingsRow({
     super.key,
     required this.label,
+    this.icon,
     this.subLabel,
     this.trailing,
     this.onTap,
@@ -37,11 +40,23 @@ class SettingsRow extends StatelessWidget {
                           color: ThemeColors.border.resolveFrom(context))),
                   child: Row(
                     children: [
+                      if (icon != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: SvgPicture.asset(
+                            icon!,
+                            semanticsLabel: '$label icon',
+                            height: 20,
+                            width: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                       Expanded(
                         child: Text(
                           label,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
@@ -52,7 +67,8 @@ class SettingsRow extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                           child: Icon(
                             onTapIcon ?? CupertinoIcons.forward,
-                            color: ThemeColors.text.resolveFrom(context),
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
                           ),
                         ),
                     ],

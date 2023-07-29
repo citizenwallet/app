@@ -6,7 +6,7 @@ import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/settings_row.dart';
+import 'package:citizenwallet/widgets/settings/settings_row.dart';
 import 'package:citizenwallet/widgets/settings_sub_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -128,6 +128,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsRow(
                 label: 'Dark mode',
+                icon: 'assets/icons/dark-mode.svg',
                 trailing: CupertinoSwitch(
                   value: darkMode,
                   onChanged: onToggleDarkMode,
@@ -135,6 +136,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsRow(
                 label: 'About',
+                icon: 'assets/icons/docs.svg',
                 onTap: handleOpenAbout,
               ),
               if (packageInfo != null)
@@ -198,23 +200,22 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsRow(
                 label: 'View on ${widget.scanName}',
+                icon: 'assets/icons/website.svg',
                 onTap: wallet != null
                     ? () => handleOpenContract(wallet.account)
                     : null,
               ),
               SettingsRow(
-                label: 'Backup',
-                onTap: handleOpenBackup,
-              ),
-              SettingsRow(
                 label: 'Accounts',
+                icon: 'assets/icons/users.svg',
                 subLabel: isPlatformApple()
                     ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
                     : "All your accounts are automatically backed up to your Google Drive.",
                 trailing: Icon(
                   CupertinoIcons.cloud,
-                  color: ThemeColors.subtleEmphasis.resolveFrom(context),
+                  color: ThemeColors.surfacePrimary.resolveFrom(context),
                 ),
+                onTap: handleOpenBackup,
               ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.center,

@@ -1,7 +1,6 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:simple_animations/simple_animations.dart';
 
 class SkeletonTransactionRow extends StatelessWidget {
   const SkeletonTransactionRow({
@@ -20,7 +19,7 @@ class SkeletonTransactionRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           width: 2,
-          color: ThemeColors.uiBackground.resolveFrom(context),
+          color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         ),
       ),
       child: const Row(
@@ -37,6 +36,7 @@ class SkeletonTransactionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PulsingContainer(
+                  height: 24,
                   width: 100,
                 ),
               ],
@@ -50,10 +50,12 @@ class SkeletonTransactionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PulsingContainer(
+                  height: 24,
                   width: 50,
                 ),
                 SizedBox(width: 5),
                 PulsingContainer(
+                  height: 24,
                   width: 40,
                 ),
               ],

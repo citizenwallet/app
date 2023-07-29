@@ -173,6 +173,7 @@ class LandingScreenState extends State<LandingScreen>
         context.select((AppState state) => state.walletLoading);
 
     return CupertinoPageScaffold(
+      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
       child: SafeArea(
         child: Flex(
           direction: Axis.vertical,
@@ -182,6 +183,7 @@ class LandingScreenState extends State<LandingScreen>
                 alignment: Alignment.center,
                 children: [
                   CustomScrollView(
+                    scrollBehavior: const CupertinoScrollBehavior(),
                     slivers: [
                       SliverFillRemaining(
                         child: Column(

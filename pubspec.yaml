@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.16+4
+version: 1.0.17+13
 publish_to: none
 description: Receive and send ERC20 without gas fees.
 environment:
@@ -7,8 +7,8 @@ environment:
 dependencies:
   smartcontracts:
     git:
-      url: https://github.com/daobrussels/smartcontracts.git
-      ref: v0.0.47
+      url: https://github.com/citizenwallet/smartcontracts.git
+      ref: v0.0.50
   cupertino_icons: ^1.0.2
   go_router: ^9.0.0
   provider: ^6.0.5
@@ -25,7 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^2.3.2
-  mobile_scanner: ^3.2.0
+  mobile_scanner: ^3.3.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
@@ -48,15 +48,22 @@ dependencies:
   sentry_flutter: ^7.8.0
   simple_animations: ^5.0.2
   async: ^2.11.0
+  modal_bottom_sheet: ^3.0.0-pre
+  username_gen: ^1.0.4
+  file_picker: ^5.3.3
+  universal_io: ^2.2.2
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  mocktail: ^0.3.0
+  nock: ^1.2.2
   sentry_dart_plugin: ^1.4.0
 flutter:
   assets:
     - .env
+    - assets/logo_small.png
     - assets/about/about.md
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
@@ -64,6 +71,11 @@ flutter:
     - assets/images/citizenwallet-qrcode.svg
     - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
+    - assets/icons/dark-mode.svg
+    - assets/icons/docs.svg
+    - assets/icons/website.svg
+    - assets/icons/cloud-settings.svg
+    - assets/icons/users.svg
     - assets/icons/coin.svg
     - assets/icons/profile.svg
     - assets/icons/anonymous_user.svg
@@ -83,6 +95,7 @@ flutter:
     - packages/smartcontracts/contracts/external/SimpleAccountFactory.abi.json
     - packages/smartcontracts/contracts/external/EntryPoint.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
+    - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
 
 flutter_launcher_icons:

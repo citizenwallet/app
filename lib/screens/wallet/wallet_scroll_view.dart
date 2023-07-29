@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -23,6 +24,8 @@ class WalletScrollView extends StatelessWidget {
   final void Function(String) handleFailedTransactionTap;
   final void Function() handleCopyWalletQR;
 
+  final void Function(String) handleProfileLoad;
+
   const WalletScrollView({
     Key? key,
     required this.controller,
@@ -32,6 +35,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
     required this.handleCopyWalletQR,
+    required this.handleProfileLoad,
   }) : super(key: key);
 
   @override
@@ -58,10 +62,15 @@ class WalletScrollView extends StatelessWidget {
 
     final blockSending = context.select(selectShouldBlockSending);
 
-    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
+    final profiles = context.watch<ProfilesState>().profiles;
+
+    if (wallet != null &&
+        wallet.doubleBalance == 0.0 &&
+        transactions.isEmpty &&
+        !transactionsLoading) {
       return CustomScrollView(
         controller: controller,
-        physics: const AlwaysScrollableScrollPhysics(),
+        scrollBehavior: const CupertinoScrollBehavior(),
         slivers: [
           SliverFillRemaining(
             child: Column(
@@ -172,7 +181,7 @@ class WalletScrollView extends StatelessWidget {
 
     return CustomScrollView(
       controller: controller,
-      physics: const AlwaysScrollableScrollPhysics(),
+      scrollBehavior: const CupertinoScrollBehavior(),
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: handleRefresh,
@@ -213,7 +222,7 @@ class WalletScrollView extends StatelessWidget {
         if (queuedTransactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: const Text(
                 'Unable to send',
@@ -236,13 +245,15 @@ class WalletScrollView extends StatelessWidget {
                 final transaction = queuedTransactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
                     wallet: wallet,
+                    profiles: profiles,
                     onTap: blockSending ? null : handleFailedTransactionTap,
+                    onLoadProfile: handleProfileLoad,
                   ),
                 );
               },
@@ -250,7 +261,7 @@ class WalletScrollView extends StatelessWidget {
           ),
         SliverToBoxAdapter(
           child: Container(
-            color: ThemeColors.uiBackground.resolveFrom(context),
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: const Text(
               'Transactions',
@@ -264,7 +275,7 @@ class WalletScrollView extends StatelessWidget {
         if (transactionsLoading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               child: Center(
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
@@ -275,7 +286,7 @@ class WalletScrollView extends StatelessWidget {
         if (!transactionsLoading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -306,37 +317,20 @@ class WalletScrollView extends StatelessWidget {
                 final transaction = transactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
                     wallet: wallet,
+                    profiles: profiles,
                     onTap: handleTransactionTap,
+                    onLoadProfile: handleProfileLoad,
                   ),
                 );
               },
             ),
           ),
-        // if (transactions.isNotEmpty && wallet != null)
-        //   SliverToBoxAdapter(
-        //     child: Container(
-        //       color: ThemeColors.uiBackground.resolveFrom(context),
-        //       height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
-        //       child: transactionsLoading
-        //           ? Container(
-        //               color: ThemeColors.uiBackground.resolveFrom(context),
-        //               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-        //               child: TransactionRow(
-        //                 key: const Key('loading'),
-        //                 transaction: CWTransaction.empty(),
-        //                 wallet: wallet,
-        //                 loading: true,
-        //               ),
-        //             )
-        //           : null,
-        //     ),
-        //   ),
         if (transactions.isNotEmpty &&
             wallet != null &&
             transactionsLoading &&
@@ -346,7 +340,7 @@ class WalletScrollView extends StatelessWidget {
               childCount: 10,
               (context, index) {
                 return Container(
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: SkeletonTransactionRow(
                     key: Key('loading-$index'),
@@ -358,23 +352,9 @@ class WalletScrollView extends StatelessWidget {
         if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackground.resolveFrom(context),
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
               child: null,
-              // child: hasMore
-              //     ? null
-              //     : Center(
-              //         child: SvgPicture.asset(
-              //           'assets/icons/empty_roll.svg',
-              //           semanticsLabel: 'empty roll icon',
-              //           height: 100,
-              //           width: 100,
-              //           colorFilter: ColorFilter.mode(
-              //             ThemeColors.text.resolveFrom(context),
-              //             BlendMode.srcIn,
-              //           ),
-              //         ),
-              //       ),
             ),
           ),
       ],

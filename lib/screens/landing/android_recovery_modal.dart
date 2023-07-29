@@ -107,6 +107,7 @@ class AndroidRecoveryModalState extends State<AndroidRecoveryModal> {
                 ),
                 Expanded(
                   child: CustomScrollView(
+                    scrollBehavior: const CupertinoScrollBehavior(),
                     slivers: [
                       SliverToBoxAdapter(
                         child: Padding(

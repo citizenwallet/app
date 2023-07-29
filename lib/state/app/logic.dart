@@ -99,7 +99,8 @@ class AppLogic {
         return null;
       }
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(
+          const Duration(milliseconds: 1500)); // smoother launch experience
 
       _appState.importLoadingSuccess();
 
@@ -168,6 +169,8 @@ class AppLogic {
         return null;
       }
 
+      await delay(const Duration(milliseconds: 1500));
+
       return lastWallet;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -183,16 +186,23 @@ class AppLogic {
     try {
       _appState.importLoadingWebReq();
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(const Duration(milliseconds: 0));
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
+      await delay(const Duration(milliseconds: 0));
+
       final password = dotenv.get('WEB_BURNER_PASSWORD');
 
-      final Wallet wallet =
-          Wallet.createNew(credentials, password, Random.secure());
+      final Wallet wallet = Wallet.createNew(
+        credentials,
+        password,
+        Random.secure(),
+        scryptN:
+            512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
+      );
 
-      await delay(const Duration(milliseconds: 250));
+      await delay(const Duration(milliseconds: 0));
 
       _appState.importLoadingWebSuccess(password);
 
@@ -310,7 +320,6 @@ class AppLogic {
 
       _appState.deleteBackupLoadingSuccess();
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -333,7 +342,7 @@ class AppLogic {
       _preferences.setAndroidBackupIsConfigured(true);
       return true;
     } catch (e) {
-      print(e);
+      //
     }
 
     return false;
