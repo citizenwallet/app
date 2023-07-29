@@ -1,10 +1,8 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
-import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -77,7 +75,7 @@ class QRModal extends StatelessWidget {
                       child: PrettyQr(
                         data: qrCode,
                         size: qrSize,
-                        roundEdges: !kIsWeb,
+                        roundEdges: false,
                       ),
                     ),
                     const SizedBox(

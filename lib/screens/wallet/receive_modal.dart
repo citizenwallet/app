@@ -9,7 +9,6 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -152,7 +151,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                                         qrSize,
                                         shrink,
                                       ),
-                                      roundEdges: !kIsWeb,
+                                      roundEdges: false,
                                     ),
                                   ),
                                 ),
