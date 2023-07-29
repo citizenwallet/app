@@ -122,7 +122,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   const SizedBox(
                                     width: 44,
                                   ),
-                                  Expanded(
+                                  ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 200),
                                     child: Text(
                                       '@${profile.username}',
                                       style: TextStyle(
@@ -147,7 +149,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     onPressed: () =>
                                         handleCopy('@${profile.username}'),
-                                  )
+                                  ),
                                 ],
                               ),
                             if (!hasNoProfile)
