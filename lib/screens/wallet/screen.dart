@@ -203,7 +203,7 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    if (address == null) {
+    if (address == null || address == widget.address) {
       _logic.resumeFetching();
       return;
     }
