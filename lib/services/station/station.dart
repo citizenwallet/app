@@ -310,7 +310,7 @@ class UnauthorizedException implements Exception {
 
 //     // generate the request
 //     final StationRequest req = StationRequest(
-//       address: requesterKey.address.hex,
+//       address: requesterKey.address.hexEip55,
 //       data: body,
 //     );
 

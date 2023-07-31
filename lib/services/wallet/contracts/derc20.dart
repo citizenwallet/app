@@ -96,8 +96,8 @@ class Token {
       final to = decoded[1] as EthereumAddress;
       final value = decoded[2] as BigInt;
 
-      if (from.hex.toLowerCase() != owner.toLowerCase() ||
-          to.hex.toLowerCase() != owner.toLowerCase()) continue;
+      if (from.hexEip55.toLowerCase() != owner.toLowerCase() ||
+          to.hexEip55.toLowerCase() != owner.toLowerCase()) continue;
 
       txs.add(TransferEvent(
         from,

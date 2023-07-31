@@ -213,7 +213,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     await delay(const Duration(milliseconds: 250));
 
-    navigator.go('/wallet/${address.toLowerCase()}');
+    navigator.go('/wallet/$address');
   }
 
   void handleDisplayWalletQR(BuildContext context) async {

@@ -116,8 +116,8 @@ class WalletLogic extends WidgetsBindingObserver {
           balance,
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
-          address: _wallet.address.hex,
-          account: _wallet.account.hex,
+          address: _wallet.address.hexEip55,
+          account: _wallet.account.hexEip55,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -127,7 +127,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData();
 
-      await _preferences.setLastWallet(_wallet.address.hex);
+      await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastWalletLink(encodedWallet);
 
       _state.loadWalletSuccess();
@@ -187,8 +187,8 @@ class WalletLogic extends WidgetsBindingObserver {
         CWWallet(
           balance,
           name: dbWallet.name,
-          address: _wallet.address.hex,
-          account: _wallet.account.hex,
+          address: _wallet.address.hexEip55,
+          account: _wallet.account.hexEip55,
           currencyName: currency.name,
           symbol: currency.symbol,
           decimalDigits: currency.decimals,
@@ -228,7 +228,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final address = credentials.address.hex.toLowerCase();
+      final address = credentials.address.hexEip55;
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
@@ -252,7 +252,7 @@ class WalletLogic extends WidgetsBindingObserver {
         cwwallet,
       );
 
-      return credentials.address.hex;
+      return credentials.address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -277,7 +277,7 @@ class WalletLogic extends WidgetsBindingObserver {
           throw Exception('Invalid private key');
         }
 
-        final address = credentials.address.hex.toLowerCase();
+        final address = credentials.address.hexEip55;
 
         final CWWallet cwwallet = CWWallet(
           '0.0',
@@ -306,7 +306,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await wallet.verifyData();
 
-      final address = wallet.data.address.toLowerCase();
+      final address = EthereumAddress.fromHex(wallet.data.address).hexEip55;
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
@@ -417,8 +417,8 @@ class WalletLogic extends WidgetsBindingObserver {
           id: tx.hash,
           hash: tx.txhash,
           chainId: _wallet.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
+          from: tx.from.hexEip55,
+          to: tx.to.hexEip55,
           title: '',
           date: tx.createdAt,
           state: TransactionState.values.firstWhereOrNull(
@@ -511,8 +511,8 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tx.hash,
             hash: tx.txhash,
             chainId: _wallet.chainId,
-            from: tx.from.hex,
-            to: tx.to.hex,
+            from: tx.from.hexEip55,
+            to: tx.to.hexEip55,
             title: '',
             date: tx.createdAt,
             state: TransactionState.values.firstWhereOrNull(
@@ -560,8 +560,8 @@ class WalletLogic extends WidgetsBindingObserver {
           id: tx.hash,
           hash: tx.txhash,
           chainId: _wallet.chainId,
-          from: tx.from.hex,
-          to: tx.to.hex,
+          from: tx.from.hexEip55,
+          to: tx.to.hexEip55,
           title: '',
           date: tx.createdAt,
           state: TransactionState.values.firstWhereOrNull(
@@ -1044,7 +1044,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void updateReceiveQRLocked({bool? onlyHex}) async {
     try {
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet.account.hex);
+        _state.updateReceiveQR(_wallet.account.hexEip55);
         return;
       }
 
@@ -1054,7 +1054,8 @@ class WalletLogic extends WidgetsBindingObserver {
                   _amountController.value.text.replaceAll(',', '.')) ??
               0;
 
-      final dbWallet = await _encPrefs.getWalletBackup(_wallet.address.hex);
+      final dbWallet =
+          await _encPrefs.getWalletBackup(_wallet.address.hexEip55);
 
       if (dbWallet == null) {
         throw NotFoundException();
@@ -1064,7 +1065,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final qrData = QRTransactionRequestData(
         chainId: _wallet.chainId,
-        address: _wallet.account.hex,
+        address: _wallet.account.hexEip55,
         amount: amount,
         message: _messageController.value.text,
         publicKey: credentials.encodedPublicKey,
@@ -1095,7 +1096,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void updateReceiveQRUnlocked({bool? onlyHex}) async {
     try {
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet.account.hex);
+        _state.updateReceiveQR(_wallet.account.hexEip55);
         return;
       }
 
@@ -1107,7 +1108,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final qrData = QRTransactionRequestData(
         chainId: _wallet.chainId,
-        address: _wallet.account.hex,
+        address: _wallet.account.hexEip55,
         amount: amount,
         message: _messageController.value.text,
         publicKey: _wallet.credentials.encodedPublicKey,
@@ -1139,7 +1140,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void updateWalletQR() async {
     try {
-      _state.updateWalletQR(_wallet.account.hex);
+      _state.updateWalletQR(_wallet.account.hexEip55);
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -1157,7 +1158,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void copyWalletAccount() {
     try {
-      Clipboard.setData(ClipboardData(text: _wallet.account.hex));
+      Clipboard.setData(ClipboardData(text: _wallet.account.hexEip55));
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1234,7 +1235,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         final account = await _wallet.getAccountAddress(addr);
 
-        _state.updateDBWalletAccountAddress(addr, account.hex);
+        _state.updateDBWalletAccountAddress(addr, account.hexEip55);
 
         await delay(const Duration(milliseconds: 250));
       }

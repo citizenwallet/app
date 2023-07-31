@@ -32,7 +32,7 @@ class Signer {
 
   EthPrivateKey get privateKey => _privateKey;
   Uint8List get publicKey => _privateKey.encodedPublicKey;
-  String get address => _privateKey.address.hex;
+  String get address => _privateKey.address.hexEip55;
 
   String _sign(String data) {
     final signature =

@@ -89,7 +89,7 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
-      final profile = await _wallet.getProfile(_wallet.account.hex);
+      final profile = await _wallet.getProfile(_wallet.account.hexEip55);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();

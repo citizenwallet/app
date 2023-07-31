@@ -76,8 +76,8 @@ class RouterShell extends StatelessWidget {
                       : (index) {
                           switch (index) {
                             case 0:
-                              GoRouter.of(context).go(
-                                  '/wallet/${wallet?.address.toLowerCase()}');
+                              GoRouter.of(context)
+                                  .go('/wallet/${wallet?.address}');
                               break;
                             case 1:
                               GoRouter.of(context).go('/settings');

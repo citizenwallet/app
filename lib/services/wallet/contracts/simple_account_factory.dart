@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/external.dart';

@@ -50,7 +50,7 @@ class LandingScreenState extends State<LandingScreen>
     if (address == null) {
       return;
     }
-    navigator.go('/wallet/${address.toLowerCase()}');
+    navigator.go('/wallet/$address');
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns
@@ -128,7 +128,7 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    navigator.go('/wallet/${address.toLowerCase()}');
+    navigator.go('/wallet/$address');
   }
 
   void handleImportWallet() async {

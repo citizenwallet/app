@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -87,11 +86,13 @@ class AppLogic {
         if (dbWallets.isNotEmpty) {
           final dbWallet = dbWallets[0];
 
-          await _preferences.setLastWallet(dbWallet.address);
+          final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
+
+          await _preferences.setLastWallet(address);
 
           _appState.importLoadingSuccess();
 
-          return dbWallet.address;
+          return address;
         }
 
         _appState.importLoadingError();
@@ -104,7 +105,9 @@ class AppLogic {
 
       _appState.importLoadingSuccess();
 
-      return dbWallet.address;
+      final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
+
+      return address;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -138,17 +141,19 @@ class AppLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
+      final address = credentials.address.hexEip55;
+
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: credentials.address.hex,
+        address: address,
         privateKey: (bytesToHex(credentials.privateKey)),
         name: name,
       ));
 
-      await _preferences.setLastWallet(credentials.address.hex);
+      await _preferences.setLastWallet(address);
 
       _appState.importLoadingSuccess();
 
-      return credentials.address.hex;
+      return credentials.address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -231,26 +236,28 @@ class AppLogic {
           throw Exception('Invalid private key');
         }
 
+        final address = credentials.address.hexEip55;
+
         await _encPrefs.setWalletBackup(
           BackupWallet(
-            address: credentials.address.hex,
+            address: address,
             privateKey: bytesToHex(credentials.privateKey),
             name: name,
           ),
         );
 
-        await _preferences.setLastWallet(credentials.address.hex);
+        await _preferences.setLastWallet(address);
 
         _appState.importLoadingSuccess();
 
-        return credentials.address.hex;
+        return address;
       }
 
       final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
 
       await wallet.verifyData();
 
-      final address = wallet.data.address.toLowerCase();
+      final address = EthereumAddress.fromHex(wallet.data.address).hexEip55;
 
       // TODO: remove this
       // final DBWallet dbwallet = DBWallet(

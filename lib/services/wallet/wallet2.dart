@@ -78,7 +78,7 @@ class WalletService2 {
 
   /// retrieves the current balance of the address
   Future<String> get balance async =>
-      fromUnit(await _contractToken.getBalance(_account.hex));
+      fromUnit(await _contractToken.getBalance(_account.hexEip55));
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
@@ -131,14 +131,14 @@ class WalletService2 {
 
     // Get the Ethereum address for the current account.
     _account =
-        await _contractAccountFactory.getAddress(_credentials.address.hex);
+        await _contractAccountFactory.getAddress(_credentials.address.hexEip55);
 
     // Create a new ERC20 token contract instance and initialize it.
     _contractToken = newERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
     // Create a new simple account instance and initialize it.
-    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hex);
+    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hexEip55);
     await _contractAccount.init();
   }
 
@@ -149,7 +149,7 @@ class WalletService2 {
     required String fileType,
   }) async {
     try {
-      final url = '/profiles/${_account.hex}';
+      final url = '/profiles/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         profile.toJson(),
@@ -167,7 +167,7 @@ class WalletService2 {
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': address.hex,
+          'X-Address': address.hexEip55,
         },
         body: body.toJson(),
       );
@@ -175,7 +175,7 @@ class WalletService2 {
       final String profileUrl = resp['object']['ipfs_url'];
 
       final calldata = _contractProfile.setCallData(
-          _account.hex, profile.username, profileUrl);
+          _account.hexEip55, profile.username, profileUrl);
 
       final (_, userop) = await prepareUserop(profileAddress, calldata);
 
@@ -198,7 +198,7 @@ class WalletService2 {
   /// update profile data
   Future<bool> updateProfile(ProfileV1 profile) async {
     try {
-      final url = '/profiles/${_account.hex}';
+      final url = '/profiles/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         profile.toJson(),
@@ -214,7 +214,7 @@ class WalletService2 {
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': address.hex,
+          'X-Address': address.hexEip55,
         },
         body: body.toJson(),
       );
@@ -222,7 +222,7 @@ class WalletService2 {
       final String profileUrl = resp['object']['ipfs_url'];
 
       final calldata = _contractProfile.setCallData(
-          _account.hex, profile.username, profileUrl);
+          _account.hexEip55, profile.username, profileUrl);
 
       final (_, userop) = await prepareUserop(profileAddress, calldata);
 
@@ -245,11 +245,11 @@ class WalletService2 {
   /// set profile data
   Future<bool> unpinCurrentProfile() async {
     try {
-      final url = '/profiles/${_account.hex}';
+      final url = '/profiles/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         {
-          'account': _account.hex,
+          'account': _account.hexEip55,
           'date': DateTime.now().toUtc().toIso8601String(),
         },
       );
@@ -264,7 +264,7 @@ class WalletService2 {
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': address.hex,
+          'X-Address': address.hexEip55,
         },
         body: body.toJson(),
       );
@@ -347,7 +347,7 @@ class WalletService2 {
       final List<TransferEvent> tx = [];
 
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hex}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
@@ -377,7 +377,7 @@ class WalletService2 {
       final List<TransferEvent> tx = [];
 
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hex}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
@@ -554,17 +554,17 @@ class WalletService2 {
       final userop = UserOp.defaultUserOp();
 
       // use the account hex as the sender
-      userop.sender = _account.hex;
+      userop.sender = _account.hexEip55;
 
       // determine the appropriate nonce
-      final nonce = await _contractEntryPoint.getNonce(_account.hex);
+      final nonce = await _contractEntryPoint.getNonce(_account.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero) {
         // construct the init code to deploy the account
         userop.initCode = _contractAccountFactory.createAccountInitCode(
-          credentials.address.hex,
+          credentials.address.hexEip55,
           BigInt.zero,
         );
       }
@@ -648,7 +648,7 @@ class WalletService2 {
   /// [tx] the transfer event to add
   Future<TransferEvent?> addSendingLog(TransferEvent tx) async {
     try {
-      final url = '/logs/transfers/${_contractToken.addr}/${_account.hex}';
+      final url = '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         tx.toJson(),
@@ -664,7 +664,7 @@ class WalletService2 {
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': credentials.address.hex,
+          'X-Address': credentials.address.hexEip55,
         },
         body: body.toJson(),
       );
@@ -686,7 +686,7 @@ class WalletService2 {
   Future<bool> setStatusLog(String hash, TransactionState status) async {
     try {
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hex}/$hash';
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/$hash';
 
       final encoded = jsonEncode(
         StatusUpdateRequest(status).toJson(),
@@ -702,7 +702,7 @@ class WalletService2 {
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': credentials.address.hex,
+          'X-Address': credentials.address.hexEip55,
         },
         body: body.toJson(),
       );
