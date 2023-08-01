@@ -30,6 +30,10 @@ class ProfileLogic {
     _state.resetEditForm();
   }
 
+  void resetViewProfile() {
+    _state.resetViewProfile();
+  }
+
   void startEdit() async {
     if (_state.image == '') {
       _state.startEdit(null, null);
@@ -85,11 +89,12 @@ class ProfileLogic {
     _state.setUsernameError();
   }
 
-  Future<void> loadProfile() async {
+  Future<void> loadProfile({String? account}) async {
     try {
       _state.setProfileRequest();
 
-      final profile = await _wallet.getProfile(_wallet.account.hexEip55);
+      final profile =
+          await _wallet.getProfile(account ?? _wallet.account.hexEip55);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
@@ -119,6 +124,32 @@ class ProfileLogic {
     _state.setProfileError();
   }
 
+  Future<void> loadViewProfile(String account) async {
+    try {
+      _state.viewProfileRequest();
+
+      final profile = await _wallet.getProfile(account);
+      if (profile == null) {
+        await delay(const Duration(milliseconds: 500));
+        _state.setViewProfileNoChangeSuccess();
+        return;
+      }
+
+      _state.viewProfileSuccess(profile);
+
+      _profiles.isLoaded(
+        profile.account,
+        profile,
+      );
+
+      return;
+    } catch (exception) {
+      //
+    }
+
+    _state.viewProfileError();
+  }
+
   Future<bool> save(ProfileV1 profile, Uint8List image, String ext) async {
     try {
       _state.setProfileRequest();
@@ -135,6 +166,8 @@ class ProfileLogic {
       if (!success) {
         throw Exception('Failed to save profile');
       }
+
+      _state.viewProfileSuccess(profile);
 
       _state.setProfileSuccess(
         account: profile.account,

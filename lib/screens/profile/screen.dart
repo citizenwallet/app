@@ -15,10 +15,12 @@ import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String account;
+  final bool readonly;
 
   const ProfileScreen({
     Key? key,
     required this.account,
+    this.readonly = false,
   }) : super(key: key);
 
   @override
@@ -41,10 +43,11 @@ class ProfileScreenState extends State<ProfileScreen> {
   }
 
   void onLoad() {
-    _logic.loadProfile();
+    _logic.loadViewProfile(widget.account);
   }
 
   void handleDismiss(BuildContext context) {
+    _logic.resetViewProfile();
     GoRouter.of(context).pop();
   }
 
@@ -67,12 +70,11 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    final profile = context.watch<ProfileState>();
+    final profile = context.watch<ProfileState>().viewProfile;
 
-    final loading = profile.loading;
+    final loading = context.watch<ProfileState>().viewLoading;
 
-    final hasNoProfile =
-        profile.name == '' && profile.username == '' && profile.image == '';
+    final hasNoProfile = profile == null;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -141,7 +143,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                                           )
                                         : ProfileCircle(
                                             size: 100,
-                                            imageUrl: profile.image != ''
+                                            imageUrl: profile != null &&
+                                                    profile.image != ''
                                                 ? profile.image
                                                 : 'assets/icons/profile.svg',
                                             backgroundColor: ThemeColors.white,
@@ -241,27 +244,28 @@ class ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ),
-                      Positioned(
-                        bottom: 20,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            loading
-                                ? CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
-                                  )
-                                : Button(
-                                    text: hasNoProfile ? 'Create' : 'Edit',
-                                    color: ThemeColors.surfacePrimary
-                                        .resolveFrom(context),
-                                    labelColor: ThemeColors.black,
-                                    onPressed: handleEdit,
-                                  ),
-                          ],
+                      if (!widget.readonly)
+                        Positioned(
+                          bottom: 20,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              loading
+                                  ? CupertinoActivityIndicator(
+                                      color: ThemeColors.subtle
+                                          .resolveFrom(context),
+                                    )
+                                  : Button(
+                                      text: hasNoProfile ? 'Create' : 'Edit',
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      labelColor: ThemeColors.black,
+                                      onPressed: handleEdit,
+                                    ),
+                            ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

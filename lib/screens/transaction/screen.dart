@@ -1,4 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
+import 'package:citizenwallet/screens/profile/screen.dart';
 import 'package:citizenwallet/screens/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -7,8 +8,7 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/chip.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -106,6 +106,19 @@ class TransactionScreenState extends State<TransactionScreen> {
     }
   }
 
+  void handleViewProfile(String account) {
+    showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      topRadius: const Radius.circular(40),
+      useRootNavigator: true,
+      builder: (_) => ProfileScreen(
+        account: account,
+        readonly: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -158,32 +171,18 @@ class TransactionScreenState extends State<TransactionScreen> {
                           child: ListView(
                             children: [
                               SizedBox(height: safePadding),
+                              const SizedBox(height: 40),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ProfileCircle(
-                                    size: 80,
-                                    imageUrl: profile != null
-                                        ? profile.profile.imageMedium
-                                        : author.icon,
-                                    backgroundColor: ThemeColors.white,
-                                    borderColor: ThemeColors.subtle,
+                                  ProfileBadge(
+                                    size: 160,
+                                    fontSize: 14,
+                                    profile: profile?.profile,
+                                    loading: profile?.loading ?? false,
+                                    onTap: () => handleViewProfile(from),
                                   ),
                                 ],
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                profile != null
-                                    ? profile.profile.name
-                                    : author.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.normal,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
                               ),
                               const SizedBox(height: 20),
                               Row(
@@ -222,31 +221,6 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           : ThemeColors.text
                                               .resolveFrom(context),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Chip(
-                                    onTap: () => handleCopy(profile != null
-                                        ? '@${profile.profile.username}'
-                                        : from),
-                                    profile != null
-                                        ? '@${profile.profile.username}'
-                                        : formatHexAddress(from),
-                                    color: ThemeColors.subtleEmphasis
-                                        .resolveFrom(context),
-                                    textColor: ThemeColors.touchable
-                                        .resolveFrom(context),
-                                    suffix: Icon(
-                                      CupertinoIcons.square_on_square,
-                                      size: 12,
-                                      color: ThemeColors.touchable
-                                          .resolveFrom(context),
-                                    ),
-                                    maxWidth: 160,
                                   ),
                                 ],
                               ),
@@ -400,7 +374,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                             ),
                           ),
                         ),
-                        if (!wallet.locked && !loading)
+                        if (!wallet.locked &&
+                            !loading &&
+                            transaction.isIncoming(wallet.account))
                           Positioned(
                             bottom: 20,
                             left: 0,
@@ -409,38 +385,80 @@ class TransactionScreenState extends State<TransactionScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                transaction.isIncoming(wallet.account)
-                                    ? CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: blockSending
-                                            ? null
-                                            : () =>
-                                                handleReply(transaction.from),
-                                        borderRadius: BorderRadius.circular(25),
-                                        color: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        child: const Icon(
-                                          CupertinoIcons.reply,
-                                          color: ThemeColors.black,
-                                        ),
-                                      )
-                                    : CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: blockSending
-                                            ? null
-                                            : () => handleReplay(
-                                                  transaction.to,
-                                                  transaction.amount,
-                                                  transaction.title,
-                                                ),
-                                        borderRadius: BorderRadius.circular(25),
-                                        color: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        child: const Icon(
-                                          CupertinoIcons.refresh_thick,
+                                CupertinoButton(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                  onPressed: blockSending
+                                      ? null
+                                      : () => handleReply(transaction.from),
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: ThemeColors.surfacePrimary
+                                      .resolveFrom(context),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Reply',
+                                        style: TextStyle(
                                           color: ThemeColors.black,
                                         ),
                                       ),
+                                      SizedBox(width: 10),
+                                      Icon(
+                                        CupertinoIcons.reply,
+                                        color: ThemeColors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (!wallet.locked &&
+                            !loading &&
+                            !transaction.isIncoming(wallet.account))
+                          Positioned(
+                            bottom: 20,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CupertinoButton(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                  onPressed: blockSending
+                                      ? null
+                                      : () => handleReplay(
+                                            transaction.to,
+                                            transaction.amount,
+                                            transaction.title,
+                                          ),
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: ThemeColors.surfacePrimary
+                                      .resolveFrom(context),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Send again',
+                                        style: TextStyle(
+                                          color: ThemeColors.black,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Icon(
+                                        CupertinoIcons.refresh_thick,
+                                        color: ThemeColors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),

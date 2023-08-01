@@ -7,12 +7,16 @@ import 'package:flutter/cupertino.dart';
 class ProfileBadge extends StatelessWidget {
   final ProfileV1? profile;
   final bool loading;
+  final double size;
+  final double fontSize;
   final void Function()? onTap;
 
   const ProfileBadge({
     Key? key,
     this.profile,
     this.loading = false,
+    this.size = 80,
+    this.fontSize = 12,
     this.onTap,
   }) : super(key: key);
 
@@ -26,14 +30,14 @@ class ProfileBadge extends StatelessWidget {
         children: [
           if (!loading && profile != null)
             ProfileCircle(
-              size: 80,
+              size: size,
               imageUrl: profile!.imageSmall,
             ),
           if (loading)
-            const PulsingContainer(
-              height: 80,
-              width: 80,
-              borderRadius: 40,
+            PulsingContainer(
+              height: size,
+              width: size,
+              borderRadius: size / 2,
             ),
           if (!loading && profile != null)
             Positioned(
@@ -49,14 +53,14 @@ class ProfileBadge extends StatelessWidget {
                     color: ThemeColors.subtle.resolveFrom(context),
                   ),
                 ),
-                constraints: const BoxConstraints(
-                  maxWidth: 80,
+                constraints: BoxConstraints(
+                  maxWidth: size,
                 ),
                 padding: const EdgeInsets.all(4),
                 child: Text(
                   profile!.name,
                   style: TextStyle(
-                      fontSize: 12,
+                      fontSize: fontSize,
                       color: ThemeColors.text.resolveFrom(context)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -64,11 +68,11 @@ class ProfileBadge extends StatelessWidget {
               ),
             ),
           if (loading)
-            const Positioned(
+            Positioned(
               bottom: 2,
               child: PulsingContainer(
                 height: 14,
-                width: 80,
+                width: size,
                 borderRadius: 10,
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
@@ -26,6 +27,11 @@ class ProfileState with ChangeNotifier {
 
   Uint8List? editingImage;
   String? editingImageExt;
+
+  // viewing
+  bool viewLoading = false;
+  bool viewError = false;
+  ProfileV1? viewProfile;
 
   void resetAll({notify = false}) {
     account = '';
@@ -63,6 +69,14 @@ class ProfileState with ChangeNotifier {
     descriptionEdit = '';
 
     editingImage = null;
+
+    if (notify) notifyListeners();
+  }
+
+  void resetViewProfile({notify = false}) {
+    viewLoading = false;
+    viewError = false;
+    viewProfile = null;
 
     if (notify) notifyListeners();
   }
@@ -178,6 +192,35 @@ class ProfileState with ChangeNotifier {
 
   void setDescriptionText(String desc) {
     descriptionEdit = desc;
+
+    notifyListeners();
+  }
+
+  void viewProfileRequest() {
+    viewLoading = true;
+    viewError = false;
+
+    notifyListeners();
+  }
+
+  void viewProfileSuccess(ProfileV1 profile) {
+    viewProfile = profile;
+    viewLoading = false;
+    viewError = false;
+
+    notifyListeners();
+  }
+
+  void setViewProfileNoChangeSuccess() {
+    viewLoading = false;
+    viewError = false;
+
+    notifyListeners();
+  }
+
+  void viewProfileError() {
+    viewLoading = false;
+    viewError = true;
 
     notifyListeners();
   }
