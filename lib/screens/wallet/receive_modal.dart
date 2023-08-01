@@ -5,6 +5,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/ratio.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -25,6 +26,7 @@ class ReceiveModal extends StatefulWidget {
 }
 
 class ReceiveModalState extends State<ReceiveModal> {
+  final FocusNode amountFocusNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
@@ -43,6 +45,8 @@ class ReceiveModalState extends State<ReceiveModal> {
         widget.logic.updateReceiveQR,
         const Duration(milliseconds: 500),
       );
+
+      amountFocusNode.requestFocus();
     });
   }
 
@@ -59,12 +63,18 @@ class ReceiveModalState extends State<ReceiveModal> {
     GoRouter.of(context).pop();
   }
 
-  void handleCopy() {
-    widget.logic.copyReceiveQRToClipboard();
+  void handleCopy(String qr) {
+    widget.logic.copyReceiveQRToClipboard(qr);
   }
 
   void handleThrottledUpdateQRCode() {
     debouncedQRCode();
+  }
+
+  void handleReset() {
+    widget.logic.clearInputControllers();
+
+    widget.logic.updateReceiveQR(onlyHex: true);
   }
 
   @override
@@ -162,7 +172,9 @@ class ReceiveModalState extends State<ReceiveModal> {
                             ),
                             Chip(
                               formatHexAddress(wallet?.account ?? ''),
-                              onTap: handleCopy,
+                              onTap: wallet?.account == null
+                                  ? null
+                                  : () => handleCopy(wallet?.account ?? ''),
                               fontSize: 14,
                               color: ThemeColors.subtleEmphasis
                                   .resolveFrom(context),
@@ -249,13 +261,14 @@ class ReceiveModalState extends State<ReceiveModal> {
                                 ),
                           maxLines: 1,
                           maxLength: 25,
+                          focusNode: amountFocusNode,
                           autocorrect: false,
                           enableSuggestions: false,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
-                            signed: true,
+                            signed: false,
                           ),
-                          textInputAction: TextInputAction.next,
+                          textInputAction: TextInputAction.done,
                           inputFormatters: [
                             amountFormatter,
                           ],
@@ -263,9 +276,28 @@ class ReceiveModalState extends State<ReceiveModal> {
                             handleThrottledUpdateQRCode();
                           },
                           onSubmitted: (_) {
-                            messageFocusNode.requestFocus();
+                            // messageFocusNode.requestFocus();
+                            FocusManager.instance.primaryFocus?.unfocus();
                           },
                         ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 20,
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Button(
+                            text: 'Reset QR Code',
+                            onPressed: handleReset,
+                            minWidth: 200,
+                            maxWidth: 200,
+                          ),
+                        ],
                       ),
                     ),
                     const SliverToBoxAdapter(

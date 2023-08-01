@@ -72,6 +72,18 @@ class QRTransactionRequestData {
     );
   }
 
+  factory QRTransactionRequestData.fromCompressedJson(String compressed) {
+    final Map<String, dynamic> json = jsonDecode(decompress(compressed));
+
+    return QRTransactionRequestData(
+      chainId: json['chainId'],
+      address: json['address'],
+      amount: double.tryParse('${json['amount']}') ?? 0.0,
+      message: json['message'],
+      publicKey: hexToBytes(json['public_key']),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'chainId': chainId,
@@ -80,5 +92,9 @@ class QRTransactionRequestData {
       'message': message,
       'public_key': bytesToHex(publicKey),
     };
+  }
+
+  String toCompressedJson() {
+    return compress(jsonEncode(toJson()));
   }
 }

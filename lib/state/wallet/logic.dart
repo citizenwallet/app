@@ -932,36 +932,6 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.parseQRAddressError();
   }
 
-  void updateAddressFromWalletCapture(String raw) async {
-    try {
-      _state.parseQRAddress();
-
-      final qr = QR.fromCompressedJson(raw);
-
-      final qrWallet = qr.toQRWallet();
-
-      // final verified = await qrWallet.verifyData();
-      // TODO: implement a visual warning that the code is not signed
-      // if (!verified) {
-      //   throw signatureException;
-      // }
-
-      _addressController.text = qrWallet.data.address;
-      _state.setHasAddress(qrWallet.data.address.isNotEmpty);
-
-      _state.parseQRAddressSuccess();
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    _addressController.text = '';
-    _state.parseQRAddressError();
-  }
-
   void updateFromCapture(String raw) {
     try {
       final isHex = isHexValue(raw);
@@ -980,17 +950,9 @@ class WalletLogic extends WidgetsBindingObserver {
         }
       }
 
-      final qr = QR.fromCompressedJson(raw);
+      final qr = QRTransactionRequestData.fromCompressedJson(raw);
 
-      switch (qr.type) {
-        case QRType.qrWallet:
-          updateAddressFromWalletCapture(raw);
-          break;
-        case QRType.qrTransactionRequest:
-          updateTransactionFromTransactionCapture(raw);
-          break;
-        default:
-      }
+      updateTransactionFromTransactionCapture(qr);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -999,29 +961,26 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  void updateTransactionFromTransactionCapture(String raw) async {
+  void updateTransactionFromTransactionCapture(
+      QRTransactionRequestData qr) async {
     try {
-      final qr = QR.fromCompressedJson(raw);
-
-      final qrTransaction = qr.toQRTransactionRequest();
-
       // final verified = await qrTransaction.verifyData();
       // TODO: implement a visual warning that the code is not signed
       // if (!verified) {
       //   throw signatureException;
       // }
 
-      _addressController.text = qrTransaction.data.address;
-      _state.setHasAddress(qrTransaction.data.address.isNotEmpty);
+      _addressController.text = qr.address;
+      _state.setHasAddress(qr.address.isNotEmpty);
       _state.parseQRAddressSuccess();
 
-      if (qrTransaction.data.amount >= 0) {
-        _amountController.text = qrTransaction.data.amount
-            .toStringAsFixed(_wallet.currency.decimals);
+      if (qr.amount >= 0) {
+        _amountController.text =
+            qr.amount.toStringAsFixed(_wallet.currency.decimals);
       }
 
-      if (qrTransaction.data.message != '') {
-        _messageController.text = qrTransaction.data.message;
+      if (qr.message != '') {
+        _messageController.text = qr.message;
       }
 
       return;
@@ -1054,30 +1013,15 @@ class WalletLogic extends WidgetsBindingObserver {
                   _amountController.value.text.replaceAll(',', '.')) ??
               0;
 
-      final dbWallet =
-          await _encPrefs.getWalletBackup(_wallet.address.hexEip55);
-
-      if (dbWallet == null) {
-        throw NotFoundException();
-      }
-
-      final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
-
       final qrData = QRTransactionRequestData(
         chainId: _wallet.chainId,
         address: _wallet.account.hexEip55,
         amount: amount,
         message: _messageController.value.text,
-        publicKey: credentials.encodedPublicKey,
+        publicKey: Uint8List.fromList([]),
       );
 
-      final qr = QRTransactionRequest(raw: qrData.toJson());
-
-      final signer = Signer(credentials);
-
-      await qr.generateSignature(signer);
-
-      final compressed = qr.toCompressedJson();
+      final compressed = qrData.toCompressedJson();
 
       _state.updateReceiveQR(compressed);
       return;
@@ -1114,13 +1058,7 @@ class WalletLogic extends WidgetsBindingObserver {
         publicKey: _wallet.credentials.encodedPublicKey,
       );
 
-      final qr = QRTransactionRequest(raw: qrData.toJson());
-
-      final signer = Signer(_wallet.credentials);
-
-      await qr.generateSignature(signer);
-
-      final compressed = qr.toCompressedJson();
+      final compressed = qrData.toCompressedJson();
 
       _state.updateReceiveQR(compressed);
       return;
@@ -1134,8 +1072,8 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.clearReceiveQR();
   }
 
-  void copyReceiveQRToClipboard() {
-    Clipboard.setData(ClipboardData(text: _state.receiveQR));
+  void copyReceiveQRToClipboard(String qr) {
+    Clipboard.setData(ClipboardData(text: qr));
   }
 
   void updateWalletQR() async {
