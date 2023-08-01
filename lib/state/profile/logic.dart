@@ -158,30 +158,35 @@ class ProfileLogic {
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
-      final success = await _wallet.setProfile(
+      final url = await _wallet.setProfile(
         ProfileRequest.fromProfileV1(profile),
         image: convertBytesToUint8List(image),
         fileType: ext,
       );
-      if (!success) {
+      if (url == null) {
         throw Exception('Failed to save profile');
       }
 
-      _state.viewProfileSuccess(profile);
+      final newProfile = await _wallet.getProfileFromUrl(url);
+      if (newProfile == null) {
+        throw Exception('Failed to load profile');
+      }
+
+      _state.viewProfileSuccess(newProfile);
 
       _state.setProfileSuccess(
-        account: profile.account,
-        username: profile.username,
-        name: profile.name,
-        description: profile.description,
-        image: profile.image,
-        imageMedium: profile.imageMedium,
-        imageSmall: profile.imageSmall,
+        account: newProfile.account,
+        username: newProfile.username,
+        name: newProfile.name,
+        description: newProfile.description,
+        image: newProfile.image,
+        imageMedium: newProfile.imageMedium,
+        imageSmall: newProfile.imageSmall,
       );
 
       _profiles.isLoaded(
-        profile.account,
-        profile,
+        newProfile.account,
+        newProfile,
       );
 
       return true;
@@ -217,24 +222,31 @@ class ProfileLogic {
         return true;
       }
 
-      final success = await _wallet.updateProfile(profile);
-      if (!success) {
+      final url = await _wallet.updateProfile(profile);
+      if (url == null) {
         throw Exception('Failed to save profile');
       }
 
+      final newProfile = await _wallet.getProfileFromUrl(url);
+      if (newProfile == null) {
+        throw Exception('Failed to load profile');
+      }
+
+      _state.viewProfileSuccess(newProfile);
+
       _state.setProfileSuccess(
-        account: profile.account,
-        username: profile.username,
-        name: profile.name,
-        description: profile.description,
-        image: profile.image,
-        imageMedium: profile.imageMedium,
-        imageSmall: profile.imageSmall,
+        account: newProfile.account,
+        username: newProfile.username,
+        name: newProfile.name,
+        description: newProfile.description,
+        image: newProfile.image,
+        imageMedium: newProfile.imageMedium,
+        imageSmall: newProfile.imageSmall,
       );
 
       _profiles.isLoaded(
-        profile.account,
-        profile,
+        newProfile.account,
+        newProfile,
       );
 
       return true;

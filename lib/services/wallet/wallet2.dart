@@ -143,7 +143,7 @@ class WalletService2 {
   }
 
   /// set profile data
-  Future<bool> setProfile(
+  Future<String?> setProfile(
     ProfileRequest profile, {
     required List<int> image,
     required String fileType,
@@ -184,7 +184,7 @@ class WalletService2 {
         throw Exception('profile update failed');
       }
 
-      return true;
+      return profileUrl;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -192,11 +192,11 @@ class WalletService2 {
       );
     }
 
-    return false;
+    return null;
   }
 
   /// update profile data
-  Future<bool> updateProfile(ProfileV1 profile) async {
+  Future<String?> updateProfile(ProfileV1 profile) async {
     try {
       final url = '/profiles/${_account.hexEip55}';
 
@@ -231,7 +231,7 @@ class WalletService2 {
         throw Exception('profile update failed');
       }
 
-      return true;
+      return profileUrl;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -239,7 +239,7 @@ class WalletService2 {
       );
     }
 
-    return false;
+    return null;
   }
 
   /// set profile data
@@ -285,8 +285,23 @@ class WalletService2 {
     try {
       final url = await _contractProfile.getURL(addr);
 
-      print('_contractProfile: $url');
+      final profileData = await _ipfs.get(url: '/$url');
 
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
+  /// get profile data
+  Future<ProfileV1?> getProfileFromUrl(String url) async {
+    try {
       final profileData = await _ipfs.get(url: '/$url');
 
       final profile = ProfileV1.fromJson(profileData);
@@ -458,7 +473,6 @@ class WalletService2 {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
-      print('eth_sendUserOperation exception: $exception');
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -530,7 +544,6 @@ class WalletService2 {
 
       return (PaymasterData.fromJson(response.result), null);
     } catch (exception, stackTrace) {
-      print('pm_sponsorUserOperation exception: $exception');
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
