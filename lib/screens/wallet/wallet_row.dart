@@ -75,8 +75,7 @@ class WalletRowState extends State<WalletRow> {
               children: [
                 ProfileCircle(
                   size: 50,
-                  imageUrl: profile?.imageSmall ?? 'assets/icons/profile.svg',
-                  backgroundColor: ThemeColors.white,
+                  imageUrl: profile?.imageSmall,
                   borderColor: ThemeColors.subtle,
                 ),
                 const SizedBox(width: 10),

@@ -285,6 +285,8 @@ class WalletService2 {
     try {
       final url = await _contractProfile.getURL(addr);
 
+      print('_contractProfile: $url');
+
       final profileData = await _ipfs.get(url: '/$url');
 
       final profile = ProfileV1.fromJson(profileData);
@@ -303,6 +305,8 @@ class WalletService2 {
   Future<ProfileV1?> getProfileByUsername(String username) async {
     try {
       final url = await _contractProfile.getURLFromUsername(username);
+
+      print('_contractProfile: $url');
 
       final profileData = await _ipfs.get(url: '/$url');
 

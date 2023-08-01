@@ -25,7 +25,9 @@ class ProfileCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final asset = imageUrl ?? 'assets/icons/profile.svg';
+    final String asset = imageUrl != null && imageUrl != ''
+        ? imageUrl!
+        : 'assets/icons/profile.png';
 
     final network = asset.startsWith('http');
 
@@ -72,34 +74,44 @@ class ProfileCircle extends StatelessWidget {
                           height: size,
                           width: size,
                         )
-                  : network
-                      ? Image.network(
-                          asset,
-                          semanticLabel: 'profile icon',
-                          height: size,
-                          width: size,
-                          fit: BoxFit.cover,
-                          frameBuilder: (_, child, frame, loaded) => loaded
-                              ? child
-                              : AnimatedOpacity(
-                                  opacity: frame == null ? 0 : 1,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeOut,
-                                  child: frame == null
-                                      ? PulsingContainer(
-                                          height: size,
-                                          width: size,
-                                        )
-                                      : child,
-                                ),
-                        )
-                      : Image.asset(
-                          asset,
+                  : Stack(
+                      children: [
+                        Image.asset(
+                          'assets/icons/profile.png',
                           semanticLabel: 'profile icon',
                           height: size,
                           width: size,
                           fit: BoxFit.cover,
                         ),
+                        if (!network)
+                          Image.asset(
+                            asset,
+                            semanticLabel: 'profile icon',
+                            height: size,
+                            width: size,
+                            fit: BoxFit.cover,
+                          ),
+                        if (network)
+                          FadeInImage.assetNetwork(
+                            image: asset,
+                            placeholder: 'assets/icons/profile.png',
+                            height: size,
+                            width: size,
+                            fit: BoxFit.cover,
+                            fadeInDuration: const Duration(milliseconds: 250),
+                            fadeInCurve: Curves.easeOut,
+                            fadeOutDuration: const Duration(milliseconds: 250),
+                            imageErrorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              'assets/icons/profile.png',
+                              semanticLabel: 'profile icon',
+                              height: size,
+                              width: size,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                      ],
+                    ),
             ),
     );
   }

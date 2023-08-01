@@ -217,15 +217,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                     ? ProfileCircle(
                                         size: 160,
                                         imageBytes: editingImage,
-                                        backgroundColor: ThemeColors.white,
                                         borderColor: ThemeColors.subtle,
                                       )
                                     : ProfileCircle(
                                         size: 160,
-                                        imageUrl: image != ''
-                                            ? image
-                                            : 'assets/icons/profile.svg',
-                                        backgroundColor: ThemeColors.white,
+                                        imageUrl: image,
                                         borderColor: ThemeColors.subtle,
                                       ),
                                 CupertinoButton(

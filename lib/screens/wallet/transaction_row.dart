@@ -101,23 +101,10 @@ class TransactionRowState extends State<TransactionRow> {
                             ),
                           ),
                         ),
-                      _ => profile != null && profile.loading
-                          ? const PulsingContainer(
-                              height: 50,
-                              width: 50,
-                              borderRadius: 25,
-                            )
-                          : ProfileCircle(
-                              size: 50,
-                              imageUrl: profile != null
-                                  ? profile.profile.imageMedium
-                                  : getTransactionAuthor(
-                                      wallet.account,
-                                      transaction.from,
-                                      transaction.to,
-                                    ).icon,
-                              backgroundColor: ThemeColors.white,
-                            ),
+                      _ => ProfileCircle(
+                          size: 50,
+                          imageUrl: profile?.profile.imageMedium,
+                        )
                     },
                     if (transaction.title != '')
                       Positioned(

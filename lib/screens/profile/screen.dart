@@ -143,11 +143,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                           )
                                         : ProfileCircle(
                                             size: 100,
-                                            imageUrl: profile != null &&
-                                                    profile.image != ''
-                                                ? profile.image
-                                                : 'assets/icons/profile.svg',
-                                            backgroundColor: ThemeColors.white,
+                                            imageUrl: profile?.image,
                                             borderColor: ThemeColors.subtle,
                                           ),
                                   ),

@@ -463,10 +463,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                               children: [
                                 ProfileCircle(
                                   size: 30,
-                                  imageUrl: !hasNoProfile
-                                      ? imageSmall
-                                      : 'assets/icons/profile.svg',
-                                  backgroundColor: ThemeColors.white,
+                                  imageUrl: imageSmall,
                                   borderColor: ThemeColors.subtle,
                                 ),
                                 if (hasNoProfile)

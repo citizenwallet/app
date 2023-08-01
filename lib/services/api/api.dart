@@ -24,6 +24,8 @@ class APIService {
       mergedHeaders.addAll(headers);
     }
 
+    print('$baseURL${url ?? ''}');
+
     final response = await http
         .get(
           Uri.parse('$baseURL${url ?? ''}'),
@@ -32,6 +34,8 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      print(response.statusCode);
+      print(response.reasonPhrase);
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
