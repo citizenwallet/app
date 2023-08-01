@@ -77,6 +77,13 @@ class ReceiveModalState extends State<ReceiveModal> {
     widget.logic.updateReceiveQR(onlyHex: true);
   }
 
+  void handleSubmit() {
+    // messageFocusNode.requestFocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+    ModalScrollController.of(context)?.animateTo(0,
+        duration: const Duration(milliseconds: 250), curve: Curves.easeInOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -276,8 +283,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                             handleThrottledUpdateQRCode();
                           },
                           onSubmitted: (_) {
-                            // messageFocusNode.requestFocus();
-                            FocusManager.instance.primaryFocus?.unfocus();
+                            handleSubmit();
                           },
                         ),
                       ),
