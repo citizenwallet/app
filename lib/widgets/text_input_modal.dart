@@ -101,6 +101,7 @@ class TextInputModalState extends State<TextInputModal> {
               children: [
                 Header(
                   title: widget.title,
+                  color: ThemeColors.uiBackground.resolveFrom(context),
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
