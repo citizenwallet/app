@@ -111,6 +111,16 @@ class ThemeColors {
     darkColor: Color.fromRGBO(255, 255, 255, 0.15),
   );
 
+  static const subtleSolid = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(100, 100, 100, 1),
+    darkColor: Color.fromRGBO(150, 150, 150, 1),
+  );
+
+  static const subtleSolidEmphasis = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(150, 150, 150, 1),
+    darkColor: Color.fromRGBO(100, 100, 100, 1),
+  );
+
   static const transparent = CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(0, 0, 0, 0),
     darkColor: Color.fromRGBO(255, 255, 255, 0),

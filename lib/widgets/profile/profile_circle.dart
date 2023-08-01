@@ -76,12 +76,9 @@ class ProfileCircle extends StatelessWidget {
                         )
                   : Stack(
                       children: [
-                        Image.asset(
-                          'assets/icons/profile.png',
-                          semanticLabel: 'profile icon',
+                        PulsingContainer(
                           height: size,
                           width: size,
-                          fit: BoxFit.cover,
                         ),
                         if (!network)
                           Image.asset(
@@ -90,18 +87,31 @@ class ProfileCircle extends StatelessWidget {
                             height: size,
                             width: size,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              'assets/icons/profile.png',
+                              semanticLabel: 'profile icon',
+                              height: size,
+                              width: size,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         if (network)
-                          FadeInImage.assetNetwork(
-                            image: asset,
-                            placeholder: 'assets/icons/profile.png',
+                          Image.network(
+                            asset,
                             height: size,
                             width: size,
                             fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 250),
-                            fadeInCurve: Curves.easeOut,
-                            fadeOutDuration: const Duration(milliseconds: 250),
-                            imageErrorBuilder: (context, error, stackTrace) =>
+                            frameBuilder: (context, child, frame, loaded) {
+                              if (loaded) return child;
+                              return AnimatedOpacity(
+                                opacity: frame == null ? 0 : 1,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOut,
+                                child: child,
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
                                 Image.asset(
                               'assets/icons/profile.png',
                               semanticLabel: 'profile icon',

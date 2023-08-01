@@ -7,6 +7,7 @@ class PulsingContainer extends StatelessWidget {
   final double? width;
   final EdgeInsetsGeometry? padding;
   final double borderRadius;
+  final Widget? child;
 
   const PulsingContainer({
     super.key,
@@ -14,6 +15,7 @@ class PulsingContainer extends StatelessWidget {
     this.width,
     this.padding,
     this.borderRadius = 5,
+    this.child,
   });
 
   @override
@@ -27,12 +29,14 @@ class PulsingContainer extends StatelessWidget {
           color: value,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
+        child: child,
       ),
       tween: ColorTween(
-        begin: ThemeColors.subtleEmphasis.resolveFrom(context),
-        end: ThemeColors.subtle.resolveFrom(context),
+        begin: ThemeColors.subtleSolidEmphasis.resolveFrom(context),
+        end: ThemeColors.subtleSolid.resolveFrom(context),
       ),
       duration: const Duration(milliseconds: 500),
+      child: child,
     );
   }
 }
