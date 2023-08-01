@@ -28,14 +28,16 @@ class ProfileBadge extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (!loading && profile != null)
+          if (!loading)
             ProfileCircle(
               size: size,
-              imageUrl: size < 128
-                  ? profile!.imageSmall
-                  : size < 256
-                      ? profile!.imageMedium
-                      : profile!.image,
+              imageUrl: profile == null
+                  ? null
+                  : size < 128
+                      ? profile!.imageSmall
+                      : size < 256
+                          ? profile!.imageMedium
+                          : profile!.image,
             ),
           if (loading)
             PulsingContainer(

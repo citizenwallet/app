@@ -143,7 +143,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                           )
                                         : ProfileCircle(
                                             size: 100,
-                                            imageUrl: profile?.image,
+                                            imageUrl: profile?.imageMedium,
                                             borderColor: ThemeColors.subtle,
                                           ),
                                   ),
