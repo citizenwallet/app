@@ -25,6 +25,13 @@ class RouterShell extends StatelessWidget {
       ),
     ),
     const BottomNavigationBarItem(
+      label: 'Contacts',
+      icon: Icon(CupertinoIcons.person_3),
+      activeIcon: Icon(
+        CupertinoIcons.person_3_fill,
+      ),
+    ),
+    const BottomNavigationBarItem(
       label: 'Settings',
       icon: Icon(CupertinoIcons.settings),
       activeIcon: Icon(
@@ -35,7 +42,8 @@ class RouterShell extends StatelessWidget {
 
   final routes = {
     '/wallet': 0,
-    '/settings': 1,
+    '/contacts': 1,
+    '/settings': 2,
   };
 
   @override
@@ -45,12 +53,17 @@ class RouterShell extends StatelessWidget {
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
+    final location = state.uri.toString();
+
+    print(state.uri);
+    print('location: $location');
+
     final app = CupertinoScaffold(
-      key: Key(state.location),
+      key: Key(location),
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
       body: CupertinoPageScaffold(
-        key: Key(state.location),
+        key: Key(location),
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           top: false,
@@ -62,7 +75,7 @@ class RouterShell extends StatelessWidget {
               if (!kIsWeb)
                 CupertinoTabBar(
                   items: items,
-                  currentIndex: routes[state.location] ?? 0,
+                  currentIndex: routes[location] ?? 0,
                   activeColor: ThemeColors.text.resolveFrom(context),
                   backgroundColor:
                       ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -80,6 +93,9 @@ class RouterShell extends StatelessWidget {
                                   .go('/wallet/${wallet?.address}');
                               break;
                             case 1:
+                              GoRouter.of(context).go('/contacts');
+                              break;
+                            case 2:
                               GoRouter.of(context).go('/settings');
                               break;
                             default:

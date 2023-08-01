@@ -22,14 +22,14 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class SendModal extends StatefulWidget {
+class ToModal extends StatefulWidget {
   final WalletLogic logic;
   final ProfilesLogic profilesLogic;
 
   final String? id;
   final String? to;
 
-  const SendModal({
+  const ToModal({
     Key? key,
     required this.logic,
     required this.profilesLogic,
@@ -38,10 +38,10 @@ class SendModal extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  SendModalState createState() => SendModalState();
+  ToModalState createState() => ToModalState();
 }
 
-class SendModalState extends State<SendModal> with TickerProviderStateMixin {
+class ToModalState extends State<ToModal> with TickerProviderStateMixin {
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
 
@@ -434,7 +434,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           if (selectedProfile == null)
                             CupertinoTextField(
                               controller: widget.logic.addressController,
-                              placeholder: '@username or 0xaddress',
+                              placeholder: '@username or address',
                               maxLines: 1,
                               autocorrect: false,
                               enableSuggestions: false,

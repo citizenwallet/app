@@ -2,6 +2,7 @@ import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
+import 'package:citizenwallet/screens/contacts/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -69,6 +70,16 @@ GoRouter createRouter(
                   },
                 ),
               ],
+            ),
+            GoRoute(
+              name: 'Contacts',
+              path: '/contacts',
+              parentNavigatorKey: shellNavigatorKey,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: state.pageKey,
+                name: state.name,
+                child: const ContactsScreen(),
+              ),
             ),
             GoRoute(
               name: 'Settings',

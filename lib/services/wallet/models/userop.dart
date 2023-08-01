@@ -2,7 +2,6 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
 
 const String gasFeeErrorMessage =
     'pending ops: replacement op must increase maxFeePerGas and MaxPriorityFeePerGas';

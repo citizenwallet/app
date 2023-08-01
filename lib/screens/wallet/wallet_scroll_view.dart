@@ -294,12 +294,8 @@ class WalletScrollView extends StatelessWidget {
                   SvgPicture.asset(
                     'assets/icons/empty_pockets.svg',
                     semanticsLabel: 'empty pockets icon',
-                    height: 300,
-                    width: 300,
-                    colorFilter: ColorFilter.mode(
-                      ThemeColors.text.resolveFrom(context),
-                      BlendMode.srcIn,
-                    ),
+                    height: 250,
+                    width: 250,
                   ),
                 ],
               ),
