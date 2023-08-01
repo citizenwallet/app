@@ -31,7 +31,11 @@ class ProfileBadge extends StatelessWidget {
           if (!loading && profile != null)
             ProfileCircle(
               size: size,
-              imageUrl: profile!.imageSmall,
+              imageUrl: size < 128
+                  ? profile!.imageSmall
+                  : size < 256
+                      ? profile!.imageMedium
+                      : profile!.image,
             ),
           if (loading)
             PulsingContainer(
