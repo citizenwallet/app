@@ -25,33 +25,59 @@ import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WalletService2 {
+  static final WalletService2 _instance = WalletService2._internal();
+
+  factory WalletService2() {
+    return _instance;
+  }
+
   BigInt? _chainId;
   late NativeCurrency currency;
 
-  final Client _client = Client();
+  late Client _client;
 
-  final _url = dotenv.get('NODE_URL');
-  final _wsurl = dotenv.get('NODE_WS_URL');
+  late final String _url;
+  late final String _wsurl;
   late Web3Client _ethClient;
 
-  final String ipfsUrl = dotenv.get('IPFS_URL');
+  late final String ipfsUrl;
+  late final APIService _ipfs;
+  late final APIService _indexer;
+  late final APIService _indexerIPFS;
 
-  final APIService _ipfs = APIService(baseURL: dotenv.get('IPFS_URL'));
-  final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
-  final APIService _indexerIPFS =
-      APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
+  late final APIService _bundlerRPC;
+  late final APIService _paymasterRPC;
+  late final String _paymasterType;
+  late final APIService _dataRPC;
 
-  final APIService _bundlerRPC =
-      APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
-  final APIService _paymasterRPC =
-      APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
-  final String _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
-  final APIService _dataRPC =
-      APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
+  late final Map<String, String> erc4337Headers;
 
-  final Map<String, String> erc4337Headers = {
-    'Origin': dotenv.get('ORIGIN_HEADER')
-  };
+  WalletService2._internal() {
+    _client = Client();
+
+    _url = dotenv.get('NODE_URL');
+    _wsurl = dotenv.get('NODE_WS_URL');
+
+    _ethClient = _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
+
+    ipfsUrl = dotenv.get('IPFS_URL');
+    _ipfs = APIService(baseURL: ipfsUrl);
+    _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
+    _indexerIPFS = APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
+
+    _bundlerRPC = APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
+    _paymasterRPC =
+        APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
+    _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
+    _dataRPC = APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
+
+    erc4337Headers = {'Origin': dotenv.get('ORIGIN_HEADER')};
+  }
 
   // Declare variables using the `late` keyword, which means they will be initialized at a later time.
 // The variables are related to Ethereum blockchain development.
@@ -67,10 +93,6 @@ class WalletService2 {
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
-
-  static final WalletService2 _instance = WalletService2._internal();
-  factory WalletService2() => _instance;
-  WalletService2._internal();
 
   EthPrivateKey get credentials => _credentials;
   EthereumAddress get address => _credentials.address;
@@ -95,13 +117,6 @@ class WalletService2 {
     String prfaddr,
   ) async {
     _credentials = EthPrivateKey.fromHex(privateKey);
-
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
 
     _chainId = await _ethClient.getChainId();
     this.currency = currency;
