@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/sentry/sentry.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,7 +28,7 @@ FutureOr<void> appRunner() async {
 
   await PreferencesService().init(await SharedPreferences.getInstance());
 
-  WalletService2();
+  WalletService();
 
   runApp(provideAppState(const MyApp()));
 }

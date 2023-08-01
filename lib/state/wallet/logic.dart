@@ -14,7 +14,7 @@ import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -32,7 +32,7 @@ import 'package:web3dart/web3dart.dart';
 class WalletLogic extends WidgetsBindingObserver {
   late WalletState _state;
 
-  final WalletService2 _wallet = WalletService2();
+  final WalletService _wallet = WalletService();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =

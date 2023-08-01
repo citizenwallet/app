@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   late ProfilesState _state;
-  final WalletService2 _wallet = WalletService2();
+  final WalletService _wallet = WalletService();
 
   late Debounce debouncedSearchProfile;
 

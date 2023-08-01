@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
@@ -12,498 +10,502 @@ import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
-import 'package:citizenwallet/services/wallet/models/block.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
-import 'package:citizenwallet/services/wallet/models/message.dart';
 import 'package:citizenwallet/services/wallet/models/paymaster_data.dart';
-import 'package:citizenwallet/services/wallet/models/signer.dart';
-import 'package:citizenwallet/services/wallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-final Exception lockedWalletException = Exception('Wallet is locked');
-
-const int defaultPageSize = 10;
-
-Future<WalletService?> walletServiceFromChain(
-  BigInt chainId,
-  String address,
-) async {
-  final List rawNativeChains =
-      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
-
-  final List<Chain> nativeChains =
-      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (i >= 0) {
-    return WalletService.fromAddress(
-      nativeChains[i],
-      address,
-    );
-  }
-
-  final List rawChains =
-      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
-
-  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (ii < 0) {
-    return null;
-  }
-
-  return WalletService.fromAddress(
-    chains[ii],
-    address,
-  );
-}
-
-Future<WalletService?> walletServiceFromKey(
-  BigInt chainId,
-  String privateKey,
-) async {
-  final List rawNativeChains =
-      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
-
-  final List<Chain> nativeChains =
-      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (i >= 0) {
-    return WalletService.fromKey(
-      nativeChains[i],
-      privateKey,
-    );
-  }
-
-  final List rawChains =
-      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
-
-  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (ii < 0) {
-    return null;
-  }
-
-  return WalletService.fromKey(
-    chains[ii],
-    privateKey,
-  );
-}
-
-Future<WalletService?> walletServiceFromWallet(
-  BigInt chainId,
-  String walletFile,
-  String password,
-) async {
-  final List rawNativeChains =
-      jsonDecode(await rootBundle.loadString('assets/data/native_chains.json'));
-
-  final List<Chain> nativeChains =
-      rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-  final i = nativeChains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (i >= 0) {
-    return WalletService.fromWalletFile(
-      nativeChains[i],
-      walletFile,
-      password,
-    );
-  }
-
-  final List rawChains =
-      jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-  final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
-
-  final ii = chains.indexWhere((c) => c.chainId == chainId.toInt());
-  if (ii < 0) {
-    return null;
-  }
-
-  return WalletService.fromWalletFile(
-    chains[ii],
-    walletFile,
-    password,
-  );
-}
-
-@Deprecated('Use WalletService2 instead')
 class WalletService {
-  // String? _clientVersion;
+  static final WalletService _instance = WalletService._internal();
+
+  factory WalletService() {
+    return _instance;
+  }
+
   BigInt? _chainId;
-  Chain? _chain;
-  // Wallet? _wallet;
-  EthPrivateKey? _credentials;
-  late EthereumAddress _address;
-  late EthereumAddress _account;
-  Uint8List? _publicKey;
+  late NativeCurrency currency;
 
-  late StackupEntryPoint _contractEntryPoint;
-  late AccountFactory _contractAccountFactory;
-  late ERC20Contract _contractToken;
-  late SimpleAccount _contractAccount;
-  late ProfileContract _contractProfile;
+  late Client _client;
 
-  final Client _client = Client();
-
-  final _url = dotenv.get('NODE_URL');
-  final _wsurl = dotenv.get('NODE_WS_URL');
-
+  late final String _url;
+  late final String _wsurl;
   late Web3Client _ethClient;
-  // StationService? _station;
-  late APIService _api;
-  final APIService _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
-  final APIService _indexerIPFS =
-      APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
-  final APIService _ipfs = APIService(baseURL: dotenv.get('IPFS_URL'));
-  final APIService _bundlerRPC =
-      APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
-  final APIService _paymasterRPC =
-      APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
-  final String _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
-  final APIService _dataRPC =
-      APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
 
-  final Map<String, String> erc4337Headers = {
-    'Origin': dotenv.get('ORIGIN_HEADER')
-  };
+  late final String ipfsUrl;
+  late final APIService _ipfs;
+  late final APIService _indexer;
+  late final APIService _indexerIPFS;
 
-  /// creates a new random private key
-  /// init before using
-  WalletService(this._chain) {
-    _ethClient = Web3Client(
+  late final APIService _bundlerRPC;
+  late final APIService _paymasterRPC;
+  late final String _paymasterType;
+  late final APIService _dataRPC;
+
+  late final Map<String, String> erc4337Headers;
+
+  WalletService._internal() {
+    _client = Client();
+
+    _url = dotenv.get('NODE_URL');
+    _wsurl = dotenv.get('NODE_WS_URL');
+
+    _ethClient = _ethClient = Web3Client(
       _url,
       _client,
       socketConnector: () =>
           WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
     );
-    _api = APIService(baseURL: _url);
 
-    // final Random key = Random.secure();
+    ipfsUrl = dotenv.get('IPFS_URL');
+    _ipfs = APIService(baseURL: ipfsUrl);
+    _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
+    _indexerIPFS = APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
 
-    // _credentials = EthPrivateKey.createRandom(key);
-    // _address = _credentials!.address;
+    _bundlerRPC = APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
+    _paymasterRPC =
+        APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
+    _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
+    _dataRPC = APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
+
+    erc4337Headers = {'Origin': dotenv.get('ORIGIN_HEADER')};
   }
 
-  /// creates using an existing private key from a hex string
-  /// init before using
-  WalletService.fromKey(this._chain, String privateKey) {
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
-    _api = APIService(baseURL: _url);
+  // Declare variables using the `late` keyword, which means they will be initialized at a later time.
+// The variables are related to Ethereum blockchain development.
+  late EthPrivateKey
+      _credentials; // Represents a private key for an Ethereum account.
+  late EthereumAddress _account; // Represents an Ethereum address.
+  late StackupEntryPoint
+      _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
+  late AccountFactory
+      _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
+  late ERC20Contract
+      _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
+  late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
+  late ProfileContract
+      _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
 
-    _credentials = EthPrivateKey.fromHex(privateKey);
-    _address = _credentials!.address;
-  }
-
-  /// creates using a wallet file
-  /// init before using
-  WalletService.fromWalletFile(
-    this._chain,
-    String walletFile,
-    String password,
-  ) {
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
-    _api = APIService(baseURL: _url);
-
-    Wallet wallet = Wallet.fromJson(walletFile, password);
-
-    _address = wallet.privateKey.address;
-    _credentials = wallet.privateKey;
-
-    // _wallet = wallet;
-  }
-
-  /// creates using a wallet file
-  /// init before using
-  WalletService.fromAddress(
-    this._chain,
-    String address,
-  ) {
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
-    _api = APIService(baseURL: _url);
-
-    _address = EthereumAddress.fromHex(address);
-
-    // Wallet wallet = Wallet.fromJson(walletFile, password);
-
-    // _wallet = wallet;
-    // _credentials = wallet.privateKey;
-  }
-
-  /// creates using a signer
-  /// init before using
-  WalletService.fromSigner(
-    this._chain,
-    Signer signer,
-  ) {
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
-    _api = APIService(baseURL: _url);
-
-    // _credentials = signer.privateKey;
-    _address = signer.privateKey.address;
-  }
-
-  Future<void> init(
-      String eaddr, String afaddr, String taddr, String prfaddr) async {
-    // _clientVersion = await _ethClient.getClientVersion();
-    _chainId = await _ethClient.getChainId();
-
-    await initContracts(eaddr, afaddr, taddr, prfaddr);
-  }
-
-  Future<void> initUnlocked(
-      String eaddr, String afaddr, String taddr, String prfaddr) async {
-    // _clientVersion = await _ethClient.getClientVersion();
-    _chainId = await _ethClient.getChainId();
-
-    await initContracts(eaddr, afaddr, taddr, prfaddr);
-  }
-
-  Future<void> initContracts(
-      String eaddr, String afaddr, String taddr, String prfaddr) async {
-    _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
-    await _contractEntryPoint.init();
-
-    _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
-    await _contractProfile.init();
-
-    _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
-    await _contractAccountFactory.init();
-
-    final credentials = unlock();
-    if (credentials == null) {
-      throw lockedWalletException;
-    }
-
-    _account =
-        await _contractAccountFactory.getAddress(credentials.address.hexEip55);
-
-    _contractToken = newERC20Contract(chainId, _ethClient, taddr);
-    await _contractToken.init();
-
-    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hexEip55);
-    await _contractAccount.init();
-  }
-
-  EthPrivateKey? unlock({String? walletFile, String? password}) {
-    try {
-      if (walletFile == null && password == null && _credentials == null) {
-        throw Exception('No wallet file or password provided');
-      }
-
-      if (walletFile == null && password == null && _credentials != null) {
-        return _credentials;
-      }
-
-      if (walletFile == null && password == null) {
-        throw Exception('No wallet file or password provided');
-      }
-
-      Wallet wallet = Wallet.fromJson(walletFile!, password!);
-
-      return wallet.privateKey;
-    } catch (e) {
-      print(e);
-    }
-
-    return null;
-  }
-
-  Future<void> switchChain(
-    Chain chain,
-    String eaddr,
-    String afaddr,
-    String taddr,
-    String prfaddr,
-  ) {
-    dispose();
-
-    _chain = chain;
-
-    _ethClient = Web3Client(_url, _client);
-    _api = APIService(baseURL: _url);
-
-    return _credentials != null
-        ? initUnlocked(eaddr, afaddr, taddr, prfaddr)
-        : init(eaddr, afaddr, taddr, prfaddr);
-  }
-
-  Future<Chain?> fetchChainById(BigInt id) async {
-    final List rawNativeChains = jsonDecode(
-        await rootBundle.loadString('assets/data/native_chains.json'));
-
-    final List<Chain> nativeChains =
-        rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-    final i = nativeChains.indexWhere((c) => c.chainId == id.toInt());
-    if (i >= 0) {
-      return nativeChains[i];
-    }
-
-    final List rawChains =
-        jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-    final List<Chain> chains = rawChains.map((c) => Chain.fromJson(c)).toList();
-
-    final ii = chains.indexWhere((c) => c.chainId == id.toInt());
-    if (ii < 0) {
-      return null;
-    }
-
-    return chains[ii];
-  }
-
-  /// makes a jsonrpc request from this wallet
-  Future<JSONRPCResponse> _request(JSONRPCRequest body) async {
-    final rawRespoonse = await _api.post(body: body);
-
-    final response = JSONRPCResponse.fromJson(rawRespoonse);
-
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
-
-    return response;
-  }
-
-  /// retrieve the private key as a v3 wallet
-  String toWalletFile(String walletFile, String password) {
-    final credentials = unlock(walletFile: walletFile, password: password);
-    if (credentials == null) {
-      throw lockedWalletException;
-    }
-
-    final Random random = Random.secure();
-    Wallet wallet = Wallet.createNew(credentials, password, random);
-
-    return wallet.toJson();
-  }
-
-  // EthPrivateKey get privateKey {
-  //   if (_credentials == null) {
-  //     throw lockedWalletException;
-  //   }
-
-  //   return _credentials!;
-  // }
-
-  /// retrieve the private key as a hex string
-  // String get privateKeyHex {
-  //   if (_credentials == null) {
-  //     throw lockedWalletException;
-  //   }
-
-  //   return bytesToHex(_credentials!.privateKey, include0x: true);
-  // }
-
-  String get url => _url;
-
-  Uint8List get publicKey {
-    if (_publicKey == null) {
-      throw lockedWalletException;
-    }
-
-    return _publicKey!;
-  }
-
-  String get publicKeyHex {
-    if (_publicKey == null) {
-      throw lockedWalletException;
-    }
-
-    return bytesToHex(_publicKey!, include0x: false);
-  }
-
-  EthPrivateKey? get privateKey => _credentials;
-
-  /// retrieve chain id
-  int get chainId => _chainId != null ? _chainId!.toInt() : 0;
-
-  /// retrieve raw wallet that was used to instantiate this service
-  // Wallet? get wallet => _wallet;
-
-  /// retrieve chain symbol
-  NativeCurrency get nativeCurrency =>
-      _chain?.nativeCurrency ??
-      NativeCurrency(
-        name: 'Citizen Coin',
-        symbol: 'CC',
-        decimals: 2,
-      );
-
-  /// retrieve the current block number
-  Future<int> get blockNumber async => await _ethClient.getBlockNumber();
-
-  /// retrieve the address
-  EthereumAddress get address => _address;
-
-  /// retrieve the account related to this address
+  EthPrivateKey get credentials => _credentials;
+  EthereumAddress get address => _credentials.address;
   EthereumAddress get account => _account;
 
   /// retrieves the current balance of the address
   Future<String> get balance async =>
       fromUnit(await _contractToken.getBalance(_account.hexEip55));
 
-  /// retrieves the transaction count for the address
-  Future<int> get transactionCount async =>
-      await _ethClient.getTransactionCount(address);
+  /// retrieve chain id
+  int get chainId => _chainId != null ? _chainId!.toInt() : 0;
 
-  /// retrieves a block by number
-  Future<BlockInformation> getBlock(int? blockNumber) async {
-    if (blockNumber == null) {
-      return _ethClient.getBlockInformation(blockNumber: 'latest');
-    }
+  String get erc20Address => _contractToken.addr;
+  String get profileAddress => _contractProfile.addr;
 
-    return await _ethClient.getBlockInformation(blockNumber: '$blockNumber');
+  Future<void> init(
+    String privateKey,
+    NativeCurrency currency,
+    String eaddr,
+    String afaddr,
+    String taddr,
+    String prfaddr,
+  ) async {
+    _credentials = EthPrivateKey.fromHex(privateKey);
+
+    _chainId = await _ethClient.getChainId();
+    this.currency = currency;
+
+    await _initContracts(eaddr, afaddr, taddr, prfaddr);
   }
 
-  /// contracts
+  /// Initializes the Ethereum smart contracts used by the wallet.
+  ///
+  /// [eaddr] The Ethereum address of the entry point for the smart contract.
+  /// [afaddr] The Ethereum address of the account factory smart contract.
+  /// [taddr] The Ethereum address of the ERC20 token smart contract.
+  /// [prfaddr] The Ethereum address of the user profile smart contract.
+  Future<void> _initContracts(
+      String eaddr, String afaddr, String taddr, String prfaddr) async {
+    // Create a new entry point instance and initialize it.
+    _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
+    await _contractEntryPoint.init();
+
+    // Create a new user profile contract instance and initialize it.
+    _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
+    await _contractProfile.init();
+
+    // Create a new account factory instance and initialize it.
+    _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
+    await _contractAccountFactory.init();
+
+    // Get the Ethereum address for the current account.
+    _account =
+        await _contractAccountFactory.getAddress(_credentials.address.hexEip55);
+
+    // Create a new ERC20 token contract instance and initialize it.
+    _contractToken = newERC20Contract(chainId, _ethClient, taddr);
+    await _contractToken.init();
+
+    // Create a new simple account instance and initialize it.
+    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hexEip55);
+    await _contractAccount.init();
+  }
+
+  /// set profile data
+  Future<String?> setProfile(
+    ProfileRequest profile, {
+    required List<int> image,
+    required String fileType,
+  }) async {
+    try {
+      final url = '/profiles/${_account.hexEip55}';
+
+      final encoded = jsonEncode(
+        profile.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, _credentials.privateKey));
+
+      final resp = await _indexerIPFS.filePut(
+        url: url,
+        file: image,
+        fileType: fileType,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      final String profileUrl = resp['object']['ipfs_url'];
+
+      final calldata = _contractProfile.setCallData(
+          _account.hexEip55, profile.username, profileUrl);
+
+      final (_, userop) = await prepareUserop(profileAddress, calldata);
+
+      final success = await submitUserop(userop);
+      if (!success) {
+        throw Exception('profile update failed');
+      }
+
+      return profileUrl;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return null;
+  }
+
+  /// update profile data
+  Future<String?> updateProfile(ProfileV1 profile) async {
+    try {
+      final url = '/profiles/${_account.hexEip55}';
+
+      final encoded = jsonEncode(
+        profile.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, _credentials.privateKey));
+
+      final resp = await _indexerIPFS.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      final String profileUrl = resp['object']['ipfs_url'];
+
+      final calldata = _contractProfile.setCallData(
+          _account.hexEip55, profile.username, profileUrl);
+
+      final (_, userop) = await prepareUserop(profileAddress, calldata);
+
+      final success = await submitUserop(userop);
+      if (!success) {
+        throw Exception('profile update failed');
+      }
+
+      return profileUrl;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return null;
+  }
+
+  /// set profile data
+  Future<bool> unpinCurrentProfile() async {
+    try {
+      final url = '/profiles/${_account.hexEip55}';
+
+      final encoded = jsonEncode(
+        {
+          'account': _account.hexEip55,
+          'date': DateTime.now().toUtc().toIso8601String(),
+        },
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, _credentials.privateKey));
+
+      await _indexerIPFS.delete(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// get profile data
+  Future<ProfileV1?> getProfile(String addr) async {
+    try {
+      final url = await _contractProfile.getURL(addr);
+
+      final profileData = await _ipfs.get(url: '/$url');
+
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
+  /// get profile data
+  Future<ProfileV1?> getProfileFromUrl(String url) async {
+    try {
+      final profileData = await _ipfs.get(url: '/$url');
+
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
+  /// get profile data by username
+  Future<ProfileV1?> getProfileByUsername(String username) async {
+    try {
+      final url = await _contractProfile.getURLFromUsername(username);
+
+      print('_contractProfile: $url');
+
+      final profileData = await _ipfs.get(url: '/$url');
+
+      final profile = ProfileV1.fromJson(profileData);
+
+      profile.parseIPFSImageURLs(ipfsUrl);
+
+      return profile;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
+  /// profileExists checks whether there is a profile for this username
+  Future<bool> profileExists(String username) async {
+    try {
+      final url = await _contractProfile.getURLFromUsername(username);
+
+      return url != '';
+    } catch (exception) {
+      //
+    }
+
+    return false;
+  }
+
+  /// fetch erc20 transfer events
+  ///
+  /// [offset] number of transfers to skip
+  ///
+  /// [limit] number of transferst to fetch
+  ///
+  /// [maxDate] fetch transfers up to this date
+  Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers({
+    required int offset,
+    required int limit,
+    required DateTime maxDate,
+  }) async {
+    try {
+      final List<TransferEvent> tx = [];
+
+      final url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+
+      final response = await _indexer.get(url: url, headers: {
+        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+      });
+
+      // convert response array into TransferEvent list
+      for (final item in response['array']) {
+        tx.add(TransferEvent.fromJson(item));
+      }
+
+      return (tx, Pagination.fromJson(response['meta']));
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return (<TransferEvent>[], Pagination.empty());
+  }
+
+  /// fetch new erc20 transfer events
+  ///
+  /// [fromDate] fetches transfers from this date
+  Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
+    try {
+      final List<TransferEvent> tx = [];
+
+      final url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+
+      final response = await _indexer.get(url: url, headers: {
+        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+      });
+
+      // convert response array into TransferEvent list
+      for (final item in response['array']) {
+        tx.add(TransferEvent.fromJson(item));
+      }
+
+      return tx;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return <TransferEvent>[];
+  }
+
+  /// Transactions
+
+  /// construct erc20 transfer call data
+  Uint8List erc20TransferCallData(
+    String to,
+    BigInt amount,
+  ) {
+    return _contractToken.transferCallData(
+      to,
+      EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
+      // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+    );
+  }
+
+  /// Account Abstraction
 
   // get account address
   Future<EthereumAddress> getAccountAddress(String addr) async {
-    final credentials = unlock();
-    if (credentials == null) {
-      throw lockedWalletException;
-    }
-
     return _contractAccountFactory.getAddress(addr);
   }
 
-  /// ERC 4337
+  /// Submits a user operation to the Ethereum network.
+  ///
+  /// This function sends a JSON-RPC request to the ERC4337 bundler. The entrypoint is specified by the
+  /// [eaddr] parameter, with the [eth_sendUserOperation] method and the given
+  /// [userop] parameter. If the request is successful, the function returns a
+  /// tuple containing the transaction hash as a string and `null`. If the request
+  /// fails, the function returns a tuple containing `null` and an exception
+  /// object representing the type of error that occurred.
+  ///
+  /// If the request fails due to a network congestion error, the function returns
+  /// a [NetworkCongestedException] object. If the request fails due to an invalid
+  /// balance error, the function returns a [NetworkInvalidBalanceException]
+  /// object. If the request fails for any other reason, the function returns a
+  /// [NetworkUnknownException] object.
+  ///
+  /// [userop] The user operation to submit to the Ethereum network.
+  /// [eaddr] The Ethereum address of the node to send the request to.
+  /// A tuple containing the transaction hash as a string and [null] if
+  ///         the request was successful, or [null] and an exception object if the
+  ///         request failed.
+  Future<(String?, Exception?)> _submitUserOp(
+    UserOp userop,
+    String eaddr,
+  ) async {
+    final body = SUJSONRPCRequest(
+      method: 'eth_sendUserOperation',
+      params: [userop.toJson(), eaddr],
+    );
+
+    try {
+      final response = await _requestBundler(body);
+
+      return (response.result as String, null);
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      final strerr = exception.toString();
+
+      if (strerr.contains(gasFeeErrorMessage)) {
+        return (null, NetworkCongestedException());
+      }
+
+      if (strerr.contains(invalidBalanceErrorMessage)) {
+        return (null, NetworkInvalidBalanceException());
+      }
+    }
+
+    return (null, NetworkUnknownException());
+  }
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
@@ -576,315 +578,10 @@ class WalletService {
     return (null, NetworkUnknownException());
   }
 
-  /// IPFS
-
-  /// set profile data
-  Future<bool> setProfile(ProfileV1 profile, List<int> image) async {
-    try {
-      final url = '/profiles/${_account.hexEip55}';
-
-      print('sending to $url');
-
-      final encoded = jsonEncode(
-        profile.toJson(),
-      );
-
-      final body = SignedRequest(convertStringToUint8List(encoded));
-
-      final credentials = unlock();
-      if (credentials == null) {
-        throw lockedWalletException;
-      }
-
-      final sig =
-          await compute(generateSignature, (encoded, credentials.privateKey));
-
-      final resp = await _indexerIPFS.filePut(
-        url: url,
-        file: image,
-        fileType: '',
-        headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
-          'X-Signature': sig,
-          'X-Address': credentials.address.hexEip55,
-        },
-        body: body.toJson(),
-      );
-
-      print(resp['ipfs_url']);
-
-      // final calldata =
-      //     _contractProfile.setCallData(_account.hexEip55, resp['ipfs_url']);
-
-      // final (_, userop) = await prepareUserop(calldata);
-
-      // return submitUserop(userop);
-      return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return false;
-  }
-
-  /// get profile data
-  Future<ProfileV1?> getProfile(String addr) async {
-    try {
-      final url = await _contractProfile.getURL(addr);
-
-      final profileData = await _ipfs.get(url: '/$url');
-
-      return ProfileV1.fromJson(profileData);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return null;
-  }
-
-  /// ERC 20 token methods
-
-  /// listen to erc20 transfer events
-  Stream<Transfer> get erc20TransferStream =>
-      _contractToken.listen(const BlockNum.current(), _account);
-
-  /// fetch erc20 transfer events
-  ///
-  /// [limit] number of seconds to go back, uses block time to calculate
-  ///
-  /// [toBlock] block number to fetch up to, leave blank to use current block
-  Future<(List<TransferEvent>, Pagination)> fetchErc20Transfers({
-    required int offset,
-    required int limit,
-    required DateTime maxDate,
-  }) async {
-    try {
-      final List<TransferEvent> tx = [];
-
-      final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
-
-      final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
-      });
-
-      // convert response array into TransferEvent list
-      for (final item in response['array']) {
-        tx.add(TransferEvent.fromJson(item));
-      }
-
-      return (tx, Pagination.fromJson(response['meta']));
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return (<TransferEvent>[], Pagination.empty());
-  }
-
-  /// fetch new erc20 transfer events
-  ///
-  /// [limit] number of seconds to go back, uses block time to calculate
-  ///
-  /// [toBlock] block number to fetch up to, leave blank to use current block
-  Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
-    try {
-      final List<TransferEvent> tx = [];
-
-      final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
-
-      final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
-      });
-
-      // convert response array into TransferEvent list
-      for (final item in response['array']) {
-        tx.add(TransferEvent.fromJson(item));
-      }
-
-      return tx;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return <TransferEvent>[];
-  }
-
-  /// add new erc20 transfer events that are sending
-  ///
-  /// [tx] the transfer event to add
-  Future<TransferEvent?> addSendingLog(TransferEvent tx) async {
-    try {
-      final url = '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}';
-
-      final encoded = jsonEncode(
-        tx.toJson(),
-      );
-
-      final body = SignedRequest(convertStringToUint8List(encoded));
-
-      final credentials = unlock();
-      if (credentials == null) {
-        throw lockedWalletException;
-      }
-
-      final sig =
-          await compute(generateSignature, (encoded, credentials.privateKey));
-
-      final response = await _indexer.post(
-        url: url,
-        headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
-          'X-Signature': sig,
-          'X-Address': credentials.address.hexEip55,
-        },
-        body: body.toJson(),
-      );
-
-      return TransferEvent.fromJson(response['object']);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return null;
-  }
-
-  /// set status of existing erc20 transfer event that are not success
-  ///
-  /// [status] number of seconds to go back, uses block time to calculate
-  Future<bool> setStatusLog(String hash, TransactionState status) async {
-    try {
-      final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/$hash';
-
-      final encoded = jsonEncode(
-        StatusUpdateRequest(status).toJson(),
-      );
-
-      final body = SignedRequest(convertStringToUint8List(encoded));
-
-      final credentials = unlock();
-      if (credentials == null) {
-        throw lockedWalletException;
-      }
-
-      final sig =
-          await compute(generateSignature, (encoded, credentials.privateKey));
-
-      await _indexer.patch(
-        url: url,
-        headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
-          'X-Signature': sig,
-          'X-Address': credentials.address.hexEip55,
-        },
-        body: body.toJson(),
-      );
-
-      return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return false;
-  }
-
-  /// submit a user op
-  Future<(String?, Exception?)> _submitUserOp(
-    UserOp userop,
-    String eaddr,
-  ) async {
-    final body = SUJSONRPCRequest(
-      method: 'eth_sendUserOperation',
-      params: [userop.toJson(), eaddr],
-    );
-
-    try {
-      final response = await _requestBundler(body);
-
-      return (response.result as String, null);
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
-      final strerr = exception.toString();
-
-      if (strerr.contains(gasFeeErrorMessage)) {
-        return (null, NetworkCongestedException());
-      }
-
-      if (strerr.contains(invalidBalanceErrorMessage)) {
-        return (null, NetworkInvalidBalanceException());
-      }
-    }
-
-    return (null, NetworkUnknownException());
-  }
-
-  /// retrieve a user op by hash and return its hash
-  Future<String?> _fetchUserOp(
-    String hash,
-  ) async {
-    try {
-      final response = await _dataRPC.get(
-        url: '/$hash',
-        headers: {
-          'SU-ACCESS-KEY': dotenv.get('ERC4337_SU_ACCESS_KEY'),
-        },
-      );
-
-      return response.data.transactionHash;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return null;
-  }
-
-  /// construct erc20 transfer call data
-  Uint8List erc20TransferCallData(
-    String to,
-    BigInt amount,
-  ) {
-    return _contractToken.transferCallData(
-      to,
-      EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
-      // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
-    );
-  }
-
   /// prepare a userop for with calldata
-  Future<(String, UserOp)> prepareUserop(Uint8List calldata) async {
+  Future<(String, UserOp)> prepareUserop(
+      String dest, Uint8List calldata) async {
     try {
-      // safely retrieve credentials if unlocks
-      final credentials = unlock();
-      if (credentials == null) {
-        throw lockedWalletException;
-      }
-
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
 
@@ -907,7 +604,7 @@ class WalletService {
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
       userop.callData = _contractAccount.executeCallData(
-        _contractToken.addr,
+        dest,
         BigInt.zero,
         calldata,
       );
@@ -956,7 +653,6 @@ class WalletService {
 
       return (bytesToHex(hash, include0x: true), userop);
     } catch (e) {
-      print(e);
       rethrow;
     }
   }
@@ -973,27 +669,39 @@ class WalletService {
 
       return result != null;
     } catch (e) {
-      print(e);
       rethrow;
     }
   }
 
-  /// ********************
+  /// Optimistic Transactions
 
-  /// return a block for a given blockNumber
-  Future<WalletBlock?> _getBlockByNumber({int? blockNumber}) async {
-    final body = JSONRPCRequest(
-      method: 'eth_getBlockByNumber',
-      params: [
-        blockNumber != null ? '0x${blockNumber.toRadixString(16)}' : 'latest',
-        true
-      ],
-    );
-
+  /// add new erc20 transfer events that are sending
+  ///
+  /// [tx] the transfer event to add
+  Future<TransferEvent?> addSendingLog(TransferEvent tx) async {
     try {
-      final response = await _request(body);
+      final url = '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}';
 
-      return WalletBlock.fromJson(response.result);
+      final encoded = jsonEncode(
+        tx.toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      final response = await _indexer.post(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      return TransferEvent.fromJson(response['object']);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1004,168 +712,42 @@ class WalletService {
     return null;
   }
 
-  /// return a block for a given hash
-  Future<WalletBlock?> _getBlockByHash(String hash) async {
-    final body = JSONRPCRequest(
-      method: 'eth_getBlockByHash',
-      params: [hash, true],
-    );
-
+  /// set status of existing erc20 transfer event that are not success
+  ///
+  /// [status] number of seconds to go back, uses block time to calculate
+  Future<bool> setStatusLog(String hash, TransactionState status) async {
     try {
-      final response = await _request(body);
+      final url =
+          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/$hash';
 
-      return WalletBlock.fromJson(response.result);
-    } catch (e) {
-      // error fetching block
-      print(e);
+      final encoded = jsonEncode(
+        StatusUpdateRequest(status).toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig =
+          await compute(generateSignature, (encoded, credentials.privateKey));
+
+      await _indexer.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'X-Signature': sig,
+          'X-Address': credentials.address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
 
-    return null;
-  }
-
-  /// signs a transaction to prepare for sending
-  Future<String> _signTransaction({
-    required String to,
-    required String amount,
-    String message = '',
-    String? walletFile,
-    String? password,
-  }) async {
-    final credentials = unlock(walletFile: walletFile, password: password);
-    if (credentials == null) {
-      throw lockedWalletException;
-    }
-
-    final parsedAmount = toUnit(amount);
-
-    final Transaction transaction = Transaction(
-      to: EthereumAddress.fromHex(to),
-      from: credentials.address,
-      value: EtherAmount.fromBigInt(EtherUnit.gwei, parsedAmount),
-      data: Message(message: message).toBytes(),
-    );
-
-    final tx = await _ethClient.signTransaction(
-      credentials,
-      transaction,
-      chainId: _chainId!.toInt(),
-    );
-
-    return bytesToHex(tx);
-  }
-
-  /// send signed transaction through gas station
-  Future<String> sendGasStationTransaction({
-    required String to,
-    required String amount,
-    String message = '',
-    String? walletFile,
-    String? password,
-  }) async {
-    final data = {
-      'data': await _signTransaction(
-        to: to,
-        amount: amount,
-        message: message,
-        walletFile: walletFile,
-        password: password,
-      ),
-    };
-
-    // final response = await _station!.transaction(
-    //   jsonEncode(data),
-    // );
-
-    return '';
-  }
-
-  /// sends a transaction from the wallet to another
-  Future<String> sendTransaction({
-    required String to,
-    required String amount,
-    String message = '',
-    String? walletFile,
-    String? password,
-  }) async {
-    final credentials = unlock(walletFile: walletFile, password: password);
-    if (credentials == null) {
-      throw lockedWalletException;
-    }
-
-    final parsedAmount = toUnit(amount);
-
-    final Transaction transaction = Transaction(
-      to: EthereumAddress.fromHex(to),
-      from: credentials.address,
-      value: EtherAmount.fromBigInt(EtherUnit.gwei, parsedAmount),
-      data: Message(message: message).toBytes(),
-    );
-
-    return await _ethClient.sendTransaction(
-      credentials,
-      transaction,
-      chainId: _chainId!.toInt(),
-    );
-  }
-
-  /// retrieves list of latest transactions for this wallet within a limit and offset
-  Future<List<WalletTransaction>> transactions({
-    int offset = 0,
-    int limit = defaultPageSize,
-  }) async {
-    final List<WalletTransaction> transactions = [];
-
-    final int lastBlock = await _ethClient.getBlockNumber();
-
-    // get the start block number
-    final int startBlock =
-        max(offset == 0 ? lastBlock : offset, firstBlockNumber);
-
-    // get the end block number
-    final int endBlock = max(
-      startBlock - limit,
-      firstBlockNumber,
-    );
-
-    // iterate through blocks
-    for (int i = startBlock; i >= endBlock; i--) {
-      final WalletBlock? block = await _getBlockByNumber(blockNumber: i);
-      if (block == null) {
-        continue;
-      }
-
-      for (final transaction in block.transactions) {
-        // find transactions that are sent or received by this wallet
-        if (transaction.from == address || transaction.to == address) {
-          transaction.setTimestamp(block.timestamp);
-          transaction.setDirection(address);
-          transactions.add(transaction);
-        }
-      }
-    }
-
-    return transactions;
-  }
-
-  /// retrieves list of transactions for this wallet for a give block hash
-  Future<List<WalletTransaction>> transactionsForBlockHash(String hash) async {
-    final List<WalletTransaction> transactions = [];
-
-    final WalletBlock? block = await _getBlockByHash(hash);
-    if (block == null) {
-      return transactions;
-    }
-
-    for (final transaction in block.transactions) {
-      // find transactions that are sent or received by this wallet
-      if (transaction.from == address || transaction.to == address) {
-        transaction.setTimestamp(block.timestamp);
-        transaction.setDirection(address);
-        transactions.insert(0, transaction);
-      }
-    }
-
-    return transactions;
+    return false;
   }
 
   /// dispose of resources

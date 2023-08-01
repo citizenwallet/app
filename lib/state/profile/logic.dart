@@ -1,6 +1,6 @@
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -15,7 +15,7 @@ class ProfileLogic {
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
 
-  final WalletService2 _wallet = WalletService2();
+  final WalletService _wallet = WalletService();
 
   ProfileLogic(BuildContext context) {
     _state = context.read<ProfileState>();
