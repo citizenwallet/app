@@ -1,11 +1,10 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/screens/profile/screen.dart';
-import 'package:citizenwallet/screens/wallet/receive_modal.dart';
-import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/wallet/receive_modal.dart';
+import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -16,7 +15,6 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/share_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/qr_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';

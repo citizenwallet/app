@@ -1,6 +1,6 @@
 import 'package:citizenwallet/models/transaction.dart';
-import 'package:citizenwallet/screens/profile/screen.dart';
-import 'package:citizenwallet/screens/wallet/send_modal.dart';
+import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';

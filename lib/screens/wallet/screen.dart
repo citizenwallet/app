@@ -1,7 +1,7 @@
-import 'package:citizenwallet/screens/profile/screen.dart';
-import 'package:citizenwallet/screens/wallet/receive_modal.dart';
-import 'package:citizenwallet/screens/wallet/send_modal.dart';
-import 'package:citizenwallet/screens/wallet/switch_wallet_modal.dart';
+import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/wallet/receive_modal.dart';
+import 'package:citizenwallet/modals/wallet/send_modal.dart';
+import 'package:citizenwallet/modals/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';

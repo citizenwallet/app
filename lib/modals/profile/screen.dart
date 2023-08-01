@@ -1,4 +1,4 @@
-import 'package:citizenwallet/screens/profile/edit.dart';
+import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
