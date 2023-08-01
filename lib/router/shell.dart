@@ -55,9 +55,6 @@ class RouterShell extends StatelessWidget {
 
     final location = state.uri.toString();
 
-    print(state.uri);
-    print('location: $location');
-
     final app = CupertinoScaffold(
       key: Key(location),
       topRadius: const Radius.circular(40),
