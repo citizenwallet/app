@@ -360,22 +360,58 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                       bottom: 20,
                       left: 20,
                       right: 20,
-                      child: Column(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Button(
-                            text: 'Create Account',
-                            color:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            labelColor: ThemeColors.black,
-                            onPressed: () => handleCreate(context),
-                          ),
-                          const SizedBox(height: 10),
-                          Button(
-                            text: 'Import Account',
-                            color:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            labelColor: ThemeColors.black,
+                          CupertinoButton(
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             onPressed: () => handleImport(context),
+                            borderRadius: BorderRadius.circular(25),
+                            color:
+                                ThemeColors.uiBackground.resolveFrom(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Import',
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Icon(
+                                  CupertinoIcons.down_arrow,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          CupertinoButton(
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                            onPressed: () => handleCreate(context),
+                            borderRadius: BorderRadius.circular(25),
+                            color:
+                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Create',
+                                  style: TextStyle(
+                                    color: ThemeColors.black,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                                Icon(
+                                  CupertinoIcons.plus,
+                                  color: ThemeColors.black,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
