@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/db/contacts.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -5,6 +6,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   late ProfilesState _state;
@@ -32,6 +34,37 @@ class ProfilesLogic extends WidgetsBindingObserver {
     );
   }
 
+  Future<ProfileV1?> _loadCachedProfile(String addr) async {
+    try {
+      final cachedProfile = await ContactsCache().get(addr, () async {
+        final fetchedProfile = await _wallet.getProfile(addr);
+        if (fetchedProfile == null) {
+          return null;
+        }
+
+        return DBContact(
+          account: fetchedProfile.account,
+          username: fetchedProfile.username,
+          name: fetchedProfile.name,
+          description: fetchedProfile.description,
+          image: fetchedProfile.image,
+          imageMedium: fetchedProfile.imageMedium,
+          imageSmall: fetchedProfile.imageSmall,
+        );
+      });
+
+      if (cachedProfile != null) {
+        final profile = ProfileV1.fromMap(cachedProfile.toMap());
+
+        return profile;
+      }
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
   _loadProfile() async {
     if (stopLoading) {
       return;
@@ -45,7 +78,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        final profile = await _wallet.getProfile(addr);
+        final profile = await _loadCachedProfile(addr);
 
         if (profile != null) {
           _state.isLoading(addr);
@@ -109,7 +142,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     try {
       _state.isSearching(null);
 
-      final profile = await _wallet.getProfile(addr);
+      final profile = await _loadCachedProfile(addr);
 
       if (profile != null) {
         _state.isSearchingSuccess(profile);

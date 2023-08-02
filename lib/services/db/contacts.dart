@@ -43,9 +43,9 @@ class DBContact {
       'image': image,
       'imageMedium': imageMedium,
       'imageSmall': imageSmall,
-      'createdAt': createdAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
       'updatedAt':
-          DateTime.now().millisecondsSinceEpoch, // update the updatedAt time
+          DateTime.now().toIso8601String(), // update the updatedAt time
     };
   }
 
@@ -58,8 +58,8 @@ class DBContact {
       image: map['image'],
       imageMedium: map['imageMedium'],
       imageSmall: map['imageSmall'],
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt']),
+      createdAt: DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.parse(map['updatedAt']),
     );
   }
 }
@@ -82,8 +82,8 @@ class ContactTable extends DBTable {
       image TEXT NOT NULL,
       imageMedium TEXT NOT NULL,
       imageSmall TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      updatedAt INTEGER NOT NULL
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
     )
   ''';
 

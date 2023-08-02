@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -115,6 +116,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
 
+      ContactsCache().init(_db);
+
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
@@ -203,6 +206,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
+
+      ContactsCache().init(_db);
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
