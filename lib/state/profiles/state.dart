@@ -92,7 +92,8 @@ class ProfilesState with ChangeNotifier {
   }
 
   void isSearchingSuccess(ProfileV1 profile) {
-    searchResults = [];
+    searchResults =
+        searchResults.where((element) => element != profile).toList();
     searchedProfile = profile;
     searchLoading = false;
     searchError = false;
