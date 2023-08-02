@@ -24,8 +24,6 @@ class APIService {
       mergedHeaders.addAll(headers);
     }
 
-    print('$baseURL${url ?? ''}');
-
     final response = await http
         .get(
           Uri.parse('$baseURL${url ?? ''}'),
