@@ -76,16 +76,6 @@ GoRouter createRouter(
               ],
             ),
             GoRoute(
-              name: 'Contacts',
-              path: '/contacts',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: const ContactsScreen(),
-              ),
-            ),
-            GoRoute(
               name: 'Settings',
               path: '/settings',
               parentNavigatorKey: shellNavigatorKey,
