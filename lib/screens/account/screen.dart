@@ -281,7 +281,7 @@ class AccountScreenState extends State<AccountScreen> {
                       ],
                     ),
                   ),
-                  if (hasNoProfile && !profileLoading)
+                  if (!profileLoading)
                     Positioned(
                       bottom: 40,
                       child: Row(
@@ -294,7 +294,7 @@ class AccountScreenState extends State<AccountScreen> {
                                       ThemeColors.subtle.resolveFrom(context),
                                 )
                               : Button(
-                                  text: 'Create',
+                                  text: hasNoProfile ? 'Create' : 'Edit',
                                   color: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
                                   labelColor: ThemeColors.black,
@@ -370,23 +370,6 @@ class AccountScreenState extends State<AccountScreen> {
                           ),
                         ),
                 ),
-                actionButton: (!hasNoProfile && !firstLoad)
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CupertinoButton(
-                            padding: const EdgeInsets.all(5),
-                            onPressed: (cleaningUp || wallet == null)
-                                ? null
-                                : () => handleEdit(),
-                            child: Icon(
-                              CupertinoIcons.pencil,
-                              color: ThemeColors.primary.resolveFrom(context),
-                            ),
-                          ),
-                        ],
-                      )
-                    : null,
               ),
             ),
           ],
