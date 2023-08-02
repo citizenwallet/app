@@ -30,7 +30,7 @@ class ReceiveModalState extends State<ReceiveModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
-  late void Function() debouncedQRCode;
+  late Debounce debouncedQRCode;
 
   @override
   void initState() {
@@ -42,7 +42,8 @@ class ReceiveModalState extends State<ReceiveModal> {
       widget.logic.updateReceiveQR(onlyHex: true);
 
       debouncedQRCode = debounce(
-        widget.logic.updateReceiveQR,
+        (String value) => widget.logic.updateReceiveQR(
+            onlyHex: value == '' || (double.tryParse(value) ?? 0.0) == 0.0),
         const Duration(milliseconds: 500),
       );
 
@@ -67,14 +68,8 @@ class ReceiveModalState extends State<ReceiveModal> {
     widget.logic.copyReceiveQRToClipboard(qr);
   }
 
-  void handleThrottledUpdateQRCode() {
-    debouncedQRCode();
-  }
-
-  void handleReset() {
-    widget.logic.clearInputControllers();
-
-    widget.logic.updateReceiveQR(onlyHex: true);
+  void handleThrottledUpdateQRCode(String value) {
+    debouncedQRCode([value]);
   }
 
   void handleSubmit() {
@@ -279,31 +274,11 @@ class ReceiveModalState extends State<ReceiveModal> {
                           inputFormatters: [
                             amountFormatter,
                           ],
-                          onChanged: (_) {
-                            handleThrottledUpdateQRCode();
-                          },
+                          onChanged: handleThrottledUpdateQRCode,
                           onSubmitted: (_) {
                             handleSubmit();
                           },
                         ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 20,
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Button(
-                            text: 'Reset QR Code',
-                            onPressed: handleReset,
-                            minWidth: 200,
-                            maxWidth: 200,
-                          ),
-                        ],
                       ),
                     ),
                     const SliverToBoxAdapter(
