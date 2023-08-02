@@ -1,5 +1,8 @@
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -10,50 +13,126 @@ class RouterShell extends StatelessWidget {
   final Widget child;
   final GoRouterState state;
 
-  RouterShell({
+  const RouterShell({
     Key? key,
     required this.child,
     required this.state,
   }) : super(key: key);
 
-  final List<BottomNavigationBarItem> items = [
-    const BottomNavigationBarItem(
-      label: 'Wallet',
-      icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
-      activeIcon: Icon(
-        CupertinoIcons.rectangle_on_rectangle_angled,
-      ),
-    ),
-    const BottomNavigationBarItem(
-      label: 'Contacts',
-      icon: Icon(CupertinoIcons.person_3),
-      activeIcon: Icon(
-        CupertinoIcons.person_3_fill,
-      ),
-    ),
-    const BottomNavigationBarItem(
-      label: 'Settings',
-      icon: Icon(CupertinoIcons.settings),
-      activeIcon: Icon(
-        CupertinoIcons.settings_solid,
-      ),
-    ),
-  ];
-
-  final routes = {
-    '/wallet': 0,
-    '/contacts': 1,
-    '/settings': 2,
-  };
-
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final loading = context.select((WalletState state) => state.loading);
+    final cleaningUp = context.select((WalletState state) => state.cleaningUp);
+
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
-    final location = state.uri.toString();
+    final imageSmall = context.select((ProfileState state) => state.imageSmall);
+    final username = context.select((ProfileState state) => state.username);
+
+    final hasNoProfile = imageSmall == '' && username == '';
+
+    final parts = state.uri.toString().split('/');
+    final location = parts.length > 1 ? parts[1] : '/';
+
+    final List<BottomNavigationBarItem> items = [
+      const BottomNavigationBarItem(
+        label: 'Wallet',
+        icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
+        activeIcon: Icon(
+          CupertinoIcons.rectangle_on_rectangle_angled,
+        ),
+      ),
+      const BottomNavigationBarItem(
+        label: 'Contacts',
+        icon: Icon(CupertinoIcons.person_3),
+        activeIcon: Icon(
+          CupertinoIcons.person_3_fill,
+        ),
+      ),
+      const BottomNavigationBarItem(
+        label: 'Settings',
+        icon: Icon(CupertinoIcons.settings),
+        activeIcon: Icon(
+          CupertinoIcons.settings_solid,
+        ),
+      ),
+      BottomNavigationBarItem(
+        label: 'Account',
+        icon: cleaningUp || wallet == null
+            ? const PulsingContainer(
+                height: 30,
+                width: 30,
+                borderRadius: 15,
+              )
+            : Stack(
+                children: [
+                  ProfileCircle(
+                    size: 30,
+                    imageUrl: imageSmall,
+                    borderWidth: 2,
+                    borderColor: ThemeColors.transparent.resolveFrom(context),
+                    backgroundColor:
+                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  ),
+                  if (hasNoProfile && !loading)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        height: 10,
+                        width: 10,
+                        decoration: BoxDecoration(
+                          color: ThemeColors.danger.resolveFrom(context),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+        activeIcon: cleaningUp || wallet == null
+            ? const PulsingContainer(
+                height: 30,
+                width: 30,
+                borderRadius: 15,
+              )
+            : Stack(
+                children: [
+                  ProfileCircle(
+                    size: 30,
+                    imageUrl: imageSmall,
+                    borderWidth: 2,
+                    borderColor:
+                        ThemeColors.surfaceBackground.resolveFrom(context),
+                    backgroundColor:
+                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  ),
+                  if (hasNoProfile && !loading)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        height: 10,
+                        width: 10,
+                        decoration: BoxDecoration(
+                          color: ThemeColors.danger.resolveFrom(context),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+      ),
+    ];
+
+    final routes = {
+      'wallet': 0,
+      'contacts': 1,
+      'settings': 2,
+      'account': 3,
+    };
 
     final app = CupertinoScaffold(
       key: Key(location),
@@ -94,6 +173,10 @@ class RouterShell extends StatelessWidget {
                               break;
                             case 2:
                               GoRouter.of(context).go('/settings');
+                              break;
+                            case 3:
+                              GoRouter.of(context)
+                                  .go('/account/${wallet?.address}');
                               break;
                             default:
                             // GoRouter.of(context).go('/404');

@@ -14,16 +14,16 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({
+class EditProfileModal extends StatefulWidget {
+  const EditProfileModal({
     Key? key,
   }) : super(key: key);
 
   @override
-  EditProfileScreenState createState() => EditProfileScreenState();
+  EditProfileModalState createState() => EditProfileModalState();
 }
 
-class EditProfileScreenState extends State<EditProfileScreen> {
+class EditProfileModalState extends State<EditProfileModal> {
   final UsernameFormatter usernameFormatter = UsernameFormatter();
   final NameFormatter nameFormatter = NameFormatter();
 

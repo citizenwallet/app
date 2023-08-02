@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -30,9 +31,11 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic extends WidgetsBindingObserver {
+  bool get isWalletLoaded => _state.wallet != null;
   late WalletState _state;
 
   final WalletService _wallet = WalletService();
+  final DBService _db = DBService();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
@@ -48,6 +51,9 @@ class WalletLogic extends WidgetsBindingObserver {
   TextEditingController get addressController => _addressController;
   TextEditingController get amountController => _amountController;
   TextEditingController get messageController => _messageController;
+
+  String? get lastWallet => _preferences.lastWallet;
+  String get address => _wallet.address.hexEip55;
 
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
@@ -107,6 +113,8 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('PROFILE_ADDRESS'),
       );
 
+      await _db.init('wallet_${_wallet.address.hexEip55}');
+
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
@@ -143,22 +151,37 @@ class WalletLogic extends WidgetsBindingObserver {
     return false;
   }
 
-  String? get lastWallet => _preferences.lastWallet;
-
-  Future<String?> openWallet(
-      String? paramAddress, Future<void> Function() loadAdditionalData) async {
+  /// openWallet opens a wallet given an address and also loads additional data
+  ///
+  /// if a wallet is already loaded, it only fetches additional data
+  Future<String?> openWallet(String? paramAddress,
+      Future<void> Function(bool hasChanged) loadAdditionalData) async {
     try {
-      _state.loadWallet();
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
-
       final String? address = paramAddress ?? _preferences.lastWallet;
 
       if (address == null) {
         throw Exception('address not found');
       }
+
+      if (isWalletLoaded && paramAddress == _wallet.address.hexEip55) {
+        final balance = await _wallet.balance;
+
+        _state.updateWalletBalanceSuccess(balance);
+
+        await loadAdditionalData(false);
+
+        _state.loadWalletSuccess();
+
+        _preferences.setLastWallet(address);
+
+        return address;
+      }
+
+      _state.loadWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
 
       final dbWallet = await _encPrefs.getWalletBackup(address);
 
@@ -179,6 +202,8 @@ class WalletLogic extends WidgetsBindingObserver {
         dotenv.get('PROFILE_ADDRESS'),
       );
 
+      await _db.init('wallet_${_wallet.address.hexEip55}');
+
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
@@ -195,7 +220,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await loadAdditionalData();
+      await loadAdditionalData(true);
 
       _state.loadWalletSuccess();
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive_modal.dart';
 import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
@@ -27,9 +27,11 @@ import 'package:web3dart/crypto.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
+  final WalletLogic wallet;
 
   const BurnerWalletScreen(
-    this.encoded, {
+    this.encoded,
+    this.wallet, {
     super.key,
   });
 
@@ -51,7 +53,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void initState() {
     super.initState();
 
-    _logic = WalletLogic(context);
+    _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
 
@@ -240,7 +242,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => ProfileScreen(
+      builder: (modalContext) => ProfileModal(
         account: wallet.account,
       ),
     );

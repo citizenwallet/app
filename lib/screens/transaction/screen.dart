@@ -1,5 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
-import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -112,7 +112,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       expand: true,
       topRadius: const Radius.circular(40),
       useRootNavigator: true,
-      builder: (_) => ProfileScreen(
+      builder: (_) => ProfileModal(
         account: account,
         readonly: true,
       ),

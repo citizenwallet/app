@@ -32,7 +32,7 @@ class DBService {
 
   DBService._internal();
 
-  late Database _db;
+  Database? _db;
   late ContactTable contacts;
 
 // open a database, create tables and migrate data
@@ -62,6 +62,10 @@ class DBService {
       // path = 'my_web_web.db';
     }
 
+    if (_db != null && _db!.isOpen) {
+      _db!.close();
+    }
+
     final path =
         kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
     _db = await openDB(path);
@@ -69,22 +73,34 @@ class DBService {
 
   // reset db
   Future<void> resetDB() async {
-    final path = _db.path;
-    await _db.close();
+    if (_db == null) {
+      return;
+    }
+
+    final path = _db!.path;
+    await _db!.close();
     await deleteDatabase(path);
     _db = await openDB(path);
   }
 
   // delete db
   Future<void> deleteDB() async {
-    final path = _db.path;
-    await _db.close();
+    if (_db == null) {
+      return;
+    }
+
+    final path = _db!.path;
+    await _db!.close();
     await deleteDatabase(path);
   }
 
   // get db size in bytes
   Future<int> getDBSize() async {
-    final path = _db.path;
+    if (_db == null) {
+      return 0;
+    }
+
+    final path = _db!.path;
     final file = File(path);
     return file.length();
   }

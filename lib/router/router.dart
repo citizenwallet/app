@@ -1,5 +1,6 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
+import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
 import 'package:citizenwallet/screens/contacts/screen.dart';
@@ -9,6 +10,7 @@ import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +21,7 @@ GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
   GlobalKey<NavigatorState> shellNavigatorKey,
   List<NavigatorObserver> observers,
+  WalletLogic wallet,
 ) =>
     GoRouter(
       initialLocation: '/',
@@ -48,6 +51,7 @@ GoRouter createRouter(
                 name: state.name,
                 child: WalletScreen(
                   state.pathParameters['address'],
+                  wallet,
                 ),
               ),
               routes: [
@@ -91,6 +95,19 @@ GoRouter createRouter(
                 child: SettingsScreen(),
               ),
             ),
+            GoRoute(
+              name: 'Account',
+              path: '/account/:address',
+              parentNavigatorKey: shellNavigatorKey,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: state.pageKey,
+                name: state.name,
+                child: AccountScreen(
+                  address: state.pathParameters['address'],
+                  wallet: wallet,
+                ),
+              ),
+            ),
           ],
         ),
         GoRoute(
@@ -114,6 +131,7 @@ GoRouter createWebRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
   GlobalKey<NavigatorState> shellNavigatorKey,
   List<NavigatorObserver> observers,
+  WalletLogic wallet,
 ) =>
     GoRouter(
       initialLocation: '/',
@@ -145,6 +163,7 @@ GoRouter createWebRouter(
                   onWillPop: () async => false,
                   child: BurnerWalletScreen(
                     state.pathParameters['qr'] ?? '',
+                    wallet,
                   ),
                 ),
               ),

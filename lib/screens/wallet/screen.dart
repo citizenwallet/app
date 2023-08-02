@@ -1,18 +1,13 @@
-import 'package:citizenwallet/modals/profile/screen.dart';
+import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive_modal.dart';
 import 'package:citizenwallet/modals/wallet/send_modal.dart';
-import 'package:citizenwallet/modals/wallet/switch_wallet_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
-import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -20,10 +15,11 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
-  final String title = 'Account';
+  final String title = 'Wallet';
+  final WalletLogic wallet;
   final String? address;
 
-  const WalletScreen(this.address, {super.key});
+  const WalletScreen(this.address, this.wallet, {super.key});
 
   @override
   WalletScreenState createState() => WalletScreenState();
@@ -39,11 +35,10 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
 
-    _logic = WalletLogic(context);
+    _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
 
-    WidgetsBinding.instance.addObserver(_logic);
     WidgetsBinding.instance.addObserver(_profilesLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,10 +54,8 @@ class WalletScreenState extends State<WalletScreen> {
   void dispose() {
     _scrollController.removeListener(onScrollUpdate);
 
-    WidgetsBinding.instance.removeObserver(_logic);
     WidgetsBinding.instance.removeObserver(_profilesLogic);
 
-    _logic.dispose();
     _profilesLogic.dispose();
 
     super.dispose();
@@ -99,8 +92,8 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    await _logic.openWallet(widget.address!, () async {
-      _profileLogic.loadProfile();
+    await _logic.openWallet(widget.address!, (bool hasChanged) async {
+      if (hasChanged) _profileLogic.loadProfile();
       await _logic.loadTransactions();
     });
   }
@@ -185,37 +178,6 @@ class WalletScreenState extends State<WalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
-  void handleSwitchWalletModal(BuildContext context) async {
-    HapticFeedback.mediumImpact();
-
-    final navigator = GoRouter.of(context);
-
-    _logic.pauseFetching();
-
-    final address =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => SwitchWalletModal(
-        logic: _logic,
-        currentAddress: widget.address,
-      ),
-    );
-
-    if (address == null || address == widget.address) {
-      _logic.resumeFetching();
-      return;
-    }
-
-    _logic.cleanupWalletService();
-    _logic.cleanupWalletState();
-
-    await delay(const Duration(milliseconds: 250));
-
-    navigator.go('/wallet/$address');
-  }
-
   void handleDisplayWalletQR(BuildContext context) async {
     _logic.updateWalletQR();
 
@@ -234,8 +196,9 @@ class WalletScreenState extends State<WalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => ProfileScreen(
+      builder: (modalContext) => ProfileModal(
         account: wallet.account,
+        readonly: true,
       ),
     );
 
@@ -324,14 +287,6 @@ class WalletScreenState extends State<WalletScreen> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
 
-    final transactionSendLoading =
-        context.select((WalletState state) => state.transactionSendLoading);
-
-    final imageSmall = context.select((ProfileState state) => state.imageSmall);
-    final username = context.select((ProfileState state) => state.username);
-
-    final hasNoProfile = imageSmall == '' && username == '';
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Stack(
@@ -372,63 +327,7 @@ class WalletScreenState extends State<WalletScreen> {
             child: Header(
               transparent: true,
               color: ThemeColors.transparent,
-              titleWidget: CupertinoButton(
-                padding: const EdgeInsets.all(5),
-                onPressed: transactionSendLoading || cleaningUp
-                    ? null
-                    : () => handleSwitchWalletModal(context),
-                child: wallet == null
-                    ? const PulsingContainer(
-                        height: 30,
-                        padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                        ),
-                        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          wallet.name,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: ThemeColors.text
-                                                .resolveFrom(context),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Icon(
-                              CupertinoIcons.chevron_down,
-                              color: transactionSendLoading || cleaningUp
-                                  ? ThemeColors.subtle.resolveFrom(context)
-                                  : ThemeColors.primary.resolveFrom(context),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
+              title: widget.title,
               actionButton: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -437,35 +336,10 @@ class WalletScreenState extends State<WalletScreen> {
                     onPressed: (firstLoad || wallet == null)
                         ? null
                         : () => handleDisplayWalletQR(context),
-                    child: cleaningUp || wallet == null
-                        ? const PulsingContainer(
-                            height: 30,
-                            width: 30,
-                            borderRadius: 15,
-                          )
-                        : Stack(
-                            children: [
-                              ProfileCircle(
-                                size: 30,
-                                imageUrl: imageSmall,
-                                borderColor: ThemeColors.subtle,
-                              ),
-                              if (hasNoProfile)
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: Container(
-                                    height: 10,
-                                    width: 10,
-                                    decoration: BoxDecoration(
-                                      color: ThemeColors.danger
-                                          .resolveFrom(context),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                    child: Icon(
+                      CupertinoIcons.qrcode,
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
                   ),
                 ],
               ),

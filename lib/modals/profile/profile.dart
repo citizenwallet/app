@@ -13,21 +13,21 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileModal extends StatefulWidget {
   final String account;
   final bool readonly;
 
-  const ProfileScreen({
+  const ProfileModal({
     Key? key,
     required this.account,
     this.readonly = false,
   }) : super(key: key);
 
   @override
-  ProfileScreenState createState() => ProfileScreenState();
+  ProfileModalState createState() => ProfileModalState();
 }
 
-class ProfileScreenState extends State<ProfileScreen> {
+class ProfileModalState extends State<ProfileModal> {
   late ProfileLogic _logic;
 
   @override
@@ -62,7 +62,7 @@ class ProfileScreenState extends State<ProfileScreen> {
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
-      builder: (context) => const EditProfileScreen(),
+      builder: (context) => const EditProfileModal(),
     );
   }
 
@@ -84,20 +84,30 @@ class ProfileScreenState extends State<ProfileScreen> {
           child: Flex(
             direction: Axis.vertical,
             children: [
-              Header(
-                title: 'Profile',
-                actionButton: CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDismiss(context),
-                  child: Icon(
-                    CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      0,
+                      0,
+                      10,
+                      0,
+                    ),
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => handleDismiss(context),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
