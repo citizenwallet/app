@@ -76,16 +76,6 @@ GoRouter createRouter(
               ],
             ),
             GoRoute(
-              name: 'Settings',
-              path: '/settings',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: SettingsScreen(),
-              ),
-            ),
-            GoRoute(
               name: 'Account',
               path: '/account/:address',
               parentNavigatorKey: shellNavigatorKey,
@@ -99,6 +89,12 @@ GoRouter createRouter(
               ),
             ),
           ],
+        ),
+        GoRoute(
+          name: 'Settings',
+          path: '/settings',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => SettingsScreen(),
         ),
         GoRoute(
           name: 'About',

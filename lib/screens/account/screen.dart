@@ -114,6 +114,10 @@ class AccountScreenState extends State<AccountScreen> {
     onLoad();
   }
 
+  void handleGoToSettings(BuildContext context) {
+    GoRouter.of(context).push('/settings');
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -369,6 +373,19 @@ class AccountScreenState extends State<AccountScreen> {
                             ],
                           ),
                         ),
+                ),
+                actionButton: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => handleGoToSettings(context),
+                      child: Icon(
+                        CupertinoIcons.settings,
+                        color: ThemeColors.primary.resolveFrom(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
