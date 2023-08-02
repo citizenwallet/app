@@ -62,13 +62,11 @@ class TransactionTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int version) async {
-    if (version == 1) {
-      await db.execute(createQuery);
+    await db.execute(createQuery);
 
-      await db.execute('''
+    await db.execute('''
         CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
       ''');
-    }
   }
 
   // CRUD methods for transactions
