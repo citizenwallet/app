@@ -74,26 +74,14 @@ class ProfilesState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  void isSearching(String? value) {
-    if (value != null) {
-      searchResults = value == ''
-          ? []
-          : profiles.values
-              .where((element) => element.profile.username
-                  .toLowerCase()
-                  .contains(value.toLowerCase()))
-              .map((element) => element.profile)
-              .toList();
-    }
-
+  void isSearching() {
     searchLoading = true;
     searchError = false;
     notifyListeners();
   }
 
-  void isSearchingSuccess(ProfileV1 profile) {
-    searchResults =
-        searchResults.where((element) => element != profile).toList();
+  void isSearchingSuccess(ProfileV1? profile, List<ProfileV1> results) {
+    searchResults = results;
     searchedProfile = profile;
     searchLoading = false;
     searchError = false;

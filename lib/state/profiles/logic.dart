@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/db/contacts.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -9,6 +10,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
+  final DBService _db = DBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
 
@@ -112,24 +114,18 @@ class ProfilesLogic extends WidgetsBindingObserver {
     try {
       final cleanValue = value.replaceFirst('@', '');
 
-      _state.isSearching(cleanValue);
-
-      final localUsername = _state.getLocalUsername(cleanValue);
-      if (localUsername != null) {
-        // no need to fetch if it is already stored locally
-        await delay(const Duration(milliseconds: 500));
-        _state.isSearchingSuccess(localUsername);
-        return;
-      }
+      _state.isSearching();
 
       final profile = cleanValue.startsWith('0x')
           ? await _wallet.getProfile(cleanValue)
           : await _wallet.getProfileByUsername(cleanValue);
-      if (profile == null) {
-        throw Exception('Profile not found');
-      }
 
-      _state.isSearchingSuccess(profile);
+      final results = await _db.contacts.search(cleanValue.toLowerCase());
+
+      _state.isSearchingSuccess(
+        profile,
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
       return;
     } catch (e) {
       //
@@ -140,12 +136,12 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<ProfileV1?> getProfile(String addr) async {
     try {
-      _state.isSearching(null);
+      _state.isSearching();
 
       final profile = await _loadCachedProfile(addr);
 
       if (profile != null) {
-        _state.isSearchingSuccess(profile);
+        _state.isSearchingSuccess(profile, []);
         _state.isSelected(null);
         return profile;
       }
@@ -158,7 +154,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<void> searchProfile(String username) async {
-    _state.isSearching(null);
+    _state.isSearching();
     debouncedSearchProfile([username]);
   }
 

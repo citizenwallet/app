@@ -138,11 +138,11 @@ class ContactTable extends DBTable {
   }
 
   // Returns a list of contacts from the table by their username property
-  Future<List<DBContact>> searchByUsername(String username) async {
+  Future<List<DBContact>> search(String value) async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
-      where: 'username LIKE ?',
-      whereArgs: ['%$username%'],
+      where: 'username LIKE ? OR name LIKE ?',
+      whereArgs: ['%$value%', '%$value%'],
       orderBy: 'updatedAt DESC',
     );
 
