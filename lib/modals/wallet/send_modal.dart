@@ -261,6 +261,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (ProfilesState state) => state.selectedProfile,
     );
 
+    final searchedProfile = context.select(
+      (ProfilesState state) => state.searchedProfile,
+    );
+
     final width = MediaQuery.of(context).size.width;
 
     return GestureDetector(
@@ -575,6 +579,16 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         child: ProfileBadge(
                                           profile: profile,
                                           loading: false,
+                                          borderWidth: 2,
+                                          backgroundColor: ThemeColors
+                                              .uiBackgroundAlt
+                                              .resolveFrom(context),
+                                          borderColor:
+                                              searchedProfile != null &&
+                                                      searchedProfile == profile
+                                                  ? ThemeColors.white
+                                                  : ThemeColors.uiBackgroundAlt
+                                                      .resolveFrom(context),
                                           onTap: () =>
                                               handleSelectProfile(profile),
                                         ),
