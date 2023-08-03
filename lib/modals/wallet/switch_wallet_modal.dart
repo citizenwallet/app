@@ -11,7 +11,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/scanner.dart';
+import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -228,7 +228,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => const Scanner(
+      builder: (_) => const ScannerModal(
         modalKey: 'import-wallet-wallet-list-scanner',
         confirm: true,
       ),

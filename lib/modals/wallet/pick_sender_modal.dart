@@ -22,14 +22,14 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class ToModal extends StatefulWidget {
+class PickeSenderModal extends StatefulWidget {
   final WalletLogic logic;
   final ProfilesLogic profilesLogic;
 
   final String? id;
   final String? to;
 
-  const ToModal({
+  const PickeSenderModal({
     Key? key,
     required this.logic,
     required this.profilesLogic,
@@ -38,10 +38,13 @@ class ToModal extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  ToModalState createState() => ToModalState();
+  PickeSenderModalState createState() => PickeSenderModalState();
 }
 
-class ToModalState extends State<ToModal> with TickerProviderStateMixin {
+class PickeSenderModalState extends State<PickeSenderModal>
+    with TickerProviderStateMixin {
+  late WalletLogic _logic;
+
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
 
@@ -59,6 +62,8 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
+    _logic = WalletLogic(context);
+
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -66,12 +71,12 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
       onLoad();
 
       debouncedAddressUpdate = debounce(
-        widget.logic.updateAddress,
+        _logic.updateAddress,
         const Duration(milliseconds: 500),
       );
 
       debouncedAmountUpdate = debounce(
-        widget.logic.updateAmount,
+        _logic.updateAmount,
         const Duration(milliseconds: 500),
       );
     });
@@ -88,7 +93,7 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
     amountFocuseNode.requestFocus();
     if (widget.id != null) {
       // there is a retry id
-      final addr = widget.logic.addressController.value.text;
+      final addr = _logic.addressController.value.text;
       if (addr.isEmpty) {
         return;
       }
@@ -110,8 +115,8 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
   void handleDismiss(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    widget.logic.clearInputControllers();
-    widget.logic.resetInputErrorState();
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
     widget.profilesLogic.clearSearch();
 
     GoRouter.of(context).pop();
@@ -156,16 +161,16 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
     );
 
     if (result != null) {
-      widget.logic.updateFromCapture(result);
+      _logic.updateFromCapture(result);
 
-      final addr = widget.logic.addressController.value.text;
+      final addr = _logic.addressController.value.text;
       if (addr.isEmpty) {
         return;
       }
 
       final profile = await widget.profilesLogic.getProfile(addr);
       if (profile != null) {
-        widget.logic.addressController.text = profile.username;
+        _logic.addressController.text = profile.username;
       }
 
       amountFocuseNode.requestFocus();
@@ -187,9 +192,9 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
 
     final navigator = GoRouter.of(context);
 
-    final isValid = widget.logic.validateSendFields(
-      widget.logic.amountController.value.text,
-      selectedAddress ?? widget.logic.addressController.value.text,
+    final isValid = _logic.validateSendFields(
+      _logic.amountController.value.text,
+      selectedAddress ?? _logic.addressController.value.text,
     );
 
     if (!isValid) {
@@ -200,15 +205,15 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
       return;
     }
 
-    widget.logic.sendTransaction(
-      widget.logic.amountController.value.text,
-      selectedAddress ?? widget.logic.addressController.value.text,
-      message: widget.logic.messageController.value.text,
+    _logic.sendTransaction(
+      _logic.amountController.value.text,
+      selectedAddress ?? _logic.addressController.value.text,
+      message: _logic.messageController.value.text,
       id: widget.id,
     );
 
-    widget.logic.clearInputControllers();
-    widget.logic.resetInputErrorState();
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
     widget.profilesLogic.clearSearch();
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -259,6 +264,10 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
 
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
+    );
+
+    final searchedProfile = context.select(
+      (ProfilesState state) => state.searchedProfile,
     );
 
     final width = MediaQuery.of(context).size.width;
@@ -312,7 +321,7 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
                                 padding:
                                     const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 child: CupertinoTextField(
-                                  controller: widget.logic.amountController,
+                                  controller: _logic.amountController,
                                   placeholder: formatCurrency(1050.00, ''),
                                   style: TextStyle(
                                     color:
@@ -386,8 +395,8 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
                                 ),
                               ),
                               if (invalidAmount &&
-                                  (double.tryParse(widget.logic.amountController
-                                              .value.text) ??
+                                  (double.tryParse(_logic
+                                              .amountController.value.text) ??
                                           0.0) >
                                       0)
                                 Row(
@@ -433,8 +442,8 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
                             ),
                           if (selectedProfile == null)
                             CupertinoTextField(
-                              controller: widget.logic.addressController,
-                              placeholder: '@username or address',
+                              controller: _logic.addressController,
+                              placeholder: '@username or 0xaddress',
                               maxLines: 1,
                               autocorrect: false,
                               enableSuggestions: false,
@@ -519,7 +528,7 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
                           // ),
                           // const SizedBox(height: 10),
                           // CupertinoTextField(
-                          //   controller: widget.logic.messageController,
+                          //   controller: _logic.messageController,
                           //   placeholder: 'Enter a description',
                           //   maxLines: 4,
                           //   maxLength: 256,
@@ -575,6 +584,16 @@ class ToModalState extends State<ToModal> with TickerProviderStateMixin {
                                         child: ProfileBadge(
                                           profile: profile,
                                           loading: false,
+                                          borderWidth: 2,
+                                          backgroundColor: ThemeColors
+                                              .uiBackgroundAlt
+                                              .resolveFrom(context),
+                                          borderColor:
+                                              searchedProfile != null &&
+                                                      searchedProfile == profile
+                                                  ? ThemeColors.white
+                                                  : ThemeColors.uiBackgroundAlt
+                                                      .resolveFrom(context),
                                           onTap: () =>
                                               handleSelectProfile(profile),
                                         ),

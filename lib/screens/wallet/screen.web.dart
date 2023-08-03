@@ -203,7 +203,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         expand: true,
         useRootNavigator: true,
         builder: (_) => SendModal(
-          logic: _logic,
           profilesLogic: _profilesLogic,
           id: id,
         ),
@@ -312,7 +311,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       expand: true,
       useRootNavigator: true,
       builder: (_) => SendModal(
-        logic: _logic,
         profilesLogic: _profilesLogic,
       ),
     );

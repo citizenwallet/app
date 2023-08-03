@@ -70,6 +70,13 @@ class SlideToCompleteState extends State<SlideToComplete>
     super.dispose();
   }
 
+  void onComplete() {
+    if (!widget.enabled) {
+      return;
+    }
+    widget.onCompleted?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double offsetComplete = widget.width - widget.childWidth;
@@ -86,7 +93,7 @@ class SlideToCompleteState extends State<SlideToComplete>
             _duration = 0;
             _offset = widget.width - widget.childWidth;
           });
-          widget.onCompleted?.call();
+          onComplete();
           return;
         }
 
@@ -117,13 +124,16 @@ class SlideToCompleteState extends State<SlideToComplete>
               width: widget.width,
               height: 50,
               decoration: BoxDecoration(
-                color: ThemeColors.surfacePrimary.resolveFrom(context),
+                color: widget.enabled
+                    ? ThemeColors.surfacePrimary.resolveFrom(context)
+                    : ThemeColors.uiBackgroundAlt.resolveFrom(context),
                 borderRadius: BorderRadius.circular(radius),
                 border: Border.all(
                   color: widget.isComplete
                       ? ThemeColors.surfacePrimary.resolveFrom(context)
-                      : ThemeColors.background.resolveFrom(context),
+                      : ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   width: 2,
+                  strokeAlign: BorderSide.strokeAlignOutside,
                 ),
               ),
               child: Row(
@@ -132,9 +142,12 @@ class SlideToCompleteState extends State<SlideToComplete>
                   if (widget.enabled) const SizedBox(width: 30),
                   Text(
                     widget.completionLabel,
-                    style: const TextStyle(
-                      color: ThemeColors.black,
+                    style: TextStyle(
+                      color: widget.enabled
+                          ? ThemeColors.black
+                          : ThemeColors.subtleText,
                       fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (widget.enabled) ...[
@@ -193,14 +206,18 @@ class SlideToCompleteState extends State<SlideToComplete>
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
               left: widget.isComplete ? offsetComplete : _offset,
-              child: Container(
-                height: 50,
-                width: widget.childWidth,
-                decoration: BoxDecoration(
-                  color: widget.thumbColor,
-                  borderRadius: BorderRadius.circular(radius),
+              child: AnimatedOpacity(
+                opacity: widget.enabled ? 1 : 0.5,
+                duration: const Duration(milliseconds: 250),
+                child: Container(
+                  height: 50,
+                  width: widget.childWidth,
+                  decoration: BoxDecoration(
+                    color: widget.thumbColor,
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
+                  child: widget.child,
                 ),
-                child: widget.child,
               ),
             ),
           ],

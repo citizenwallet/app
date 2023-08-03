@@ -60,7 +60,6 @@ class TransactionScreenState extends State<TransactionScreen> {
       topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
-        logic: widget.logic,
         profilesLogic: widget.profilesLogic,
         to: address,
       ),
@@ -95,7 +94,6 @@ class TransactionScreenState extends State<TransactionScreen> {
       topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
-        logic: widget.logic,
         profilesLogic: widget.profilesLogic,
         to: address,
       ),

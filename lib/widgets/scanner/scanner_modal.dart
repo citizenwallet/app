@@ -7,21 +7,22 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class Scanner extends StatefulWidget {
+class ScannerModal extends StatefulWidget {
   final String? modalKey;
   final bool confirm;
 
-  const Scanner({
+  const ScannerModal({
     Key? key,
     this.modalKey,
     this.confirm = false,
   }) : super(key: key);
 
   @override
-  ScannerState createState() => ScannerState();
+  ScannerModalState createState() => ScannerModalState();
 }
 
-class ScannerState extends State<Scanner> with TickerProviderStateMixin {
+class ScannerModalState extends State<ScannerModal>
+    with TickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   late final AnimationController _animationController;
   final MobileScannerController _controller = MobileScannerController(

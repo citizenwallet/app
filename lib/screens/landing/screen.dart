@@ -8,7 +8,7 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
-import 'package:citizenwallet/widgets/scanner.dart';
+import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -139,7 +139,7 @@ class LandingScreenState extends State<LandingScreen>
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => const Scanner(
+      builder: (_) => const ScannerModal(
         modalKey: 'import-qr-scanner',
         confirm: true,
       ),
@@ -257,12 +257,6 @@ class LandingScreenState extends State<LandingScreen>
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              // Button(
-                              //   text: 'Import a wallet',
-                              //   onPressed: handleImportWallet,
-                              //   minWidth: 200,
-                              //   maxWidth: 200,
-                              // )
                             ],
                           ),
                   )

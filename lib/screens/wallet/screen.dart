@@ -157,7 +157,6 @@ class WalletScreenState extends State<WalletScreen> {
         expand: true,
         useRootNavigator: true,
         builder: (_) => SendModal(
-          logic: _logic,
           profilesLogic: _profilesLogic,
           id: id,
         ),
@@ -236,7 +235,6 @@ class WalletScreenState extends State<WalletScreen> {
       expand: true,
       useRootNavigator: true,
       builder: (_) => SendModal(
-        logic: _logic,
         profilesLogic: _profilesLogic,
       ),
     );

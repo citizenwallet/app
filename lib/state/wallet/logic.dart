@@ -961,13 +961,13 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.parseQRAddressError();
   }
 
-  void updateFromCapture(String raw) {
+  String? updateFromCapture(String raw) {
     try {
       final isHex = isHexValue(raw);
 
       if (isHex) {
         updateAddressFromHexCapture(raw);
-        return;
+        return raw;
       }
 
       final includesHex = includesHexValue(raw);
@@ -975,19 +975,23 @@ class WalletLogic extends WidgetsBindingObserver {
         final hex = extractHexFromText(raw);
         if (hex.isNotEmpty) {
           updateAddressFromHexCapture(hex);
-          return;
+          return hex;
         }
       }
 
       final qr = QRTransactionRequestData.fromCompressedJson(raw);
 
       updateTransactionFromTransactionCapture(qr);
+
+      return qr.address;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
       );
     }
+
+    return null;
   }
 
   void updateTransactionFromTransactionCapture(
@@ -1006,6 +1010,8 @@ class WalletLogic extends WidgetsBindingObserver {
       if (qr.amount >= 0) {
         _amountController.text =
             qr.amount.toStringAsFixed(_wallet.currency.decimals);
+
+        updateAmount();
       }
 
       if (qr.message != '') {
