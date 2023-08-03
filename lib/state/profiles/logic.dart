@@ -158,6 +158,24 @@ class ProfilesLogic extends WidgetsBindingObserver {
     debouncedSearchProfile([username]);
   }
 
+  Future<void> allProfiles() async {
+    try {
+      _state.isSearching();
+
+      final results = await _db.contacts.getAll();
+
+      _state.isSearchingSuccess(
+        null,
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
+      return;
+    } catch (e) {
+      //
+    }
+
+    _state.isSearchingError();
+  }
+
   void selectProfile(ProfileV1? profile) {
     _state.isSelected(profile);
   }

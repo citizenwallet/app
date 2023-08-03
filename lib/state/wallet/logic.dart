@@ -926,12 +926,16 @@ class WalletLogic extends WidgetsBindingObserver {
     _messageController.clear();
   }
 
+  void clearAddressController() {
+    _addressController.clear();
+  }
+
   void resetInputErrorState() {
     _state.resetInvalidInputs();
   }
 
-  void updateAddress() {
-    _state.setHasAddress(_addressController.text.isNotEmpty);
+  void updateAddress({bool override = false}) {
+    _state.setHasAddress(_addressController.text.isNotEmpty || override);
   }
 
   void updateAmount() {

@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:citizenwallet/modals/wallet/pick_sender_modal.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -10,13 +10,10 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/scanner/scanner.dart';
-import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -30,12 +27,14 @@ class SendModal extends StatefulWidget {
 
   final String? id;
   final String? to;
+  final String? amount;
 
   const SendModal({
     Key? key,
     required this.profilesLogic,
     this.id,
     this.to,
+    this.amount,
   }) : super(key: key);
 
   @override
@@ -61,8 +60,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   bool _isScanning = true;
   bool _scannerOn = true;
   bool _isSending = false;
-
-  bool _isAmountFocused = false;
 
   @override
   void initState() {
@@ -93,14 +90,12 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void dispose() {
     //
     _scrollController.removeListener(onScrollUpdate);
-    amountFocuseNode.removeListener(handleAmountFocus);
 
     super.dispose();
   }
 
   void onLoad() async {
     _scrollController.addListener(onScrollUpdate);
-    amountFocuseNode.addListener(handleAmountFocus);
 
     if (widget.id != null) {
       // there is a retry id
@@ -113,30 +108,29 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     if (widget.to != null) {
-      await widget.profilesLogic.getProfile(widget.to!);
+      _isScanning = false;
+      _scannerOn = false;
+
+      _logic.amountController.text = widget.amount ?? '';
+
+      final profile = await widget.profilesLogic.getProfile(widget.to!);
+
+      _logic.updateAddress(override: profile != null);
+      _logic.updateAmount();
+
+      amountFocuseNode.requestFocus();
     }
   }
 
   void onScrollUpdate() {
-    if (_isAtTop) {
-      return;
-    }
+    const threshold = 20;
+    final isAtTop = _scrollController.position.pixels <= threshold;
 
-    const qrScannerHeight = 200;
-
-    if (_scrollController.position.pixels <= qrScannerHeight) {
-      setState(() {
-        _isAtTop = true;
-      });
-    }
-  }
-
-  void handleAmountFocus() {
-    if (!_isAmountFocused && amountFocuseNode.hasFocus) {
+    if (!isAtTop && _isAtTop) {
       closeScanner();
     }
 
-    _isAmountFocused = amountFocuseNode.hasFocus;
+    _isAtTop = _scrollController.position.pixels <= threshold;
   }
 
   void handleDismiss(BuildContext context) {
@@ -170,33 +164,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
-  }
-
-  void handleQRScan() async {
-    final result = await showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      builder: (_) => const ScannerModal(
-        modalKey: 'send-form-anything-scanner',
-      ),
-    );
-
-    if (result != null) {
-      _logic.updateFromCapture(result);
-
-      final addr = _logic.addressController.value.text;
-      if (addr.isEmpty) {
-        return;
-      }
-
-      final profile = await widget.profilesLogic.getProfile(addr);
-      if (profile != null) {
-        _logic.addressController.text = profile.username;
-      }
-
-      amountFocuseNode.requestFocus();
-    }
   }
 
   void handleSend(BuildContext context, String? selectedAddress) async {
@@ -246,19 +213,59 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     return;
   }
 
-  Future<void> closeScanner() async {
+  void handleChooseRecipient() async {
+    HapticFeedback.heavyImpact();
+
+    final navigator = GoRouter.of(context);
+
+    final shouldDismiss = await showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      topRadius: const Radius.circular(40),
+      builder: (_) => PickeSenderModal(
+        profilesLogic: widget.profilesLogic,
+        amount: _logic.amountController.value.text,
+      ),
+    );
+
+    if (shouldDismiss == true) {
+      _logic.clearInputControllers();
+      _logic.resetInputErrorState();
+      widget.profilesLogic.clearSearch();
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      HapticFeedback.heavyImpact();
+
+      navigator.pop(true);
+    }
+  }
+
+  void handleCreateVoucher() async {
+    HapticFeedback.heavyImpact();
+  }
+
+  Future<void> closeScanner({focus = true}) async {
+    HapticFeedback.lightImpact();
+
     setState(() {
       _isScanning = false;
     });
 
     await delay(const Duration(milliseconds: 250));
 
+    HapticFeedback.heavyImpact();
+
     setState(() {
       _scannerOn = false;
     });
+
+    if (focus) amountFocuseNode.requestFocus();
   }
 
   Future<void> openScanner() async {
+    HapticFeedback.lightImpact();
+
     setState(() {
       _scannerOn = true;
     });
@@ -270,6 +277,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     );
 
     await delay(const Duration(milliseconds: 200));
+
+    HapticFeedback.heavyImpact();
 
     setState(() {
       _isScanning = true;
@@ -294,8 +303,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   void handleScanAgain() async {
     widget.profilesLogic.deSelectProfile();
+    _logic.clearAddressController();
+    _logic.updateAddress();
 
     await openScanner();
+  }
+
+  void handleEnterManually() {
+    closeScanner();
   }
 
   @override
@@ -342,6 +357,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (ProfilesState state) => state.selectedProfile,
     );
 
+    final isSendingValid =
+        hasAddress && hasAmount && !invalidAmount && !invalidAddress;
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
@@ -384,30 +402,34 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AnimatedContainer(
-                                height: _isScanning ? scannerSize : 0,
-                                width: scannerSize,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeInOut,
-                                child: AnimatedOpacity(
-                                  opacity: _isScanning ? 1 : 0,
+                          if (widget.to == null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AnimatedContainer(
+                                  height: _isScanning ? scannerSize : 0,
+                                  width: scannerSize,
                                   duration: const Duration(milliseconds: 250),
                                   curve: Curves.easeInOut,
-                                  child: _scannerOn
-                                      ? Scanner(
-                                          height: scannerSize,
-                                          width: scannerSize,
-                                          onScan: handleScan,
-                                        )
-                                      : null,
+                                  child: AnimatedOpacity(
+                                    opacity: _isScanning ? 1 : 0,
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeInOut,
+                                    child: _scannerOn
+                                        ? Scanner(
+                                            height: scannerSize,
+                                            width: scannerSize,
+                                            onScan: handleScan,
+                                          )
+                                        : null,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          if (_isScanning && !searchLoading && searchError) ...[
+                              ],
+                            ),
+                          if (widget.to == null &&
+                              _isScanning &&
+                              !searchLoading &&
+                              searchError) ...[
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -424,14 +446,18 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               ],
                             ),
                           ],
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AnimatedOpacity(
-                                opacity: _isScanning ? 0 : 1,
-                                duration: const Duration(milliseconds: 250),
-                                child: Button(
-                                  text: 'Scan Again',
+                          if (widget.to == null && _isScanning)
+                            const SizedBox(
+                              height: 20,
+                            ),
+                          if (widget.to == null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Button(
+                                  text: _isScanning
+                                      ? 'Enter Manually'
+                                      : 'Scan Again',
                                   color: ThemeColors.surfaceBackground
                                       .resolveFrom(context),
                                   labelColor: ThemeColors.surfaceText
@@ -440,18 +466,21 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                     padding:
                                         const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                     child: Icon(
-                                      CupertinoIcons.qrcode,
+                                      _isScanning
+                                          ? CupertinoIcons.arrow_down
+                                          : CupertinoIcons.qrcode,
                                       color: ThemeColors.surfaceText
                                           .resolveFrom(context),
                                     ),
                                   ),
-                                  onPressed: handleScanAgain,
+                                  onPressed: _isScanning
+                                      ? handleEnterManually
+                                      : handleScanAgain,
                                   minWidth: 200,
                                   maxWidth: 200,
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                           const SizedBox(height: 20),
                           const Text(
                             'Amount',
@@ -466,78 +495,98 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                child: CupertinoTextField(
-                                  controller: _logic.amountController,
-                                  placeholder: formatCurrency(1050.00, ''),
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                  ),
-                                  prefix: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 0, 10, 0),
-                                      child: Text(
-                                        wallet?.symbol ?? '',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                        textAlign: TextAlign.center,
+                                child: Stack(
+                                  children: [
+                                    CupertinoTextField(
+                                      controller: _logic.amountController,
+                                      placeholder: formatCurrency(1050.00, ''),
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 2,
                                       ),
-                                    ),
-                                  ),
-                                  decoration: invalidAmount ||
-                                          transactionSendError
-                                      ? BoxDecoration(
-                                          color: const CupertinoDynamicColor
-                                              .withBrightness(
-                                            color: CupertinoColors.white,
-                                            darkColor: CupertinoColors.black,
+                                      prefix: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 10, 0),
+                                          child: Text(
+                                            wallet?.symbol ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          border: Border.all(
-                                            color: ThemeColors.danger,
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5.0)),
-                                        )
-                                      : BoxDecoration(
-                                          color: const CupertinoDynamicColor
-                                              .withBrightness(
-                                            color: CupertinoColors.white,
-                                            darkColor: CupertinoColors.black,
-                                          ),
-                                          border: Border.all(
-                                            color: hasAmount
-                                                ? ThemeColors.text
-                                                    .resolveFrom(context)
-                                                : ThemeColors.transparent
-                                                    .resolveFrom(context),
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5.0)),
                                         ),
-                                  maxLines: 1,
-                                  maxLength: 25,
-                                  focusNode: amountFocuseNode,
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                    signed: false,
-                                  ),
-                                  textInputAction: TextInputAction.next,
-                                  inputFormatters: [
-                                    amountFormatter,
+                                      ),
+                                      decoration: invalidAmount ||
+                                              transactionSendError
+                                          ? BoxDecoration(
+                                              color: const CupertinoDynamicColor
+                                                  .withBrightness(
+                                                color: CupertinoColors.white,
+                                                darkColor:
+                                                    CupertinoColors.black,
+                                              ),
+                                              border: Border.all(
+                                                color: ThemeColors.danger,
+                                              ),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(5.0)),
+                                            )
+                                          : BoxDecoration(
+                                              color: const CupertinoDynamicColor
+                                                  .withBrightness(
+                                                color: CupertinoColors.white,
+                                                darkColor:
+                                                    CupertinoColors.black,
+                                              ),
+                                              border: Border.all(
+                                                color: hasAmount
+                                                    ? ThemeColors.text
+                                                        .resolveFrom(context)
+                                                    : ThemeColors.transparent
+                                                        .resolveFrom(context),
+                                              ),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(5.0)),
+                                            ),
+                                      maxLines: 1,
+                                      maxLength: 25,
+                                      focusNode: amountFocuseNode,
+                                      autocorrect: false,
+                                      enableSuggestions: false,
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: false,
+                                      ),
+                                      textInputAction: TextInputAction.next,
+                                      inputFormatters: [
+                                        amountFormatter,
+                                      ],
+                                      onChanged: (_) =>
+                                          handleThrottledUpdateAmount(),
+                                      onSubmitted: (_) {
+                                        nameFocusNode.requestFocus();
+                                      },
+                                    ),
+                                    if (_isScanning)
+                                      GestureDetector(
+                                        onTap: handleEnterManually,
+                                        child: Container(
+                                          height: 50,
+                                          decoration: const BoxDecoration(
+                                            color: ThemeColors.transparent,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0)),
+                                          ),
+                                        ),
+                                      ),
                                   ],
-                                  onChanged: (_) =>
-                                      handleThrottledUpdateAmount(),
-                                  onSubmitted: (_) {
-                                    nameFocusNode.requestFocus();
-                                  },
                                 ),
                               ),
                               if (invalidAmount &&
@@ -567,7 +616,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Current balance: $formattedBalance ${wallet?.symbol ?? ''}',
+                                'Current balance: ${wallet?.symbol ?? ''} $formattedBalance',
                                 style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal),
@@ -585,138 +634,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           if (selectedProfile != null)
                             ProfileChip(
                               selectedProfile: selectedProfile,
-                              handleDeSelect: handleScanAgain,
+                              handleDeSelect:
+                                  widget.id != null || widget.to != null
+                                      ? null
+                                      : handleScanAgain,
                             ),
-                          // if (selectedProfile == null)
-                          //   CupertinoTextField(
-                          //     controller: _logic.addressController,
-                          //     placeholder: '@username or 0xaddress',
-                          //     maxLines: 1,
-                          //     autocorrect: false,
-                          //     enableSuggestions: false,
-                          //     focusNode: nameFocusNode,
-                          //     textInputAction: TextInputAction.next,
-                          //     onChanged: handleThrottledUpdateAddress,
-                          //     decoration: invalidAddress ||
-                          //             parsingQRAddressError ||
-                          //             transactionSendError
-                          //         ? BoxDecoration(
-                          //             color: const CupertinoDynamicColor
-                          //                 .withBrightness(
-                          //               color: CupertinoColors.white,
-                          //               darkColor: CupertinoColors.black,
-                          //             ),
-                          //             border: Border.all(
-                          //               color: ThemeColors.danger,
-                          //             ),
-                          //             borderRadius: const BorderRadius.all(
-                          //                 Radius.circular(5.0)),
-                          //           )
-                          //         : BoxDecoration(
-                          //             color: const CupertinoDynamicColor
-                          //                 .withBrightness(
-                          //               color: CupertinoColors.white,
-                          //               darkColor: CupertinoColors.black,
-                          //             ),
-                          //             border: Border.all(
-                          //               color: hasAddress
-                          //                   ? ThemeColors.text
-                          //                       .resolveFrom(context)
-                          //                   : ThemeColors.transparent
-                          //                       .resolveFrom(context),
-                          //             ),
-                          //             borderRadius: const BorderRadius.all(
-                          //                 Radius.circular(5.0)),
-                          //           ),
-                          //     prefix: Center(
-                          //       child: Padding(
-                          //         padding:
-                          //             const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          //         child: searchLoading
-                          //             ? SizedBox(
-                          //                 height: 20,
-                          //                 width: 24,
-                          //                 child: CupertinoActivityIndicator(
-                          //                   color: ThemeColors.subtle
-                          //                       .resolveFrom(context),
-                          //                 ),
-                          //               )
-                          //             : Icon(
-                          //                 CupertinoIcons.profile_circled,
-                          //                 color: hasAddress
-                          //                     ? ThemeColors.text
-                          //                         .resolveFrom(context)
-                          //                     : ThemeColors.subtleEmphasis
-                          //                         .resolveFrom(context),
-                          //               ),
-                          //       ),
-                          //     ),
-                          //     suffix: GestureDetector(
-                          //       onTap: handleQRScan,
-                          //       child: Center(
-                          //         child: Padding(
-                          //           padding:
-                          //               const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          //           child: Icon(
-                          //             CupertinoIcons.qrcode,
-                          //             color: ThemeColors.primary
-                          //                 .resolveFrom(context),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     onSubmitted: handleAddressFieldSubmitted,
-                          //   ),
-                          // const SizedBox(height: 20),
-                          // const Text(
-                          //   'Description',
-                          //   style: TextStyle(
-                          //       fontSize: 24, fontWeight: FontWeight.bold),
-                          // ),
-                          // const SizedBox(height: 10),
-                          // CupertinoTextField(
-                          //   controller: _logic.messageController,
-                          //   placeholder: 'Enter a description',
-                          //   maxLines: 4,
-                          //   maxLength: 256,
-                          //   focusNode: messageFocusNode,
-                          // ),
                           const SizedBox(
-                            height: 60,
+                            height: 200,
                           ),
-                          if (selectedProfile == null)
-                            _isSending
-                                ? CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
-                                  )
-                                : Column(
-                                    children: [
-                                      Button(
-                                        text: 'Chooose Recipient',
-                                        onPressed: () => print('recipient'),
-                                        minWidth: 200,
-                                        maxWidth: 200,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      CupertinoButton(
-                                        onPressed: () =>
-                                            print('create voucher'),
-                                        child: Text(
-                                          'Create Voucher',
-                                          style: TextStyle(
-                                            color: ThemeColors.text
-                                                .resolveFrom(context),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.normal,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                         ],
                       ),
                     ),
@@ -727,9 +652,44 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           color: ThemeColors.subtle.resolveFrom(context),
                         ),
                       ),
-                    if (selectedProfile != null)
+                    if (selectedProfile == null &&
+                        !_isScanning &&
+                        !_isSending &&
+                        hasAmount &&
+                        !invalidAmount)
                       Positioned(
-                        bottom: 0,
+                          bottom: 40,
+                          child: Column(
+                            children: [
+                              Button(
+                                text: 'Chooose Recipient',
+                                onPressed: handleChooseRecipient,
+                                minWidth: 200,
+                                maxWidth: 200,
+                              ),
+                              const SizedBox(height: 10),
+                              CupertinoButton(
+                                onPressed: handleCreateVoucher,
+                                child: Text(
+                                  'Create Voucher',
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          )),
+                    if (selectedProfile != null &&
+                        !_isScanning &&
+                        !_isSending &&
+                        isSendingValid)
+                      Positioned(
+                        bottom: 20,
                         child: SizedBox(
                           height: 90,
                           child: Padding(
@@ -741,10 +701,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         selectedProfile.account,
                                       )
                                   : null,
-                              enabled: hasAddress &&
-                                  hasAmount &&
-                                  !invalidAmount &&
-                                  !invalidAddress,
+                              enabled: isSendingValid,
                               isComplete: _isSending,
                               completionLabel:
                                   _isSending ? 'Sending...' : 'Send',

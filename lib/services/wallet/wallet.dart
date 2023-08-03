@@ -336,8 +336,6 @@ class WalletService {
     try {
       final url = await _contractProfile.getURLFromUsername(username);
 
-      print('_contractProfile: $url');
-
       final profileData = await _ipfs.get(url: '/$url');
 
       final profile = ProfileV1.fromJson(profileData);

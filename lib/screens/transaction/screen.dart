@@ -96,6 +96,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       builder: (_) => SendModal(
         profilesLogic: widget.profilesLogic,
         to: address,
+        amount: '${(double.tryParse(amount) ?? 0.0) / 1000}',
       ),
     );
 
