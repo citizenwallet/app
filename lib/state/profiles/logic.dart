@@ -194,8 +194,6 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
       final results = await _db.contacts.getAll();
 
-      await delay(const Duration(milliseconds: 250));
-
       _state.profileListSuccess(
         results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
       );

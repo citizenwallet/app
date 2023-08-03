@@ -73,9 +73,8 @@ class ContactsScreenState extends State<ContactsScreen> {
 
     final profileList =
         context.select((ProfilesState state) => state.profileList);
-    final loading = context.select(
-      (ProfilesState state) => state.profileListLoading,
-    );
+    final loading =
+        context.select((ProfilesState state) => state.profileListLoading);
 
     final noContacts = profileList.isEmpty;
 
@@ -92,33 +91,27 @@ class ContactsScreenState extends State<ContactsScreen> {
                 controller: _scrollController,
                 scrollBehavior: const CupertinoScrollBehavior(),
                 slivers: [
-                  if (noContacts)
+                  if (noContacts && !loading)
                     SliverFillRemaining(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (loading)
-                            CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                          SvgPicture.asset(
+                            'assets/icons/contacts.svg',
+                            semanticsLabel: 'contacts icon',
+                            height: 200,
+                            width: 200,
+                          ),
+                          const SizedBox(height: 40),
+                          Text(
+                            'Your contacts will appear here',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.normal,
+                              color: ThemeColors.text.resolveFrom(context),
                             ),
-                          if (!loading) ...[
-                            SvgPicture.asset(
-                              'assets/icons/contacts.svg',
-                              semanticsLabel: 'contacts icon',
-                              height: 200,
-                              width: 200,
-                            ),
-                            const SizedBox(height: 40),
-                            Text(
-                              'Your contacts will appear here',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.normal,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                          ]
+                          ),
                         ],
                       ),
                     ),
