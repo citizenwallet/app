@@ -38,6 +38,10 @@ class ProfilesState with ChangeNotifier {
 
   ProfileV1? selectedProfile;
 
+  List<ProfileV1> profileList = [];
+  bool profileListLoading = true;
+  bool profileListError = false;
+
   void isLoading(String address) {
     if (profiles[address] == null) {
       profiles[address] = ProfileItem.empty();
@@ -72,6 +76,12 @@ class ProfilesState with ChangeNotifier {
 
     selectedProfile = null;
     if (notify) notifyListeners();
+  }
+
+  void clearProfiles() {
+    profileList = [];
+    profileListLoading = true;
+    profileListError = false;
   }
 
   void isSearching() {
@@ -119,6 +129,26 @@ class ProfilesState with ChangeNotifier {
 
     searchedProfile = selectedProfile!.copyWith();
     selectedProfile = null;
+    notifyListeners();
+  }
+
+  void profileListRequest() {
+    profileListLoading = true;
+    profileListError = false;
+    notifyListeners();
+  }
+
+  void profileListSuccess(List<ProfileV1> profiles) {
+    profileList = profiles;
+    profileListLoading = false;
+    profileListError = false;
+    notifyListeners();
+  }
+
+  void profileListFail() {
+    profileList = [];
+    profileListLoading = false;
+    profileListError = true;
     notifyListeners();
   }
 

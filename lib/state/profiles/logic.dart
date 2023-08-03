@@ -188,6 +188,25 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSearchingError();
   }
 
+  Future<void> loadProfiles() async {
+    try {
+      _state.profileListRequest();
+
+      final results = await _db.contacts.getAll();
+
+      await delay(const Duration(milliseconds: 250));
+
+      _state.profileListSuccess(
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
+      return;
+    } catch (e) {
+      //
+    }
+
+    _state.profileListFail();
+  }
+
   void selectProfile(ProfileV1? profile) {
     _state.isSelected(profile);
   }
@@ -212,6 +231,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void dispose() {
     _state.clearSearch(notify: false);
+    _state.clearProfiles();
     debouncedSearchProfile.cancel();
     pause();
   }

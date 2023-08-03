@@ -45,6 +45,13 @@ class RouterShell extends StatelessWidget {
           CupertinoIcons.rectangle_on_rectangle_angled,
         ),
       ),
+      const BottomNavigationBarItem(
+        label: 'Contacts',
+        icon: Icon(CupertinoIcons.person_3),
+        activeIcon: Icon(
+          CupertinoIcons.person_3_fill,
+        ),
+      ),
       BottomNavigationBarItem(
         label: 'Account',
         icon: cleaningUp || wallet == null
@@ -115,7 +122,8 @@ class RouterShell extends StatelessWidget {
 
     final routes = {
       'wallet': 0,
-      'account': 1,
+      'contacts': 1,
+      'account': 2,
     };
 
     final app = CupertinoScaffold(
@@ -153,6 +161,9 @@ class RouterShell extends StatelessWidget {
                                   .go('/wallet/${wallet?.address}');
                               break;
                             case 1:
+                              GoRouter.of(context).go('/contacts');
+                              break;
+                            case 2:
                               GoRouter.of(context)
                                   .go('/account/${wallet?.address}');
                               break;
