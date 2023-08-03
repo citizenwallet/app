@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:citizenwallet/services/db/contacts.dart';
+import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -34,22 +35,38 @@ class DBService {
 
   Database? _db;
   late ContactTable contacts;
+  late VouchersTable vouchers;
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
     final db = await openDatabase(
       path,
       onConfigure: (db) async {
-        // instantiate a transactions table
+        // instantiate a contacts table
         contacts = ContactTable(db);
+
+        // instantiate a vouchers table
+        vouchers = VouchersTable(db);
       },
       onCreate: (db, version) async {
         // migrate data
         await contacts.migrate(db, version);
 
+        // migrate data
+        await vouchers.migrate(db, version);
+
         return;
       },
-      version: 1,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // migrate data
+        await contacts.migrate(db, newVersion);
+
+        // migrate data
+        await vouchers.migrate(db, newVersion);
+
+        return;
+      },
+      version: 2,
     );
 
     return db;

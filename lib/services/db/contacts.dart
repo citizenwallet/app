@@ -90,6 +90,10 @@ class ContactTable extends DBTable {
   // Creates the table and an index on the username column if they do not already exist
   @override
   Future<void> migrate(Database db, int version) async {
+    if (version > 1) {
+      return;
+    }
+
     await db.execute(createQuery);
 
     await db.execute('''
