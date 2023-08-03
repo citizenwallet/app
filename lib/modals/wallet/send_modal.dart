@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citizenwallet/modals/wallet/pick_sender_modal.dart';
+import 'package:citizenwallet/modals/wallet/voucher_modal.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -243,6 +244,18 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
   void handleCreateVoucher() async {
     HapticFeedback.heavyImpact();
+
+    final wallet = context.read<WalletState>().wallet;
+
+    final shouldDismiss = await showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      topRadius: const Radius.circular(40),
+      builder: (_) => VoucherModal(
+        amount: _logic.amountController.value.text,
+        symbol: wallet?.symbol,
+      ),
+    );
   }
 
   Future<void> closeScanner({focus = true}) async {
@@ -658,32 +671,32 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                         hasAmount &&
                         !invalidAmount)
                       Positioned(
-                          bottom: 40,
-                          child: Column(
-                            children: [
-                              Button(
-                                text: 'Chooose Recipient',
-                                onPressed: handleChooseRecipient,
-                                minWidth: 200,
-                                maxWidth: 200,
-                              ),
-                              const SizedBox(height: 10),
-                              CupertinoButton(
-                                onPressed: handleCreateVoucher,
-                                child: Text(
-                                  'Create Voucher',
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                  textAlign: TextAlign.center,
+                        bottom: 40,
+                        child: Column(
+                          children: [
+                            Button(
+                              text: 'Chooose Recipient',
+                              onPressed: handleChooseRecipient,
+                              minWidth: 200,
+                              maxWidth: 200,
+                            ),
+                            const SizedBox(height: 10),
+                            CupertinoButton(
+                              onPressed: handleCreateVoucher,
+                              child: Text(
+                                'Create Voucher',
+                                style: TextStyle(
+                                  color: ThemeColors.text.resolveFrom(context),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.underline,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
-                            ],
-                          )),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (selectedProfile != null &&
                         !_isScanning &&
                         !_isSending &&
