@@ -69,8 +69,6 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final safePadding = MediaQuery.of(context).padding.top;
-
     final profileList =
         context.select((ProfilesState state) => state.profileList);
     final loading =
@@ -90,6 +88,7 @@ class ContactsScreenState extends State<ContactsScreen> {
               CustomScrollView(
                 controller: _scrollController,
                 scrollBehavior: const CupertinoScrollBehavior(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   if (noContacts && !loading)
                     SliverFillRemaining(
@@ -146,7 +145,6 @@ class ContactsScreenState extends State<ContactsScreen> {
                 blur: true,
                 transparent: true,
                 title: widget.title,
-                safePadding: safePadding,
               ),
             ],
           ),
