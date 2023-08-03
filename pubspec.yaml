@@ -8,7 +8,7 @@ dependencies:
   smartcontracts:
     git:
       url: https://github.com/citizenwallet/smartcontracts.git
-      ref: v0.0.50-patch.0
+      ref: v0.0.51
   cupertino_icons: ^1.0.2
   go_router: ^10.0.0
   provider: ^6.0.5
@@ -18,10 +18,7 @@ dependencies:
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: ^0.18.0
-  web3dart:
-    git:
-      url: https://github.com/kev-techi/web3dart.git
-      ref: abi_gen_fix
+  web3dart: ^2.7.1
   http: ^1.1.0
   flutter_secure_storage: ^8.0.0
   convert: ^3.1.1

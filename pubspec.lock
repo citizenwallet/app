@@ -977,8 +977,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.50-patch.0"
-      resolved-ref: a676c20f4349035be9262ac3beeff60f19db1a9a
+      ref: "v0.0.51"
+      resolved-ref: "8d7929d07bdc0c90045d50a3790d51da8440d7c9"
       url: "https://github.com/citizenwallet/smartcontracts.git"
     source: git
     version: "1.0.0"
@@ -1297,12 +1297,11 @@ packages:
   web3dart:
     dependency: "direct main"
     description:
-      path: "."
-      ref: abi_gen_fix
-      resolved-ref: fea119a86574857fde6856e22496142d21d5f17e
-      url: "https://github.com/kev-techi/web3dart.git"
-    source: git
-    version: "2.7.0"
+      name: web3dart
+      sha256: bebbea9278723cef51d21caf65668860e7547f59114fe9f8af01b873a72ba0e6
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.1"
   web_socket_channel:
     dependency: "direct main"
     description:
