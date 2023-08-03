@@ -32,7 +32,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       (String username) {
         _searchProfile(username);
       },
-      const Duration(milliseconds: 500),
+      const Duration(milliseconds: 250),
     );
   }
 
@@ -126,6 +126,18 @@ class ProfilesLogic extends WidgetsBindingObserver {
         profile,
         results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
       );
+
+      if (profile != null) {
+        _db.contacts.insert(DBContact(
+          account: profile.account,
+          username: profile.username,
+          name: profile.name,
+          description: profile.description,
+          image: profile.image,
+          imageMedium: profile.imageMedium,
+          imageSmall: profile.imageSmall,
+        ));
+      }
       return;
     } catch (e) {
       //
