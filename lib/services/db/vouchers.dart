@@ -114,7 +114,14 @@ class VouchersTable extends DBTable {
       ],
       3: [
         '''
-          ALTER TABLE $name ADD COLUMN archived INTEGER DEFAULT 0
+          DROP TABLE IF EXISTS $name
+        ''',
+        createQuery,
+        '''
+          CREATE INDEX idx_${name}_token ON $name (token)
+        ''',
+        '''
+          CREATE INDEX idx_${name}_name ON $name (name)
         ''',
       ],
     };
