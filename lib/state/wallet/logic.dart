@@ -55,6 +55,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   String? get lastWallet => _preferences.lastWallet;
   String get address => _wallet.address.hexEip55;
+  String get token => _wallet.erc20Address;
 
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
@@ -564,6 +565,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.updateWalletBalanceSuccess(balance);
       return;
     } catch (exception, stackTrace) {
+      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

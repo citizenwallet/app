@@ -77,10 +77,6 @@ class ProfileCircle extends StatelessWidget {
                         )
                   : Stack(
                       children: [
-                        PulsingContainer(
-                          height: size,
-                          width: size,
-                        ),
                         if (!network)
                           Image.asset(
                             asset,
@@ -97,7 +93,11 @@ class ProfileCircle extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           ),
-                        if (network)
+                        if (network) ...[
+                          PulsingContainer(
+                            height: size,
+                            width: size,
+                          ),
                           Image.network(
                             asset,
                             height: size,
@@ -121,6 +121,7 @@ class ProfileCircle extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           ),
+                        ]
                       ],
                     ),
             ),

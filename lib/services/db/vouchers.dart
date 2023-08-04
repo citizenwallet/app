@@ -5,6 +5,7 @@ import 'package:sqflite/sqlite_api.dart';
 
 class DBVoucher {
   final String address;
+  final String token;
   final String name;
   final String balance;
   final String voucher;
@@ -13,6 +14,7 @@ class DBVoucher {
 
   DBVoucher({
     required this.address,
+    required this.token,
     required this.name,
     required this.balance,
     required this.voucher,
@@ -21,6 +23,7 @@ class DBVoucher {
 
   DBVoucher.read({
     required this.address,
+    required this.token,
     required this.name,
     required this.balance,
     required this.voucher,
@@ -31,6 +34,7 @@ class DBVoucher {
   Map<String, dynamic> toMap() {
     return {
       'address': address,
+      'token': token,
       'name': name,
       'balance': balance,
       'voucher': voucher,
@@ -42,6 +46,7 @@ class DBVoucher {
   factory DBVoucher.fromMap(Map<String, dynamic> map) {
     return DBVoucher.read(
       address: map['address'],
+      token: map['token'],
       name: map['name'],
       balance: map['balance'],
       voucher: map['voucher'],
@@ -64,7 +69,8 @@ class VouchersTable extends DBTable {
   @override
   String get createQuery => '''
   CREATE TABLE $name (
-    address INTEGER PRIMARY KEY,
+    address TEXT PRIMARY KEY,
+    token TEXT NOT NULL,
     name TEXT NOT NULL,
     balance TEXT NOT NULL,
     voucher TEXT NOT NULL UNIQUE,
@@ -75,26 +81,45 @@ class VouchersTable extends DBTable {
 
   // Creates the table and an index on the name column if they do not already exist
   @override
-  Future<void> migrate(Database db, int version) async {
-    if (version <= 1) {
-      return;
-    }
-
+  Future<void> create(Database db, int version) async {
     await db.execute(createQuery);
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_token ON $name (token)
+      ''');
 
     await db.execute('''
         CREATE INDEX idx_${name}_name ON $name (name)
       ''');
   }
 
+  // Migrates the table
+  @override
+  Future<void> migrate(Database db, int version) async {
+    switch (version) {
+      case 2:
+        await db.execute(createQuery);
+
+        await db.execute('''
+          CREATE INDEX idx_${name}_token ON $name (token)
+        ''');
+
+        await db.execute('''
+          CREATE INDEX idx_${name}_name ON $name (name)
+        ''');
+        break;
+      default:
+    }
+  }
+
   // Inserts a new voucher into the table
-  Future<void> insertVoucher(DBVoucher voucher) async {
+  Future<void> insert(DBVoucher voucher) async {
     await db.insert(name, voucher.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // Retrieves a voucher from the table by its address
-  Future<DBVoucher?> getVoucher(int address) async {
+  Future<DBVoucher?> get(String address) async {
     List<Map<String, dynamic>> maps = await db.query(name,
         columns: null, where: 'address = ?', whereArgs: [address], limit: 1);
 
@@ -106,7 +131,7 @@ class VouchersTable extends DBTable {
   }
 
   // Retrieves all vouchers from the table
-  Future<List<DBVoucher>> getAllVouchers() async {
+  Future<List<DBVoucher>> getAll() async {
     List<Map<String, dynamic>> maps = await db.query(name);
 
     return List.generate(maps.length, (i) {
@@ -114,14 +139,24 @@ class VouchersTable extends DBTable {
     });
   }
 
+  // Retrieves all vouchers from the table by token
+  Future<List<DBVoucher>> getAllByToken(String token) async {
+    List<Map<String, dynamic>> maps = await db
+        .query(name, columns: null, where: 'token = ?', whereArgs: [token]);
+
+    return List.generate(maps.length, (i) {
+      return DBVoucher.fromMap(maps[i]);
+    });
+  }
+
   // Updates a voucher in the table
-  Future<void> updateVoucher(DBVoucher voucher) async {
+  Future<void> update(DBVoucher voucher) async {
     await db.update(name, voucher.toMap(),
         where: 'address = ?', whereArgs: [voucher.address]);
   }
 
   // Deletes a voucher from the table by its address
-  Future<void> deleteVoucher(int address) async {
+  Future<void> delete(String address) async {
     await db.delete(name, where: 'address = ?', whereArgs: [address]);
   }
 }

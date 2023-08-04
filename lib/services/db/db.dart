@@ -21,7 +21,9 @@ abstract class DBTable {
     )
   ''';
 
-  Future<void> migrate(Database db, int version) async {}
+  Future<void> create(Database db, int version);
+
+  Future<void> migrate(Database db, int version);
 }
 
 class DBService {
@@ -50,10 +52,10 @@ class DBService {
       },
       onCreate: (db, version) async {
         // migrate data
-        await contacts.migrate(db, version);
+        await contacts.create(db, version);
 
         // migrate data
-        await vouchers.migrate(db, version);
+        await vouchers.create(db, version);
 
         return;
       },

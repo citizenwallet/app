@@ -578,7 +578,9 @@ class WalletService {
 
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
-      String dest, Uint8List calldata) async {
+    String dest,
+    Uint8List calldata,
+  ) async {
     try {
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();

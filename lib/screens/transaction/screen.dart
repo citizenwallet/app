@@ -4,11 +4,14 @@ import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/selectors.dart';
+import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -147,6 +150,10 @@ class TransactionScreenState extends State<TransactionScreen> {
     final profile =
         context.select((ProfilesState state) => state.profiles[from]);
 
+    final vouchers = context.select(selectMappedVoucher);
+
+    final voucher = vouchers[from];
+
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
@@ -174,13 +181,18 @@ class TransactionScreenState extends State<TransactionScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ProfileBadge(
-                                    size: 160,
-                                    fontSize: 14,
-                                    profile: profile?.profile,
-                                    loading: profile?.loading ?? false,
-                                    onTap: () => handleViewProfile(from),
-                                  ),
+                                  voucher != null
+                                      ? const ProfileCircle(
+                                          size: 160,
+                                          imageUrl: 'assets/icons/voucher.png',
+                                        )
+                                      : ProfileBadge(
+                                          size: 160,
+                                          fontSize: 14,
+                                          profile: profile?.profile,
+                                          loading: profile?.loading ?? false,
+                                          onTap: () => handleViewProfile(from),
+                                        ),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -373,7 +385,8 @@ class TransactionScreenState extends State<TransactionScreen> {
                             ),
                           ),
                         ),
-                        if (!wallet.locked &&
+                        if (voucher == null &&
+                            !wallet.locked &&
                             !loading &&
                             transaction.isIncoming(wallet.account))
                           Positioned(
@@ -415,7 +428,8 @@ class TransactionScreenState extends State<TransactionScreen> {
                               ],
                             ),
                           ),
-                        if (!wallet.locked &&
+                        if (voucher == null &&
+                            !wallet.locked &&
                             !loading &&
                             !transaction.isIncoming(wallet.account))
                           Positioned(

@@ -11,6 +11,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
@@ -245,6 +246,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void handleCreateVoucher() async {
     HapticFeedback.heavyImpact();
 
+    final navigator = GoRouter.of(context);
+
     final wallet = context.read<WalletState>().wallet;
 
     final shouldDismiss = await showCupertinoModalBottomSheet<bool?>(
@@ -256,6 +259,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
         symbol: wallet?.symbol,
       ),
     );
+
+    if (shouldDismiss == true) {
+      navigator.pop(true);
+    }
   }
 
   Future<void> closeScanner({focus = true}) async {
@@ -665,72 +672,77 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           color: ThemeColors.subtle.resolveFrom(context),
                         ),
                       ),
-                    if (selectedProfile == null &&
-                        !_isScanning &&
-                        !_isSending &&
-                        hasAmount &&
-                        !invalidAmount)
+                    if (!_isScanning && !_isSending)
                       Positioned(
-                        bottom: 40,
-                        child: Column(
-                          children: [
-                            Button(
-                              text: 'Chooose Recipient',
-                              onPressed: handleChooseRecipient,
-                              minWidth: 200,
-                              maxWidth: 200,
-                            ),
-                            const SizedBox(height: 10),
-                            CupertinoButton(
-                              onPressed: handleCreateVoucher,
-                              child: Text(
-                                'Create Voucher',
-                                style: TextStyle(
-                                  color: ThemeColors.text.resolveFrom(context),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.normal,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (selectedProfile != null &&
-                        !_isScanning &&
-                        !_isSending &&
-                        isSendingValid)
-                      Positioned(
-                        bottom: 20,
-                        child: SizedBox(
-                          height: 90,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                            child: SlideToComplete(
-                              onCompleted: !_isSending
-                                  ? () => handleSend(
-                                        context,
-                                        selectedProfile.account,
-                                      )
-                                  : null,
-                              enabled: isSendingValid,
-                              isComplete: _isSending,
-                              completionLabel:
-                                  _isSending ? 'Sending...' : 'Send',
-                              thumbColor: ThemeColors.surfacePrimary
-                                  .resolveFrom(context),
-                              width: width * 0.5,
-                              child: const SizedBox(
-                                height: 50,
-                                width: 50,
-                                child: Center(
-                                  child: Icon(
-                                    CupertinoIcons.arrow_right,
-                                    color: ThemeColors.black,
-                                  ),
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
                                 ),
                               ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Column(
+                              children: (selectedProfile == null &&
+                                      hasAmount &&
+                                      !invalidAmount)
+                                  ? [
+                                      const SizedBox(height: 10),
+                                      Button(
+                                        text: 'Chooose Recipient',
+                                        onPressed: handleChooseRecipient,
+                                        minWidth: 200,
+                                        maxWidth: 200,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      CupertinoButton(
+                                        onPressed: handleCreateVoucher,
+                                        child: Text(
+                                          'Create Voucher',
+                                          style: TextStyle(
+                                            color: ThemeColors.text
+                                                .resolveFrom(context),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.normal,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ]
+                                  : [
+                                      SlideToComplete(
+                                        onCompleted: !_isSending
+                                            ? () => handleSend(
+                                                  context,
+                                                  selectedProfile?.account,
+                                                )
+                                            : null,
+                                        enabled: isSendingValid,
+                                        isComplete: _isSending,
+                                        completionLabel:
+                                            _isSending ? 'Sending...' : 'Send',
+                                        thumbColor: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        width: width * 0.5,
+                                        child: const SizedBox(
+                                          height: 50,
+                                          width: 50,
+                                          child: Center(
+                                            child: Icon(
+                                              CupertinoIcons.arrow_right,
+                                              color: ThemeColors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                             ),
                           ),
                         ),

@@ -4,6 +4,7 @@ import 'package:citizenwallet/modals/wallet/send_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -30,6 +31,7 @@ class WalletScreenState extends State<WalletScreen> {
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
+  late VoucherLogic _voucherLogic;
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class WalletScreenState extends State<WalletScreen> {
     _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
+    _voucherLogic = VoucherLogic(context);
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
 
@@ -95,6 +98,7 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.openWallet(widget.address!, (bool hasChanged) async {
       if (hasChanged) _profileLogic.loadProfile();
       await _logic.loadTransactions();
+      await _voucherLogic.fetchVouchers(_logic.token);
     });
   }
 

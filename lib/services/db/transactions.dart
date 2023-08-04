@@ -61,6 +61,15 @@ class TransactionTable extends DBTable {
   ''';
 
   @override
+  Future<void> create(Database db, int version) async {
+    await db.execute(createQuery);
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
+      ''');
+  }
+
+  @override
   Future<void> migrate(Database db, int version) async {
     await db.execute(createQuery);
 
