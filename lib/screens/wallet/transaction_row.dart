@@ -146,7 +146,7 @@ class TransactionRowState extends State<TransactionRow> {
                             )
                           : Text(
                               voucher != null
-                                  ? 'Voucher'
+                                  ? 'Voucher created'
                                   : profile != null
                                       ? profile.profile.name
                                       : 'Unknown',
