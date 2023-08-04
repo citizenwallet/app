@@ -21,9 +21,9 @@ abstract class DBTable {
     )
   ''';
 
-  Future<void> create(Database db, int version);
+  Future<void> create(Database db);
 
-  Future<void> migrate(Database db, int version);
+  Future<void> migrate(Database db, int oldVersion, int newVersion);
 }
 
 class DBService {
@@ -52,19 +52,19 @@ class DBService {
       },
       onCreate: (db, version) async {
         // migrate data
-        await contacts.create(db, version);
+        await contacts.create(db);
 
         // migrate data
-        await vouchers.create(db, version);
+        await vouchers.create(db);
 
         return;
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         // migrate data
-        await contacts.migrate(db, newVersion);
+        await contacts.migrate(db, oldVersion, newVersion);
 
         // migrate data
-        await vouchers.migrate(db, newVersion);
+        await vouchers.migrate(db, oldVersion, newVersion);
 
         return;
       },

@@ -87,7 +87,8 @@ class VouchersTable extends DBTable {
 
   // Creates the table and an index on the name column if they do not already exist
   @override
-  Future<void> create(Database db, int version) async {
+  Future<void> create(Database db) async {
+    print('create');
     await db.execute(createQuery);
 
     await db.execute('''
@@ -101,24 +102,24 @@ class VouchersTable extends DBTable {
 
   // Migrates the table
   @override
-  Future<void> migrate(Database db, int version) async {
-    switch (version) {
-      case 2:
-        await db.execute(createQuery);
+  Future<void> migrate(Database db, int oldVersion, int newVersion) async {
+    print('migrate $oldVersion $newVersion');
+    if (newVersion <= 2) {
+      await db.execute(createQuery);
 
-        await db.execute('''
+      await db.execute('''
           CREATE INDEX idx_${name}_token ON $name (token)
         ''');
 
-        await db.execute('''
+      await db.execute('''
           CREATE INDEX idx_${name}_name ON $name (name)
         ''');
-        break;
-      case 3:
-        await db.execute('''
+    }
+
+    if (newVersion <= 3) {
+      await db.execute('''
           ALTER TABLE $name ADD COLUMN archived INTEGER DEFAULT 0
         ''');
-      default:
     }
   }
 

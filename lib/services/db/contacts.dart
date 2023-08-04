@@ -89,7 +89,7 @@ class ContactTable extends DBTable {
 
   // Creates the table
   @override
-  Future<void> create(Database db, int version) async {
+  Future<void> create(Database db) async {
     await db.execute(createQuery);
 
     await db.execute('''
@@ -99,11 +99,7 @@ class ContactTable extends DBTable {
 
   // Migrates the table
   @override
-  Future<void> migrate(Database db, int version) async {
-    switch (version) {
-      default:
-    }
-  }
+  Future<void> migrate(Database db, int oldVersion, int newVersion) async {}
 
   // Inserts a new contact into the table
   Future<void> insert(DBContact contact) async {
