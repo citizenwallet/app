@@ -102,22 +102,30 @@ class VouchersTable extends DBTable {
   // Migrates the table
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    if (newVersion <= 2) {
-      await db.execute(createQuery);
-
-      await db.execute('''
+    final migrations = {
+      2: [
+        '''
           CREATE INDEX idx_${name}_token ON $name (token)
-        ''');
-
-      await db.execute('''
+        ''',
+        '''
           CREATE INDEX idx_${name}_name ON $name (name)
-        ''');
-    }
-
-    if (newVersion <= 3) {
-      await db.execute('''
+        ''',
+      ],
+      3: [
+        '''
           ALTER TABLE $name ADD COLUMN archived INTEGER DEFAULT 0
-        ''');
+        ''',
+      ],
+    };
+
+    for (var i = oldVersion + 1; i <= newVersion; i++) {
+      final queries = migrations[i];
+
+      if (queries != null) {
+        for (final query in queries) {
+          await db.execute(query);
+        }
+      }
     }
   }
 
