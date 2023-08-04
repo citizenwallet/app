@@ -104,6 +104,7 @@ class VouchersTable extends DBTable {
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
     final migrations = {
       2: [
+        createQuery,
         '''
           CREATE INDEX idx_${name}_token ON $name (token)
         ''',
