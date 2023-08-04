@@ -88,7 +88,6 @@ class VouchersTable extends DBTable {
   // Creates the table and an index on the name column if they do not already exist
   @override
   Future<void> create(Database db) async {
-    print('create');
     await db.execute(createQuery);
 
     await db.execute('''
@@ -103,7 +102,6 @@ class VouchersTable extends DBTable {
   // Migrates the table
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    print('migrate $oldVersion $newVersion');
     if (newVersion <= 2) {
       await db.execute(createQuery);
 
