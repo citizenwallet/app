@@ -10,6 +10,7 @@ class DBVoucher {
   final String balance;
   final String voucher;
   final String salt;
+  final bool archived;
   DateTime createdAt = DateTime.now();
 
   DBVoucher({
@@ -19,6 +20,7 @@ class DBVoucher {
     required this.balance,
     required this.voucher,
     required this.salt,
+    this.archived = false,
   });
 
   DBVoucher.read({
@@ -29,6 +31,7 @@ class DBVoucher {
     required this.voucher,
     required this.salt,
     required this.createdAt,
+    required this.archived,
   });
 
   Map<String, dynamic> toMap() {
@@ -40,6 +43,7 @@ class DBVoucher {
       'voucher': voucher,
       'salt': salt,
       'createdAt': createdAt.toIso8601String(),
+      'archived': archived ? 1 : 0,
     };
   }
 
@@ -52,6 +56,7 @@ class DBVoucher {
       voucher: map['voucher'],
       salt: map['salt'],
       createdAt: DateTime.parse(map['createdAt']),
+      archived: map['archived'] == 1,
     );
   }
 
@@ -75,7 +80,8 @@ class VouchersTable extends DBTable {
     balance TEXT NOT NULL,
     voucher TEXT NOT NULL UNIQUE,
     salt TEXT NOT NULL,
-    createdAt TEXT NOT NULL
+    createdAt TEXT NOT NULL,
+    archived INTEGER DEFAULT 0
   )
 ''';
 
@@ -108,6 +114,10 @@ class VouchersTable extends DBTable {
           CREATE INDEX idx_${name}_name ON $name (name)
         ''');
         break;
+      case 3:
+        await db.execute('''
+          ALTER TABLE $name ADD COLUMN archived INTEGER DEFAULT 0
+        ''');
       default:
     }
   }
@@ -158,6 +168,12 @@ class VouchersTable extends DBTable {
   // Updates a voucher's balance
   Future<void> updateBalance(String address, String balance) async {
     await db.update(name, {'balance': balance},
+        where: 'address = ?', whereArgs: [address]);
+  }
+
+  // Archives a voucher
+  Future<void> archive(String address) async {
+    await db.update(name, {'archived': 1},
         where: 'address = ?', whereArgs: [address]);
   }
 

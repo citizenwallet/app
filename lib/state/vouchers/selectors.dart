@@ -9,3 +9,7 @@ Map<String, Voucher> selectMappedVoucher(VoucherState state) {
     },
   );
 }
+
+List<Voucher> selectVouchers(VoucherState state) {
+  return state.vouchers.where((element) => !element.archived).toList();
+}

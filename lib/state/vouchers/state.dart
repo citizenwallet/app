@@ -22,6 +22,7 @@ class Voucher {
   final String name;
   String balance;
   final DateTime createdAt;
+  bool archived;
 
   Voucher({
     required this.address,
@@ -29,6 +30,7 @@ class Voucher {
     this.name = '',
     required this.balance,
     required this.createdAt,
+    required this.archived,
   });
 
   String get formattedBalance => '${(double.tryParse(balance) ?? 0.0) / 1000}';
@@ -156,7 +158,11 @@ class VoucherState with ChangeNotifier {
   }
 
   void returnVoucherSuccess(String address) {
-    vouchers.removeWhere((v) => v.address == address);
+    final index = vouchers.indexWhere((v) => v.address == address);
+
+    if (index > -1) {
+      vouchers[index].archived = true;
+    }
 
     returnLoading = false;
     returnError = false;
@@ -180,7 +186,11 @@ class VoucherState with ChangeNotifier {
   }
 
   void deleteVoucherSuccess(String address) {
-    vouchers.removeWhere((v) => v.address == address);
+    final index = vouchers.indexWhere((v) => v.address == address);
+
+    if (index > -1) {
+      vouchers[index].archived = true;
+    }
 
     deleteLoading = false;
     deleteError = false;

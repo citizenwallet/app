@@ -3,7 +3,9 @@ import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
@@ -69,6 +71,8 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final safePadding = MediaQuery.of(context).padding.top;
+
     final profileList =
         context.select((ProfilesState state) => state.profileList);
     final loading =
@@ -78,77 +82,80 @@ class ContactsScreenState extends State<ContactsScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 0),
-          child: Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                scrollBehavior: const CupertinoScrollBehavior(),
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  if (noContacts && !loading)
-                    SliverFillRemaining(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/contacts.svg',
-                            semanticsLabel: 'contacts icon',
-                            height: 200,
-                            width: 200,
-                          ),
-                          const SizedBox(height: 40),
-                          Text(
-                            'Your contacts will appear here',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.normal,
-                              color: ThemeColors.text.resolveFrom(context),
-                            ),
-                          ),
-                        ],
-                      ),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            scrollBehavior: const CupertinoScrollBehavior(),
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                floating: false,
+                delegate: PersistentHeaderDelegate(
+                  expandedHeight: safePadding + 60,
+                  minHeight: safePadding + 60,
+                  builder: (context, shrink) => BlurryChild(
+                    child: Container(
+                      color: ThemeColors.transparent,
                     ),
-                  if (!noContacts)
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 60,
+                  ),
+                ),
+              ),
+              if (noContacts && !loading)
+                SliverFillRemaining(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/contacts.svg',
+                        semanticsLabel: 'contacts icon',
+                        height: 200,
+                        width: 200,
                       ),
-                    ),
-                  if (!noContacts)
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        childCount: profileList.length,
-                        (context, index) {
-                          final profile = profileList[index];
+                      const SizedBox(height: 40),
+                      Text(
+                        'Your contacts will appear here',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.normal,
+                          color: ThemeColors.text.resolveFrom(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (!noContacts)
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: profileList.length,
+                    (context, index) {
+                      final profile = profileList[index];
 
-                          return Padding(
-                            key: Key(profile.account),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: ProfileRow(
-                              profile: profile,
-                              loading: false,
-                              onTap: () => handleSelectProfile(profile),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-              Header(
-                blur: true,
-                transparent: true,
-                title: widget.title,
-              ),
+                      return Padding(
+                        key: Key(profile.account),
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child: ProfileRow(
+                          profile: profile,
+                          loading: false,
+                          onTap: () => handleSelectProfile(profile),
+                        ),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
-        ),
+          SafeArea(
+            child: Header(
+              transparent: true,
+              color: ThemeColors.transparent,
+              title: widget.title,
+            ),
+          ),
+        ],
       ),
     );
   }

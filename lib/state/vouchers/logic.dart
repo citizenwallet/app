@@ -94,6 +94,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               name: e.name,
               balance: e.balance,
               createdAt: e.createdAt,
+              archived: e.archived,
             ),
           )
           .toList());
@@ -183,6 +184,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         name: dbvoucher.name,
         balance: dbvoucher.balance,
         createdAt: dbvoucher.createdAt,
+        archived: dbvoucher.archived,
       );
 
       _state.createVoucherSuccess(
@@ -289,7 +291,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         customCredentials: credentials,
       );
 
-      await _db.vouchers.delete(address);
+      await _db.vouchers.archive(address);
 
       _state.returnVoucherSuccess(address);
       return;
@@ -304,7 +306,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.deleteVoucherRequest();
 
-      await _db.vouchers.delete(address);
+      await _db.vouchers.archive(address);
 
       _state.deleteVoucherSuccess(address);
       return;

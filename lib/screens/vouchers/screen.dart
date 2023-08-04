@@ -1,11 +1,14 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
+import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/screens/vouchers/voucher_row.dart';
+import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -141,7 +144,9 @@ class VouchersScreenState extends State<VouchersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vouchers = context.select((VoucherState state) => state.vouchers);
+    final safePadding = MediaQuery.of(context).padding.top;
+
+    final vouchers = context.select(selectVouchers);
 
     final loading = context.select((VoucherState state) => state.loading);
 
@@ -150,82 +155,85 @@ class VouchersScreenState extends State<VouchersScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 0),
-          child: Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                scrollBehavior: const CupertinoScrollBehavior(),
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  if (vouchers.isEmpty && !loading)
-                    SliverFillRemaining(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/voucher.svg',
-                            semanticsLabel: 'voucher icon',
-                            height: 200,
-                            width: 200,
-                          ),
-                          const SizedBox(height: 40),
-                          Text(
-                            'Your vouchers will appear here',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.normal,
-                              color: ThemeColors.text.resolveFrom(context),
-                            ),
-                          ),
-                        ],
-                      ),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            scrollBehavior: const CupertinoScrollBehavior(),
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                floating: false,
+                delegate: PersistentHeaderDelegate(
+                  expandedHeight: safePadding + 60,
+                  minHeight: safePadding + 60,
+                  builder: (context, shrink) => BlurryChild(
+                    child: Container(
+                      color: ThemeColors.transparent,
                     ),
-                  if (vouchers.isNotEmpty)
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 60,
+                  ),
+                ),
+              ),
+              if (vouchers.isEmpty && !loading)
+                SliverFillRemaining(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/voucher.svg',
+                        semanticsLabel: 'voucher icon',
+                        height: 200,
+                        width: 200,
                       ),
-                    ),
-                  if (vouchers.isNotEmpty)
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        childCount: vouchers.length,
-                        (context, index) {
-                          final voucher = vouchers[index];
+                      const SizedBox(height: 40),
+                      Text(
+                        'Your vouchers will appear here',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.normal,
+                          color: ThemeColors.text.resolveFrom(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (vouchers.isNotEmpty)
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: vouchers.length,
+                    (context, index) {
+                      final voucher = vouchers[index];
 
-                          return Padding(
-                            key: Key(voucher.address),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: VoucherRow(
-                              voucher: voucher,
-                              logic: _logic,
-                              onTap: returnLoading ? null : handleMore,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-              Header(
-                blur: true,
-                transparent: true,
-                title: widget.title,
-                actionButton: returnLoading
-                    ? CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      )
-                    : null,
-              ),
+                      return Padding(
+                        key: Key(voucher.address),
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child: VoucherRow(
+                          voucher: voucher,
+                          logic: _logic,
+                          onTap: returnLoading ? null : handleMore,
+                        ),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
-        ),
+          SafeArea(
+            child: Header(
+              transparent: true,
+              color: ThemeColors.transparent,
+              title: widget.title,
+              actionButton: returnLoading
+                  ? CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
+                    )
+                  : null,
+            ),
+          ),
+        ],
       ),
     );
   }
