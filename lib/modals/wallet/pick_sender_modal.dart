@@ -9,6 +9,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
@@ -349,6 +350,12 @@ class PickeSenderModalState extends State<PickeSenderModal>
                               },
                             ),
                           ),
+                          if (isValid)
+                            const SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 90,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -401,33 +408,44 @@ class PickeSenderModalState extends State<PickeSenderModal>
               if (isValid)
                 Positioned(
                   bottom: 0,
-                  child: SizedBox(
-                    height: 90,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                      child: SlideToComplete(
-                        onCompleted: !_isSending
-                            ? () => handleSend(
-                                  context,
-                                  selectedProfile?.account,
-                                )
-                            : null,
-                        enabled: isValid,
-                        isComplete: _isSending,
-                        completionLabel: _isSending ? 'Sending...' : 'Send',
-                        thumbColor:
-                            ThemeColors.surfacePrimary.resolveFrom(context),
-                        width: width * 0.5,
-                        child: const SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: Center(
-                            child: Icon(
-                              CupertinoIcons.arrow_right,
-                              color: ThemeColors.black,
-                            ),
+                  width: width,
+                  child: BlurryChild(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: ThemeColors.subtle.resolveFrom(context),
                           ),
                         ),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                      child: Column(
+                        children: [
+                          SlideToComplete(
+                            onCompleted: !_isSending
+                                ? () => handleSend(
+                                      context,
+                                      selectedProfile?.account,
+                                    )
+                                : null,
+                            enabled: isValid,
+                            isComplete: _isSending,
+                            completionLabel: _isSending ? 'Sending...' : 'Send',
+                            thumbColor:
+                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            width: width * 0.5,
+                            child: const SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: Center(
+                                child: Icon(
+                                  CupertinoIcons.arrow_right,
+                                  color: ThemeColors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
