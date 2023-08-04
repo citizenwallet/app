@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citizenwallet/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 
 enum VoucherCreationState {
@@ -19,7 +20,7 @@ class Voucher {
   final String address;
   final String token;
   final String name;
-  final String balance;
+  String balance;
   final DateTime createdAt;
 
   Voucher({
@@ -29,6 +30,9 @@ class Voucher {
     required this.balance,
     required this.createdAt,
   });
+
+  String get formattedBalance => '${(double.tryParse(balance) ?? 0.0) / 1000}';
+  String get formattedAddress => formatLongText(address);
 
   String getLink(String appLink, String symbol, String voucher) {
     final doubleAmount = balance.replaceAll(',', '.');
@@ -71,6 +75,15 @@ class VoucherState with ChangeNotifier {
     loading = false;
     error = true;
     notifyListeners();
+  }
+
+  void updateVoucherBalance(String address, String balance) {
+    final index = vouchers.indexWhere((v) => v.address == address);
+
+    if (index > -1) {
+      vouchers[index].balance = balance;
+      notifyListeners();
+    }
   }
 
   // creation
@@ -130,5 +143,53 @@ class VoucherState with ChangeNotifier {
     shareLink = '';
     shareReady = false;
     if (notify) notifyListeners();
+  }
+
+  // return
+  bool returnLoading = false;
+  bool returnError = false;
+
+  void returnVoucherRequest() {
+    returnLoading = true;
+    returnError = false;
+    notifyListeners();
+  }
+
+  void returnVoucherSuccess(String address) {
+    vouchers.removeWhere((v) => v.address == address);
+
+    returnLoading = false;
+    returnError = false;
+    notifyListeners();
+  }
+
+  void returnVoucherError() {
+    returnLoading = false;
+    returnError = true;
+    notifyListeners();
+  }
+
+  // delete
+  bool deleteLoading = false;
+  bool deleteError = false;
+
+  void deleteVoucherRequest() {
+    deleteLoading = true;
+    deleteError = false;
+    notifyListeners();
+  }
+
+  void deleteVoucherSuccess(String address) {
+    vouchers.removeWhere((v) => v.address == address);
+
+    deleteLoading = false;
+    deleteError = false;
+    notifyListeners();
+  }
+
+  void deleteVoucherError() {
+    deleteLoading = false;
+    deleteError = true;
+    notifyListeners();
   }
 }

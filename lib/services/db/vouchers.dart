@@ -155,6 +155,12 @@ class VouchersTable extends DBTable {
         where: 'address = ?', whereArgs: [voucher.address]);
   }
 
+  // Updates a voucher's balance
+  Future<void> updateBalance(String address, String balance) async {
+    await db.update(name, {'balance': balance},
+        where: 'address = ?', whereArgs: [address]);
+  }
+
   // Deletes a voucher from the table by its address
   Future<void> delete(String address) async {
     await db.delete(name, where: 'address = ?', whereArgs: [address]);

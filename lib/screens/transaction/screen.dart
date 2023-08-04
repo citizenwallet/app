@@ -184,7 +184,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   voucher != null
                                       ? const ProfileCircle(
                                           size: 160,
-                                          imageUrl: 'assets/icons/voucher.png',
+                                          imageUrl: 'assets/icons/voucher.svg',
                                         )
                                       : ProfileBadge(
                                           size: 160,

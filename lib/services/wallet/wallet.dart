@@ -157,6 +157,11 @@ class WalletService {
     await _contractAccount.init();
   }
 
+  /// fetches the balance of a given address
+  Future<String> getBalance(String addr) async {
+    return fromUnit(await _contractToken.getBalance(addr));
+  }
+
   /// set profile data
   Future<String?> setProfile(
     ProfileRequest profile, {
@@ -579,24 +584,33 @@ class WalletService {
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
     String dest,
-    Uint8List calldata,
-  ) async {
+    Uint8List calldata, {
+    EthPrivateKey? customCredentials,
+  }) async {
     try {
+      final cred = customCredentials ?? _credentials;
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+      }
+
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
 
       // use the account hex as the sender
-      userop.sender = _account.hexEip55;
+      userop.sender = acc.hexEip55;
 
       // determine the appropriate nonce
-      final nonce = await _contractEntryPoint.getNonce(_account.hexEip55);
+      final nonce = await _contractEntryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero) {
         // construct the init code to deploy the account
         userop.initCode = _contractAccountFactory.createAccountInitCode(
-          credentials.address.hexEip55,
+          cred.address.hexEip55,
           BigInt.zero,
         );
       }
@@ -649,7 +663,7 @@ class WalletService {
       final hash = userop.getHash(_contractEntryPoint.addr, chainId.toString());
 
       // now we can sign the user op
-      userop.generateSignature(credentials, hash);
+      userop.generateSignature(cred, hash);
 
       return (bytesToHex(hash, include0x: true), userop);
     } catch (e) {
@@ -678,9 +692,20 @@ class WalletService {
   /// add new erc20 transfer events that are sending
   ///
   /// [tx] the transfer event to add
-  Future<TransferEvent?> addSendingLog(TransferEvent tx) async {
+  Future<TransferEvent?> addSendingLog(
+    TransferEvent tx, {
+    EthPrivateKey? customCredentials,
+  }) async {
     try {
-      final url = '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}';
+      final cred = customCredentials ?? _credentials;
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+      }
+
+      final url = '/logs/transfers/${_contractToken.addr}/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         tx.toJson(),
@@ -688,15 +713,14 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig =
-          await compute(generateSignature, (encoded, credentials.privateKey));
+      final sig = await compute(generateSignature, (encoded, cred.privateKey));
 
       final response = await _indexer.post(
         url: url,
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': credentials.address.hexEip55,
+          'X-Address': cred.address.hexEip55,
         },
         body: body.toJson(),
       );
@@ -715,10 +739,22 @@ class WalletService {
   /// set status of existing erc20 transfer event that are not success
   ///
   /// [status] number of seconds to go back, uses block time to calculate
-  Future<bool> setStatusLog(String hash, TransactionState status) async {
+  Future<bool> setStatusLog(
+    String hash,
+    TransactionState status, {
+    EthPrivateKey? customCredentials,
+  }) async {
     try {
+      final cred = customCredentials ?? _credentials;
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+      }
+
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/$hash';
+          '/logs/transfers/${_contractToken.addr}/${acc.hexEip55}/$hash';
 
       final encoded = jsonEncode(
         StatusUpdateRequest(status).toJson(),
@@ -726,15 +762,14 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig =
-          await compute(generateSignature, (encoded, credentials.privateKey));
+      final sig = await compute(generateSignature, (encoded, cred.privateKey));
 
       await _indexer.patch(
         url: url,
         headers: {
           'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
           'X-Signature': sig,
-          'X-Address': credentials.address.hexEip55,
+          'X-Address': cred.address.hexEip55,
         },
         body: body.toJson(),
       );

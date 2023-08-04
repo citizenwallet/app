@@ -73,7 +73,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   void handleAppReset() async {
     final navigator = GoRouter.of(context);
 
-    final confirm = await showCupertinoModalPopup(
+    final confirm = await showCupertinoModalPopup<bool?>(
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => ConfirmModal(

@@ -107,7 +107,7 @@ class TransactionRowState extends State<TransactionRow> {
                       _ => ProfileCircle(
                           size: 50,
                           imageUrl: voucher != null
-                              ? 'assets/icons/voucher.png'
+                              ? 'assets/icons/voucher.svg'
                               : profile?.profile.imageMedium,
                           backgroundColor:
                               voucher != null ? ThemeColors.white : null,
@@ -146,7 +146,9 @@ class TransactionRowState extends State<TransactionRow> {
                             )
                           : Text(
                               voucher != null
-                                  ? 'Voucher created'
+                                  ? isIncoming
+                                      ? 'Voucher returned'
+                                      : 'Voucher created'
                                   : profile != null
                                       ? profile.profile.name
                                       : 'Unknown',

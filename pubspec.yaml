@@ -81,6 +81,7 @@ flutter:
     - assets/icons/contacts.svg
     - assets/icons/profile.svg
     - assets/icons/profile.png
+    - assets/icons/voucher.svg
     - assets/icons/voucher.png
     - assets/icons/anonymous_user.svg
     - assets/icons/bar_icon.svg
