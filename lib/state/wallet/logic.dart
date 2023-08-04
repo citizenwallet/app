@@ -940,6 +940,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.setHasAddress(_addressController.text.isNotEmpty || override);
   }
 
+  void setInvalidAddress() {
+    _state.setInvalidAddress(true);
+  }
+
   void updateAmount() {
     _state.setHasAmount(
       _amountController.text.isNotEmpty,

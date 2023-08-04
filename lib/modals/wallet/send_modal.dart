@@ -311,20 +311,25 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final hex = _logic.updateFromCapture(value);
 
     final profile = await widget.profilesLogic.getProfile(hex ?? '');
-    if (profile != null) {
+    if (profile != null || hex != null) {
       amountFocuseNode.requestFocus();
       return;
     }
 
     await delay(const Duration(milliseconds: 50));
 
-    handleScanAgain();
+    handleScanAgain(invalid: true);
   }
 
-  void handleScanAgain() async {
+  void handleScanAgain({bool invalid = false}) async {
     widget.profilesLogic.deSelectProfile();
+
     _logic.clearAddressController();
     _logic.updateAddress();
+
+    if (invalid) {
+      _logic.setInvalidAddress();
+    }
 
     await openScanner();
   }
@@ -448,8 +453,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             ),
                           if (widget.to == null &&
                               _isScanning &&
-                              !searchLoading &&
-                              searchError) ...[
+                              invalidAddress) ...[
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -672,7 +676,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           color: ThemeColors.subtle.resolveFrom(context),
                         ),
                       ),
-                    if (!_isScanning && !_isSending)
+                    if (!_isScanning &&
+                        !_isSending &&
+                        hasAmount &&
+                        !invalidAmount)
                       Positioned(
                         bottom: 0,
                         width: width,
@@ -688,9 +695,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             ),
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                             child: Column(
-                              children: (selectedProfile == null &&
-                                      hasAmount &&
-                                      !invalidAmount)
+                              children: (!isSendingValid)
                                   ? [
                                       const SizedBox(height: 10),
                                       Button(
