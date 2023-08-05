@@ -118,8 +118,12 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final wallet =
-          Wallet.createNew(credentials, '$password$salt', Random.secure());
+      final wallet = Wallet.createNew(
+        credentials,
+        '$password$salt',
+        Random.secure(),
+        scryptN: 16,
+      );
 
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = double.parse(doubleAmount) * 1000;

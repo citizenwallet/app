@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -40,14 +39,17 @@ class Voucher {
     final doubleAmount = balance.replaceAll(',', '.');
     final parsedAmount = double.parse(doubleAmount) / 1000;
 
-    final encoded = base64.encode(utf8.encode(voucher));
+    final encoded = compress(voucher);
 
-    String link =
-        '$appLink/#/voucher/$encoded?token=$token&balance=$parsedAmount&symbol=$symbol';
+    String params = 'token=$token&balance=$parsedAmount&symbol=$symbol';
 
     if (name.isNotEmpty) {
-      link += '&name=$name';
+      params += '&name=$name';
     }
+
+    final encodedParams = compress(params);
+
+    String link = '$appLink/#/voucher/$encoded?params=$encodedParams';
 
     return link;
   }
