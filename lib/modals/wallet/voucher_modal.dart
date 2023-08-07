@@ -84,13 +84,17 @@ class VoucherModalState extends State<VoucherModal>
   void handleShareVoucher(
     BuildContext context,
     String address,
+    String balance,
     String symbol,
+    String link,
   ) {
     final box = context.findRenderObject() as RenderBox?;
 
     _logic.shareVoucher(
       address,
+      balance,
       symbol,
+      link,
       box!.localToGlobal(Offset.zero) & box.size,
     );
   }
@@ -99,8 +103,8 @@ class VoucherModalState extends State<VoucherModal>
     GoRouter.of(context).pop(true);
   }
 
-  void handleCopy() {
-    _logic.copyVoucher();
+  void handleCopy(String link) {
+    _logic.copyVoucher(link);
   }
 
   @override
@@ -214,7 +218,7 @@ class VoucherModalState extends State<VoucherModal>
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Chip(
-                                        onTap: handleCopy,
+                                        onTap: () => handleCopy(shareLink),
                                         formatLongText(shareLink, length: 12),
                                         color: ThemeColors.subtleEmphasis
                                             .resolveFrom(context),
@@ -282,7 +286,9 @@ class VoucherModalState extends State<VoucherModal>
                                       onPressed: () => handleShareVoucher(
                                         context,
                                         createdVoucher.address,
+                                        createdVoucher.balance,
                                         widget.symbol!,
+                                        shareLink,
                                       ),
                                       minWidth: 200,
                                       maxWidth: 200,

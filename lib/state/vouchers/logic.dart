@@ -107,6 +107,48 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.vouchersError();
   }
 
+  Future<void> openVoucher(String address) async {
+    try {
+      _state.openVoucherRequest();
+
+      final dbvoucher = await _db.vouchers.get(address);
+      if (dbvoucher == null) {
+        throw Exception('voucher not found');
+      }
+
+      final balance = await _wallet.getBalance(address);
+
+      await _db.vouchers.updateBalance(address, balance);
+
+      final voucher = Voucher(
+        address: dbvoucher.address,
+        token: dbvoucher.token,
+        name: dbvoucher.name,
+        balance: balance,
+        createdAt: dbvoucher.createdAt,
+        archived: dbvoucher.archived,
+      );
+
+      _state.openVoucherSuccess(
+          voucher,
+          voucher.getLink(
+            appLink,
+            _wallet.currency.symbol,
+            dbvoucher.voucher,
+          ));
+
+      return;
+    } catch (exception) {
+      //
+    }
+
+    _state.openVoucherError();
+  }
+
+  void clearOpenVoucher() {
+    _state.openVoucherClear(notify: false);
+  }
+
   Future<void> createVoucher({
     String? name,
     String balance = '0.0',
@@ -213,20 +255,18 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   void shareVoucher(
     String address,
+    String balance,
     String symbol,
+    String link,
     Rect sharePositionOrigin,
   ) async {
     try {
-      if (_state.createdVoucher == null) {
-        throw Exception('voucher not found');
-      }
-
-      final doubleAmount = _state.createdVoucher!.balance.replaceAll(',', '.');
+      final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = double.parse(doubleAmount) / 1000;
 
       _sharing.shareVoucher(
         '$parsedAmount',
-        link: _state.shareLink,
+        link: link,
         symbol: symbol,
         sharePositionOrigin: sharePositionOrigin,
       );
@@ -321,8 +361,8 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.returnVoucherError();
   }
 
-  void copyVoucher() {
-    Clipboard.setData(ClipboardData(text: _state.shareLink));
+  void copyVoucher(String link) {
+    Clipboard.setData(ClipboardData(text: link));
   }
 
   void pause() {

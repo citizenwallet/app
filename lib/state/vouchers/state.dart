@@ -149,6 +149,44 @@ class VoucherState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
+  // viewing
+
+  Voucher? viewingVoucher;
+  String? viewingVoucherLink;
+
+  bool viewLoading = false;
+  bool viewError = false;
+
+  void openVoucherRequest() {
+    viewLoading = true;
+    viewError = false;
+    notifyListeners();
+  }
+
+  void openVoucherSuccess(Voucher voucher, String link) {
+    viewingVoucher = voucher;
+    viewingVoucherLink = link;
+
+    viewLoading = false;
+    viewError = false;
+    notifyListeners();
+  }
+
+  void openVoucherError() {
+    viewLoading = false;
+    viewError = true;
+    notifyListeners();
+  }
+
+  void openVoucherClear({notify = true}) {
+    viewingVoucher = null;
+    viewingVoucherLink = null;
+
+    viewLoading = false;
+    viewError = false;
+    if (notify) notifyListeners();
+  }
+
   // return
   bool returnLoading = false;
   bool returnError = false;

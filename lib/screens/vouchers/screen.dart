@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/voucher_view_modal.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
@@ -12,6 +13,7 @@ import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class VouchersScreen extends StatefulWidget {
@@ -82,6 +84,13 @@ class VouchersScreenState extends State<VouchersScreen> {
               if (!isRedeemed)
                 CupertinoActionSheetAction(
                   isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('share');
+                  },
+                  child: const Text('Share'),
+                ),
+              if (!isRedeemed)
+                CupertinoActionSheetAction(
                   isDestructiveAction: true,
                   onPressed: () {
                     Navigator.of(dialogContext).pop('return');
@@ -106,6 +115,17 @@ class VouchersScreenState extends State<VouchersScreen> {
             ),
           );
         });
+
+    if (option == 'share') {
+      await CupertinoScaffold.showCupertinoModalBottomSheet<void>(
+        context: context,
+        expand: true,
+        useRootNavigator: true,
+        builder: (modalContext) => VoucherViewModal(
+          address: address,
+        ),
+      );
+    }
 
     if (option == 'return') {
       final confirm = await showCupertinoModalPopup<bool?>(
