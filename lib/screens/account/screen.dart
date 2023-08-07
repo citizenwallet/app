@@ -126,7 +126,6 @@ class AccountScreenState extends State<AccountScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
     final loading = context.select((WalletState state) => state.loading);
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final firstLoad = context.select((WalletState state) => state.firstLoad);
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
