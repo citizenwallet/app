@@ -19,6 +19,7 @@ class APIService {
   Future<dynamic> get({String? url, Map<String, String>? headers}) async {
     final mergedHeaders = <String, String>{
       'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
     };
     if (headers != null) {
       mergedHeaders.addAll(headers);
@@ -35,7 +36,7 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<dynamic> post({

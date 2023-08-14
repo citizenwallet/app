@@ -1,9 +1,12 @@
+import 'package:citizenwallet/services/db/contacts.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +18,7 @@ class ProfileLogic {
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
 
+  final DBService _db = DBService();
   final WalletService _wallet = WalletService();
 
   ProfileLogic(BuildContext context) {
@@ -101,6 +105,8 @@ class ProfileLogic {
         return;
       }
 
+      profile.name = cleanNameString(profile.name);
+
       _state.setProfileSuccess(
         account: profile.account,
         username: profile.username,
@@ -134,6 +140,8 @@ class ProfileLogic {
         _state.setViewProfileNoChangeSuccess();
         return;
       }
+
+      profile.name = cleanNameString(profile.name);
 
       _state.viewProfileSuccess(profile);
 
@@ -183,6 +191,15 @@ class ProfileLogic {
         imageMedium: newProfile.imageMedium,
         imageSmall: newProfile.imageSmall,
       );
+
+      _db.contacts.insert(DBContact(
+          account: newProfile.account,
+          username: newProfile.username,
+          name: newProfile.name,
+          description: newProfile.description,
+          image: newProfile.image,
+          imageMedium: newProfile.imageMedium,
+          imageSmall: newProfile.imageSmall));
 
       _profiles.isLoaded(
         newProfile.account,
@@ -243,6 +260,15 @@ class ProfileLogic {
         imageMedium: newProfile.imageMedium,
         imageSmall: newProfile.imageSmall,
       );
+
+      _db.contacts.insert(DBContact(
+          account: newProfile.account,
+          username: newProfile.username,
+          name: newProfile.name,
+          description: newProfile.description,
+          image: newProfile.image,
+          imageMedium: newProfile.imageMedium,
+          imageSmall: newProfile.imageSmall));
 
       _profiles.isLoaded(
         newProfile.account,

@@ -109,7 +109,7 @@ Uint8List decompressBytes(Uint8List data) {
 
 String generateSignature((String body, Uint8List privateKey) args) {
   // hash the body
-  final messageHash = keccak256(convertStringToUint8List(args.$1));
+  final messageHash = keccak256(convertBytesToUint8List(utf8.encode(args.$1)));
 
   // sign the body
   final signature = sign(messageHash, args.$2);
