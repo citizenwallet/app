@@ -42,4 +42,10 @@ void main() {
     final updatedValue = formatter.formatEditUpdate(oldValue, newValue);
     expect(updatedValue, equals(oldValue));
   });
+
+  test('cleanNameString should clean the string', () {
+    const name = "This is a test string! @ 123 \u00E9";
+    final cleaned = cleanNameString(name);
+    expect(cleaned, equals("This is a test string   é"));
+  });
 }

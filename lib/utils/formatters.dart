@@ -67,3 +67,11 @@ class NameFormatter extends TextInputFormatter {
     return newValue;
   }
 }
+
+String cleanNameString(String name) {
+  RegExp pattern = RegExp(r"[a-zA-Z\-'\u00C0-\u00FF ]");
+  return name.splitMapJoin(pattern,
+      onMatch: (m) => m.group(0)!, // Keep the character if it matches
+      onNonMatch: (n) => '' // Remove the character if it doesn't match
+      );
+}

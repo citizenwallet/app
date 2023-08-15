@@ -25,18 +25,27 @@ class ContactsCache extends Cache {
   @override
   Future<DBContact?> get(String key, Future<dynamic> Function() onMiss) async {
     final value = await _table.get(key);
-    if (value != null && !shouldReplace(value.updatedAt)) {
-      return value;
+
+    if (value == null) {
+      final result = await onMiss();
+      if (result == null || result is! DBContact) {
+        return null;
+      }
+      set(key, result);
+      return result;
     }
 
-    final result = await onMiss();
-    if (result == null || result is! DBContact) {
-      return null;
+    if (shouldReplace(value.updatedAt)) {
+      // do something and update db
+      onMiss().then((result) {
+        if (result == null || result is! DBContact) {
+          return null;
+        }
+        set(key, result);
+      });
     }
 
-    await set(key, result);
-
-    return result;
+    return value;
   }
 
   @override

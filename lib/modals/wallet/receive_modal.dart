@@ -223,7 +223,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                         padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         child: CupertinoTextField(
                           controller: widget.logic.amountController,
-                          placeholder: formatCurrency(1050.00, ''),
+                          placeholder: formatCurrency(1500.00, ''),
                           prefix: Center(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),

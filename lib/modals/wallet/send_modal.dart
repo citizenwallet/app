@@ -523,7 +523,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   children: [
                                     CupertinoTextField(
                                       controller: _logic.amountController,
-                                      placeholder: formatCurrency(1050.00, ''),
+                                      placeholder: formatCurrency(1500.00, ''),
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),

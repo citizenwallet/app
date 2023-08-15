@@ -171,14 +171,14 @@ class WalletService {
     try {
       final url = '/profiles/${_account.hexEip55}';
 
-      final encoded = jsonEncode(
+      final json = jsonEncode(
         profile.toJson(),
       );
 
-      final body = SignedRequest(convertStringToUint8List(encoded));
+      final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
       final sig =
-          await compute(generateSignature, (encoded, _credentials.privateKey));
+          await compute(generateSignature, (json, _credentials.privateKey));
 
       final resp = await _indexerIPFS.filePut(
         url: url,
@@ -220,14 +220,14 @@ class WalletService {
     try {
       final url = '/profiles/${_account.hexEip55}';
 
-      final encoded = jsonEncode(
+      final json = jsonEncode(
         profile.toJson(),
       );
 
-      final body = SignedRequest(convertStringToUint8List(encoded));
+      final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
       final sig =
-          await compute(generateSignature, (encoded, _credentials.privateKey));
+          await compute(generateSignature, (json, _credentials.privateKey));
 
       final resp = await _indexerIPFS.patch(
         url: url,
