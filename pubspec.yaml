@@ -112,9 +112,9 @@ flutter_launcher_icons:
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/logo.jpg"
+    image_path: "assets/logo.png"
     background_color: "#ffffff"
-    theme_color: "#c8ff94"
+    theme_color: "#563087"
   windows:
     generate: true
     image_path: "assets/logo.jpg"
