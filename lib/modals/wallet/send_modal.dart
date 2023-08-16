@@ -113,6 +113,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       _isScanning = false;
       _scannerOn = false;
 
+      _logic.addressController.text = widget.to ?? '';
       _logic.amountController.text = widget.amount ?? '';
 
       final profile = await widget.profilesLogic.getProfile(widget.to!);
