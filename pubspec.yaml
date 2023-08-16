@@ -1,7 +1,7 @@
 name: citizenwallet
-version: 1.0.18+12
+version: 1.0.18+13
 publish_to: none
-description: Receive and send ERC20 without gas fees.
+description: A mobile wallet for your community.
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:
