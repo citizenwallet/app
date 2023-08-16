@@ -28,11 +28,13 @@ import 'package:web3dart/crypto.dart';
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
   final WalletLogic wallet;
+  final String alias;
 
   const BurnerWalletScreen(
     this.encoded,
     this.wallet, {
     super.key,
+    this.alias = 'global',
   });
 
   @override
@@ -74,7 +76,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     WidgetsBinding.instance.removeObserver(_logic);
     WidgetsBinding.instance.removeObserver(_profilesLogic);
 
-    _logic.dispose();
     _profilesLogic.dispose();
 
     _scrollController.removeListener(onScrollUpdate);
@@ -132,11 +133,15 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    final ok =
-        await _logic.openWalletFromURL(widget.encoded, _password, () async {
-      _profileLogic.loadProfile();
-      await _logic.loadTransactions();
-    });
+    final ok = await _logic.openWalletFromURL(
+      widget.encoded,
+      _password,
+      widget.alias,
+      () async {
+        _profileLogic.loadProfile();
+        await _logic.loadTransactions();
+      },
+    );
 
     if (!ok) {
       onLoad(retry: true);
@@ -353,6 +358,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await _profilesLogic.loadProfile(address);
   }
 
+  void handleTestNav() async {
+    GoRouter.of(context).go('/?test=1');
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -402,6 +411,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleRefresh: handleRefresh,
                       handleSendModal: handleSendModal,
                       handleReceive: handleReceive,
+                      // handleReceive: handleTestNav,
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopyWalletQR: handleCopyAccount,

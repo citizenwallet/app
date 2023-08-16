@@ -6,6 +6,7 @@ import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -35,6 +36,7 @@ class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
   late WalletState _state;
 
+  final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
 
@@ -81,6 +83,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<bool> openWalletFromURL(
     String encodedWallet,
     String password,
+    String alias,
     Future<void> Function() loadAdditionalData,
   ) async {
     try {
@@ -102,17 +105,21 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await delay(const Duration(milliseconds: 0));
 
+      // on web, use host
+      _config.initWeb(
+        alias == 'localhost' ? 'global' : alias,
+      );
+
+      final config = await _config.config;
+
       await _wallet.init(
         bytesToHex(cred.privateKey.privateKey),
         NativeCurrency(
-          name: 'USD Coin',
-          symbol: 'USDC',
-          decimals: 2,
+          name: config.token.name,
+          symbol: config.token.symbol,
+          decimals: config.token.decimals,
         ),
-        dotenv.get('ERC4337_ENTRYPOINT'),
-        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
-        dotenv.get('ERC20_TOKEN_ADDRESS'),
-        dotenv.get('PROFILE_ADDRESS'),
+        config,
       );
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
@@ -193,17 +200,24 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
+      const alias = 'global';
+
+      // on native, use env
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias == 'localhost' ? 'global' : alias,
+      );
+
+      final config = await _config.config;
+
       await _wallet.init(
         dbWallet.privateKey,
         NativeCurrency(
-          name: 'USD Coin',
-          symbol: 'USDC',
-          decimals: 2,
+          name: config.token.name,
+          symbol: config.token.symbol,
+          decimals: config.token.decimals,
         ),
-        dotenv.get('ERC4337_ENTRYPOINT'),
-        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
-        dotenv.get('ERC20_TOKEN_ADDRESS'),
-        dotenv.get('PROFILE_ADDRESS'),
+        config,
       );
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
@@ -565,7 +579,6 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.updateWalletBalanceSuccess(balance);
       return;
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

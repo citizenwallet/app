@@ -163,17 +163,28 @@ GoRouter createWebRouter(
               name: 'Wallet',
               path: '/wallet/:qr',
               parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: WillPopScope(
-                  onWillPop: () async => false,
-                  child: BurnerWalletScreen(
-                    state.pathParameters['qr'] ?? '',
-                    wallet,
+              pageBuilder: (context, state) {
+                print(state.uri.queryParameters);
+                print(state.uri.toString());
+                print(Uri.base.host);
+                String alias = Uri.base.host.split('.').first;
+                if (Uri.base.host.split('.').length >= 4) {
+                  alias += '.${Uri.base.host.split('.')[1]}';
+                }
+
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  name: state.name,
+                  child: WillPopScope(
+                    onWillPop: () async => false,
+                    child: BurnerWalletScreen(
+                      state.pathParameters['qr'] ?? '',
+                      wallet,
+                      alias: alias,
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
               routes: [
                 GoRoute(
                   name: 'Transaction',

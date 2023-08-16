@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
@@ -10,6 +11,7 @@ import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
+import 'package:citizenwallet/services/wallet/gas.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/paymaster_data.dart';
@@ -36,6 +38,8 @@ class WalletService {
 
   late Client _client;
 
+  late String _indexerKey;
+
   late final String _url;
   late final String _wsurl;
   late Web3Client _ethClient;
@@ -45,38 +49,17 @@ class WalletService {
   late final APIService _indexer;
   late final APIService _indexerIPFS;
 
+  late final APIService _rpc;
   late final APIService _bundlerRPC;
   late final APIService _paymasterRPC;
   late final String _paymasterType;
-  late final APIService _dataRPC;
+
+  late final EIP1559GasPriceEstimator _gasPriceEstimator;
 
   late final Map<String, String> erc4337Headers;
 
   WalletService._internal() {
     _client = Client();
-
-    _url = dotenv.get('NODE_URL');
-    _wsurl = dotenv.get('NODE_WS_URL');
-
-    _ethClient = _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
-
-    ipfsUrl = dotenv.get('IPFS_URL');
-    _ipfs = APIService(baseURL: ipfsUrl);
-    _indexer = APIService(baseURL: dotenv.get('INDEXER_URL'));
-    _indexerIPFS = APIService(baseURL: dotenv.get('INDEXER_IPFS_URL'));
-
-    _bundlerRPC = APIService(baseURL: dotenv.get('ERC4337_RPC_URL'));
-    _paymasterRPC =
-        APIService(baseURL: dotenv.get('ERC4337_PAYMASTER_RPC_URL'));
-    _paymasterType = dotenv.get('ERC4337_PAYMASTER_TYPE');
-    _dataRPC = APIService(baseURL: dotenv.get('ERC4337_DATA_URL'));
-
-    erc4337Headers = {'Origin': dotenv.get('ORIGIN_HEADER')};
   }
 
   // Declare variables using the `late` keyword, which means they will be initialized at a later time.
@@ -111,17 +94,49 @@ class WalletService {
   Future<void> init(
     String privateKey,
     NativeCurrency currency,
-    String eaddr,
-    String afaddr,
-    String taddr,
-    String prfaddr,
+    Config config,
   ) async {
+    _indexerKey = config.indexer.key;
+
+    _url = config.node.url;
+    _wsurl = config.node.wsUrl;
+
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
+
+    ipfsUrl = config.ipfs.url;
+    _ipfs = APIService(baseURL: ipfsUrl);
+    _indexer = APIService(baseURL: config.indexer.url);
+    _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
+
+    _rpc = APIService(baseURL: config.node.url);
+    _bundlerRPC = APIService(baseURL: config.erc4337.rpcUrl);
+    _paymasterRPC = APIService(baseURL: config.erc4337.paymasterRPCUrl);
+    _paymasterType = config.erc4337.paymasterType;
+
+    _gasPriceEstimator = EIP1559GasPriceEstimator(_rpc, _ethClient);
+
+    erc4337Headers = {};
+    if (!kIsWeb) {
+      // on native, we need to set the origin header
+      erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
+    }
+
     _credentials = EthPrivateKey.fromHex(privateKey);
 
     _chainId = await _ethClient.getChainId();
     this.currency = currency;
 
-    await _initContracts(eaddr, afaddr, taddr, prfaddr);
+    await _initContracts(
+      config.erc4337.entrypointAddress,
+      config.erc4337.accountFactoryAddress,
+      config.token.address,
+      config.profile.address,
+    );
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -185,7 +200,7 @@ class WalletService {
         file: image,
         fileType: fileType,
         headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': address.hexEip55,
         },
@@ -232,7 +247,7 @@ class WalletService {
       final resp = await _indexerIPFS.patch(
         url: url,
         headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': address.hexEip55,
         },
@@ -282,7 +297,7 @@ class WalletService {
       await _indexerIPFS.delete(
         url: url,
         headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': address.hexEip55,
         },
@@ -387,7 +402,7 @@ class WalletService {
           '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+        'Authorization': 'Bearer $_indexerKey',
       });
 
       // convert response array into TransferEvent list
@@ -417,7 +432,7 @@ class WalletService {
           '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+        'Authorization': 'Bearer $_indexerKey',
       });
 
       // convert response array into TransferEvent list
@@ -624,19 +639,14 @@ class WalletService {
       );
 
       // set the appropriate gas fees based on network
-      final fees = await _ethClient.getGasInEIP1559();
-      if (fees.isEmpty) {
+      // final fees = await _ethClient.getGasInEIP1559();
+      final fees = await _gasPriceEstimator.estimate;
+      if (fees == null) {
         throw Exception('unable to estimate fees');
       }
 
-      final fee = fees.first;
-
-      // ensure we avoid errors by increasing the gas fees
-      final manualFeeIncrease = BigInt.from(1);
-
-      userop.maxPriorityFeePerGas =
-          fee.maxPriorityFeePerGas * manualFeeIncrease;
-      userop.maxFeePerGas = fee.maxFeePerGas * manualFeeIncrease;
+      userop.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
+      userop.maxFeePerGas = fees.maxFeePerGas;
 
       // submit the user op to the paymaster in order to receive information to complete the user op
       final (paymasterData, paymasterErr) = await _getPaymasterData(
@@ -718,7 +728,7 @@ class WalletService {
       final response = await _indexer.post(
         url: url,
         headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': cred.address.hexEip55,
         },
@@ -767,7 +777,7 @@ class WalletService {
       await _indexer.patch(
         url: url,
         headers: {
-          'Authorization': 'Bearer ${dotenv.get('INDEXER_KEY')}',
+          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': cred.address.hexEip55,
         },
