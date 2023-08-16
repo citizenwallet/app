@@ -7,7 +7,6 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';

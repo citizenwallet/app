@@ -40,23 +40,23 @@ class WalletService {
 
   late String _indexerKey;
 
-  late final String _url;
-  late final String _wsurl;
+  late String _url;
+  late String _wsurl;
   late Web3Client _ethClient;
 
-  late final String ipfsUrl;
-  late final APIService _ipfs;
-  late final APIService _indexer;
-  late final APIService _indexerIPFS;
+  late String ipfsUrl;
+  late APIService _ipfs;
+  late APIService _indexer;
+  late APIService _indexerIPFS;
 
-  late final APIService _rpc;
-  late final APIService _bundlerRPC;
-  late final APIService _paymasterRPC;
-  late final String _paymasterType;
+  late APIService _rpc;
+  late APIService _bundlerRPC;
+  late APIService _paymasterRPC;
+  late String _paymasterType;
 
-  late final EIP1559GasPriceEstimator _gasPriceEstimator;
+  late EIP1559GasPriceEstimator _gasPriceEstimator;
 
-  late final Map<String, String> erc4337Headers;
+  late Map<String, String> erc4337Headers;
 
   WalletService._internal() {
     _client = Client();
