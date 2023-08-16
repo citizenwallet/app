@@ -162,7 +162,7 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
-      profile.username = _state.usernameController.value.text;
+      profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
@@ -222,7 +222,7 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
-      profile.username = _state.usernameController.value.text;
+      profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
       profile.image = _state.image;
