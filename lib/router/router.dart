@@ -164,9 +164,6 @@ GoRouter createWebRouter(
               path: '/wallet/:qr',
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
-                print(state.uri.queryParameters);
-                print(state.uri.toString());
-                print(Uri.base.host);
                 String alias = Uri.base.host.split('.').first;
                 if (Uri.base.host.split('.').length >= 4) {
                   alias += '.${Uri.base.host.split('.')[1]}';
