@@ -177,7 +177,12 @@ class EditProfileModalState extends State<EditProfileModal> {
     final descriptionEditText =
         context.select((ProfileState state) => state.descriptionEdit);
 
-    final isInvalid = usernameError || nameError;
+    final noImage = (image == '' && editingImage == null);
+    final isInvalid = usernameError ||
+        usernameController.value.text == '' ||
+        nameError ||
+        nameController.value.text == '' ||
+        noImage;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -324,7 +329,9 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "This username is already taken.",
+                                    usernameController.value.text == ''
+                                        ? "Please pick a username."
+                                        : "This username is already taken.",
                                     style: TextStyle(
                                       color: ThemeColors.danger
                                           .resolveFrom(context),
