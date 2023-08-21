@@ -179,8 +179,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic.pauseFetching();
     _profilesLogic.pause();
 
-    final toRedeem =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -191,12 +190,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
-
-    if (toRedeem == null) {
-      return;
-    }
-
-    await _voucherLogic.returnVoucher(toRedeem);
 
     navigator.go('/wallet/${widget.encoded}');
   }

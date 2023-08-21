@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -65,8 +65,14 @@ class VoucherReadModalState extends State<VoucherReadModal>
     GoRouter.of(context).pop();
   }
 
-  void handleRedeem() {
-    GoRouter.of(context).pop(widget.address);
+  void handleRedeem() async {
+    final navigator = GoRouter.of(context);
+
+    _logic.returnVoucher(widget.address);
+
+    await delay(const Duration(milliseconds: 1000));
+
+    navigator.pop();
   }
 
   @override
@@ -81,6 +87,8 @@ class VoucherReadModalState extends State<VoucherReadModal>
         context.select((VoucherState state) => state.viewingVoucher);
     final viewLoading =
         context.select((VoucherState state) => state.viewLoading);
+    final returnLoading =
+        context.select((VoucherState state) => state.returnLoading);
 
     final viewingVoucherLink =
         context.select((VoucherState state) => state.viewingVoucherLink);
@@ -185,7 +193,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
                             child: Column(
                               children: [
                                 const SizedBox(height: 10),
-                                if (!viewLoading)
+                                if (!viewLoading && !returnLoading)
                                   Button(
                                     text: 'Redeem',
                                     suffix: Row(
@@ -203,7 +211,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                     minWidth: 200,
                                     maxWidth: 200,
                                   ),
-                                if (viewLoading)
+                                if (viewLoading || returnLoading)
                                   CupertinoActivityIndicator(
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),

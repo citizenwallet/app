@@ -49,7 +49,7 @@ class VoucherRowState extends State<VoucherRow> {
     final size = widget.size;
     final onTap = widget.onTap;
 
-    final isRedeemed = voucher.balance == '0.0';
+    final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
     return Container(
       decoration: BoxDecoration(
