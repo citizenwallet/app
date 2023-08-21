@@ -49,7 +49,7 @@ class Voucher {
 
     final encodedParams = compress(params);
 
-    String link = '$appLink/#/voucher/$encoded?params=$encodedParams';
+    String link = '$appLink?voucher=$encoded&params=$encodedParams';
 
     return link;
   }
@@ -147,6 +147,33 @@ class VoucherState with ChangeNotifier {
     shareLink = '';
     shareReady = false;
     if (notify) notifyListeners();
+  }
+
+  // reading
+
+  Voucher? readVoucher;
+
+  bool readLoading = false;
+  bool readError = false;
+
+  void readVoucherRequest() {
+    readLoading = true;
+    readError = false;
+    notifyListeners();
+  }
+
+  void readVoucherSuccess(Voucher voucher) {
+    readVoucher = voucher;
+
+    readLoading = false;
+    readError = false;
+    notifyListeners();
+  }
+
+  void readVoucherError() {
+    readLoading = false;
+    readError = true;
+    notifyListeners();
   }
 
   // viewing

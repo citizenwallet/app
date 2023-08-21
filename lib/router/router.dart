@@ -31,11 +31,17 @@ GoRouter createRouter(
       observers: observers,
       routes: [
         GoRoute(
-          name: 'Landing',
-          path: '/',
-          parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const LandingScreen(),
-        ),
+            name: 'Landing',
+            path: '/',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) {
+              final uri = Uri.parse(state.uri.fragment);
+
+              return LandingScreen(
+                voucher: uri.queryParameters['voucher'],
+                voucherParams: uri.queryParameters['params'],
+              );
+            }),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
           builder: (context, state, child) => RouterShell(
@@ -53,6 +59,8 @@ GoRouter createRouter(
                 child: WalletScreen(
                   state.pathParameters['address'],
                   wallet,
+                  voucher: state.uri.queryParameters['voucher'],
+                  voucherParams: state.uri.queryParameters['params'],
                 ),
               ),
               routes: [
@@ -150,7 +158,10 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const WebLandingScreen(),
+          builder: (context, state) => WebLandingScreen(
+            voucher: state.uri.queryParameters['voucher'],
+            voucherParams: state.uri.queryParameters['params'],
+          ),
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
@@ -178,6 +189,8 @@ GoRouter createWebRouter(
                       state.pathParameters['qr'] ?? '',
                       wallet,
                       alias: alias,
+                      voucher: state.uri.queryParameters['voucher'],
+                      voucherParams: state.uri.queryParameters['params'],
                     ),
                   ),
                 );

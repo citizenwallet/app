@@ -18,6 +18,7 @@ import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/scanner/scanner.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -706,21 +707,22 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         maxWidth: 200,
                                       ),
                                       const SizedBox(height: 10),
-                                      CupertinoButton(
-                                        onPressed: handleCreateVoucher,
-                                        child: Text(
-                                          'Create Voucher',
-                                          style: TextStyle(
-                                            color: ThemeColors.text
-                                                .resolveFrom(context),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.normal,
-                                            decoration:
-                                                TextDecoration.underline,
+                                      if (!kIsWeb)
+                                        CupertinoButton(
+                                          onPressed: handleCreateVoucher,
+                                          child: Text(
+                                            'Create Voucher',
+                                            style: TextStyle(
+                                              color: ThemeColors.text
+                                                  .resolveFrom(context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.normal,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          textAlign: TextAlign.center,
                                         ),
-                                      ),
                                     ]
                                   : [
                                       SlideToComplete(

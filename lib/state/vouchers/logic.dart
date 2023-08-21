@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -17,8 +19,9 @@ import 'package:web3dart/web3dart.dart';
 
 class VoucherLogic extends WidgetsBindingObserver {
   final String password = dotenv.get('DB_VOUCHER_PASSWORD');
-  final String appLink = dotenv.get('APP_LINK');
+  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
 
+  final ConfigService _config = ConfigService();
   final DBService _db = DBService();
   final WalletService _wallet = WalletService();
   final SharingService _sharing = SharingService();
@@ -42,7 +45,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.resetCreate(notify: false);
   }
 
-  _loadVoucher(String address) async {
+  _loadVoucher() async {
     if (stopLoading) {
       return;
     }
@@ -59,7 +62,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         await _db.vouchers.updateBalance(addr, balance);
 
-        _state.updateVoucherBalance(address, balance);
+        _state.updateVoucherBalance(addr, balance);
         continue;
       } catch (exception) {
         //
@@ -107,6 +110,61 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.vouchersError();
   }
 
+  Future<String?> readVoucher(
+    String compressedVoucher,
+    String compressedVoucherParams, {
+    String salt = '',
+  }) async {
+    try {
+      _state.readVoucherRequest();
+
+      final jsonVoucher = decompress(compressedVoucher);
+      final voucherParams = decompress(compressedVoucherParams);
+
+      final uri = Uri(query: voucherParams);
+
+      final wallet = Wallet.fromJson(
+        jsonVoucher,
+        '$password$salt',
+      );
+
+      final credentials = wallet.privateKey;
+
+      final account =
+          await _wallet.getAccountAddress(credentials.address.hexEip55);
+
+      final balance = await _wallet.getBalance(account.hexEip55);
+
+      final voucher = Voucher(
+        address: account.hexEip55,
+        token: uri.queryParameters['token'] ?? '',
+        name: uri.queryParameters['name'] ?? '',
+        balance: balance,
+        createdAt: DateTime.now(),
+        archived: true,
+      );
+
+      final dbvoucher = DBVoucher(
+        address: voucher.address,
+        token: voucher.token,
+        name: voucher.name,
+        balance: balance,
+        voucher: jsonVoucher,
+        salt: salt,
+      );
+
+      await _db.vouchers.insert(dbvoucher);
+
+      _state.readVoucherSuccess(voucher);
+      return voucher.address;
+    } catch (e) {
+      //
+    }
+
+    _state.readVoucherError();
+    return null;
+  }
+
   Future<void> openVoucher(String address) async {
     try {
       _state.openVoucherRequest();
@@ -128,6 +186,10 @@ class VoucherLogic extends WidgetsBindingObserver {
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
       );
+
+      final config = await _config.config;
+
+      final appLink = 'https://${config.community.alias}$appLinkSuffix';
 
       _state.openVoucherSuccess(
           voucher,
@@ -232,6 +294,10 @@ class VoucherLogic extends WidgetsBindingObserver {
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
       );
+
+      final config = await _config.config;
+
+      final appLink = 'https://${config.community.alias}$appLinkSuffix';
 
       _state.createVoucherSuccess(
           voucher,

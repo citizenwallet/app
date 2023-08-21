@@ -17,7 +17,14 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class LandingScreen extends StatefulWidget {
-  const LandingScreen({super.key});
+  final String? voucher;
+  final String? voucherParams;
+
+  const LandingScreen({
+    super.key,
+    this.voucher,
+    this.voucherParams,
+  });
 
   @override
   LandingScreenState createState() => LandingScreenState();
@@ -50,7 +57,17 @@ class LandingScreenState extends State<LandingScreen>
     if (address == null) {
       return;
     }
-    navigator.go('/wallet/$address');
+
+    print('voucher: ${widget.voucher}');
+    print('voucherParams: ${widget.voucherParams}');
+
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns
@@ -128,7 +145,13 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    navigator.go('/wallet/$address');
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   void handleImportWallet() async {
@@ -164,7 +187,13 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    navigator.go('/wallet/$address');
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   @override

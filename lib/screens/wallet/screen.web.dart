@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive_modal.dart';
 import 'package:citizenwallet/modals/wallet/send_modal.dart';
+import 'package:citizenwallet/modals/wallet/voucher_read_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -29,12 +31,16 @@ class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
   final WalletLogic wallet;
   final String alias;
+  final String? voucher;
+  final String? voucherParams;
 
   const BurnerWalletScreen(
     this.encoded,
     this.wallet, {
     super.key,
     this.alias = 'global',
+    this.voucher,
+    this.voucherParams,
   });
 
   @override
@@ -48,6 +54,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
+  late VoucherLogic _voucherLogic;
 
   late String _password;
 
@@ -58,6 +65,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
+    _voucherLogic = VoucherLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
     WidgetsBinding.instance.addObserver(_profilesLogic);
@@ -147,6 +155,50 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       onLoad(retry: true);
       return;
     }
+
+    if (widget.voucher != null && widget.voucherParams != null) {
+      await handleLoadFromVoucher();
+    }
+  }
+
+  Future<void> handleLoadFromVoucher() async {
+    final voucher = widget.voucher;
+    final voucherParams = widget.voucherParams;
+
+    if (voucher == null || voucherParams == null) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    final address = await _voucherLogic.readVoucher(voucher, voucherParams);
+    if (address == null) {
+      return;
+    }
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+
+    final toRedeem =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => VoucherReadModal(
+        address: address,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+
+    if (toRedeem == null) {
+      return;
+    }
+
+    await _voucherLogic.returnVoucher(toRedeem);
+
+    navigator.go('/wallet/${widget.encoded}');
   }
 
   void handleFailedTransaction(String id) async {

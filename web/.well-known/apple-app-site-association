@@ -1,0 +1,24 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "4MS4Y34UMJ.xyz.citizenwallet.wallet",
+                "components": [
+                    {
+                        "/": "",
+                        "comment": "Matches the root URL"
+                    },
+                    {
+                        "#": "/*",
+                        "comment": "Matches any URL with hashes"
+                    },
+                    {
+                        "?": "*",
+                        "comment": "Matches any URL with query parameters"
+                    }
+                ]
+            }
+        ]
+    }
+}

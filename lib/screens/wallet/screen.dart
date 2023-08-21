@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive_modal.dart';
 import 'package:citizenwallet/modals/wallet/send_modal.dart';
+import 'package:citizenwallet/modals/wallet/voucher_read_modal.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -19,8 +20,16 @@ class WalletScreen extends StatefulWidget {
   final String title = 'Wallet';
   final WalletLogic wallet;
   final String? address;
+  final String? voucher;
+  final String? voucherParams;
 
-  const WalletScreen(this.address, this.wallet, {super.key});
+  const WalletScreen(
+    this.address,
+    this.wallet, {
+    this.voucher,
+    this.voucherParams,
+    super.key,
+  });
 
   @override
   WalletScreenState createState() => WalletScreenState();
@@ -100,6 +109,50 @@ class WalletScreenState extends State<WalletScreen> {
       await _logic.loadTransactions();
       await _voucherLogic.fetchVouchers(_logic.token);
     });
+
+    if (widget.voucher != null && widget.voucherParams != null) {
+      await handleLoadFromVoucher();
+    }
+  }
+
+  Future<void> handleLoadFromVoucher() async {
+    final voucher = widget.voucher;
+    final voucherParams = widget.voucherParams;
+
+    if (voucher == null || voucherParams == null) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    final address = await _voucherLogic.readVoucher(voucher, voucherParams);
+    if (address == null) {
+      return;
+    }
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+
+    final toRedeem =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => VoucherReadModal(
+        address: address,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+
+    if (toRedeem == null) {
+      return;
+    }
+
+    await _voucherLogic.returnVoucher(toRedeem);
+
+    navigator.go('/wallet/${widget.address}');
   }
 
   void handleFailedTransaction(String id) async {

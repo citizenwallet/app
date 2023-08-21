@@ -121,7 +121,7 @@ class WalletService {
     _gasPriceEstimator = EIP1559GasPriceEstimator(_rpc, _ethClient);
 
     erc4337Headers = {};
-    if (!kIsWeb) {
+    if (!kIsWeb || kDebugMode) {
       // on native, we need to set the origin header
       erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
     }
