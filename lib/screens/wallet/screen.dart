@@ -107,7 +107,7 @@ class WalletScreenState extends State<WalletScreen> {
     await _logic.openWallet(widget.address!, (bool hasChanged) async {
       if (hasChanged) _profileLogic.loadProfile();
       await _logic.loadTransactions();
-      await _voucherLogic.fetchVouchers(_logic.token);
+      await _voucherLogic.fetchVouchers();
     });
 
     if (widget.voucher != null && widget.voucherParams != null) {

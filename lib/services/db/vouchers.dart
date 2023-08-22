@@ -5,31 +5,34 @@ import 'package:sqflite/sqlite_api.dart';
 
 class DBVoucher {
   final String address;
-  final String token;
+  final String alias;
   final String name;
   final String balance;
   final String voucher;
   final String salt;
+  final String creator;
   final bool archived;
   DateTime createdAt = DateTime.now();
 
   DBVoucher({
     required this.address,
-    required this.token,
+    required this.alias,
     required this.name,
     required this.balance,
     required this.voucher,
     required this.salt,
+    required this.creator,
     this.archived = false,
   });
 
   DBVoucher.read({
     required this.address,
-    required this.token,
+    required this.alias,
     required this.name,
     required this.balance,
     required this.voucher,
     required this.salt,
+    required this.creator,
     required this.createdAt,
     required this.archived,
   });
@@ -37,11 +40,12 @@ class DBVoucher {
   Map<String, dynamic> toMap() {
     return {
       'address': address,
-      'token': token,
+      'alias': alias,
       'name': name,
       'balance': balance,
       'voucher': voucher,
       'salt': salt,
+      'creator': creator,
       'createdAt': createdAt.toIso8601String(),
       'archived': archived ? 1 : 0,
     };
@@ -50,11 +54,12 @@ class DBVoucher {
   factory DBVoucher.fromMap(Map<String, dynamic> map) {
     return DBVoucher.read(
       address: map['address'],
-      token: map['token'],
+      alias: map['alias'],
       name: map['name'],
       balance: map['balance'],
       voucher: map['voucher'],
       salt: map['salt'],
+      creator: map['creator'],
       createdAt: DateTime.parse(map['createdAt']),
       archived: map['archived'] == 1,
     );
@@ -75,11 +80,12 @@ class VouchersTable extends DBTable {
   String get createQuery => '''
   CREATE TABLE $name (
     address TEXT PRIMARY KEY,
-    token TEXT NOT NULL,
+    alias TEXT NOT NULL,
     name TEXT NOT NULL,
     balance TEXT NOT NULL,
     voucher TEXT NOT NULL UNIQUE,
     salt TEXT NOT NULL,
+    creator TEXT NOT NULL DEFAULT '',
     createdAt TEXT NOT NULL,
     archived INTEGER DEFAULT 0
   )
@@ -91,7 +97,7 @@ class VouchersTable extends DBTable {
     await db.execute(createQuery);
 
     await db.execute('''
-        CREATE INDEX idx_${name}_token ON $name (token)
+        CREATE INDEX idx_${name}_alias ON $name (alias)
       ''');
 
     await db.execute('''
@@ -123,6 +129,25 @@ class VouchersTable extends DBTable {
         '''
           CREATE INDEX idx_${name}_name ON $name (name)
         ''',
+      ],
+      4: [
+        '''
+          ALTER TABLE $name ADD COLUMN creator TEXT NOT NULL DEFAULT ''
+        ''',
+      ],
+      5: [
+        '''
+          ALTER TABLE $name ADD COLUMN alias TEXT NOT NULL DEFAULT 'global'
+        ''',
+        '''
+          CREATE INDEX idx_${name}_alias ON $name (alias)
+        ''',
+        '''
+          DROP INDEX idx_${name}_token
+        ''',
+        '''
+          ALTER TABLE $name DROP COLUMN token
+        '''
       ],
     };
 
@@ -164,10 +189,10 @@ class VouchersTable extends DBTable {
     });
   }
 
-  // Retrieves all vouchers from the table by token
-  Future<List<DBVoucher>> getAllByToken(String token) async {
+  // Retrieves all vouchers from the table by alias
+  Future<List<DBVoucher>> getAllByAlias(String token) async {
     List<Map<String, dynamic>> maps = await db
-        .query(name, columns: null, where: 'token = ?', whereArgs: [token]);
+        .query(name, columns: null, where: 'alias = ?', whereArgs: [token]);
 
     return List.generate(maps.length, (i) {
       return DBVoucher.fromMap(maps[i]);

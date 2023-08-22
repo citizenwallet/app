@@ -68,7 +68,7 @@ class DBService {
 
         return;
       },
-      version: 3,
+      version: 5,
     );
 
     return db;

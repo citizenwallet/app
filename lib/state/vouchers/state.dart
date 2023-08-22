@@ -17,17 +17,19 @@ enum VoucherCreationState {
 
 class Voucher {
   final String address;
-  final String token;
+  final String alias;
   final String name;
   String balance;
+  final String creator;
   final DateTime createdAt;
   bool archived;
 
   Voucher({
     required this.address,
-    required this.token,
+    required this.alias,
     this.name = '',
     required this.balance,
+    required this.creator,
     required this.createdAt,
     required this.archived,
   });
@@ -36,12 +38,9 @@ class Voucher {
   String get formattedAddress => formatLongText(address);
 
   String getLink(String appLink, String symbol, String voucher) {
-    final doubleAmount = balance.replaceAll(',', '.');
-    final parsedAmount = double.parse(doubleAmount) / 1000;
-
     final encoded = compress(voucher);
 
-    String params = 'token=$token&balance=$parsedAmount&symbol=$symbol';
+    String params = 'alias=$alias&creator=$creator';
 
     if (name.isNotEmpty) {
       params += '&name=$name';

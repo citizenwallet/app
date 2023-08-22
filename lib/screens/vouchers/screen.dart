@@ -57,7 +57,7 @@ class VouchersScreenState extends State<VouchersScreen> {
   }
 
   void onLoad() async {
-    await _logic.fetchVouchers(_walletLogic.token);
+    await _logic.fetchVouchers();
 
     // _scrollController.animateTo(
     //   60,

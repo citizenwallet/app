@@ -83,19 +83,22 @@ class VoucherLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<void> fetchVouchers(String token) async {
+  Future<void> fetchVouchers() async {
     try {
       _state.vouchersRequest();
 
-      final vouchers = await _db.vouchers.getAllByToken(token);
+      final config = await _config.config;
+
+      final vouchers = await _db.vouchers.getAllByAlias(config.community.alias);
 
       _state.vouchersSuccess(vouchers
           .map(
             (e) => Voucher(
               address: e.address,
-              token: e.token,
+              alias: e.alias,
               name: e.name,
               balance: e.balance,
+              creator: e.creator,
               createdAt: e.createdAt,
               archived: e.archived,
             ),
@@ -137,20 +140,22 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final voucher = Voucher(
         address: account.hexEip55,
-        token: uri.queryParameters['token'] ?? '',
+        alias: uri.queryParameters['alias'] ?? '',
         name: uri.queryParameters['name'] ?? '',
         balance: balance,
+        creator: uri.queryParameters['creator'] ?? '',
         createdAt: DateTime.now(),
         archived: true,
       );
 
       final dbvoucher = DBVoucher(
         address: voucher.address,
-        token: voucher.token,
+        alias: voucher.alias,
         name: voucher.name,
         balance: balance,
         voucher: jsonVoucher,
         salt: salt,
+        creator: voucher.creator,
       );
 
       await _db.vouchers.insert(dbvoucher);
@@ -165,7 +170,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<void> openVoucher(String address) async {
+  Future<Voucher?> openVoucher(String address) async {
     try {
       _state.openVoucherRequest();
 
@@ -180,9 +185,10 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final voucher = Voucher(
         address: dbvoucher.address,
-        token: dbvoucher.token,
+        alias: dbvoucher.alias,
         name: dbvoucher.name,
         balance: balance,
+        creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
       );
@@ -199,12 +205,13 @@ class VoucherLogic extends WidgetsBindingObserver {
             dbvoucher.voucher,
           ));
 
-      return;
+      return voucher;
     } catch (exception) {
       //
     }
 
     _state.openVoucherError();
+    return null;
   }
 
   void clearOpenVoucher() {
@@ -226,7 +233,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         credentials,
         '$password$salt',
         Random.secure(),
-        scryptN: 16,
+        scryptN: 2,
       );
 
       final doubleAmount = balance.replaceAll(',', '.');
@@ -235,13 +242,16 @@ class VoucherLogic extends WidgetsBindingObserver {
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
 
+      final config = await _config.config;
+
       final dbvoucher = DBVoucher(
         address: account.hexEip55,
-        token: _wallet.erc20Address,
+        alias: config.community.alias,
         name: name ?? 'Voucher for $balance $symbol',
         balance: '$parsedAmount',
         voucher: wallet.toJson(),
         salt: salt,
+        creator: _wallet.account.hexEip55,
       );
 
       await _db.vouchers.insert(dbvoucher);
@@ -288,14 +298,13 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final voucher = Voucher(
         address: dbvoucher.address,
-        token: dbvoucher.token,
+        alias: dbvoucher.alias,
         name: dbvoucher.name,
         balance: dbvoucher.balance,
+        creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
       );
-
-      final config = await _config.config;
 
       final appLink = 'https://${config.community.alias}$appLinkSuffix';
 

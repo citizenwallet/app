@@ -1,3 +1,5 @@
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -5,9 +7,10 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
@@ -26,20 +29,14 @@ class VoucherReadModal extends StatefulWidget {
 class VoucherReadModalState extends State<VoucherReadModal>
     with SingleTickerProviderStateMixin {
   late VoucherLogic _logic;
-
-  late AnimationController _controller;
+  late ProfilesLogic _profilesLogic;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      value: 0,
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
     _logic = VoucherLogic(context);
+    _profilesLogic = ProfilesLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -56,9 +53,13 @@ class VoucherReadModalState extends State<VoucherReadModal>
   }
 
   void onLoad() async {
-    await _logic.openVoucher(widget.address);
+    final voucher = await _logic.openVoucher(widget.address);
 
-    _controller.animateTo(1);
+    if (voucher == null) {
+      return;
+    }
+
+    _profilesLogic.loadProfile(voucher.creator);
   }
 
   void handleDismiss(BuildContext context) {
@@ -93,6 +94,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
     final viewingVoucherLink =
         context.select((VoucherState state) => state.viewingVoucherLink);
 
+    final profiles = context.watch<ProfilesState>().profiles;
+
+    final profile = profiles[voucher?.creator ?? ''];
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -105,7 +110,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: 'Voucher',
+                  title: '',
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -128,7 +133,16 @@ class VoucherReadModalState extends State<VoucherReadModal>
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          const SizedBox(height: 20),
+                          Text(
+                            voucher?.name ?? '',
+                            style: TextStyle(
+                              color: ThemeColors.text.resolveFrom(context),
+                              fontSize: 28,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
                           SizedBox(
                             height: 300,
                             width: 300,
@@ -137,27 +151,33 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                   ? CupertinoActivityIndicator(
                                       color: ThemeColors.subtle
                                           .resolveFrom(context))
-                                  : Lottie.asset(
-                                      'assets/lottie/gift-voucher.json',
-                                      controller: _controller,
-                                      height: 300,
-                                      width: 300,
-                                      animate: true,
-                                      repeat: false,
+                                  : SvgPicture.asset(
+                                      'assets/icons/voucher.svg',
+                                      semanticsLabel: 'voucher icon',
+                                      height: 200,
+                                      width: 200,
                                     ),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Text(
-                            voucher?.name ?? '',
-                            style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
+                          if (profile != null) ...[
+                            const SizedBox(height: 30),
+                            Text(
+                              'Created by',
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 18,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 30),
+                            const SizedBox(height: 10),
+                            ProfileBadge(
+                              profile: profile.profile,
+                              loading: profile.loading,
+                              size: 120,
+                            ),
+                          ],
+                          const SizedBox(height: 50),
                           if (!viewLoading &&
                               voucher != null &&
                               viewingVoucherLink != null)
