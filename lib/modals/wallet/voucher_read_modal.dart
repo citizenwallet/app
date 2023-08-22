@@ -98,6 +98,8 @@ class VoucherReadModalState extends State<VoucherReadModal>
 
     final profile = profiles[voucher?.creator ?? ''];
 
+    final emptyBalance = (double.tryParse(voucher?.balance ?? '0') ?? 0) <= 0;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -182,7 +184,9 @@ class VoucherReadModalState extends State<VoucherReadModal>
                               voucher != null &&
                               viewingVoucherLink != null)
                             Text(
-                              'Redeem this voucher to your account.',
+                              emptyBalance
+                                  ? 'This voucher has already been redeemed.'
+                                  : 'Redeem this voucher to your account.',
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 18,
@@ -195,7 +199,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
                         ],
                       ),
                     ),
-                    if (voucher != null)
+                    if (voucher != null && !emptyBalance)
                       Positioned(
                         bottom: 0,
                         width: width,
