@@ -109,7 +109,7 @@ class VoucherViewModalState extends State<VoucherViewModal>
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: 'Voucher',
+                  title: '',
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -132,7 +132,16 @@ class VoucherViewModalState extends State<VoucherViewModal>
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          const SizedBox(height: 20),
+                          Text(
+                            voucher?.name ?? 'Voucher',
+                            style: TextStyle(
+                              color: ThemeColors.text.resolveFrom(context),
+                              fontSize: 34,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 30),
                           SizedBox(
                             height: 300,
                             width: 300,
@@ -160,16 +169,6 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                       ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            voucher?.name ?? '',
-                            style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 30),
                           if (!viewLoading &&
