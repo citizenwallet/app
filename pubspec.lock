@@ -181,10 +181,10 @@ packages:
     dependency: "direct main"
     description:
       name: dartsv
-      sha256: "83e99ef33bcfa5e05ec23551431993bf97dead1f8409926db5eeb327b4d9be5d"
+      sha256: e70378acb38528ef86929fc193bb679445bdc03e059d72281ba4fb8fce12240e
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   dev_test:
     dependency: transitive
     description:
@@ -388,10 +388,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: b3cadd2cd59a4103fd5f6bc572ca75111264698784e927aa471921c3477d5475
+      sha256: "2aa884667eeda3a1c461f31e72af1f77984ab0f29450d8fb12ec1f7bc53eea14"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.0"
+    version: "10.1.0"
   gql:
     dependency: transitive
     description:
