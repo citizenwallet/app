@@ -14,7 +14,7 @@ dependencies:
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
-  sqflite: ^2.2.6
+  sqflite: ^2.3.0
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: ^0.18.0
@@ -52,8 +52,8 @@ dependencies:
   username_gen: ^1.0.4
   file_picker: ^5.3.3
   universal_io: ^2.2.2
-  sqlite3: ^2.1.0
   share_plus: ^7.1.0
+  sqflite_common: ^2.5.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0

@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite_common/sqflite.dart';
 
 // a class representing a transaction in the db
 class DBTransaction {

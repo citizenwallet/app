@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite_common/sqflite.dart';
 
 class DBVoucher {
   final String address;

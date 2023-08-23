@@ -5,7 +5,7 @@ import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqflite.dart';
 
 abstract class DBTable {
   final Database _db;
@@ -41,8 +41,7 @@ class DBService {
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
-    final db = await openDatabase(
-      path,
+    final options = OpenDatabaseOptions(
       onConfigure: (db) async {
         // instantiate a contacts table
         contacts = ContactTable(db);
@@ -71,13 +70,28 @@ class DBService {
       version: 5,
     );
 
+    final db = await databaseFactory.openDatabase(
+      path,
+      options: options,
+    );
+
     return db;
   }
 
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
-      databaseFactory = databaseFactoryFfiWeb;
+      final swOptions = SqfliteFfiWebOptions(
+        inMemory: false,
+        sharedWorkerUri: Uri.parse('sqflite_sw.js'),
+        sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        // ignore: invalid_use_of_visible_for_testing_member
+        forceAsBasicWorker: false,
+        indexedDbName: '$name.db',
+      );
+
+      databaseFactory = createDatabaseFactoryFfiWeb(options: swOptions);
+      // databaseFactory = databaseFactoryFfiWeb;
       // path = 'my_web_web.db';
     }
 
