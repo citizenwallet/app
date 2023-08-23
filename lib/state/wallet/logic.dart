@@ -107,7 +107,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // on web, use host
       _config.initWeb(
-        alias == 'localhost' ? 'global' : alias,
+        alias == 'localhost' ? 'app' : alias,
       );
 
       final config = await _config.config;
@@ -200,12 +200,12 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      const alias = 'global';
+      const alias = 'app';
 
       // on native, use env
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
-        alias == 'localhost' ? 'global' : alias,
+        alias == 'localhost' ? 'app' : alias,
       );
 
       final config = await _config.config;

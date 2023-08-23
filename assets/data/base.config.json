@@ -1,0 +1,41 @@
+{
+    "community": {
+        "name": "USD Base Coin",
+        "description": "USD Base Coin (USDbC) is a bridged version of USDC which provides developers with a stablecoin solution for Base at the time of mainnet launch. This bridged contract allows users to move USDC from Ethereum seamlessly to Base. Separate and distinct naming helps make it clear to developers and users that this asset is bridged to Base.",
+        "url": "https://help.coinbase.com/en/coinbase/getting-started/crypto-education/usd-base-coin",
+        "alias": "usdbc.base"
+    },
+    "scan": {
+        "url": "https://basescan.org",
+        "name": "Base Explorer"
+    },
+    "indexer": {
+        "url": "https://indexer-base.internal.citizenwallet.xyz",
+        "ipfs_url": "https://indexer-base.internal.citizenwallet.xyz",
+        "key": "x"
+    },
+    "ipfs": {
+        "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+        "url": "https://nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e",
+        "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
+    },
+    "erc4337": {
+        "rpc_url": "https://api.stackup.sh/v1/node/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
+        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
+        "paymaster_type": "payg"
+    },
+    "token": {
+        "standard": "erc20",
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "name": "USD Base Coin",
+        "symbol": "USDbC",
+        "decimals": 2
+    },
+    "profile": {
+        "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986"
+    }
+}
