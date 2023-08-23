@@ -156,6 +156,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         voucher: jsonVoucher,
         salt: salt,
         creator: voucher.creator,
+        archived: voucher.archived,
       );
 
       await _db.vouchers.insert(dbvoucher);

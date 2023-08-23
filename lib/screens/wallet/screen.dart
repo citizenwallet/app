@@ -323,8 +323,9 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.resume();
   }
 
-  void handleProfileLoad(String address) async {
-    await _profilesLogic.loadProfile(address);
+  void handleLoad(String address) async {
+    _profilesLogic.loadProfile(address);
+    _voucherLogic.updateVoucher(address);
   }
 
   @override
@@ -369,7 +370,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopyWalletQR: handleCopyAccount,
-                  handleProfileLoad: handleProfileLoad,
+                  handleLoad: handleLoad,
                 ),
           SafeArea(
             child: Header(

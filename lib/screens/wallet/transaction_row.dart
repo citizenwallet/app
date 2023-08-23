@@ -14,7 +14,7 @@ class TransactionRow extends StatefulWidget {
   final Map<String, ProfileItem> profiles;
   final Map<String, Voucher> vouchers;
   final void Function(String transactionId)? onTap;
-  final void Function(String address)? onLoadProfile;
+  final void Function(String address)? onLoad;
 
   const TransactionRow({
     super.key,
@@ -23,7 +23,7 @@ class TransactionRow extends StatefulWidget {
     required this.profiles,
     required this.vouchers,
     this.onTap,
-    this.onLoadProfile,
+    this.onLoad,
   });
 
   @override
@@ -47,7 +47,7 @@ class TransactionRowState extends State<TransactionRow> {
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
 
-    if (widget.onLoadProfile != null) widget.onLoadProfile!(address);
+    if (widget.onLoad != null) widget.onLoad!(address);
   }
 
   @override
@@ -147,7 +147,7 @@ class TransactionRowState extends State<TransactionRow> {
                           : Text(
                               voucher != null
                                   ? isIncoming
-                                      ? 'Voucher returned'
+                                      ? 'Voucher redeemed'
                                       : 'Voucher created'
                                   : profile != null
                                       ? profile.profile.name

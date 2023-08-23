@@ -26,7 +26,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function(String) handleFailedTransactionTap;
   final void Function() handleCopyWalletQR;
 
-  final void Function(String) handleProfileLoad;
+  final void Function(String) handleLoad;
 
   const WalletScrollView({
     Key? key,
@@ -37,7 +37,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
     required this.handleCopyWalletQR,
-    required this.handleProfileLoad,
+    required this.handleLoad,
   }) : super(key: key);
 
   @override
@@ -263,7 +263,7 @@ class WalletScrollView extends StatelessWidget {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: blockSending ? null : handleFailedTransactionTap,
-                    onLoadProfile: handleProfileLoad,
+                    onLoad: handleLoad,
                   ),
                 );
               },
@@ -332,7 +332,7 @@ class WalletScrollView extends StatelessWidget {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: handleTransactionTap,
-                    onLoadProfile: handleProfileLoad,
+                    onLoad: handleLoad,
                   ),
                 );
               },

@@ -399,8 +399,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.resume();
   }
 
-  void handleProfileLoad(String address) async {
-    await _profilesLogic.loadProfile(address);
+  void handleLoad(String address) async {
+    _profilesLogic.loadProfile(address);
+    _voucherLogic.updateVoucher(address);
   }
 
   void handleTestNav() async {
@@ -460,7 +461,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopyWalletQR: handleCopyAccount,
-                      handleProfileLoad: handleProfileLoad,
+                      handleLoad: handleLoad,
                     ),
               Header(
                 safePadding: safePadding,

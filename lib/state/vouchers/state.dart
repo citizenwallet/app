@@ -164,6 +164,13 @@ class VoucherState with ChangeNotifier {
   void readVoucherSuccess(Voucher voucher) {
     readVoucher = voucher;
 
+    final index = vouchers.indexWhere((v) => v.address == voucher.address);
+    if (index < 0) {
+      vouchers.add(voucher);
+    } else {
+      vouchers[index] = voucher;
+    }
+
     readLoading = false;
     readError = false;
     notifyListeners();
