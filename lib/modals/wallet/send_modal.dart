@@ -156,6 +156,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     debouncedAmountUpdate();
   }
 
+  void handleSetMaxAmount() {
+    _logic.setMaxAmount();
+  }
+
   void handleSelectProfile(ProfileV1? profile) {
     widget.profilesLogic.selectProfile(profile);
     FocusManager.instance.primaryFocus?.unfocus();
@@ -533,19 +537,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 2,
                                       ),
-                                      prefix: Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 0, 10, 0),
-                                          child: Text(
-                                            wallet?.symbol ?? '',
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
                                       decoration: invalidAmount ||
                                               transactionSendError
                                           ? BoxDecoration(
@@ -599,6 +590,32 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       onSubmitted: (_) {
                                         nameFocusNode.requestFocus();
                                       },
+                                      prefix: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 10, 0),
+                                          child: Text(
+                                            wallet?.symbol ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      suffix: Center(
+                                          child: CupertinoButton(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 10, 0),
+                                        onPressed: handleSetMaxAmount,
+                                        child: const Text(
+                                          'max',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )),
                                     ),
                                     if (_isScanning)
                                       GestureDetector(

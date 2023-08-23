@@ -964,6 +964,13 @@ class WalletLogic extends WidgetsBindingObserver {
     );
   }
 
+  void setMaxAmount() {
+    _amountController.text =
+        (double.parse(_state.wallet?.balance ?? '0.0') / 1000)
+            .toStringAsFixed(2);
+    updateAmount();
+  }
+
   void updateAddressFromHexCapture(String raw) async {
     try {
       _state.parseQRAddress();
