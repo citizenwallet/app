@@ -82,15 +82,14 @@ class DBService {
     if (kIsWeb) {
       // Change default factory on the web
       final swOptions = SqfliteFfiWebOptions(
-        inMemory: false,
-        sharedWorkerUri: Uri.parse('sqflite_sw.js'),
         sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
-        // ignore: invalid_use_of_visible_for_testing_member
-        forceAsBasicWorker: false,
         indexedDbName: '$name.db',
       );
 
-      databaseFactory = createDatabaseFactoryFfiWeb(options: swOptions);
+      final webContext = await sqfliteFfiWebLoadSqlite3Wasm(swOptions);
+
+      databaseFactory =
+          createDatabaseFactoryFfiWeb(options: webContext.options);
       // databaseFactory = databaseFactoryFfiWeb;
       // path = 'my_web_web.db';
     }

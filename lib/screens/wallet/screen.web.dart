@@ -151,6 +151,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       () async {
         _profileLogic.loadProfile();
         await _logic.loadTransactions();
+        await _voucherLogic.fetchVouchers();
       },
     );
 
