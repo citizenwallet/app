@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
 class SendModal extends StatefulWidget {
+  final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
 
   final String? id;
@@ -34,6 +35,7 @@ class SendModal extends StatefulWidget {
 
   const SendModal({
     Key? key,
+    required this.walletLogic,
     required this.profilesLogic,
     this.id,
     this.to,
@@ -68,7 +70,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _logic = WalletLogic(context);
+    _logic = widget.walletLogic;
 
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -231,6 +233,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       expand: true,
       topRadius: const Radius.circular(40),
       builder: (_) => PickeSenderModal(
+        walletLogic: _logic,
         profilesLogic: widget.profilesLogic,
         amount: _logic.amountController.value.text,
       ),

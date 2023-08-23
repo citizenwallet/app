@@ -45,6 +45,8 @@ class VoucherModalState extends State<VoucherModal>
 
     _logic = VoucherLogic(context);
 
+    WidgetsBinding.instance.addObserver(_logic);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
 
@@ -54,6 +56,8 @@ class VoucherModalState extends State<VoucherModal>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(_logic);
+
     _logic.dispose();
 
     super.dispose();

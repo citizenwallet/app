@@ -62,6 +62,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
+        walletLogic: widget.logic,
         profilesLogic: widget.profilesLogic,
         to: address,
       ),
@@ -96,6 +97,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       topRadius: const Radius.circular(40),
       useRootNavigator: true,
       builder: (_) => SendModal(
+        walletLogic: widget.logic,
         profilesLogic: widget.profilesLogic,
         to: address,
         amount: '${(double.tryParse(amount) ?? 0.0) / 1000}',

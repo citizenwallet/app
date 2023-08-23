@@ -69,6 +69,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     WidgetsBinding.instance.addObserver(_logic);
     WidgetsBinding.instance.addObserver(_profilesLogic);
+    WidgetsBinding.instance.addObserver(_voucherLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -83,8 +84,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void dispose() {
     WidgetsBinding.instance.removeObserver(_logic);
     WidgetsBinding.instance.removeObserver(_profilesLogic);
+    WidgetsBinding.instance.removeObserver(_voucherLogic);
 
     _profilesLogic.dispose();
+    _voucherLogic.dispose();
 
     _scrollController.removeListener(onScrollUpdate);
 
@@ -178,6 +181,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
@@ -190,6 +194,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
 
     navigator.go('/wallet/${widget.encoded}');
   }
@@ -197,6 +202,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void handleFailedTransaction(String id) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -236,6 +242,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (option == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
+      _voucherLogic.resume();
       return;
     }
 
@@ -253,6 +260,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         expand: true,
         useRootNavigator: true,
         builder: (_) => SendModal(
+          walletLogic: _logic,
           profilesLogic: _profilesLogic,
           id: id,
         ),
@@ -265,6 +273,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   Future<void> handleRefresh() async {
@@ -278,12 +287,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     final wallet = context.read<WalletState>().wallet;
 
     if (wallet == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
+      _voucherLogic.resume();
       return;
     }
 
@@ -298,11 +309,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleDisplayWalletExport(BuildContext context) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -317,6 +330,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleCopyWalletPrivateKey() {
@@ -336,6 +350,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -348,6 +363,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleSendModal() async {
@@ -355,18 +371,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
       builder: (_) => SendModal(
+        walletLogic: _logic,
         profilesLogic: _profilesLogic,
       ),
     );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleCopyWalletQR() {
@@ -386,6 +405,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await GoRouter.of(context).push(
       '/wallet/${widget.encoded}/transactions/$transactionId',
@@ -397,6 +417,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleLoad(String address) async {

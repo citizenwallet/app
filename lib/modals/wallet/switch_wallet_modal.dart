@@ -6,6 +6,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
@@ -48,6 +49,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     _logic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
 
+    WidgetsBinding.instance.addObserver(_profilesLogic);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // initial requests go here
 
@@ -60,10 +63,17 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
     if (_operation != null) {
       _operation!.cancel();
     }
+
+    WidgetsBinding.instance.removeObserver(_profilesLogic);
+
+    _profilesLogic.dispose();
+
     super.dispose();
   }
 
   void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
     _operation = await widget.logic.loadDBWallets();
   }
 

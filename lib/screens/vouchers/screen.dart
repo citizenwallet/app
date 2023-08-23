@@ -2,7 +2,6 @@ import 'package:citizenwallet/modals/wallet/voucher_view_modal.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
@@ -28,14 +27,12 @@ class VouchersScreenState extends State<VouchersScreen> {
   final ScrollController _scrollController = ScrollController();
 
   late VoucherLogic _logic;
-  late WalletLogic _walletLogic;
 
   @override
   void initState() {
     super.initState();
 
     _logic = VoucherLogic(context);
-    _walletLogic = WalletLogic(context);
 
     WidgetsBinding.instance.addObserver(_logic);
 
@@ -58,12 +55,6 @@ class VouchersScreenState extends State<VouchersScreen> {
 
   void onLoad() async {
     await _logic.fetchVouchers();
-
-    // _scrollController.animateTo(
-    //   60,
-    //   duration: const Duration(milliseconds: 250),
-    //   curve: Curves.easeInOut,
-    // );
   }
 
   void handleMore(

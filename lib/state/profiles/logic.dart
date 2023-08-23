@@ -26,6 +26,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     debouncedLoad = debounce(
       _loadProfile,
       const Duration(milliseconds: 500),
+      leading: true,
     );
 
     debouncedSearchProfile = debounce(

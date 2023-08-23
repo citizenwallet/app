@@ -52,6 +52,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic = VoucherLogic(context);
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
+    WidgetsBinding.instance.addObserver(_voucherLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -64,11 +65,15 @@ class WalletScreenState extends State<WalletScreen> {
 
   @override
   void dispose() {
+    _logic.pauseFetching();
+
     _scrollController.removeListener(onScrollUpdate);
 
     WidgetsBinding.instance.removeObserver(_profilesLogic);
+    WidgetsBinding.instance.removeObserver(_voucherLogic);
 
     _profilesLogic.dispose();
+    _voucherLogic.dispose();
 
     super.dispose();
   }
@@ -132,6 +137,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
@@ -144,6 +150,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
 
     navigator.go('/wallet/${widget.address}');
   }
@@ -151,6 +158,7 @@ class WalletScreenState extends State<WalletScreen> {
   void handleFailedTransaction(String id) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -190,6 +198,7 @@ class WalletScreenState extends State<WalletScreen> {
     if (option == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
+      _voucherLogic.resume();
       return;
     }
 
@@ -207,6 +216,7 @@ class WalletScreenState extends State<WalletScreen> {
         expand: true,
         useRootNavigator: true,
         builder: (_) => SendModal(
+          walletLogic: _logic,
           profilesLogic: _profilesLogic,
           id: id,
         ),
@@ -219,6 +229,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   Future<void> handleRefresh() async {
@@ -232,12 +243,14 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     final wallet = context.read<WalletState>().wallet;
 
     if (wallet == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
+      _voucherLogic.resume();
       return;
     }
 
@@ -253,6 +266,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleReceive() async {
@@ -260,6 +274,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -272,6 +287,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleSendModal() async {
@@ -279,18 +295,21 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
       builder: (_) => SendModal(
+        walletLogic: _logic,
         profilesLogic: _profilesLogic,
       ),
     );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleCopyWalletQR() {
@@ -310,6 +329,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.pauseFetching();
     _profilesLogic.pause();
+    _voucherLogic.pause();
 
     await GoRouter.of(context).push(
       '/wallet/${widget.address!}/transactions/$transactionId',
@@ -321,6 +341,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     _logic.resumeFetching();
     _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleLoad(String address) async {

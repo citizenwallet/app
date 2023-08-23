@@ -32,6 +32,8 @@ class ContactsScreenState extends State<ContactsScreen> {
 
     profilesLogic = ProfilesLogic(context);
 
+    WidgetsBinding.instance.addObserver(profilesLogic);
+
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -43,6 +45,8 @@ class ContactsScreenState extends State<ContactsScreen> {
   @override
   void dispose() {
     profilesLogic.dispose();
+
+    WidgetsBinding.instance.removeObserver(profilesLogic);
 
     super.dispose();
   }

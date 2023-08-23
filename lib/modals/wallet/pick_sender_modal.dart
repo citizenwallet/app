@@ -22,11 +22,13 @@ import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
 class PickeSenderModal extends StatefulWidget {
+  final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final String amount;
 
   const PickeSenderModal({
     Key? key,
+    required this.walletLogic,
     required this.profilesLogic,
     this.amount = '0.0',
   }) : super(key: key);
@@ -53,7 +55,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
   void initState() {
     super.initState();
 
-    _logic = WalletLogic(context);
+    _logic = widget.walletLogic;
 
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {

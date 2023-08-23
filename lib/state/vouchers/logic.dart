@@ -38,6 +38,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     debouncedLoad = debounce(
       _loadVoucher,
       const Duration(milliseconds: 250),
+      leading: true,
     );
   }
 
