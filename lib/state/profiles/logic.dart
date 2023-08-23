@@ -1,14 +1,18 @@
+import 'package:citizenwallet/services/db/contacts.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
+  final DBService _db = DBService();
   late ProfilesState _state;
-  final WalletService2 _wallet = WalletService2();
+  final WalletService _wallet = WalletService();
 
   late Debounce debouncedSearchProfile;
 
@@ -22,14 +26,46 @@ class ProfilesLogic extends WidgetsBindingObserver {
     debouncedLoad = debounce(
       _loadProfile,
       const Duration(milliseconds: 500),
+      leading: true,
     );
 
     debouncedSearchProfile = debounce(
       (String username) {
         _searchProfile(username);
       },
-      const Duration(milliseconds: 500),
+      const Duration(milliseconds: 250),
     );
+  }
+
+  Future<ProfileV1?> _loadCachedProfile(String addr) async {
+    try {
+      final cachedProfile = await ContactsCache().get(addr, () async {
+        final fetchedProfile = await _wallet.getProfile(addr);
+        if (fetchedProfile == null) {
+          return null;
+        }
+
+        return DBContact(
+          account: fetchedProfile.account,
+          username: fetchedProfile.username,
+          name: fetchedProfile.name,
+          description: fetchedProfile.description,
+          image: fetchedProfile.image,
+          imageMedium: fetchedProfile.imageMedium,
+          imageSmall: fetchedProfile.imageSmall,
+        );
+      });
+
+      if (cachedProfile != null) {
+        final profile = ProfileV1.fromMap(cachedProfile.toMap());
+
+        return profile;
+      }
+    } catch (exception) {
+      //
+    }
+
+    return null;
   }
 
   _loadProfile() async {
@@ -45,7 +81,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        final profile = await _wallet.getProfile(addr);
+        final profile = await _loadCachedProfile(addr);
 
         if (profile != null) {
           _state.isLoading(addr);
@@ -79,24 +115,30 @@ class ProfilesLogic extends WidgetsBindingObserver {
     try {
       final cleanValue = value.replaceFirst('@', '');
 
-      _state.isSearching(cleanValue);
-
-      final localUsername = _state.getLocalUsername(cleanValue);
-      if (localUsername != null) {
-        // no need to fetch if it is already stored locally
-        await delay(const Duration(milliseconds: 500));
-        _state.isSearchingSuccess(localUsername);
-        return;
-      }
+      _state.isSearching();
 
       final profile = cleanValue.startsWith('0x')
           ? await _wallet.getProfile(cleanValue)
           : await _wallet.getProfileByUsername(cleanValue);
-      if (profile == null) {
-        throw Exception('Profile not found');
-      }
 
-      _state.isSearchingSuccess(profile);
+      final results = await _db.contacts.search(cleanValue.toLowerCase());
+
+      _state.isSearchingSuccess(
+        profile,
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
+
+      if (profile != null) {
+        _db.contacts.insert(DBContact(
+          account: profile.account,
+          username: profile.username,
+          name: profile.name,
+          description: profile.description,
+          image: profile.image,
+          imageMedium: profile.imageMedium,
+          imageSmall: profile.imageSmall,
+        ));
+      }
       return;
     } catch (e) {
       //
@@ -107,12 +149,12 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<ProfileV1?> getProfile(String addr) async {
     try {
-      _state.isSearching(null);
+      _state.isSearching();
 
-      final profile = await _wallet.getProfile(addr);
+      final profile = await _loadCachedProfile(addr);
 
       if (profile != null) {
-        _state.isSearchingSuccess(profile);
+        _state.isSearchingSuccess(profile, []);
         _state.isSelected(null);
         return profile;
       }
@@ -125,8 +167,43 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<void> searchProfile(String username) async {
-    _state.isSearching(null);
+    _state.isSearching();
     debouncedSearchProfile([username]);
+  }
+
+  Future<void> allProfiles() async {
+    try {
+      _state.isSearching();
+
+      final results = await _db.contacts.getAll();
+
+      _state.isSearchingSuccess(
+        null,
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
+      return;
+    } catch (e) {
+      //
+    }
+
+    _state.isSearchingError();
+  }
+
+  Future<void> loadProfiles() async {
+    try {
+      _state.profileListRequest();
+
+      final results = await _db.contacts.getAll();
+
+      _state.profileListSuccess(
+        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
+      );
+      return;
+    } catch (e) {
+      //
+    }
+
+    _state.profileListFail();
   }
 
   void selectProfile(ProfileV1? profile) {
@@ -153,6 +230,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void dispose() {
     _state.clearSearch(notify: false);
+    _state.clearProfiles();
     debouncedSearchProfile.cancel();
     pause();
   }

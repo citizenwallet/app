@@ -31,7 +31,8 @@ class ProfileCircle extends StatelessWidget {
 
     final network = asset.startsWith('http');
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -76,10 +77,6 @@ class ProfileCircle extends StatelessWidget {
                         )
                   : Stack(
                       children: [
-                        PulsingContainer(
-                          height: size,
-                          width: size,
-                        ),
                         if (!network)
                           Image.asset(
                             asset,
@@ -96,7 +93,7 @@ class ProfileCircle extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           ),
-                        if (network)
+                        if (network) ...[
                           Image.network(
                             asset,
                             height: size,
@@ -120,6 +117,7 @@ class ProfileCircle extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           ),
+                        ]
                       ],
                     ),
             ),

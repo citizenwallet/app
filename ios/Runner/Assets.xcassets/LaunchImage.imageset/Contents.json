@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "citizen_wallet_logo_macos1024 2.png",
+      "filename" : "logo 2.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "citizen_wallet_logo_macos1024 1.png",
+      "filename" : "logo 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "citizen_wallet_logo_macos1024.png",
+      "filename" : "logo.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

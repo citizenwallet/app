@@ -2,26 +2,28 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
   final CWWallet wallet;
   final Map<String, ProfileItem> profiles;
+  final Map<String, Voucher> vouchers;
   final void Function(String transactionId)? onTap;
-  final void Function(String address)? onLoadProfile;
+  final void Function(String address)? onLoad;
 
   const TransactionRow({
     super.key,
     required this.transaction,
     required this.wallet,
     required this.profiles,
+    required this.vouchers,
     this.onTap,
-    this.onLoadProfile,
+    this.onLoad,
   });
 
   @override
@@ -45,7 +47,7 @@ class TransactionRowState extends State<TransactionRow> {
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
 
-    if (widget.onLoadProfile != null) widget.onLoadProfile!(address);
+    if (widget.onLoad != null) widget.onLoad!(address);
   }
 
   @override
@@ -59,6 +61,7 @@ class TransactionRowState extends State<TransactionRow> {
     final formattedAddress = formatHexAddress(address);
 
     final profile = widget.profiles[address];
+    final voucher = widget.vouchers[address];
 
     return GestureDetector(
       onTap:
@@ -103,7 +106,11 @@ class TransactionRowState extends State<TransactionRow> {
                         ),
                       _ => ProfileCircle(
                           size: 50,
-                          imageUrl: profile?.profile.imageMedium,
+                          imageUrl: voucher != null
+                              ? 'assets/icons/voucher.svg'
+                              : profile?.profile.imageMedium,
+                          backgroundColor:
+                              voucher != null ? ThemeColors.white : null,
                         )
                     },
                     if (transaction.title != '')
@@ -138,9 +145,13 @@ class TransactionRowState extends State<TransactionRow> {
                               width: 100,
                             )
                           : Text(
-                              profile != null
-                                  ? profile.profile.name
-                                  : 'Unknown',
+                              voucher != null
+                                  ? isIncoming
+                                      ? 'Voucher redeemed'
+                                      : 'Voucher created'
+                                  : profile != null
+                                      ? profile.profile.name
+                                      : 'Unknown',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -148,9 +159,9 @@ class TransactionRowState extends State<TransactionRow> {
                                 color: ThemeColors.text.resolveFrom(context),
                               ),
                             ),
-                      if (profile != null && profile.loading)
+                      if (voucher != null && profile != null && profile.loading)
                         const SizedBox(height: 2),
-                      profile != null && profile.loading
+                      voucher != null && profile != null && profile.loading
                           ? const PulsingContainer(
                               height: 20,
                               width: 80,

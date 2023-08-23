@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite_common/sqflite.dart';
 
 // a class representing a transaction in the db
 class DBTransaction {
@@ -61,14 +61,21 @@ class TransactionTable extends DBTable {
   ''';
 
   @override
-  Future<void> migrate(Database db, int version) async {
-    if (version == 1) {
-      await db.execute(createQuery);
+  Future<void> create(Database db) async {
+    await db.execute(createQuery);
 
-      await db.execute('''
+    await db.execute('''
         CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
       ''');
-    }
+  }
+
+  @override
+  Future<void> migrate(Database db, int oldVersion, int newVersion) async {
+    await db.execute(createQuery);
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
+      ''');
   }
 
   // CRUD methods for transactions

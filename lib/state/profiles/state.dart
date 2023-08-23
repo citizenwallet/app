@@ -38,6 +38,10 @@ class ProfilesState with ChangeNotifier {
 
   ProfileV1? selectedProfile;
 
+  List<ProfileV1> profileList = [];
+  bool profileListLoading = true;
+  bool profileListError = false;
+
   void isLoading(String address) {
     if (profiles[address] == null) {
       profiles[address] = ProfileItem.empty();
@@ -74,25 +78,20 @@ class ProfilesState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  void isSearching(String? value) {
-    if (value != null) {
-      searchResults = value == ''
-          ? []
-          : profiles.values
-              .where((element) => element.profile.username
-                  .toLowerCase()
-                  .contains(value.toLowerCase()))
-              .map((element) => element.profile)
-              .toList();
-    }
+  void clearProfiles() {
+    profileList = [];
+    profileListLoading = true;
+    profileListError = false;
+  }
 
+  void isSearching() {
     searchLoading = true;
     searchError = false;
     notifyListeners();
   }
 
-  void isSearchingSuccess(ProfileV1 profile) {
-    searchResults = [];
+  void isSearchingSuccess(ProfileV1? profile, List<ProfileV1> results) {
+    searchResults = results;
     searchedProfile = profile;
     searchLoading = false;
     searchError = false;
@@ -130,6 +129,26 @@ class ProfilesState with ChangeNotifier {
 
     searchedProfile = selectedProfile!.copyWith();
     selectedProfile = null;
+    notifyListeners();
+  }
+
+  void profileListRequest() {
+    profileListLoading = true;
+    profileListError = false;
+    notifyListeners();
+  }
+
+  void profileListSuccess(List<ProfileV1> profiles) {
+    profileList = profiles;
+    profileListLoading = false;
+    profileListError = false;
+    notifyListeners();
+  }
+
+  void profileListFail() {
+    profileList = [];
+    profileListLoading = false;
+    profileListError = true;
     notifyListeners();
   }
 

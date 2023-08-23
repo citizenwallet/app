@@ -59,14 +59,15 @@ class ProfileChip extends StatelessWidget {
               ],
             ),
           ),
-          CupertinoButton(
-            padding: const EdgeInsets.all(0),
-            onPressed: handleDeSelect,
-            child: Icon(
-              CupertinoIcons.xmark_circle_fill,
-              color: ThemeColors.surfaceSubtle.resolveFrom(context),
+          if (handleDeSelect != null)
+            CupertinoButton(
+              padding: const EdgeInsets.all(0),
+              onPressed: handleDeSelect,
+              child: Icon(
+                CupertinoIcons.xmark_circle_fill,
+                color: ThemeColors.surfaceSubtle.resolveFrom(context),
+              ),
             ),
-          ),
         ],
       ),
     );

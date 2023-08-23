@@ -6,7 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 class WebLandingScreen extends StatefulWidget {
-  const WebLandingScreen({super.key});
+  final String? voucher;
+  final String? voucherParams;
+
+  const WebLandingScreen({
+    super.key,
+    this.voucher,
+    this.voucherParams,
+  });
 
   @override
   WebLandingScreenState createState() => WebLandingScreenState();
@@ -36,7 +43,13 @@ class WebLandingScreenState extends State<WebLandingScreen>
     final lastEncodedWallet = await _appLogic.getLastEncodedWallet();
 
     if (lastEncodedWallet != null) {
-      navigator.go('/wallet/$lastEncodedWallet');
+      String url = '/wallet/$lastEncodedWallet';
+      if (widget.voucher != null && widget.voucherParams != null) {
+        url += '?voucher=${widget.voucher}';
+        url += '&params=${widget.voucherParams}';
+      }
+
+      navigator.go(url);
       return;
     }
 
@@ -46,7 +59,13 @@ class WebLandingScreenState extends State<WebLandingScreen>
       return;
     }
 
-    navigator.go('/wallet/$wallet');
+    String url = '/wallet/$wallet';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   @override

@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:citizenwallet/services/db/transactions.dart';
+import 'package:citizenwallet/services/db/contacts.dart';
+import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqflite.dart';
 
 abstract class DBTable {
   final Database _db;
@@ -20,7 +21,9 @@ abstract class DBTable {
     )
   ''';
 
-  Future<void> migrate(Database db, int version) async {}
+  Future<void> create(Database db);
+
+  Future<void> migrate(Database db, int oldVersion, int newVersion);
 }
 
 class DBService {
@@ -32,24 +35,44 @@ class DBService {
 
   DBService._internal();
 
-  late Database _db;
-  late TransactionTable transactions;
+  Database? _db;
+  late ContactTable contacts;
+  late VouchersTable vouchers;
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
-    final db = await openDatabase(
-      path,
+    final options = OpenDatabaseOptions(
       onConfigure: (db) async {
-        // instantiate a transactions table
-        transactions = TransactionTable(db);
+        // instantiate a contacts table
+        contacts = ContactTable(db);
+
+        // instantiate a vouchers table
+        vouchers = VouchersTable(db);
       },
       onCreate: (db, version) async {
         // migrate data
-        await transactions.migrate(db, version);
+        await contacts.create(db);
+
+        // migrate data
+        await vouchers.create(db);
 
         return;
       },
-      version: 1,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // migrate data
+        await contacts.migrate(db, oldVersion, newVersion);
+
+        // migrate data
+        await vouchers.migrate(db, oldVersion, newVersion);
+
+        return;
+      },
+      version: 5,
+    );
+
+    final db = await databaseFactory.openDatabase(
+      path,
+      options: options,
     );
 
     return db;
@@ -58,8 +81,21 @@ class DBService {
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
-      databaseFactory = databaseFactoryFfiWeb;
+      final swOptions = SqfliteFfiWebOptions(
+        sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        indexedDbName: '$name.db',
+      );
+
+      final webContext = await sqfliteFfiWebLoadSqlite3Wasm(swOptions);
+
+      databaseFactory =
+          createDatabaseFactoryFfiWeb(options: webContext.options);
+      // databaseFactory = databaseFactoryFfiWeb;
       // path = 'my_web_web.db';
+    }
+
+    if (_db != null && _db!.isOpen) {
+      _db!.close();
     }
 
     final path =
@@ -69,22 +105,34 @@ class DBService {
 
   // reset db
   Future<void> resetDB() async {
-    final path = _db.path;
-    await _db.close();
+    if (_db == null) {
+      return;
+    }
+
+    final path = _db!.path;
+    await _db!.close();
     await deleteDatabase(path);
     _db = await openDB(path);
   }
 
   // delete db
   Future<void> deleteDB() async {
-    final path = _db.path;
-    await _db.close();
+    if (_db == null) {
+      return;
+    }
+
+    final path = _db!.path;
+    await _db!.close();
     await deleteDatabase(path);
   }
 
   // get db size in bytes
   Future<int> getDBSize() async {
-    final path = _db.path;
+    if (_db == null) {
+      return 0;
+    }
+
+    final path = _db!.path;
     final file = File(path);
     return file.length();
   }

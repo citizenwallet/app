@@ -62,57 +62,6 @@ class Token {
     return contract.transferEvents(fromBlock: fromBlock);
   }
 
-  Future<List<TransferEvent>> getTransactions(
-      String owner, BlockNum fromBlock, BlockNum toBlock) async {
-    final event = rcontract.event('Transfer');
-
-    final filter = FilterOptions(
-      address: rcontract.address,
-      toBlock: toBlock,
-      fromBlock: fromBlock,
-      topics: [
-        [
-          bytesToHex(event.signature, padToEvenLength: true, include0x: true),
-        ],
-        // [
-        //   bytesToHex(
-        //     hexToBytes(owner),
-        //     forcePadLength: 64,
-        //     padToEvenLength: true,
-        //     include0x: true,
-        //   ),
-        // ],
-      ],
-    );
-
-    final events = await client.getLogs(filter);
-
-    final List<TransferEvent> txs = [];
-
-    for (final e in events) {
-      final decoded = event.decodeResults(e.topics!, e.data!);
-
-      final from = decoded[0] as EthereumAddress;
-      final to = decoded[1] as EthereumAddress;
-      final value = decoded[2] as BigInt;
-
-      if (from.hexEip55.toLowerCase() != owner.toLowerCase() ||
-          to.hexEip55.toLowerCase() != owner.toLowerCase()) continue;
-
-      txs.add(TransferEvent(
-        from,
-        to,
-        value,
-        blockNum: e.blockNum,
-        transactionHash: e.transactionHash,
-      ));
-
-      print('$from sent $value DERC20 to $to');
-    }
-
-    return txs;
-  }
-
   Uint8List transferCallData(String to, BigInt amount) {
     final function = rcontract.function('transfer');
 

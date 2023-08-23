@@ -9,6 +9,9 @@ class ProfileBadge extends StatelessWidget {
   final bool loading;
   final double size;
   final double fontSize;
+  final double? borderWidth;
+  final Color? borderColor;
+  final Color? backgroundColor;
   final void Function()? onTap;
 
   const ProfileBadge({
@@ -17,6 +20,9 @@ class ProfileBadge extends StatelessWidget {
     this.loading = false,
     this.size = 80,
     this.fontSize = 12,
+    this.borderWidth,
+    this.borderColor,
+    this.backgroundColor,
     this.onTap,
   }) : super(key: key);
 
@@ -31,6 +37,9 @@ class ProfileBadge extends StatelessWidget {
           if (!loading)
             ProfileCircle(
               size: size,
+              borderWidth: borderWidth,
+              borderColor: borderColor,
+              backgroundColor: backgroundColor,
               imageUrl: profile == null
                   ? null
                   : size < 128

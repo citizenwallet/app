@@ -1,25 +1,25 @@
 name: citizenwallet
-version: 1.0.17+20
+version: 1.0.18+23
 publish_to: none
-description: Receive and send ERC20 without gas fees.
+description: A mobile wallet for your community.
 environment:
   sdk: ">=3.0.0 <4.0.0"
 dependencies:
   smartcontracts:
     git:
       url: https://github.com/citizenwallet/smartcontracts.git
-      ref: v0.0.50
+      ref: v0.0.51
   cupertino_icons: ^1.0.2
-  go_router: ^9.0.0
+  go_router: ^10.0.0
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
-  sqflite: ^2.2.6
+  sqflite: ^2.3.0
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: ^0.18.0
-  web3dart: ^2.6.1
-  http: ^0.13.5
+  web3dart: ^2.7.1
+  http: ^1.1.0
   flutter_secure_storage: ^8.0.0
   convert: ^3.1.1
   flutter:
@@ -31,7 +31,7 @@ dependencies:
   pointycastle: ^3.7.3
   pretty_qr_code: ^2.0.3
   archive: ^3.3.7
-  sqflite_common_ffi_web: ^0.3.5
+  sqflite_common_ffi_web: ^0.4.0
   rate_limiter: ^1.0.0
   cryptography: ^2.5.0
   cryptography_flutter: ^2.3.0
@@ -45,13 +45,15 @@ dependencies:
   flutter_markdown: ^0.6.15
   package_info_plus: ^4.0.2
   rxdart: ^0.27.7
-  sentry_flutter: ^7.8.0
+  sentry_flutter: ^7.9.0
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
   username_gen: ^1.0.4
   file_picker: ^5.3.3
   universal_io: ^2.2.2
+  share_plus: ^7.1.0
+  sqflite_common: ^2.5.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
@@ -67,7 +69,6 @@ flutter:
     - assets/about/about.md
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
-    - assets/icons/empty_roll.svg
     - assets/images/citizenwallet-qrcode.svg
     - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
@@ -77,14 +78,19 @@ flutter:
     - assets/icons/cloud-settings.svg
     - assets/icons/users.svg
     - assets/icons/coin.svg
+    - assets/icons/contacts.svg
     - assets/icons/profile.svg
     - assets/icons/profile.png
+    - assets/icons/voucher.svg
+    - assets/icons/voucher.png
     - assets/icons/anonymous_user.svg
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
     - assets/data/native_chains.json
     - assets/data/chains.json
+    - assets/data/config.json
     - assets/lottie/chat.json
+    - assets/lottie/gift-voucher.json
     - assets/lottie/success.json
     - assets/lottie/app.json
     - assets/lottie/wallet_loader.json
@@ -106,16 +112,16 @@ flutter_launcher_icons:
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/logo.jpg"
+    image_path: "assets/logo.png"
     background_color: "#ffffff"
-    theme_color: "#c8ff94"
+    theme_color: "#563087"
   windows:
     generate: true
     image_path: "assets/logo.jpg"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/logo.jpg"
+    image_path: "assets/logo.png"
 
 sentry:
   upload_debug_symbols: true

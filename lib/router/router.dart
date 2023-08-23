@@ -1,13 +1,17 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
+import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
+import 'package:citizenwallet/screens/contacts/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
+import 'package:citizenwallet/screens/vouchers/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +22,7 @@ GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
   GlobalKey<NavigatorState> shellNavigatorKey,
   List<NavigatorObserver> observers,
+  WalletLogic wallet,
 ) =>
     GoRouter(
       initialLocation: '/',
@@ -26,11 +31,17 @@ GoRouter createRouter(
       observers: observers,
       routes: [
         GoRoute(
-          name: 'Landing',
-          path: '/',
-          parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const LandingScreen(),
-        ),
+            name: 'Landing',
+            path: '/',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) {
+              final uri = Uri.parse(state.uri.fragment);
+
+              return LandingScreen(
+                voucher: uri.queryParameters['voucher'],
+                voucherParams: uri.queryParameters['params'],
+              );
+            }),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
           builder: (context, state, child) => RouterShell(
@@ -47,6 +58,9 @@ GoRouter createRouter(
                 name: state.name,
                 child: WalletScreen(
                   state.pathParameters['address'],
+                  wallet,
+                  voucher: state.uri.queryParameters['voucher'],
+                  voucherParams: state.uri.queryParameters['params'],
                 ),
               ),
               routes: [
@@ -71,16 +85,45 @@ GoRouter createRouter(
               ],
             ),
             GoRoute(
-              name: 'Settings',
-              path: '/settings',
+              name: 'Vouchers',
+              path: '/vouchers',
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) => NoTransitionPage(
                 key: state.pageKey,
                 name: state.name,
-                child: SettingsScreen(),
+                child: const VouchersScreen(),
+              ),
+            ),
+            GoRoute(
+              name: 'Contacts',
+              path: '/contacts',
+              parentNavigatorKey: shellNavigatorKey,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: state.pageKey,
+                name: state.name,
+                child: const ContactsScreen(),
+              ),
+            ),
+            GoRoute(
+              name: 'Account',
+              path: '/account/:address',
+              parentNavigatorKey: shellNavigatorKey,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: state.pageKey,
+                name: state.name,
+                child: AccountScreen(
+                  address: state.pathParameters['address'],
+                  wallet: wallet,
+                ),
               ),
             ),
           ],
+        ),
+        GoRoute(
+          name: 'Settings',
+          path: '/settings',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => SettingsScreen(),
         ),
         GoRoute(
           name: 'About',
@@ -103,6 +146,7 @@ GoRouter createWebRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
   GlobalKey<NavigatorState> shellNavigatorKey,
   List<NavigatorObserver> observers,
+  WalletLogic wallet,
 ) =>
     GoRouter(
       initialLocation: '/',
@@ -114,7 +158,10 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const WebLandingScreen(),
+          builder: (context, state) => WebLandingScreen(
+            voucher: state.uri.queryParameters['voucher'],
+            voucherParams: state.uri.queryParameters['params'],
+          ),
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
@@ -127,16 +174,27 @@ GoRouter createWebRouter(
               name: 'Wallet',
               path: '/wallet/:qr',
               parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: WillPopScope(
-                  onWillPop: () async => false,
-                  child: BurnerWalletScreen(
-                    state.pathParameters['qr'] ?? '',
+              pageBuilder: (context, state) {
+                String alias = Uri.base.host.split('.').first;
+                if (Uri.base.host.split('.').length >= 4) {
+                  alias += '.${Uri.base.host.split('.')[1]}';
+                }
+
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  name: state.name,
+                  child: WillPopScope(
+                    onWillPop: () async => false,
+                    child: BurnerWalletScreen(
+                      state.pathParameters['qr'] ?? '',
+                      wallet,
+                      alias: alias,
+                      voucher: state.uri.queryParameters['voucher'],
+                      voucherParams: state.uri.queryParameters['params'],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
               routes: [
                 GoRoute(
                   name: 'Transaction',

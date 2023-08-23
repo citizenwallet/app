@@ -1,6 +1,8 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/selectors.dart';
+import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -24,7 +26,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function(String) handleFailedTransactionTap;
   final void Function() handleCopyWalletQR;
 
-  final void Function(String) handleProfileLoad;
+  final void Function(String) handleLoad;
 
   const WalletScrollView({
     Key? key,
@@ -35,7 +37,7 @@ class WalletScrollView extends StatelessWidget {
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
     required this.handleCopyWalletQR,
-    required this.handleProfileLoad,
+    required this.handleLoad,
   }) : super(key: key);
 
   @override
@@ -52,10 +54,17 @@ class WalletScrollView extends StatelessWidget {
 
     final transactionsLoading =
         context.select((WalletState state) => state.transactionsLoading);
+    final returnLoading =
+        context.select((VoucherState state) => state.returnLoading);
+
+    final loading = transactionsLoading || returnLoading;
+
     final hasMore =
         context.select((WalletState state) => state.transactionsHasMore);
 
     final transactions = context.watch<WalletState>().transactions;
+
+    final vouchers = context.select(selectMappedVoucher);
 
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
@@ -67,7 +76,7 @@ class WalletScrollView extends StatelessWidget {
     if (wallet != null &&
         wallet.doubleBalance == 0.0 &&
         transactions.isEmpty &&
-        !transactionsLoading) {
+        !loading) {
       return CustomScrollView(
         controller: controller,
         scrollBehavior: const CupertinoScrollBehavior(),
@@ -252,8 +261,9 @@ class WalletScrollView extends StatelessWidget {
                     transaction: transaction,
                     wallet: wallet,
                     profiles: profiles,
+                    vouchers: vouchers,
                     onTap: blockSending ? null : handleFailedTransactionTap,
-                    onLoadProfile: handleProfileLoad,
+                    onLoad: handleLoad,
                   ),
                 );
               },
@@ -272,7 +282,7 @@ class WalletScrollView extends StatelessWidget {
             ),
           ),
         ),
-        if (transactionsLoading && transactions.isEmpty)
+        if (loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -283,7 +293,7 @@ class WalletScrollView extends StatelessWidget {
               ),
             ),
           ),
-        if (!transactionsLoading && transactions.isEmpty)
+        if (!loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -294,12 +304,8 @@ class WalletScrollView extends StatelessWidget {
                   SvgPicture.asset(
                     'assets/icons/empty_pockets.svg',
                     semanticsLabel: 'empty pockets icon',
-                    height: 300,
-                    width: 300,
-                    colorFilter: ColorFilter.mode(
-                      ThemeColors.text.resolveFrom(context),
-                      BlendMode.srcIn,
-                    ),
+                    height: 250,
+                    width: 250,
                   ),
                 ],
               ),
@@ -324,17 +330,15 @@ class WalletScrollView extends StatelessWidget {
                     transaction: transaction,
                     wallet: wallet,
                     profiles: profiles,
+                    vouchers: vouchers,
                     onTap: handleTransactionTap,
-                    onLoadProfile: handleProfileLoad,
+                    onLoad: handleLoad,
                   ),
                 );
               },
             ),
           ),
-        if (transactions.isNotEmpty &&
-            wallet != null &&
-            transactionsLoading &&
-            hasMore)
+        if (transactions.isNotEmpty && wallet != null && loading && hasMore)
           SliverList(
             delegate: SliverChildBuilderDelegate(
               childCount: 10,
@@ -349,7 +353,7 @@ class WalletScrollView extends StatelessWidget {
               },
             ),
           ),
-        if (transactions.isNotEmpty && wallet != null && !transactionsLoading)
+        if (transactions.isNotEmpty && wallet != null && !loading)
           SliverToBoxAdapter(
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),

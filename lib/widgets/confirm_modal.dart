@@ -51,6 +51,7 @@ class ConfirmModal extends StatelessWidget {
               children: [
                 Header(
                   title: title,
+                  color: ThemeColors.uiBackground.resolveFrom(context),
                 ),
                 Expanded(
                   child: Column(

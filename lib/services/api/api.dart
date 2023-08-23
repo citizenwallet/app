@@ -24,8 +24,6 @@ class APIService {
       mergedHeaders.addAll(headers);
     }
 
-    print('$baseURL${url ?? ''}');
-
     final response = await http
         .get(
           Uri.parse('$baseURL${url ?? ''}'),
@@ -37,7 +35,7 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<dynamic> post({
@@ -65,7 +63,7 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<dynamic> patch({
@@ -93,7 +91,7 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<dynamic> delete({
@@ -121,7 +119,7 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<dynamic> filePut({
@@ -163,6 +161,6 @@ class APIService {
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
-    return jsonDecode(response.body);
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 }

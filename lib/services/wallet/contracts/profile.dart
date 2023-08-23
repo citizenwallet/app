@@ -73,6 +73,16 @@ class ProfileV1 {
         imageMedium = json['image_medium'],
         imageSmall = json['image_small'];
 
+  // from map
+  ProfileV1.fromMap(Map<String, dynamic> json)
+      : account = json['account'],
+        username = json['username'],
+        name = json['name'],
+        description = json['description'],
+        image = json['image'],
+        imageMedium = json['imageMedium'],
+        imageSmall = json['imageSmall'];
+
   // to json
   Map<String, dynamic> toJson() => {
         'account': account,

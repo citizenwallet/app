@@ -8,7 +8,7 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
-import 'package:citizenwallet/widgets/scanner.dart';
+import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -17,7 +17,14 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class LandingScreen extends StatefulWidget {
-  const LandingScreen({super.key});
+  final String? voucher;
+  final String? voucherParams;
+
+  const LandingScreen({
+    super.key,
+    this.voucher,
+    this.voucherParams,
+  });
 
   @override
   LandingScreenState createState() => LandingScreenState();
@@ -50,7 +57,17 @@ class LandingScreenState extends State<LandingScreen>
     if (address == null) {
       return;
     }
-    navigator.go('/wallet/$address');
+
+    print('voucher: ${widget.voucher}');
+    print('voucherParams: ${widget.voucherParams}');
+
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns
@@ -128,7 +145,13 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    navigator.go('/wallet/$address');
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   void handleImportWallet() async {
@@ -139,7 +162,7 @@ class LandingScreenState extends State<LandingScreen>
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => const Scanner(
+      builder: (_) => const ScannerModal(
         modalKey: 'import-qr-scanner',
         confirm: true,
       ),
@@ -164,7 +187,13 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    navigator.go('/wallet/$address');
+    String url = '/wallet/$address';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      url += '?voucher=${widget.voucher}';
+      url += '&params=${widget.voucherParams}';
+    }
+
+    navigator.go(url);
   }
 
   @override
@@ -257,12 +286,6 @@ class LandingScreenState extends State<LandingScreen>
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              // Button(
-                              //   text: 'Import a wallet',
-                              //   onPressed: handleImportWallet,
-                              //   minWidth: 200,
-                              //   maxWidth: 200,
-                              // )
                             ],
                           ),
                   )

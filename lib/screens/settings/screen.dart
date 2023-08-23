@@ -73,7 +73,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   void handleAppReset() async {
     final navigator = GoRouter.of(context);
 
-    final confirm = await showCupertinoModalPopup(
+    final confirm = await showCupertinoModalPopup<bool?>(
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => ConfirmModal(
@@ -104,174 +104,178 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     final protected = _protected;
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          ListView(
-            scrollDirection: Axis.vertical,
-            padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-            children: [
-              SizedBox(
-                height: 60 + safePadding,
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                child: Text(
-                  'App',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return CupertinoPageScaffold(
+      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            ListView(
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+              children: [
+                SizedBox(
+                  height: 60 + safePadding,
                 ),
-              ),
-              SettingsRow(
-                label: 'Dark mode',
-                icon: 'assets/icons/dark-mode.svg',
-                trailing: CupertinoSwitch(
-                  value: darkMode,
-                  onChanged: onToggleDarkMode,
-                ),
-              ),
-              SettingsRow(
-                label: 'About',
-                icon: 'assets/icons/docs.svg',
-                onTap: handleOpenAbout,
-              ),
-              if (packageInfo != null)
-                SettingsSubRow(
-                    'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
-              // const Padding(
-              //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-              //   child: Text(
-              //     'Security',
-              //     style: TextStyle(
-              //       fontSize: 22,
-              //       fontWeight: FontWeight.bold,
-              //     ),
-              //   ),
-              // ),
-              // SettingsRow(
-              //   label: 'App protection',
-              //   subLabel:
-              //       !protected ? 'We recommend enabling app protection.' : null,
-              //   trailing: Row(
-              //     children: [
-              //       if (!protected)
-              //         const Icon(CupertinoIcons.exclamationmark_triangle,
-              //             color: ThemeColors.secondary),
-              //       if (!protected) const SizedBox(width: 5),
-              //       CupertinoSwitch(
-              //         value: protected,
-              //         onChanged: handleToggleProtection,
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              // if (protected)
-              //   SettingsRow(
-              //     label: 'Automatic lock',
-              //     subLabel:
-              //         'Automatically locks the app whenever it is closed.',
-              //     trailing: CupertinoSwitch(
-              //       value: false,
-              //       onChanged: onToggleDarkMode,
-              //     ),
-              //   ),
-              // if (protected)
-              //   SettingsRow(
-              //     label: 'On send',
-              //     subLabel: 'Ask for authentication every time you send.',
-              //     trailing: CupertinoSwitch(
-              //       value: false,
-              //       onChanged: onToggleDarkMode,
-              //     ),
-              //   ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                child: Text(
-                  'Account',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SettingsRow(
-                label: 'View on ${widget.scanName}',
-                icon: 'assets/icons/website.svg',
-                onTap: wallet != null
-                    ? () => handleOpenContract(wallet.account)
-                    : null,
-              ),
-              SettingsRow(
-                label: 'Accounts',
-                icon: 'assets/icons/users.svg',
-                subLabel: isPlatformApple()
-                    ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
-                    : "All your accounts are automatically backed up to your Google Drive.",
-                trailing: Icon(
-                  CupertinoIcons.cloud,
-                  color: ThemeColors.surfacePrimary.resolveFrom(context),
-                ),
-                onTap: handleOpenBackup,
-              ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Padding(
-              //       padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-              //       child: Button(
-              //         text: 'Lock app',
-              //         suffix: const Padding(
-              //           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-              //           child: Icon(
-              //             CupertinoIcons.lock,
-              //             color: ThemeColors.black,
-              //           ),
-              //         ),
-              //         minWidth: 160,
-              //         maxWidth: 160,
-              //         onPressed: handleLockApp,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
-                child: Text(
-                  'Danger Zone',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                    child: Button(
-                      text: 'Clear data & backups',
-                      minWidth: 220,
-                      maxWidth: 220,
-                      color: CupertinoColors.systemRed,
-                      onPressed: handleAppReset,
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'App',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-          Header(
-            blur: true,
-            transparent: true,
-            title: widget.title,
-            safePadding: safePadding,
-          ),
-        ],
+                ),
+                SettingsRow(
+                  label: 'Dark mode',
+                  icon: 'assets/icons/dark-mode.svg',
+                  trailing: CupertinoSwitch(
+                    value: darkMode,
+                    onChanged: onToggleDarkMode,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'About',
+                  icon: 'assets/icons/docs.svg',
+                  onTap: handleOpenAbout,
+                ),
+                if (packageInfo != null)
+                  SettingsSubRow(
+                      'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
+                // const Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                //   child: Text(
+                //     'Security',
+                //     style: TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                // SettingsRow(
+                //   label: 'App protection',
+                //   subLabel:
+                //       !protected ? 'We recommend enabling app protection.' : null,
+                //   trailing: Row(
+                //     children: [
+                //       if (!protected)
+                //         const Icon(CupertinoIcons.exclamationmark_triangle,
+                //             color: ThemeColors.secondary),
+                //       if (!protected) const SizedBox(width: 5),
+                //       CupertinoSwitch(
+                //         value: protected,
+                //         onChanged: handleToggleProtection,
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // if (protected)
+                //   SettingsRow(
+                //     label: 'Automatic lock',
+                //     subLabel:
+                //         'Automatically locks the app whenever it is closed.',
+                //     trailing: CupertinoSwitch(
+                //       value: false,
+                //       onChanged: onToggleDarkMode,
+                //     ),
+                //   ),
+                // if (protected)
+                //   SettingsRow(
+                //     label: 'On send',
+                //     subLabel: 'Ask for authentication every time you send.',
+                //     trailing: CupertinoSwitch(
+                //       value: false,
+                //       onChanged: onToggleDarkMode,
+                //     ),
+                //   ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Account',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  label: 'View on ${widget.scanName}',
+                  icon: 'assets/icons/website.svg',
+                  onTap: wallet != null
+                      ? () => handleOpenContract(wallet.account)
+                      : null,
+                ),
+                SettingsRow(
+                  label: 'Accounts',
+                  icon: 'assets/icons/users.svg',
+                  subLabel: isPlatformApple()
+                      ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
+                      : "All your accounts are automatically backed up to your Google Drive.",
+                  trailing: Icon(
+                    CupertinoIcons.cloud,
+                    color: ThemeColors.surfacePrimary.resolveFrom(context),
+                  ),
+                  onTap: handleOpenBackup,
+                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Padding(
+                //       padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                //       child: Button(
+                //         text: 'Lock app',
+                //         suffix: const Padding(
+                //           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                //           child: Icon(
+                //             CupertinoIcons.lock,
+                //             color: ThemeColors.black,
+                //           ),
+                //         ),
+                //         minWidth: 160,
+                //         maxWidth: 160,
+                //         onPressed: handleLockApp,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
+                  child: Text(
+                    'Danger Zone',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                      child: Button(
+                        text: 'Clear data & backups',
+                        minWidth: 220,
+                        maxWidth: 220,
+                        color: CupertinoColors.systemRed,
+                        onPressed: handleAppReset,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Header(
+              blur: true,
+              transparent: true,
+              showBackButton: true,
+              title: widget.title,
+              safePadding: safePadding,
+            ),
+          ],
+        ),
       ),
     );
   }

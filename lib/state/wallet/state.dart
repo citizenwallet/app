@@ -315,22 +315,24 @@ class WalletState with ChangeNotifier {
         }
       }
 
-      this.transactions = this
+      final filteredTransactions = this
           .transactions
           .where((element) => !isPendingTransactionId(element.id))
           .toList();
+      if (filteredTransactions.length != this.transactions.length) {
+        hasChanges = true;
+      }
 
-      transactionsFromDate = (this
-                  .transactions
+      transactionsFromDate = (filteredTransactions
                   .firstWhereOrNull((t) => t.state == TransactionState.success)
                   ?.date ??
               DateTime.now().toUtc())
           .subtract(const Duration(minutes: 1));
+
+      this.transactions = filteredTransactions;
     }
 
-    // transactionsLoading = false;
-    // transactionsError = false;
-    notifyListeners();
+    if (hasChanges) notifyListeners();
 
     return hasChanges;
   }

@@ -5,6 +5,9 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/cache/contacts.dart';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -12,10 +15,9 @@ import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/services/wallet/models/qr/transaction_request.dart';
 import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
-import 'package:citizenwallet/services/wallet/models/signer.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/services/wallet/wallet2.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -31,9 +33,12 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class WalletLogic extends WidgetsBindingObserver {
+  bool get isWalletLoaded => _state.wallet != null;
   late WalletState _state;
 
-  final WalletService2 _wallet = WalletService2();
+  final ConfigService _config = ConfigService();
+  final WalletService _wallet = WalletService();
+  final DBService _db = DBService();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
@@ -49,6 +54,10 @@ class WalletLogic extends WidgetsBindingObserver {
   TextEditingController get addressController => _addressController;
   TextEditingController get amountController => _amountController;
   TextEditingController get messageController => _messageController;
+
+  String? get lastWallet => _preferences.lastWallet;
+  String get address => _wallet.address.hexEip55;
+  String get token => _wallet.erc20Address;
 
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();
@@ -74,6 +83,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<bool> openWalletFromURL(
     String encodedWallet,
     String password,
+    String alias,
     Future<void> Function() loadAdditionalData,
   ) async {
     try {
@@ -95,18 +105,26 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await delay(const Duration(milliseconds: 0));
 
+      // on web, use host
+      _config.initWeb(
+        alias == 'localhost' ? 'global' : alias,
+      );
+
+      final config = await _config.config;
+
       await _wallet.init(
         bytesToHex(cred.privateKey.privateKey),
         NativeCurrency(
-          name: 'USD Coin',
-          symbol: 'USDC',
-          decimals: 2,
+          name: config.token.name,
+          symbol: config.token.symbol,
+          decimals: config.token.decimals,
         ),
-        dotenv.get('ERC4337_ENTRYPOINT'),
-        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
-        dotenv.get('ERC20_TOKEN_ADDRESS'),
-        dotenv.get('PROFILE_ADDRESS'),
+        config,
       );
+
+      await _db.init('wallet_${_wallet.address.hexEip55}');
+
+      ContactsCache().init(_db);
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
@@ -144,22 +162,37 @@ class WalletLogic extends WidgetsBindingObserver {
     return false;
   }
 
-  String? get lastWallet => _preferences.lastWallet;
-
-  Future<String?> openWallet(
-      String? paramAddress, Future<void> Function() loadAdditionalData) async {
+  /// openWallet opens a wallet given an address and also loads additional data
+  ///
+  /// if a wallet is already loaded, it only fetches additional data
+  Future<String?> openWallet(String? paramAddress,
+      Future<void> Function(bool hasChanged) loadAdditionalData) async {
     try {
-      _state.loadWallet();
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
-
       final String? address = paramAddress ?? _preferences.lastWallet;
 
       if (address == null) {
         throw Exception('address not found');
       }
+
+      if (isWalletLoaded && paramAddress == _wallet.address.hexEip55) {
+        final balance = await _wallet.balance;
+
+        _state.updateWalletBalanceSuccess(balance);
+
+        await loadAdditionalData(false);
+
+        _state.loadWalletSuccess();
+
+        _preferences.setLastWallet(address);
+
+        return address;
+      }
+
+      _state.loadWallet();
+
+      final int chainId = _preferences.chainId;
+
+      _state.setChainId(chainId);
 
       final dbWallet = await _encPrefs.getWalletBackup(address);
 
@@ -167,18 +200,29 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
+      const alias = 'global';
+
+      // on native, use env
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias == 'localhost' ? 'global' : alias,
+      );
+
+      final config = await _config.config;
+
       await _wallet.init(
         dbWallet.privateKey,
         NativeCurrency(
-          name: 'USD Coin',
-          symbol: 'USDC',
-          decimals: 2,
+          name: config.token.name,
+          symbol: config.token.symbol,
+          decimals: config.token.decimals,
         ),
-        dotenv.get('ERC4337_ENTRYPOINT'),
-        dotenv.get('ERC4337_ACCOUNT_FACTORY'),
-        dotenv.get('ERC20_TOKEN_ADDRESS'),
-        dotenv.get('PROFILE_ADDRESS'),
+        config,
       );
+
+      await _db.init('wallet_${_wallet.address.hexEip55}');
+
+      ContactsCache().init(_db);
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
@@ -196,7 +240,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await loadAdditionalData();
+      await loadAdditionalData(true);
 
       _state.loadWalletSuccess();
 
@@ -897,12 +941,20 @@ class WalletLogic extends WidgetsBindingObserver {
     _messageController.clear();
   }
 
+  void clearAddressController() {
+    _addressController.clear();
+  }
+
   void resetInputErrorState() {
     _state.resetInvalidInputs();
   }
 
-  void updateAddress() {
-    _state.setHasAddress(_addressController.text.isNotEmpty);
+  void updateAddress({bool override = false}) {
+    _state.setHasAddress(_addressController.text.isNotEmpty || override);
+  }
+
+  void setInvalidAddress() {
+    _state.setInvalidAddress(true);
   }
 
   void updateAmount() {
@@ -910,6 +962,13 @@ class WalletLogic extends WidgetsBindingObserver {
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text),
     );
+  }
+
+  void setMaxAmount() {
+    _amountController.text =
+        (double.parse(_state.wallet?.balance ?? '0.0') / 1000)
+            .toStringAsFixed(2);
+    updateAmount();
   }
 
   void updateAddressFromHexCapture(String raw) async {
@@ -932,13 +991,13 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.parseQRAddressError();
   }
 
-  void updateFromCapture(String raw) {
+  String? updateFromCapture(String raw) {
     try {
       final isHex = isHexValue(raw);
 
       if (isHex) {
         updateAddressFromHexCapture(raw);
-        return;
+        return raw;
       }
 
       final includesHex = includesHexValue(raw);
@@ -946,19 +1005,23 @@ class WalletLogic extends WidgetsBindingObserver {
         final hex = extractHexFromText(raw);
         if (hex.isNotEmpty) {
           updateAddressFromHexCapture(hex);
-          return;
+          return hex;
         }
       }
 
       final qr = QRTransactionRequestData.fromCompressedJson(raw);
 
       updateTransactionFromTransactionCapture(qr);
+
+      return qr.address;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
       );
     }
+
+    return null;
   }
 
   void updateTransactionFromTransactionCapture(
@@ -977,6 +1040,8 @@ class WalletLogic extends WidgetsBindingObserver {
       if (qr.amount >= 0) {
         _amountController.text =
             qr.amount.toStringAsFixed(_wallet.currency.decimals);
+
+        updateAmount();
       }
 
       if (qr.message != '') {

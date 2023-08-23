@@ -94,44 +94,6 @@ class ERC20Contract {
     return balance;
   }
 
-  Stream<Transfer> listen(BlockNum fromBlock, EthereumAddress owner) {
-    final event = rcontract.event('Transfer');
-
-    final filter1 = FilterOptions(
-      fromBlock: fromBlock,
-      address: EthereumAddress.fromHex(addr),
-      topics: [
-        [bytesToHex(event.signature, padToEvenLength: true, include0x: true)],
-        [bytesToHex(owner.addressBytes, forcePadLength: 64, include0x: true)],
-      ],
-    );
-
-    final filter2 = FilterOptions(
-      fromBlock: fromBlock,
-      address: EthereumAddress.fromHex(addr),
-      topics: [
-        [bytesToHex(event.signature, padToEvenLength: true, include0x: true)],
-        [],
-        [bytesToHex(owner.addressBytes, forcePadLength: 64, include0x: true)],
-      ],
-    );
-
-    return MergeStream([client.events(filter1), client.events(filter2)])
-        .map((FilterEvent result) {
-      final decoded = event.decodeResults(
-        result.topics!,
-        result.data!,
-      );
-
-      return Transfer(
-        decoded,
-        result,
-      );
-    });
-
-    // return contract.transferEvents(fromBlock: fromBlock);
-  }
-
   Uint8List transferCallData(String to, BigInt amount) {
     final function = rcontract.function('transfer');
 
