@@ -116,6 +116,13 @@ class VoucherState with ChangeNotifier {
   void createVoucherSuccess(Voucher voucher, String link) {
     creationState = VoucherCreationState.created;
 
+    final index = vouchers.indexWhere((v) => v.address == voucher.address);
+    if (index < 0) {
+      vouchers.add(voucher);
+    } else {
+      vouchers[index] = voucher;
+    }
+
     createdVoucher = voucher;
     shareLink = link;
     createLoading = false;
