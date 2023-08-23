@@ -94,10 +94,6 @@ class ProfileCircle extends StatelessWidget {
                             ),
                           ),
                         if (network) ...[
-                          PulsingContainer(
-                            height: size,
-                            width: size,
-                          ),
                           Image.network(
                             asset,
                             height: size,
