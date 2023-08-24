@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:rxdart/rxdart.dart';
 
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class TransferEvent {
