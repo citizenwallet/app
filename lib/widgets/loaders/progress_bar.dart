@@ -53,7 +53,7 @@ class ProgressBar extends StatelessWidget {
             begin: ThemeColors.surfacePrimary.resolveFrom(context),
             end: ThemeColors.primary.resolveFrom(context),
           ),
-          duration: const Duration(milliseconds: 1000),
+          duration: const Duration(milliseconds: 750),
         ),
       ],
     );
