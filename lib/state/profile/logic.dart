@@ -62,7 +62,9 @@ class ProfileLogic {
     try {
       final result = await _photos.selectPhoto();
 
-      if (result != null) _state.setEditImage(result.$1, result.$2);
+      if (result != null) {
+        _state.setEditImage(result.$1, result.$2);
+      }
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
