@@ -1,9 +1,9 @@
 {
     "community": {
-        "name": "Citizen Wallet",
-        "description": "The community for Citizen Wallet",
+        "name": "Citizen Wallet Global",
+        "description": "The global community for Citizen Wallet",
         "url": "https://citizenwallet.xyz",
-        "alias": "app"
+        "alias": "global"
     },
     "scan": {
         "url": "https://polygonscan.com",

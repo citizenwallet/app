@@ -1,6 +1,5 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
@@ -85,7 +84,9 @@ class WalletRowState extends State<WalletRow> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        profile?.name ?? wallet.name,
+                        profile?.name != null && profile!.name.isNotEmpty
+                            ? profile.name
+                            : wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

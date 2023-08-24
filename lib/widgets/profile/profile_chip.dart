@@ -39,7 +39,9 @@ class ProfileChip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  selectedProfile.name,
+                  selectedProfile.name.isNotEmpty
+                      ? selectedProfile.name
+                      : 'Anonymous',
                   style: TextStyle(
                     color: ThemeColors.surfaceText.resolveFrom(context),
                     fontWeight: FontWeight.bold,

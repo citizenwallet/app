@@ -3,9 +3,12 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/loaders/progress_bar.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -69,7 +72,9 @@ class EditProfileModalState extends State<EditProfileModal> {
     });
   }
 
-  void onLoad() {
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
     _logic.startEdit();
   }
 
@@ -102,7 +107,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     HapticFeedback.lightImpact();
   }
 
-  void handleSave(Uint8List image, String ext) async {
+  void handleSave(Uint8List? image) async {
     final navigator = GoRouter.of(context);
 
     HapticFeedback.lightImpact();
@@ -114,7 +119,6 @@ class EditProfileModalState extends State<EditProfileModal> {
         account: wallet?.account ?? '',
       ),
       image,
-      ext,
     );
 
     if (!success) {
@@ -154,14 +158,17 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     final loading = context.select((ProfileState state) => state.loading);
     final error = context.select((ProfileState state) => state.error);
+
+    final updateState =
+        context.select((ProfileState state) => state.updateState);
 
     final image = context.select((ProfileState state) => state.image);
     final editingImage =
         context.select((ProfileState state) => state.editingImage);
-    final editingImageExt =
-        context.select((ProfileState state) => state.editingImageExt);
 
     final usernameController = context.watch<ProfileState>().usernameController;
     final usernameLoading =
@@ -170,19 +177,16 @@ class EditProfileModalState extends State<EditProfileModal> {
         context.select((ProfileState state) => state.usernameError);
 
     final nameController = context.watch<ProfileState>().nameController;
-    final nameError = context.select((ProfileState state) => state.nameError);
 
     final descriptionController =
         context.watch<ProfileState>().descriptionController;
     final descriptionEditText =
         context.select((ProfileState state) => state.descriptionEdit);
 
-    final noImage = (image == '' && editingImage == null);
-    final isInvalid = usernameError ||
-        usernameController.value.text == '' ||
-        nameError ||
-        nameController.value.text == '' ||
-        noImage;
+    final username = context.select((ProfileState state) => state.username);
+    final hasProfile = username.isNotEmpty;
+
+    final isInvalid = usernameError || usernameController.value.text == '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -193,7 +197,7 @@ class EditProfileModalState extends State<EditProfileModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Edit',
+                title: hasProfile ? 'Edit' : 'Create',
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -361,32 +365,19 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 nameFormatter,
                               ],
                               focusNode: nameFocusNode,
-                              decoration: nameError
-                                  ? BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.danger,
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    )
-                                  : BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.border
-                                            .resolveFrom(context),
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    ),
+                              decoration: BoxDecoration(
+                                color:
+                                    const CupertinoDynamicColor.withBrightness(
+                                  color: CupertinoColors.white,
+                                  darkColor: CupertinoColors.black,
+                                ),
+                                border: Border.all(
+                                  color:
+                                      ThemeColors.border.resolveFrom(context),
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0)),
+                              ),
                               onSubmitted: (_) {
                                 descriptionFocusNode.requestFocus();
                               },
@@ -439,30 +430,30 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 60),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                loading
-                                    ? CupertinoActivityIndicator(
-                                        color: ThemeColors.subtle
-                                            .resolveFrom(context),
-                                      )
-                                    : Button(
-                                        text: 'Save',
-                                        color: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        labelColor: ThemeColors.black,
-                                        onPressed: isInvalid
-                                            ? null
-                                            : editingImage == null ||
-                                                    editingImageExt == null
-                                                ? () => handleUpdate()
-                                                : () => handleSave(editingImage,
-                                                    editingImageExt),
-                                      ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   crossAxisAlignment: CrossAxisAlignment.center,
+                            //   children: [
+                            //     loading
+                            //         ? CupertinoActivityIndicator(
+                            //             color: ThemeColors.subtle
+                            //                 .resolveFrom(context),
+                            //           )
+                            //         : Button(
+                            //             text: 'Save',
+                            //             color: ThemeColors.surfacePrimary
+                            //                 .resolveFrom(context),
+                            //             labelColor: ThemeColors.black,
+                            //             onPressed: isInvalid
+                            //                 ? null
+                            //                 : editingImage == null ||
+                            //                         editingImageExt == null
+                            //                     ? () => handleUpdate()
+                            //                     : () => handleSave(editingImage,
+                            //                         editingImageExt),
+                            //           ),
+                            //   ],
+                            // ),
                             const SizedBox(height: 10),
                             if (!loading && error)
                               Row(
@@ -480,6 +471,70 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 ],
                               ),
                           ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Column(
+                              children: [
+                                if (loading) ...[
+                                  SizedBox(
+                                    height: 25,
+                                    child: Center(
+                                      child: ProgressBar(
+                                        updateState.progress,
+                                        width: width - 40,
+                                        height: 16,
+                                        borderRadius: 8,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    switch (updateState) {
+                                      ProfileUpdateState.existing =>
+                                        'Fetching existing profile...',
+                                      ProfileUpdateState.uploading =>
+                                        'Uploading new profile...',
+                                      ProfileUpdateState.fetching =>
+                                        'Almost done...',
+                                      _ => 'Saving...',
+                                    },
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: ThemeColors.subtleText
+                                          .resolveFrom(context),
+                                    ),
+                                  )
+                                ],
+                                if (!loading)
+                                  Button(
+                                    text: 'Save',
+                                    color: ThemeColors.surfacePrimary
+                                        .resolveFrom(context),
+                                    labelColor: ThemeColors.black,
+                                    onPressed: isInvalid
+                                        ? null
+                                        : hasProfile && editingImage == null
+                                            ? () => handleUpdate()
+                                            : () => handleSave(
+                                                  editingImage,
+                                                ),
+                                  )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],

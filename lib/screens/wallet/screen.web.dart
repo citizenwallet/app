@@ -38,7 +38,7 @@ class BurnerWalletScreen extends StatefulWidget {
     this.encoded,
     this.wallet, {
     super.key,
-    this.alias = 'global',
+    this.alias = 'app',
     this.voucher,
     this.voucherParams,
   });

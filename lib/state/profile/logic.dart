@@ -62,7 +62,9 @@ class ProfileLogic {
     try {
       final result = await _photos.selectPhoto();
 
-      if (result != null) _state.setEditImage(result.$1, result.$2);
+      if (result != null) {
+        _state.setEditImage(result.$1, result.$2);
+      }
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -158,22 +160,32 @@ class ProfileLogic {
     _state.viewProfileError();
   }
 
-  Future<bool> save(ProfileV1 profile, Uint8List image, String ext) async {
+  Future<bool> save(ProfileV1 profile, Uint8List? image) async {
     try {
       _state.setProfileRequest();
+
+      await delay(const Duration(milliseconds: 250));
 
       profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
+      _state.setProfileUploading();
+
+      final Uint8List newImage = image != null
+          ? convertBytesToUint8List(image)
+          : await _photos.photoFromBundle('assets/icons/profile.jpg');
+
       final url = await _wallet.setProfile(
         ProfileRequest.fromProfileV1(profile),
-        image: convertBytesToUint8List(image),
-        fileType: ext,
+        image: newImage,
+        fileType: '.jpg',
       );
       if (url == null) {
         throw Exception('Failed to save profile');
       }
+
+      _state.setProfileFetching();
 
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
@@ -229,6 +241,8 @@ class ProfileLogic {
       profile.imageMedium = _state.imageMedium;
       profile.imageSmall = _state.imageSmall;
 
+      _state.setProfileExisting();
+
       final existing = await _wallet.getProfile(profile.account);
       if (existing == null) {
         throw Exception('Failed to load profile');
@@ -239,10 +253,14 @@ class ProfileLogic {
         return true;
       }
 
+      _state.setProfileUploading();
+
       final url = await _wallet.updateProfile(profile);
       if (url == null) {
         throw Exception('Failed to save profile');
       }
+
+      _state.setProfileFetching();
 
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
@@ -262,13 +280,14 @@ class ProfileLogic {
       );
 
       _db.contacts.insert(DBContact(
-          account: newProfile.account,
-          username: newProfile.username,
-          name: newProfile.name,
-          description: newProfile.description,
-          image: newProfile.image,
-          imageMedium: newProfile.imageMedium,
-          imageSmall: newProfile.imageSmall));
+        account: newProfile.account,
+        username: newProfile.username,
+        name: newProfile.name,
+        description: newProfile.description,
+        image: newProfile.image,
+        imageMedium: newProfile.imageMedium,
+        imageSmall: newProfile.imageSmall,
+      ));
 
       _profiles.isLoaded(
         newProfile.account,
