@@ -1,13 +1,19 @@
+import 'package:citizenwallet/state/share_modal/logic.dart';
+import 'package:citizenwallet/state/share_modal/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:provider/provider.dart';
 
-class ShareModal extends StatelessWidget {
+class ShareModal extends StatefulWidget {
   final String title;
   final String copyLabel;
   final void Function() onCopyPrivateKey;
@@ -19,8 +25,48 @@ class ShareModal extends StatelessWidget {
     required this.onCopyPrivateKey,
   }) : super(key: key);
 
+  @override
+  _ShareModalState createState() => _ShareModalState();
+}
+
+class _ShareModalState extends State<ShareModal> {
+  late ShareModalLogic _logic;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _logic = ShareModalLogic(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //
+
+      onLoad();
+    });
+  }
+
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
+    _logic.setShareLink();
+  }
+
+  void onCopyShareUrl() {
+    _logic.copyShareUrl();
+
+    HapticFeedback.heavyImpact();
+  }
+
+  void handleShareWallet(BuildContext context) {
+    final box = context.findRenderObject() as RenderBox?;
+
+    _logic.shareWallet(
+      box!.localToGlobal(Offset.zero) & box.size,
+    );
+  }
+
   void onCopyUrl() {
-    Clipboard.setData(ClipboardData(text: Uri.base.toString()));
+    _logic.copyUrl();
 
     HapticFeedback.heavyImpact();
   }
@@ -32,6 +78,10 @@ class ShareModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    final shareLink = context.select((ShareModalState s) => s.shareLink);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -42,7 +92,7 @@ class ShareModal extends StatelessWidget {
             direction: Axis.vertical,
             children: [
               Header(
-                title: title,
+                title: widget.title,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -63,6 +113,83 @@ class ShareModal extends StatelessWidget {
                     children: [
                       const SizedBox(
                         height: 40,
+                      ),
+                      SizedBox(
+                        height: 400,
+                        width: width,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              decoration: BoxDecoration(
+                                color: ThemeColors.white.resolveFrom(context),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(
+                                40,
+                                40,
+                                40,
+                                60,
+                              ),
+                              margin: const EdgeInsets.only(top: 80),
+                              child: PrettyQr(
+                                data: shareLink,
+                                size: 200,
+                                roundEdges: false,
+                              ),
+                            ),
+                            const Positioned(
+                              top: 10,
+                              child: ProfileCircle(
+                                size: 100,
+                                imageUrl: 'assets/logo_small.png',
+                                borderColor: ThemeColors.subtle,
+                                backgroundColor: ThemeColors.white,
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 16,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 44,
+                                  ),
+                                  ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 200,
+                                    ),
+                                    child: Text(
+                                      shareLink,
+                                      style: TextStyle(
+                                        color: ThemeColors.black
+                                            .resolveFrom(context),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  CupertinoButton(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                    onPressed: onCopyShareUrl,
+                                    child: Icon(
+                                      CupertinoIcons.square_on_square,
+                                      size: 14,
+                                      color: ThemeColors.black
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       SvgPicture.asset(
                         'assets/images/citizenwallet-qrcode.svg',
@@ -116,7 +243,7 @@ class ShareModal extends StatelessWidget {
                         children: [
                           Chip(
                             Uri.base.toString(),
-                            onTap: onCopyUrl,
+                            onTap: () => handleShareWallet(context),
                             fontSize: 12,
                             color:
                                 ThemeColors.subtleEmphasis.resolveFrom(context),
@@ -166,8 +293,8 @@ class ShareModal extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Chip(
-                            onTap: onCopyPrivateKey,
-                            copyLabel,
+                            onTap: widget.onCopyPrivateKey,
+                            widget.copyLabel,
                             color:
                                 ThemeColors.subtleEmphasis.resolveFrom(context),
                             textColor:
