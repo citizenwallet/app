@@ -107,7 +107,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     HapticFeedback.lightImpact();
   }
 
-  void handleSave(Uint8List image, String ext) async {
+  void handleSave(Uint8List? image) async {
     final navigator = GoRouter.of(context);
 
     HapticFeedback.lightImpact();
@@ -119,7 +119,6 @@ class EditProfileModalState extends State<EditProfileModal> {
         account: wallet?.account ?? '',
       ),
       image,
-      ext,
     );
 
     if (!success) {
@@ -170,8 +169,6 @@ class EditProfileModalState extends State<EditProfileModal> {
     final image = context.select((ProfileState state) => state.image);
     final editingImage =
         context.select((ProfileState state) => state.editingImage);
-    final editingImageExt =
-        context.select((ProfileState state) => state.editingImageExt);
 
     final usernameController = context.watch<ProfileState>().usernameController;
     final usernameLoading =
@@ -180,19 +177,16 @@ class EditProfileModalState extends State<EditProfileModal> {
         context.select((ProfileState state) => state.usernameError);
 
     final nameController = context.watch<ProfileState>().nameController;
-    final nameError = context.select((ProfileState state) => state.nameError);
 
     final descriptionController =
         context.watch<ProfileState>().descriptionController;
     final descriptionEditText =
         context.select((ProfileState state) => state.descriptionEdit);
 
-    final noImage = (image == '' && editingImage == null);
-    final isInvalid = usernameError ||
-        usernameController.value.text == '' ||
-        nameError ||
-        nameController.value.text == '' ||
-        noImage;
+    final username = context.select((ProfileState state) => state.username);
+    final hasProfile = username.isNotEmpty;
+
+    final isInvalid = usernameError || usernameController.value.text == '';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -203,7 +197,7 @@ class EditProfileModalState extends State<EditProfileModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Edit',
+                title: hasProfile ? 'Edit' : 'Create',
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -371,32 +365,19 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 nameFormatter,
                               ],
                               focusNode: nameFocusNode,
-                              decoration: nameError
-                                  ? BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.danger,
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    )
-                                  : BoxDecoration(
-                                      color: const CupertinoDynamicColor
-                                          .withBrightness(
-                                        color: CupertinoColors.white,
-                                        darkColor: CupertinoColors.black,
-                                      ),
-                                      border: Border.all(
-                                        color: ThemeColors.border
-                                            .resolveFrom(context),
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                    ),
+                              decoration: BoxDecoration(
+                                color:
+                                    const CupertinoDynamicColor.withBrightness(
+                                  color: CupertinoColors.white,
+                                  darkColor: CupertinoColors.black,
+                                ),
+                                border: Border.all(
+                                  color:
+                                      ThemeColors.border.resolveFrom(context),
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0)),
+                              ),
                               onSubmitted: (_) {
                                 descriptionFocusNode.requestFocus();
                               },
@@ -545,11 +526,11 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     labelColor: ThemeColors.black,
                                     onPressed: isInvalid
                                         ? null
-                                        : editingImage == null ||
-                                                editingImageExt == null
+                                        : hasProfile && editingImage == null
                                             ? () => handleUpdate()
                                             : () => handleSave(
-                                                editingImage, editingImageExt),
+                                                  editingImage,
+                                                ),
                                   )
                               ],
                             ),

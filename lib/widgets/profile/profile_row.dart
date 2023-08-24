@@ -56,7 +56,9 @@ class ProfileRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    profile?.name ?? 'Unknown',
+                    profile?.name != null && profile!.name.isNotEmpty
+                        ? profile!.name
+                        : 'Anonymous',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

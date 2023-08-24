@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:citizenwallet/services/photos/file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as img;
+import 'package:image/image.dart';
 
 class PhotosService {
   static final PhotosService _instance = PhotosService._internal();
@@ -11,12 +12,12 @@ class PhotosService {
   PhotosService._internal();
 
   Future<Uint8List?> _resize(Uint8List bytes) async {
-    final cmd = img.Command()
+    final cmd = Command()
       ..decodeImage(bytes)
       ..bakeOrientation()
       ..copyResize(
         width: 512,
-        interpolation: img.Interpolation.linear,
+        interpolation: Interpolation.linear,
       )
       ..encodeJpg();
 
@@ -61,5 +62,13 @@ class PhotosService {
   Future<(List<int>, String)> photoToData(String path) async {
     final bytes = await pathToFile(path);
     return (bytes, path.split('.').last);
+  }
+
+  Future<Uint8List> photoFromBundle(String path) async {
+    final data = await rootBundle.load(path);
+
+    final buffer = data.buffer;
+
+    return buffer.asUint8List();
   }
 }

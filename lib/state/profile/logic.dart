@@ -160,7 +160,7 @@ class ProfileLogic {
     _state.viewProfileError();
   }
 
-  Future<bool> save(ProfileV1 profile, Uint8List image, String ext) async {
+  Future<bool> save(ProfileV1 profile, Uint8List? image) async {
     try {
       _state.setProfileRequest();
 
@@ -172,10 +172,14 @@ class ProfileLogic {
 
       _state.setProfileUploading();
 
+      final Uint8List newImage = image != null
+          ? convertBytesToUint8List(image)
+          : await _photos.photoFromBundle('assets/icons/profile.jpg');
+
       final url = await _wallet.setProfile(
         ProfileRequest.fromProfileV1(profile),
-        image: convertBytesToUint8List(image),
-        fileType: ext,
+        image: newImage,
+        fileType: '.jpg',
       );
       if (url == null) {
         throw Exception('Failed to save profile');
