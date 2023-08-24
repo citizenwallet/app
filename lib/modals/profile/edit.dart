@@ -3,9 +3,12 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/loaders/progress_bar.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -69,7 +72,9 @@ class EditProfileModalState extends State<EditProfileModal> {
     });
   }
 
-  void onLoad() {
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
     _logic.startEdit();
   }
 
@@ -154,8 +159,13 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     final loading = context.select((ProfileState state) => state.loading);
     final error = context.select((ProfileState state) => state.error);
+
+    final updateState =
+        context.select((ProfileState state) => state.updateState);
 
     final image = context.select((ProfileState state) => state.image);
     final editingImage =
@@ -439,30 +449,30 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 60),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                loading
-                                    ? CupertinoActivityIndicator(
-                                        color: ThemeColors.subtle
-                                            .resolveFrom(context),
-                                      )
-                                    : Button(
-                                        text: 'Save',
-                                        color: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        labelColor: ThemeColors.black,
-                                        onPressed: isInvalid
-                                            ? null
-                                            : editingImage == null ||
-                                                    editingImageExt == null
-                                                ? () => handleUpdate()
-                                                : () => handleSave(editingImage,
-                                                    editingImageExt),
-                                      ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   crossAxisAlignment: CrossAxisAlignment.center,
+                            //   children: [
+                            //     loading
+                            //         ? CupertinoActivityIndicator(
+                            //             color: ThemeColors.subtle
+                            //                 .resolveFrom(context),
+                            //           )
+                            //         : Button(
+                            //             text: 'Save',
+                            //             color: ThemeColors.surfacePrimary
+                            //                 .resolveFrom(context),
+                            //             labelColor: ThemeColors.black,
+                            //             onPressed: isInvalid
+                            //                 ? null
+                            //                 : editingImage == null ||
+                            //                         editingImageExt == null
+                            //                     ? () => handleUpdate()
+                            //                     : () => handleSave(editingImage,
+                            //                         editingImageExt),
+                            //           ),
+                            //   ],
+                            // ),
                             const SizedBox(height: 10),
                             if (!loading && error)
                               Row(
@@ -480,6 +490,70 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 ],
                               ),
                           ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Column(
+                              children: [
+                                if (loading) ...[
+                                  SizedBox(
+                                    height: 25,
+                                    child: Center(
+                                      child: ProgressBar(
+                                        updateState.progress,
+                                        width: width - 40,
+                                        height: 16,
+                                        borderRadius: 8,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    switch (updateState) {
+                                      ProfileUpdateState.existing =>
+                                        'Fetching existing profile...',
+                                      ProfileUpdateState.uploading =>
+                                        'Uploading new profile...',
+                                      ProfileUpdateState.fetching =>
+                                        'Almost done...',
+                                      _ => 'Saving...',
+                                    },
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: ThemeColors.subtleText
+                                          .resolveFrom(context),
+                                    ),
+                                  )
+                                ],
+                                if (!loading)
+                                  Button(
+                                    text: 'Save',
+                                    color: ThemeColors.surfacePrimary
+                                        .resolveFrom(context),
+                                    labelColor: ThemeColors.black,
+                                    onPressed: isInvalid
+                                        ? null
+                                        : editingImage == null ||
+                                                editingImageExt == null
+                                            ? () => handleUpdate()
+                                            : () => handleSave(
+                                                editingImage, editingImageExt),
+                                  )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],

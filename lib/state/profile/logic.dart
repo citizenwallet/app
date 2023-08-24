@@ -164,9 +164,13 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
+      await delay(const Duration(milliseconds: 250));
+
       profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
+
+      _state.setProfileUploading();
 
       final url = await _wallet.setProfile(
         ProfileRequest.fromProfileV1(profile),
@@ -176,6 +180,8 @@ class ProfileLogic {
       if (url == null) {
         throw Exception('Failed to save profile');
       }
+
+      _state.setProfileFetching();
 
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
@@ -231,6 +237,8 @@ class ProfileLogic {
       profile.imageMedium = _state.imageMedium;
       profile.imageSmall = _state.imageSmall;
 
+      _state.setProfileExisting();
+
       final existing = await _wallet.getProfile(profile.account);
       if (existing == null) {
         throw Exception('Failed to load profile');
@@ -241,10 +249,14 @@ class ProfileLogic {
         return true;
       }
 
+      _state.setProfileUploading();
+
       final url = await _wallet.updateProfile(profile);
       if (url == null) {
         throw Exception('Failed to save profile');
       }
+
+      _state.setProfileFetching();
 
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
@@ -264,13 +276,14 @@ class ProfileLogic {
       );
 
       _db.contacts.insert(DBContact(
-          account: newProfile.account,
-          username: newProfile.username,
-          name: newProfile.name,
-          description: newProfile.description,
-          image: newProfile.image,
-          imageMedium: newProfile.imageMedium,
-          imageSmall: newProfile.imageSmall));
+        account: newProfile.account,
+        username: newProfile.username,
+        name: newProfile.name,
+        description: newProfile.description,
+        image: newProfile.image,
+        imageMedium: newProfile.imageMedium,
+        imageSmall: newProfile.imageSmall,
+      ));
 
       _profiles.isLoaded(
         newProfile.account,

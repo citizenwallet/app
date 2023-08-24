@@ -2,6 +2,26 @@ import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
+enum ProfileUpdateState {
+  idle,
+  existing,
+  uploading,
+  fetching;
+
+  double get progress {
+    switch (this) {
+      case ProfileUpdateState.idle:
+        return 0;
+      case ProfileUpdateState.existing:
+        return 0.25;
+      case ProfileUpdateState.uploading:
+        return 0.5;
+      case ProfileUpdateState.fetching:
+        return 1;
+    }
+  }
+}
+
 class ProfileState with ChangeNotifier {
   String account = '';
   String username = '';
@@ -13,6 +33,8 @@ class ProfileState with ChangeNotifier {
 
   bool loading = false;
   bool error = false;
+
+  ProfileUpdateState updateState = ProfileUpdateState.idle;
 
   // editing
   final TextEditingController usernameController = TextEditingController();
@@ -120,6 +142,33 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setProfileExisting() {
+    loading = true;
+    error = false;
+
+    updateState = ProfileUpdateState.existing;
+
+    notifyListeners();
+  }
+
+  void setProfileUploading() {
+    loading = true;
+    error = false;
+
+    updateState = ProfileUpdateState.uploading;
+
+    notifyListeners();
+  }
+
+  void setProfileFetching() {
+    loading = true;
+    error = false;
+
+    updateState = ProfileUpdateState.fetching;
+
+    notifyListeners();
+  }
+
   void setProfileSuccess({
     required String account,
     required String username,
@@ -140,6 +189,8 @@ class ProfileState with ChangeNotifier {
     loading = false;
     error = false;
 
+    updateState = ProfileUpdateState.idle;
+
     notifyListeners();
   }
 
@@ -147,12 +198,16 @@ class ProfileState with ChangeNotifier {
     loading = false;
     error = false;
 
+    updateState = ProfileUpdateState.idle;
+
     notifyListeners();
   }
 
   void setProfileError() {
     loading = false;
     error = true;
+
+    updateState = ProfileUpdateState.idle;
 
     notifyListeners();
   }
