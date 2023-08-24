@@ -151,7 +151,7 @@ class TransactionRowState extends State<TransactionRow> {
                                       : 'Voucher created'
                                   : profile != null
                                       ? profile.profile.name
-                                      : 'Unknown',
+                                      : 'Anonymous',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
