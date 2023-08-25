@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -289,17 +290,45 @@ class AppLogic {
     return null;
   }
 
-  Future<QRWallet?> importWebWallet(String qrWallet) async {
+  Future<String?> importWebWallet(
+    String webWallet,
+    String alias,
+  ) async {
     try {
+      // TODO: accounts with aliases
+      print('alias: $alias');
+
       _appState.importLoadingReq();
 
-      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
+      final decoded = convertUint8ListToString(
+          base64Decode(webWallet.replaceFirst('v2-', '')));
 
-      await wallet.verifyData();
+      final password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      final wallet = Wallet.fromJson(decoded, password);
+
+      final credentials = wallet.privateKey;
+
+      final address = credentials.address.hexEip55;
+
+      final existing = await _encPrefs.getWalletBackup(address);
+      if (existing != null) {
+        return existing.address;
+      }
+
+      await _encPrefs.setWalletBackup(
+        BackupWallet(
+          address: address,
+          privateKey: bytesToHex(credentials.privateKey),
+          name: 'Imported Web Wallet',
+        ),
+      );
+
+      await _preferences.setLastWallet(address);
 
       _appState.importLoadingSuccess();
 
-      return wallet;
+      return address;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,

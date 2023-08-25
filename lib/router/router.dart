@@ -35,11 +35,28 @@ GoRouter createRouter(
             path: '/',
             parentNavigatorKey: rootNavigatorKey,
             builder: (context, state) {
+              // coming in from a deep link "#/wallet/..." will come as a fragment
               final uri = Uri.parse(state.uri.fragment);
+
+              // determine if we are coming from a wallet deep link
+              String? webWallet;
+              String? webWalletAlias;
+
+              final fragment = state.uri.fragment;
+              if (fragment.contains('/wallet/')) {
+                // attempt to parse the compressed wallet json
+                webWallet = fragment.split('/wallet/').last;
+
+                // attempt to parse the alias
+                webWalletAlias = uri.queryParameters['alias'];
+              }
 
               return LandingScreen(
                 voucher: uri.queryParameters['voucher'],
                 voucherParams: uri.queryParameters['params'],
+                webWallet:
+                    webWallet != null && webWallet.isEmpty ? null : webWallet,
+                webWalletAlias: webWalletAlias,
               );
             }),
         ShellRoute(
@@ -158,10 +175,18 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => WebLandingScreen(
-            voucher: state.uri.queryParameters['voucher'],
-            voucherParams: state.uri.queryParameters['params'],
-          ),
+          builder: (context, state) {
+            String alias = Uri.base.host.split('.').first;
+            if (Uri.base.host.split('.').length >= 4) {
+              alias += '.${Uri.base.host.split('.')[1]}';
+            }
+
+            return WebLandingScreen(
+              voucher: state.uri.queryParameters['voucher'],
+              voucherParams: state.uri.queryParameters['params'],
+              alias: alias,
+            );
+          },
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,

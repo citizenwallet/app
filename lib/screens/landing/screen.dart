@@ -19,11 +19,15 @@ import 'package:provider/provider.dart';
 class LandingScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
+  final String? webWallet;
+  final String? webWalletAlias;
 
   const LandingScreen({
     super.key,
     this.voucher,
     this.voucherParams,
+    this.webWallet,
+    this.webWalletAlias,
   });
 
   @override
@@ -49,17 +53,26 @@ class LandingScreenState extends State<LandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
+    // set up recovery
     await handleAppleRecover();
     await handleAndroidRecover();
 
-    final address = await _appLogic.loadLastWallet();
+    String? address;
+
+    // load a deep linked wallet from web
+    if (widget.webWallet != null) {
+      address = await _appLogic.importWebWallet(
+        widget.webWallet!,
+        widget.webWalletAlias ?? 'app',
+      );
+    }
+
+    // load the last wallet if there was no deeplink
+    address ??= await _appLogic.loadLastWallet();
 
     if (address == null) {
       return;
     }
-
-    print('voucher: ${widget.voucher}');
-    print('voucherParams: ${widget.voucherParams}');
 
     String url = '/wallet/$address';
     if (widget.voucher != null && widget.voucherParams != null) {

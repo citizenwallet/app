@@ -8,11 +8,13 @@ import 'package:lottie/lottie.dart';
 class WebLandingScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
+  final String? alias;
 
   const WebLandingScreen({
     super.key,
     this.voucher,
     this.voucherParams,
+    this.alias,
   });
 
   @override
@@ -35,6 +37,20 @@ class WebLandingScreenState extends State<WebLandingScreen>
     });
   }
 
+  String parseParamsFromWidget() {
+    String params = '';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      params += '&voucher=${widget.voucher}';
+      params += '&params=${widget.voucherParams}';
+    }
+
+    if (widget.alias != null) {
+      params += '&alias=${widget.alias}';
+    }
+
+    return params.replaceFirst('&', '?');
+  }
+
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
@@ -43,13 +59,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
     final lastEncodedWallet = await _appLogic.getLastEncodedWallet();
 
     if (lastEncodedWallet != null) {
-      String url = '/wallet/$lastEncodedWallet';
-      if (widget.voucher != null && widget.voucherParams != null) {
-        url += '?voucher=${widget.voucher}';
-        url += '&params=${widget.voucherParams}';
-      }
-
-      navigator.go(url);
+      navigator.go('/wallet/$lastEncodedWallet${parseParamsFromWidget()}');
       return;
     }
 
@@ -59,13 +69,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
       return;
     }
 
-    String url = '/wallet/$wallet';
-    if (widget.voucher != null && widget.voucherParams != null) {
-      url += '?voucher=${widget.voucher}';
-      url += '&params=${widget.voucherParams}';
-    }
-
-    navigator.go(url);
+    navigator.go('/wallet/$wallet${parseParamsFromWidget()}');
   }
 
   @override
