@@ -175,10 +175,18 @@ GoRouter createWebRouter(
           name: 'Landing',
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => WebLandingScreen(
-            voucher: state.uri.queryParameters['voucher'],
-            voucherParams: state.uri.queryParameters['params'],
-          ),
+          builder: (context, state) {
+            String alias = Uri.base.host.split('.').first;
+            if (Uri.base.host.split('.').length >= 4) {
+              alias += '.${Uri.base.host.split('.')[1]}';
+            }
+
+            return WebLandingScreen(
+              voucher: state.uri.queryParameters['voucher'],
+              voucherParams: state.uri.queryParameters['params'],
+              alias: alias,
+            );
+          },
         ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,

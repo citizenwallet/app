@@ -279,12 +279,12 @@ class ConfigService {
         '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
-    _alias = alias;
+    _alias = alias == 'localhost' ? 'app' : alias;
   }
 
   void init(String endpoint, String alias) {
     _api = APIService(baseURL: endpoint);
-    _alias = alias;
+    _alias = alias == 'localhost' ? 'app' : alias;
   }
 
   Future<Config> _getConfig() async {
