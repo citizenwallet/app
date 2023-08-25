@@ -1,7 +1,9 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/contacts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -10,10 +12,15 @@ import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class ProfileLogic {
+  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+
+  final ConfigService _config = ConfigService();
+
   late ProfileState _state;
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
@@ -56,6 +63,30 @@ class ProfileLogic {
     } catch (e) {
       //
     }
+  }
+
+  Future<void> loadProfileLink() async {
+    try {
+      _state.setProfileLinkRequest();
+
+      final config = await _config.config;
+
+      final url = 'https://${config.community.alias}$appLinkSuffix/#/';
+
+      final compressedParams = compress(
+          '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
+
+      _state.setProfileLinkSuccess('$url?receiveParams=$compressedParams');
+      return;
+    } catch (e) {
+      //
+    }
+
+    _state.setProfileLinkError();
+  }
+
+  void clearProfileLink() {
+    _state.clearProfileLink();
   }
 
   Future<void> selectPhoto() async {

@@ -280,6 +280,40 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
+  // profile link
+  String profileLink = '';
+
+  bool profileLinkLoading = true;
+  bool profileLinkError = false;
+
+  void setProfileLinkRequest() {
+    profileLinkLoading = true;
+    profileLinkError = false;
+
+    notifyListeners();
+  }
+
+  void setProfileLinkSuccess(String link) {
+    profileLink = link;
+    profileLinkLoading = false;
+    profileLinkError = false;
+
+    notifyListeners();
+  }
+
+  void setProfileLinkError() {
+    profileLinkLoading = false;
+    profileLinkError = true;
+
+    notifyListeners();
+  }
+
+  void clearProfileLink() {
+    profileLink = '';
+    profileLinkLoading = true;
+    profileLinkError = false;
+  }
+
   @override
   void dispose() {
     usernameController.dispose();

@@ -2,6 +2,7 @@ import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
@@ -42,11 +43,16 @@ class ProfileModalState extends State<ProfileModal> {
     });
   }
 
-  void onLoad() {
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
+    await _logic.loadProfileLink();
+
     _logic.loadViewProfile(widget.account);
   }
 
   void handleDismiss(BuildContext context) {
+    _logic.clearProfileLink();
     _logic.resetViewProfile();
     GoRouter.of(context).pop();
   }
@@ -75,6 +81,12 @@ class ProfileModalState extends State<ProfileModal> {
     final loading = context.watch<ProfileState>().viewLoading;
 
     final hasNoProfile = profile == null;
+
+    final profileLink =
+        context.select((ProfileState state) => state.profileLink);
+
+    final profileLinkLoading =
+        context.select((ProfileState state) => state.profileLinkLoading);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -137,10 +149,15 @@ class ProfileModalState extends State<ProfileModal> {
                                       (loading || hasNoProfile) ? 40 : 60,
                                     ),
                                     margin: const EdgeInsets.only(top: 80),
-                                    child: PrettyQr(
-                                      data: widget.account,
-                                      size: 200,
-                                      roundEdges: false,
+                                    child: AnimatedOpacity(
+                                      opacity: profileLinkLoading ? 0 : 1,
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      child: PrettyQr(
+                                        data: profileLink,
+                                        size: 200,
+                                        roundEdges: false,
+                                      ),
                                     ),
                                   ),
                                   Positioned(
