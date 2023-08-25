@@ -50,6 +50,8 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void dispose() {
+    _logic.clearProfileLink();
+
     super.dispose();
   }
 
@@ -59,6 +61,8 @@ class AccountScreenState extends State<AccountScreen> {
     }
 
     await _walletLogic.openWallet(widget.address!, (bool hasChanged) async {
+      await _logic.loadProfileLink();
+
       if (hasChanged) _logic.loadProfile();
     });
   }
@@ -136,6 +140,12 @@ class AccountScreenState extends State<AccountScreen> {
     final hasNoProfile =
         profile.username == '' && profile.name == '' && profile.image == '';
 
+    final profileLink =
+        context.select((ProfileState state) => state.profileLink);
+
+    final profileLinkLoading =
+        context.select((ProfileState state) => state.profileLinkLoading);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -172,10 +182,14 @@ class AccountScreenState extends State<AccountScreen> {
                                   (profileLoading || hasNoProfile) ? 40 : 60,
                                 ),
                                 margin: const EdgeInsets.only(top: 80),
-                                child: PrettyQr(
-                                  data: widget.address ?? '',
-                                  size: 200,
-                                  roundEdges: false,
+                                child: AnimatedOpacity(
+                                  opacity: profileLinkLoading ? 0 : 1,
+                                  duration: const Duration(milliseconds: 250),
+                                  child: PrettyQr(
+                                    data: profileLink,
+                                    size: 200,
+                                    roundEdges: false,
+                                  ),
                                 ),
                               ),
                               Positioned(

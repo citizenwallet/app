@@ -21,6 +21,7 @@ class LandingScreen extends StatefulWidget {
   final String? voucherParams;
   final String? webWallet;
   final String? webWalletAlias;
+  final String? receiveParams;
 
   const LandingScreen({
     super.key,
@@ -28,6 +29,7 @@ class LandingScreen extends StatefulWidget {
     this.voucherParams,
     this.webWallet,
     this.webWalletAlias,
+    this.receiveParams,
   });
 
   @override
@@ -78,6 +80,10 @@ class LandingScreenState extends State<LandingScreen>
     if (widget.voucher != null && widget.voucherParams != null) {
       url += '?voucher=${widget.voucher}';
       url += '&params=${widget.voucherParams}';
+    }
+
+    if (widget.receiveParams != null) {
+      url += '?receiveParams=${widget.receiveParams}';
     }
 
     navigator.go(url);
@@ -164,6 +170,10 @@ class LandingScreenState extends State<LandingScreen>
       url += '&params=${widget.voucherParams}';
     }
 
+    if (widget.receiveParams != null) {
+      url += '?receiveParams=${widget.receiveParams}';
+    }
+
     navigator.go(url);
   }
 
@@ -204,6 +214,10 @@ class LandingScreenState extends State<LandingScreen>
     if (widget.voucher != null && widget.voucherParams != null) {
       url += '?voucher=${widget.voucher}';
       url += '&params=${widget.voucherParams}';
+    }
+
+    if (widget.receiveParams != null) {
+      url += '?receiveParams=${widget.receiveParams}';
     }
 
     navigator.go(url);

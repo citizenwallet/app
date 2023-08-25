@@ -38,7 +38,11 @@ GoRouter createRouter(
               // coming in from a deep link "#/wallet/..." will come as a fragment
               final uri = Uri.parse(state.uri.fragment);
 
-              // determine if we are coming from a wallet deep link
+              // parse from a voucher deep link
+              final voucher = uri.queryParameters['voucher'];
+              final voucherParams = uri.queryParameters['params'];
+
+              // parse from a wallet deep link
               String? webWallet;
               String? webWalletAlias;
 
@@ -51,12 +55,16 @@ GoRouter createRouter(
                 webWalletAlias = uri.queryParameters['alias'];
               }
 
+              // parse from a receive deep link
+              final receiveParams = uri.queryParameters['receiveParams'];
+
               return LandingScreen(
-                voucher: uri.queryParameters['voucher'],
-                voucherParams: uri.queryParameters['params'],
+                voucher: voucher,
+                voucherParams: voucherParams,
                 webWallet:
                     webWallet != null && webWallet.isEmpty ? null : webWallet,
                 webWalletAlias: webWalletAlias,
+                receiveParams: receiveParams,
               );
             }),
         ShellRoute(
@@ -78,6 +86,7 @@ GoRouter createRouter(
                   wallet,
                   voucher: state.uri.queryParameters['voucher'],
                   voucherParams: state.uri.queryParameters['params'],
+                  receiveParams: state.uri.queryParameters['receiveParams'],
                 ),
               ),
               routes: [
@@ -185,6 +194,7 @@ GoRouter createWebRouter(
               voucher: state.uri.queryParameters['voucher'],
               voucherParams: state.uri.queryParameters['params'],
               alias: alias,
+              receiveParams: state.uri.queryParameters['receiveParams'],
             );
           },
         ),
@@ -216,6 +226,7 @@ GoRouter createWebRouter(
                       alias: alias,
                       voucher: state.uri.queryParameters['voucher'],
                       voucherParams: state.uri.queryParameters['params'],
+                      receiveParams: state.uri.queryParameters['receiveParams'],
                     ),
                   ),
                 );

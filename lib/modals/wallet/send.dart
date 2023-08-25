@@ -33,6 +33,8 @@ class SendModal extends StatefulWidget {
   final String? to;
   final String? amount;
 
+  final String? receiveParams;
+
   const SendModal({
     Key? key,
     required this.walletLogic,
@@ -40,6 +42,7 @@ class SendModal extends StatefulWidget {
     this.id,
     this.to,
     this.amount,
+    this.receiveParams,
   }) : super(key: key);
 
   @override
@@ -125,6 +128,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       _logic.updateAmount();
 
       amountFocuseNode.requestFocus();
+    }
+
+    if (widget.receiveParams != null) {
+      handleScan('/#/?receiveParams=${widget.receiveParams!}');
     }
   }
 
@@ -317,7 +324,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void handleScan(String value) async {
     await closeScanner();
 
-    final hex = _logic.updateFromCapture(value);
+    final hex = await _logic.updateFromCapture(value);
 
     final profile = await widget.profilesLogic.getProfile(hex ?? '');
     if (profile != null || hex != null) {

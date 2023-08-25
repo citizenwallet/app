@@ -37,6 +37,7 @@ class BurnerWalletScreen extends StatefulWidget {
   final String alias;
   final String? voucher;
   final String? voucherParams;
+  final String? receiveParams;
 
   const BurnerWalletScreen(
     this.encoded,
@@ -45,6 +46,7 @@ class BurnerWalletScreen extends StatefulWidget {
     this.alias = 'app',
     this.voucher,
     this.voucherParams,
+    this.receiveParams,
   });
 
   @override
@@ -173,6 +175,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
+    }
+
+    if (widget.receiveParams != null) {
+      await handleSendModal(receiveParams: widget.receiveParams);
     }
   }
 
@@ -345,7 +351,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleSendModal() async {
+  Future<void> handleSendModal({String? receiveParams}) async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
@@ -359,6 +365,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       builder: (_) => SendModal(
         walletLogic: _logic,
         profilesLogic: _profilesLogic,
+        receiveParams: receiveParams,
       ),
     );
 
