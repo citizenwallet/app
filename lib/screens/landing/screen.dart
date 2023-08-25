@@ -20,12 +20,14 @@ class LandingScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
   final String? webWallet;
+  final String? webWalletAlias;
 
   const LandingScreen({
     super.key,
     this.voucher,
     this.voucherParams,
     this.webWallet,
+    this.webWalletAlias,
   });
 
   @override
@@ -59,7 +61,10 @@ class LandingScreenState extends State<LandingScreen>
 
     // load a deep linked wallet from web
     if (widget.webWallet != null) {
-      address = await _appLogic.importWebWallet(widget.webWallet!);
+      address = await _appLogic.importWebWallet(
+        widget.webWallet!,
+        widget.webWalletAlias ?? 'app',
+      );
     }
 
     // load the last wallet if there was no deeplink

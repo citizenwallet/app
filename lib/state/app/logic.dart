@@ -290,8 +290,14 @@ class AppLogic {
     return null;
   }
 
-  Future<String?> importWebWallet(String webWallet) async {
+  Future<String?> importWebWallet(
+    String webWallet,
+    String alias,
+  ) async {
     try {
+      // TODO: accounts with aliases
+      print('alias: $alias');
+
       _appState.importLoadingReq();
 
       final decoded = convertUint8ListToString(
