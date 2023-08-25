@@ -33,6 +33,8 @@ $link
 
 By following this link, you can gain access to this wallet.
 
+Send this to yourself or just save it as a draft.
+
 Remember to only share this link with people you trust. Anyone with this link can access your wallet and send transactions on your behalf.
 
 Regards,
