@@ -12,13 +12,18 @@ class ThemeColors {
   );
 
   static const primary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(7, 153, 98, 1),
-    darkColor: Color.fromRGBO(7, 153, 98, 1),
+    color: Color.fromRGBO(131, 61, 219, 1),
+    darkColor: Color.fromRGBO(131, 61, 219, 1),
   );
 
   static const secondary = CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(255, 241, 159, 5),
     darkColor: Color.fromRGBO(244, 188, 81, 1),
+  );
+
+  static const success = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(7, 153, 98, 1),
+    darkColor: Color.fromRGBO(7, 153, 98, 1),
   );
 
   static const danger = CupertinoDynamicColor.withBrightness(
@@ -72,8 +77,8 @@ class ThemeColors {
   );
 
   static const surfacePrimary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromARGB(255, 200, 255, 148),
-    darkColor: Color.fromARGB(255, 200, 255, 148),
+    color: Color.fromARGB(255, 188, 135, 255),
+    darkColor: Color.fromARGB(255, 188, 135, 255),
   );
 
   static const surfaceText = CupertinoDynamicColor.withBrightness(

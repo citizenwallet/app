@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 class Header extends StatefulWidget {
   final String? title;
   final double fontSize;
+  final TextAlign? textAlign;
   final Widget? titleWidget;
   final String? subTitle;
   final Widget? subTitleWidget;
@@ -21,6 +22,7 @@ class Header extends StatefulWidget {
     super.key,
     this.title,
     this.fontSize = 32,
+    this.textAlign,
     this.titleWidget,
     this.subTitleWidget,
     this.subTitle,
@@ -78,6 +80,7 @@ class HeaderState extends State<Header> {
                     widget.title!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    textAlign: widget.textAlign,
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       fontWeight: FontWeight.bold,

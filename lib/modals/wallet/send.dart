@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:citizenwallet/modals/wallet/pick_sender_modal.dart';
-import 'package:citizenwallet/modals/wallet/voucher_modal.dart';
+import 'package:citizenwallet/modals/wallet/pick_sender.dart';
+import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
