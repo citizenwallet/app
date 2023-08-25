@@ -1,13 +1,11 @@
-import 'package:citizenwallet/state/share_modal/logic.dart';
-import 'package:citizenwallet/state/share_modal/state.dart';
+import 'package:citizenwallet/state/backup_web/logic.dart';
+import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -15,28 +13,26 @@ import 'package:provider/provider.dart';
 
 class ShareModal extends StatefulWidget {
   final String title;
-  final String copyLabel;
-  final void Function() onCopyPrivateKey;
 
   const ShareModal({
     Key? key,
     this.title = 'Wallet',
-    required this.copyLabel,
-    required this.onCopyPrivateKey,
   }) : super(key: key);
 
   @override
-  _ShareModalState createState() => _ShareModalState();
+  ShareModalState createState() => ShareModalState();
 }
 
-class _ShareModalState extends State<ShareModal> {
-  late ShareModalLogic _logic;
+class ShareModalState extends State<ShareModal> {
+  double _opacity = 0;
+
+  late BackupWebLogic _logic;
 
   @override
   void initState() {
     super.initState();
 
-    _logic = ShareModalLogic(context);
+    _logic = BackupWebLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       //
@@ -49,20 +45,16 @@ class _ShareModalState extends State<ShareModal> {
     await delay(const Duration(milliseconds: 250));
 
     _logic.setShareLink();
+
+    setState(() {
+      _opacity = 1;
+    });
   }
 
   void onCopyShareUrl() {
     _logic.copyShareUrl();
 
     HapticFeedback.heavyImpact();
-  }
-
-  void handleShareWallet(BuildContext context) {
-    final box = context.findRenderObject() as RenderBox?;
-
-    _logic.shareWallet(
-      box!.localToGlobal(Offset.zero) & box.size,
-    );
   }
 
   void onCopyUrl() {
@@ -80,7 +72,7 @@ class _ShareModalState extends State<ShareModal> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    final shareLink = context.select((ShareModalState s) => s.shareLink);
+    final shareLink = context.select((BackupWebState s) => s.shareLink);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -115,7 +107,7 @@ class _ShareModalState extends State<ShareModal> {
                         height: 40,
                       ),
                       SizedBox(
-                        height: 400,
+                        height: 500,
                         width: width,
                         child: Stack(
                           alignment: Alignment.center,
@@ -133,10 +125,14 @@ class _ShareModalState extends State<ShareModal> {
                                 60,
                               ),
                               margin: const EdgeInsets.only(top: 80),
-                              child: PrettyQr(
-                                data: shareLink,
-                                size: 200,
-                                roundEdges: false,
+                              child: AnimatedOpacity(
+                                opacity: _opacity,
+                                duration: const Duration(milliseconds: 250),
+                                child: PrettyQr(
+                                  data: shareLink,
+                                  size: 300,
+                                  roundEdges: false,
+                                ),
                               ),
                             ),
                             const Positioned(
@@ -191,37 +187,11 @@ class _ShareModalState extends State<ShareModal> {
                           ],
                         ),
                       ),
-                      SvgPicture.asset(
-                        'assets/images/citizenwallet-qrcode.svg',
-                        semanticsLabel:
-                            'QR code to create a new citizen wallet',
-                        height: 300,
-                        width: 300,
-                        colorFilter: ColorFilter.mode(
-                          ThemeColors.text.resolveFrom(context),
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      const Text(
-                        'Scan this QR code to create a new Citizen Wallet',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.normal),
-                      ),
                       const SizedBox(
-                        height: 40,
+                        height: 20,
                       ),
                       const Text(
-                        'Share your own wallet',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text(
-                        'This can be helpful to have a copy of your wallet on another device, or to give a wallet to a parent or a kid.',
+                        'Get someone else to scan this QR code.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal),
@@ -230,84 +200,10 @@ class _ShareModalState extends State<ShareModal> {
                         height: 20,
                       ),
                       const Text(
-                        '⚠️ Only share this URL with trusted parties. Anyone who has this unique URL has full access to this wallet.',
+                        "If they don't already have one, it will create a new Citizen Wallet on their device",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Chip(
-                            Uri.base.toString(),
-                            onTap: () => handleShareWallet(context),
-                            fontSize: 12,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
-                            suffix: Icon(
-                              CupertinoIcons.square_on_square,
-                              size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
-                            ),
-                            borderRadius: 15,
-                            maxWidth: 150,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      const Text(
-                        'Export Private Key',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text(
-                        'You can export your private key to import it in the native Citizen Wallet app. Note that if you import it in metamask or in any other wallet that does not support account abstraction (ERC4337), you won\'t be able to directly see your balance.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.normal),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text(
-                        'Keep this key safe, anyone with access to it has access to the account.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.normal),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Chip(
-                            onTap: widget.onCopyPrivateKey,
-                            widget.copyLabel,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
-                            suffix: Icon(
-                              CupertinoIcons.square_on_square,
-                              size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
-                            ),
-                            borderRadius: 15,
-                            maxWidth: 150,
-                          ),
-                        ],
                       ),
                       const SizedBox(
                         height: 20,

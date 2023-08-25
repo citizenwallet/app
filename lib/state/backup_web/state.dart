@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class ShareModalState with ChangeNotifier {
+class BackupWebState with ChangeNotifier {
   String shareLink = '';
 
   void setShareLink(String link) {

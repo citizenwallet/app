@@ -1,20 +1,20 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/share/share.dart';
-import 'package:citizenwallet/state/share_modal/state.dart';
+import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
-class ShareModalLogic {
+class BackupWebLogic {
   final ConfigService _config = ConfigService();
   final SharingService _sharing = SharingService();
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
 
-  late ShareModalState _state;
+  late BackupWebState _state;
 
-  ShareModalLogic(BuildContext context) {
-    _state = context.read<ShareModalState>();
+  BackupWebLogic(BuildContext context) {
+    _state = context.read<BackupWebState>();
   }
 
   void setShareLink() async {
@@ -28,7 +28,7 @@ class ShareModalLogic {
     }
   }
 
-  Future<void> shareWallet(Rect sharePositionOrigin) async {
+  Future<void> backupWallet(Rect sharePositionOrigin) async {
     try {
       await _sharing.shareWallet(
         Uri.base.toString(),

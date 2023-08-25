@@ -85,6 +85,8 @@ flutter:
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
     - assets/icons/voucher.png
+    - assets/icons/bookmark.svg
+    - assets/icons/backup-file.svg
     - assets/icons/anonymous_user.svg
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
