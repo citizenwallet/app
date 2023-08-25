@@ -446,23 +446,23 @@
               loadingBar.classList.add("loading-bar-90");
             }, 3000);
 
-            // engineInitializer
-            //   .initializeEngine()
-            //   .then(function (appRunner) {
-            //     clearTimeout(long75Timeout);
+            engineInitializer
+              .initializeEngine()
+              .then(function (appRunner) {
+                clearTimeout(long75Timeout);
 
-            //     loading.textContent = "Launching your wallet...";
+                loading.textContent = "Launching your wallet...";
 
-            //     var loadingWrapper = document.querySelector("#loading-wrapper");
-            //     loadingWrapper.classList.add("abs-wrapper-loaded");
+                var loadingWrapper = document.querySelector("#loading-wrapper");
+                loadingWrapper.classList.add("abs-wrapper-loaded");
 
-            //     loadingBar.classList.remove("loading-bar-75");
-            //     loadingBar.classList.add("loading-bar-100");
-            //     appRunner.runApp();
-            //   })
-            //   .catch(function (error) {
-            //     loading.textContent = "Error loading wallet";
-            //   });
+                loadingBar.classList.remove("loading-bar-75");
+                loadingBar.classList.add("loading-bar-100");
+                appRunner.runApp();
+              })
+              .catch(function (error) {
+                loading.textContent = "Error loading wallet";
+              });
           },
         });
       });
