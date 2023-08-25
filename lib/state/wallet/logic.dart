@@ -36,6 +36,8 @@ class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
   late WalletState _state;
 
+  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
@@ -991,84 +993,65 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.parseQRAddressError();
   }
 
-  String? updateFromCapture(String raw) {
+  Future<String?> updateFromCapture(String raw) async {
     try {
-      final isHex = isHexValue(raw);
+      final receiveUrl = Uri.parse(raw.split('/#/').last);
 
-      if (isHex) {
-        updateAddressFromHexCapture(raw);
-        return raw;
+      final encodedParams = receiveUrl.queryParameters['receiveParams'];
+      if (encodedParams == null) {
+        throw Exception('missing receive params');
       }
 
-      final includesHex = includesHexValue(raw);
-      if (includesHex) {
-        final hex = extractHexFromText(raw);
-        if (hex.isNotEmpty) {
-          updateAddressFromHexCapture(hex);
-          return hex;
-        }
+      final decodedParams = decompress(encodedParams);
+
+      final paramUrl = Uri.parse(decodedParams);
+
+      final config = await _config.config;
+
+      final alias = paramUrl.queryParameters['alias'];
+      if (config.community.alias != alias) {
+        throw Exception('invalid alias');
       }
 
-      final qr = QRTransactionRequestData.fromCompressedJson(raw);
+      final address = paramUrl.queryParameters['address'];
+      if (address == null) {
+        throw Exception('missing address');
+      }
 
-      updateTransactionFromTransactionCapture(qr);
+      updateAddressFromHexCapture(address);
 
-      return qr.address;
+      final amount = paramUrl.queryParameters['amount'];
+
+      if (amount != null) {
+        _amountController.text = amount;
+        updateAmount();
+      }
+
+      final message = paramUrl.queryParameters['message'];
+
+      if (message != null) {
+        _messageController.text = message;
+      }
+
+      return address;
     } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+      //
     }
 
     return null;
   }
 
-  void updateTransactionFromTransactionCapture(
-      QRTransactionRequestData qr) async {
-    try {
-      // final verified = await qrTransaction.verifyData();
-      // TODO: implement a visual warning that the code is not signed
-      // if (!verified) {
-      //   throw signatureException;
-      // }
-
-      _addressController.text = qr.address;
-      _state.setHasAddress(qr.address.isNotEmpty);
-      _state.parseQRAddressSuccess();
-
-      if (qr.amount >= 0) {
-        _amountController.text =
-            qr.amount.toStringAsFixed(_wallet.currency.decimals);
-
-        updateAmount();
-      }
-
-      if (qr.message != '') {
-        _messageController.text = qr.message;
-      }
-
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    _state.parseQRAddressError();
-  }
-
   void updateReceiveQR({bool? onlyHex}) async {
-    return kIsWeb
-        ? updateReceiveQRUnlocked(onlyHex: onlyHex)
-        : updateReceiveQRLocked(onlyHex: onlyHex);
-  }
-
-  void updateReceiveQRLocked({bool? onlyHex}) async {
     try {
+      final config = await _config.config;
+
+      final url = 'https://${config.community.alias}$appLinkSuffix/#/';
+
       if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet.account.hexEip55);
+        final compressedParams = compress(
+            '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
+
+        _state.updateReceiveQR('$url?receiveParams=$compressedParams');
         return;
       }
 
@@ -1078,55 +1061,18 @@ class WalletLogic extends WidgetsBindingObserver {
                   _amountController.value.text.replaceAll(',', '.')) ??
               0;
 
-      final qrData = QRTransactionRequestData(
-        chainId: _wallet.chainId,
-        address: _wallet.account.hexEip55,
-        amount: amount,
-        message: _messageController.value.text,
-        publicKey: Uint8List.fromList([]),
-      );
+      String params =
+          '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}';
 
-      final compressed = qrData.toCompressedJson();
+      params += '&amount=${amount.toStringAsFixed(2)}';
+      params += '&message=${_messageController.value.text}';
 
-      _state.updateReceiveQR(compressed);
+      final compressedParams = compress(params);
+
+      _state.updateReceiveQR('$url?receiveParams=$compressedParams');
       return;
     } on NotFoundException {
       // HANDLE
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    _state.clearReceiveQR();
-  }
-
-  void updateReceiveQRUnlocked({bool? onlyHex}) async {
-    try {
-      if (onlyHex != null && onlyHex) {
-        _state.updateReceiveQR(_wallet.account.hexEip55);
-        return;
-      }
-
-      final double amount = _amountController.value.text.isEmpty
-          ? 0
-          : double.tryParse(
-                  _amountController.value.text.replaceAll(',', '.')) ??
-              0;
-
-      final qrData = QRTransactionRequestData(
-        chainId: _wallet.chainId,
-        address: _wallet.account.hexEip55,
-        amount: amount,
-        message: _messageController.value.text,
-        publicKey: _wallet.credentials.encodedPublicKey,
-      );
-
-      final compressed = qrData.toCompressedJson();
-
-      _state.updateReceiveQR(compressed);
-      return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,

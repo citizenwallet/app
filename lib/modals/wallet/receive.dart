@@ -3,9 +3,9 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/ratio.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -32,14 +32,14 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   late Debounce debouncedQRCode;
 
+  double _opacity = 0;
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
-
-      widget.logic.updateReceiveQR(onlyHex: true);
 
       debouncedQRCode = debounce(
         (String value) => widget.logic.updateReceiveQR(
@@ -48,12 +48,24 @@ class ReceiveModalState extends State<ReceiveModal> {
       );
 
       amountFocusNode.requestFocus();
+
+      onLoad();
     });
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void onLoad() async {
+    await delay(const Duration(milliseconds: 500));
+
+    widget.logic.updateReceiveQR(onlyHex: true);
+
+    setState(() {
+      _opacity = 1;
+    });
   }
 
   void handleDismiss(BuildContext context) {
@@ -155,15 +167,20 @@ class ReceiveModalState extends State<ReceiveModal> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     padding: const EdgeInsets.all(10),
-                                    child: PrettyQr(
-                                      key: const Key('receive-qr-code'),
-                                      data: qrCode,
-                                      size: progressiveClamp(
-                                        minQRSize,
-                                        qrSize,
-                                        shrink,
+                                    child: AnimatedOpacity(
+                                      opacity: _opacity,
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      child: PrettyQr(
+                                        key: const Key('receive-qr-code'),
+                                        data: qrCode,
+                                        size: progressiveClamp(
+                                          minQRSize,
+                                          qrSize,
+                                          shrink,
+                                        ),
+                                        roundEdges: false,
                                       ),
-                                      roundEdges: false,
                                     ),
                                   ),
                                 ),
@@ -173,10 +190,8 @@ class ReceiveModalState extends State<ReceiveModal> {
                               height: 10,
                             ),
                             Chip(
-                              formatHexAddress(wallet?.account ?? ''),
-                              onTap: wallet?.account == null
-                                  ? null
-                                  : () => handleCopy(wallet?.account ?? ''),
+                              formatHexAddress(qrCode),
+                              onTap: () => handleCopy(qrCode),
                               fontSize: 14,
                               color: ThemeColors.subtleEmphasis
                                   .resolveFrom(context),

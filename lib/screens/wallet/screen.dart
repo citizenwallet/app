@@ -22,12 +22,14 @@ class WalletScreen extends StatefulWidget {
   final String? address;
   final String? voucher;
   final String? voucherParams;
+  final String? receiveParams;
 
   const WalletScreen(
     this.address,
     this.wallet, {
     this.voucher,
     this.voucherParams,
+    this.receiveParams,
     super.key,
   });
 
@@ -117,6 +119,10 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
+    }
+
+    if (widget.receiveParams != null) {
+      await handleSendModal(receiveParams: widget.receiveParams);
     }
   }
 
@@ -290,7 +296,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleSendModal() async {
+  Future<void> handleSendModal({String? receiveParams}) async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
@@ -304,6 +310,7 @@ class WalletScreenState extends State<WalletScreen> {
       builder: (_) => SendModal(
         walletLogic: _logic,
         profilesLogic: _profilesLogic,
+        receiveParams: receiveParams,
       ),
     );
 

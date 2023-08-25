@@ -9,12 +9,14 @@ class WebLandingScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
   final String? alias;
+  final String? receiveParams;
 
   const WebLandingScreen({
     super.key,
     this.voucher,
     this.voucherParams,
     this.alias,
+    this.receiveParams,
   });
 
   @override
@@ -46,6 +48,10 @@ class WebLandingScreenState extends State<WebLandingScreen>
 
     if (widget.alias != null) {
       params += '&alias=${widget.alias}';
+    }
+
+    if (widget.receiveParams != null) {
+      params += '&receiveParams=${widget.receiveParams}';
     }
 
     return params.replaceFirst('&', '?');
