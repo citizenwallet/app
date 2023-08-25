@@ -1,4 +1,5 @@
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +11,7 @@ class OnboardingModal extends StatelessWidget {
 
   const OnboardingModal({
     Key? key,
-    this.title = 'Wallet',
+    this.title = 'Hello 👋',
   }) : super(key: key);
 
   void handleDismiss(BuildContext context) {
@@ -30,19 +31,33 @@ class OnboardingModal extends StatelessWidget {
             direction: Axis.vertical,
             children: [
               Header(
-                title: title,
-                actionButton: CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDismiss(context),
-                  child: Icon(
-                    CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
-                  ),
+                titleWidget: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Hello",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    SvgPicture.asset(
+                      'assets/icons/wave.svg',
+                      semanticsLabel: 'wave icon',
+                      height: 30,
+                      width: 30,
+                    ),
+                  ],
                 ),
+                textAlign: TextAlign.center,
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   child: CustomScrollView(
                     controller: ModalScrollController.of(context),
                     scrollBehavior: const CupertinoScrollBehavior(),
@@ -54,14 +69,14 @@ class OnboardingModal extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/bookmark.svg',
+                              'assets/logo.svg',
                               semanticsLabel: 'voucher icon',
                               height: 200,
                               width: 200,
                             ),
-                            const SizedBox(height: 100),
+                            const SizedBox(height: 60),
                             Text(
-                              'Your wallet is in the link of the page you are on now.',
+                              'This is your wallet.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 20,
@@ -73,10 +88,32 @@ class OnboardingModal extends StatelessWidget {
                               height: 20,
                             ),
                             const Text(
-                              "Bookmark this page to save your wallet.",
+                              "It lives in the link of this page.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 20,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            const Text(
+                              "It is unique to you and your community.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 60,
+                            ),
+                            const Text(
+                              "Keep your link private to make sure only you have access to this wallet.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
@@ -89,6 +126,20 @@ class OnboardingModal extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                    text: 'Continue',
+                    onPressed: () => handleDismiss(context),
+                    minWidth: 200,
+                    maxWidth: 200,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 40,
               ),
             ],
           ),

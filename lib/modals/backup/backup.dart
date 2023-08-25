@@ -147,34 +147,36 @@ class BackupModalState extends State<BackupModal> {
                             const SizedBox(
                               height: 40,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Button(
-                                  text: 'Send Link',
-                                  suffix: Row(
-                                    children: [
-                                      const SizedBox(width: 10),
-                                      Icon(
-                                        CupertinoIcons.link,
-                                        size: 18,
-                                        color: ThemeColors.black
-                                            .resolveFrom(context),
-                                      ),
-                                    ],
-                                  ),
-                                  onPressed: () => handleBackupWallet(context),
-                                  minWidth: 200,
-                                  maxWidth: 200,
-                                ),
-                              ],
-                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                    text: 'Send Link',
+                    suffix: Row(
+                      children: [
+                        const SizedBox(width: 10),
+                        Icon(
+                          CupertinoIcons.link,
+                          size: 18,
+                          color: ThemeColors.black.resolveFrom(context),
+                        ),
+                      ],
+                    ),
+                    onPressed: () => handleBackupWallet(context),
+                    minWidth: 200,
+                    maxWidth: 200,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 40,
               ),
             ],
           ),

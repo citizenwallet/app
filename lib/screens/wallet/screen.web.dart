@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:citizenwallet/modals/backup/backup.dart';
 import 'package:citizenwallet/modals/backup/bookmark.dart';
+import 'package:citizenwallet/modals/onboarding/onboarding.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
@@ -50,7 +52,7 @@ class BurnerWalletScreen extends StatefulWidget {
 }
 
 class BurnerWalletScreenState extends State<BurnerWalletScreen> {
-  // QRWallet? _wallet;
+  final PreferencesService _preferences = PreferencesService();
 
   final ScrollController _scrollController = ScrollController();
   late WalletLogic _logic;
@@ -162,7 +164,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    await handleOnboarding();
+    final firstLaunch = _preferences.firstLaunch;
+
+    if (firstLaunch) {
+      await handleOnboarding();
+      await _preferences.setFirstLaunch(false);
+    }
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
@@ -522,9 +529,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => const ShareModal(
-        title: 'Welcome',
-      ),
+      builder: (modalContext) => const OnboardingModal(),
     );
 
     _logic.resumeFetching();

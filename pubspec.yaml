@@ -67,6 +67,8 @@ flutter:
   assets:
     - .env
     - assets/logo_small.png
+    - assets/logo.png
+    - assets/logo.svg
     - assets/about/about.md
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
@@ -87,6 +89,7 @@ flutter:
     - assets/icons/voucher.png
     - assets/icons/bookmark.svg
     - assets/icons/backup-file.svg
+    - assets/icons/wave.svg
     - assets/icons/anonymous_user.svg
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
