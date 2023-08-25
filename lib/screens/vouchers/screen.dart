@@ -1,4 +1,4 @@
-import 'package:citizenwallet/modals/wallet/voucher_view_modal.dart';
+import 'package:citizenwallet/modals/wallet/voucher_view.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';

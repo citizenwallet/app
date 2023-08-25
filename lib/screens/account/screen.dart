@@ -1,5 +1,5 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
-import 'package:citizenwallet/modals/wallet/switch_wallet_modal.dart';
+import 'package:citizenwallet/modals/wallet/switch_wallet.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';

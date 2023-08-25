@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/modals/backup/backup_modal.dart';
-import 'package:citizenwallet/modals/backup/bookmark_modal.dart';
+import 'package:citizenwallet/modals/backup/backup.dart';
+import 'package:citizenwallet/modals/backup/bookmark.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/modals/wallet/receive_modal.dart';
-import 'package:citizenwallet/modals/wallet/send_modal.dart';
-import 'package:citizenwallet/modals/wallet/voucher_read_modal.dart';
+import 'package:citizenwallet/modals/wallet/receive.dart';
+import 'package:citizenwallet/modals/wallet/send.dart';
+import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
@@ -17,7 +17,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/modals/backup/share_modal.dart';
+import 'package:citizenwallet/modals/backup/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -161,6 +161,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       onLoad(retry: true);
       return;
     }
+
+    await handleOnboarding();
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
@@ -503,6 +505,25 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       useRootNavigator: true,
       builder: (modalContext) => const ShareModal(
         title: 'Share Citizen Wallet',
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  Future<void> handleOnboarding() async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => const ShareModal(
+        title: 'Welcome',
       ),
     );
 
