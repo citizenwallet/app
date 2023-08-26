@@ -113,6 +113,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     await _logic.openWallet(widget.address!, (bool hasChanged) async {
       if (hasChanged) _profileLogic.loadProfile();
+      await _profileLogic.loadProfileLink();
       await _logic.loadTransactions();
       await _voucherLogic.fetchVouchers();
     });
@@ -319,14 +320,8 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleCopyWalletQR() {
-    _logic.copyWalletQRToClipboard();
-
-    HapticFeedback.heavyImpact();
-  }
-
-  void handleCopyAccount() {
-    _logic.copyWalletAccount();
+  void handleCopyProfileLink() {
+    _profileLogic.copyProfileLink();
 
     HapticFeedback.heavyImpact();
   }
@@ -397,7 +392,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleReceive: handleReceive,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopyWalletQR: handleCopyAccount,
+                  handleCopyWalletQR: handleCopyProfileLink,
                   handleLoad: handleLoad,
                 ),
           SafeArea(

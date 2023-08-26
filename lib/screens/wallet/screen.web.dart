@@ -156,6 +156,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       widget.alias,
       () async {
         _profileLogic.loadProfile();
+        await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
       },
@@ -374,14 +375,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleCopyWalletQR() {
-    _logic.copyWalletQRToClipboard();
-
-    HapticFeedback.heavyImpact();
-  }
-
-  void handleCopyAccount() {
-    _logic.copyWalletAccount();
+  void handleCopyProfileLink() {
+    _profileLogic.copyProfileLink();
 
     HapticFeedback.heavyImpact();
   }
@@ -596,7 +591,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       // handleReceive: handleTestNav,
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
-                      handleCopyWalletQR: handleCopyAccount,
+                      handleCopyWalletQR: handleCopyProfileLink,
                       handleLoad: handleLoad,
                     ),
               Header(

@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
@@ -72,6 +73,12 @@ class WalletScrollView extends StatelessWidget {
     final blockSending = context.select(selectShouldBlockSending);
 
     final profiles = context.watch<ProfilesState>().profiles;
+
+    final profileLink =
+        context.select((ProfileState state) => state.profileLink);
+
+    final profileLinkLoading =
+        context.select((ProfileState state) => state.profileLinkLoading);
 
     if (wallet != null &&
         wallet.doubleBalance == 0.0 &&
@@ -154,10 +161,14 @@ class WalletScrollView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.all(10),
-                  child: PrettyQr(
-                    data: wallet.account,
-                    size: qrSize,
-                    roundEdges: false,
+                  child: AnimatedOpacity(
+                    opacity: profileLinkLoading ? 0 : 1,
+                    duration: const Duration(milliseconds: 250),
+                    child: PrettyQr(
+                      data: profileLink,
+                      size: qrSize,
+                      roundEdges: false,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -168,7 +179,7 @@ class WalletScrollView extends StatelessWidget {
                   children: [
                     Chip(
                       onTap: handleCopyWalletQR,
-                      formatHexAddress(wallet.account),
+                      formatHexAddress(profileLink),
                       color: ThemeColors.subtleEmphasis.resolveFrom(context),
                       textColor: ThemeColors.touchable.resolveFrom(context),
                       suffix: Icon(

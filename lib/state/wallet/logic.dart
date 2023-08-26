@@ -995,6 +995,26 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<String?> updateFromCapture(String raw) async {
     try {
+      if (raw.isEmpty) {
+        throw Exception('empty qr');
+      }
+
+      final isHex = isHexValue(raw);
+
+      if (isHex) {
+        updateAddressFromHexCapture(raw);
+        return raw;
+      }
+
+      final includesHex = includesHexValue(raw);
+      if (includesHex && !raw.contains('/#/')) {
+        final hex = extractHexFromText(raw);
+        if (hex.isNotEmpty) {
+          updateAddressFromHexCapture(hex);
+          return hex;
+        }
+      }
+
       final receiveUrl = Uri.parse(raw.split('/#/').last);
 
       final encodedParams = receiveUrl.queryParameters['receiveParams'];

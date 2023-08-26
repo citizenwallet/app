@@ -12,6 +12,7 @@ import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -83,6 +84,10 @@ class ProfileLogic {
     }
 
     _state.setProfileLinkError();
+  }
+
+  void copyProfileLink() {
+    Clipboard.setData(ClipboardData(text: _state.profileLink));
   }
 
   void clearProfileLink() {
