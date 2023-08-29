@@ -155,8 +155,23 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearPendingTransactions({bool notify = true}) {
+    transactions = transactions
+        .where((element) => element.state != TransactionState.pending)
+        .toList();
+
+    transactionsLoading = false;
+    transactionsError = false;
+
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
   void updateWalletBalanceSuccess(String balance, {bool notify = true}) {
     wallet!.setBalance(balance);
+
+    clearPendingTransactions();
 
     loading = false;
     error = false;
@@ -259,6 +274,19 @@ class WalletState with ChangeNotifier {
   }
 
   void sendingTransaction(CWTransaction transaction) {
+    sendQueueRemoveTransaction(transaction.id);
+
+    transactions = transactions
+        .where((element) =>
+            element.id != transaction.id && !isPendingTransactionId(element.id))
+        .toList();
+
+    transactions.insert(0, transaction);
+
+    notifyListeners();
+  }
+
+  void pendingTransaction(CWTransaction transaction) {
     sendQueueRemoveTransaction(transaction.id);
 
     transactions = transactions

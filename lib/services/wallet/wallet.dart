@@ -424,7 +424,7 @@ class WalletService {
   /// fetch new erc20 transfer events
   ///
   /// [fromDate] fetches transfers from this date
-  Future<List<TransferEvent>> fetchNewErc20Transfers(DateTime fromDate) async {
+  Future<List<TransferEvent>?> fetchNewErc20Transfers(DateTime fromDate) async {
     try {
       final List<TransferEvent> tx = [];
 
@@ -448,7 +448,7 @@ class WalletService {
       );
     }
 
-    return <TransferEvent>[];
+    return null;
   }
 
   /// Transactions

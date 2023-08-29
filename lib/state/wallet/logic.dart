@@ -450,7 +450,24 @@ class WalletLogic extends WidgetsBindingObserver {
       final txs =
           await _wallet.fetchNewErc20Transfers(_state.transactionsFromDate);
 
+      if (txs == null) {
+        // unsuccessful and there's nothing
+
+        // still keep balance up to date no matter what
+        updateBalance();
+
+        await delay(const Duration(seconds: 2));
+
+        fetchNewTransfers(id);
+        return;
+      }
+
       if (txs.isEmpty) {
+        // successful but there's nothing
+
+        // still keep balance up to date no matter what
+        updateBalance();
+
         await delay(const Duration(seconds: 2));
 
         fetchNewTransfers(id);
@@ -637,10 +654,16 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       final balance = await _wallet.balance;
 
-      HapticFeedback.lightImpact();
+      final currentDoubleBalance =
+          double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
+      final doubleBalance = double.tryParse(balance) ?? 0.0;
 
-      _state.updateWalletBalanceSuccess(balance, notify: true);
+      if (currentDoubleBalance != doubleBalance) {
+        // there was a change in balance
+        HapticFeedback.lightImpact();
 
+        _state.updateWalletBalanceSuccess(balance, notify: true);
+      }
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -747,7 +770,8 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final tx = await _wallet.addSendingLog(
+      // this is an optional operation
+      await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
@@ -763,17 +787,28 @@ class WalletLogic extends WidgetsBindingObserver {
           TransactionState.sending.name,
         ),
       );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
 
       final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
+        // this is an optional operation
+        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
+      _state.pendingTransaction(
+        CWTransaction.pending(
+          '$parsedAmount',
+          id: hash,
+          hash: '',
+          chainId: _wallet.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
+
+      // this is an optional operation
+      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -873,7 +908,8 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final tx = await _wallet.addSendingLog(
+      // this is an optional operation
+      await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
@@ -889,17 +925,29 @@ class WalletLogic extends WidgetsBindingObserver {
           TransactionState.sending.name,
         ),
       );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
 
+      // this needs to succeeds
       final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
+        // this is an optional operation
+        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
+      _state.pendingTransaction(
+        CWTransaction.pending(
+          '$parsedAmount',
+          id: hash,
+          hash: '',
+          chainId: _wallet.chainId,
+          to: to,
+          title: message,
+          date: DateTime.now(),
+        ),
+      );
+
+      // this is an optional operation
+      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
