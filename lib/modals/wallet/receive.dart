@@ -83,6 +83,14 @@ class ReceiveModalState extends State<ReceiveModal> {
         curve: Curves.easeInOut,
       );
     }
+
+    if (!amountFocusNode.hasFocus) {
+      ModalScrollController.of(context)?.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void handleDismiss(BuildContext context) {
