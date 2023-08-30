@@ -10,11 +10,11 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
+import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/transaction_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 
 class WalletScrollView extends StatelessWidget {
@@ -164,10 +164,9 @@ class WalletScrollView extends StatelessWidget {
                   child: AnimatedOpacity(
                     opacity: profileLinkLoading ? 0 : 1,
                     duration: const Duration(milliseconds: 250),
-                    child: PrettyQr(
+                    child: QR(
                       data: profileLink,
                       size: qrSize,
-                      roundEdges: false,
                     ),
                   ),
                 ),

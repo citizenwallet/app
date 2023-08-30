@@ -6,10 +6,10 @@ import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
 
@@ -168,10 +168,9 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                     ? CupertinoActivityIndicator(
                                         color: ThemeColors.subtle
                                             .resolveFrom(context))
-                                    : PrettyQr(
+                                    : QR(
                                         data: viewingVoucherLink!,
                                         size: 280,
-                                        roundEdges: false,
                                       ),
                               ),
                             ),
