@@ -202,9 +202,10 @@ class ReceiveModalState extends State<ReceiveModal> {
                             Chip(
                               isExternalWallet
                                   ? formatLongText(qrData, length: 6)
-                                  : formatLongText(
+                                  : ellipsizeLongText(
                                       qrData.replaceFirst('https://', ''),
-                                      length: 20,
+                                      startLength: 30,
+                                      endLength: 6,
                                     ),
                               onTap: () => handleCopy(qrData),
                               fontSize: 14,
@@ -219,7 +220,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                                     ThemeColors.touchable.resolveFrom(context),
                               ),
                               borderRadius: 15,
-                              maxWidth: isExternalWallet ? 160 : 280,
+                              maxWidth: isExternalWallet ? 160 : 290,
                             ),
                             const SizedBox(
                               height: 10,
