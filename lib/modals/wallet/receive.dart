@@ -58,10 +58,14 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   void dispose() {
+    amountFocusNode.removeListener(handleAmountFocus);
+
     super.dispose();
   }
 
   void onLoad() async {
+    amountFocusNode.addListener(handleAmountFocus);
+
     await delay(const Duration(milliseconds: 500));
 
     widget.logic.updateReceiveQR(onlyHex: true);
@@ -69,6 +73,16 @@ class ReceiveModalState extends State<ReceiveModal> {
     setState(() {
       _opacity = 1;
     });
+  }
+
+  void handleAmountFocus() {
+    if (amountFocusNode.hasFocus) {
+      ModalScrollController.of(context)?.animateTo(
+        100,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void handleDismiss(BuildContext context) {
