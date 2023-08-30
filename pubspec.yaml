@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.22+39
+version: 1.0.23+39
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -29,7 +29,6 @@ dependencies:
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
-  pretty_qr_code: ^2.0.3
   archive: ^3.3.7
   sqflite_common_ffi_web: ^0.4.0
   rate_limiter: ^1.0.0
@@ -54,6 +53,7 @@ dependencies:
   share_plus: ^7.1.0
   sqflite_common: ^2.5.0
   image: ^4.0.17
+  qr_flutter: ^4.1.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
@@ -66,13 +66,13 @@ flutter:
   assets:
     - .env
     - assets/logo_small.png
+    - assets/logo_rounded.png
     - assets/logo.png
     - assets/logo.svg
     - assets/about/about.md
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
     - assets/images/citizenwallet-qrcode.svg
-    - assets/icons/wallet_simple.svg
     - assets/icons/app.svg
     - assets/icons/dark-mode.svg
     - assets/icons/docs.svg
@@ -86,6 +86,7 @@ flutter:
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
     - assets/icons/voucher.png
+    - assets/icons/wallet.png
     - assets/icons/bookmark.svg
     - assets/icons/backup-file.svg
     - assets/icons/wave.svg

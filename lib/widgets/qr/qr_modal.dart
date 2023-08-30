@@ -2,9 +2,9 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class QRModal extends StatelessWidget {
@@ -72,10 +72,9 @@ class QRModal extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.all(10),
-                      child: PrettyQr(
+                      child: QR(
                         data: qrCode,
                         size: qrSize,
-                        roundEdges: false,
                       ),
                     ),
                     const SizedBox(

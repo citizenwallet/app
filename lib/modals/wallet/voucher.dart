@@ -5,11 +5,11 @@ import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
 
@@ -177,10 +177,9 @@ class VoucherModalState extends State<VoucherModal>
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       padding: const EdgeInsets.all(10),
-                                      child: PrettyQr(
+                                      child: QR(
                                         data: shareLink,
                                         size: 280,
-                                        roundEdges: false,
                                       ),
                                     )
                                   : Lottie.asset(

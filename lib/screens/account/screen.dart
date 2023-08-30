@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/wallet/switch_wallet.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -9,12 +10,13 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
+import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:provider/provider.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -153,7 +155,7 @@ class AccountScreenState extends State<AccountScreen> {
           alignment: Alignment.topCenter,
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(10, safePadding + 60, 10, 0),
+              padding: EdgeInsets.fromLTRB(10, safePadding + 100, 10, 0),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -163,94 +165,19 @@ class AccountScreenState extends State<AccountScreen> {
                       physics:
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       children: [
-                        SizedBox(
-                          height: 400,
-                          width: width,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                decoration: BoxDecoration(
-                                  color: ThemeColors.white.resolveFrom(context),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: EdgeInsets.fromLTRB(
-                                  40,
-                                  40,
-                                  40,
-                                  (profileLoading || hasNoProfile) ? 40 : 60,
-                                ),
-                                margin: const EdgeInsets.only(top: 80),
-                                child: AnimatedOpacity(
-                                  opacity: profileLinkLoading ? 0 : 1,
-                                  duration: const Duration(milliseconds: 250),
-                                  child: PrettyQr(
-                                    data: profileLink,
-                                    size: 200,
-                                    roundEdges: false,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                top: 10,
-                                child: profileLoading
-                                    ? const PulsingContainer(
-                                        height: 100,
-                                        width: 100,
-                                        borderRadius: 50,
-                                      )
-                                    : ProfileCircle(
-                                        size: 100,
-                                        imageUrl: profile.imageMedium,
-                                        borderColor: ThemeColors.subtle,
-                                      ),
-                              ),
-                              if (!hasNoProfile && !profileLoading)
-                                Positioned(
-                                  bottom: 16,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(
-                                        width: 44,
-                                      ),
-                                      ConstrainedBox(
-                                        constraints: const BoxConstraints(
-                                          maxWidth: 200,
-                                        ),
-                                        child: Text(
-                                          '@${profile.username}',
-                                          style: TextStyle(
-                                            color: ThemeColors.black
-                                                .resolveFrom(context),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      CupertinoButton(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            0, 0, 0, 0),
-                                        child: Icon(
-                                          CupertinoIcons.square_on_square,
-                                          size: 14,
-                                          color: ThemeColors.black
-                                              .resolveFrom(context),
-                                        ),
-                                        onPressed: () =>
-                                            handleCopy('@${profile.username}'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
+                        ProfileQRBadge(
+                          profile: ProfileV1(
+                            account: profile.account,
+                            username: profile.username,
+                            name: profile.name,
+                            description: profile.description,
+                            image: profile.image,
+                            imageMedium: profile.imageMedium,
+                            imageSmall: profile.imageSmall,
                           ),
+                          profileLink: profileLink,
+                          profileLinkLoading: profileLinkLoading,
+                          handleCopy: handleCopy,
                         ),
                         const SizedBox(height: 20),
                         if (!hasNoProfile && !profileLoading)
@@ -294,7 +221,7 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                             ],
                           ),
-                        const SizedBox(height: 80),
+                        const SizedBox(height: 120),
                       ],
                     ),
                   ),
