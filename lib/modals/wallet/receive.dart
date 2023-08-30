@@ -149,225 +149,75 @@ class ReceiveModalState extends State<ReceiveModal> {
                       pinned: true,
                       floating: false,
                       delegate: PersistentHeaderDelegate(
-                        expandedHeight: qrSize + 110,
-                        minHeight: qrSize + 80,
+                        expandedHeight: qrSize,
+                        minHeight: 120,
                         blur: true,
-                        builder: (context, shrink) => Flex(
-                          direction: Axis.vertical,
+                        builder: (context, shrink) => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Expanded(
-                              child: SizedBox(
-                                width: progressiveClamp(
-                                  minQRSize + 20,
-                                  qrSize + 20,
+                            AnimatedOpacity(
+                              opacity: _opacity,
+                              duration: const Duration(milliseconds: 250),
+                              child: QR(
+                                key: const Key('receive-qr-code'),
+                                data: qrData,
+                                size: progressiveClamp(
+                                  40,
+                                  qrSize - 20,
                                   shrink,
                                 ),
-                                child: Center(
-                                  child: Container(
-                                    height: progressiveClamp(
-                                      minQRSize + 20,
-                                      qrSize + 20,
-                                      shrink,
-                                    ),
-                                    width: progressiveClamp(
-                                      minQRSize + 20,
-                                      qrSize + 20,
-                                      shrink,
-                                    ),
-                                    padding: const EdgeInsets.all(10),
-                                    child: AnimatedOpacity(
-                                      opacity: _opacity,
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      child: QR(
-                                        key: const Key('receive-qr-code'),
-                                        data: qrData,
-                                        size: progressiveClamp(
-                                          minQRSize,
-                                          qrSize,
-                                          shrink,
-                                        ),
-                                        logo: isExternalWallet
-                                            ? 'assets/icons/wallet.png'
-                                            : null,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                logo: isExternalWallet
+                                    ? 'assets/icons/wallet.png'
+                                    : null,
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Chip(
-                              isExternalWallet
-                                  ? formatLongText(qrData, length: 6)
-                                  : ellipsizeLongText(
-                                      qrData.replaceFirst('https://', ''),
-                                      startLength: 30,
-                                      endLength: 6,
-                                    ),
-                              onTap: () => handleCopy(qrData),
-                              fontSize: 14,
-                              color: ThemeColors.subtleEmphasis
-                                  .resolveFrom(context),
-                              textColor:
-                                  ThemeColors.touchable.resolveFrom(context),
-                              suffix: Icon(
-                                CupertinoIcons.square_on_square,
-                                size: 14,
-                                color:
-                                    ThemeColors.touchable.resolveFrom(context),
-                              ),
-                              borderRadius: 15,
-                              maxWidth: isExternalWallet ? 160 : 290,
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Picker(
-                              options: const [
-                                'Citizen Wallet',
-                                'External Wallet'
-                              ],
-                              selected: _selectedValue,
-                              handleSelect: handleSelect,
-                            ),
-                            const SizedBox(
-                              height: 10,
                             ),
                           ],
                         ),
                       ),
                     ),
-                    if (!isExternalWallet)
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 10,
-                        ),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Chip(
+                            isExternalWallet
+                                ? formatLongText(qrData, length: 6)
+                                : ellipsizeLongText(
+                                    qrData.replaceFirst('https://', ''),
+                                    startLength: 30,
+                                    endLength: 6,
+                                  ),
+                            onTap: () => handleCopy(qrData),
+                            fontSize: 14,
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            textColor:
+                                ThemeColors.touchable.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: 14,
+                              color: ThemeColors.touchable.resolveFrom(context),
+                            ),
+                            borderRadius: 15,
+                            maxWidth: isExternalWallet ? 160 : 290,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Picker(
+                            options: const [
+                              'Citizen Wallet',
+                              'External Wallet'
+                            ],
+                            selected: _selectedValue,
+                            handleSelect: handleSelect,
+                          ),
+                        ],
                       ),
-                    // if (!isExternalWallet)
-                    //   const SliverToBoxAdapter(
-                    //     child: Padding(
-                    //       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    //       child: Text(
-                    //         'Amount',
-                    //         style: TextStyle(
-                    //             fontSize: 24, fontWeight: FontWeight.bold),
-                    //       ),
-                    //     ),
-                    //   ),
-                    if (!isExternalWallet)
-                      const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 10,
-                        ),
-                      ),
-                    // if (!isExternalWallet)
-                    //   SliverToBoxAdapter(
-                    //     child: Padding(
-                    //       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    //       child: CupertinoTextField(
-                    //         controller: widget.logic.amountController,
-                    //         placeholder: formatCurrency(1500.00, ''),
-                    //         prefix: Center(
-                    //           child: Padding(
-                    //             padding:
-                    //                 const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    //             child: Text(
-                    //               wallet?.symbol ?? '',
-                    //               style: const TextStyle(
-                    //                   fontSize: 18,
-                    //                   fontWeight: FontWeight.w500),
-                    //               textAlign: TextAlign.center,
-                    //             ),
-                    //           ),
-                    //         ),
-                    //         decoration: invalidAmount
-                    //             ? BoxDecoration(
-                    //                 color: const CupertinoDynamicColor
-                    //                     .withBrightness(
-                    //                   color: CupertinoColors.white,
-                    //                   darkColor: CupertinoColors.black,
-                    //                 ),
-                    //                 border: Border.all(
-                    //                   color: ThemeColors.danger,
-                    //                 ),
-                    //                 borderRadius: const BorderRadius.all(
-                    //                     Radius.circular(5.0)),
-                    //               )
-                    //             : BoxDecoration(
-                    //                 color: const CupertinoDynamicColor
-                    //                     .withBrightness(
-                    //                   color: CupertinoColors.white,
-                    //                   darkColor: CupertinoColors.black,
-                    //                 ),
-                    //                 border: Border.all(
-                    //                   color: ThemeColors.border
-                    //                       .resolveFrom(context),
-                    //                 ),
-                    //                 borderRadius: const BorderRadius.all(
-                    //                     Radius.circular(5.0)),
-                    //               ),
-                    //         maxLines: 1,
-                    //         maxLength: 25,
-                    //         focusNode: amountFocusNode,
-                    //         autocorrect: false,
-                    //         enableSuggestions: false,
-                    //         keyboardType: const TextInputType.numberWithOptions(
-                    //           decimal: true,
-                    //           signed: false,
-                    //         ),
-                    //         textInputAction: TextInputAction.done,
-                    //         inputFormatters: [
-                    //           amountFormatter,
-                    //         ],
-                    //         onChanged: handleThrottledUpdateQRCode,
-                    //         onSubmitted: (_) {
-                    //           handleSubmit();
-                    //         },
-                    //       ),
-                    //     ),
-                    //   ),
-                    // const SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 20,
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: Padding(
-                    //     padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    //     child: Text(
-                    //       'Description',
-                    //       style: TextStyle(
-                    //           fontSize: 24, fontWeight: FontWeight.bold),
-                    //     ),
-                    //   ),
-                    // ),
-                    // const SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 10,
-                    //   ),
-                    // ),
-                    // SliverToBoxAdapter(
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    //     child: CupertinoTextField(
-                    //       controller: widget.logic.messageController,
-                    //       placeholder: 'Enter a description',
-                    //       maxLines: 4,
-                    //       maxLength: 256,
-                    //       focusNode: messageFocusNode,
-                    //       textInputAction: TextInputAction.done,
-                    //       onChanged: (_) {
-                    //         handleThrottledUpdateQRCode();
-                    //       },
-                    //       onSubmitted: (_) {
-                    //         FocusManager.instance.primaryFocus?.unfocus();
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
+                    ),
                     const SliverToBoxAdapter(
                       child: SizedBox(
                         height: 160,

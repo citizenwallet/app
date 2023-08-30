@@ -26,6 +26,7 @@ class QR extends StatelessWidget {
         gapless: false,
         version: QrVersions.auto,
         backgroundColor: ThemeColors.white,
+        padding: const EdgeInsets.all(10),
         eyeStyle: const QrEyeStyle(
           eyeShape: QrEyeShape.circle,
           color: ThemeColors.primary,
