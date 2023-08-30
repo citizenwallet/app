@@ -170,7 +170,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final firstLaunch = _preferences.firstLaunch;
 
     if (firstLaunch) {
-      await handleOnboarding();
+      // await handleOnboarding();
       await _preferences.setFirstLaunch(false);
     }
 
