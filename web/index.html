@@ -409,12 +409,10 @@
       <p>You need to enable JavaScript to run this app.</p>
     </noscript>
     <script>
-      setTimeout(function () {
-        var meta = document.createElement("meta");
-        meta.name = "apple-itunes-app";
-        meta.content = `app-id=6460822891, app-argument=${window.location.origin}`;
-        document.getElementsByTagName("head")[0].appendChild(meta);
-      }, 2000);
+      var meta = document.createElement("meta");
+      meta.name = "apple-itunes-app";
+      meta.content = `app-id=6460822891, app-argument=${window.location.href}`;
+      document.getElementsByTagName("head")[0].appendChild(meta);
 
       window.addEventListener("load", function (ev) {
         var loadingBar = document.querySelector("#loading-bar");
