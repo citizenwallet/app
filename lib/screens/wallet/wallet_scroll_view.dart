@@ -107,7 +107,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final isExternalWallet = _selectedValue == 'External Wallet';
 
-    final qrData = isExternalWallet ? wallet?.address ?? '' : profileLink;
+    final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
     if (wallet != null &&
         wallet.doubleBalance == 0.0 &&

@@ -323,6 +323,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       useRootNavigator: true,
       builder: (modalContext) => ProfileModal(
         account: wallet.account,
+        keepLink: true,
       ),
     );
 
