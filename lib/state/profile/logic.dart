@@ -72,7 +72,9 @@ class ProfileLogic {
 
       final config = await _config.config;
 
-      final url = 'https://${config.community.alias}$appLinkSuffix/#/';
+      final url = config.community.customDomain != ''
+          ? 'https://${config.community.customDomain}/#/'
+          : 'https://${config.community.alias}$appLinkSuffix/#/';
 
       final compressedParams = compress(
           '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');

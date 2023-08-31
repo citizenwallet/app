@@ -16,26 +16,30 @@ class BackupWallet {
   final String address;
   final String privateKey;
   final String name;
+  final String alias;
 
   BackupWallet({
     required this.address,
     required this.privateKey,
     required this.name,
+    required this.alias,
   });
 
   BackupWallet.fromJson(Map<String, dynamic> json)
       : address = json['address'],
         privateKey = json['privateKey'],
-        name = json['name'];
+        name = json['name'],
+        alias = json['alias'] ?? 'app';
 
   Map<String, dynamic> toJson() => {
         'address': address,
         'privateKey': privateKey,
         'name': name,
+        'alias': alias,
       };
 
   String get key => '$backupPrefix${address.toLowerCase()}';
-  String get value => '$name|$privateKey';
+  String get value => '$name|$privateKey|$alias';
 }
 
 abstract class EncryptedPreferencesOptions {}

@@ -136,7 +136,7 @@ class AppLogic {
     return false;
   }
 
-  Future<String?> createWallet(String name) async {
+  Future<String?> createWallet(String name, String alias) async {
     try {
       _appState.importLoadingReq();
 
@@ -148,6 +148,7 @@ class AppLogic {
         address: address,
         privateKey: (bytesToHex(credentials.privateKey)),
         name: name,
+        alias: alias == 'localhost' ? 'app' : alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -225,7 +226,11 @@ class AppLogic {
     return null;
   }
 
-  Future<String?> importWallet(String qrWallet, String name) async {
+  Future<String?> importWallet(
+    String qrWallet,
+    String name,
+    String alias,
+  ) async {
     try {
       _appState.importLoadingReq();
 
@@ -244,6 +249,7 @@ class AppLogic {
             address: address,
             privateKey: bytesToHex(credentials.privateKey),
             name: name,
+            alias: alias == 'localhost' ? 'app' : alias,
           ),
         );
 
@@ -295,9 +301,6 @@ class AppLogic {
     String alias,
   ) async {
     try {
-      // TODO: accounts with aliases
-      print('alias: $alias');
-
       _appState.importLoadingReq();
 
       final decoded = convertUint8ListToString(
@@ -321,6 +324,7 @@ class AppLogic {
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
           name: 'Imported Web Wallet',
+          alias: alias == 'localhost' ? 'app' : alias,
         ),
       );
 

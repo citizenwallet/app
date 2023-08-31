@@ -73,7 +73,11 @@ class ProfileBadge extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(4),
                 child: Text(
-                  profile!.name.isNotEmpty ? profile!.name : 'Anonymous',
+                  profile!.name.isNotEmpty
+                      ? profile!.name
+                      : profile!.username.isNotEmpty
+                          ? '@${profile!.username}'
+                          : 'Anonymous',
                   style: TextStyle(
                       fontSize: fontSize,
                       color: ThemeColors.text.resolveFrom(context)),

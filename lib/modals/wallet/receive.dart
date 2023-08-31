@@ -128,7 +128,6 @@ class ReceiveModalState extends State<ReceiveModal> {
     final width = MediaQuery.of(context).size.width;
 
     final qrSize = (width < height ? width : (height - 100)) - 40;
-    final minQRSize = qrSize * 0.05;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -223,7 +222,6 @@ class ReceiveModalState extends State<ReceiveModal> {
                               size: 14,
                               color: ThemeColors.touchable.resolveFrom(context),
                             ),
-                            borderRadius: 15,
                             maxWidth: isExternalWallet ? 160 : 290,
                           ),
                           const SizedBox(

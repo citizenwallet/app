@@ -96,7 +96,6 @@ class QRModal extends StatelessWidget {
                               size: 14,
                               color: ThemeColors.touchable.resolveFrom(context),
                             ),
-                            borderRadius: 15,
                             maxWidth: 180,
                           ),
                         ],

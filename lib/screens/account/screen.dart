@@ -1,5 +1,5 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
-import 'package:citizenwallet/modals/wallet/switch_wallet.dart';
+import 'package:citizenwallet/modals/account/switch_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
@@ -99,9 +99,13 @@ class AccountScreenState extends State<AccountScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => SwitchWalletModal(
-        logic: _walletLogic,
-        currentAddress: widget.address,
+      builder: (modalContext) => CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: ThemeColors.transparent,
+        body: SwitchAccountModal(
+          logic: _walletLogic,
+          currentAddress: widget.address,
+        ),
       ),
     );
 

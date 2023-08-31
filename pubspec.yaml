@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.23+46
+version: 1.0.23+50
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -73,6 +73,7 @@ flutter:
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
     - assets/images/citizenwallet-qrcode.svg
+    - assets/images/community_background.jpg
     - assets/icons/app.svg
     - assets/icons/dark-mode.svg
     - assets/icons/docs.svg
@@ -113,6 +114,7 @@ flutter:
     - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
 
+# flutter pub run flutter_launcher_icons
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
@@ -129,7 +131,7 @@ flutter_launcher_icons:
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/logo.png"
+    image_path: "assets/logo_macOS.png"
 
 sentry:
   upload_debug_symbols: true

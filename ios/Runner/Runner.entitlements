@@ -15,6 +15,8 @@
 		<string>applinks:*.celo.citizenwallet.xyz</string>
 		<string>applinks:global.citizenwallet.xyz</string>
 		<string>applinks:app.citizenwallet.xyz</string>
+		<string>applinks:wallet.oak.community</string>
+		<string>applinks:wallet.regensunite.earth</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>

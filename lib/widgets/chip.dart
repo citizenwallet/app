@@ -22,7 +22,7 @@ class Chip extends StatefulWidget {
     this.textColor = CupertinoColors.black,
     this.suffix,
     this.maxWidth = 300,
-    this.borderRadius = 15,
+    this.borderRadius = 20,
     this.onTap,
     this.fontSize = 18,
   });
@@ -46,7 +46,7 @@ class ChipState extends State<Chip> {
         _tapped = true;
       });
 
-      _timer = Timer(const Duration(milliseconds: 1000), () {
+      _timer = Timer(const Duration(milliseconds: 1500), () {
         setState(() {
           _tapped = false;
         });
@@ -67,14 +67,15 @@ class ChipState extends State<Chip> {
       onTap: handleTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
+        height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: widget.onTap != null
               ? Border.all(
                   color: _tapped
-                      ? ThemeColors.primary.resolveFrom(context)
+                      ? ThemeColors.success.resolveFrom(context)
                       : widget.color,
-                  width: 1,
+                  width: 2,
                 )
               : null,
           color: widget.color,
@@ -89,13 +90,15 @@ class ChipState extends State<Chip> {
           children: [
             Expanded(
               child: Text(
-                widget.text,
+                _tapped ? 'copied!' : widget.text,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: widget.fontSize,
                   fontWeight: FontWeight.normal,
-                  color: widget.textColor,
+                  color: _tapped
+                      ? widget.textColor.withOpacity(0.8)
+                      : widget.textColor,
                 ),
               ),
             ),

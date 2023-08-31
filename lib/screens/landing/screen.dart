@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
 import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
@@ -9,11 +10,11 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
-import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -156,9 +157,18 @@ class LandingScreenState extends State<LandingScreen>
 
     await handleAndroidBackup();
 
-    const name = 'New wallet';
+    final alias =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+      context: context,
+      expand: true,
+      builder: (modalContext) => const CommunityPickerModal(),
+    );
 
-    final address = await _appLogic.createWallet(name);
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
+
+    final address = await _appLogic.createWallet('New wallet', alias);
 
     if (address == null) {
       return;
@@ -195,16 +205,19 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    final name = await showCupertinoModalPopup<String?>(
+    final alias =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => const TextInputModal(
-        title: 'Account Name',
-        placeholder: 'Enter account name',
-      ),
+      expand: true,
+      builder: (modalContext) => const CommunityPickerModal(),
     );
 
-    final address = await _appLogic.importWallet(result, name ?? 'New Account');
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
+
+    final address =
+        await _appLogic.importWallet(result, 'Imported Account', alias);
 
     if (address == null) {
       return;
@@ -228,98 +241,102 @@ class LandingScreenState extends State<LandingScreen>
     final walletLoading =
         context.select((AppState state) => state.walletLoading);
 
-    return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-      child: SafeArea(
-        child: Flex(
-          direction: Axis.vertical,
-          children: [
-            Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CustomScrollView(
-                    scrollBehavior: const CupertinoScrollBehavior(),
-                    slivers: [
-                      SliverFillRemaining(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 300,
-                              width: 300,
-                              child: Center(
-                                child: Lottie.asset(
-                                  'assets/lottie/chat.json',
-                                  height: 300,
-                                  width: 300,
-                                  animate: true,
-                                  repeat: true,
-                                  // controller: _controller,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Citizen Wallet',
-                              style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
-                                fontSize: 34,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 30),
-                            Text(
-                              'A wallet for your community',
-                              style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 60),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 40,
-                    child: walletLoading
-                        ? CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          )
-                        : Column(
+    return CupertinoScaffold(
+      topRadius: const Radius.circular(40),
+      transitionBackgroundColor: ThemeColors.transparent,
+      body: CupertinoPageScaffold(
+        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        child: SafeArea(
+          child: Flex(
+            direction: Axis.vertical,
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomScrollView(
+                      scrollBehavior: const CupertinoScrollBehavior(),
+                      slivers: [
+                        SliverFillRemaining(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Button(
-                                text: 'New Account',
-                                onPressed: handleNewWallet,
-                                minWidth: 200,
-                                maxWidth: 200,
-                              ),
-                              const SizedBox(height: 10),
-                              CupertinoButton(
-                                onPressed: handleImportWallet,
-                                child: Text(
-                                  'Import Account',
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline,
+                              SizedBox(
+                                height: 300,
+                                width: 300,
+                                child: Center(
+                                  child: Lottie.asset(
+                                    'assets/lottie/chat.json',
+                                    height: 300,
+                                    width: 300,
+                                    animate: true,
+                                    repeat: true,
+                                    // controller: _controller,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                               ),
+                              Text(
+                                'Citizen Wallet',
+                                style: TextStyle(
+                                  color: ThemeColors.text.resolveFrom(context),
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 30),
+                              Text(
+                                'A wallet for your community',
+                                style: TextStyle(
+                                  color: ThemeColors.text.resolveFrom(context),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 60),
                             ],
                           ),
-                  )
-                ],
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      bottom: 40,
+                      child: walletLoading
+                          ? CupertinoActivityIndicator(
+                              color: ThemeColors.subtle.resolveFrom(context),
+                            )
+                          : Column(
+                              children: [
+                                Button(
+                                  text: 'New Account',
+                                  onPressed: handleNewWallet,
+                                  minWidth: 200,
+                                  maxWidth: 200,
+                                ),
+                                const SizedBox(height: 10),
+                                CupertinoButton(
+                                  onPressed: handleImportWallet,
+                                  child: Text(
+                                    'Import Account',
+                                    style: TextStyle(
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

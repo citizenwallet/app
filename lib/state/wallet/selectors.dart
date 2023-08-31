@@ -1,3 +1,4 @@
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 
 double selectWalletBalance(WalletState state) {
@@ -40,3 +41,7 @@ bool selectShouldBlockSending(WalletState state) {
 
 bool selectHasProcessingTransactions(WalletState state) =>
     state.transactions.any((tx) => tx.isProcessing);
+
+List<CWWallet> selectSortedWalletsByAlias(WalletState state) =>
+    state.wallets.toList()
+      ..sort((a, b) => a.alias.toLowerCase().compareTo(b.alias.toLowerCase()));

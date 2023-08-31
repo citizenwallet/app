@@ -20,26 +20,30 @@ class QR extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageSize = size * 0.2;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: QrImageView(
-        data: data,
-        size: size,
-        gapless: false,
-        version: QrVersions.auto,
-        backgroundColor: ThemeColors.white,
-        padding: padding,
-        eyeStyle: const QrEyeStyle(
-          eyeShape: QrEyeShape.circle,
-          color: ThemeColors.primary,
-        ),
-        dataModuleStyle: const QrDataModuleStyle(
-          dataModuleShape: QrDataModuleShape.circle,
-          color: ThemeColors.black,
-        ),
-        embeddedImage: AssetImage(logo ?? 'assets/logo.png'),
-        embeddedImageStyle: QrEmbeddedImageStyle(
-          size: Size(imageSize, imageSize),
+    return SizedBox(
+      height: size,
+      width: size,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: QrImageView(
+          data: data,
+          size: size,
+          gapless: false,
+          version: QrVersions.auto,
+          backgroundColor: ThemeColors.white,
+          padding: padding,
+          eyeStyle: const QrEyeStyle(
+            eyeShape: QrEyeShape.circle,
+            color: ThemeColors.primary,
+          ),
+          dataModuleStyle: const QrDataModuleStyle(
+            dataModuleShape: QrDataModuleShape.circle,
+            color: ThemeColors.black,
+          ),
+          embeddedImage: AssetImage(logo ?? 'assets/logo.png'),
+          embeddedImageStyle: QrEmbeddedImageStyle(
+            size: Size(imageSize, imageSize),
+          ),
         ),
       ),
     );

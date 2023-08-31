@@ -107,12 +107,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final isExternalWallet = _selectedValue == 'External Wallet';
 
-    final qrData = isExternalWallet ? wallet?.address ?? '' : profileLink;
+    final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
-    if (wallet != null &&
-        wallet.doubleBalance == 0.0 &&
-        transactions.isEmpty &&
-        !loading) {
+    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
       return CustomScrollView(
         controller: controller,
         scrollBehavior: const CupertinoScrollBehavior(),
@@ -220,7 +217,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
                         size: 14,
                         color: ThemeColors.touchable.resolveFrom(context),
                       ),
-                      borderRadius: 15,
                       maxWidth: isExternalWallet ? 160 : 290,
                     ),
                     const SizedBox(

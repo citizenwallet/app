@@ -56,8 +56,18 @@ class AppleEncryptedPreferencesService implements EncryptedPreferencesService {
 
     for (final k in keys) {
       final parsed = allValues[k]!.split('|');
-      if (parsed.length != 2) {
+      if (parsed.length < 2) {
         // invalid backup, consider cleaning up in the future
+        continue;
+      }
+
+      if (parsed.length == 3) {
+        backups.add(BackupWallet(
+          address: k.replaceFirst(backupPrefix, ''),
+          privateKey: parsed[1],
+          name: parsed[0],
+          alias: parsed[2],
+        ));
         continue;
       }
 
@@ -65,6 +75,7 @@ class AppleEncryptedPreferencesService implements EncryptedPreferencesService {
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
+        alias: 'app',
       ));
     }
 
@@ -97,11 +108,25 @@ class AppleEncryptedPreferencesService implements EncryptedPreferencesService {
     }
 
     final parsed = value.split('|');
+    if (parsed.length < 2) {
+      // invalid backup, consider cleaning up in the future
+      return null;
+    }
+
+    if (parsed.length == 3) {
+      return BackupWallet(
+        address: address,
+        privateKey: parsed[1],
+        name: parsed[0],
+        alias: parsed[2],
+      );
+    }
 
     return BackupWallet(
       address: address,
       privateKey: parsed[1],
       name: parsed[0],
+      alias: 'app',
     );
   }
 

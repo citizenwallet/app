@@ -1,4 +1,5 @@
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 class WalletRow extends StatefulWidget {
   final CWWallet wallet;
   final bool isSelected;
+  final Map<String, CommunityConfig> communities;
   final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
@@ -18,6 +20,7 @@ class WalletRow extends StatefulWidget {
     this.wallet, {
     super.key,
     this.isSelected = false,
+    this.communities = const {},
     this.profiles = const {},
     this.onTap,
     this.onMore,
@@ -43,10 +46,12 @@ class WalletRowState extends State<WalletRow> {
   Widget build(BuildContext context) {
     final wallet = widget.wallet;
     final isSelected = widget.isSelected;
+    final communities = widget.communities;
     final profiles = widget.profiles;
     final onTap = widget.onTap;
     final onMore = widget.onMore;
 
+    final community = communities[wallet.alias];
     final profile =
         wallet.account.isEmpty ? null : profiles[wallet.account]?.profile;
 
@@ -65,17 +70,36 @@ class WalletRowState extends State<WalletRow> {
                 width: 2,
                 color: isSelected
                     ? ThemeColors.primary.resolveFrom(context)
-                    : ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                    : ThemeColors.transparent,
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ProfileCircle(
-                  size: 50,
-                  imageUrl: profile?.imageSmall,
-                  borderColor: ThemeColors.subtle,
+                SizedBox(
+                  height: 54,
+                  width: 54,
+                  child: Stack(
+                    children: [
+                      ProfileCircle(
+                        size: 50,
+                        imageUrl: profile?.imageSmall,
+                        borderColor: ThemeColors.transparent,
+                      ),
+                      if (community != null && community.logo != '')
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: ProfileCircle(
+                            size: 30,
+                            imageUrl: community.logo,
+                            borderColor: ThemeColors.transparent,
+                            backgroundColor: ThemeColors.white,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(

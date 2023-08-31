@@ -1,9 +1,13 @@
 import 'package:async/async.dart';
+import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
+import 'package:citizenwallet/state/communities/selectors.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -19,21 +23,21 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
-class SwitchWalletModal extends StatefulWidget {
+class SwitchAccountModal extends StatefulWidget {
   final WalletLogic logic;
   final String? currentAddress;
 
-  const SwitchWalletModal({
+  const SwitchAccountModal({
     Key? key,
     required this.logic,
     this.currentAddress,
   }) : super(key: key);
 
   @override
-  SwitchWalletModalState createState() => SwitchWalletModalState();
+  SwitchAccountModalState createState() => SwitchAccountModalState();
 }
 
-class SwitchWalletModalState extends State<SwitchWalletModal> {
+class SwitchAccountModalState extends State<SwitchAccountModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
@@ -41,6 +45,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
   late ProfileLogic _logic;
   late ProfilesLogic _profilesLogic;
+  late CommunitiesLogic _communitiesLogic;
 
   @override
   void initState() {
@@ -48,6 +53,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
 
     _logic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
+    _communitiesLogic = CommunitiesLogic(context);
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
 
@@ -74,6 +80,8 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
+    _communitiesLogic.fetchCommunities();
+
     _operation = await widget.logic.loadDBWallets();
   }
 
@@ -86,20 +94,18 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
   void handleCreate(BuildContext context) async {
     final navigator = GoRouter.of(context);
 
-    final name = await showCupertinoModalPopup<String?>(
+    final alias =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => const TextInputModal(
-        title: 'Create Account',
-        placeholder: 'Enter account name',
-      ),
+      expand: true,
+      builder: (modalContext) => const CommunityPickerModal(),
     );
 
-    if (name == null || name.isEmpty) {
+    if (alias == null || alias.isEmpty) {
       return;
     }
 
-    final address = await widget.logic.createWallet(name);
+    final address = await widget.logic.createWallet('New Account', alias);
 
     if (address == null) {
       return;
@@ -247,18 +253,19 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       return;
     }
 
-    final newName = await showCupertinoModalPopup<String?>(
+    final alias =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => const TextInputModal(
-        title: 'Edit Account',
-        placeholder: 'Enter account name',
-        initialValue: 'New Account',
-      ),
+      expand: true,
+      builder: (modalContext) => const CommunityPickerModal(),
     );
 
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
+
     final address =
-        await widget.logic.importWallet(result, newName ?? 'New Account');
+        await widget.logic.importWallet(result, 'Imported Account', alias);
 
     if (address == null) {
       return;
@@ -289,7 +296,9 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
       (state) => state.cwWalletsLoading,
     );
 
-    final cwWallets = context.watch<WalletState>().wallets;
+    final cwWallets = context.select(selectSortedWalletsByAlias);
+
+    final communities = context.select(selectMappedCommunityConfigs);
 
     final profiles = context.watch<ProfilesState>().profiles;
 
@@ -303,7 +312,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Accounts',
+                title: 'Communities',
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -343,6 +352,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                               return WalletRow(
                                 key: Key(wallet.address),
                                 wallet,
+                                communities: communities,
                                 profiles: profiles,
                                 isSelected:
                                     widget.currentAddress == wallet.address,
@@ -409,7 +419,7 @@ class SwitchWalletModalState extends State<SwitchWalletModal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Create',
+                                  'Join',
                                   style: TextStyle(
                                     color: ThemeColors.black,
                                   ),

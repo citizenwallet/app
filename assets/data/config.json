@@ -3,7 +3,8 @@
         "name": "Citizen Wallet",
         "description": "The community for Citizen Wallet",
         "url": "https://citizenwallet.xyz",
-        "alias": "app"
+        "alias": "app",
+        "logo": "https://wallet.oak.community/wallet-config/_images/citizenwallet.svg"
     },
     "scan": {
         "url": "https://polygonscan.com",

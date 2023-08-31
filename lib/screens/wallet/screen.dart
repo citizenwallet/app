@@ -268,6 +268,7 @@ class WalletScreenState extends State<WalletScreen> {
       builder: (modalContext) => ProfileModal(
         account: wallet.account,
         readonly: true,
+        keepLink: true,
       ),
     );
 
