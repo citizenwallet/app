@@ -46,8 +46,8 @@ class WalletScrollView extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final size = height > width ? width : height;
-    final qrSize = size * 0.7;
+    final size = height > width ? width : (height * 0.3);
+    final qrSize = size * 0.65;
 
     final safePadding = MediaQuery.of(context).padding.top;
 
@@ -88,6 +88,9 @@ class WalletScrollView extends StatelessWidget {
         controller: controller,
         scrollBehavior: const CupertinoScrollBehavior(),
         slivers: [
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 60),
+          ),
           SliverFillRemaining(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
