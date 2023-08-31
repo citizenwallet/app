@@ -196,7 +196,6 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                     color: ThemeColors.touchable
                                         .resolveFrom(context),
                                   ),
-                                  borderRadius: 15,
                                   maxWidth: 300,
                                 ),
                               ],

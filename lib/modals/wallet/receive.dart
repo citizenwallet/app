@@ -223,7 +223,6 @@ class ReceiveModalState extends State<ReceiveModal> {
                               size: 14,
                               color: ThemeColors.touchable.resolveFrom(context),
                             ),
-                            borderRadius: 15,
                             maxWidth: isExternalWallet ? 160 : 290,
                           ),
                           const SizedBox(
