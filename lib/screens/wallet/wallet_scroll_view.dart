@@ -6,10 +6,11 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
+import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/transaction_row.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,7 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class WalletScrollView extends StatelessWidget {
+class WalletScrollView extends StatefulWidget {
   final ScrollController controller;
 
   final Future<void> Function() handleRefresh;
@@ -25,7 +26,7 @@ class WalletScrollView extends StatelessWidget {
   final void Function() handleReceive;
   final void Function(String) handleTransactionTap;
   final void Function(String) handleFailedTransactionTap;
-  final void Function() handleCopyWalletQR;
+  final void Function(String) handleCopy;
 
   final void Function(String) handleLoad;
 
@@ -37,12 +38,36 @@ class WalletScrollView extends StatelessWidget {
     required this.handleReceive,
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
-    required this.handleCopyWalletQR,
+    required this.handleCopy,
     required this.handleLoad,
   }) : super(key: key);
 
   @override
+  WalletScrollViewState createState() => WalletScrollViewState();
+}
+
+class WalletScrollViewState extends State<WalletScrollView> {
+  String _selectedValue = 'Citizen Wallet';
+
+  void handleSelect(String? value) {
+    if (value != null) {
+      setState(() {
+        _selectedValue = value;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final handleRefresh = widget.handleRefresh;
+    final handleSendModal = widget.handleSendModal;
+    final handleReceive = widget.handleReceive;
+    final handleTransactionTap = widget.handleTransactionTap;
+    final handleFailedTransactionTap = widget.handleFailedTransactionTap;
+    final handleCopy = widget.handleCopy;
+    final handleLoad = widget.handleLoad;
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
@@ -79,6 +104,10 @@ class WalletScrollView extends StatelessWidget {
 
     final profileLinkLoading =
         context.select((ProfileState state) => state.profileLinkLoading);
+
+    final isExternalWallet = _selectedValue == 'External Wallet';
+
+    final qrData = isExternalWallet ? wallet?.address ?? '' : profileLink;
 
     if (wallet != null &&
         wallet.doubleBalance == 0.0 &&
@@ -158,30 +187,32 @@ class WalletScrollView extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: ThemeColors.white.resolveFrom(context),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: AnimatedOpacity(
-                    opacity: profileLinkLoading ? 0 : 1,
-                    duration: const Duration(milliseconds: 250),
-                    child: QR(
-                      data: profileLink,
-                      size: qrSize,
-                    ),
+                AnimatedOpacity(
+                  opacity: profileLinkLoading ? 0 : 1,
+                  duration: const Duration(milliseconds: 250),
+                  child: QR(
+                    data: qrData,
+                    size: qrSize,
+                    padding: const EdgeInsets.all(20),
+                    logo: isExternalWallet ? 'assets/icons/wallet.png' : null,
                   ),
                 ),
                 const SizedBox(
                   height: 20,
                 ),
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Chip(
-                      onTap: handleCopyWalletQR,
-                      formatHexAddress(profileLink),
+                      isExternalWallet
+                          ? formatLongText(qrData, length: 6)
+                          : ellipsizeLongText(
+                              qrData.replaceFirst('https://', ''),
+                              startLength: 30,
+                              endLength: 6,
+                            ),
+                      onTap: () => handleCopy(qrData),
+                      fontSize: 14,
                       color: ThemeColors.subtleEmphasis.resolveFrom(context),
                       textColor: ThemeColors.touchable.resolveFrom(context),
                       suffix: Icon(
@@ -190,7 +221,15 @@ class WalletScrollView extends StatelessWidget {
                         color: ThemeColors.touchable.resolveFrom(context),
                       ),
                       borderRadius: 15,
-                      maxWidth: 180,
+                      maxWidth: isExternalWallet ? 160 : 290,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Picker(
+                      options: const ['Citizen Wallet', 'External Wallet'],
+                      selected: _selectedValue,
+                      handleSelect: handleSelect,
                     ),
                   ],
                 ),

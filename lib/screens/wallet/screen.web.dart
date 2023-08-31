@@ -375,8 +375,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleCopyProfileLink() {
-    _profileLogic.copyProfileLink();
+  void handleCopy(String value) {
+    Clipboard.setData(ClipboardData(text: value));
 
     HapticFeedback.heavyImpact();
   }
@@ -591,7 +591,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       // handleReceive: handleTestNav,
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
-                      handleCopyWalletQR: handleCopyProfileLink,
+                      handleCopy: handleCopy,
                       handleLoad: handleLoad,
                     ),
               Header(

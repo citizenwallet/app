@@ -320,8 +320,8 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleCopyProfileLink() {
-    _profileLogic.copyProfileLink();
+  void handleCopy(String value) {
+    Clipboard.setData(ClipboardData(text: value));
 
     HapticFeedback.heavyImpact();
   }
@@ -392,7 +392,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleReceive: handleReceive,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopyWalletQR: handleCopyProfileLink,
+                  handleCopy: handleCopy,
                   handleLoad: handleLoad,
                 ),
           SafeArea(

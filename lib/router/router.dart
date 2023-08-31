@@ -49,7 +49,7 @@ GoRouter createRouter(
               final fragment = state.uri.fragment;
               if (fragment.contains('/wallet/')) {
                 // attempt to parse the compressed wallet json
-                webWallet = fragment.split('/wallet/').last;
+                webWallet = uri.path.split('/wallet/').last;
 
                 // attempt to parse the alias
                 webWalletAlias = uri.queryParameters['alias'];

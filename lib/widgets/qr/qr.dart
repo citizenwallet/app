@@ -5,12 +5,14 @@ import 'package:qr_flutter/qr_flutter.dart';
 class QR extends StatelessWidget {
   final String data;
   final double size;
+  final EdgeInsets padding;
   final String? logo;
 
   const QR({
     Key? key,
     required this.data,
     this.size = 200,
+    this.padding = const EdgeInsets.all(10),
     this.logo,
   }) : super(key: key);
 
@@ -26,7 +28,7 @@ class QR extends StatelessWidget {
         gapless: false,
         version: QrVersions.auto,
         backgroundColor: ThemeColors.white,
-        padding: const EdgeInsets.all(10),
+        padding: padding,
         eyeStyle: const QrEyeStyle(
           eyeShape: QrEyeShape.circle,
           color: ThemeColors.primary,
