@@ -411,7 +411,9 @@
     <script>
       var meta = document.createElement("meta");
       meta.name = "apple-itunes-app";
-      meta.content = `app-id=6460822891, app-argument=${window.location.href}`;
+      meta.content = `app-id=6460822891, app-argument=${encodeURIComponent(
+        window.location.href
+      )}`;
       document.getElementsByTagName("head")[0].appendChild(meta);
 
       window.addEventListener("load", function (ev) {
