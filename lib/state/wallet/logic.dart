@@ -136,6 +136,7 @@ class WalletLogic extends WidgetsBindingObserver {
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
+          alias: alias == 'localhost' ? 'app' : alias,
           account: _wallet.account.hexEip55,
           currencyName: currency.name,
           symbol: currency.symbol,
@@ -166,8 +167,10 @@ class WalletLogic extends WidgetsBindingObserver {
   /// openWallet opens a wallet given an address and also loads additional data
   ///
   /// if a wallet is already loaded, it only fetches additional data
-  Future<String?> openWallet(String? paramAddress,
-      Future<void> Function(bool hasChanged) loadAdditionalData) async {
+  Future<String?> openWallet(
+    String? paramAddress,
+    Future<void> Function(bool hasChanged) loadAdditionalData,
+  ) async {
     try {
       final String? address = paramAddress ?? _preferences.lastWallet;
 
@@ -201,12 +204,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      const alias = 'app';
-
       // on native, use env
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
-        alias == 'localhost' ? 'app' : alias,
+        dbWallet.alias,
       );
 
       final config = await _config.config;
@@ -233,6 +234,7 @@ class WalletLogic extends WidgetsBindingObserver {
           balance,
           name: dbWallet.name,
           address: _wallet.address.hexEip55,
+          alias: dbWallet.alias,
           account: _wallet.account.hexEip55,
           currencyName: currency.name,
           symbol: currency.symbol,
@@ -267,7 +269,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<String?> createWallet(String name) async {
+  Future<String?> createWallet(String name, String alias) async {
     try {
       _state.createWallet();
 
@@ -279,6 +281,7 @@ class WalletLogic extends WidgetsBindingObserver {
         '0.0',
         name: name,
         address: address,
+        alias: alias == 'localhost' ? 'app' : alias,
         account: '',
         currencyName: '',
         symbol: '',
@@ -289,6 +292,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(credentials.privateKey),
         name: name,
+        alias: alias == 'localhost' ? 'app' : alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -310,7 +314,8 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<String?> importWallet(String qrWallet, String name) async {
+  Future<String?> importWallet(
+      String qrWallet, String name, String alias) async {
     try {
       _state.createWallet();
 
@@ -328,6 +333,7 @@ class WalletLogic extends WidgetsBindingObserver {
           '0.0',
           name: name,
           address: address,
+          alias: alias == 'localhost' ? 'app' : alias,
           account: '',
           currencyName: '',
           symbol: '',
@@ -338,6 +344,7 @@ class WalletLogic extends WidgetsBindingObserver {
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
           name: name,
+          alias: alias == 'localhost' ? 'app' : alias,
         ));
 
         await _preferences.setLastWallet(address);
@@ -357,6 +364,7 @@ class WalletLogic extends WidgetsBindingObserver {
         '0.0',
         name: name,
         address: address,
+        alias: alias == 'localhost' ? 'app' : alias,
         account: '',
         currencyName: '',
         symbol: '',
@@ -368,6 +376,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(wallet.data.wallet['privateKey']),
         name: name,
+        alias: alias == 'localhost' ? 'app' : alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -398,6 +407,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: dbWallet.privateKey,
         name: name,
+        alias: dbWallet.alias,
       ));
 
       loadDBWallets();
@@ -1220,6 +1230,7 @@ class WalletLogic extends WidgetsBindingObserver {
                 '0.0',
                 name: w.name,
                 address: w.address,
+                alias: w.alias,
                 account: '',
                 currencyName: '',
                 symbol: '',

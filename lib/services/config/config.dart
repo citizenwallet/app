@@ -296,11 +296,14 @@ class ConfigService {
   }
 
   Future<Config> _getConfig() async {
-    final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString('assets/data/config.json'))
-        : await _api.get(
-            url:
-                '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}}');
+    // final response = kDebugMode
+    //     ? jsonDecode(await rootBundle.loadString('assets/data/config.json'))
+    //     : await _api.get(
+    //         url:
+    //             '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+    final response = await _api.get(
+        url: '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+
     return Config.fromJson(response);
   }
 

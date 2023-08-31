@@ -250,8 +250,18 @@ class AndroidEncryptedPreferencesService
       final decrypted = await _decrypt(value);
 
       final parsed = decrypted.split('|');
-      if (parsed.length != 2) {
+      if (parsed.length < 2) {
         // invalid backup, consider cleaning up in the future
+        continue;
+      }
+
+      if (parsed.length == 3) {
+        backups.add(BackupWallet(
+          address: k.replaceFirst(backupPrefix, ''),
+          privateKey: parsed[1],
+          name: parsed[0],
+          alias: parsed[2],
+        ));
         continue;
       }
 
@@ -259,6 +269,7 @@ class AndroidEncryptedPreferencesService
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
+        alias: 'app',
       ));
     }
 
@@ -292,11 +303,25 @@ class AndroidEncryptedPreferencesService
 
     final decrypted = await _decrypt(value);
     final parsed = decrypted.split('|');
+    if (parsed.length < 2) {
+      // invalid backup, consider cleaning up in the future
+      return null;
+    }
+
+    if (parsed.length == 3) {
+      return BackupWallet(
+        address: address,
+        privateKey: parsed[1],
+        name: parsed[0],
+        alias: parsed[2],
+      );
+    }
 
     return BackupWallet(
       address: address,
       privateKey: parsed[1],
       name: parsed[0],
+      alias: 'app',
     );
   }
 
