@@ -33,6 +33,7 @@ class WalletState with ChangeNotifier {
   bool parsingQRAddress = false;
   bool parsingQRAddressError = false;
 
+  String? invalidScanMessage;
   bool invalidAddress = false;
   bool invalidAmount = false;
 
@@ -257,6 +258,7 @@ class WalletState with ChangeNotifier {
 
     setInvalidAmount(false);
     setInvalidAddress(false);
+    setInvalidScanMessage(null);
     transactionSendLoading = true;
     transactionSendError = false;
     notifyListeners();
@@ -383,6 +385,7 @@ class WalletState with ChangeNotifier {
   void resetInvalidInputs({bool notify = false}) {
     invalidAmount = false;
     invalidAddress = false;
+    invalidScanMessage = null;
     hasAddress = false;
     hasAmount = false;
 
@@ -401,6 +404,11 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setInvalidScanMessage(String? message) {
+    invalidScanMessage = message;
+    notifyListeners();
+  }
+
   void parseQRAddress() {
     parsingQRAddress = true;
     parsingQRAddressError = false;
@@ -412,12 +420,14 @@ class WalletState with ChangeNotifier {
     parsingQRAddressError = false;
 
     invalidAddress = false;
+    invalidScanMessage = null;
     transactionSendError = false;
 
     notifyListeners();
   }
 
   void parseQRAddressError() {
+    invalidScanMessage = 'This address seems to be invalid';
     parsingQRAddress = false;
     parsingQRAddressError = true;
     notifyListeners();
@@ -439,6 +449,7 @@ class WalletState with ChangeNotifier {
       parsingQRAddress = false;
       parsingQRAddressError = false;
       invalidAddress = false;
+      invalidScanMessage = null;
     }
     notifyListeners();
   }

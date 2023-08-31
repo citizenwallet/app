@@ -31,6 +31,30 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
+class QREmptyException implements Exception {
+  final String message = 'This QR code seems to be empty';
+
+  QREmptyException();
+}
+
+class QRInvalidException implements Exception {
+  final String message = 'This QR code seems to be invalid';
+
+  QRInvalidException();
+}
+
+class QRAliasMismatchException implements Exception {
+  final String message = 'This QR code is from a different community';
+
+  QRAliasMismatchException();
+}
+
+class QRMissingAddressException implements Exception {
+  final String message = 'This QR code is has no receive address';
+
+  QRMissingAddressException();
+}
+
 class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
   late WalletState _state;
@@ -1052,8 +1076,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<String?> updateFromCapture(String raw) async {
     try {
+      //
       if (raw.isEmpty) {
-        throw Exception('empty qr');
+        throw QREmptyException();
       }
 
       final isHex = isHexValue(raw);
@@ -1076,7 +1101,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final encodedParams = receiveUrl.queryParameters['receiveParams'];
       if (encodedParams == null) {
-        throw Exception('missing receive params');
+        throw QRInvalidException();
       }
 
       final decodedParams = decompress(encodedParams);
@@ -1087,12 +1112,12 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final alias = paramUrl.queryParameters['alias'];
       if (config.community.alias != alias) {
-        throw Exception('invalid alias');
+        throw QRAliasMismatchException();
       }
 
       final address = paramUrl.queryParameters['address'];
       if (address == null) {
-        throw Exception('missing address');
+        throw QRMissingAddressException();
       }
 
       updateAddressFromHexCapture(address);
@@ -1111,6 +1136,14 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       return address;
+    } on QREmptyException catch (e) {
+      _state.setInvalidScanMessage(e.message);
+    } on QRInvalidException catch (e) {
+      _state.setInvalidScanMessage(e.message);
+    } on QRAliasMismatchException catch (e) {
+      _state.setInvalidScanMessage(e.message);
+    } on QRMissingAddressException catch (e) {
+      _state.setInvalidScanMessage(e.message);
     } catch (exception, stackTrace) {
       //
     }

@@ -364,6 +364,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       decimalDigits: wallet != null ? wallet.decimalDigits : 2,
     );
 
+    final invalidScanMessage = context.select(
+      (WalletState state) => state.invalidScanMessage,
+    );
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
     );
@@ -475,7 +478,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Invalid QR Code",
+                                  invalidScanMessage ?? "Invalid QR Code",
                                   style: TextStyle(
                                     color:
                                         ThemeColors.danger.resolveFrom(context),
