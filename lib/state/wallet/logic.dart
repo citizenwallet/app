@@ -1112,7 +1112,9 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       final config = await _config.config;
 
-      final url = 'https://${config.community.alias}$appLinkSuffix/#/';
+      final url = config.community.customDomain != ''
+          ? 'https://${config.community.customDomain}/#/'
+          : 'https://${config.community.alias}$appLinkSuffix/#/';
 
       if (onlyHex != null && onlyHex) {
         final compressedParams = compress(
