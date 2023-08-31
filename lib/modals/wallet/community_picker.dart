@@ -75,6 +75,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
         backgroundColor: ThemeColors.black,
         child: SafeArea(
           minimum: const EdgeInsets.only(top: 20),
+          bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -92,14 +93,15 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
               ),
               Expanded(
                 child: CustomScrollView(
+                  controller: ScrollController(),
                   scrollBehavior: const CupertinoScrollBehavior(),
                   slivers: [
                     SliverPersistentHeader(
                       pinned: true,
                       floating: false,
                       delegate: PersistentHeaderDelegate(
-                        minHeight: height * 0.4,
-                        expandedHeight: height * 0.6,
+                        minHeight: height * 0.2,
+                        expandedHeight: height * 0.45,
                         builder: (context, shrink) {
                           return Container(
                             color: ThemeColors.black,
