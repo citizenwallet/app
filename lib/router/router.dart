@@ -186,10 +186,9 @@ GoRouter createWebRouter(
           path: '/',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
-            String alias = Uri.base.host.split('.').first;
-            if (!Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))) {
-              alias = Uri.base.host;
-            }
+            String alias = Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))
+                ? Uri.base.host.replaceFirst(dotenv.get('APP_LINK_SUFFIX'), '')
+                : Uri.base.host;
 
             return WebLandingScreen(
               voucher: state.uri.queryParameters['voucher'],
@@ -211,10 +210,11 @@ GoRouter createWebRouter(
               path: '/wallet/:qr',
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
-                String alias = Uri.base.host.split('.').first;
-                if (!Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))) {
-                  alias = Uri.base.host;
-                }
+                String alias =
+                    Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))
+                        ? Uri.base.host
+                            .replaceFirst(dotenv.get('APP_LINK_SUFFIX'), '')
+                        : Uri.base.host;
 
                 return NoTransitionPage(
                   key: state.pageKey,
