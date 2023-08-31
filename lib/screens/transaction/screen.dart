@@ -9,6 +9,7 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:collection/collection.dart';
@@ -252,7 +253,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Transaction ID',
@@ -269,37 +270,29 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     width: 20,
                                   ),
                                   Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => handleCopy(transaction.id),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            5, 0, 5, 0),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                formatHexAddress(
-                                                    transaction.id),
-                                                textAlign: TextAlign.end,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.normal,
-                                                  color: ThemeColors.text
-                                                      .resolveFrom(context),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            Icon(
-                                              CupertinoIcons.square_on_square,
-                                              size: 12,
-                                              color: ThemeColors.touchable
-                                                  .resolveFrom(context),
-                                            ),
-                                          ],
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Chip(
+                                          formatHexAddress(transaction.hash),
+                                          onTap: () =>
+                                              handleCopy(transaction.hash),
+                                          fontSize: 16,
+                                          color: ThemeColors.subtleEmphasis
+                                              .resolveFrom(context),
+                                          textColor: ThemeColors.touchable
+                                              .resolveFrom(context),
+                                          suffix: Icon(
+                                            CupertinoIcons.square_on_square,
+                                            size: 14,
+                                            color: ThemeColors.touchable
+                                                .resolveFrom(context),
+                                          ),
+                                          maxWidth: 140,
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
                                 ],
