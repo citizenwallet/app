@@ -16,6 +16,7 @@ import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter createRouter(
@@ -186,8 +187,8 @@ GoRouter createWebRouter(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             String alias = Uri.base.host.split('.').first;
-            if (Uri.base.host.split('.').length >= 4) {
-              alias += '.${Uri.base.host.split('.')[1]}';
+            if (!Uri.base.host.contains(dotenv.get('APP_LINK_SUFFIX'))) {
+              alias = Uri.base.host;
             }
 
             return WebLandingScreen(
@@ -211,8 +212,8 @@ GoRouter createWebRouter(
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
                 String alias = Uri.base.host.split('.').first;
-                if (Uri.base.host.split('.').length >= 4) {
-                  alias += '.${Uri.base.host.split('.')[1]}';
+                if (!Uri.base.host.contains(dotenv.get('APP_LINK_SUFFIX'))) {
+                  alias = Uri.base.host;
                 }
 
                 return NoTransitionPage(
