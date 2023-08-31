@@ -270,7 +270,7 @@ class LandingScreenState extends State<LandingScreen>
                             ),
                             const SizedBox(height: 30),
                             Text(
-                              'The wallet for the rest of us',
+                              'A wallet for your community',
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 20,
