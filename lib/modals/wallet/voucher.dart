@@ -119,6 +119,8 @@ class VoucherModalState extends State<VoucherModal>
 
     final width = MediaQuery.of(context).size.width;
 
+    final size = height > width ? width : height;
+
     final createdVoucher =
         context.select((VoucherState state) => state.createdVoucher);
     final creationState =
@@ -166,8 +168,8 @@ class VoucherModalState extends State<VoucherModal>
                         children: [
                           const SizedBox(height: 20),
                           SizedBox(
-                            height: 300,
-                            width: 300,
+                            height: size * 0.8,
+                            width: size * 0.8,
                             child: Center(
                               child: shareReady
                                   ? Container(
@@ -176,17 +178,16 @@ class VoucherModalState extends State<VoucherModal>
                                             .resolveFrom(context),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      padding: const EdgeInsets.all(10),
                                       child: QR(
                                         data: shareLink,
-                                        size: 280,
+                                        size: size * 0.8,
                                       ),
                                     )
                                   : Lottie.asset(
                                       'assets/lottie/gift-voucher.json',
                                       controller: _controller,
-                                      height: 300,
-                                      width: 300,
+                                      height: size * 0.8,
+                                      width: size * 0.8,
                                       animate: false,
                                       repeat: false,
                                     ),
