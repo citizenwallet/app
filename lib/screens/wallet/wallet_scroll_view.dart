@@ -109,10 +109,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
-    if (wallet != null &&
-        wallet.doubleBalance == 0.0 &&
-        transactions.isEmpty &&
-        !loading) {
+    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
       return CustomScrollView(
         controller: controller,
         scrollBehavior: const CupertinoScrollBehavior(),
