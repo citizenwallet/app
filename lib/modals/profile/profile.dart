@@ -4,10 +4,7 @@ import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
-import 'package:citizenwallet/widgets/qr/qr.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -17,11 +14,13 @@ import 'package:provider/provider.dart';
 class ProfileModal extends StatefulWidget {
   final String account;
   final bool readonly;
+  final bool keepLink;
 
   const ProfileModal({
     Key? key,
     required this.account,
     this.readonly = false,
+    this.keepLink = false,
   }) : super(key: key);
 
   @override
@@ -52,7 +51,10 @@ class ProfileModalState extends State<ProfileModal> {
   }
 
   void handleDismiss(BuildContext context) {
-    _logic.clearProfileLink();
+    if (!widget.keepLink) {
+      _logic.clearProfileLink();
+    }
+
     _logic.resetViewProfile();
     GoRouter.of(context).pop();
   }
@@ -74,8 +76,6 @@ class ProfileModalState extends State<ProfileModal> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     final profile = context.watch<ProfileState>().viewProfile;
 
     final loading = context.watch<ProfileState>().viewLoading;
@@ -132,94 +132,6 @@ class ProfileModalState extends State<ProfileModal> {
                           profileLinkLoading: profileLinkLoading,
                           handleCopy: handleCopy,
                         ),
-                        // SizedBox(
-                        //   height: width,
-                        //   width: width,
-                        //   child: Stack(
-                        //     alignment: Alignment.center,
-                        //     children: [
-                        //       AnimatedContainer(
-                        //         duration: const Duration(milliseconds: 250),
-                        //         decoration: BoxDecoration(
-                        //           color: ThemeColors.white.resolveFrom(context),
-                        //           borderRadius: BorderRadius.circular(10),
-                        //         ),
-                        //         padding: EdgeInsets.fromLTRB(
-                        //           20,
-                        //           20,
-                        //           20,
-                        //           (loading || hasNoProfile) ? 20 : 40,
-                        //         ),
-                        //         margin: const EdgeInsets.only(top: 80),
-                        //         child: AnimatedOpacity(
-                        //           opacity: profileLinkLoading ? 0 : 1,
-                        //           duration: const Duration(milliseconds: 250),
-                        //           child: QR(
-                        //             data: profileLink,
-                        //             size: width - 140,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       Positioned(
-                        //         top: 0,
-                        //         child: loading
-                        //             ? const PulsingContainer(
-                        //                 height: 100,
-                        //                 width: 100,
-                        //                 borderRadius: 50,
-                        //               )
-                        //             : ProfileCircle(
-                        //                 size: 100,
-                        //                 imageUrl: profile?.imageMedium,
-                        //                 borderColor: ThemeColors.subtle,
-                        //               ),
-                        //       ),
-                        //       if (!hasNoProfile && !loading)
-                        //         Positioned(
-                        //           bottom: 0,
-                        //           child: Row(
-                        //             mainAxisAlignment: MainAxisAlignment.center,
-                        //             crossAxisAlignment:
-                        //                 CrossAxisAlignment.center,
-                        //             children: [
-                        //               const SizedBox(
-                        //                 width: 44,
-                        //               ),
-                        //               ConstrainedBox(
-                        //                 constraints: const BoxConstraints(
-                        //                   maxWidth: 200,
-                        //                 ),
-                        //                 child: Text(
-                        //                   '@${profile.username}',
-                        //                   style: TextStyle(
-                        //                     color: ThemeColors.black
-                        //                         .resolveFrom(context),
-                        //                     fontSize: 16,
-                        //                     fontWeight: FontWeight.bold,
-                        //                   ),
-                        //                   textAlign: TextAlign.center,
-                        //                   maxLines: 1,
-                        //                   overflow: TextOverflow.ellipsis,
-                        //                 ),
-                        //               ),
-                        //               CupertinoButton(
-                        //                 padding: const EdgeInsets.fromLTRB(
-                        //                     0, 0, 0, 0),
-                        //                 child: Icon(
-                        //                   CupertinoIcons.square_on_square,
-                        //                   size: 14,
-                        //                   color: ThemeColors.black
-                        //                       .resolveFrom(context),
-                        //                 ),
-                        //                 onPressed: () =>
-                        //                     handleCopy('@${profile.username}'),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //     ],
-                        //   ),
-                        // ),
                         const SizedBox(height: 20),
                         if (!hasNoProfile && !loading)
                           Row(
