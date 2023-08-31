@@ -25,11 +25,11 @@ import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:web3dart/crypto.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
@@ -628,9 +628,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       CupertinoButton(
                         padding: const EdgeInsets.all(5),
                         onPressed: handleBackup,
-                        child: Icon(
-                          CupertinoIcons.cloud_upload,
-                          color: ThemeColors.primary.resolveFrom(context),
+                        child: SvgPicture.asset(
+                          'assets/icons/bookmark.svg',
+                          height: 30,
+                          width: 30,
+                          colorFilter: ColorFilter.mode(
+                            ThemeColors.primary.resolveFrom(context),
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     CupertinoButton(

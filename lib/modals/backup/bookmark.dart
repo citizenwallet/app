@@ -54,7 +54,7 @@ class BookmarkModal extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/bookmark.svg',
+                              'assets/icons/bookmark_color.svg',
                               semanticsLabel: 'voucher icon',
                               height: 200,
                               width: 200,
