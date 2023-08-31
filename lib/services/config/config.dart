@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/utils/date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -297,12 +298,15 @@ class ConfigService {
   Future<Config> _getConfig() async {
     final response = kDebugMode
         ? jsonDecode(await rootBundle.loadString('assets/data/config.json'))
-        : await _api.get(url: '/$_alias/config.json');
+        : await _api.get(
+            url:
+                '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}}');
     return Config.fromJson(response);
   }
 
   Future<List<Config>> getConfigs() async {
-    final response = await _api.get(url: '/configs.json');
+    final response = await _api.get(
+        url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 
