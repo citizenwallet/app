@@ -94,6 +94,7 @@ class VoucherViewModalState extends State<VoucherViewModal>
     final wallet = context.select((WalletState state) => state.wallet);
 
     final width = MediaQuery.of(context).size.width;
+    final size = height > width ? width : height;
 
     final voucher =
         context.select((VoucherState state) => state.viewingVoucher);
@@ -149,13 +150,13 @@ class VoucherViewModalState extends State<VoucherViewModal>
                           ),
                           const SizedBox(height: 30),
                           SizedBox(
-                            height: 300,
-                            width: 300,
+                            height: size * 0.8,
+                            width: size * 0.8,
                             child: Center(
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 250),
-                                height: 300,
-                                width: 300,
+                                height: size * 0.8,
+                                width: size * 0.8,
                                 decoration: BoxDecoration(
                                   color: viewLoading || voucher == null
                                       ? ThemeColors.uiBackgroundAlt
@@ -163,14 +164,13 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                       : ThemeColors.white.resolveFrom(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                padding: const EdgeInsets.all(10),
                                 child: viewLoading || voucher == null
                                     ? CupertinoActivityIndicator(
                                         color: ThemeColors.subtle
                                             .resolveFrom(context))
                                     : QR(
                                         data: viewingVoucherLink!,
-                                        size: 280,
+                                        size: size * 0.8,
                                       ),
                               ),
                             ),
@@ -201,7 +201,8 @@ class VoucherViewModalState extends State<VoucherViewModal>
                               ],
                             ),
                           SizedBox(
-                              height: reservedHeight > 0 ? reservedHeight : 0),
+                            height: reservedHeight > 0 ? reservedHeight : 0,
+                          ),
                         ],
                       ),
                     ),
