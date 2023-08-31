@@ -113,6 +113,7 @@ flutter:
     - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
 
+# flutter pub run flutter_launcher_icons
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
@@ -129,7 +130,7 @@ flutter_launcher_icons:
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/logo.png"
+    image_path: "assets/logo_macOS.png"
 
 sentry:
   upload_debug_symbols: true
