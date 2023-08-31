@@ -187,7 +187,7 @@ GoRouter createWebRouter(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             String alias = Uri.base.host.split('.').first;
-            if (!Uri.base.host.contains(dotenv.get('APP_LINK_SUFFIX'))) {
+            if (!Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))) {
               alias = Uri.base.host;
             }
 
@@ -212,7 +212,7 @@ GoRouter createWebRouter(
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
                 String alias = Uri.base.host.split('.').first;
-                if (!Uri.base.host.contains(dotenv.get('APP_LINK_SUFFIX'))) {
+                if (!Uri.base.host.endsWith(dotenv.get('APP_LINK_SUFFIX'))) {
                   alias = Uri.base.host;
                 }
 
