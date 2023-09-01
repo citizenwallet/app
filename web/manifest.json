@@ -5,10 +5,42 @@
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#563087",
-    "description": "The wallet for the rest of us.",
+    "description": "The wallet for your community",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "id": "xyz.citizenwallet.wallet",
+            "url": "https://play.google.com/store/apps/details?id=xyz.citizenwallet.wallet"
+        }
+    ],
     "icons": [
+        {
+            "src": "favicon-32.png",
+            "sizes": "36x36",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-96.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-96.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-192.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
         {
             "src": "icons/Icon-192.png",
             "sizes": "192x192",

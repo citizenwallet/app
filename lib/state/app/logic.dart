@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -23,6 +24,7 @@ class AppLogic {
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
+  final ConfigService _config = ConfigService();
   late AppState _appState;
 
   AppLogic(BuildContext context) {
@@ -37,6 +39,13 @@ class AppLogic {
 
   void setFirstLaunch(bool firstLaunch) {
     _preferences.setFirstLaunch(firstLaunch);
+  }
+
+  void configureGenericConfig() {
+    _config.init(
+      dotenv.get('WALLET_CONFIG_URL'),
+      'app',
+    );
   }
 
   void loadChains() async {
@@ -95,6 +104,10 @@ class AppLogic {
 
           return address;
         }
+        // there are no wallets backed up but we have a pin code
+        // clean up the pin code and start from scratch
+        await _encPrefs
+            .init(AndroidEncryptedPreferencesOptions(fromScratch: true));
 
         _appState.importLoadingError();
 
@@ -383,6 +396,7 @@ class AppLogic {
       return true;
     } catch (e) {
       //
+      print(e);
     }
 
     return false;

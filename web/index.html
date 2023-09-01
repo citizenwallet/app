@@ -76,7 +76,7 @@
     />
     <meta
       name="theme-color"
-      content="rgba(230, 230, 230, 1)"
+      content="rgba(241, 241, 241, 1)"
       media="(prefers-color-scheme: light)"
     />
   </head>
@@ -88,11 +88,12 @@
       width: 100%;
       margin: 0;
       padding: 0;
+      position: relative !important;
     }
 
     @media (prefers-color-scheme: light) {
       .body {
-        background-color: rgba(230, 230, 230, 1);
+        background-color: rgba(241, 241, 241, 1);
       }
 
       .abs-wrapper {
@@ -102,7 +103,7 @@
         width: 100%;
         height: 100%;
         color: black;
-        background-color: rgba(230, 230, 230, 1);
+        background-color: rgba(241, 241, 241, 1);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -116,27 +117,6 @@
 
       .abs-wrapper-loaded {
         opacity: 0;
-      }
-
-      .lds-spinner {
-        color: black;
-        display: inline-block;
-        position: relative;
-        width: 80px;
-        height: 80px;
-        transform: scale(0.35);
-      }
-
-      .lds-spinner div:after {
-        content: " ";
-        display: block;
-        position: absolute;
-        top: 3px;
-        left: 37px;
-        width: 6px;
-        height: 18px;
-        border-radius: 20%;
-        background: rgba(0, 0, 0, 0.25);
       }
     }
 
@@ -167,27 +147,24 @@
       .abs-wrapper-loaded {
         opacity: 0;
       }
+    }
 
-      .lds-spinner {
-        color: white;
-        display: inline-block;
-        position: relative;
-        width: 80px;
-        height: 80px;
-        transform: scale(0.35);
-      }
+    .content-wrapper {
+      width: 100%;
 
-      .lds-spinner div:after {
-        content: " ";
-        display: block;
-        position: absolute;
-        top: 3px;
-        left: 37px;
-        width: 6px;
-        height: 18px;
-        border-radius: 20%;
-        background: rgba(255, 255, 255, 0.45);
-      }
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .logo {
+      width: 70%;
+      height: auto;
+      border-radius: 50%;
+      background-color: rgba(241, 241, 241, 1);
     }
 
     .padded-wrapper {
@@ -200,70 +177,8 @@
       align-content: center;
     }
 
-    .lds-spinner div {
-      transform-origin: 40px 40px;
-      animation: lds-spinner 1.2s linear infinite;
-    }
-
-    .lds-spinner div:nth-child(1) {
-      transform: rotate(0deg);
-      animation-delay: -1.1s;
-    }
-    .lds-spinner div:nth-child(2) {
-      transform: rotate(30deg);
-      animation-delay: -1s;
-    }
-    .lds-spinner div:nth-child(3) {
-      transform: rotate(60deg);
-      animation-delay: -0.9s;
-    }
-    .lds-spinner div:nth-child(4) {
-      transform: rotate(90deg);
-      animation-delay: -0.8s;
-    }
-    .lds-spinner div:nth-child(5) {
-      transform: rotate(120deg);
-      animation-delay: -0.7s;
-    }
-    .lds-spinner div:nth-child(6) {
-      transform: rotate(150deg);
-      animation-delay: -0.6s;
-    }
-    .lds-spinner div:nth-child(7) {
-      transform: rotate(180deg);
-      animation-delay: -0.5s;
-    }
-    .lds-spinner div:nth-child(8) {
-      transform: rotate(210deg);
-      animation-delay: -0.4s;
-    }
-    .lds-spinner div:nth-child(9) {
-      transform: rotate(240deg);
-      animation-delay: -0.3s;
-    }
-    .lds-spinner div:nth-child(10) {
-      transform: rotate(270deg);
-      animation-delay: -0.2s;
-    }
-    .lds-spinner div:nth-child(11) {
-      transform: rotate(300deg);
-      animation-delay: -0.1s;
-    }
-    .lds-spinner div:nth-child(12) {
-      transform: rotate(330deg);
-      animation-delay: 0s;
-    }
-    @keyframes lds-spinner {
-      0% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
-
     .loading-text {
-      font-size: 1.8rem;
+      font-size: 22px;
       margin-top: 1rem;
       font-family: system-ui;
       text-align: center;
@@ -277,14 +192,14 @@
       width: 60%;
       height: 10px;
 
-      background-color: #f3f3f3;
+      background-color: #ffffff;
 
       border-radius: 10px;
     }
     .loading-bar {
       height: 10px;
 
-      background-color: rgba(200, 255, 148, 1);
+      background-color: rgba(131, 61, 219, 1);
 
       border-radius: 10px;
 
@@ -317,91 +232,161 @@
     }
     @-webkit-keyframes pulse {
       0% {
-        background-color: rgba(200, 255, 148, 1);
+        background-color: rgba(131, 61, 219, 1);
       }
       25% {
-        background-color: rgba(200, 255, 148, 0.9);
+        background-color: rgba(131, 61, 219, 0.9);
       }
       50% {
-        background-color: rgba(200, 255, 148, 0.8);
+        background-color: rgba(131, 61, 219, 0.8);
       }
       75% {
-        background-color: rgba(200, 255, 148, 0.8);
+        background-color: rgba(131, 61, 219, 0.8);
       }
       85% {
-        background-color: rgba(200, 255, 148, 0.9);
+        background-color: rgba(131, 61, 219, 0.9);
       }
       100% {
-        background-color: rgba(200, 255, 148, 1);
+        background-color: rgba(131, 61, 219, 1);
       }
     }
 
     @keyframes pulse {
       0% {
-        background-color: rgba(200, 255, 148, 1);
+        background-color: rgba(131, 61, 219, 1);
       }
       25% {
-        background-color: rgba(200, 255, 148, 0.8);
+        background-color: rgba(131, 61, 219, 0.8);
       }
       50% {
-        background-color: rgba(200, 255, 148, 0.6);
+        background-color: rgba(131, 61, 219, 0.6);
       }
       75% {
-        background-color: rgba(200, 255, 148, 0.6);
+        background-color: rgba(131, 61, 219, 0.6);
       }
       85% {
-        background-color: rgba(200, 255, 148, 0.8);
+        background-color: rgba(131, 61, 219, 0.8);
       }
       100% {
-        background-color: rgba(200, 255, 148, 1);
+        background-color: rgba(131, 61, 219, 1);
       }
     }
-    .title {
-      font-family: system-ui;
-      font-size: 4rem;
-      text-align: center;
+
+    .app-install-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: none;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      align-content: center;
+      z-index: 1000;
     }
-    .sub-title {
-      font-family: system-ui;
-      font-size: 2.2rem;
-      text-align: center;
+
+    .app-install-ignore-icon {
+      width: 10px;
+      height: 10px;
+      margin-right: 10px;
+      margin-left: 16px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+
+      cursor: pointer;
     }
-    .sub-sub-title {
+
+    .app-install-icon {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      margin-left: 10px;
+
+      background-color: #ffffff;
+
+      border-radius: 10px;
+      border: solid 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-install-text-column {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .app-install-title {
       font-family: system-ui;
-      font-size: 1.8rem;
-      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .app-install-sub-title {
+      font-family: system-ui;
+      font-size: 14px;
+      font-weight: normal;
+      margin-bottom: 2px;
+    }
+
+    .app-install-action-button {
+      width: 120px;
+      height: 40px;
+      margin-right: 10px;
+      margin-left: 10px;
+
+      background-color: #ffffff;
+
+      border-radius: 10px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+
+      cursor: pointer;
+
+      font-family: system-ui;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 2px;
+      color: rgba(131, 61, 219, 1);
     }
   </style>
+
   <body class="body">
+    <div class="app-install-banner">
+      <div id="app-install-ignore-icon" class="app-install-ignore-icon">✖️</div>
+      <img class="app-install-icon" src="/icons/Icon-192.png" />
+      <div class="app-install-text-column">
+        <div class="app-install-title">Citizen Wallet</div>
+        <div class="app-install-sub-title">A wallet for your community</div>
+      </div>
+      <div id="app-install-button" class="app-install-action-button">
+        Install
+      </div>
+    </div>
+
     <div id="loading-wrapper" class="abs-wrapper">
-      <h1 class="title">Citizen Wallet</h1>
-      <div class="padded-wrapper">
-        <p class="sub-title">Your wallet is being prepared.</p>
+      <div class="content-wrapper spacing">
+        <img class="logo" src="/full_logo.png" />
       </div>
-      <div class="padded-wrapper">
-        <p class="sub-sub-title">
-          This may take a couple of seconds the very first time.
-        </p>
-      </div>
-      <div class="lds-spinner spacing">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-      <div class="loading-bar-track">
-        <div id="loading-bar" class="loading-bar loading-bar-0"></div>
-      </div>
-      <div class="padded-wrapper spacing">
-        <div id="loading-text" class="loading-text">Setting things up...</div>
+
+      <div class="content-wrapper">
+        <div class="padded-wrapper spacing">
+          <div id="loading-text" class="loading-text">loading...</div>
+        </div>
+        <div class="loading-bar-track spacing">
+          <div id="loading-bar" class="loading-bar loading-bar-0"></div>
+        </div>
       </div>
     </div>
     <noscript class="abs-wrapper">
@@ -409,23 +394,74 @@
       <p>You need to enable JavaScript to run this app.</p>
     </noscript>
     <script>
+      // Safari iOS 14.5+ app install banner
       var meta = document.createElement("meta");
       meta.name = "apple-itunes-app";
       meta.content = `app-id=6460822891, app-argument=${encodeURIComponent(
         window.location.href
       )}`;
       document.getElementsByTagName("head")[0].appendChild(meta);
+      // *********************************
 
+      // Android Chrome app install banner
+      const hasDismissedBanner = localStorage.getItem("hasDismissedBanner");
+
+      if (!hasDismissedBanner) {
+        let deferredPrompt = null;
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+          // Prevent Chrome 67 and earlier from automatically showing the prompt
+          e.preventDefault();
+          // Stash the event so it can be triggered later.
+          deferredPrompt = e;
+          // Update UI notify the user they can add to home screen
+          document.querySelector(".app-install-banner").style.display = "flex";
+
+          const ignoreBtn = document.getElementById("app-install-ignore-icon");
+
+          ignoreBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            localStorage.setItem("hasDismissedBanner", true);
+            document.querySelector(".app-install-banner").style.display =
+              "none";
+          });
+
+          const installBtn = document.getElementById("app-install-button");
+
+          installBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            localStorage.setItem("hasDismissedBanner", true);
+            document.querySelector(".app-install-banner").style.display =
+              "none";
+
+            deferredPrompt.prompt();
+
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === "accepted") {
+                console.log("User accepted the A2HS prompt");
+              } else {
+                console.log("User dismissed the A2HS prompt");
+              }
+              deferredPrompt = null;
+            });
+          });
+        });
+      }
+      // *********************************
+
+      // Flutter loader
       window.addEventListener("load", function (ev) {
         var loadingBar = document.querySelector("#loading-bar");
         loadingBar.classList.remove("loading-bar-0");
         loadingBar.classList.add("loading-bar-25");
 
         var loading = document.querySelector("#loading-text");
-        loading.textContent = "Downloading files...";
+        loading.textContent = "loading...";
 
         var long25Timeout = setTimeout(function () {
-          loading.textContent = "Downloading files (good things take time)...";
+          loading.textContent = "loading...";
           loadingBar.classList.remove("loading-bar-25");
           loadingBar.classList.add("loading-bar-50");
         }, 3000);
@@ -438,7 +474,7 @@
           onEntrypointLoaded: function (engineInitializer) {
             clearTimeout(long25Timeout);
 
-            loading.textContent = "Installing Citizen Wallet...";
+            loading.textContent = "loading...";
 
             if (loadingBar.classList.contains("loading-bar-25"))
               loadingBar.classList.remove("loading-bar-25");
@@ -447,8 +483,7 @@
             loadingBar.classList.add("loading-bar-75");
 
             var long75Timeout = setTimeout(function () {
-              loading.textContent =
-                "Installing Citizen Wallet (it's worth it, we promise)...";
+              loading.textContent = "loading (almost done)...";
               loadingBar.classList.remove("loading-bar-75");
               loadingBar.classList.add("loading-bar-90");
             }, 3000);
@@ -458,7 +493,7 @@
               .then(function (appRunner) {
                 clearTimeout(long75Timeout);
 
-                loading.textContent = "Launching your wallet...";
+                loading.textContent = "loading...";
 
                 var loadingWrapper = document.querySelector("#loading-wrapper");
                 loadingWrapper.classList.add("abs-wrapper-loaded");
@@ -473,6 +508,7 @@
           },
         });
       });
+      // *********************************
     </script>
   </body>
 </html>
