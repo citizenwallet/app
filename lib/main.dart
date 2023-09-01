@@ -56,6 +56,8 @@ class MyAppState extends State<MyApp> {
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+  String _title = 'Citizen Wallet';
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +72,7 @@ class MyAppState extends State<MyApp> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
+      onLoad();
     });
   }
 
@@ -84,6 +87,14 @@ class MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+  void onLoad() async {
+    final title = await _logic.getCommunityNameFromConfig();
+
+    setState(() {
+      _title = title;
+    });
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -93,7 +104,7 @@ class MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: theme,
-      title: 'Citizen Wallet',
+      title: _title,
     );
   }
 }

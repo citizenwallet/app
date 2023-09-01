@@ -281,7 +281,11 @@ class ConfigService {
     return _config!;
   }
 
-  void initWeb(String alias) {
+  void initWeb(String appLinkSuffix) {
+    String alias = Uri.base.host.endsWith(appLinkSuffix)
+        ? Uri.base.host.replaceFirst(appLinkSuffix, '')
+        : Uri.base.host;
+
     final url =
         '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 

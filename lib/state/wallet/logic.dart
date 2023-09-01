@@ -105,6 +105,31 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
+  Future<String> getCommunityNameFromConfig() async {
+    try {
+      // on web, use host
+      _config.initWeb(
+        dotenv.get('APP_LINK_SUFFIX'),
+      );
+
+      final config = await _config.config;
+
+      String name = config.community.name;
+      if (!name.toLowerCase().contains('wallet')) {
+        name = '$name Wallet';
+      }
+
+      return name;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return 'Citizen Wallet';
+  }
+
   Future<bool> openWalletFromURL(
     String encodedWallet,
     String password,
@@ -132,7 +157,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // on web, use host
       _config.initWeb(
-        alias == 'localhost' ? 'app' : alias,
+        dotenv.get('APP_LINK_SUFFIX'),
       );
 
       final config = await _config.config;
