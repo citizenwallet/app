@@ -7,7 +7,13 @@
     "theme_color": "#563087",
     "description": "The wallet for the rest of us.",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "id": "xyz.citizenwallet.wallet"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
