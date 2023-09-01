@@ -56,6 +56,8 @@ class LandingScreenState extends State<LandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
+    _appLogic.configureGenericConfig();
+
     // set up recovery
     await handleAppleRecover();
     await handleAndroidRecover();
@@ -157,10 +159,10 @@ class LandingScreenState extends State<LandingScreen>
 
     await handleAndroidBackup();
 
-    final alias =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    final alias = await showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
+      useRootNavigator: true,
       builder: (modalContext) => const CommunityPickerModal(),
     );
 
@@ -205,10 +207,10 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    final alias =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    final alias = await showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
+      useRootNavigator: true,
       builder: (modalContext) => const CommunityPickerModal(),
     );
 
