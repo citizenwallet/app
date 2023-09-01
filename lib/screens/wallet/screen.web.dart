@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/modals/backup/backup.dart';
-import 'package:citizenwallet/modals/backup/bookmark.dart';
+import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
@@ -19,7 +18,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/modals/backup/share.dart';
+import 'package:citizenwallet/modals/save/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -211,7 +210,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    await showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -283,7 +282,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await CupertinoScaffold.showCupertinoModalBottomSheet(
+      await showCupertinoModalBottomSheet(
         context: context,
         expand: true,
         useRootNavigator: true,
@@ -326,7 +325,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -348,7 +347,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -369,7 +368,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -416,96 +415,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.updateVoucher(address);
   }
 
-  void handleBackup() async {
+  void handleSaveWallet() async {
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    final option = await showCupertinoModalPopup<String?>(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return CupertinoActionSheet(
-            actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('bookmark');
-                },
-                child: const Text('Bookmark'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('backup');
-                },
-                child: const Text('Backup'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('share');
-                },
-                child: const Text('Share Citizen Wallet'),
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-          );
-        });
-
-    if (option == null) {
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-      return;
-    }
-
-    if (option == 'bookmark') {
-      handleBookmarkWallet();
-    }
-
-    if (option == 'backup') {
-      handleBackupWallet();
-    }
-
-    if (option == 'share') {
-      handleShareWallet();
-    }
-  }
-
-  void handleBookmarkWallet() async {
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => const BookmarkModal(
-        title: 'Bookmark my wallet',
-      ),
-    );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
-  }
-
-  void handleBackupWallet() async {
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => const BackupModal(
-        title: 'Backup my wallet',
-      ),
+      builder: (modalContext) => const SaveModal(),
     );
 
     _logic.resumeFetching();
@@ -518,7 +437,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -537,7 +456,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -636,8 +555,22 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   children: [
                     if (!firstLoad && wallet != null)
                       CupertinoButton(
+                        padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
+                        onPressed: handleShareWallet,
+                        child: SvgPicture.asset(
+                          'assets/icons/share.svg',
+                          height: 28,
+                          width: 28,
+                          colorFilter: ColorFilter.mode(
+                            ThemeColors.primary.resolveFrom(context),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    if (!firstLoad && wallet != null)
+                      CupertinoButton(
                         padding: const EdgeInsets.all(5),
-                        onPressed: handleBackup,
+                        onPressed: handleSaveWallet,
                         child: SvgPicture.asset(
                           'assets/icons/bookmark.svg',
                           height: 30,

@@ -64,9 +64,11 @@ class ReceiveModalState extends State<ReceiveModal> {
   }
 
   void onLoad() async {
+    await delay(const Duration(milliseconds: 500));
+
     amountFocusNode.addListener(handleAmountFocus);
 
-    await delay(const Duration(milliseconds: 500));
+    await delay(const Duration(milliseconds: 250));
 
     widget.logic.updateReceiveQR(onlyHex: true);
 
