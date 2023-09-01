@@ -64,7 +64,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   late String _password;
 
-  String _title = 'Citizen Wallet';
+  String _title = '';
 
   @override
   void initState() {
