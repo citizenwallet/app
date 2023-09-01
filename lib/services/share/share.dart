@@ -25,22 +25,7 @@ class SharingService {
   }
 
   Future<void> shareWallet(String link, Rect sharePositionOrigin) {
-    final shareText = '''
-Hey there 👋, 
-
-This is the backup link to your Citizen Wallet 📱:
-$link
-
-By following this link, you can gain access to this wallet.
-
-Send this to yourself or just save it as a draft.
-
-Remember to only share this link with people you trust. Anyone with this link can access your wallet and send transactions on your behalf.
-
-Regards,
-
-The Citizen Wallet Team
-    ''';
+    final shareText = 'My unique Citizen Wallet address: $link';
 
     return Share.share(
       shareText,
