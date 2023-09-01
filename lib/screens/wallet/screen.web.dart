@@ -64,6 +64,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   late String _password;
 
+  String _title = 'Citizen Wallet';
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +120,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   void onLoad({bool? retry}) async {
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
+
     try {
       _password = dotenv.get('WEB_BURNER_PASSWORD');
 
@@ -149,6 +152,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (_password.isEmpty) {
       return;
     }
+
+    final title = await _logic.getCommunityNameFromConfig();
+
+    setState(() {
+      _title = title;
+    });
 
     final ok = await _logic.openWalletFromURL(
       widget.encoded,
@@ -608,7 +617,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            'Citizen Wallet',
+                            _title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
