@@ -131,7 +131,7 @@ class SaveModalState extends State<SaveModal> {
                           children: [
                             if (isIOS) ...[
                               Text(
-                                'Backup to iCloud Keychain by using our iOS app',
+                                'Backup to your iCloud Keychain by using the iOS app',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
@@ -151,7 +151,7 @@ class SaveModalState extends State<SaveModal> {
                             ],
                             if (isAndroid) ...[
                               Text(
-                                'Backup to Google Drive by using our Android app',
+                                'Backup to your Google Drive by using the Android app',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
