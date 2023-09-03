@@ -397,8 +397,8 @@
       // Safari iOS 14.5+ app install banner
       var meta = document.createElement("meta");
       meta.name = "apple-itunes-app";
-      meta.content = `app-id=6460822891, app-argument=${encodeURIComponent(
-        window.location.href
+      meta.content = `app-id=6460822891, app-argument=https://app.citizenwallet.xyz/${encodeURIComponent(
+        window.location.hash
       )}`;
       document.getElementsByTagName("head")[0].appendChild(meta);
       // *********************************
