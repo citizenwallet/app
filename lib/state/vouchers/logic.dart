@@ -197,7 +197,9 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final config = await _config.config;
 
-      final appLink = 'https://${config.community.alias}$appLinkSuffix';
+      final appLink = config.community.customDomain != null
+          ? 'https://${config.community.customDomain}/#/'
+          : 'https://${config.community.alias}$appLinkSuffix/#/';
 
       _state.openVoucherSuccess(
           voucher,
@@ -308,7 +310,9 @@ class VoucherLogic extends WidgetsBindingObserver {
         archived: dbvoucher.archived,
       );
 
-      final appLink = 'https://${config.community.alias}$appLinkSuffix';
+      final appLink = config.community.customDomain != null
+          ? 'https://${config.community.customDomain}/#/'
+          : 'https://${config.community.alias}$appLinkSuffix/#/';
 
       _state.createVoucherSuccess(
           voucher,

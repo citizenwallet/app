@@ -21,7 +21,9 @@ class BackupWebLogic {
     try {
       final config = await _config.config;
 
-      final link = 'https://${config.community.alias}$appLinkSuffix';
+      final link = config.community.customDomain != null
+          ? 'https://${config.community.customDomain}/#/'
+          : 'https://${config.community.alias}$appLinkSuffix/#/';
       _state.setShareLink(link);
     } catch (e) {
       //
