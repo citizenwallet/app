@@ -82,7 +82,7 @@ class DBService {
     if (kIsWeb) {
       // Change default factory on the web
       final swOptions = SqfliteFfiWebOptions(
-        // sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
         sharedWorkerUri: Uri.parse('sqflite_sw.js'),
         indexedDbName: '$name.db',
       );
