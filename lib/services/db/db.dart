@@ -83,10 +83,13 @@ class DBService {
       // Change default factory on the web
       final swOptions = SqfliteFfiWebOptions(
         sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        sharedWorkerUri: Uri.parse('sqflite_sw.js'),
         indexedDbName: '$name.db',
       );
 
-      final webContext = await sqfliteFfiWebLoadSqlite3Wasm(swOptions);
+      final webContext = defaultTargetPlatform == TargetPlatform.android
+          ? await sqfliteFfiWebLoadSqlite3Wasm(swOptions)
+          : await sqfliteFfiWebStartSharedWorker(swOptions);
 
       databaseFactory =
           createDatabaseFactoryFfiWeb(options: webContext.options);
