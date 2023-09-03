@@ -72,7 +72,7 @@ class ProfileLogic {
 
       final config = await _config.config;
 
-      final url = config.community.customDomain != ''
+      final url = config.community.customDomain != null
           ? 'https://${config.community.customDomain}/#/'
           : 'https://${config.community.alias}$appLinkSuffix/#/';
 

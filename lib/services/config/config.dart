@@ -11,7 +11,7 @@ class CommunityConfig {
   final String url;
   final String alias;
   final String logo;
-  final String customDomain;
+  final String? customDomain;
 
   CommunityConfig({
     required this.name,
@@ -19,7 +19,7 @@ class CommunityConfig {
     required this.url,
     required this.alias,
     required this.logo,
-    required this.customDomain,
+    this.customDomain,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
@@ -29,7 +29,7 @@ class CommunityConfig {
       url: json['url'],
       alias: json['alias'],
       logo: json['logo'] ?? '',
-      customDomain: json['custom_domain'] ?? '',
+      customDomain: json['custom_domain'],
     );
   }
 
