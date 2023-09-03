@@ -87,7 +87,9 @@ class DBService {
         indexedDbName: '$name.db',
       );
 
-      final webContext = await sqfliteFfiWebLoadSqlite3Wasm(swOptions);
+      final webContext = defaultTargetPlatform == TargetPlatform.android
+          ? await sqfliteFfiWebLoadSqlite3Wasm(swOptions)
+          : await sqfliteFfiWebStartSharedWorker(swOptions);
 
       databaseFactory =
           createDatabaseFactoryFfiWeb(options: webContext.options);
