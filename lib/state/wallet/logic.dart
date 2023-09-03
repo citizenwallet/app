@@ -105,7 +105,7 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<String> getWalletNameFromConfig() async {
+  Future<void> fetchWalletConfig() async {
     try {
       // on web, use host
       _config.initWeb(
@@ -114,20 +114,15 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.config;
 
-      String name = config.community.name;
-      if (!name.toLowerCase().contains('wallet')) {
-        name = '${config.token.symbol} Wallet';
-      }
+      _state.setWalletConfig(config);
 
-      return name;
+      return;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
       );
     }
-
-    return 'Citizen Wallet';
   }
 
   Future<bool> openWalletFromURL(

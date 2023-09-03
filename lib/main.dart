@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -56,8 +57,6 @@ class MyAppState extends State<MyApp> {
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-  String _title = 'Citizen Wallet';
-
   @override
   void initState() {
     super.initState();
@@ -88,11 +87,7 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    final title = await _logic.getWalletNameFromConfig();
-
-    setState(() {
-      _title = title;
-    });
+    await _logic.fetchWalletConfig();
   }
 
   // This widget is the root of your application.
@@ -100,11 +95,15 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final theme = context.select((AppState state) => state.theme);
 
+    final config = context.select((WalletState s) => s.config);
+
+    final titlePrefix = config?.token.symbol ?? 'Citizen';
+
     return CupertinoApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: theme,
-      title: _title,
+      title: '$titlePrefix Wallet',
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/wallet/utils.dart';
 import 'package:collection/collection.dart';
@@ -582,6 +583,15 @@ class WalletState with ChangeNotifier {
   void sendQueueRemoveTransaction(String id) {
     transactionSendQueue =
         transactionSendQueue.where((t) => t.id != id).toList();
+    notifyListeners();
+  }
+
+  // wallet config
+  Config? config;
+
+  void setWalletConfig(Config? config) {
+    this.config = config;
+
     notifyListeners();
   }
 }

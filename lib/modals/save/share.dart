@@ -1,5 +1,6 @@
 import 'package:citizenwallet/state/backup_web/logic.dart';
 import 'package:citizenwallet/state/backup_web/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -90,6 +91,8 @@ class ShareModalState extends State<ShareModal> {
 
     final shareLink = context.select((BackupWebState s) => s.shareLink);
 
+    final config = context.select((WalletState s) => s.config);
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -150,11 +153,12 @@ class ShareModalState extends State<ShareModal> {
                                 ),
                               ),
                             ),
-                            const Positioned(
+                            Positioned(
                               top: 10,
                               child: ProfileCircle(
                                 size: 100,
-                                imageUrl: 'assets/logo_small.png',
+                                imageUrl: config?.community.logo ??
+                                    'assets/logo_small.png',
                                 borderColor: ThemeColors.subtle,
                                 backgroundColor: ThemeColors.white,
                               ),

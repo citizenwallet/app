@@ -63,8 +63,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   late String _password;
 
-  String _walletName = '';
-
   @override
   void initState() {
     super.initState();
@@ -151,12 +149,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (_password.isEmpty) {
       return;
     }
-
-    final walletName = await _logic.getWalletNameFromConfig();
-
-    setState(() {
-      _walletName = walletName;
-    });
 
     final ok = await _logic.openWalletFromURL(
       widget.encoded,
@@ -432,7 +424,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleShareWallet() async {
+  void handleShareWallet(String walletName) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
@@ -441,7 +433,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => ShareModal(title: 'Share $_walletName'),
+      builder: (modalContext) => ShareModal(title: 'Share $walletName'),
     );
 
     _logic.resumeFetching();
@@ -478,6 +470,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final username = context.select((ProfileState state) => state.username);
 
     final hasNoProfile = imageSmall == '' && username == '';
+
+    final config = context.select((WalletState s) => s.config);
+
+    final walletNamePrefix = config?.token.symbol ?? 'Citizen';
+
+    final walletName = '$walletNamePrefix Wallet';
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -534,7 +532,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            _walletName,
+                            walletName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -554,7 +552,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     if (!firstLoad && wallet != null)
                       CupertinoButton(
                         padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
-                        onPressed: handleShareWallet,
+                        onPressed: () => handleShareWallet(walletName),
                         child: SvgPicture.asset(
                           'assets/icons/share.svg',
                           height: 28,
