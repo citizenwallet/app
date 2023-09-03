@@ -136,7 +136,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                             ),
                             const SizedBox(height: 30),
                             Text(
-                              'Generating your wallet...',
+                              'Opening your wallet...',
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 16,

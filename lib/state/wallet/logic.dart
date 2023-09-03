@@ -105,7 +105,7 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<String> getCommunityNameFromConfig() async {
+  Future<String> getWalletNameFromConfig() async {
     try {
       // on web, use host
       _config.initWeb(
