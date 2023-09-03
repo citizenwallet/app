@@ -116,7 +116,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       String name = config.community.name;
       if (!name.toLowerCase().contains('wallet')) {
-        name = '$name Wallet';
+        name = '$config.token.symbol Wallet';
       }
 
       return name;
