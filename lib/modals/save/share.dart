@@ -5,6 +5,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +42,10 @@ class ShareModalState extends State<ShareModal> {
     });
   }
 
+  bool _tapped = false;
+
+  Timer? _timer;
+
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
@@ -55,17 +60,28 @@ class ShareModalState extends State<ShareModal> {
     _logic.copyShareUrl();
 
     HapticFeedback.heavyImpact();
-  }
 
-  void onCopyUrl() {
-    _logic.copyUrl();
+    setState(() {
+      _tapped = true;
+    });
 
-    HapticFeedback.heavyImpact();
+    _timer = Timer(const Duration(milliseconds: 1500), () {
+      setState(() {
+        _tapped = false;
+      });
+    });
   }
 
   void handleDismiss(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();
     GoRouter.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -104,7 +120,7 @@ class ShareModalState extends State<ShareModal> {
                     scrollDirection: Axis.vertical,
                     children: [
                       const SizedBox(
-                        height: 40,
+                        height: 30,
                       ),
                       SizedBox(
                         height: 500,
@@ -120,7 +136,7 @@ class ShareModalState extends State<ShareModal> {
                               ),
                               padding: const EdgeInsets.fromLTRB(
                                 40,
-                                40,
+                                60,
                                 40,
                                 60,
                               ),
@@ -157,7 +173,10 @@ class ShareModalState extends State<ShareModal> {
                                       maxWidth: 200,
                                     ),
                                     child: Text(
-                                      shareLink,
+                                      _tapped
+                                          ? 'copied!'
+                                          : shareLink.replaceFirst(
+                                              'https://', ''),
                                       style: TextStyle(
                                         color: ThemeColors.black
                                             .resolveFrom(context),
@@ -199,7 +218,7 @@ class ShareModalState extends State<ShareModal> {
                         height: 20,
                       ),
                       const Text(
-                        "If they don't already have one, it will create a new Citizen Wallet on their device",
+                        "If they don't already have one, it will create a new Citizen Wallet on their device.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal),

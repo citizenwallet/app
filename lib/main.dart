@@ -88,7 +88,7 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    final title = await _logic.getCommunityNameFromConfig();
+    final title = await _logic.getWalletNameFromConfig();
 
     setState(() {
       _title = title;

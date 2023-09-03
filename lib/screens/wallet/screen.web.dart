@@ -63,7 +63,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
   late String _password;
 
-  String _title = '';
+  String _walletName = '';
 
   @override
   void initState() {
@@ -152,10 +152,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    final title = await _logic.getCommunityNameFromConfig();
+    final walletName = await _logic.getWalletNameFromConfig();
 
     setState(() {
-      _title = title;
+      _walletName = walletName;
     });
 
     final ok = await _logic.openWalletFromURL(
@@ -441,9 +441,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (modalContext) => const ShareModal(
-        title: 'Share Citizen Wallet',
-      ),
+      builder: (modalContext) => ShareModal(title: 'Share $_walletName'),
     );
 
     _logic.resumeFetching();
@@ -536,7 +534,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            _title,
+                            _walletName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
