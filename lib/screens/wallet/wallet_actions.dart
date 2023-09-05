@@ -41,12 +41,15 @@ class WalletActions extends StatelessWidget {
 
     final isIncreasing = newBalance > balance;
 
-    final coinSize = progressiveClamp(4, 80, shrink);
+    final coinSize = progressiveClamp(2, 80, shrink);
     final coinNameSize = progressiveClamp(10, 22, shrink);
 
-    final buttonSize = progressiveClamp(50, 80, shrink);
-    final buttonIconSize = progressiveClamp(18, 40, shrink);
-    final buttonFontSize = progressiveClamp(10, 14, shrink);
+    final buttonSize =
+        (1 - shrink) < 0.6 ? 60.0 : progressiveClamp(50, 80, shrink);
+    final buttonIconSize =
+        (1 - shrink) < 0.6 ? 30.0 : progressiveClamp(18, 40, shrink);
+    final buttonFontSize =
+        (1 - shrink) < 0.6 ? 14.0 : progressiveClamp(10, 14, shrink);
 
     return Stack(
       children: [
@@ -64,7 +67,7 @@ class WalletActions extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if ((1 - shrink) > 0.5 && wallet != null)
+                  if ((1 - shrink) > 0.6 && wallet != null)
                     CoinLogo(
                       size: coinSize,
                       logo: wallet.currencyLogo,
@@ -94,13 +97,22 @@ class WalletActions extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
+                            if ((1 - shrink) < 0.6 && wallet != null) ...[
+                              CoinLogo(
+                                size: 40,
+                                logo: wallet.currencyLogo,
+                              ),
+                              const SizedBox(width: 5),
+                            ],
                             Text(
                               formattedBalance,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.start,
                               style: TextStyle(
-                                fontSize: progressiveClamp(32, 40, shrink),
+                                fontSize: (1 - shrink) < 0.6
+                                    ? 32
+                                    : progressiveClamp(12, 40, shrink),
                                 fontWeight: FontWeight.normal,
                                 color: hasPending
                                     ? isIncreasing
@@ -125,7 +137,9 @@ class WalletActions extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
-                                  fontSize: progressiveClamp(18, 22, shrink),
+                                  fontSize: (1 - shrink) < 0.6
+                                      ? 22
+                                      : progressiveClamp(8, 22, shrink),
                                   fontWeight: FontWeight.bold,
                                   color: ThemeColors.text.resolveFrom(context),
                                 ),
