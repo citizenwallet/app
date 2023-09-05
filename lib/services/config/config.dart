@@ -303,11 +303,18 @@ class ConfigService {
   }
 
   Future<Config> _getConfig() async {
-    final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString('assets/data/config.json'))
-        : await _api.get(
-            url:
-                '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+    if (kDebugMode) {
+      final localConfigs =
+          jsonDecode(await rootBundle.loadString('assets/data/configs.json'));
+
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+
+      return configs.firstWhere((element) => element.community.alias == _alias);
+    }
+
+    final response = await _api.get(
+        url: '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
 
     return Config.fromJson(response);
   }
