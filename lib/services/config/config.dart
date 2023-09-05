@@ -299,7 +299,6 @@ class ConfigService {
 
   void init(String endpoint, String alias) {
     _api = APIService(baseURL: endpoint);
-    // TODO: fix for custom domains (the whole domain should be the alias)
     _alias = alias == 'localhost' ? 'app' : alias;
   }
 
@@ -314,19 +313,12 @@ class ConfigService {
   }
 
   Future<List<Config>> getConfigs() async {
-    final response = await _api.get(
-        url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
+    final response = kDebugMode
+        ? jsonDecode(await rootBundle.loadString('assets/data/configs.json'))
+        : await _api.get(
+            url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
-
-    if (kDebugMode) {
-      configs.insert(
-        0,
-        Config.fromJson(
-          jsonDecode(await rootBundle.loadString('assets/data/config.json')),
-        ),
-      );
-    }
 
     return configs;
   }
