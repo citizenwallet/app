@@ -101,6 +101,7 @@ flutter:
     - assets/data/native_chains.json
     - assets/data/chains.json
     - assets/data/config.json
+    - assets/data/configs.json
     - assets/lottie/chat.json
     - assets/lottie/gift-voucher.json
     - assets/lottie/success.json

@@ -2,7 +2,7 @@
     {
         "community": {
             "name": "USDC on Polygon",
-            "description": "The community of people using USDC on Polygon",
+            "description": "The community of people using USDC on Polygon.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
             "alias": "app",
             "logo": "https://usdc.polygon.citizenwallet.xyz/wallet-config/_images/usdc.svg"
@@ -44,7 +44,7 @@
     {
         "community": {
             "name": "OAK Community",
-            "description": "A community currency for the city of Oakland",
+            "description": "A community currency for the city of Oakland.",
             "url": "https://www.oak.community/",
             "alias": "wallet.oak.community",
             "logo": "https://wallet.oak.community/wallet-config/_images/oak.svg",
@@ -82,6 +82,48 @@
         },
         "profile": {
             "address": "0xFE213c74e25505B232CE4C7f89647408bE6f71d2"
+        }
+    },
+    {
+        "community": {
+            "name": "SFLUV Community",
+            "description": "A community currency for the city of San Francisco.",
+            "url": "https://sfluv.org/",
+            "alias": "wallet.sfluv.org",
+            "logo": "https://wallet.sfluv.org/wallet-config/_images/sfluv.svg"
+        },
+        "scan": {
+            "url": "https://polygonscan.com",
+            "name": "Polygon Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-polygon.techi.be",
+            "ipfs_url": "https://indexer-polygon.techi.be",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+        },
+        "erc4337": {
+            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "paymaster_type": "payg"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
+            "name": "SFLUV Coin",
+            "symbol": "SFLUV",
+            "decimals": 2
+        },
+        "profile": {
+            "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99"
         }
     }
 ]
