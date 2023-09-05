@@ -8,6 +8,7 @@ class CWWallet {
   String _balance;
   final String currencyName;
   final String symbol;
+  final String currencyLogo;
   final int decimalDigits;
   final bool locked;
 
@@ -19,6 +20,7 @@ class CWWallet {
     required this.account,
     required this.currencyName,
     required this.symbol,
+    required this.currencyLogo,
     this.decimalDigits = 2,
     this.locked = true,
   });
@@ -32,6 +34,7 @@ class CWWallet {
     String? balance,
     String? currencyName,
     String? symbol,
+    String? currencyLogo,
     int? decimalDigits,
     bool? locked,
   }) {
@@ -43,6 +46,7 @@ class CWWallet {
       account: account ?? this.account,
       currencyName: currencyName ?? this.currencyName,
       symbol: symbol ?? this.symbol,
+      currencyLogo: currencyLogo ?? this.currencyLogo,
       decimalDigits: decimalDigits ?? this.decimalDigits,
       locked: locked ?? this.locked,
     );
@@ -65,6 +69,7 @@ class CWWallet {
         _balance = json['balance'],
         currencyName = json['currencyName'],
         symbol = json['symbol'],
+        currencyLogo = json['currencyLogo'],
         decimalDigits = json['decimalDigits'],
         locked = json['locked'];
 
@@ -78,6 +83,7 @@ class CWWallet {
         'balance': _balance,
         'currencyName': currencyName,
         'symbol': symbol,
+        'currencyLogo': currencyLogo,
         'decimalDigits': decimalDigits,
         'locked': locked,
       };

@@ -174,16 +174,19 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
+      _state.setWalletConfig(config);
+
       _state.setWallet(
         CWWallet(
           balance,
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
           account: _wallet.account.hexEip55,
-          currencyName: currency.name,
-          symbol: currency.symbol,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: false,
         ),
@@ -273,6 +276,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
+      _state.setWalletConfig(config);
+
       _state.setWallet(
         CWWallet(
           balance,
@@ -280,8 +285,9 @@ class WalletLogic extends WidgetsBindingObserver {
           address: _wallet.address.hexEip55,
           alias: dbWallet.alias,
           account: _wallet.account.hexEip55,
-          currencyName: currency.name,
-          symbol: currency.symbol,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey.isEmpty,
         ),
@@ -321,14 +327,24 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final address = credentials.address.hexEip55;
 
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
+
+      final config = await _config.config;
+
+      _state.setWalletConfig(config);
+
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: name,
         address: address,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
         account: '',
-        currencyName: '',
-        symbol: '',
+        currencyName: config.token.name,
+        symbol: config.token.symbol,
+        currencyLogo: config.community.logo,
         locked: false,
       );
 
@@ -336,7 +352,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(credentials.privateKey),
         name: name,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -373,14 +389,24 @@ class WalletLogic extends WidgetsBindingObserver {
 
         final address = credentials.address.hexEip55;
 
+        _config.init(
+          dotenv.get('WALLET_CONFIG_URL'),
+          alias,
+        );
+
+        final config = await _config.config;
+
+        _state.setWalletConfig(config);
+
         final CWWallet cwwallet = CWWallet(
           '0.0',
           name: name,
           address: address,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
           account: '',
-          currencyName: '',
-          symbol: '',
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
           locked: false,
         );
 
@@ -388,7 +414,7 @@ class WalletLogic extends WidgetsBindingObserver {
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
           name: name,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
         ));
 
         await _preferences.setLastWallet(address);
@@ -404,14 +430,24 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final address = EthereumAddress.fromHex(wallet.data.address).hexEip55;
 
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
+
+      final config = await _config.config;
+
+      _state.setWalletConfig(config);
+
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: name,
         address: address,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
         account: '',
-        currencyName: '',
-        symbol: '',
+        currencyName: config.token.name,
+        symbol: config.token.symbol,
+        currencyLogo: config.community.logo,
         locked: false,
       );
 
@@ -420,7 +456,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(wallet.data.wallet['privateKey']),
         name: name,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -1285,6 +1321,7 @@ class WalletLogic extends WidgetsBindingObserver {
                 account: '',
                 currencyName: '',
                 symbol: '',
+                currencyLogo: '',
                 locked: false,
               ))
           .toList());
@@ -1313,9 +1350,11 @@ class WalletLogic extends WidgetsBindingObserver {
           break;
         }
 
-        final account = await _wallet.getAccountAddress(addr);
+        final address = EthereumAddress.fromHex(addr);
 
-        _state.updateDBWalletAccountAddress(addr, account.hexEip55);
+        final account = await _wallet.getAccountAddress(address.hexEip55);
+
+        _state.updateDBWalletAccountAddress(address.hexEip55, account.hexEip55);
 
         await delay(const Duration(milliseconds: 250));
       }

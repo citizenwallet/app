@@ -29,6 +29,7 @@ class WalletScrollView extends StatefulWidget {
   final void Function(String) handleCopy;
 
   final void Function(String) handleLoad;
+  final void Function() handleScrollToTop;
 
   const WalletScrollView({
     Key? key,
@@ -40,6 +41,7 @@ class WalletScrollView extends StatefulWidget {
     required this.handleFailedTransactionTap,
     required this.handleCopy,
     required this.handleLoad,
+    required this.handleScrollToTop,
   }) : super(key: key);
 
   @override
@@ -267,12 +269,15 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 300 + safePadding,
+            expandedHeight: 400 + safePadding,
             minHeight: 180 + safePadding,
-            builder: (context, shrink) => WalletActions(
-              shrink: shrink,
-              handleSendModal: handleSendModal,
-              handleReceive: handleReceive,
+            builder: (context, shrink) => GestureDetector(
+              onTap: widget.handleScrollToTop,
+              child: WalletActions(
+                shrink: shrink,
+                handleSendModal: handleSendModal,
+                handleReceive: handleReceive,
+              ),
             ),
           ),
         ),
@@ -352,8 +357,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   SvgPicture.asset(
                     'assets/icons/empty_pockets.svg',
                     semanticsLabel: 'empty pockets icon',
-                    height: 250,
-                    width: 250,
+                    height: height * 0.15,
+                    width: height * 0.15,
                   ),
                 ],
               ),

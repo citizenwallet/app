@@ -312,7 +312,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Communities',
+                title: 'Accounts',
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -419,7 +419,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Join',
+                                  'Join Community',
                                   style: TextStyle(
                                     color: ThemeColors.black,
                                   ),

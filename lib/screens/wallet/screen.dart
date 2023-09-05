@@ -17,7 +17,6 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class WalletScreen extends StatefulWidget {
-  final String title = 'Wallet';
   final WalletLogic wallet;
   final String? address;
   final String? voucher;
@@ -104,6 +103,14 @@ class WalletScreenState extends State<WalletScreen> {
 
       _logic.loadAdditionalTransactions(10);
     }
+  }
+
+  void handleScrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   void onLoad() async {
@@ -360,6 +367,12 @@ class WalletScreenState extends State<WalletScreen> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
 
+    final config = context.select((WalletState s) => s.config);
+
+    final walletNamePrefix = config?.token.symbol ?? 'Citizen';
+
+    final walletName = '$walletNamePrefix Wallet';
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Stack(
@@ -395,26 +408,30 @@ class WalletScreenState extends State<WalletScreen> {
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,
+                  handleScrollToTop: handleScrollToTop,
                 ),
-          SafeArea(
-            child: Header(
-              transparent: true,
-              color: ThemeColors.transparent,
-              title: widget.title,
-              actionButton: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: (firstLoad || wallet == null)
-                        ? null
-                        : () => handleDisplayWalletQR(context),
-                    child: Icon(
-                      CupertinoIcons.qrcode,
-                      color: ThemeColors.primary.resolveFrom(context),
+          GestureDetector(
+            onTap: handleScrollToTop,
+            child: SafeArea(
+              child: Header(
+                transparent: true,
+                color: ThemeColors.transparent,
+                title: walletName,
+                actionButton: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: (firstLoad || wallet == null)
+                          ? null
+                          : () => handleDisplayWalletQR(context),
+                      child: Icon(
+                        CupertinoIcons.qrcode,
+                        color: ThemeColors.primary.resolveFrom(context),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

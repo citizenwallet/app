@@ -332,12 +332,19 @@ class AppLogic {
         return existing.address;
       }
 
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
+
+      final config = await _config.config;
+
       await _encPrefs.setWalletBackup(
         BackupWallet(
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
-          name: 'Imported Web Wallet',
-          alias: alias == 'localhost' ? 'app' : alias,
+          name: 'Imported ${config.token.symbol} Wallet',
+          alias: config.community.alias,
         ),
       );
 

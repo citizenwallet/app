@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/utils/date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -299,34 +300,33 @@ class ConfigService {
 
   void init(String endpoint, String alias) {
     _api = APIService(baseURL: endpoint);
-    // TODO: fix for custom domains (the whole domain should be the alias)
-    _alias = alias == 'localhost' ? 'app' : alias;
+    _alias = fixLegacyAliases(alias);
   }
 
   Future<Config> _getConfig() async {
-    final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString('assets/data/config.json'))
-        : await _api.get(
-            url:
-                '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+    if (kDebugMode) {
+      final localConfigs =
+          jsonDecode(await rootBundle.loadString('assets/data/configs.json'));
+
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+
+      return configs.firstWhere((element) => element.community.alias == _alias);
+    }
+
+    final response = await _api.get(
+        url: '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
 
     return Config.fromJson(response);
   }
 
   Future<List<Config>> getConfigs() async {
-    final response = await _api.get(
-        url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
+    final response = kDebugMode
+        ? jsonDecode(await rootBundle.loadString('assets/data/configs.json'))
+        : await _api.get(
+            url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
-
-    if (kDebugMode) {
-      configs.insert(
-        0,
-        Config.fromJson(
-          jsonDecode(await rootBundle.loadString('assets/data/config.json')),
-        ),
-      );
-    }
 
     return configs;
   }
