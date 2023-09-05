@@ -4,8 +4,8 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
@@ -65,22 +65,9 @@ class WalletActions extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if ((1 - shrink) > 0.5 && wallet != null)
-                    Container(
-                      height: coinSize,
-                      width: coinSize,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(40),
-                        color: ThemeColors.white,
-                        border: Border.all(
-                          width: 1,
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        ),
-                      ),
-                      child: SvgPicture.network(
-                        wallet.currencyLogo,
-                        placeholderBuilder: (context) =>
-                            SvgPicture.asset('assets/logo.svg'),
-                      ),
+                    CoinLogo(
+                      size: coinSize,
+                      logo: wallet.currencyLogo,
                     ),
                   if ((1 - shrink) > 0.75)
                     const SizedBox(
