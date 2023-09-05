@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/utils/date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -299,7 +300,7 @@ class ConfigService {
 
   void init(String endpoint, String alias) {
     _api = APIService(baseURL: endpoint);
-    _alias = alias == 'localhost' ? 'app' : alias;
+    _alias = fixLegacyAliases(alias);
   }
 
   Future<Config> _getConfig() async {
