@@ -352,8 +352,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   SvgPicture.asset(
                     'assets/icons/empty_pockets.svg',
                     semanticsLabel: 'empty pockets icon',
-                    height: 250,
-                    width: 250,
+                    height: height * 0.15,
+                    width: height * 0.15,
                   ),
                 ],
               ),
