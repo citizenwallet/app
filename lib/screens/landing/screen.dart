@@ -53,6 +53,15 @@ class LandingScreenState extends State<LandingScreen>
     });
   }
 
+  @override
+  void didUpdateWidget(LandingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.webWallet != oldWidget.webWallet) {
+      onLoad();
+    }
+  }
+
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
