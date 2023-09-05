@@ -114,6 +114,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     }
   }
 
+  void handleScrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void onLoad({bool? retry}) async {
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
@@ -513,108 +521,112 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleRefresh: handleRefresh,
                       handleSendModal: handleSendModal,
                       handleReceive: handleReceive,
-                      // handleReceive: handleTestNav,
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,
+                      handleScrollToTop: handleScrollToTop,
                     ),
-              Header(
-                safePadding: safePadding,
-                transparent: true,
-                color: ThemeColors.transparent,
-                titleWidget: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            walletName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: ThemeColors.text.resolveFrom(context),
+              GestureDetector(
+                onTap: handleScrollToTop,
+                child: Header(
+                  safePadding: safePadding,
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  titleWidget: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              walletName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: ThemeColors.text.resolveFrom(context),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                actionButton: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (!firstLoad && wallet != null)
-                      CupertinoButton(
-                        padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
-                        onPressed: () => handleShareWallet(walletName),
-                        child: SvgPicture.asset(
-                          'assets/icons/share.svg',
-                          height: 28,
-                          width: 28,
-                          colorFilter: ColorFilter.mode(
-                            ThemeColors.primary.resolveFrom(context),
-                            BlendMode.srcIn,
-                          ),
+                          ],
                         ),
                       ),
-                    if (!firstLoad && wallet != null)
+                    ],
+                  ),
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!firstLoad && wallet != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
+                          onPressed: () => handleShareWallet(walletName),
+                          child: SvgPicture.asset(
+                            'assets/icons/share.svg',
+                            height: 28,
+                            width: 28,
+                            colorFilter: ColorFilter.mode(
+                              ThemeColors.primary.resolveFrom(context),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      if (!firstLoad && wallet != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: handleSaveWallet,
+                          child: SvgPicture.asset(
+                            'assets/icons/bookmark.svg',
+                            height: 30,
+                            width: 30,
+                            colorFilter: ColorFilter.mode(
+                              ThemeColors.primary.resolveFrom(context),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       CupertinoButton(
                         padding: const EdgeInsets.all(5),
-                        onPressed: handleSaveWallet,
-                        child: SvgPicture.asset(
-                          'assets/icons/bookmark.svg',
-                          height: 30,
-                          width: 30,
-                          colorFilter: ColorFilter.mode(
-                            ThemeColors.primary.resolveFrom(context),
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                    CupertinoButton(
-                      padding: const EdgeInsets.all(5),
-                      onPressed: (firstLoad || wallet == null)
-                          ? null
-                          : () => handleDisplayWalletQR(context),
-                      child: wallet == null
-                          ? const PulsingContainer(
-                              height: 30,
-                              width: 30,
-                              borderRadius: 15,
-                            )
-                          : Stack(
-                              children: [
-                                ProfileCircle(
-                                  size: 30,
-                                  imageUrl: imageSmall,
-                                  borderColor: ThemeColors.subtle,
-                                ),
-                                if (hasNoProfile)
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                      height: 10,
-                                      width: 10,
-                                      decoration: BoxDecoration(
-                                        color: ThemeColors.danger
-                                            .resolveFrom(context),
-                                        borderRadius: BorderRadius.circular(5),
+                        onPressed: (firstLoad || wallet == null)
+                            ? null
+                            : () => handleDisplayWalletQR(context),
+                        child: wallet == null
+                            ? const PulsingContainer(
+                                height: 30,
+                                width: 30,
+                                borderRadius: 15,
+                              )
+                            : Stack(
+                                children: [
+                                  ProfileCircle(
+                                    size: 30,
+                                    imageUrl: imageSmall,
+                                    borderColor: ThemeColors.subtle,
+                                  ),
+                                  if (hasNoProfile)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        height: 10,
+                                        width: 10,
+                                        decoration: BoxDecoration(
+                                          color: ThemeColors.danger
+                                              .resolveFrom(context),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                    ),
-                  ],
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              )
             ],
           ),
         ),

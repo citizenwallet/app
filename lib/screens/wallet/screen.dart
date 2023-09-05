@@ -105,6 +105,14 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  void handleScrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void onLoad() async {
     if (widget.address == null) {
       return;
@@ -400,26 +408,30 @@ class WalletScreenState extends State<WalletScreen> {
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,
+                  handleScrollToTop: handleScrollToTop,
                 ),
-          SafeArea(
-            child: Header(
-              transparent: true,
-              color: ThemeColors.transparent,
-              title: walletName,
-              actionButton: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: (firstLoad || wallet == null)
-                        ? null
-                        : () => handleDisplayWalletQR(context),
-                    child: Icon(
-                      CupertinoIcons.qrcode,
-                      color: ThemeColors.primary.resolveFrom(context),
+          GestureDetector(
+            onTap: handleScrollToTop,
+            child: SafeArea(
+              child: Header(
+                transparent: true,
+                color: ThemeColors.transparent,
+                title: walletName,
+                actionButton: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: (firstLoad || wallet == null)
+                          ? null
+                          : () => handleDisplayWalletQR(context),
+                      child: Icon(
+                        CupertinoIcons.qrcode,
+                        color: ThemeColors.primary.resolveFrom(context),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
