@@ -64,7 +64,8 @@ class ProfileCircle extends StatelessWidget {
                           semanticsLabel: 'profile icon',
                           height: size,
                           width: size,
-                          placeholderBuilder: (_) => PulsingContainer(
+                          placeholderBuilder: (_) => SvgPicture.asset(
+                            'assets/logo.svg',
                             height: size,
                             width: size,
                           ),

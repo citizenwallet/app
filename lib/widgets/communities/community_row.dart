@@ -56,6 +56,8 @@ class CommunityRow extends StatelessWidget {
                 child: config.community.logo.isNotEmpty
                     ? SvgPicture.network(
                         config.community.logo,
+                        placeholderBuilder: (context) =>
+                            SvgPicture.asset('assets/logo.svg'),
                       )
                     : Center(
                         child: Text(
