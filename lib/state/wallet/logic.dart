@@ -174,6 +174,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
+      _state.setWalletConfig(config);
+
       _state.setWallet(
         CWWallet(
           balance,
@@ -182,8 +184,8 @@ class WalletLogic extends WidgetsBindingObserver {
           address: _wallet.address.hexEip55,
           alias: alias == 'localhost' ? 'app' : alias,
           account: _wallet.account.hexEip55,
-          currencyName: currency.name,
-          symbol: currency.symbol,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: false,
@@ -274,6 +276,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
 
+      _state.setWalletConfig(config);
+
       _state.setWallet(
         CWWallet(
           balance,
@@ -281,8 +285,8 @@ class WalletLogic extends WidgetsBindingObserver {
           address: _wallet.address.hexEip55,
           alias: dbWallet.alias,
           account: _wallet.account.hexEip55,
-          currencyName: currency.name,
-          symbol: currency.symbol,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey.isEmpty,
@@ -329,6 +333,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final config = await _config.config;
+
+      _state.setWalletConfig(config);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
@@ -390,6 +396,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
         final config = await _config.config;
 
+        _state.setWalletConfig(config);
+
         final CWWallet cwwallet = CWWallet(
           '0.0',
           name: name,
@@ -428,6 +436,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final config = await _config.config;
+
+      _state.setWalletConfig(config);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
