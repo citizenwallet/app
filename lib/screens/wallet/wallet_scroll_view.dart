@@ -267,7 +267,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 300 + safePadding,
+            expandedHeight: 400 + safePadding,
             minHeight: 180 + safePadding,
             builder: (context, shrink) => WalletActions(
               shrink: shrink,

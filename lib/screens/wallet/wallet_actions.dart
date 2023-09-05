@@ -5,6 +5,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
@@ -40,6 +41,9 @@ class WalletActions extends StatelessWidget {
 
     final isIncreasing = newBalance > balance;
 
+    final coinSize = progressiveClamp(4, 80, shrink);
+    final coinNameSize = progressiveClamp(10, 22, shrink);
+
     final buttonSize = progressiveClamp(50, 80, shrink);
     final buttonIconSize = progressiveClamp(18, 40, shrink);
     final buttonFontSize = progressiveClamp(10, 14, shrink);
@@ -60,11 +64,33 @@ class WalletActions extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if ((1 - shrink) == 1)
+                  if ((1 - shrink) > 0.5 && wallet != null)
+                    Container(
+                      height: coinSize,
+                      width: coinSize,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        color: ThemeColors.white,
+                        border: Border.all(
+                          width: 1,
+                          color: ThemeColors.subtle.resolveFrom(context),
+                        ),
+                      ),
+                      child: SvgPicture.network(
+                        wallet.currencyLogo,
+                        placeholderBuilder: (context) =>
+                            SvgPicture.asset('assets/logo.svg'),
+                      ),
+                    ),
+                  if ((1 - shrink) > 0.75)
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  if ((1 - shrink) > 0.75)
                     Text(
                       wallet?.currencyName ?? 'Token',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: coinNameSize,
                         fontWeight: FontWeight.normal,
                         color: ThemeColors.text.resolveFrom(context),
                       ),
