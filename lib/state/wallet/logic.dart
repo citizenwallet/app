@@ -182,7 +182,7 @@ class WalletLogic extends WidgetsBindingObserver {
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
           account: _wallet.account.hexEip55,
           currencyName: config.token.name,
           symbol: config.token.symbol,
@@ -340,7 +340,7 @@ class WalletLogic extends WidgetsBindingObserver {
         '0.0',
         name: name,
         address: address,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
         account: '',
         currencyName: config.token.name,
         symbol: config.token.symbol,
@@ -352,7 +352,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(credentials.privateKey),
         name: name,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -402,7 +402,7 @@ class WalletLogic extends WidgetsBindingObserver {
           '0.0',
           name: name,
           address: address,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
           account: '',
           currencyName: config.token.name,
           symbol: config.token.symbol,
@@ -414,7 +414,7 @@ class WalletLogic extends WidgetsBindingObserver {
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
           name: name,
-          alias: alias == 'localhost' ? 'app' : alias,
+          alias: config.community.alias,
         ));
 
         await _preferences.setLastWallet(address);
@@ -443,7 +443,7 @@ class WalletLogic extends WidgetsBindingObserver {
         '0.0',
         name: name,
         address: address,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
         account: '',
         currencyName: config.token.name,
         symbol: config.token.symbol,
@@ -456,7 +456,7 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: bytesToHex(wallet.data.wallet['privateKey']),
         name: name,
-        alias: alias == 'localhost' ? 'app' : alias,
+        alias: config.community.alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -1350,9 +1350,11 @@ class WalletLogic extends WidgetsBindingObserver {
           break;
         }
 
-        final account = await _wallet.getAccountAddress(addr);
+        final address = EthereumAddress.fromHex(addr);
 
-        _state.updateDBWalletAccountAddress(addr, account.hexEip55);
+        final account = await _wallet.getAccountAddress(address.hexEip55);
+
+        _state.updateDBWalletAccountAddress(address.hexEip55, account.hexEip55);
 
         await delay(const Duration(milliseconds: 250));
       }
