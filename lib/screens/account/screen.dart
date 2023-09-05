@@ -115,8 +115,6 @@ class AccountScreenState extends State<AccountScreen> {
 
     _walletLogic.cleanupWalletState();
 
-    await delay(const Duration(milliseconds: 250));
-
     navigator.go('/account/$address');
 
     await delay(const Duration(milliseconds: 50));
