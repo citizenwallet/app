@@ -340,7 +340,11 @@ class WalletScreenState extends State<WalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (_) => const VouchersModal(),
+      builder: (_) => CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: ThemeColors.transparent,
+        body: const VouchersModal(),
+      ),
     );
 
     await _voucherLogic.fetchVouchers();
