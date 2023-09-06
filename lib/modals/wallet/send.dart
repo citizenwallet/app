@@ -737,22 +737,21 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         maxWidth: 200,
                                       ),
                                       const SizedBox(height: 10),
-                                      if (!kIsWeb)
-                                        CupertinoButton(
-                                          onPressed: handleCreateVoucher,
-                                          child: Text(
-                                            'Create Voucher',
-                                            style: TextStyle(
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.normal,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                            ),
-                                            textAlign: TextAlign.center,
+                                      CupertinoButton(
+                                        onPressed: handleCreateVoucher,
+                                        child: Text(
+                                          'Create Voucher',
+                                          style: TextStyle(
+                                            color: ThemeColors.text
+                                                .resolveFrom(context),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.normal,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
+                                          textAlign: TextAlign.center,
                                         ),
+                                      ),
                                     ]
                                   : [
                                       SlideToComplete(
