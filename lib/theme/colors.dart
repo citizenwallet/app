@@ -76,6 +76,18 @@ class ThemeColors {
     darkColor: Color.fromARGB(255, 30, 30, 30),
   );
 
+  static const uiBackgroundAltTransparent50 =
+      CupertinoDynamicColor.withBrightness(
+    color: Color.fromARGB(150, 230, 230, 230),
+    darkColor: Color.fromARGB(150, 30, 30, 30),
+  );
+
+  static const uiBackgroundAltTransparent =
+      CupertinoDynamicColor.withBrightness(
+    color: Color.fromARGB(0, 230, 230, 230),
+    darkColor: Color.fromARGB(0, 30, 30, 30),
+  );
+
   static const surfacePrimary = CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(255, 188, 135, 255),
     darkColor: Color.fromARGB(255, 188, 135, 255),

@@ -4,12 +4,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class CoinLogo extends StatelessWidget {
   final double size;
-  final String logo;
+  final String? logo;
 
   const CoinLogo({
     Key? key,
     required this.size,
-    required this.logo,
+    this.logo,
   }) : super(key: key);
 
   @override
@@ -25,10 +25,13 @@ class CoinLogo extends StatelessWidget {
           color: ThemeColors.subtle.resolveFrom(context),
         ),
       ),
-      child: SvgPicture.network(
-        logo,
-        placeholderBuilder: (context) => SvgPicture.asset('assets/logo.svg'),
-      ),
+      child: logo != null
+          ? SvgPicture.network(
+              logo!,
+              placeholderBuilder: (context) =>
+                  SvgPicture.asset('assets/logo.svg'),
+            )
+          : SvgPicture.asset('assets/logo.svg'),
     );
   }
 }

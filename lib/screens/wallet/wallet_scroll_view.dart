@@ -24,6 +24,7 @@ class WalletScrollView extends StatefulWidget {
   final Future<void> Function() handleRefresh;
   final void Function() handleSendModal;
   final void Function() handleReceive;
+  final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
   final void Function(String) handleFailedTransactionTap;
   final void Function(String) handleCopy;
@@ -37,6 +38,7 @@ class WalletScrollView extends StatefulWidget {
     required this.handleRefresh,
     required this.handleSendModal,
     required this.handleReceive,
+    required this.handleVouchers,
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
     required this.handleCopy,
@@ -65,6 +67,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final handleRefresh = widget.handleRefresh;
     final handleSendModal = widget.handleSendModal;
     final handleReceive = widget.handleReceive;
+    final handleVouchers = widget.handleVouchers;
     final handleTransactionTap = widget.handleTransactionTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
@@ -79,6 +82,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final safePadding = MediaQuery.of(context).padding.top;
 
     final wallet = context.select((WalletState state) => state.wallet);
+    final config = context.select((WalletState state) => state.config);
 
     final transactionsLoading =
         context.select((WalletState state) => state.transactionsLoading);
@@ -277,6 +281,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 shrink: shrink,
                 handleSendModal: handleSendModal,
                 handleReceive: handleReceive,
+                handleVouchers: handleVouchers,
               ),
             ),
           ),
@@ -312,6 +317,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
+                    logo: config?.community.logo,
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,
@@ -381,6 +387,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
+                    logo: config?.community.logo,
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,

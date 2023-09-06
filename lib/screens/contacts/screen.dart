@@ -53,12 +53,6 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   void onLoad() async {
     await profilesLogic.loadProfiles();
-
-    // _scrollController.animateTo(
-    //   60,
-    //   duration: const Duration(milliseconds: 250),
-    //   curve: Curves.easeInOut,
-    // );
   }
 
   void handleSelectProfile(ProfileV1 profile) {

@@ -1,15 +1,12 @@
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,16 +55,10 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   void dispose() {
-    amountFocusNode.removeListener(handleAmountFocus);
-
     super.dispose();
   }
 
   void onLoad() async {
-    await delay(const Duration(milliseconds: 500));
-
-    amountFocusNode.addListener(handleAmountFocus);
-
     await delay(const Duration(milliseconds: 250));
 
     widget.logic.updateReceiveQR(onlyHex: true);
@@ -75,24 +66,6 @@ class ReceiveModalState extends State<ReceiveModal> {
     setState(() {
       _opacity = 1;
     });
-  }
-
-  void handleAmountFocus() {
-    if (amountFocusNode.hasFocus) {
-      ModalScrollController.of(context)?.animateTo(
-        100,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-      );
-    }
-
-    if (!amountFocusNode.hasFocus) {
-      ModalScrollController.of(context)?.animateTo(
-        0,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-      );
-    }
   }
 
   void handleDismiss(BuildContext context) {
@@ -126,10 +99,15 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 100;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final qrSize = (width < height ? width : (height - 100)) - 40;
+    const paddingSize = 40;
+    final maxSize = (width < height ? width : (height - 120)) - paddingSize;
+    final remainingHeight = height - keyboardHeight - paddingSize;
+    final qrSize =
+        remainingHeight < maxSize ? (remainingHeight - paddingSize) : maxSize;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -168,35 +146,25 @@ class ReceiveModalState extends State<ReceiveModal> {
                   controller: ModalScrollController.of(context),
                   scrollBehavior: const CupertinoScrollBehavior(),
                   slivers: [
-                    SliverPersistentHeader(
-                      pinned: true,
-                      floating: false,
-                      delegate: PersistentHeaderDelegate(
-                        expandedHeight: qrSize,
-                        minHeight: 120,
-                        blur: true,
-                        builder: (context, shrink) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AnimatedOpacity(
-                              opacity: _opacity,
-                              duration: const Duration(milliseconds: 250),
-                              child: QR(
-                                key: const Key('receive-qr-code'),
-                                data: qrData,
-                                size: progressiveClamp(
-                                  40,
-                                  qrSize - 20,
-                                  shrink,
-                                ),
-                                logo: isExternalWallet
-                                    ? 'assets/icons/wallet.png'
-                                    : null,
-                              ),
+                    SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AnimatedOpacity(
+                            opacity: _opacity,
+                            duration: const Duration(milliseconds: 250),
+                            child: QR(
+                              key: const Key('receive-qr-code'),
+                              data: qrData,
+                              size: qrSize - 20,
+                              padding: const EdgeInsets.all(20),
+                              logo: isExternalWallet
+                                  ? 'assets/icons/wallet.png'
+                                  : null,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     SliverToBoxAdapter(

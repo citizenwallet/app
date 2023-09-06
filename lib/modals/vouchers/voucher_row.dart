@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 
 class VoucherRow extends StatefulWidget {
@@ -9,6 +9,7 @@ class VoucherRow extends StatefulWidget {
   final VoucherLogic logic;
   final bool active;
   final double size;
+  final String? logo;
   final void Function(String, String, bool)? onTap;
 
   const VoucherRow({
@@ -17,6 +18,7 @@ class VoucherRow extends StatefulWidget {
     required this.logic,
     this.active = false,
     this.size = 60,
+    this.logo = 'assets/icons/voucher.svg',
     this.onTap,
   }) : super(key: key);
 
@@ -74,11 +76,7 @@ class VoucherRowState extends State<VoucherRow> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ProfileCircle(
-                  size: size,
-                  backgroundColor: ThemeColors.white.resolveFrom(context),
-                  imageUrl: 'assets/icons/voucher.svg',
-                ),
+                CoinLogo(size: size, logo: widget.logo),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

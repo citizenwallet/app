@@ -1,4 +1,5 @@
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citizenwallet/widgets/loaders/progress_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
@@ -95,21 +96,17 @@ class ProfileCircle extends StatelessWidget {
                             ),
                           ),
                         if (network) ...[
-                          Image.network(
-                            asset,
+                          CachedNetworkImage(
+                            imageUrl: asset,
                             height: size,
                             width: size,
                             fit: BoxFit.cover,
-                            frameBuilder: (context, child, frame, loaded) {
-                              if (loaded) return child;
-                              return AnimatedOpacity(
-                                opacity: frame == null ? 0 : 1,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeOut,
-                                child: child,
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
+                            progressIndicatorBuilder:
+                                (context, url, progress) => ProgressCircle(
+                              progress: progress.progress ?? 0,
+                              size: size,
+                            ),
+                            errorWidget: (context, error, stackTrace) =>
                                 Image.asset(
                               'assets/icons/profile.png',
                               semanticLabel: 'profile icon',

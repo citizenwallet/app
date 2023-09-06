@@ -1,5 +1,4 @@
 import 'package:citizenwallet/state/backup_web/logic.dart';
-import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -10,8 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SaveModal extends StatefulWidget {
   const SaveModal({
@@ -75,26 +72,25 @@ class SaveModalState extends State<SaveModal> {
     GoRouter.of(context).pop();
   }
 
+  void handleNativeApp() {
+    _logic.openNativeApp();
+  }
+
   void handleAppStoreLink() {
-    launchUrl(
-        Uri.parse('https://apps.apple.com/us/app/citizen-wallet/id6460822891'));
+    _logic.openAppStore();
   }
 
   void handleGooglePlayLink() {
-    launchUrl(Uri.parse(
-        'https://play.google.com/store/apps/details?id=xyz.citizenwallet.wallet'));
+    _logic.openPlayStore();
   }
 
   @override
   Widget build(BuildContext context) {
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+
     final isAndroid = defaultTargetPlatform == TargetPlatform.android;
 
     final isDesktop = !isIOS && !isAndroid;
-
-    final width = MediaQuery.of(context).size.width;
-
-    final shareLink = context.select((BackupWebState s) => s.shareLink);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -124,14 +120,13 @@ class SaveModalState extends State<SaveModal> {
                     scrollBehavior: const CupertinoScrollBehavior(),
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      SliverFillRemaining(
+                      SliverToBoxAdapter(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            const SizedBox(height: 40),
                             if (isIOS) ...[
                               Text(
-                                'Backup to your iCloud Keychain by using the iOS app',
+                                'Get the app',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
@@ -147,28 +142,28 @@ class SaveModalState extends State<SaveModal> {
                                   semanticsLabel: 'app store badge',
                                   height: 70,
                                 ),
+                              ),
+                            ],
+                            if (isAndroid) ...[
+                              Text(
+                                'Get the app',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              CupertinoButton(
+                                onPressed: handleGooglePlayLink,
+                                child: Image.asset(
+                                  'assets/images/google-play-badge.png',
+                                  semanticLabel: 'google play badge',
+                                  height: 100,
+                                ),
                               )
                             ],
-                            // if (isAndroid) ...[
-                            //   Text(
-                            //     'Backup to your Google Drive by using the Android app',
-                            //     textAlign: TextAlign.center,
-                            //     style: TextStyle(
-                            //       fontSize: 22,
-                            //       fontWeight: FontWeight.bold,
-                            //       color: ThemeColors.text.resolveFrom(context),
-                            //     ),
-                            //   ),
-                            //   const SizedBox(height: 20),
-                            //   CupertinoButton(
-                            //     onPressed: handleGooglePlayLink,
-                            //     child: Image.asset(
-                            //       'assets/images/google-play-badge.png',
-                            //       semanticLabel: 'google play badge',
-                            //       height: 100,
-                            //     ),
-                            //   )
-                            // ],
                             if (isDesktop) ...[
                               Text(
                                 'Bookmark this page to backup your wallet',
@@ -186,9 +181,50 @@ class SaveModalState extends State<SaveModal> {
                                 height: 100,
                               ),
                             ],
+                          ],
+                        ),
+                      ),
+                      if (!isDesktop)
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 40),
+                              Text(
+                                'Open the app',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Button(
+                                text: 'Open',
+                                suffix: Row(
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    Icon(
+                                      CupertinoIcons.arrowshape_turn_up_right,
+                                      size: 18,
+                                      color: ThemeColors.black
+                                          .resolveFrom(context),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: handleNativeApp,
+                                minWidth: 200,
+                                maxWidth: 200,
+                              ),
+                            ],
+                          ),
+                        ),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
                             const SizedBox(height: 100),
                             Text(
-                              'Copy your wallet url and save it somewhere safe',
+                              'Or copy your wallet url and save it somewhere safe',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 22,
