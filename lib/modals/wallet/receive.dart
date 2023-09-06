@@ -58,16 +58,10 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   void dispose() {
-    amountFocusNode.removeListener(handleAmountFocus);
-
     super.dispose();
   }
 
   void onLoad() async {
-    await delay(const Duration(milliseconds: 500));
-
-    amountFocusNode.addListener(handleAmountFocus);
-
     await delay(const Duration(milliseconds: 250));
 
     widget.logic.updateReceiveQR(onlyHex: true);
@@ -75,24 +69,6 @@ class ReceiveModalState extends State<ReceiveModal> {
     setState(() {
       _opacity = 1;
     });
-  }
-
-  void handleAmountFocus() {
-    if (amountFocusNode.hasFocus) {
-      ModalScrollController.of(context)?.animateTo(
-        100,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-      );
-    }
-
-    if (!amountFocusNode.hasFocus) {
-      ModalScrollController.of(context)?.animateTo(
-        0,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-      );
-    }
   }
 
   void handleDismiss(BuildContext context) {
@@ -126,10 +102,13 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final qrSize = (width < height ? width : (height - 100)) - 40;
+    final maxSize = (width < height ? width : (height - 100)) - 40;
+    final remainingHeight = height - keyboardHeight;
+    final qrSize = remainingHeight < maxSize ? (remainingHeight - 40) : maxSize;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -168,35 +147,24 @@ class ReceiveModalState extends State<ReceiveModal> {
                   controller: ModalScrollController.of(context),
                   scrollBehavior: const CupertinoScrollBehavior(),
                   slivers: [
-                    SliverPersistentHeader(
-                      pinned: true,
-                      floating: false,
-                      delegate: PersistentHeaderDelegate(
-                        expandedHeight: qrSize,
-                        minHeight: 120,
-                        blur: true,
-                        builder: (context, shrink) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AnimatedOpacity(
-                              opacity: _opacity,
-                              duration: const Duration(milliseconds: 250),
-                              child: QR(
-                                key: const Key('receive-qr-code'),
-                                data: qrData,
-                                size: progressiveClamp(
-                                  40,
-                                  qrSize - 20,
-                                  shrink,
-                                ),
-                                logo: isExternalWallet
-                                    ? 'assets/icons/wallet.png'
-                                    : null,
-                              ),
+                    SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AnimatedOpacity(
+                            opacity: _opacity,
+                            duration: const Duration(milliseconds: 250),
+                            child: QR(
+                              key: const Key('receive-qr-code'),
+                              data: qrData,
+                              size: qrSize - 20,
+                              logo: isExternalWallet
+                                  ? 'assets/icons/wallet.png'
+                                  : null,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     SliverToBoxAdapter(
