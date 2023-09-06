@@ -149,26 +149,26 @@ class SaveModalState extends State<SaveModal> {
                                 ),
                               )
                             ],
-                            // if (isAndroid) ...[
-                            //   Text(
-                            //     'Backup to your Google Drive by using the Android app',
-                            //     textAlign: TextAlign.center,
-                            //     style: TextStyle(
-                            //       fontSize: 22,
-                            //       fontWeight: FontWeight.bold,
-                            //       color: ThemeColors.text.resolveFrom(context),
-                            //     ),
-                            //   ),
-                            //   const SizedBox(height: 20),
-                            //   CupertinoButton(
-                            //     onPressed: handleGooglePlayLink,
-                            //     child: Image.asset(
-                            //       'assets/images/google-play-badge.png',
-                            //       semanticLabel: 'google play badge',
-                            //       height: 100,
-                            //     ),
-                            //   )
-                            // ],
+                            if (isAndroid) ...[
+                              Text(
+                                'Backup to your Google Drive by using the Android app',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              CupertinoButton(
+                                onPressed: handleGooglePlayLink,
+                                child: Image.asset(
+                                  'assets/images/google-play-badge.png',
+                                  semanticLabel: 'google play badge',
+                                  height: 100,
+                                ),
+                              )
+                            ],
                             if (isDesktop) ...[
                               Text(
                                 'Bookmark this page to backup your wallet',
