@@ -10,8 +10,8 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/chip.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -140,6 +140,8 @@ class TransactionScreenState extends State<TransactionScreen> {
       return const SizedBox();
     }
 
+    final config = context.select((WalletState state) => state.config);
+
     final isIncoming = transaction.isIncoming(wallet.account);
 
     final from = transaction.isIncoming(wallet.account)
@@ -184,9 +186,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   voucher != null
-                                      ? const ProfileCircle(
+                                      ? CoinLogo(
                                           size: 160,
-                                          imageUrl: 'assets/icons/voucher.svg',
+                                          logo: config?.community.logo,
                                         )
                                       : ProfileBadge(
                                           size: 160,

@@ -77,11 +77,6 @@ class VoucherRowState extends State<VoucherRow> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CoinLogo(size: size, logo: widget.logo),
-                // ProfileCircle(
-                //   size: size,
-                //   backgroundColor: ThemeColors.white.resolveFrom(context),
-                //   imageUrl: 'assets/icons/voucher.svg',
-                // ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
