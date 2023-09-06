@@ -395,25 +395,15 @@
     </noscript>
     <script>
       // Safari iOS 14.5+ app install banner
-      const interval = setInterval(() => {
-        console.log("check");
-        // give some time for first time wallets to generate themselves
-        const lastWalletLink = localStorage.getItem("flutter.lastWalletLink");
-        if (lastWalletLink == null || window.location.hash == "") {
-          return;
-        }
-
-        console.log("ok");
-
-        clearInterval(interval);
-
+      if (window.location.hash != "") {
+        // only show if there's going to be a proper deep link
         var meta = document.createElement("meta");
         meta.name = "apple-itunes-app";
         meta.content = `app-id=6460822891, app-argument=https://app.citizenwallet.xyz/${encodeURIComponent(
           window.location.hash
         )}`;
         document.getElementsByTagName("head")[0].appendChild(meta);
-      }, 500);
+      }
       // *********************************
 
       // Android Chrome app install banner
