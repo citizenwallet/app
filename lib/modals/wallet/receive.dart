@@ -102,13 +102,15 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 100;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    final maxSize = (width < height ? width : (height - 100)) - 40;
-    final remainingHeight = height - keyboardHeight;
-    final qrSize = remainingHeight < maxSize ? (remainingHeight - 40) : maxSize;
+    const paddingSize = 40;
+    final maxSize = (width < height ? width : (height - 120)) - paddingSize;
+    final remainingHeight = height - keyboardHeight - paddingSize;
+    final qrSize =
+        remainingHeight < maxSize ? (remainingHeight - paddingSize) : maxSize;
 
     final qrCode = context.select((WalletState state) => state.receiveQR);
 
@@ -159,6 +161,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                               key: const Key('receive-qr-code'),
                               data: qrData,
                               size: qrSize - 20,
+                              padding: const EdgeInsets.all(20),
                               logo: isExternalWallet
                                   ? 'assets/icons/wallet.png'
                                   : null,
