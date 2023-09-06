@@ -51,14 +51,11 @@ jobs:
       - name: Invalidate OAK CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3R7VPAU53LVEL --paths '/*'
 
-      - name: Get version and build number
+      - name: Notify of successful web deploy
         run: |
           fullVersion=$(echo | grep -i -e "version: " pubspec.yaml)
           buildName=$(echo $fullVersion | cut -d " " -f 2 | cut -d "+" -f 1)
           buildNumber=$(echo $fullVersion | cut -d "+" -f 2 )
-
-      - name: Notify of successful web deploy
-        run: |
           curl --location '${{ secrets.DISCORD_WEBHOOK_URL }}' \
           --header 'Content-Type: application/json' \
           --header 'Cookie: __cfruid=d3c9cf3e6e0989f59d65a979199e9d928266693c-1693907586; __dcfduid=0300e39c4bd211ee92ba76601606ba10; __sdcfduid=0300e39c4bd211ee92ba76601606ba104c66c70ce16f83ac0ab7dab5a2c00db41a6ae491f8d5fd2c405335aea5c168c3; _cfuvid=oyTswblHJBKePR__0PEqzFK3MZ_Ic04hL1.hQ_N6UyU-1693907586120-0-604800000' \
