@@ -197,7 +197,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final config = await _config.config;
 
-      final appLink = '${config.community.walletUrl(appLinkSuffix)}/#/';
+      final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.openVoucherSuccess(
           voucher,
@@ -308,7 +308,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         archived: dbvoucher.archived,
       );
 
-      final appLink = '${config.community.walletUrl(appLinkSuffix)}/#/';
+      final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.createVoucherSuccess(
           voucher,
