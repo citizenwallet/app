@@ -51,6 +51,9 @@ jobs:
       - name: Invalidate OAK CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3R7VPAU53LVEL --paths '/*'
 
+      - name: Invalidate SFLUV CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id ENU7L1O7FMI0 --paths '/*'
+
       - name: Notify of successful web deploy
         run: |
           fullVersion=$(echo | grep -i -e "version: " pubspec.yaml)
