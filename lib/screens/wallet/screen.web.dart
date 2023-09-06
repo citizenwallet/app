@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
-import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
@@ -11,17 +10,14 @@ import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
-import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/modals/save/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -164,7 +160,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       _password,
       widget.alias,
       () async {
-        _profileLogic.loadProfile();
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
@@ -308,37 +303,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     await _logic.loadTransactions();
 
     HapticFeedback.heavyImpact();
-  }
-
-  void handleDisplayWalletQR(BuildContext context) async {
-    _logic.updateWalletQR();
-
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
-    final wallet = context.read<WalletState>().wallet;
-
-    if (wallet == null) {
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-      return;
-    }
-
-    await showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => ProfileModal(
-        account: wallet.account,
-        keepLink: true,
-      ),
-    );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
   }
 
   Future<void> handleSendModal({String? receiveParams}) async {
@@ -500,11 +464,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
 
-    final imageSmall = context.select((ProfileState state) => state.imageSmall);
-    final username = context.select((ProfileState state) => state.username);
-
-    final hasNoProfile = imageSmall == '' && username == '';
-
     final config = context.select((WalletState s) => s.config);
 
     final walletNamePrefix = config?.token.symbol ?? 'Citizen';
@@ -588,7 +547,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                     children: [
                       if (!firstLoad && wallet != null)
                         CupertinoButton(
-                          padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
+                          padding: const EdgeInsets.fromLTRB(5, 5, 20, 5),
                           onPressed: () => handleShareWallet(walletName),
                           child: SvgPicture.asset(
                             'assets/icons/share.svg',
@@ -614,42 +573,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             ),
                           ),
                         ),
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: (firstLoad || wallet == null)
-                            ? null
-                            : () => handleDisplayWalletQR(context),
-                        child: wallet == null
-                            ? const PulsingContainer(
-                                height: 30,
-                                width: 30,
-                                borderRadius: 15,
-                              )
-                            : Stack(
-                                children: [
-                                  ProfileCircle(
-                                    size: 30,
-                                    imageUrl: imageSmall,
-                                    borderColor: ThemeColors.subtle,
-                                  ),
-                                  if (hasNoProfile)
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: Container(
-                                        height: 10,
-                                        width: 10,
-                                        decoration: BoxDecoration(
-                                          color: ThemeColors.danger
-                                              .resolveFrom(context),
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                      ),
                     ],
                   ),
                 ),
