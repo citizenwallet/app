@@ -9,16 +9,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
+  final ScrollController controller = ScrollController();
+
   final double shrink;
 
   final void Function()? handleSendModal;
   final void Function()? handleReceive;
+  final void Function()? handleVouchers;
 
-  const WalletActions({
+  WalletActions({
     Key? key,
     this.shrink = 0,
     this.handleSendModal,
     this.handleReceive,
+    this.handleVouchers,
   }) : super(key: key);
 
   @override
@@ -44,12 +48,15 @@ class WalletActions extends StatelessWidget {
     final coinSize = progressiveClamp(2, 80, shrink);
     final coinNameSize = progressiveClamp(10, 22, shrink);
 
+    final buttonOffset =
+        (1 - shrink) < 0.6 ? 90.0 : progressiveClamp(90, 110, shrink);
+
     final buttonSize =
         (1 - shrink) < 0.6 ? 60.0 : progressiveClamp(50, 80, shrink);
     final buttonIconSize =
         (1 - shrink) < 0.6 ? 30.0 : progressiveClamp(18, 40, shrink);
     final buttonFontSize =
-        (1 - shrink) < 0.6 ? 14.0 : progressiveClamp(10, 14, shrink);
+        (1 - shrink) < 0.6 ? 12.0 : progressiveClamp(10, 14, shrink);
 
     return Stack(
       children: [
@@ -162,81 +169,139 @@ class WalletActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (wallet?.locked == false &&
-                  (!loading || !firstLoad) &&
-                  handleSendModal != null)
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: blockSending ? () => () : handleSendModal,
-                  borderRadius:
-                      BorderRadius.circular(progressiveClamp(14, 20, shrink)),
-                  color: ThemeColors.surfacePrimary.resolveFrom(context),
-                  child: SizedBox(
-                    height: buttonSize,
-                    width: buttonSize,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          CupertinoIcons.arrow_up,
-                          size: buttonIconSize,
-                          color: blockSending
-                              ? ThemeColors.subtleEmphasis
-                              : ThemeColors.black,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          blockSending ? 'Sending' : 'Send',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: blockSending
-                                ? ThemeColors.subtleEmphasis
-                                : ThemeColors.black,
-                            fontSize: buttonFontSize,
+              Expanded(
+                child: SizedBox(
+                  height: buttonSize + 10,
+                  child: ListView(
+                    controller: controller,
+                    physics:
+                        const ScrollPhysics(parent: BouncingScrollPhysics()),
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      SizedBox(
+                        width: (width / 2) - buttonOffset,
+                      ),
+                      if (wallet?.locked == false &&
+                          (!loading || !firstLoad) &&
+                          handleSendModal != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: blockSending ? () => () : handleSendModal,
+                          borderRadius: BorderRadius.circular(
+                              progressiveClamp(14, 20, shrink)),
+                          color:
+                              ThemeColors.surfacePrimary.resolveFrom(context),
+                          child: SizedBox(
+                            height: buttonSize,
+                            width: buttonSize,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.arrow_up,
+                                  size: buttonIconSize,
+                                  color: blockSending
+                                      ? ThemeColors.subtleEmphasis
+                                      : ThemeColors.black,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  blockSending ? 'Sending' : 'Send',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: blockSending
+                                        ? ThemeColors.subtleEmphasis
+                                        : ThemeColors.black,
+                                    fontSize: buttonFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (wallet?.locked == false) const SizedBox(width: 40),
-              if ((!loading || !firstLoad) && handleReceive != null)
-                CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: sendLoading ? () => () : handleReceive,
-                  borderRadius:
-                      BorderRadius.circular(progressiveClamp(14, 20, shrink)),
-                  color: ThemeColors.surfacePrimary.resolveFrom(context),
-                  child: SizedBox(
-                    height: buttonSize,
-                    width: buttonSize,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          CupertinoIcons.arrow_down,
-                          size: buttonIconSize,
-                          color: sendLoading
-                              ? ThemeColors.subtleEmphasis
-                              : ThemeColors.black,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Receive',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: sendLoading
-                                ? ThemeColors.subtleEmphasis
-                                : ThemeColors.black,
-                            fontSize: buttonFontSize,
+                      if (wallet?.locked == false) const SizedBox(width: 40),
+                      if ((!loading || !firstLoad) && handleReceive != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: sendLoading ? () => () : handleReceive,
+                          borderRadius: BorderRadius.circular(
+                              progressiveClamp(14, 20, shrink)),
+                          color:
+                              ThemeColors.surfacePrimary.resolveFrom(context),
+                          child: SizedBox(
+                            height: buttonSize,
+                            width: buttonSize,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.arrow_down,
+                                  size: buttonIconSize,
+                                  color: sendLoading
+                                      ? ThemeColors.subtleEmphasis
+                                      : ThemeColors.black,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Receive',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: sendLoading
+                                        ? ThemeColors.subtleEmphasis
+                                        : ThemeColors.black,
+                                    fontSize: buttonFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
+                      if (wallet?.locked == false) const SizedBox(width: 40),
+                      if (wallet?.locked == false &&
+                          (!loading || !firstLoad) &&
+                          handleSendModal != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: sendLoading ? () => () : handleVouchers,
+                          borderRadius: BorderRadius.circular(
+                              progressiveClamp(14, 20, shrink)),
+                          color: ThemeColors.background.resolveFrom(context),
+                          child: SizedBox(
+                            height: buttonSize,
+                            width: buttonSize,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.ticket,
+                                  size: buttonIconSize,
+                                  color: sendLoading
+                                      ? ThemeColors.subtleEmphasis
+                                      : ThemeColors.text.resolveFrom(context),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Vouchers',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: sendLoading
+                                        ? ThemeColors.subtleEmphasis
+                                        : ThemeColors.text.resolveFrom(context),
+                                    fontSize: buttonFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      const SizedBox(width: 40),
+                    ],
                   ),
                 ),
+              ),
             ],
           ),
         ),

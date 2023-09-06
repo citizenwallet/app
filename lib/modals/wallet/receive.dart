@@ -1,15 +1,12 @@
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';

@@ -4,12 +4,14 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
+  final String? logo;
   final CWWallet wallet;
   final Map<String, ProfileItem> profiles;
   final Map<String, Voucher> vouchers;
@@ -19,6 +21,7 @@ class TransactionRow extends StatefulWidget {
   const TransactionRow({
     super.key,
     required this.transaction,
+    this.logo,
     required this.wallet,
     required this.profiles,
     required this.vouchers,
@@ -104,14 +107,15 @@ class TransactionRowState extends State<TransactionRow> {
                             ),
                           ),
                         ),
-                      _ => ProfileCircle(
-                          size: 50,
-                          imageUrl: voucher != null
-                              ? 'assets/icons/voucher.svg'
-                              : profile?.profile.imageMedium,
-                          backgroundColor:
-                              voucher != null ? ThemeColors.white : null,
-                        )
+                      _ => voucher != null
+                          ? CoinLogo(
+                              size: 50,
+                              logo: widget.logo,
+                            )
+                          : ProfileCircle(
+                              size: 50,
+                              imageUrl: profile?.profile.imageMedium,
+                            )
                     },
                     if (transaction.title != '')
                       Positioned(

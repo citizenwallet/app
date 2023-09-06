@@ -1,4 +1,5 @@
 import 'package:citizenwallet/modals/profile/profile.dart';
+import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
@@ -284,8 +285,31 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
+  Future<void> handleSendModal({String? receiveParams}) async {
+    HapticFeedback.heavyImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => SendModal(
+        walletLogic: _logic,
+        profilesLogic: _profilesLogic,
+        receiveParams: receiveParams,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleReceive() async {
-    HapticFeedback.lightImpact();
+    HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
     _profilesLogic.pause();
@@ -305,8 +329,8 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  Future<void> handleSendModal({String? receiveParams}) async {
-    HapticFeedback.lightImpact();
+  void handleVouchers() async {
+    HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
     _profilesLogic.pause();
@@ -316,12 +340,10 @@ class WalletScreenState extends State<WalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: _logic,
-        profilesLogic: _profilesLogic,
-        receiveParams: receiveParams,
-      ),
+      builder: (_) => const VouchersModal(),
     );
+
+    await _voucherLogic.fetchVouchers();
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -404,6 +426,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleRefresh: handleRefresh,
                   handleSendModal: handleSendModal,
                   handleReceive: handleReceive,
+                  handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,

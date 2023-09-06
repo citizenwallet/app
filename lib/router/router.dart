@@ -8,7 +8,6 @@ import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
-import 'package:citizenwallet/screens/vouchers/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -110,16 +109,6 @@ GoRouter createRouter(
                   },
                 ),
               ],
-            ),
-            GoRoute(
-              name: 'Vouchers',
-              path: '/vouchers',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: const VouchersScreen(),
-              ),
             ),
             GoRoute(
               name: 'Contacts',
