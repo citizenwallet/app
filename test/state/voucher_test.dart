@@ -120,7 +120,7 @@ const List<Map<String, dynamic>> communityConfigs = [
   }
 ];
 
-const List<String> expectedWalletUrls = [
+const List<String> expectedVoucherUrls = [
   'https://app.citizenwallet.xyz/#/?voucher=',
   'https://wallet.oak.community/#/?voucher=',
   'https://usdbc.base.citizenwallet.xyz/#/?voucher=',
@@ -166,7 +166,7 @@ void main() {
         );
 
         expect(
-          voucherLink.startsWith(expectedWalletUrls[i]),
+          voucherLink.startsWith(expectedVoucherUrls[i]),
           true,
         );
       }
