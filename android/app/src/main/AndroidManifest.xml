@@ -37,6 +37,7 @@
                 <data android:scheme="https" android:host="*.celo.citizenwallet.xyz" />
                 <data android:scheme="https" android:host="wallet.oak.community" />
                 <data android:scheme="https" android:host="wallet.regensunite.earth" />
+                <data android:scheme="https" android:host="wallet.sfluv.org" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
