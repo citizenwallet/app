@@ -4,10 +4,13 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/widgets/blurry_child.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/modals/vouchers/voucher_row.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -153,8 +156,14 @@ class VouchersModalState extends State<VouchersModal> {
     _logic.resume();
   }
 
+  void handleCreateVoucher() {
+    HapticFeedback.heavyImpact();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     final config = context.select((WalletState state) => state.config);
 
     final vouchers = context.select(selectVouchers);
@@ -189,56 +198,90 @@ class VouchersModalState extends State<VouchersModal> {
                       ),
               ),
               Expanded(
-                child: CustomScrollView(
-                  controller: ModalScrollController.of(context),
-                  scrollBehavior: const CupertinoScrollBehavior(),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    if (vouchers.isEmpty && !loading)
-                      SliverFillRemaining(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/voucher.svg',
-                              semanticsLabel: 'voucher icon',
-                              height: 200,
-                              width: 200,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomScrollView(
+                      controller: ModalScrollController.of(context),
+                      scrollBehavior: const CupertinoScrollBehavior(),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        if (vouchers.isEmpty && !loading)
+                          SliverFillRemaining(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/voucher.svg',
+                                  semanticsLabel: 'voucher icon',
+                                  height: 200,
+                                  width: 200,
+                                ),
+                                const SizedBox(height: 40),
+                                Text(
+                                  'Your vouchers will appear here',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.normal,
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 40),
-                            Text(
-                              'Your vouchers will appear here',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.normal,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (vouchers.isNotEmpty)
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          childCount: vouchers.length,
-                          (context, index) {
-                            final voucher = vouchers[index];
+                          ),
+                        if (vouchers.isNotEmpty)
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              childCount: vouchers.length,
+                              (context, index) {
+                                final voucher = vouchers[index];
 
-                            return Padding(
-                              key: Key(voucher.address),
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: VoucherRow(
-                                voucher: voucher,
-                                logic: _logic,
-                                logo: config?.community.logo,
-                                onTap: returnLoading ? null : handleMore,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                                return Padding(
+                                  key: Key(voucher.address),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                  child: VoucherRow(
+                                    voucher: voucher,
+                                    logic: _logic,
+                                    logo: config?.community.logo,
+                                    onTap: returnLoading ? null : handleMore,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                    // Positioned(
+                    //   bottom: 0,
+                    //   width: width,
+                    //   child: BlurryChild(
+                    //     child: Container(
+                    //       decoration: BoxDecoration(
+                    //         border: Border(
+                    //           top: BorderSide(
+                    //             color: ThemeColors.subtle.resolveFrom(context),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    //       child: Column(
+                    //         children: [
+                    //           const SizedBox(height: 10),
+                    //           Button(
+                    //             text: 'Create Voucher',
+                    //             onPressed: handleCreateVoucher,
+                    //             minWidth: 200,
+                    //             maxWidth: 200,
+                    //           ),
+                    //           const SizedBox(height: 10),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
