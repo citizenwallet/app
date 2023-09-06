@@ -5,11 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BackupWebLogic {
   final ConfigService _config = ConfigService();
   final SharingService _sharing = SharingService();
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String appUniversalURL = dotenv.get('MAIN_APP_SCHEME');
 
   late BackupWebState _state;
 
@@ -23,6 +25,38 @@ class BackupWebLogic {
 
       final link = config.community.walletUrl(appLinkSuffix);
       _state.setShareLink(link);
+    } catch (e) {
+      //
+    }
+  }
+
+  Future<void> openAppStore() async {
+    try {
+      launchUrl(Uri.parse(
+          'https://apps.apple.com/us/app/citizen-wallet/id6460822891'));
+    } catch (e) {
+      //
+    }
+  }
+
+  Future<void> openNativeApp() async {
+    try {
+      final fragment = Uri.base.fragment;
+
+      // on the web, it will open the app or another tab no matter what
+      await launchUrl(
+        Uri.parse('$appUniversalURL/#$fragment'),
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+    } catch (e) {
+      //
+    }
+  }
+
+  Future<void> openPlayStore() async {
+    try {
+      launchUrl(Uri.parse(
+          'https://play.google.com/store/apps/details?id=xyz.citizenwallet.wallet'));
     } catch (e) {
       //
     }
