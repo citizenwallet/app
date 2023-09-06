@@ -395,61 +395,73 @@
     </noscript>
     <script>
       // Safari iOS 14.5+ app install banner
-      var meta = document.createElement("meta");
-      meta.name = "apple-itunes-app";
-      meta.content = `app-id=6460822891, app-argument=https://app.citizenwallet.xyz/${encodeURIComponent(
-        window.location.hash
-      )}`;
-      document.getElementsByTagName("head")[0].appendChild(meta);
+      const interval = setInterval(() => {
+        console.log("check");
+        // give some time for first time wallets to generate themselves
+        const lastWalletLink = localStorage.getItem("flutter.lastWalletLink");
+        if (lastWalletLink == null || window.location.hash == "") {
+          return;
+        }
+
+        console.log("ok");
+
+        clearInterval(interval);
+
+        var meta = document.createElement("meta");
+        meta.name = "apple-itunes-app";
+        meta.content = `app-id=6460822891, app-argument=https://app.citizenwallet.xyz/${encodeURIComponent(
+          window.location.hash
+        )}`;
+        document.getElementsByTagName("head")[0].appendChild(meta);
+      }, 500);
       // *********************************
 
-      // TODO: enable this when Android is updated
       // Android Chrome app install banner
-      // const hasDismissedBanner = localStorage.getItem("hasDismissedBanner");
+      const hasDismissedBanner = localStorage.getItem("hasDismissedBanner");
 
-      // if (!hasDismissedBanner) {
-      //   let deferredPrompt = null;
+      if (!hasDismissedBanner) {
+        let deferredPrompt = null;
 
-      //   window.addEventListener("beforeinstallprompt", (e) => {
-      //     // Prevent Chrome 67 and earlier from automatically showing the prompt
-      //     e.preventDefault();
-      //     // Stash the event so it can be triggered later.
-      //     deferredPrompt = e;
-      //     // Update UI notify the user they can add to home screen
-      //     document.querySelector(".app-install-banner").style.display = "flex";
+        window.addEventListener("beforeinstallprompt", (e) => {
+          // Prevent Chrome 67 and earlier from automatically showing the prompt
+          e.preventDefault();
+          // Stash the event so it can be triggered later.
+          deferredPrompt = e;
+          // Update UI notify the user they can add to home screen
+          document.querySelector(".app-install-banner").style.display = "flex";
 
-      //     const ignoreBtn = document.getElementById("app-install-ignore-icon");
+          const ignoreBtn = document.getElementById("app-install-ignore-icon");
 
-      //     ignoreBtn.addEventListener("click", (e) => {
-      //       e.preventDefault();
+          ignoreBtn.addEventListener("click", (e) => {
+            e.preventDefault();
 
-      //       localStorage.setItem("hasDismissedBanner", true);
-      //       document.querySelector(".app-install-banner").style.display =
-      //         "none";
-      //     });
+            localStorage.setItem("hasDismissedBanner", true);
+            document.querySelector(".app-install-banner").style.display =
+              "none";
+          });
 
-      //     const installBtn = document.getElementById("app-install-button");
+          const installBtn = document.getElementById("app-install-button");
 
-      //     installBtn.addEventListener("click", (e) => {
-      //       e.preventDefault();
+          installBtn.addEventListener("click", (e) => {
+            e.preventDefault();
 
-      //       localStorage.setItem("hasDismissedBanner", true);
-      //       document.querySelector(".app-install-banner").style.display =
-      //         "none";
+            localStorage.setItem("hasDismissedBanner", true);
+            document.querySelector(".app-install-banner").style.display =
+              "none";
 
-      //       deferredPrompt.prompt();
+            deferredPrompt.prompt();
 
-      //       deferredPrompt.userChoice.then((choiceResult) => {
-      //         if (choiceResult.outcome === "accepted") {
-      //           console.log("User accepted the A2HS prompt");
-      //         } else {
-      //           console.log("User dismissed the A2HS prompt");
-      //         }
-      //         deferredPrompt = null;
-      //       });
-      //     });
-      //   });
-      // }
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === "accepted") {
+                console.log("User accepted the A2HS prompt");
+              } else {
+                console.log("User dismissed the A2HS prompt");
+              }
+              deferredPrompt = null;
+            });
+          });
+        });
+      }
       // *********************************
 
       // Flutter loader
