@@ -105,7 +105,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
       return;
     }
 
-    final address = await widget.logic.createWallet('New Account', alias);
+    final address = await widget.logic.createWallet(alias);
 
     if (address == null) {
       return;
@@ -264,8 +264,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
       return;
     }
 
-    final address =
-        await widget.logic.importWallet(result, 'Imported Account', alias);
+    final address = await widget.logic.importWallet(result, alias);
 
     if (address == null) {
       return;
