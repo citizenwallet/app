@@ -179,7 +179,7 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    final address = await _appLogic.createWallet('New wallet', alias);
+    final address = await _appLogic.createWallet(alias);
 
     if (address == null) {
       return;
@@ -227,8 +227,7 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    final address =
-        await _appLogic.importWallet(result, 'Imported Account', alias);
+    final address = await _appLogic.importWallet(result, alias);
 
     if (address == null) {
       return;

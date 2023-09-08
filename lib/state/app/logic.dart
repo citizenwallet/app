@@ -149,7 +149,7 @@ class AppLogic {
     return false;
   }
 
-  Future<String?> createWallet(String name, String alias) async {
+  Future<String?> createWallet(String alias) async {
     try {
       _appState.importLoadingReq();
 
@@ -157,11 +157,18 @@ class AppLogic {
 
       final address = credentials.address.hexEip55;
 
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
+
+      final config = await _config.config;
+
       await _encPrefs.setWalletBackup(BackupWallet(
         address: address,
         privateKey: (bytesToHex(credentials.privateKey)),
-        name: name,
-        alias: alias == 'localhost' ? 'app' : alias,
+        name: 'New ${config.token.symbol} Account',
+        alias: config.community.alias,
       ));
 
       await _preferences.setLastWallet(address);
@@ -241,7 +248,6 @@ class AppLogic {
 
   Future<String?> importWallet(
     String qrWallet,
-    String name,
     String alias,
   ) async {
     try {
@@ -255,6 +261,15 @@ class AppLogic {
           throw Exception('Invalid private key');
         }
 
+        _config.init(
+          dotenv.get('WALLET_CONFIG_URL'),
+          alias,
+        );
+
+        final config = await _config.config;
+
+        final name = 'Imported ${config.token.symbol} Account';
+
         final address = credentials.address.hexEip55;
 
         await _encPrefs.setWalletBackup(
@@ -262,7 +277,7 @@ class AppLogic {
             address: address,
             privateKey: bytesToHex(credentials.privateKey),
             name: name,
-            alias: alias == 'localhost' ? 'app' : alias,
+            alias: config.community.alias,
           ),
         );
 
@@ -343,7 +358,7 @@ class AppLogic {
         BackupWallet(
           address: address,
           privateKey: bytesToHex(credentials.privateKey),
-          name: 'Imported ${config.token.symbol} Wallet',
+          name: '${config.token.symbol} Web Account',
           alias: config.community.alias,
         ),
       );
