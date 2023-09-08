@@ -75,6 +75,8 @@ class LandingScreenState extends State<LandingScreen>
 
     // load a deep linked wallet from web
     if (widget.webWallet != null) {
+      await handleAndroidBackup();
+
       address = await _appLogic.importWebWallet(
         widget.webWallet!,
         widget.webWalletAlias ?? 'app',
