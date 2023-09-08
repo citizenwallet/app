@@ -7,8 +7,7 @@
             "namespace": "android_app",
             "package_name": "xyz.citizenwallet.wallet",
             "sha256_cert_fingerprints": [
-                "7B:6D:E0:1C:16:65:8C:8C:83:FC:02:F1:27:D6:86:C9:05:45:0C:C2:27:7A:A2:2D:04:DB:BA:F1:39:24:25:0F",
-                "B1:B1:7A:AA:50:77:56:5B:44:D9:64:F6:EE:C4:56:8C:AD:19:26:5D:8A:FE:AF:30:9D:95:20:F8:97:6B:5F:7D"
+                "7B:6D:E0:1C:16:65:8C:8C:83:FC:02:F1:27:D6:86:C9:05:45:0C:C2:27:7A:A2:2D:04:DB:BA:F1:39:24:25:0F"
             ]
         }
     }
