@@ -3,47 +3,68 @@ import 'package:sqflite_common/sqflite.dart';
 
 // a class representing a transaction in the db
 class DBTransaction {
-  final String id;
-  final int chainId;
+  final String hash;
+  final String txHash;
+  final int tokenId;
+  final DateTime createdAt;
   final String from;
   final String to;
-  final String amount;
-  final DateTime date;
+  final int nonce;
+  final int value;
+  final String data;
+  final String status;
+
+  final String contract;
 
   DBTransaction({
-    required this.id,
-    this.chainId = 0,
-    this.from = '0x',
-    this.to = '0x',
-    required this.amount,
-    required this.date,
+    required this.hash,
+    required this.txHash,
+    required this.tokenId,
+    required this.createdAt,
+    required this.from,
+    required this.to,
+    required this.nonce,
+    required this.value,
+    required this.data,
+    required this.status,
+    required this.contract,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'chain_id': chainId,
+      'hash': hash,
+      'tx_hash': txHash,
+      'token_id': tokenId,
+      'created_at': createdAt.toIso8601String(),
       't_from': from,
       't_to': to,
-      'amount': amount,
-      'date': date.millisecondsSinceEpoch,
+      'nonce': nonce,
+      'value': value,
+      'data': data,
+      'status': status,
+      'contract': contract,
     };
   }
 
   factory DBTransaction.fromMap(Map<String, dynamic> map) {
     return DBTransaction(
-      id: map['id'],
-      chainId: map['chain_id'],
+      hash: map['hash'],
+      txHash: map['tx_hash'],
+      tokenId: map['token_id'],
+      createdAt: DateTime.parse(map['created_at']),
       from: map['t_from'],
       to: map['t_to'],
-      amount: map['amount'],
-      date: DateTime.fromMillisecondsSinceEpoch(map['date']),
+      nonce: map['nonce'],
+      value: map['value'],
+      data: map['data'],
+      status: map['status'],
+      contract: map['contract'],
     );
   }
 }
 
-class TransactionTable extends DBTable {
-  TransactionTable(Database db) : super(db);
+class TransactionsTable extends DBTable {
+  TransactionsTable(Database db) : super(db);
 
   @override
   String get name => 't_transaction';
@@ -51,12 +72,17 @@ class TransactionTable extends DBTable {
   @override
   String get createQuery => '''
     CREATE TABLE $name (
-      id TEXT PRIMARY KEY,
-      chain_id INTEGER NOT NULL,
+      hash TEXT PRIMARY KEY,
+      tx_hash TEXT NOT NULL,
+      token_id INTEGER NOT NULL,
+      created_at TEXT NOT NULL,
       t_from TEXT NOT NULL,
       t_to TEXT NOT NULL,
-      amount TEXT NOT NULL,
-      date INTEGER NOT NULL
+      nonce INTEGER NOT NULL,
+      value INTEGER NOT NULL,
+      data TEXT NOT NULL,
+      status TEXT NOT NULL,
+      contract TEXT NOT NULL
     )
   ''';
 
@@ -65,20 +91,56 @@ class TransactionTable extends DBTable {
     await db.execute(createQuery);
 
     await db.execute('''
-        CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
+        CREATE INDEX idx_${name}_contract_token_id ON $name (contract, token_id)
+      ''');
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_tx_hash ON $name (tx_hash)
+      ''');
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_date_from_contract_token_id_t_from_simple ON $name (created_at, contract, token_id, t_from);
+      ''');
+
+    await db.execute('''
+        CREATE INDEX idx_${name}_date_from_contract_token_id_t_to_simple ON $name (created_at, contract, token_id, t_to);
       ''');
   }
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    await db.execute(createQuery);
+    final migrations = {
+      6: [
+        createQuery,
+        '''
+          CREATE INDEX idx_${name}_contract_token_id ON $name (contract, token_id)
+        ''',
+        '''
+          CREATE INDEX idx_${name}_tx_hash ON $name (tx_hash)
+        ''',
+        '''
+          CREATE INDEX idx_${name}_date_from_contract_token_id_t_from_simple ON $name (created_at, contract, token_id, t_from);
+        ''',
+        '''
+          CREATE INDEX idx_${name}_date_from_contract_token_id_t_to_simple ON $name (created_at, contract, token_id, t_to);
+        ''',
+      ],
+    };
 
-    await db.execute('''
-        CREATE INDEX idx_${name}_chain_id_from ON $name (chain_id, t_from)
-      ''');
+    for (var i = oldVersion + 1; i <= newVersion; i++) {
+      final queries = migrations[i];
+
+      if (queries != null) {
+        for (final query in queries) {
+          await db.execute(query);
+        }
+      }
+    }
   }
 
-  // CRUD methods for transactions
+  // CRUD operations on transactions
+
+  // insert single transaction
   Future<void> insert(DBTransaction transaction) async {
     await db.insert(
       name,
@@ -87,35 +149,94 @@ class TransactionTable extends DBTable {
     );
   }
 
-  // get all transactions for a given chain and from address
-  Future<List<DBTransaction>> getAll(int chainId, String from) async {
-    final List<Map<String, dynamic>> maps = await db.query(
-      name,
-      where: 'chain_id = ? AND t_from = ?',
-      whereArgs: [chainId, from],
-      orderBy: 'date DESC',
-    );
+  // insert multiple transactions
+  Future<void> insertAll(List<DBTransaction> transactions) async {
+    final batch = db.batch();
+
+    for (final transaction in transactions) {
+      batch.insert(
+        name,
+        transaction.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    await batch.commit(noResult: true);
+  }
+
+  // get previous transactions
+  Future<List<DBTransaction>> getPreviousTransactions(
+    DateTime createdAt,
+    String contract,
+    int tokenId,
+    String address, {
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final formattedDate = createdAt.toIso8601String();
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT * FROM $name
+      WHERE created_at <= ? AND contract = ? AND token_id = ? AND t_from = ?
+      UNION ALL
+      SELECT * FROM $name
+      WHERE created_at <= ? AND contract = ? AND token_id = ? AND t_to = ?
+      ORDER BY created_at DESC
+      LIMIT ?
+      OFFSET ?
+    ''', [
+      formattedDate,
+      contract,
+      tokenId,
+      address,
+      formattedDate,
+      contract,
+      tokenId,
+      address,
+      limit,
+      offset,
+    ]);
 
     return List.generate(maps.length, (i) {
       return DBTransaction.fromMap(maps[i]);
     });
   }
 
-  Future<void> delete(String id) async {
-    await db.delete(
-      name,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
+  // get new transactions
+  Future<List<DBTransaction>> getNewTransactions(
+    DateTime createdAt,
+    String contract,
+    int tokenId,
+    String address, {
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final formattedDate = createdAt.toIso8601String();
 
-  // update transaction
-  Future<void> update(DBTransaction transaction) async {
-    await db.update(
-      name,
-      transaction.toMap(),
-      where: 'id = ?',
-      whereArgs: [transaction.id],
-    );
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT * FROM $name
+      WHERE created_at > ? AND contract = ? AND token_id = ? AND t_from = ?
+      UNION ALL
+      SELECT * FROM $name
+      WHERE created_at > ? AND contract = ? AND token_id = ? AND t_to = ?
+      ORDER BY created_at DESC
+      LIMIT ?
+      OFFSET ?
+    ''', [
+      formattedDate,
+      contract,
+      tokenId,
+      address,
+      formattedDate,
+      contract,
+      tokenId,
+      address,
+      limit,
+      offset,
+    ]);
+
+    return List.generate(maps.length, (i) {
+      return DBTransaction.fromMap(maps[i]);
+    });
   }
 }

@@ -8,6 +8,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -652,30 +653,81 @@ class WalletLogic extends WidgetsBindingObserver {
 
       const limit = 10;
 
-      final (txs, pagination) = await _wallet.fetchErc20Transfers(
+      final List<CWTransaction> txs =
+          (await _db.transactions.getPreviousTransactions(
+        maxDate,
+        _wallet.erc20Address,
+        0, // TODO: remove tokenId hardcode
+        _wallet.account.hexEip55,
         offset: 0,
         limit: limit,
-        maxDate: maxDate,
-      );
+      ))
+              .map((dbtx) => CWTransaction(
+                    fromUnit(BigInt.from(dbtx.value)),
+                    id: dbtx.hash,
+                    hash: dbtx.txHash,
+                    chainId: _wallet.chainId,
+                    from: EthereumAddress.fromHex(dbtx.from).hexEip55,
+                    to: EthereumAddress.fromHex(dbtx.to).hexEip55,
+                    title: '',
+                    date: dbtx.createdAt,
+                    state: TransactionState.values.firstWhereOrNull(
+                          (v) => v.name == dbtx.status,
+                        ) ??
+                        TransactionState.success,
+                  ))
+              .toList();
 
-      final cwtransactions = txs.map(
-        (tx) => CWTransaction(fromUnit(tx.value),
-            id: tx.hash,
-            hash: tx.txhash,
-            chainId: _wallet.chainId,
-            from: tx.from.hexEip55,
-            to: tx.to.hexEip55,
-            title: '',
-            date: tx.createdAt,
-            state: TransactionState.values.firstWhereOrNull(
-                  (v) => v.name == tx.status,
-                ) ??
-                TransactionState.success),
-      );
+      if (txs.isEmpty || txs.length < limit) {
+        // nothing in the db or slightly less than there could be, check remote
+        final (remoteTxs, _) = await _wallet.fetchErc20Transfers(
+          offset: 0,
+          limit: limit,
+          maxDate: maxDate,
+        );
+
+        if (remoteTxs.isNotEmpty) {
+          final iterableRemoteTxs = remoteTxs.map(
+            (tx) => DBTransaction(
+              hash: tx.hash,
+              txHash: tx.txhash,
+              tokenId: tx.tokenId,
+              createdAt: tx.createdAt,
+              from: tx.from.hexEip55,
+              to: tx.to.hexEip55,
+              nonce: 0, // TODO: remove nonce hardcode
+              value: tx.value.toInt(),
+              data: '',
+              status: tx.status,
+              contract: _wallet.erc20Address,
+            ),
+          );
+
+          await _db.transactions.insertAll(
+            iterableRemoteTxs.toList(),
+          );
+
+          txs.clear();
+          txs.addAll(iterableRemoteTxs.map((dbtx) => CWTransaction(
+                fromUnit(BigInt.from(dbtx.value)),
+                id: dbtx.hash,
+                hash: dbtx.txHash,
+                chainId: _wallet.chainId,
+                from: EthereumAddress.fromHex(dbtx.from).hexEip55,
+                to: EthereumAddress.fromHex(dbtx.to).hexEip55,
+                title: '',
+                date: dbtx.createdAt,
+                state: TransactionState.values.firstWhereOrNull(
+                      (v) => v.name == dbtx.status,
+                    ) ??
+                    TransactionState.success,
+              )));
+        }
+      }
 
       _state.loadTransactionsSuccess(
-        cwtransactions.toList(),
-        offset: pagination.offset,
+        txs.toList(),
+        offset: 0,
         hasMore: txs.length >= limit,
         maxDate: maxDate,
       );
@@ -700,32 +752,84 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadAdditionalTransactions();
 
-      final (txs, pagination) = await _wallet.fetchErc20Transfers(
-        offset: _state.transactionsOffset + limit,
-        limit: limit,
-        maxDate: _state.transactionsMaxDate,
-      );
+      final maxDate = _state.transactionsMaxDate;
+      final offset = _state.transactionsOffset + limit;
 
-      final cwtransactions = txs.map(
-        (tx) => CWTransaction(
-          fromUnit(tx.value),
-          id: tx.hash,
-          hash: tx.txhash,
-          chainId: _wallet.chainId,
-          from: tx.from.hexEip55,
-          to: tx.to.hexEip55,
-          title: '',
-          date: tx.createdAt,
-          state: TransactionState.values.firstWhereOrNull(
-                (v) => v.name == tx.status,
-              ) ??
-              TransactionState.success,
-        ),
-      );
+      final List<CWTransaction> txs =
+          (await _db.transactions.getPreviousTransactions(
+        maxDate,
+        _wallet.erc20Address,
+        0, // TODO: remove tokenId hardcode
+        _wallet.account.hexEip55,
+        offset: offset,
+        limit: limit,
+      ))
+              .map((dbtx) => CWTransaction(
+                    fromUnit(BigInt.from(dbtx.value)),
+                    id: dbtx.hash,
+                    hash: dbtx.txHash,
+                    chainId: _wallet.chainId,
+                    from: EthereumAddress.fromHex(dbtx.from).hexEip55,
+                    to: EthereumAddress.fromHex(dbtx.to).hexEip55,
+                    title: '',
+                    date: dbtx.createdAt,
+                    state: TransactionState.values.firstWhereOrNull(
+                          (v) => v.name == dbtx.status,
+                        ) ??
+                        TransactionState.success,
+                  ))
+              .toList();
+
+      if (txs.isEmpty || txs.length < limit) {
+        // nothing in the db or slightly less than there could be, check remote
+        final (remoteTxs, _) = await _wallet.fetchErc20Transfers(
+          offset: offset,
+          limit: limit,
+          maxDate: maxDate,
+        );
+
+        if (remoteTxs.isNotEmpty) {
+          final iterableRemoteTxs = remoteTxs.map(
+            (tx) => DBTransaction(
+              hash: tx.hash,
+              txHash: tx.txhash,
+              tokenId: tx.tokenId,
+              createdAt: tx.createdAt,
+              from: tx.from.hexEip55,
+              to: tx.to.hexEip55,
+              nonce: 0, // TODO: remove nonce hardcode
+              value: tx.value.toInt(),
+              data: '',
+              status: tx.status,
+              contract: _wallet.erc20Address,
+            ),
+          );
+
+          await _db.transactions.insertAll(
+            iterableRemoteTxs.toList(),
+          );
+
+          txs.clear();
+          txs.addAll(iterableRemoteTxs.map((dbtx) => CWTransaction(
+                fromUnit(BigInt.from(dbtx.value)),
+                id: dbtx.hash,
+                hash: dbtx.txHash,
+                chainId: _wallet.chainId,
+                from: EthereumAddress.fromHex(dbtx.from).hexEip55,
+                to: EthereumAddress.fromHex(dbtx.to).hexEip55,
+                title: '',
+                date: dbtx.createdAt,
+                state: TransactionState.values.firstWhereOrNull(
+                      (v) => v.name == dbtx.status,
+                    ) ??
+                    TransactionState.success,
+              )));
+        }
+      }
 
       _state.loadAdditionalTransactionsSuccess(
-        cwtransactions.toList(),
-        offset: pagination.offset,
+        txs.toList(),
+        offset: offset,
         hasMore: txs.length >= limit,
       );
       return;
