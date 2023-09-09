@@ -109,7 +109,7 @@ class DBService {
     }
 
     if (_db != null && _db!.isOpen) {
-      _db!.close();
+      await _db!.close();
     }
 
     final path =

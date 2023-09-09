@@ -320,7 +320,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<String?> createWallet(String name, String alias) async {
+  Future<String?> createWallet(String alias) async {
     try {
       _state.createWallet();
 
@@ -339,7 +339,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
-        name: name,
+        name: 'New ${config.token.symbol} Account',
         address: address,
         alias: config.community.alias,
         account: '',
@@ -352,7 +352,7 @@ class WalletLogic extends WidgetsBindingObserver {
       await _encPrefs.setWalletBackup(BackupWallet(
         address: address,
         privateKey: bytesToHex(credentials.privateKey),
-        name: name,
+        name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
 
@@ -375,8 +375,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<String?> importWallet(
-      String qrWallet, String name, String alias) async {
+  Future<String?> importWallet(String qrWallet, String alias) async {
     try {
       _state.createWallet();
 
@@ -396,6 +395,8 @@ class WalletLogic extends WidgetsBindingObserver {
         );
 
         final config = await _config.config;
+
+        final name = 'Imported ${config.token.symbol} Account';
 
         _state.setWalletConfig(config);
 
@@ -437,6 +438,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final config = await _config.config;
+
+      final name = 'Imported ${config.token.symbol} Account';
 
       _state.setWalletConfig(config);
 
