@@ -36,6 +36,7 @@ class WalletService {
 
   final PreferencesService _pref = PreferencesService();
 
+  late String alias;
   BigInt? _chainId;
   late NativeCurrency currency;
 
@@ -192,13 +193,12 @@ class WalletService {
 
     // Get the Ethereum address for the current account.
     final cachedAccAddress =
-        _pref.getAccountAddress(alias, _credentials.address.hexEip55);
+        _pref.getAccountAddress(_credentials.address.hexEip55);
     _account = cachedAccAddress != null
         ? EthereumAddress.fromHex(cachedAccAddress)
         : await _contractAccountFactory
             .getAddress(_credentials.address.hexEip55);
     await _pref.setAccountAddress(
-      alias,
       _credentials.address.hexEip55,
       _account.hexEip55,
     );
@@ -509,7 +509,16 @@ class WalletService {
 
   // get account address
   Future<EthereumAddress> getAccountAddress(String addr) async {
-    return _contractAccountFactory.getAddress(addr);
+    final cachedAccAddress = _pref.getAccountAddress(addr);
+
+    final address = cachedAccAddress != null
+        ? EthereumAddress.fromHex(cachedAccAddress)
+        : await _contractAccountFactory.getAddress(addr);
+    await _pref.setAccountAddress(
+      addr,
+      address.hexEip55,
+    );
+    return address;
   }
 
   /// Submits a user operation to the Ethereum network.

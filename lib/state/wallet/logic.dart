@@ -233,9 +233,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
         _state.updateWalletBalanceSuccess(balance);
 
-        await loadAdditionalData(false);
-
         _state.loadWalletSuccess();
+
+        await loadAdditionalData(false);
 
         _preferences.setLastWallet(address);
 
@@ -296,9 +296,9 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await loadAdditionalData(true);
-
       _state.loadWalletSuccess();
+
+      await loadAdditionalData(true);
 
       _preferences.setLastWallet(address);
 
@@ -1484,8 +1484,6 @@ class WalletLogic extends WidgetsBindingObserver {
         final account = await _wallet.getAccountAddress(address.hexEip55);
 
         _state.updateDBWalletAccountAddress(address.hexEip55, account.hexEip55);
-
-        await delay(const Duration(milliseconds: 250));
       }
 
       return;
