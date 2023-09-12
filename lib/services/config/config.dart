@@ -397,15 +397,15 @@ class ConfigService {
   }
 
   Future<Config> _getConfig() async {
-    // if (kDebugMode) {
-    //   final localConfigs =
-    //       jsonDecode(await rootBundle.loadString('assets/data/configs.json'));
+    if (kDebugMode) {
+      final localConfigs =
+          jsonDecode(await rootBundle.loadString('assets/data/configs.json'));
 
-    //   final configs =
-    //       (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
 
-    //   return configs.firstWhere((element) => element.community.alias == _alias);
-    // }
+      return configs.firstWhere((element) => element.community.alias == _alias);
+    }
 
     final cachedConfig = _pref.getConfig(_alias);
     if (cachedConfig != null) {
