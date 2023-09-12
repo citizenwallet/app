@@ -32,6 +32,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
+const txFetchInterval = Duration(seconds: 1);
+
 class QREmptyException implements Exception {
   final String message = 'This QR code seems to be empty';
 
@@ -549,7 +551,7 @@ class WalletLogic extends WidgetsBindingObserver {
         // still keep balance up to date no matter what
         updateBalance();
 
-        await delay(const Duration(seconds: 2));
+        await delay(txFetchInterval);
 
         fetchNewTransfers(id);
         return;
@@ -561,7 +563,7 @@ class WalletLogic extends WidgetsBindingObserver {
         // still keep balance up to date no matter what
         updateBalance();
 
-        await delay(const Duration(seconds: 2));
+        await delay(txFetchInterval);
 
         fetchNewTransfers(id);
         return;
@@ -584,6 +586,26 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
+      final iterableRemoteTxs = txs.map(
+        (tx) => DBTransaction(
+          hash: tx.hash,
+          txHash: tx.txhash,
+          tokenId: tx.tokenId,
+          createdAt: tx.createdAt,
+          from: tx.from.hexEip55,
+          to: tx.to.hexEip55,
+          nonce: 0, // TODO: remove nonce hardcode
+          value: tx.value.toInt(),
+          data: '',
+          status: tx.status,
+          contract: _wallet.erc20Address,
+        ),
+      );
+
+      await _db.transactions.insertAll(
+        iterableRemoteTxs.toList(),
+      );
+
       final hasChanges = _state.incomingTransactionsRequestSuccess(
         cwtransactions.toList(),
       );
@@ -592,7 +614,7 @@ class WalletLogic extends WidgetsBindingObserver {
         updateBalance();
       }
 
-      await delay(const Duration(seconds: 2));
+      await delay(txFetchInterval);
 
       fetchNewTransfers(id);
       return;
@@ -604,7 +626,7 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.incomingTransactionsRequestError();
-    await delay(const Duration(seconds: 2));
+    await delay(txFetchInterval);
 
     fetchNewTransfers(id);
   }
