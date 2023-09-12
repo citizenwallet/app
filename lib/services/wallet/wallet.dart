@@ -6,6 +6,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -32,6 +33,8 @@ class WalletService {
   factory WalletService() {
     return _instance;
   }
+
+  final PreferencesService _pref = PreferencesService();
 
   BigInt? _chainId;
   late NativeCurrency currency;
@@ -82,8 +85,23 @@ class WalletService {
   EthereumAddress get account => _account;
 
   /// retrieves the current balance of the address
-  Future<String> get balance async =>
-      fromUnit(await _contractToken.getBalance(_account.hexEip55));
+  Future<String> get balance async {
+    try {
+      final b = await _contractToken.getBalance(_account.hexEip55).timeout(
+            const Duration(seconds: 2),
+          );
+
+      final strb = fromUnit(b);
+
+      _pref.setBalance(_account.hexEip55, strb);
+
+      return strb;
+    } catch (e) {
+      //
+    }
+
+    return _pref.getBalance(_account.hexEip55) ?? '0.0';
+  }
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
@@ -128,10 +146,17 @@ class WalletService {
 
     _credentials = EthPrivateKey.fromHex(privateKey);
 
-    _chainId = await _ethClient.getChainId();
+    final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
+    _chainId = cachedChainId != null
+        ? BigInt.parse(cachedChainId)
+        : await _ethClient.getChainId();
+    await _pref.setChainIdForAlias(
+        config.community.alias, _chainId!.toString());
+
     this.currency = currency;
 
     await _initContracts(
+      config.community.alias,
       config.erc4337.entrypointAddress,
       config.erc4337.accountFactoryAddress,
       config.token.address,
@@ -141,12 +166,18 @@ class WalletService {
 
   /// Initializes the Ethereum smart contracts used by the wallet.
   ///
+  /// [alias] The community alias
   /// [eaddr] The Ethereum address of the entry point for the smart contract.
   /// [afaddr] The Ethereum address of the account factory smart contract.
   /// [taddr] The Ethereum address of the ERC20 token smart contract.
   /// [prfaddr] The Ethereum address of the user profile smart contract.
   Future<void> _initContracts(
-      String eaddr, String afaddr, String taddr, String prfaddr) async {
+    String alias,
+    String eaddr,
+    String afaddr,
+    String taddr,
+    String prfaddr,
+  ) async {
     // Create a new entry point instance and initialize it.
     _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
@@ -160,8 +191,17 @@ class WalletService {
     await _contractAccountFactory.init();
 
     // Get the Ethereum address for the current account.
-    _account =
-        await _contractAccountFactory.getAddress(_credentials.address.hexEip55);
+    final cachedAccAddress =
+        _pref.getAccountAddress(alias, _credentials.address.hexEip55);
+    _account = cachedAccAddress != null
+        ? EthereumAddress.fromHex(cachedAccAddress)
+        : await _contractAccountFactory
+            .getAddress(_credentials.address.hexEip55);
+    await _pref.setAccountAddress(
+      alias,
+      _credentials.address.hexEip55,
+      _account.hexEip55,
+    );
 
     // Create a new ERC20 token contract instance and initialize it.
     _contractToken = newERC20Contract(chainId, _ethClient, taddr);

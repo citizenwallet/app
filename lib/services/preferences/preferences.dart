@@ -45,6 +45,15 @@ class PreferencesService {
       _preferences.getInt('chainId') ??
       int.parse(dotenv.get('DEFAULT_CHAIN_ID'));
 
+  // save chain id for a given alias
+  Future setChainIdForAlias(String alias, String chainId) async {
+    await _preferences.setString('chainId_$alias', chainId);
+  }
+
+  String? getChainIdForAlias(String alias) {
+    return _preferences.getString('chainId_$alias');
+  }
+
   // save the last wallet that was opened
   Future setLastWallet(String address) async {
     await _preferences.setString('lastWallet', address);
@@ -76,15 +85,35 @@ class PreferencesService {
 
   // saved configs
   Future setConfig(String key, dynamic value) async {
-    await _preferences.setString(key, jsonEncode(value));
+    await _preferences.setString('config_$key', jsonEncode(value));
   }
 
   dynamic getConfig(String key) {
-    final config = _preferences.getString(key);
+    final config = _preferences.getString('config_$key');
     if (config == null) {
       return null;
     }
 
     return jsonDecode(config);
+  }
+
+  // saved balance
+  Future setBalance(String key, String value) async {
+    await _preferences.setString('balance_$key', value);
+  }
+
+  String? getBalance(String key) {
+    return _preferences.getString('balance_$key');
+  }
+
+  // save account address for given alias + address
+  Future setAccountAddress(
+      String alias, String address, String accaddress) async {
+    await _preferences.setString(
+        'accountAddress_${alias}_$address', accaddress);
+  }
+
+  String? getAccountAddress(String alias, String address) {
+    return _preferences.getString('accountAddress_${alias}_$address');
   }
 }
