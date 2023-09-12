@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -70,5 +72,19 @@ class PreferencesService {
 
   Future setAndroidBackupIsConfigured(bool configured) async {
     await _preferences.setBool('androidBackupIsConfigured', configured);
+  }
+
+  // saved configs
+  Future setConfig(String key, dynamic value) async {
+    await _preferences.setString(key, jsonEncode(value));
+  }
+
+  dynamic getConfig(String key) {
+    final config = _preferences.getString(key);
+    if (config == null) {
+      return null;
+    }
+
+    return jsonDecode(config);
   }
 }

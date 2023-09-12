@@ -9,5 +9,5 @@ String fixLegacyAliases(String alias) {
     return correctedAliases[alias]!;
   }
 
-  return alias == 'localhost' ? 'app' : alias;
+  return alias == 'localhost' || alias == '' ? 'app' : alias;
 }
