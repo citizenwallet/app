@@ -16,10 +16,16 @@ class EIP1559GasPrice {
 class EIP1559GasPriceEstimator {
   late APIService _rpc;
   late Web3Client _client;
+  late int _gasExtraPercentage;
 
-  EIP1559GasPriceEstimator(APIService rpc, Web3Client client) {
+  EIP1559GasPriceEstimator(
+    APIService rpc,
+    Web3Client client, {
+    int gasExtraPercentage = 13,
+  }) {
     _rpc = rpc;
     _client = client;
+    _gasExtraPercentage = gasExtraPercentage;
   }
 
   /// makes a jsonrpc request from this wallet
@@ -48,7 +54,9 @@ class EIP1559GasPriceEstimator {
       );
 
       final tip = hexToInt(response.result);
-      final BigInt buffer = BigInt.from((tip / BigInt.from(100)) * 13);
+
+      final BigInt buffer =
+          BigInt.from((tip / BigInt.from(100)) * _gasExtraPercentage);
 
       final maxPriorityFeePerGas = tip + buffer;
 

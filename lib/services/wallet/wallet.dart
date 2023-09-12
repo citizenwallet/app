@@ -137,7 +137,11 @@ class WalletService {
     _paymasterRPC = APIService(baseURL: config.erc4337.paymasterRPCUrl);
     _paymasterType = config.erc4337.paymasterType;
 
-    _gasPriceEstimator = EIP1559GasPriceEstimator(_rpc, _ethClient);
+    _gasPriceEstimator = EIP1559GasPriceEstimator(
+      _rpc,
+      _ethClient,
+      gasExtraPercentage: config.erc4337.gasExtraPercentage,
+    );
 
     erc4337Headers = {};
     if (!kIsWeb || kDebugMode) {

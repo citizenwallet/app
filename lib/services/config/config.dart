@@ -188,6 +188,7 @@ class ERC4337Config {
   final String accountFactoryAddress;
   final String paymasterRPCUrl;
   final String paymasterType;
+  final int gasExtraPercentage;
 
   ERC4337Config({
     required this.rpcUrl,
@@ -195,6 +196,7 @@ class ERC4337Config {
     required this.accountFactoryAddress,
     required this.paymasterRPCUrl,
     required this.paymasterType,
+    this.gasExtraPercentage = 13,
   });
 
   factory ERC4337Config.fromJson(Map<String, dynamic> json) {
@@ -204,6 +206,7 @@ class ERC4337Config {
       accountFactoryAddress: json['account_factory_address'],
       paymasterRPCUrl: json['paymaster_rpc_url'],
       paymasterType: json['paymaster_type'],
+      gasExtraPercentage: json['gas_extra_percentage'] ?? 13,
     );
   }
 
@@ -215,6 +218,7 @@ class ERC4337Config {
       'account_factory_address': accountFactoryAddress,
       'paymaster_rpc_url': paymasterRPCUrl,
       'paymaster_type': paymasterType,
+      'gas_extra_percentage': gasExtraPercentage,
     };
   }
 
