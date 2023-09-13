@@ -50,6 +50,18 @@ class SimpleAccount {
         .encodeCall([EthereumAddress.fromHex(dest), amount, calldata]);
   }
 
+  Uint8List executeBatchCallData(
+    List<String> dest,
+    List<Uint8List> calldata,
+  ) {
+    final function = rcontract.function('executeBatch');
+
+    return function.encodeCall([
+      dest.map((d) => EthereumAddress.fromHex(d)).toList(),
+      calldata,
+    ]);
+  }
+
   void dispose() {
     // _sub?.cancel();
   }

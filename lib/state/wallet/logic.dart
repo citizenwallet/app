@@ -970,8 +970,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        _wallet.erc20Address,
-        calldata,
+        [_wallet.erc20Address],
+        [calldata],
       );
 
       tempId = hash;
@@ -1108,8 +1108,8 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        _wallet.erc20Address,
-        calldata,
+        [_wallet.erc20Address],
+        [calldata],
       );
 
       tempId = hash;

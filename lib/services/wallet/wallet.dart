@@ -110,6 +110,9 @@ class WalletService {
   String get erc20Address => _contractToken.addr;
   String get profileAddress => _contractProfile.addr;
 
+  Future<BigInt> get accountNonce =>
+      _contractEntryPoint.getNonce(_account.hexEip55);
+
   Future<void> init(
     String privateKey,
     NativeCurrency currency,
@@ -256,7 +259,7 @@ class WalletService {
       final calldata = _contractProfile.setCallData(
           _account.hexEip55, profile.username, profileUrl);
 
-      final (_, userop) = await prepareUserop(profileAddress, calldata);
+      final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
       final success = await submitUserop(userop);
       if (!success) {
@@ -303,7 +306,7 @@ class WalletService {
       final calldata = _contractProfile.setCallData(
           _account.hexEip55, profile.username, profileUrl);
 
-      final (_, userop) = await prepareUserop(profileAddress, calldata);
+      final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
       final success = await submitUserop(userop);
       if (!success) {
@@ -651,9 +654,10 @@ class WalletService {
 
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
-    String dest,
-    Uint8List calldata, {
+    List<String> dest,
+    List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
+    BigInt? customNonce,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -671,7 +675,8 @@ class WalletService {
       userop.sender = acc.hexEip55;
 
       // determine the appropriate nonce
-      final nonce = await _contractEntryPoint.getNonce(acc.hexEip55);
+      final nonce =
+          customNonce ?? await _contractEntryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
@@ -685,11 +690,16 @@ class WalletService {
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
-      userop.callData = _contractAccount.executeCallData(
-        dest,
-        BigInt.zero,
-        calldata,
-      );
+      userop.callData = dest.length > 1 && calldata.length > 1
+          ? _contractAccount.executeBatchCallData(
+              dest,
+              calldata,
+            )
+          : _contractAccount.executeCallData(
+              dest[0],
+              BigInt.zero,
+              calldata[0],
+            );
 
       // set the appropriate gas fees based on network
       // final fees = await _ethClient.getGasInEIP1559();
@@ -698,8 +708,9 @@ class WalletService {
         throw Exception('unable to estimate fees');
       }
 
-      userop.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
-      userop.maxFeePerGas = fees.maxFeePerGas;
+      userop.maxPriorityFeePerGas =
+          fees.maxPriorityFeePerGas * BigInt.from(calldata.length);
+      userop.maxFeePerGas = fees.maxFeePerGas * BigInt.from(calldata.length);
 
       // submit the user op to the paymaster in order to receive information to complete the user op
       final (paymasterData, paymasterErr) = await _getPaymasterData(

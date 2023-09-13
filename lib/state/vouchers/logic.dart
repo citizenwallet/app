@@ -220,6 +220,100 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.openVoucherClear(notify: false);
   }
 
+  Future<void> createMultipleVouchers({
+    int quantity = 1,
+    String? name,
+    String balance = '0.0',
+    String symbol = '',
+    String salt = '',
+  }) async {
+    try {
+      _state.createVoucherRequest();
+
+      final doubleAmount = balance.replaceAll(',', '.');
+      final parsedAmount = double.parse(doubleAmount) * 1000;
+
+      final config = await _config.config;
+
+      _state.createVoucherFunding();
+
+      final List<String> addresses = [];
+      final List<Uint8List> calldata = [];
+
+      final List<DBVoucher> dbvouchers = [];
+      final List<Voucher> vouchers = [];
+
+      for (int i = 0; i < quantity; i++) {
+        addresses.add(_wallet.erc20Address);
+
+        final credentials = EthPrivateKey.createRandom(Random.secure());
+
+        final wallet = Wallet.createNew(
+          credentials,
+          '$password$salt',
+          Random.secure(),
+          scryptN: 2,
+        );
+
+        final account =
+            await _wallet.getAccountAddress(credentials.address.hexEip55);
+
+        final dbvoucher = DBVoucher(
+          address: account.hexEip55,
+          alias: config.community.alias,
+          name: name ?? 'Voucher for $balance $symbol',
+          balance: '$parsedAmount',
+          voucher: wallet.toJson(),
+          salt: salt,
+          creator: _wallet.account.hexEip55,
+        );
+
+        dbvouchers.add(dbvoucher);
+
+        calldata.add(_wallet.erc20TransferCallData(
+          account.hexEip55,
+          BigInt.from(double.parse(doubleAmount) * 1000),
+        ));
+
+        final voucher = Voucher(
+          address: dbvoucher.address,
+          alias: dbvoucher.alias,
+          name: dbvoucher.name,
+          balance: dbvoucher.balance,
+          creator: dbvoucher.creator,
+          createdAt: dbvoucher.createdAt,
+          archived: dbvoucher.archived,
+        );
+
+        vouchers.add(voucher);
+      }
+
+      final (hash, userop) = await _wallet.prepareUserop(
+        addresses,
+        calldata,
+      );
+
+      final success = await _wallet.submitUserop(userop);
+      if (!success) {
+        throw Exception('transaction failed');
+      }
+
+      for (final dbvoucher in dbvouchers) {
+        await _db.vouchers.insert(dbvoucher);
+      }
+
+      _state.createVoucherMultiSuccess(
+        vouchers,
+      );
+
+      return;
+    } catch (exception) {
+      //
+    }
+
+    _state.createVoucherError();
+  }
+
   Future<void> createVoucher({
     String? name,
     String balance = '0.0',
@@ -266,8 +360,8 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        _wallet.erc20Address,
-        calldata,
+        [_wallet.erc20Address],
+        [calldata],
       );
 
       final tx = await _wallet.addSendingLog(
@@ -371,8 +465,8 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        _wallet.erc20Address,
-        calldata,
+        [_wallet.erc20Address],
+        [calldata],
         customCredentials: credentials,
       );
 

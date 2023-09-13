@@ -158,6 +158,12 @@ class VouchersModalState extends State<VouchersModal> {
 
   void handleCreateVoucher() {
     HapticFeedback.heavyImpact();
+
+    // _logic.createMultipleVouchers(
+    //   quantity: 20,
+    //   balance: '1.0',
+    //   symbol: 'RGN',
+    // );
   }
 
   @override
