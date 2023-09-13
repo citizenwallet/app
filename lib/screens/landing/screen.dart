@@ -126,7 +126,6 @@ class LandingScreenState extends State<LandingScreen>
     // since shared preferences are backed up by default on android,
     // it should be possible to figure out if there is a backup available
     final isConfigured = _appLogic.androidBackupIsConfigured();
-
     if (!isConfigured) {
       return;
     }
@@ -151,6 +150,12 @@ class LandingScreenState extends State<LandingScreen>
   /// handleAndroidBackup handles the android backup flow if needed and then returns
   Future<void> handleAndroidBackup() async {
     if (!isPlatformAndroid()) {
+      return;
+    }
+
+    // get the pin code stored in android encrypted preferences
+    final success = await _appLogic.configureAndroidBackup();
+    if (success) {
       return;
     }
 
