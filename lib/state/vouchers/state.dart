@@ -130,6 +130,24 @@ class VoucherState with ChangeNotifier {
     notifyListeners();
   }
 
+  void createVoucherMultiSuccess(List<Voucher> vouchers) {
+    creationState = VoucherCreationState.created;
+
+    for (final voucher in vouchers) {
+      final index =
+          this.vouchers.indexWhere((v) => v.address == voucher.address);
+      if (index < 0) {
+        this.vouchers.add(voucher);
+      } else {
+        this.vouchers[index] = voucher;
+      }
+    }
+
+    createLoading = false;
+    createError = false;
+    notifyListeners();
+  }
+
   void createVoucherError() {
     creationState = VoucherCreationState.error;
 

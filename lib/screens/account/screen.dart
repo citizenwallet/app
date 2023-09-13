@@ -180,7 +180,7 @@ class AccountScreenState extends State<AccountScreen> {
                           handleCopy: handleCopy,
                         ),
                         const SizedBox(height: 20),
-                        if (!hasNoProfile && !profileLoading)
+                        if (!hasNoProfile && !profileLoading && !cleaningUp)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -200,7 +200,7 @@ class AccountScreenState extends State<AccountScreen> {
                             ],
                           ),
                         const SizedBox(height: 20),
-                        if (!profileLoading)
+                        if (!profileLoading && !cleaningUp)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,7 +225,7 @@ class AccountScreenState extends State<AccountScreen> {
                       ],
                     ),
                   ),
-                  if (!profileLoading)
+                  if (!profileLoading && !cleaningUp)
                     Positioned(
                       bottom: 40,
                       child: Row(

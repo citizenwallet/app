@@ -191,7 +191,7 @@ class CWTransaction {
         blockNumber = json['blockNumber'],
         state = json['state'] ?? TransactionState.success;
 
-  // Convert a Conversation object into a Map object.
+  // Convert a Transaction object into a Map object.
   // The keys must correspond to the names of the columns in the database.
   Map<String, dynamic> toJson() => {
         'id': id,

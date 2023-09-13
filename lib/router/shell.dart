@@ -152,7 +152,7 @@ class RouterShell extends StatelessWidget {
                           color:
                               ThemeColors.uiBackgroundAlt.resolveFrom(context),
                           width: 0.0)),
-                  onTap: transactionSendLoading
+                  onTap: transactionSendLoading || cleaningUp
                       ? null
                       : (index) {
                           switch (index) {

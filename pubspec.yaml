@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.30+69
+version: 1.0.31+72
 publish_to: none
 description: A mobile wallet for your community.
 environment:

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/utils.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/utils/date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +35,18 @@ class CommunityConfig {
     );
   }
 
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'url': url,
+      'alias': alias,
+      'logo': logo,
+      'custom_domain': customDomain,
+    };
+  }
+
   // to string
   @override
   String toString() {
@@ -59,6 +72,14 @@ class ScanConfig {
       url: json['url'],
       name: json['name'],
     );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'name': name,
+    };
   }
 
   // to string
@@ -87,6 +108,15 @@ class IndexerConfig {
     );
   }
 
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'ipfs_url': ipfsUrl,
+      'key': key,
+    };
+  }
+
   // to string
   @override
   String toString() {
@@ -105,6 +135,13 @@ class IPFSConfig {
     return IPFSConfig(
       url: json['url'],
     );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+    };
   }
 
   // to string
@@ -130,6 +167,14 @@ class NodeConfig {
     );
   }
 
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'ws_url': wsUrl,
+    };
+  }
+
   // to string
   @override
   String toString() {
@@ -143,6 +188,7 @@ class ERC4337Config {
   final String accountFactoryAddress;
   final String paymasterRPCUrl;
   final String paymasterType;
+  final int gasExtraPercentage;
 
   ERC4337Config({
     required this.rpcUrl,
@@ -150,6 +196,7 @@ class ERC4337Config {
     required this.accountFactoryAddress,
     required this.paymasterRPCUrl,
     required this.paymasterType,
+    this.gasExtraPercentage = 13,
   });
 
   factory ERC4337Config.fromJson(Map<String, dynamic> json) {
@@ -159,7 +206,20 @@ class ERC4337Config {
       accountFactoryAddress: json['account_factory_address'],
       paymasterRPCUrl: json['paymaster_rpc_url'],
       paymasterType: json['paymaster_type'],
+      gasExtraPercentage: json['gas_extra_percentage'] ?? 13,
     );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'rpc_url': rpcUrl,
+      'entrypoint_address': entrypointAddress,
+      'account_factory_address': accountFactoryAddress,
+      'paymaster_rpc_url': paymasterRPCUrl,
+      'paymaster_type': paymasterType,
+      'gas_extra_percentage': gasExtraPercentage,
+    };
   }
 
   // to string
@@ -194,6 +254,17 @@ class TokenConfig {
     );
   }
 
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'standard': standard,
+      'address': address,
+      'name': name,
+      'symbol': symbol,
+      'decimals': decimals,
+    };
+  }
+
   // to string
   @override
   String toString() {
@@ -214,6 +285,13 @@ class ProfileConfig {
     );
   }
 
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'address': address,
+    };
+  }
+
   // to string
   @override
   String toString() {
@@ -230,6 +308,7 @@ class Config {
   final ERC4337Config erc4337;
   final TokenConfig token;
   final ProfileConfig profile;
+  final int version;
 
   Config({
     required this.community,
@@ -240,6 +319,7 @@ class Config {
     required this.erc4337,
     required this.token,
     required this.profile,
+    this.version = 0,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -252,7 +332,23 @@ class Config {
       erc4337: ERC4337Config.fromJson(json['erc4337']),
       token: TokenConfig.fromJson(json['token']),
       profile: ProfileConfig.fromJson(json['profile']),
+      version: json['version'] ?? 0,
     );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'community': community,
+      'scan': scan,
+      'indexer': indexer,
+      'ipfs': ipfs,
+      'node': node,
+      'erc4337': erc4337,
+      'token': token,
+      'profile': profile,
+      'version': version,
+    };
   }
 
   // to string
@@ -271,6 +367,7 @@ class ConfigService {
 
   ConfigService._internal();
 
+  final PreferencesService _pref = PreferencesService();
   late APIService _api;
   String _alias = '';
 
@@ -295,7 +392,7 @@ class ConfigService {
         '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
-    _alias = alias == 'localhost' ? 'app' : alias;
+    _alias = alias == 'localhost' || alias == '' ? 'app' : alias;
   }
 
   void init(String endpoint, String alias) {
@@ -314,8 +411,15 @@ class ConfigService {
       return configs.firstWhere((element) => element.community.alias == _alias);
     }
 
+    final cachedConfig = _pref.getConfig(_alias);
+    if (cachedConfig != null) {
+      return Config.fromJson(cachedConfig);
+    }
+
     final response = await _api.get(
         url: '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+
+    _pref.setConfig(_alias, response);
 
     return Config.fromJson(response);
   }

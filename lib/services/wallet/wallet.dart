@@ -6,6 +6,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -33,6 +34,9 @@ class WalletService {
     return _instance;
   }
 
+  final PreferencesService _pref = PreferencesService();
+
+  late String alias;
   BigInt? _chainId;
   late NativeCurrency currency;
 
@@ -82,14 +86,32 @@ class WalletService {
   EthereumAddress get account => _account;
 
   /// retrieves the current balance of the address
-  Future<String> get balance async =>
-      fromUnit(await _contractToken.getBalance(_account.hexEip55));
+  Future<String> get balance async {
+    try {
+      final b = await _contractToken.getBalance(_account.hexEip55).timeout(
+            const Duration(seconds: 2),
+          );
+
+      final strb = fromUnit(b);
+
+      _pref.setBalance(_account.hexEip55, strb);
+
+      return strb;
+    } catch (e) {
+      //
+    }
+
+    return _pref.getBalance(_account.hexEip55) ?? '0.0';
+  }
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
 
   String get erc20Address => _contractToken.addr;
   String get profileAddress => _contractProfile.addr;
+
+  Future<BigInt> get accountNonce =>
+      _contractEntryPoint.getNonce(_account.hexEip55);
 
   Future<void> init(
     String privateKey,
@@ -118,7 +140,11 @@ class WalletService {
     _paymasterRPC = APIService(baseURL: config.erc4337.paymasterRPCUrl);
     _paymasterType = config.erc4337.paymasterType;
 
-    _gasPriceEstimator = EIP1559GasPriceEstimator(_rpc, _ethClient);
+    _gasPriceEstimator = EIP1559GasPriceEstimator(
+      _rpc,
+      _ethClient,
+      gasExtraPercentage: config.erc4337.gasExtraPercentage,
+    );
 
     erc4337Headers = {};
     if (!kIsWeb || kDebugMode) {
@@ -128,10 +154,17 @@ class WalletService {
 
     _credentials = EthPrivateKey.fromHex(privateKey);
 
-    _chainId = await _ethClient.getChainId();
+    final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
+    _chainId = cachedChainId != null
+        ? BigInt.parse(cachedChainId)
+        : await _ethClient.getChainId();
+    await _pref.setChainIdForAlias(
+        config.community.alias, _chainId!.toString());
+
     this.currency = currency;
 
     await _initContracts(
+      config.community.alias,
       config.erc4337.entrypointAddress,
       config.erc4337.accountFactoryAddress,
       config.token.address,
@@ -141,12 +174,18 @@ class WalletService {
 
   /// Initializes the Ethereum smart contracts used by the wallet.
   ///
+  /// [alias] The community alias
   /// [eaddr] The Ethereum address of the entry point for the smart contract.
   /// [afaddr] The Ethereum address of the account factory smart contract.
   /// [taddr] The Ethereum address of the ERC20 token smart contract.
   /// [prfaddr] The Ethereum address of the user profile smart contract.
   Future<void> _initContracts(
-      String eaddr, String afaddr, String taddr, String prfaddr) async {
+    String alias,
+    String eaddr,
+    String afaddr,
+    String taddr,
+    String prfaddr,
+  ) async {
     // Create a new entry point instance and initialize it.
     _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
@@ -160,8 +199,16 @@ class WalletService {
     await _contractAccountFactory.init();
 
     // Get the Ethereum address for the current account.
-    _account =
-        await _contractAccountFactory.getAddress(_credentials.address.hexEip55);
+    final cachedAccAddress =
+        _pref.getAccountAddress(_credentials.address.hexEip55);
+    _account = cachedAccAddress != null
+        ? EthereumAddress.fromHex(cachedAccAddress)
+        : await _contractAccountFactory
+            .getAddress(_credentials.address.hexEip55);
+    await _pref.setAccountAddress(
+      _credentials.address.hexEip55,
+      _account.hexEip55,
+    );
 
     // Create a new ERC20 token contract instance and initialize it.
     _contractToken = newERC20Contract(chainId, _ethClient, taddr);
@@ -212,7 +259,7 @@ class WalletService {
       final calldata = _contractProfile.setCallData(
           _account.hexEip55, profile.username, profileUrl);
 
-      final (_, userop) = await prepareUserop(profileAddress, calldata);
+      final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
       final success = await submitUserop(userop);
       if (!success) {
@@ -259,7 +306,7 @@ class WalletService {
       final calldata = _contractProfile.setCallData(
           _account.hexEip55, profile.username, profileUrl);
 
-      final (_, userop) = await prepareUserop(profileAddress, calldata);
+      final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
       final success = await submitUserop(userop);
       if (!success) {
@@ -469,7 +516,16 @@ class WalletService {
 
   // get account address
   Future<EthereumAddress> getAccountAddress(String addr) async {
-    return _contractAccountFactory.getAddress(addr);
+    final cachedAccAddress = _pref.getAccountAddress(addr);
+
+    final address = cachedAccAddress != null
+        ? EthereumAddress.fromHex(cachedAccAddress)
+        : await _contractAccountFactory.getAddress(addr);
+    await _pref.setAccountAddress(
+      addr,
+      address.hexEip55,
+    );
+    return address;
   }
 
   /// Submits a user operation to the Ethereum network.
@@ -598,9 +654,10 @@ class WalletService {
 
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
-    String dest,
-    Uint8List calldata, {
+    List<String> dest,
+    List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
+    BigInt? customNonce,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -618,7 +675,8 @@ class WalletService {
       userop.sender = acc.hexEip55;
 
       // determine the appropriate nonce
-      final nonce = await _contractEntryPoint.getNonce(acc.hexEip55);
+      final nonce =
+          customNonce ?? await _contractEntryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
@@ -632,11 +690,16 @@ class WalletService {
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
-      userop.callData = _contractAccount.executeCallData(
-        dest,
-        BigInt.zero,
-        calldata,
-      );
+      userop.callData = dest.length > 1 && calldata.length > 1
+          ? _contractAccount.executeBatchCallData(
+              dest,
+              calldata,
+            )
+          : _contractAccount.executeCallData(
+              dest[0],
+              BigInt.zero,
+              calldata[0],
+            );
 
       // set the appropriate gas fees based on network
       // final fees = await _ethClient.getGasInEIP1559();
@@ -645,8 +708,9 @@ class WalletService {
         throw Exception('unable to estimate fees');
       }
 
-      userop.maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
-      userop.maxFeePerGas = fees.maxFeePerGas;
+      userop.maxPriorityFeePerGas =
+          fees.maxPriorityFeePerGas * BigInt.from(calldata.length);
+      userop.maxFeePerGas = fees.maxFeePerGas * BigInt.from(calldata.length);
 
       // submit the user op to the paymaster in order to receive information to complete the user op
       final (paymasterData, paymasterErr) = await _getPaymasterData(
