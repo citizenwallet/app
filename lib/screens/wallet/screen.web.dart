@@ -185,6 +185,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (widget.receiveParams != null) {
       await handleSendModal(receiveParams: widget.receiveParams);
     }
+
+    navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
   }
 
   Future<void> handleLoadFromVoucher() async {
@@ -218,8 +220,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
-
-    navigator.go('/wallet/${widget.encoded}');
   }
 
   void handleFailedTransaction(String id) async {
