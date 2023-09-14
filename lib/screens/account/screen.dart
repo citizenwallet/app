@@ -63,7 +63,10 @@ class AccountScreenState extends State<AccountScreen> {
     await _walletLogic.openWallet(widget.address!, (bool hasChanged) async {
       await _logic.loadProfileLink();
 
-      if (hasChanged) _logic.loadProfile();
+      if (hasChanged) {
+        _logic.resetAll();
+        _logic.loadProfile();
+      }
     });
   }
 

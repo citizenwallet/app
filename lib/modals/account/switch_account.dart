@@ -280,8 +280,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
     HapticFeedback.heavyImpact();
 
-    _logic.resetAll();
-
     navigator.pop(address);
   }
 
