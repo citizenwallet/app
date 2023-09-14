@@ -38,8 +38,10 @@ class WalletActions extends StatelessWidget {
 
     final hasPending = context.select(selectHasProcessingTransactions);
     final newBalance = context.select(selectWalletBalance);
-    final formattedBalance = formatAmount(newBalance > 0 ? newBalance : 0.0,
-        decimalDigits: wallet != null ? wallet.decimalDigits : 2);
+    final formattedBalance = formatAmount(
+      newBalance > 0 ? newBalance : 0.0,
+      decimalDigits: 2,
+    );
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
 

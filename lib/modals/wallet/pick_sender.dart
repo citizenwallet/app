@@ -177,7 +177,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
     final formattedBalance = formatAmount(
       balance,
-      decimalDigits: wallet != null ? wallet.decimalDigits : 2,
+      decimalDigits: 2,
     );
 
     final invalidAddress = context.select(
