@@ -219,8 +219,9 @@ class WalletService {
 
   /// fetches the balance of a given address
   Future<String> getBalance(String addr) async {
-    return fromUnit(
-      await _contractToken.getBalance(addr),
+    final b = await _contractToken.getBalance(addr);
+    return fromDoubleUnit(
+      b.toString(),
       decimals: currency.decimals,
     );
   }
