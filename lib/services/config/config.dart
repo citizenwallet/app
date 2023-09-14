@@ -416,7 +416,7 @@ class ConfigService {
       final response = await _api
           .get(
               url:
-                  '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}')
+                  '/$_alias/config2.json?cachebuster=${generateCacheBusterValue()}')
           .timeout(
             const Duration(seconds: 2),
             onTimeout: () => null,
@@ -431,7 +431,7 @@ class ConfigService {
     }
 
     final response = await _api.get(
-        url: '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}');
+        url: '/$_alias/config2.json?cachebuster=${generateCacheBusterValue()}');
 
     _pref.setConfig(_alias, response);
 
@@ -442,7 +442,7 @@ class ConfigService {
     final response = kDebugMode
         ? jsonDecode(await rootBundle.loadString('assets/data/configs.json'))
         : await _api.get(
-            url: '/configs.json?cachebuster=${generateCacheBusterValue()}');
+            url: '/configs2.json?cachebuster=${generateCacheBusterValue()}');
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 
