@@ -114,6 +114,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="http" />
+                <data android:host="middlebit.xyz" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="https" />
                 <data android:host="app.citizenwallet.xyz" />
             </intent-filter>
@@ -195,6 +204,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="https" />
+                <data android:host="middlebit.xyz" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="citizenwallet" />
                 <data android:host="app.citizenwallet.xyz" />
             </intent-filter>
@@ -269,6 +287,15 @@
 
                 <data android:scheme="citizenwallet" />
                 <data android:host="wallet.regensunite.earth" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="citizenwallet" />
+                <data android:host="middlebit.xyz" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
