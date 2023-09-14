@@ -122,13 +122,14 @@ class VouchersModalState extends State<VouchersModal> {
     }
 
     if (option == 'return') {
+      print(amount);
       final confirm = await showCupertinoModalPopup<bool?>(
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
           title: 'Return Voucher',
           details: [
-            '${(double.tryParse(amount) ?? 0.0) / 1000} ${wallet?.symbol ?? ''} will be return to your wallet.',
+            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} will be returned to your wallet.',
           ],
           confirmText: 'Return',
         ),

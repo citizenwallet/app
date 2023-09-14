@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 String formatCurrency(double amount, String symbol,
-    {int decimalDigits = 2, int factor = 1000, bool? isIncoming}) {
+    {int decimalDigits = 2, int factor = 1, bool? isIncoming}) {
   return NumberFormat.currency(
           locale: Intl.systemLocale,
           symbol: isIncoming == null
@@ -14,7 +14,7 @@ String formatCurrency(double amount, String symbol,
 }
 
 String formatAmount(double amount,
-    {int decimalDigits = 2, int factor = 1000, bool? isIncoming}) {
+    {int decimalDigits = 2, int factor = 1, bool? isIncoming}) {
   return NumberFormat.currency(
           symbol: isIncoming == null ? '' : (isIncoming ? '+ ' : '- '),
           decimalDigits: decimalDigits)

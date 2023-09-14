@@ -92,11 +92,9 @@ class WalletService {
             const Duration(seconds: 2),
           );
 
-      final strb = fromUnit(b);
+      _pref.setBalance(_account.hexEip55, b.toString());
 
-      _pref.setBalance(_account.hexEip55, strb);
-
-      return strb;
+      return b.toString();
     } catch (e) {
       //
     }
@@ -221,7 +219,10 @@ class WalletService {
 
   /// fetches the balance of a given address
   Future<String> getBalance(String addr) async {
-    return fromUnit(await _contractToken.getBalance(addr));
+    return fromUnit(
+      await _contractToken.getBalance(addr),
+      decimals: currency.decimals,
+    );
   }
 
   /// set profile data
@@ -507,8 +508,7 @@ class WalletService {
   ) {
     return _contractToken.transferCallData(
       to,
-      EtherAmount.fromBigInt(EtherUnit.kwei, amount).getInWei,
-      // EtherAmount.fromBigInt(EtherUnit.finney, amount).getInWei,
+      amount,
     );
   }
 

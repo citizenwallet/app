@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -38,8 +39,12 @@ class WalletActions extends StatelessWidget {
 
     final hasPending = context.select(selectHasProcessingTransactions);
     final newBalance = context.select(selectWalletBalance);
+
     final formattedBalance = formatAmount(
-      newBalance > 0 ? newBalance : 0.0,
+      double.parse(fromDoubleUnit(
+        '${newBalance > 0 ? newBalance : 0.0}',
+        decimals: wallet?.decimalDigits ?? 2,
+      )),
       decimalDigits: 2,
     );
 

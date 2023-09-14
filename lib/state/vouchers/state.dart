@@ -34,7 +34,8 @@ class Voucher {
     required this.archived,
   });
 
-  String get formattedBalance => '${(double.tryParse(balance) ?? 0.0) / 1000}';
+  String get formattedBalance =>
+      (double.tryParse(balance) ?? 0.0).toStringAsFixed(2);
   String get formattedAddress => formatLongText(address);
 
   String getLink(String appLink, String symbol, String voucher) {

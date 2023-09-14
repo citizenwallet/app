@@ -571,7 +571,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final cwtransactions = txs.map(
         (tx) => CWTransaction(
-          fromUnit(tx.value),
+          fromUnit(
+            tx.value,
+            decimals: _wallet.currency.decimals,
+          ),
           id: tx.hash,
           hash: tx.txhash,
           chainId: _wallet.chainId,
@@ -688,7 +691,10 @@ class WalletLogic extends WidgetsBindingObserver {
         limit: limit,
       ))
               .map((dbtx) => CWTransaction(
-                    fromUnit(BigInt.from(dbtx.value)),
+                    fromUnit(
+                      BigInt.from(dbtx.value),
+                      decimals: _wallet.currency.decimals,
+                    ),
                     id: dbtx.hash,
                     hash: dbtx.txHash,
                     chainId: _wallet.chainId,
@@ -734,7 +740,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
           txs.clear();
           txs.addAll(iterableRemoteTxs.map((dbtx) => CWTransaction(
-                fromUnit(BigInt.from(dbtx.value)),
+                fromUnit(
+                  BigInt.from(dbtx.value),
+                  decimals: _wallet.currency.decimals,
+                ),
                 id: dbtx.hash,
                 hash: dbtx.txHash,
                 chainId: _wallet.chainId,
@@ -790,7 +799,10 @@ class WalletLogic extends WidgetsBindingObserver {
         limit: limit,
       ))
               .map((dbtx) => CWTransaction(
-                    fromUnit(BigInt.from(dbtx.value)),
+                    fromUnit(
+                      BigInt.from(dbtx.value),
+                      decimals: _wallet.currency.decimals,
+                    ),
                     id: dbtx.hash,
                     hash: dbtx.txHash,
                     chainId: _wallet.chainId,
@@ -836,7 +848,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
           txs.clear();
           txs.addAll(iterableRemoteTxs.map((dbtx) => CWTransaction(
-                fromUnit(BigInt.from(dbtx.value)),
+                fromUnit(
+                  BigInt.from(dbtx.value),
+                  decimals: _wallet.currency.decimals,
+                ),
                 id: dbtx.hash,
                 hash: dbtx.txHash,
                 chainId: _wallet.chainId,
@@ -904,8 +919,14 @@ class WalletLogic extends WidgetsBindingObserver {
       return false;
     }
 
-    return sendTransactionFromLocked('${double.parse(tx.amount) / 1000}', tx.to,
-        message: tx.title);
+    return sendTransactionFromLocked(
+      '${toUnit(
+        tx.amount,
+        decimals: _wallet.currency.decimals,
+      )}',
+      tx.to,
+      message: tx.title,
+    );
   }
 
   Future<bool> sendTransaction(String amount, String to,
@@ -917,8 +938,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
   bool isInvalidAmount(String amount) {
     final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
-    final doubleAmount =
-        (double.tryParse(amount.replaceAll(',', '.')) ?? 0.0) * 1000;
+    final doubleAmount = double.parse(toUnit(
+      amount.replaceAll(',', '.'),
+      decimals: _wallet.currency.decimals,
+    ).toString());
 
     return doubleAmount == 0 || doubleAmount > balance;
   }
@@ -940,7 +963,12 @@ class WalletLogic extends WidgetsBindingObserver {
     String? id,
   }) async {
     final doubleAmount = amount.replaceAll(',', '.');
-    final parsedAmount = double.parse(doubleAmount) * 1000;
+    final parsedAmount = toUnit(
+      doubleAmount,
+      decimals: _wallet.currency.decimals,
+    );
+
+    print(parsedAmount.toString());
 
     var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
@@ -954,7 +982,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.preSendingTransaction(
         CWTransaction.sending(
-          '$parsedAmount',
+          fromUnit(
+            parsedAmount,
+            decimals: _wallet.currency.decimals,
+          ),
           id: tempId,
           hash: '',
           chainId: _wallet.chainId,
@@ -966,7 +997,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final calldata = _wallet.erc20TransferCallData(
         to,
-        BigInt.from(double.parse(doubleAmount) * 1000),
+        parsedAmount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
@@ -978,7 +1009,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.sendingTransaction(
         CWTransaction.sending(
-          '$parsedAmount',
+          fromUnit(
+            parsedAmount,
+            decimals: _wallet.currency.decimals,
+          ),
           id: hash,
           hash: '',
           chainId: _wallet.chainId,
@@ -997,10 +1031,7 @@ class WalletLogic extends WidgetsBindingObserver {
           DateTime.now().toUtc(),
           _wallet.account,
           EthereumAddress.fromHex(to),
-          EtherAmount.fromBigInt(
-            EtherUnit.kwei,
-            BigInt.from(double.parse(doubleAmount) * 1000),
-          ).getInWei,
+          parsedAmount,
           Uint8List(0),
           TransactionState.sending.name,
         ),
@@ -1015,7 +1046,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.pendingTransaction(
         CWTransaction.pending(
-          '$parsedAmount',
+          fromUnit(
+            parsedAmount,
+            decimals: _wallet.currency.decimals,
+          ),
           id: hash,
           hash: '',
           chainId: _wallet.chainId,
@@ -1035,7 +1069,11 @@ class WalletLogic extends WidgetsBindingObserver {
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('$parsedAmount',
+        CWTransaction.failed(
+            fromUnit(
+              parsedAmount,
+              decimals: _wallet.currency.decimals,
+            ),
             id: tempId,
             hash: '',
             to: to,
@@ -1045,7 +1083,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('$parsedAmount',
+        CWTransaction.failed(
+            fromUnit(
+              parsedAmount,
+              decimals: _wallet.currency.decimals,
+            ),
             id: tempId,
             hash: '',
             to: to,
@@ -1060,7 +1102,11 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('$parsedAmount',
+        CWTransaction.failed(
+            fromUnit(
+              parsedAmount,
+              decimals: _wallet.currency.decimals,
+            ),
             id: tempId,
             hash: '',
             to: to,
@@ -1075,10 +1121,17 @@ class WalletLogic extends WidgetsBindingObserver {
     return false;
   }
 
-  Future<bool> sendTransactionFromUnlocked(String amount, String to,
-      {String message = '', String? id}) async {
+  Future<bool> sendTransactionFromUnlocked(
+    String amount,
+    String to, {
+    String message = '',
+    String? id,
+  }) async {
     final doubleAmount = amount.replaceAll(',', '.');
-    final parsedAmount = double.parse(doubleAmount) * 1000;
+    final parsedAmount = toUnit(
+      doubleAmount,
+      decimals: _wallet.currency.decimals,
+    );
 
     var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
 
@@ -1092,7 +1145,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.preSendingTransaction(
         CWTransaction.sending(
-          '$parsedAmount',
+          parsedAmount.toString(),
           id: tempId,
           hash: '',
           chainId: _wallet.chainId,
@@ -1104,7 +1157,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final calldata = _wallet.erc20TransferCallData(
         to,
-        BigInt.from(double.parse(doubleAmount) * 1000),
+        parsedAmount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
@@ -1116,7 +1169,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.sendingTransaction(
         CWTransaction.sending(
-          '$parsedAmount',
+          parsedAmount.toString(),
           id: hash,
           hash: '',
           chainId: _wallet.chainId,
@@ -1135,16 +1188,12 @@ class WalletLogic extends WidgetsBindingObserver {
           DateTime.now().toUtc(),
           _wallet.account,
           EthereumAddress.fromHex(to),
-          EtherAmount.fromBigInt(
-            EtherUnit.kwei,
-            BigInt.from(double.parse(doubleAmount) * 1000),
-          ).getInWei,
+          parsedAmount,
           Uint8List(0),
           TransactionState.sending.name,
         ),
       );
 
-      // this needs to succeeds
       final success = await _wallet.submitUserop(userop);
       if (!success) {
         // this is an optional operation
@@ -1154,7 +1203,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.pendingTransaction(
         CWTransaction.pending(
-          '$parsedAmount',
+          parsedAmount.toString(),
           id: hash,
           hash: '',
           chainId: _wallet.chainId,
@@ -1174,7 +1223,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('$parsedAmount',
+        CWTransaction.failed(parsedAmount.toString(),
             id: tempId,
             hash: '',
             to: to,
@@ -1184,7 +1233,7 @@ class WalletLogic extends WidgetsBindingObserver {
       );
     } on NetworkInvalidBalanceException {
       _state.sendQueueAddTransaction(
-        CWTransaction.failed('$parsedAmount',
+        CWTransaction.failed(parsedAmount.toString(),
             id: tempId,
             hash: '',
             to: to,
@@ -1193,11 +1242,22 @@ class WalletLogic extends WidgetsBindingObserver {
             error: NetworkInvalidBalanceException().message),
       );
     } catch (exception, stackTrace) {
-      Sentry.captureException(
+      await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
       );
+
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(parsedAmount.toString(),
+            id: tempId,
+            hash: '',
+            to: to,
+            title: message,
+            date: DateTime.now(),
+            error: NetworkUnknownException().message),
+      );
     }
+
     _state.sendTransactionError();
 
     return false;
@@ -1233,9 +1293,10 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void setMaxAmount() {
-    _amountController.text =
-        (double.parse(_state.wallet?.balance ?? '0.0') / 1000)
-            .toStringAsFixed(2);
+    _amountController.text = fromDoubleUnit(
+      _state.wallet?.balance ?? '0.0',
+      decimals: _wallet.currency.decimals,
+    );
     updateAmount();
   }
 
@@ -1525,7 +1586,11 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _addressController.text = address;
 
-      _amountController.text = (double.parse(amount) / 1000).toStringAsFixed(2);
+      _amountController.text = double.parse('${toUnit(
+        amount,
+        decimals: _wallet.currency.decimals,
+      )}')
+          .toStringAsFixed(2);
 
       _messageController.text = message;
 
