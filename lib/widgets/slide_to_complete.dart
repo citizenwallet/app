@@ -44,8 +44,9 @@ class SlideToCompleteState extends State<SlideToComplete>
     super.initState();
 
     _controller = AnimationController(
-      value: 0,
-      duration: const Duration(milliseconds: 1000),
+      lowerBound: 0,
+      upperBound: 1,
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
@@ -150,45 +151,25 @@ class SlideToCompleteState extends State<SlideToComplete>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (widget.enabled) ...[
-                    const SizedBox(width: 5),
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) => Opacity(
-                        opacity: _controller.view.value,
-                        child: const Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 14,
-                          color: ThemeColors.black,
-                        ),
-                      ),
-                    ),
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) => Opacity(
-                        opacity: _controller.view.value,
-                        child: const Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 14,
-                          color: ThemeColors.black,
-                        ),
-                      ),
-                    ),
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) => Opacity(
-                        opacity: _controller.view.value,
-                        child: const Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 14,
-                          color: ThemeColors.black,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
+            if (widget.enabled)
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) => Positioned(
+                  top: 9,
+                  left: _controller.view.value * (widget.width * 0.35),
+                  child: Opacity(
+                    opacity: (1 - _controller.view.value),
+                    child: Icon(
+                      CupertinoIcons.arrow_right,
+                      size: 30,
+                      color: ThemeColors.black.withOpacity(0.25),
+                    ),
+                  ),
+                ),
+              ),
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
