@@ -4,12 +4,14 @@ import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 
 class ProfileChip extends StatelessWidget {
-  final ProfileV1 selectedProfile;
+  final ProfileV1? selectedProfile;
+  final String? selectedAddress;
   final void Function()? handleDeSelect;
 
   const ProfileChip({
     Key? key,
-    required this.selectedProfile,
+    this.selectedProfile,
+    this.selectedAddress,
     this.handleDeSelect,
   }) : super(key: key);
 
@@ -30,7 +32,7 @@ class ProfileChip extends StatelessWidget {
         children: [
           ProfileCircle(
             size: 40,
-            imageUrl: selectedProfile.imageSmall,
+            imageUrl: selectedProfile?.imageSmall,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -39,8 +41,8 @@ class ProfileChip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  selectedProfile.name.isNotEmpty
-                      ? selectedProfile.name
+                  selectedProfile != null && selectedProfile!.name.isNotEmpty
+                      ? selectedProfile?.name ?? 'Anonymous'
                       : 'Anonymous',
                   style: TextStyle(
                     color: ThemeColors.surfaceText.resolveFrom(context),
@@ -51,7 +53,7 @@ class ProfileChip extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  '@${selectedProfile.username}',
+                  selectedAddress ?? '@${selectedProfile?.username}',
                   style: TextStyle(
                     color: ThemeColors.surfaceText.resolveFrom(context),
                   ),

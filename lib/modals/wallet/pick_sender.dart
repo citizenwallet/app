@@ -116,6 +116,12 @@ class PickeSenderModalState extends State<PickeSenderModal>
     nameFocusNode.requestFocus();
   }
 
+  void handleClearAddress() {
+    _logic.clearInputControllers();
+    _logic.updateAddress();
+    nameFocusNode.requestFocus();
+  }
+
   void handleAddressFieldSubmitted(String? value) {
     final searchedProfile = context.read<ProfilesState>().searchedProfile;
     if (searchedProfile != null) {
@@ -221,7 +227,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
       (ProfilesState state) => state.searchedProfile,
     );
 
-    final isValid = (hasAddress && !invalidAddress) || selectedProfile != null;
+    final isValid = (hasAddress &&
+            _logic.addressController.value.text.startsWith('0x') &&
+            _logic.addressController.value.text.length == 42) ||
+        selectedProfile != null;
 
     final width = MediaQuery.of(context).size.width;
 
@@ -249,12 +258,22 @@ class PickeSenderModalState extends State<PickeSenderModal>
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
-                        if (selectedProfile != null)
+                        if (isValid)
                           ProfileChip(
                             selectedProfile: selectedProfile,
-                            handleDeSelect: handleDeSelectProfile,
+                            selectedAddress:
+                                _logic.addressController.value.text.isEmpty ||
+                                        selectedProfile != null
+                                    ? null
+                                    : formatHexAddress(
+                                        _logic.addressController.value.text),
+                            handleDeSelect:
+                                _logic.addressController.value.text.isEmpty ||
+                                        selectedProfile != null
+                                    ? handleDeSelectProfile
+                                    : handleClearAddress,
                           ),
-                        if (selectedProfile == null)
+                        if (!isValid)
                           CupertinoTextField(
                             controller: _logic.addressController,
                             placeholder: '@username or 0xaddress',

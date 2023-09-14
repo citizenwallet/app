@@ -329,6 +329,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final profile = await widget.profilesLogic.getProfile(hex ?? '');
     if (profile != null || hex != null) {
+      await delay(const Duration(milliseconds: 200));
+
       amountFocuseNode.requestFocus();
       return;
     }
@@ -372,6 +374,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final invalidScanMessage = context.select(
       (WalletState state) => state.invalidScanMessage,
     );
+    final parsingQRAddress = context.select(
+      (WalletState state) => state.parsingQRAddress,
+    );
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
     );
@@ -408,6 +413,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final isSendingValid =
         hasAddress && hasAmount && !invalidAmount && !invalidAddress;
+
+    final isValid = (hasAddress &&
+            !invalidAddress &&
+            invalidScanMessage == null &&
+            !parsingQRAddressError &&
+            !parsingQRAddress) ||
+        selectedProfile != null;
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -692,9 +704,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           const SizedBox(height: 10),
-                          if (selectedProfile != null)
+                          if (isValid)
                             ProfileChip(
                               selectedProfile: selectedProfile,
+                              selectedAddress:
+                                  _logic.addressController.value.text.isEmpty ||
+                                          selectedProfile != null
+                                      ? null
+                                      : formatHexAddress(
+                                          _logic.addressController.value.text),
                               handleDeSelect:
                                   widget.id != null || widget.to != null
                                       ? null
