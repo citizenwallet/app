@@ -2,14 +2,15 @@ import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +94,8 @@ class VoucherReadModalState extends State<VoucherReadModal>
 
     final width = MediaQuery.of(context).size.width;
 
+    final config = context.select((WalletState state) => state.config);
+
     final voucher =
         context.select((VoucherState state) => state.viewingVoucher);
     final viewLoading =
@@ -155,18 +158,16 @@ class VoucherReadModalState extends State<VoucherReadModal>
                           ),
                           const SizedBox(height: 10),
                           SizedBox(
-                            height: 300,
-                            width: 300,
+                            height: 120,
+                            width: 120,
                             child: Center(
                               child: viewLoading || voucher == null
                                   ? CupertinoActivityIndicator(
                                       color: ThemeColors.subtle
                                           .resolveFrom(context))
-                                  : SvgPicture.asset(
-                                      'assets/icons/voucher.svg',
-                                      semanticsLabel: 'voucher icon',
-                                      height: 200,
-                                      width: 200,
+                                  : CoinLogo(
+                                      size: 100,
+                                      logo: config?.community.logo,
                                     ),
                             ),
                           ),

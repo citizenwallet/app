@@ -101,7 +101,7 @@ class TransactionScreenState extends State<TransactionScreen> {
         walletLogic: widget.logic,
         profilesLogic: widget.profilesLogic,
         to: address,
-        amount: '${(double.tryParse(amount) ?? 0.0) / 1000}',
+        amount: (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
       ),
     );
 

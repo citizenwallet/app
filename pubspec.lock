@@ -29,10 +29,10 @@ packages:
     dependency: "direct main"
     description:
       name: archive
-      sha256: "49b1fad315e57ab0bbc15bcbb874e83116a1d78f77ebd500a4af6c9407d6b28e"
+      sha256: e0902a06f0e00414e4e3438a084580161279f137aeb862274710f29ec10cf01e
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.8"
+    version: "3.3.9"
   args:
     dependency: transitive
     description:
@@ -229,10 +229,10 @@ packages:
     dependency: "direct main"
     description:
       name: encrypt
-      sha256: "4fd4e4fdc21b9d7d4141823e1e6515cd94e7b8d84749504c232999fba25d9bbb"
+      sha256: c1f224c9a65df6f2cd111baaf31edd2f31d3f094abdb22a3b0bbcc64698ef80d
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "5.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -314,10 +314,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_markdown
-      sha256: d4a1cb250c4e059586af0235f32e02882860a508e189b61f2b31b8810c1e1330
+      sha256: a10979814c5f4ddbe2b6143fba25d927599e21e3ba65b3862995960606fae78f
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.17+2"
+    version: "0.6.17+3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -924,10 +924,10 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "39c23342fc96105da449914f7774139a17a0ca8a4e70d9ad5200171f7e47d6ba"
+      sha256: "830667eadc0398fea3a3424ed1b74568e2db603a42758d0922e2f2974ce55a60"
       url: "https://pub.dev"
     source: hosted
-    version: "7.9.0"
+    version: "7.10.1"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
@@ -940,10 +940,10 @@ packages:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: ff68ab31918690da004a42e20204242a3ad9ad57da7e2712da8487060ac9767f
+      sha256: "6730f41b304c6fb0fa590dacccaf73ba11082fc64b274cfe8a79776f2b95309c"
       url: "https://pub.dev"
     source: hosted
-    version: "7.9.0"
+    version: "7.10.1"
   share_plus:
     dependency: "direct main"
     description:

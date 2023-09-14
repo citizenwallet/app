@@ -183,6 +183,8 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final balance = await _wallet.getBalance(address);
 
+      print('balance: $balance');
+
       await _db.vouchers.updateBalance(address, balance);
 
       final voucher = Voucher(
@@ -231,7 +233,10 @@ class VoucherLogic extends WidgetsBindingObserver {
       _state.createVoucherRequest();
 
       final doubleAmount = balance.replaceAll(',', '.');
-      final parsedAmount = double.parse(doubleAmount) * 1000;
+      final parsedAmount = toUnit(
+        doubleAmount,
+        decimals: _wallet.currency.decimals,
+      );
 
       final config = await _config.config;
 
@@ -262,7 +267,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           address: account.hexEip55,
           alias: config.community.alias,
           name: name ?? 'Voucher for $balance $symbol',
-          balance: '$parsedAmount',
+          balance: parsedAmount.toString(),
           voucher: wallet.toJson(),
           salt: salt,
           creator: _wallet.account.hexEip55,
@@ -272,7 +277,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         calldata.add(_wallet.erc20TransferCallData(
           account.hexEip55,
-          BigInt.from(double.parse(doubleAmount) * 1000),
+          parsedAmount,
         ));
 
         final voucher = Voucher(
@@ -333,7 +338,10 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       final doubleAmount = balance.replaceAll(',', '.');
-      final parsedAmount = double.parse(doubleAmount) * 1000;
+      final parsedAmount = toUnit(
+        doubleAmount,
+        decimals: _wallet.currency.decimals,
+      );
 
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
@@ -344,7 +352,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         address: account.hexEip55,
         alias: config.community.alias,
         name: name ?? 'Voucher for $balance $symbol',
-        balance: '$parsedAmount',
+        balance: parsedAmount.toString(),
         voucher: wallet.toJson(),
         salt: salt,
         creator: _wallet.account.hexEip55,
@@ -356,7 +364,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final calldata = _wallet.erc20TransferCallData(
         account.hexEip55,
-        BigInt.from(double.parse(doubleAmount) * 1000),
+        parsedAmount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
@@ -372,10 +380,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           DateTime.now().toUtc(),
           _wallet.account,
           account,
-          EtherAmount.fromBigInt(
-            EtherUnit.kwei,
-            BigInt.from(double.parse(doubleAmount) * 1000),
-          ).getInWei,
+          parsedAmount,
           Uint8List(0),
           TransactionState.sending.name,
         ),
@@ -433,10 +438,10 @@ class VoucherLogic extends WidgetsBindingObserver {
   ) async {
     try {
       final doubleAmount = balance.replaceAll(',', '.');
-      final parsedAmount = double.parse(doubleAmount) / 1000;
+      final parsedAmount = double.parse(doubleAmount);
 
       _sharing.shareVoucher(
-        '$parsedAmount',
+        parsedAmount.toStringAsFixed(2),
         link: link,
         symbol: symbol,
         sharePositionOrigin: sharePositionOrigin,
@@ -459,9 +464,14 @@ class VoucherLogic extends WidgetsBindingObserver {
           Wallet.fromJson(voucher.voucher, '$password${voucher.salt}')
               .privateKey;
 
+      final amount = toUnit(
+        voucher.balance,
+        decimals: _wallet.currency.decimals,
+      );
+
       final calldata = _wallet.erc20TransferCallData(
         _wallet.account.hexEip55,
-        BigInt.from(double.parse(voucher.balance)),
+        amount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
@@ -481,10 +491,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           DateTime.now().toUtc(),
           account,
           _wallet.account,
-          EtherAmount.fromBigInt(
-            EtherUnit.kwei,
-            BigInt.from(double.parse(voucher.balance)),
-          ).getInWei,
+          amount,
           Uint8List(0),
           TransactionState.sending.name,
         ),

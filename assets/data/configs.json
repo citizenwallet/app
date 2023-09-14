@@ -35,11 +35,12 @@
             "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
             "name": "USD Coin",
             "symbol": "USDC",
-            "decimals": 2
+            "decimals": 6
         },
         "profile": {
             "address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7"
-        }
+        },
+        "version": 1
     },
     {
         "community": {
@@ -79,12 +80,12 @@
             "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
             "name": "Regens Unite Token",
             "symbol": "RGN",
-            "decimals": 2
+            "decimals": 6
         },
         "profile": {
             "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9"
         },
-        "version": 1
+        "version": 2
     },
     {
         "community": {
@@ -123,11 +124,12 @@
             "address": "0x845598Da418890a674cbaBA26b70807aF0c61dFE",
             "name": "OAK Community Currency",
             "symbol": "OAK",
-            "decimals": 2
+            "decimals": 6
         },
         "profile": {
             "address": "0xFE213c74e25505B232CE4C7f89647408bE6f71d2"
-        }
+        },
+        "version": 1
     },
     {
         "community": {
@@ -166,10 +168,56 @@
             "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
             "name": "SFLUV Coin",
             "symbol": "SFLUV",
-            "decimals": 2
+            "decimals": 6
         },
         "profile": {
             "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99"
-        }
+        },
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Stable Coin",
+            "description": "SBC is a digital dollar stablecoin issued by Brale",
+            "url": "https://brale.xyz/",
+            "alias": "middlebit.xyz",
+            "logo": "https://middlebit.xyz/wallet-config/_images/sbc.svg",
+            "custom_domain": "middlebit.xyz"
+        },
+        "scan": {
+            "url": "https://polygonscan.com",
+            "name": "Polygon Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+        },
+        "erc4337": {
+            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "paymaster_type": "payg",
+            "gas_extra_percentage": 50
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
+            "name": "Stable Coin",
+            "symbol": "SBC",
+            "decimals": 18
+        },
+        "profile": {
+            "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2"
+        },
+        "version": 1
     }
 ]

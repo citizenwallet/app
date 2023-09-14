@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -359,9 +360,13 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final wallet = context.select((WalletState state) => state.wallet);
     final balance =
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
+
     final formattedBalance = formatAmount(
-      balance,
-      decimalDigits: wallet != null ? wallet.decimalDigits : 2,
+      double.parse(fromDoubleUnit(
+        '$balance',
+        decimals: wallet?.decimalDigits ?? 2,
+      )),
+      decimalDigits: 2,
     );
 
     final invalidScanMessage = context.select(

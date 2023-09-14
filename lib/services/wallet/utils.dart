@@ -1,21 +1,57 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-// final gwei = BigInt.from(10).pow(9);
-final ether = BigInt.from(10).pow(18);
-// final finney = BigInt.from(10).pow(15);
-final finney = BigInt.from(10).pow(3);
-
-BigInt toUnit(String amount) {
-  return BigInt.parse(amount) * finney;
+EtherAmount toEtherAmount(BigInt amount, {int decimals = 6}) {
+  EtherUnit unit = switch (decimals) {
+    0 => EtherUnit.wei,
+    3 => EtherUnit.wei,
+    6 => EtherUnit.kwei,
+    9 => EtherUnit.mwei,
+    12 => EtherUnit.gwei,
+    15 => EtherUnit.szabo,
+    18 => EtherUnit.finney,
+    _ => EtherUnit.wei,
+  };
+  return EtherAmount.fromBigInt(unit, amount);
 }
 
-String fromUnit(BigInt amount) {
-  return BigInt.from(amount / finney).toString();
+BigInt toWeiUnit(BigInt amount, {int decimals = 6}) {
+  EtherUnit unit = switch (decimals) {
+    0 => EtherUnit.wei,
+    3 => EtherUnit.wei,
+    6 => EtherUnit.kwei,
+    9 => EtherUnit.mwei,
+    12 => EtherUnit.gwei,
+    15 => EtherUnit.szabo,
+    18 => EtherUnit.finney,
+    _ => EtherUnit.wei,
+  };
+  return EtherAmount.fromBigInt(unit, amount).getInWei;
+}
+
+/// toUnit takes a user readable amount and converts it to a BigInt
+BigInt toUnit(String amount, {int decimals = 6}) {
+  final exponent = decimals;
+  return BigInt.from(double.parse(amount) *
+      BigInt.from(10).pow(exponent < 0 ? 0 : exponent).toDouble());
+}
+
+/// fromUnit takes a BigInt and converts it into a user readable amount
+String fromUnit(BigInt amount, {int decimals = 6}) {
+  final pow = decimals;
+  return BigInt.from(amount / BigInt.from(10).pow(pow < 0 ? 0 : pow))
+      .toString();
+}
+
+String fromDoubleUnit(String amount, {int decimals = 6}) {
+  final exponent = decimals;
+  return (double.parse(amount) / pow(10.0, exponent < 0 ? 0 : exponent))
+      .toStringAsFixed(2);
 }
 
 BigInt parseIntFromHex(String hex) {

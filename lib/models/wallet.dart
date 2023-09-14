@@ -55,11 +55,6 @@ class CWWallet {
   String get balance => _balance;
   double get doubleBalance => double.tryParse(_balance) ?? 0.0;
 
-  String get formattedBalance => formatAmount(
-        double.tryParse(_balance) ?? 0.0,
-        decimalDigits: decimalDigits,
-      );
-
   // convert to Wallet object from JSON
   CWWallet.fromJson(Map<String, dynamic> json)
       : name = json['name'],

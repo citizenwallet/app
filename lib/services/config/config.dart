@@ -413,6 +413,20 @@ class ConfigService {
 
     final cachedConfig = _pref.getConfig(_alias);
     if (cachedConfig != null) {
+      final response = await _api
+          .get(
+              url:
+                  '/$_alias/config.json?cachebuster=${generateCacheBusterValue()}')
+          .timeout(
+            const Duration(seconds: 2),
+            onTimeout: () => null,
+          );
+
+      if (response != null) {
+        _pref.setConfig(_alias, response);
+        return Config.fromJson(response);
+      }
+
       return Config.fromJson(cachedConfig);
     }
 
