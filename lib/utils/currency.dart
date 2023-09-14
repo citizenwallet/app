@@ -13,8 +13,12 @@ String formatCurrency(double amount, String symbol,
               factor);
 }
 
-String formatAmount(double amount,
-    {int decimalDigits = 2, int factor = 1, bool? isIncoming}) {
+String formatAmount(
+  double amount, {
+  int decimalDigits = 2,
+  int factor = 1,
+  bool? isIncoming,
+}) {
   return NumberFormat.currency(
           symbol: isIncoming == null ? '' : (isIncoming ? '+ ' : '- '),
           decimalDigits: decimalDigits)

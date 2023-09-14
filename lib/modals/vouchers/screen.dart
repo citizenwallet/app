@@ -122,7 +122,6 @@ class VouchersModalState extends State<VouchersModal> {
     }
 
     if (option == 'return') {
-      print(amount);
       final confirm = await showCupertinoModalPopup<bool?>(
         context: context,
         barrierDismissible: true,
