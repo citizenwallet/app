@@ -54,6 +54,9 @@ jobs:
       - name: Invalidate SFLUV CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ENU7L1O7FMI0 --paths '/*'
 
+      - name: Invalidate RGN CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id EBQVPCGCDONRY --paths '/*'
+
       - name: Invalidate SBC CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E2IIM5EGYSV30P --paths '/*'
 
