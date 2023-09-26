@@ -753,7 +753,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   ? [
                                       const SizedBox(height: 10),
                                       Button(
-                                        text: 'Chooose Recipient',
+                                        text: 'Choose Recipient',
                                         onPressed: handleChooseRecipient,
                                         minWidth: 200,
                                         maxWidth: 200,

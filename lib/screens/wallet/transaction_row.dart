@@ -8,6 +8,7 @@ import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
@@ -180,6 +181,29 @@ class TransactionRowState extends State<TransactionRow> {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.subtleText
+                                      .resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                      if (voucher != null && profile != null && profile.loading)
+                        const SizedBox(height: 2),
+                      voucher != null && profile != null && profile.loading
+                          ? const PulsingContainer(
+                              height: 16,
+                              width: 80,
+                            )
+                          : SizedBox(
+                              height: 16,
+                              child: Text(
+                                DateFormat.yMMMd()
+                                    .add_Hm()
+                                    .format(transaction.date.toLocal()),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
                                   fontWeight: FontWeight.normal,
                                   color: ThemeColors.subtleText
                                       .resolveFrom(context),
