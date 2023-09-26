@@ -189,12 +189,19 @@ class ProfileModalState extends State<ProfileModal> {
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
                                   )
-                                : Button(
-                                    text: hasNoProfile ? 'Create' : 'Edit',
-                                    color: ThemeColors.surfacePrimary
-                                        .resolveFrom(context),
-                                    labelColor: ThemeColors.black,
+                                : CupertinoButton(
                                     onPressed: handleEdit,
+                                    child: Text(
+                                      hasNoProfile ? 'Create' : 'Edit',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                           ],
                         ),

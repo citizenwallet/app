@@ -211,7 +211,7 @@ class AccountScreenState extends State<AccountScreen> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? "It looks like you don't have a profile yet."
+                                      ? "Create a profile to make it easier for people to send you tokens."
                                       : profile.description,
                                   style: TextStyle(
                                     color:
@@ -224,32 +224,38 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                             ],
                           ),
+                        if (!profileLoading && !cleaningUp)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              profileLoading
+                                  ? CupertinoActivityIndicator(
+                                      color: ThemeColors.subtle
+                                          .resolveFrom(context),
+                                    )
+                                  : CupertinoButton(
+                                      onPressed: handleEdit,
+                                      child: Text(
+                                        hasNoProfile
+                                            ? 'Create a profile'
+                                            : 'Edit',
+                                        style: TextStyle(
+                                          color: ThemeColors.text
+                                              .resolveFrom(context),
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.normal,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                            ],
+                          ),
                         const SizedBox(height: 120),
                       ],
                     ),
                   ),
-                  if (!profileLoading && !cleaningUp)
-                    Positioned(
-                      bottom: 40,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          profileLoading
-                              ? CupertinoActivityIndicator(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                )
-                              : Button(
-                                  text: hasNoProfile ? 'Create' : 'Edit',
-                                  color: ThemeColors.surfacePrimary
-                                      .resolveFrom(context),
-                                  labelColor: ThemeColors.black,
-                                  onPressed: handleEdit,
-                                ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),
