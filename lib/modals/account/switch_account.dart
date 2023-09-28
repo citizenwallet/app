@@ -43,7 +43,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
   CancelableOperation<void>? _operation;
 
-  late ProfileLogic _logic;
   late ProfilesLogic _profilesLogic;
   late CommunitiesLogic _communitiesLogic;
 
@@ -51,7 +50,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
   void initState() {
     super.initState();
 
-    _logic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
     _communitiesLogic = CommunitiesLogic(context);
 
@@ -113,12 +111,13 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(address);
+    navigator.pop((address, alias));
   }
 
   void handleMore(
     BuildContext context,
     String address,
+    String alias,
     String name,
     bool locked,
   ) async {
@@ -191,7 +190,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
 
     if (option == 'export') {
-      final privateKey = await widget.logic.returnWallet(address);
+      final privateKey = await widget.logic.returnWallet(address, alias);
 
       if (privateKey == null) {
         return;
@@ -227,7 +226,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         return;
       }
 
-      await widget.logic.deleteWallet(address);
+      await widget.logic.deleteWallet(address, alias);
     }
   }
 
@@ -272,15 +271,15 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(address);
+    navigator.pop((address, alias));
   }
 
-  void handleWalletTap(String address) async {
+  void handleWalletTap(String address, String alias) async {
     final navigator = GoRouter.of(context);
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(address);
+    navigator.pop((address, alias));
   }
 
   void handleLoadProfile(String address) {
@@ -347,16 +346,20 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               final wallet = cwWallets[index];
 
                               return WalletRow(
-                                key: Key(wallet.address),
+                                key: Key('${wallet.address}_${wallet.alias}'),
                                 wallet,
                                 communities: communities,
                                 profiles: profiles,
                                 isSelected:
                                     widget.currentAddress == wallet.address,
-                                onTap: () => handleWalletTap(wallet.address),
+                                onTap: () => handleWalletTap(
+                                  wallet.address,
+                                  wallet.alias,
+                                ),
                                 onMore: () => handleMore(
                                   context,
                                   wallet.address,
+                                  wallet.alias,
                                   wallet.name,
                                   wallet.locked,
                                 ),

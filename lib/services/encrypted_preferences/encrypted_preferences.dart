@@ -2,9 +2,12 @@ import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
 import 'package:citizenwallet/services/encrypted_preferences/web.dart';
 import 'package:citizenwallet/utils/platform.dart';
+import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
+const String versionPrefix = 'w_version_enc_prefs';
 const String backupPrefix = 'w_bkp_';
 
 class NotFoundException implements Exception {
@@ -39,8 +42,15 @@ class BackupWallet {
         'alias': alias,
       };
 
-  String get key => '$backupPrefix${address.toLowerCase()}';
-  String get value => '$name|$privateKey|$alias';
+  String get hashed {
+    final bytes = keccak256(convertStringToUint8List(value));
+
+    return bytesToHex(bytes);
+  }
+
+  String get legacyKey => '$backupPrefix${address.toLowerCase()}';
+  String get key => '$backupPrefix$hashed}';
+  String get value => '$name|$address|$privateKey|$alias';
 }
 
 abstract class EncryptedPreferencesOptions {}
@@ -49,8 +59,15 @@ abstract class EncryptedPreferencesOptions {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class EncryptedPreferencesService {
+  final int _version = 1;
+
+  int get version => _version;
+
   // init the service
   Future<void> init(EncryptedPreferencesOptions options);
+
+  // migrate the service
+  Future<void> migrate(int version);
 
   // handle wallet backups
   // use the prefix as a query to find a wallet backup
@@ -65,10 +82,10 @@ abstract class EncryptedPreferencesService {
   Future<void> setWalletBackup(BackupWallet backup);
 
   // get wallet backup
-  Future<BackupWallet?> getWalletBackup(String address);
+  Future<BackupWallet?> getWalletBackup(String address, String alias);
 
   // delete wallet backup
-  Future<void> deleteWalletBackup(String address);
+  Future<void> deleteWalletBackup(String address, String alias);
 
   // delete all wallet backups
   Future<void> deleteWalletBackups();

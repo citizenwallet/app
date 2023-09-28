@@ -61,6 +61,13 @@ class PreferencesService {
 
   String? get lastWallet => _preferences.getString('lastWallet');
 
+  // save the last alias that was opened
+  Future setLastAlias(String alias) async {
+    await _preferences.setString('lastAlias', alias);
+  }
+
+  String? get lastAlias => _preferences.getString('lastAlias');
+
   // save the last link that was opened on web
   Future setLastWalletLink(String link) async {
     await _preferences.setString('lastWalletLink', link);

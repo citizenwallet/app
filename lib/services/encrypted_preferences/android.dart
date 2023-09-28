@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,8 +45,7 @@ class EncryptedData {
 }
 
 /// AndroidEncryptedPreferencesService implements an EncryptedPreferencesService for Android
-class AndroidEncryptedPreferencesService
-    implements EncryptedPreferencesService {
+class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
   static final AndroidEncryptedPreferencesService _instance =
       AndroidEncryptedPreferencesService._internal();
   factory AndroidEncryptedPreferencesService() => _instance;
@@ -97,6 +97,8 @@ class AndroidEncryptedPreferencesService
         _secure.write(key: pinCodeKey, value: p.toString());
         pin = p;
 
+        await migrate(super.version);
+
         return;
       }
 
@@ -108,6 +110,8 @@ class AndroidEncryptedPreferencesService
 
       _secure.write(key: pinCodeKey, value: p.toString());
       pin = p;
+
+      await migrate(super.version);
 
       return;
     }
@@ -127,6 +131,9 @@ class AndroidEncryptedPreferencesService
       await _preferences.setString(pinCodeCheckKey, hash);
 
       pin = int.parse(securedPin);
+
+      await migrate(super.version);
+
       return;
     }
 
@@ -137,6 +144,38 @@ class AndroidEncryptedPreferencesService
     }
 
     pin = int.parse(securedPin);
+
+    await migrate(super.version);
+  }
+
+  @override
+  Future<void> migrate(int version) async {
+    final int oldVersion = _preferences.getInt(versionPrefix) ?? 0;
+
+    if (oldVersion == 0) {
+      // coming from the old version, migrate all keys and delete the old ones
+      // all or nothing, first write all the new ones, then delete all the old ones
+      final allBackups = await getAllWalletBackups();
+
+      for (final backup in allBackups) {
+        await setWalletBackup(backup);
+      }
+
+      // delete all old keys
+      for (final backup in allBackups) {
+        // legacy delete
+        final saved = _preferences
+            .containsKey('$backupPrefix${backup.address.toLowerCase()}');
+        if (saved) {
+          await _preferences
+              .remove('$backupPrefix${backup.address.toLowerCase()}');
+        }
+      }
+
+      // after success, we can update the version
+      await _preferences.setInt(versionPrefix, version);
+      return;
+    }
   }
 
   /// _internalHash hashes a value using the pin code
@@ -265,6 +304,16 @@ class AndroidEncryptedPreferencesService
         continue;
       }
 
+      if (parsed.length == 4) {
+        backups.add(BackupWallet(
+          name: parsed[0],
+          address: parsed[1],
+          privateKey: parsed[2],
+          alias: parsed[3],
+        ));
+        continue;
+      }
+
       backups.add(BackupWallet(
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
@@ -294,45 +343,28 @@ class AndroidEncryptedPreferencesService
 
   // get wallet backup
   @override
-  Future<BackupWallet?> getWalletBackup(String address) async {
-    final value =
-        _preferences.getString('$backupPrefix${address.toLowerCase()}');
-    if (value == null) {
-      return null;
-    }
+  Future<BackupWallet?> getWalletBackup(String address, String alias) async {
+    final wallets = await getAllWalletBackups();
 
-    final decrypted = await _decrypt(value);
-    final parsed = decrypted.split('|');
-    if (parsed.length < 2) {
-      // invalid backup, consider cleaning up in the future
-      return null;
-    }
-
-    if (parsed.length == 3) {
-      return BackupWallet(
-        address: address,
-        privateKey: parsed[1],
-        name: parsed[0],
-        alias: parsed[2],
-      );
-    }
-
-    return BackupWallet(
-      address: address,
-      privateKey: parsed[1],
-      name: parsed[0],
-      alias: 'app',
+    return wallets.firstWhereOrNull(
+      (w) => w.address == address && w.alias == alias,
     );
   }
 
   // delete wallet backup
   @override
-  Future<void> deleteWalletBackup(String address) async {
-    final saved =
-        _preferences.containsKey('$backupPrefix${address.toLowerCase()}');
-    if (saved) {
-      await _preferences.remove('$backupPrefix${address.toLowerCase()}');
+  Future<void> deleteWalletBackup(String address, String alias) async {
+    final wallets = await getAllWalletBackups();
+
+    final wallet = wallets.firstWhereOrNull(
+      (w) => w.address == address && w.alias == alias,
+    );
+
+    if (wallet == null) {
+      return;
     }
+
+    await _preferences.remove(wallet.key);
   }
 
   // delete all wallet backups

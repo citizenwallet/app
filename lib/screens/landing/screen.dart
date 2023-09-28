@@ -62,6 +62,24 @@ class LandingScreenState extends State<LandingScreen>
     }
   }
 
+  String parseParamsFromWidget({List<String> extra = const []}) {
+    String params = '';
+    if (widget.voucher != null && widget.voucherParams != null) {
+      params += '&voucher=${widget.voucher}';
+      params += '&params=${widget.voucherParams}';
+    }
+
+    if (widget.receiveParams != null) {
+      params += '?receiveParams=${widget.receiveParams}';
+    }
+
+    if (extra.isNotEmpty) {
+      params += '&${extra.join('&')}';
+    }
+
+    return params.replaceFirst('&', '?');
+  }
+
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
@@ -72,35 +90,32 @@ class LandingScreenState extends State<LandingScreen>
     await handleAndroidRecover();
 
     String? address;
+    String? alias;
 
     // load a deep linked wallet from web
     if (widget.webWallet != null) {
       await handleAndroidBackup();
 
-      address = await _appLogic.importWebWallet(
+      (address, alias) = await _appLogic.importWebWallet(
         widget.webWallet!,
         widget.webWalletAlias ?? 'app',
       );
     }
 
     // load the last wallet if there was no deeplink
-    address ??= await _appLogic.loadLastWallet();
+    if (address == null || alias == null) {
+      (address, alias) = await _appLogic.loadLastWallet();
+    }
 
     if (address == null) {
       return;
     }
 
-    String url = '/wallet/$address';
-    if (widget.voucher != null && widget.voucherParams != null) {
-      url += '?voucher=${widget.voucher}';
-      url += '&params=${widget.voucherParams}';
-    }
+    String params = parseParamsFromWidget(extra: [
+      'alias=${alias ?? 'app'}',
+    ]);
 
-    if (widget.receiveParams != null) {
-      url += '?receiveParams=${widget.receiveParams}';
-    }
-
-    navigator.go(url);
+    navigator.go('/wallet/$address$params');
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns

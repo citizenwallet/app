@@ -36,7 +36,6 @@ class WalletService {
 
   final PreferencesService _pref = PreferencesService();
 
-  late String alias;
   BigInt? _chainId;
   late NativeCurrency currency;
 

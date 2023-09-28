@@ -198,6 +198,7 @@ class WalletLogic extends WidgetsBindingObserver {
       await loadAdditionalData();
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
+      await _preferences.setLastAlias(config.community.alias);
       await _preferences.setLastWalletLink(encodedWallet);
 
       _state.loadWalletSuccess();
@@ -219,16 +220,28 @@ class WalletLogic extends WidgetsBindingObserver {
   /// if a wallet is already loaded, it only fetches additional data
   Future<String?> openWallet(
     String? paramAddress,
+    String? paramAlias,
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
       final String? address = paramAddress ?? _preferences.lastWallet;
+      final String alias = paramAlias ?? _preferences.lastAlias ?? 'app';
 
       if (address == null) {
         throw Exception('address not found');
       }
 
-      if (isWalletLoaded && paramAddress == _wallet.address.hexEip55) {
+      // on native, use env
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
+
+      final config = await _config.config;
+
+      if (isWalletLoaded &&
+          paramAlias == alias &&
+          paramAddress == _wallet.address.hexEip55) {
         final balance = await _wallet.balance;
 
         _state.updateWalletBalanceSuccess(balance);
@@ -237,7 +250,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await loadAdditionalData(false);
 
-        _preferences.setLastWallet(address);
+        await _preferences.setLastWallet(address);
+        await _preferences.setLastAlias(alias);
 
         return address;
       }
@@ -248,19 +262,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      final dbWallet = await _encPrefs.getWalletBackup(address);
+      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
 
       if (dbWallet == null || dbWallet.privateKey.isEmpty) {
         throw NotFoundException();
       }
-
-      // on native, use env
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        dbWallet.alias,
-      );
-
-      final config = await _config.config;
 
       await _wallet.init(
         dbWallet.privateKey,
@@ -300,7 +306,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData(true);
 
-      _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(config.community.alias);
 
       return address;
     } on NotFoundException {
@@ -312,6 +319,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       return null;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -359,6 +368,7 @@ class WalletLogic extends WidgetsBindingObserver {
       ));
 
       await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(
         cwwallet,
@@ -422,6 +432,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ));
 
         await _preferences.setLastWallet(address);
+        await _preferences.setLastAlias(config.community.alias);
 
         _state.createWalletSuccess(cwwallet);
 
@@ -466,6 +477,7 @@ class WalletLogic extends WidgetsBindingObserver {
       ));
 
       await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(cwwallet);
 
@@ -484,7 +496,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> editWallet(String address, String name) async {
     try {
-      final dbWallet = await _encPrefs.getWalletBackup(address);
+      final config = await _config.config;
+
+      final dbWallet =
+          await _encPrefs.getWalletBackup(address, config.community.alias);
       if (dbWallet == null) {
         throw NotFoundException();
       }
@@ -635,9 +650,9 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   // takes a password and returns a wallet
-  Future<String?> returnWallet(String address) async {
+  Future<String?> returnWallet(String address, String alias) async {
     try {
-      final dbWallet = await _encPrefs.getWalletBackup(address);
+      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
       if (dbWallet == null) {
         throw NotFoundException();
       }
@@ -654,9 +669,9 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   // permanently deletes a wallet
-  Future<void> deleteWallet(String address) async {
+  Future<void> deleteWallet(String address, String alias) async {
     try {
-      await _encPrefs.deleteWalletBackup(address);
+      await _encPrefs.deleteWalletBackup(address, alias);
 
       loadDBWallets();
 

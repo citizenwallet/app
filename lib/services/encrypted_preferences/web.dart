@@ -10,14 +10,19 @@ class AppleEncryptedPreferencesOptions implements EncryptedPreferencesOptions {
 }
 
 /// WebEncryptedPreferencesService implements an EncryptedPreferencesService for web
-class WebEncryptedPreferencesService implements EncryptedPreferencesService {
+class WebEncryptedPreferencesService extends EncryptedPreferencesService {
   static final WebEncryptedPreferencesService _instance =
       WebEncryptedPreferencesService._internal();
   factory WebEncryptedPreferencesService() => _instance;
   WebEncryptedPreferencesService._internal();
 
   @override
-  Future init(EncryptedPreferencesOptions options) async {}
+  Future init(EncryptedPreferencesOptions options) async {
+    await migrate(super.version);
+  }
+
+  @override
+  Future<void> migrate(int version) async {}
 
   // handle wallet backups
   // use the prefix as a query to find a wallet backup
@@ -37,13 +42,13 @@ class WebEncryptedPreferencesService implements EncryptedPreferencesService {
 
   // get wallet backup
   @override
-  Future<BackupWallet?> getWalletBackup(String address) async {
+  Future<BackupWallet?> getWalletBackup(String address, String alias) async {
     return null;
   }
 
   // delete wallet backup
   @override
-  Future<void> deleteWalletBackup(String address) async {}
+  Future<void> deleteWalletBackup(String address, String alias) async {}
 
   // delete all wallet backups
   @override

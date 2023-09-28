@@ -7,7 +7,6 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -19,11 +18,13 @@ import 'package:provider/provider.dart';
 
 class AccountScreen extends StatefulWidget {
   final String? address;
+  final String? alias;
   final WalletLogic wallet;
 
   const AccountScreen({
     Key? key,
     required this.address,
+    required this.alias,
     required this.wallet,
   }) : super(key: key);
 
@@ -34,6 +35,8 @@ class AccountScreen extends StatefulWidget {
 class AccountScreenState extends State<AccountScreen> {
   late ProfileLogic _logic;
   late WalletLogic _walletLogic;
+
+  bool _showQRCode = false;
 
   @override
   void initState() {
@@ -56,17 +59,25 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void onLoad() async {
-    if (widget.address == null) {
+    if (widget.address == null || widget.alias == null) {
       return;
     }
 
-    await _walletLogic.openWallet(widget.address!, (bool hasChanged) async {
-      await _logic.loadProfileLink();
+    await _walletLogic.openWallet(
+      widget.address,
+      widget.alias,
+      (bool hasChanged) async {
+        await _logic.loadProfileLink();
 
-      if (hasChanged) {
-        _logic.resetAll();
-        _logic.loadProfile();
-      }
+        if (hasChanged) {
+          _logic.resetAll();
+          _logic.loadProfile();
+        }
+      },
+    );
+
+    setState(() {
+      _showQRCode = true;
     });
   }
 
@@ -93,10 +104,16 @@ class AccountScreenState extends State<AccountScreen> {
   void handleSwitchWalletModal(BuildContext context) async {
     HapticFeedback.mediumImpact();
 
+    setState(() {
+      _showQRCode = false;
+    });
+
     final navigator = GoRouter.of(context);
 
-    final address =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    await delay(const Duration(milliseconds: 50));
+
+    final wallet = await CupertinoScaffold.showCupertinoModalBottomSheet<
+        (String, String)?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -110,15 +127,31 @@ class AccountScreenState extends State<AccountScreen> {
       ),
     );
 
-    if (address == null || address == _walletLogic.address) {
+    if (wallet == null) {
+      await delay(const Duration(milliseconds: 250));
+
+      setState(() {
+        _showQRCode = true;
+      });
+      return;
+    }
+
+    final (address, alias) = wallet;
+
+    if (address == _walletLogic.address) {
+      await delay(const Duration(milliseconds: 250));
+
+      setState(() {
+        _showQRCode = true;
+      });
       return;
     }
 
     _walletLogic.cleanupWalletState();
 
-    navigator.go('/account/$address');
+    navigator.go('/account/$address?alias=$alias');
 
-    await delay(const Duration(milliseconds: 50));
+    await delay(const Duration(milliseconds: 250));
 
     onLoad();
   }
@@ -129,7 +162,6 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     final safePadding = MediaQuery.of(context).padding.top;
 
     final wallet = context.select((WalletState state) => state.wallet);
@@ -169,6 +201,7 @@ class AccountScreenState extends State<AccountScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       children: [
                         ProfileQRBadge(
+                          key: Key(profileLink),
                           profile: ProfileV1(
                             account: profile.account,
                             username: profile.username,
@@ -179,7 +212,7 @@ class AccountScreenState extends State<AccountScreen> {
                             imageSmall: profile.imageSmall,
                           ),
                           profileLink: profileLink,
-                          profileLinkLoading: profileLinkLoading,
+                          showQRCode: !profileLinkLoading && _showQRCode,
                           handleCopy: handleCopy,
                         ),
                         const SizedBox(height: 20),

@@ -20,12 +20,14 @@ import 'package:provider/provider.dart';
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
   final String? address;
+  final String? alias;
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;
 
   const WalletScreen(
     this.address,
+    this.alias,
     this.wallet, {
     this.voucher,
     this.voucherParams,
@@ -115,16 +117,20 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    if (widget.address == null) {
+    if (widget.address == null || widget.alias == null) {
       return;
     }
 
-    await _logic.openWallet(widget.address!, (bool hasChanged) async {
-      if (hasChanged) _profileLogic.loadProfile();
-      await _profileLogic.loadProfileLink();
-      await _logic.loadTransactions();
-      await _voucherLogic.fetchVouchers();
-    });
+    await _logic.openWallet(
+      widget.address,
+      widget.alias,
+      (bool hasChanged) async {
+        if (hasChanged) _profileLogic.loadProfile();
+        await _profileLogic.loadProfileLink();
+        await _logic.loadTransactions();
+        await _voucherLogic.fetchVouchers();
+      },
+    );
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
