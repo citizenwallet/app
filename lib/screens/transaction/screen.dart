@@ -316,9 +316,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     ),
                                   ),
                                   Text(
-                                    DateFormat.yMd()
+                                    DateFormat.yMMMd()
                                         .add_Hm()
-                                        .format(transaction.date),
+                                        .format(transaction.date.toLocal()),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.end,
