@@ -129,7 +129,7 @@ class ProfileModalState extends State<ProfileModal> {
                         ProfileQRBadge(
                           profile: profile,
                           profileLink: profileLink,
-                          profileLinkLoading: profileLinkLoading,
+                          showQRCode: !profileLinkLoading,
                           handleCopy: handleCopy,
                         ),
                         const SizedBox(height: 20),

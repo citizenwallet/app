@@ -346,7 +346,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               final wallet = cwWallets[index];
 
                               return WalletRow(
-                                key: Key(wallet.address),
+                                key: Key('${wallet.address}_${wallet.alias}'),
                                 wallet,
                                 communities: communities,
                                 profiles: profiles,

@@ -10,7 +10,7 @@ class ProfileQRBadge extends StatelessWidget {
 
   final String profileLink;
   final bool loading;
-  final bool profileLinkLoading;
+  final bool showQRCode;
 
   final Function(String) handleCopy;
 
@@ -19,7 +19,7 @@ class ProfileQRBadge extends StatelessWidget {
     this.profile,
     this.profileLink = '',
     this.loading = false,
-    this.profileLinkLoading = false,
+    this.showQRCode = false,
     required this.handleCopy,
   }) : super(key: key);
 
@@ -49,7 +49,7 @@ class ProfileQRBadge extends StatelessWidget {
             ),
             margin: const EdgeInsets.only(top: 80),
             child: AnimatedOpacity(
-              opacity: profileLinkLoading ? 0 : 1,
+              opacity: showQRCode ? 1 : 0,
               duration: const Duration(milliseconds: 250),
               child: QR(
                 data: profileLink,
