@@ -7,7 +7,6 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -19,11 +18,13 @@ import 'package:provider/provider.dart';
 
 class AccountScreen extends StatefulWidget {
   final String? address;
+  final String? alias;
   final WalletLogic wallet;
 
   const AccountScreen({
     Key? key,
     required this.address,
+    required this.alias,
     required this.wallet,
   }) : super(key: key);
 
@@ -56,18 +57,22 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void onLoad() async {
-    if (widget.address == null) {
+    if (widget.address == null || widget.alias == null) {
       return;
     }
 
-    await _walletLogic.openWallet(widget.address!, (bool hasChanged) async {
-      await _logic.loadProfileLink();
+    await _walletLogic.openWallet(
+      widget.address,
+      widget.alias,
+      (bool hasChanged) async {
+        await _logic.loadProfileLink();
 
-      if (hasChanged) {
-        _logic.resetAll();
-        _logic.loadProfile();
-      }
-    });
+        if (hasChanged) {
+          _logic.resetAll();
+          _logic.loadProfile();
+        }
+      },
+    );
   }
 
   void handleDismiss(BuildContext context) {
@@ -95,8 +100,8 @@ class AccountScreenState extends State<AccountScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final address =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+    final wallet = await CupertinoScaffold.showCupertinoModalBottomSheet<
+        (String, String)?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -110,13 +115,19 @@ class AccountScreenState extends State<AccountScreen> {
       ),
     );
 
-    if (address == null || address == _walletLogic.address) {
+    if (wallet == null) {
+      return;
+    }
+
+    final (address, alias) = wallet;
+
+    if (address == _walletLogic.address) {
       return;
     }
 
     _walletLogic.cleanupWalletState();
 
-    navigator.go('/account/$address');
+    navigator.go('/account/$address?alias=$alias');
 
     await delay(const Duration(milliseconds: 50));
 

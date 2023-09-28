@@ -79,14 +79,15 @@ class AppLogic {
     _appState.loadChainsError();
   }
 
-  Future<String?> loadLastWallet() async {
+  Future<(String?, String?)> loadLastWallet() async {
     try {
       _appState.importLoadingReq();
       final String? lastWallet = _preferences.lastWallet;
+      final String? lastAlias = _preferences.lastAlias;
 
       BackupWallet? dbWallet;
-      if (lastWallet != null) {
-        dbWallet = await _encPrefs.getWalletBackup(lastWallet);
+      if (lastWallet != null && lastAlias != null) {
+        dbWallet = await _encPrefs.getWalletBackup(lastWallet, lastAlias);
       }
 
       if (dbWallet == null) {
@@ -99,10 +100,11 @@ class AppLogic {
           final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
 
           await _preferences.setLastWallet(address);
+          await _preferences.setLastAlias(dbWallet.alias);
 
           _appState.importLoadingSuccess();
 
-          return address;
+          return (address, dbWallet.alias);
         }
         // there are no wallets backed up but we have a pin code
         // clean up the pin code and start from scratch
@@ -111,7 +113,7 @@ class AppLogic {
 
         _appState.importLoadingError();
 
-        return null;
+        return (null, null);
       }
 
       await delay(
@@ -121,7 +123,7 @@ class AppLogic {
 
       final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
 
-      return address;
+      return (address, dbWallet.alias);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -131,7 +133,7 @@ class AppLogic {
 
     _appState.importLoadingError();
 
-    return null;
+    return (null, null);
   }
 
   Future<bool> isVerifiedWallet(String qrWallet) async {
@@ -172,6 +174,7 @@ class AppLogic {
       ));
 
       await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
@@ -282,6 +285,7 @@ class AppLogic {
         );
 
         await _preferences.setLastWallet(address);
+        await _preferences.setLastAlias(config.community.alias);
 
         _appState.importLoadingSuccess();
 
@@ -308,6 +312,7 @@ class AppLogic {
       // await _db.wallet.create(dbwallet);
 
       await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(alias);
 
       _appState.importLoadingSuccess();
 
@@ -324,7 +329,7 @@ class AppLogic {
     return null;
   }
 
-  Future<String?> importWebWallet(
+  Future<(String?, String?)> importWebWallet(
     String webWallet,
     String alias,
   ) async {
@@ -342,17 +347,18 @@ class AppLogic {
 
       final address = credentials.address.hexEip55;
 
-      final existing = await _encPrefs.getWalletBackup(address);
-      if (existing != null) {
-        return existing.address;
-      }
-
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
         alias,
       );
 
       final config = await _config.config;
+
+      final existing =
+          await _encPrefs.getWalletBackup(address, config.community.alias);
+      if (existing != null) {
+        return (existing.address, alias);
+      }
 
       await _encPrefs.setWalletBackup(
         BackupWallet(
@@ -364,10 +370,11 @@ class AppLogic {
       );
 
       await _preferences.setLastWallet(address);
+      await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
-      return address;
+      return (address, alias);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -377,7 +384,7 @@ class AppLogic {
 
     _appState.importLoadingError();
 
-    return null;
+    return (null, null);
   }
 
   void copyPasswordToClipboard() {

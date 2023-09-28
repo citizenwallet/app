@@ -83,6 +83,7 @@ GoRouter createRouter(
                 name: state.name,
                 child: WalletScreen(
                   state.pathParameters['address'],
+                  state.uri.queryParameters['alias'],
                   wallet,
                   voucher: state.uri.queryParameters['voucher'],
                   voucherParams: state.uri.queryParameters['params'],
@@ -129,6 +130,7 @@ GoRouter createRouter(
                 name: state.name,
                 child: AccountScreen(
                   address: state.pathParameters['address'],
+                  alias: state.uri.queryParameters['alias'],
                   wallet: wallet,
                 ),
               ),
