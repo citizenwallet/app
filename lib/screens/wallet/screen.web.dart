@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
@@ -176,6 +177,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (firstLaunch) {
       // await handleOnboarding();
       await _preferences.setFirstLaunch(false);
+
+      navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
+
+      // reload the page now that we have a wallet
+      // fixes issue with the wrong link being used in native install banners
+      html.window.location.reload();
+
+      return;
     }
 
     if (widget.voucher != null && widget.voucherParams != null) {
