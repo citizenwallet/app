@@ -115,6 +115,13 @@
         opacity: 1;
       }
 
+      .logo {
+        width: 70%;
+        height: auto;
+        border-radius: 50%;
+        background-color: rgba(241, 241, 241, 1);
+      }
+
       .abs-wrapper-loaded {
         opacity: 0;
       }
@@ -144,6 +151,13 @@
         opacity: 1;
       }
 
+      .logo {
+        width: 70%;
+        height: auto;
+        border-radius: 50%;
+        background-color: rgba(241, 241, 241, 1);
+      }
+
       .abs-wrapper-loaded {
         opacity: 0;
       }
@@ -158,13 +172,6 @@
       align-items: center;
       justify-content: center;
       align-content: center;
-    }
-
-    .logo {
-      width: 70%;
-      height: auto;
-      border-radius: 50%;
-      background-color: rgba(241, 241, 241, 1);
     }
 
     .padded-wrapper {
@@ -360,6 +367,39 @@
       margin-bottom: 2px;
       color: rgba(131, 61, 219, 1);
     }
+
+    .copy-button {
+      width: 140px;
+      height: 44px;
+      margin-right: 10px;
+      margin-left: 10px;
+
+      background-color: #ffffff;
+
+      border-radius: 10px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+
+      cursor: pointer;
+
+      font-family: system-ui;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 2px;
+      color: rgba(131, 61, 219, 1);
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .show {
+      display: flex;
+    }
   </style>
 
   <body class="body">
@@ -380,12 +420,28 @@
         <img class="logo" src="/full_logo.png" />
       </div>
 
-      <div class="content-wrapper">
+      <div id="content-loader" class="content-wrapper hide">
         <div class="padded-wrapper spacing">
           <div id="loading-text" class="loading-text">loading...</div>
         </div>
         <div class="loading-bar-track spacing">
           <div id="loading-bar" class="loading-bar loading-bar-0"></div>
+        </div>
+      </div>
+      <div id="content-webview" class="content-wrapper hide">
+        <div class="padded-wrapper spacing">
+          <div id="webview-loading-text" class="loading-text">
+            It seems like this page is running inside an app and not a browser.
+          </div>
+        </div>
+        <div class="padded-wrapper spacing">
+          <div id="webview-loading-text3" class="loading-text">
+            Please open this link with your device's browser for a safer and
+            more private experience.
+          </div>
+        </div>
+        <div class="padded-wrapper spacing">
+          <div id="webview-copy-button" class="copy-button">Copy Link</div>
         </div>
       </div>
     </div>
@@ -394,6 +450,24 @@
       <p>You need to enable JavaScript to run this app.</p>
     </noscript>
     <script>
+      function isWebview() {
+        if (typeof window === undefined) {
+          return false;
+        }
+
+        let navigator = window.navigator;
+
+        const standalone = navigator.standalone;
+        const userAgent = navigator.userAgent.toLowerCase();
+        const safari = /safari/.test(userAgent);
+        const ios = /iphone|ipod|ipad|macintosh/.test(userAgent);
+        const ios_ipad_webview = ios && !safari;
+
+        return ios
+          ? (!standalone && !safari) || ios_ipad_webview
+          : userAgent.includes("wv");
+      }
+
       // Safari iOS 14.5+ app install banner
       if (window.location.hash != "") {
         // only show if there's going to be a proper deep link
@@ -454,64 +528,85 @@
       }
       // *********************************
 
-      // Flutter loader
-      window.addEventListener("load", function (ev) {
-        var loadingBar = document.querySelector("#loading-bar");
-        loadingBar.classList.remove("loading-bar-0");
-        loadingBar.classList.add("loading-bar-25");
+      const isWebView = isWebview();
+      if (isWebView) {
+        // make sure we don't load the app in a webview
+        var contentWebView = document.querySelector("#content-webview");
+        contentWebView.classList.remove("hide");
 
-        var loading = document.querySelector("#loading-text");
-        loading.textContent = "loading...";
+        var copyButton = document.querySelector("#webview-copy-button");
+        copyButton.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            copyButton.textContent = "Copied!";
+          } catch (error) {
+            copyButton.textContent = "Unable to copy";
+          }
+        };
+      } else {
+        var contentWebView = document.querySelector("#content-loader");
+        contentWebView.classList.remove("hide");
 
-        var long25Timeout = setTimeout(function () {
+        // Flutter loader
+        window.addEventListener("load", function (ev) {
+          var loadingBar = document.querySelector("#loading-bar");
+          loadingBar.classList.remove("loading-bar-0");
+          loadingBar.classList.add("loading-bar-25");
+
+          var loading = document.querySelector("#loading-text");
           loading.textContent = "loading...";
-          loadingBar.classList.remove("loading-bar-25");
-          loadingBar.classList.add("loading-bar-50");
-        }, 3000);
 
-        // Download main.dart.js
-        _flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: serviceWorkerVersion,
-          },
-          onEntrypointLoaded: function (engineInitializer) {
-            clearTimeout(long25Timeout);
-
+          var long25Timeout = setTimeout(function () {
             loading.textContent = "loading...";
+            loadingBar.classList.remove("loading-bar-25");
+            loadingBar.classList.add("loading-bar-50");
+          }, 3000);
 
-            if (loadingBar.classList.contains("loading-bar-25"))
-              loadingBar.classList.remove("loading-bar-25");
-            if (loadingBar.classList.contains("loading-bar-50"))
-              loadingBar.classList.remove("loading-bar-50");
-            loadingBar.classList.add("loading-bar-75");
+          // Download main.dart.js
+          _flutter.loader.loadEntrypoint({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            },
+            onEntrypointLoaded: function (engineInitializer) {
+              clearTimeout(long25Timeout);
 
-            var long75Timeout = setTimeout(function () {
-              loading.textContent = "loading (almost done)...";
-              loadingBar.classList.remove("loading-bar-75");
-              loadingBar.classList.add("loading-bar-90");
-            }, 3000);
+              loading.textContent = "loading...";
 
-            engineInitializer
-              .initializeEngine()
-              .then(function (appRunner) {
-                clearTimeout(long75Timeout);
+              if (loadingBar.classList.contains("loading-bar-25"))
+                loadingBar.classList.remove("loading-bar-25");
+              if (loadingBar.classList.contains("loading-bar-50"))
+                loadingBar.classList.remove("loading-bar-50");
+              loadingBar.classList.add("loading-bar-75");
 
-                loading.textContent = "loading...";
-
-                var loadingWrapper = document.querySelector("#loading-wrapper");
-                loadingWrapper.classList.add("abs-wrapper-loaded");
-
+              var long75Timeout = setTimeout(function () {
+                loading.textContent = "loading (almost done)...";
                 loadingBar.classList.remove("loading-bar-75");
-                loadingBar.classList.add("loading-bar-100");
-                appRunner.runApp();
-              })
-              .catch(function (error) {
-                loading.textContent = "Error loading wallet";
-              });
-          },
+                loadingBar.classList.add("loading-bar-90");
+              }, 3000);
+
+              engineInitializer
+                .initializeEngine()
+                .then(function (appRunner) {
+                  clearTimeout(long75Timeout);
+
+                  loading.textContent = "loading...";
+
+                  var loadingWrapper =
+                    document.querySelector("#loading-wrapper");
+                  loadingWrapper.classList.add("abs-wrapper-loaded");
+
+                  loadingBar.classList.remove("loading-bar-75");
+                  loadingBar.classList.add("loading-bar-100");
+                  appRunner.runApp();
+                })
+                .catch(function (error) {
+                  loading.textContent = "Error loading wallet";
+                });
+            },
+          });
         });
-      });
-      // *********************************
+        // *********************************
+      }
     </script>
   </body>
 </html>
