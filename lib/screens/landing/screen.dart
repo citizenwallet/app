@@ -207,17 +207,11 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    String url = '/wallet/$address';
-    if (widget.voucher != null && widget.voucherParams != null) {
-      url += '?voucher=${widget.voucher}';
-      url += '&params=${widget.voucherParams}';
-    }
+    String params = parseParamsFromWidget(extra: [
+      'alias=$alias',
+    ]);
 
-    if (widget.receiveParams != null) {
-      url += '?receiveParams=${widget.receiveParams}';
-    }
-
-    navigator.go(url);
+    navigator.go('/wallet/$address$params');
   }
 
   void handleImportWallet() async {
@@ -255,17 +249,11 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    String url = '/wallet/$address';
-    if (widget.voucher != null && widget.voucherParams != null) {
-      url += '?voucher=${widget.voucher}';
-      url += '&params=${widget.voucherParams}';
-    }
+    String params = parseParamsFromWidget(extra: [
+      'alias=$alias',
+    ]);
 
-    if (widget.receiveParams != null) {
-      url += '?receiveParams=${widget.receiveParams}';
-    }
-
-    navigator.go(url);
+    navigator.go('/wallet/$address$params');
   }
 
   @override
