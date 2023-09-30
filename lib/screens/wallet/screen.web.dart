@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 
+import 'package:dart_passkeys/dart_passkeys.dart';
+
 import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
@@ -121,6 +123,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   void onLoad({bool? retry}) async {
+    print(await DartPasskeys().create());
+
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
 
