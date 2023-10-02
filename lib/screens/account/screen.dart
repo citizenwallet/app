@@ -174,8 +174,9 @@ class AccountScreenState extends State<AccountScreen> {
 
     final profileLoading = loading || profile.loading;
 
-    final hasNoProfile =
-        profile.username == '' && profile.name == '' && profile.image == '';
+    final hasNoProfile = profile.username.isEmpty &&
+        profile.name.isEmpty &&
+        profile.image.isEmpty;
 
     final profileLink =
         context.select((ProfileState state) => state.profileLink);
@@ -327,7 +328,9 @@ class AccountScreenState extends State<AccountScreen> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            wallet.name,
+                                            hasNoProfile
+                                                ? wallet.name
+                                                : '@${profile.username}',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
