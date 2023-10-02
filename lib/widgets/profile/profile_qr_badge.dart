@@ -54,6 +54,7 @@ class ProfileQRBadge extends StatelessWidget {
               child: QR(
                 data: profileLink,
                 size: width - 140,
+                logo: 'assets/logo.png',
               ),
             ),
           ),

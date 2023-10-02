@@ -197,7 +197,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     data: qrData,
                     size: qrSize,
                     padding: const EdgeInsets.all(20),
-                    logo: isExternalWallet ? 'assets/icons/wallet.png' : null,
+                    logo: isExternalWallet ? null : 'assets/logo.png',
                   ),
                 ),
                 const SizedBox(

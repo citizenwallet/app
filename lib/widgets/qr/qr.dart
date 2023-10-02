@@ -40,7 +40,7 @@ class QR extends StatelessWidget {
             dataModuleShape: QrDataModuleShape.circle,
             color: ThemeColors.black,
           ),
-          embeddedImage: AssetImage(logo ?? 'assets/logo.png'),
+          embeddedImage: logo != null ? AssetImage(logo!) : null,
           embeddedImageStyle: QrEmbeddedImageStyle(
             size: Size(imageSize, imageSize),
           ),

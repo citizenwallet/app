@@ -159,9 +159,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                               data: qrData,
                               size: qrSize - 20,
                               padding: const EdgeInsets.all(20),
-                              logo: isExternalWallet
-                                  ? 'assets/icons/wallet.png'
-                                  : null,
+                              logo: isExternalWallet ? null : 'assets/logo.png',
                             ),
                           ),
                         ],
