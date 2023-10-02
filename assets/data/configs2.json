@@ -1,6 +1,49 @@
 [
     {
         "community": {
+            "name": "EUR e-money",
+            "description": "Token by Monerium EMI, a regulated entity, licensed in the EEA.",
+            "url": "https://monerium.com/tokens/",
+            "alias": "eure.polygon",
+            "logo": "https://eure.polygon.citizenwallet.xyz/wallet-config/_images/eure.svg"
+        },
+        "scan": {
+            "url": "https://polygonscan.com",
+            "name": "Polygon Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+        },
+        "erc4337": {
+            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "paymaster_type": "payg"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6",
+            "name": "EUR emoney",
+            "symbol": "EURe",
+            "decimals": 18
+        },
+        "profile": {
+            "address": "0xF5F7317EDb8E88CaE09071B0C4F0fd6EA20B21f9"
+        },
+        "version": 1
+    },
+    {
+        "community": {
             "name": "USDC on Polygon",
             "description": "The community of people using USDC on Polygon.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",

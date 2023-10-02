@@ -403,7 +403,7 @@ class ConfigService {
   Future<Config> _getConfig() async {
     if (kDebugMode) {
       final localConfigs =
-          jsonDecode(await rootBundle.loadString('assets/data/configs.json'));
+          jsonDecode(await rootBundle.loadString('assets/data/configs2.json'));
 
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();
@@ -440,7 +440,7 @@ class ConfigService {
 
   Future<List<Config>> getConfigs() async {
     final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString('assets/data/configs.json'))
+        ? jsonDecode(await rootBundle.loadString('assets/data/configs2.json'))
         : await _api.get(
             url: '/configs2.json?cachebuster=${generateCacheBusterValue()}');
 
