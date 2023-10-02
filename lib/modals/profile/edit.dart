@@ -81,6 +81,8 @@ class EditProfileModalState extends State<EditProfileModal> {
   @override
   void dispose() {
     debouncedHandleUsernameUpdate.cancel();
+    debouncedHandleNameUpdate.cancel();
+    debouncedHandleDescriptionUpdate.cancel();
     _logic.resetEdit();
     super.dispose();
   }
