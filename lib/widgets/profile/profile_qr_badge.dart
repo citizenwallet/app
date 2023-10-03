@@ -54,6 +54,7 @@ class ProfileQRBadge extends StatelessWidget {
               child: QR(
                 data: profileLink,
                 size: width - 140,
+                logo: 'assets/logo.png',
               ),
             ),
           ),
@@ -83,7 +84,11 @@ class ProfileQRBadge extends StatelessWidget {
                       maxWidth: 200,
                     ),
                     child: Text(
-                      '@${profile?.username ?? ''}',
+                      !hasNoProfile &&
+                              profile != null &&
+                              profile!.username.isNotEmpty
+                          ? '@${profile?.username ?? ''}'
+                          : '',
                       style: TextStyle(
                         color: ThemeColors.black.resolveFrom(context),
                         fontSize: 16,

@@ -3,7 +3,6 @@ import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
-import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -120,6 +119,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     String alias,
     String name,
     bool locked,
+    bool hasProfile,
   ) async {
     final wallet = context.read<WalletState>().wallet;
 
@@ -130,13 +130,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         builder: (BuildContext dialogContext) {
           return CupertinoActionSheet(
             actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('edit');
-                },
-                child: const Text('Edit name'),
-              ),
+              if (!hasProfile)
+                CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit name'),
+                ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
@@ -183,7 +184,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         return;
       }
 
-      await widget.logic.editWallet(address, newName);
+      await widget.logic.editWallet(address, alias, newName);
 
       HapticFeedback.heavyImpact();
       return;
@@ -362,6 +363,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                                   wallet.alias,
                                   wallet.name,
                                   wallet.locked,
+                                  profiles.containsKey(wallet.account),
                                 ),
                                 onLoadProfile: handleLoadProfile,
                               );

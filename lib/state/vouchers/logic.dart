@@ -183,8 +183,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final balance = await _wallet.getBalance(address);
 
-      print('balance: $balance');
-
       await _db.vouchers.updateBalance(address, balance);
 
       final voucher = Voucher(

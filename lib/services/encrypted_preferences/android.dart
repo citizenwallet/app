@@ -152,30 +152,70 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
   Future<void> migrate(int version) async {
     final int oldVersion = _preferences.getInt(versionPrefix) ?? 0;
 
-    if (oldVersion == 0) {
-      // coming from the old version, migrate all keys and delete the old ones
-      // all or nothing, first write all the new ones, then delete all the old ones
-      final allBackups = await getAllWalletBackups();
+    final migrations = {
+      1: () async {
+        final allBackups = await getAllWalletBackups();
 
-      for (final backup in allBackups) {
-        await setWalletBackup(backup);
-      }
+        for (final backup in allBackups) {
+          final saved = _preferences.containsKey(backup.legacyKey2);
+          if (saved) {
+            await _preferences.remove(backup.legacyKey2);
+          }
 
-      // delete all old keys
-      for (final backup in allBackups) {
-        // legacy delete
-        final saved = _preferences
-            .containsKey('$backupPrefix${backup.address.toLowerCase()}');
-        if (saved) {
-          await _preferences
-              .remove('$backupPrefix${backup.address.toLowerCase()}');
+          await _preferences.setString(
+            backup.legacyKey2,
+            await _encrypt(backup.value),
+          );
         }
-      }
 
-      // after success, we can update the version
-      await _preferences.setInt(versionPrefix, version);
-      return;
+        // delete all old keys
+        for (final backup in allBackups) {
+          // legacy delete
+          final saved = _preferences.containsKey(backup.legacyKey);
+          if (saved) {
+            await _preferences.remove(backup.legacyKey);
+          }
+        }
+      },
+      2: () async {
+        final allBackups = await getAllWalletBackups();
+
+        for (final backup in allBackups) {
+          final saved = _preferences.containsKey(backup.key);
+          if (saved) {
+            await _preferences.remove(backup.key);
+          }
+
+          await _preferences.setString(
+            backup.key,
+            await _encrypt(backup.value),
+          );
+        }
+
+        // delete all old keys
+        for (final backup in allBackups) {
+          // delete legacy keys
+          final saved = _preferences.containsKey(
+            backup.legacyKey2,
+          );
+          if (saved) {
+            await _preferences.remove(
+              backup.legacyKey2,
+            );
+          }
+        }
+      },
+    };
+
+    // run all migrations
+    for (var i = oldVersion + 1; i <= version; i++) {
+      if (migrations.containsKey(i)) {
+        await migrations[i]!();
+      }
     }
+
+    // after success, we can update the version
+    await _preferences.setInt(versionPrefix, version);
   }
 
   /// _internalHash hashes a value using the pin code

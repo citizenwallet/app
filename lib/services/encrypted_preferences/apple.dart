@@ -48,30 +48,76 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
     final int oldVersion =
         int.tryParse(await _preferences.read(key: versionPrefix) ?? '0') ?? 0;
 
-    if (oldVersion == 0) {
-      // coming from the old version, migrate all keys and delete the old ones
-      // all or nothing, first write all the new ones, then delete all the old ones
-      final allBackups = await getAllWalletBackups();
+    final migrations = {
+      1: () async {
+        // coming from the old version, migrate all keys and delete the old ones
+        // all or nothing, first write all the new ones, then delete all the old ones
+        final allBackups = await getAllWalletBackups();
 
-      for (final backup in allBackups) {
-        await setWalletBackup(backup);
-      }
+        for (final backup in allBackups) {
+          // await setWalletBackup(backup);
+          final saved = await _preferences.containsKey(key: backup.legacyKey2);
+          if (saved) {
+            await _preferences.delete(key: backup.legacyKey2);
+          }
 
-      // delete all old keys
-      for (final backup in allBackups) {
-        // legacy delete
-        final saved = await _preferences.containsKey(
-            key: '$backupPrefix${backup.address.toLowerCase()}');
-        if (saved) {
-          await _preferences.delete(
-              key: '$backupPrefix${backup.address.toLowerCase()}');
+          await _preferences.write(
+            key: backup.legacyKey2,
+            value: backup.value,
+          );
         }
-      }
 
-      // after success, we can update the version
-      await _preferences.write(key: versionPrefix, value: version.toString());
-      return;
+        // delete all old keys
+        for (final backup in allBackups) {
+          // legacy delete
+          final saved = await _preferences.containsKey(
+            key: backup.legacyKey,
+          );
+          if (saved) {
+            await _preferences.delete(key: backup.legacyKey);
+          }
+        }
+      },
+      2: () async {
+        final allBackups = await getAllWalletBackups();
+
+        for (final backup in allBackups) {
+          final saved = await _preferences.containsKey(key: backup.key);
+          if (saved) {
+            await _preferences.delete(key: backup.key);
+          }
+
+          await _preferences.write(
+            key: backup.key,
+            value: backup.value,
+          );
+        }
+
+        // delete all old keys
+        for (final backup in allBackups) {
+          // delete legacy keys
+          final saved = await _preferences.containsKey(
+            key: backup.legacyKey2,
+          );
+
+          if (saved) {
+            await _preferences.delete(
+              key: backup.legacyKey2,
+            );
+          }
+        }
+      },
+    };
+
+    // run all migrations
+    for (var i = oldVersion + 1; i <= version; i++) {
+      if (migrations.containsKey(i)) {
+        await migrations[i]!();
+      }
     }
+
+    // after success, we can update the version
+    await _preferences.write(key: versionPrefix, value: version.toString());
   }
 
   // handle wallet backups

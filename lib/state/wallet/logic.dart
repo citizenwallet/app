@@ -319,8 +319,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       return null;
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -494,18 +492,15 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<void> editWallet(String address, String name) async {
+  Future<void> editWallet(String address, String alias, String name) async {
     try {
-      final config = await _config.config;
-
-      final dbWallet =
-          await _encPrefs.getWalletBackup(address, config.community.alias);
+      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
       if (dbWallet == null) {
         throw NotFoundException();
       }
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: EthereumAddress.fromHex(address).hexEip55,
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
@@ -513,7 +508,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       loadDBWallets();
 
-      _state.updateCurrentWalletName(name);
+      if (_state.wallet?.address == address) {
+        // only update current name if it's the same wallet
+        _state.updateCurrentWalletName(name);
+      }
 
       return;
     } on NotFoundException {

@@ -23,7 +23,7 @@ class BackupWallet {
   final String alias;
 
   BackupWallet({
-    address,
+    required String address,
     required this.privateKey,
     required this.name,
     required this.alias,
@@ -42,14 +42,22 @@ class BackupWallet {
         'alias': alias,
       };
 
-  String get hashed {
+  String get legacyHash {
     final bytes = keccak256(convertStringToUint8List(value));
 
     return bytesToHex(bytes);
   }
 
+  String get hashed {
+    final bytes = keccak256(convertStringToUint8List('$address|$alias'));
+
+    return bytesToHex(bytes);
+  }
+
   String get legacyKey => '$backupPrefix${address.toLowerCase()}';
-  String get key => '$backupPrefix$hashed}';
+  String get legacyKey2 =>
+      '$backupPrefix$legacyHash}'; // the typo '}' is intentional, a typo was released to production
+  String get key => '$backupPrefix$hashed';
   String get value => '$name|$address|$privateKey|$alias';
 }
 
@@ -59,7 +67,7 @@ abstract class EncryptedPreferencesOptions {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class EncryptedPreferencesService {
-  final int _version = 1;
+  final int _version = 2;
 
   int get version => _version;
 
