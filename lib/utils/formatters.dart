@@ -22,7 +22,7 @@ class AmountFormatter extends TextInputFormatter {
   }
 }
 
-/// Formats a username to only allow alphanumeric characters and hyphens.
+/// Formats a username to only allow alphanumeric characters, underscores, and hyphens.
 class UsernameFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -35,7 +35,7 @@ class UsernameFormatter extends TextInputFormatter {
       return newValue;
     }
 
-    final r = RegExp("^[a-zA-Z0-9\\-]*\$");
+    final r = RegExp("^[a-zA-Z0-9_\\-]*\$");
 
     if (!r.hasMatch(text)) {
       return oldValue;
