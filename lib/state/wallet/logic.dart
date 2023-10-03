@@ -13,8 +13,6 @@ import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferenc
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
-import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
-import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
@@ -141,11 +139,12 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      final decoded = encodedWallet.startsWith('v2-')
-          ? convertUint8ListToString(
-              base64Decode(encodedWallet.replaceFirst('v2-', '')))
-          : jsonEncode(
-              QR.fromCompressedJson(encodedWallet).toQRWallet().data.wallet);
+      if (!encodedWallet.startsWith('v2-')) {
+        return false;
+      }
+
+      final decoded = convertUint8ListToString(
+          base64Decode(encodedWallet.replaceFirst('v2-', '')));
 
       await delay(const Duration(milliseconds: 0));
 
@@ -391,57 +390,15 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // check if it is a private key and create a new wallet from the private key with auto-password
       final isPrivateKey = isValidPrivateKey(qrWallet);
-      if (isPrivateKey) {
-        final credentials = stringToPrivateKey(qrWallet);
-        if (credentials == null) {
-          throw Exception('Invalid private key');
-        }
-
-        final address = credentials.address.hexEip55;
-
-        _config.init(
-          dotenv.get('WALLET_CONFIG_URL'),
-          alias,
-        );
-
-        final config = await _config.config;
-
-        final name = 'Imported ${config.token.symbol} Account';
-
-        _state.setWalletConfig(config);
-
-        final CWWallet cwwallet = CWWallet(
-          '0.0',
-          name: name,
-          address: address,
-          alias: config.community.alias,
-          account: '',
-          currencyName: config.token.name,
-          symbol: config.token.symbol,
-          currencyLogo: config.community.logo,
-          locked: false,
-        );
-
-        await _encPrefs.setWalletBackup(BackupWallet(
-          address: address,
-          privateKey: bytesToHex(credentials.privateKey),
-          name: name,
-          alias: config.community.alias,
-        ));
-
-        await _preferences.setLastWallet(address);
-        await _preferences.setLastAlias(config.community.alias);
-
-        _state.createWalletSuccess(cwwallet);
-
-        return address;
+      if (!isPrivateKey) {
+        return null;
+      }
+      final credentials = stringToPrivateKey(qrWallet);
+      if (credentials == null) {
+        throw Exception('Invalid private key');
       }
 
-      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
-
-      await wallet.verifyData();
-
-      final address = EthereumAddress.fromHex(wallet.data.address).hexEip55;
+      final address = credentials.address.hexEip55;
 
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
@@ -466,10 +423,9 @@ class WalletLogic extends WidgetsBindingObserver {
         locked: false,
       );
 
-      // TODO: fix this, not sure if we can extract the private key from the wallet json like this
       await _encPrefs.setWalletBackup(BackupWallet(
         address: address,
-        privateKey: bytesToHex(wallet.data.wallet['privateKey']),
+        privateKey: bytesToHex(credentials.privateKey),
         name: name,
         alias: config.community.alias,
       ));

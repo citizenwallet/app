@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -9,7 +8,6 @@ import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
@@ -129,13 +127,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
       if (!widget.encoded.startsWith('v2-')) {
         // old format, convert
-        final converted =
-            QR.fromCompressedJson(widget.encoded).toQRWallet().data.wallet;
-
-        final encoded = jsonEncode(converted);
-
-        navigator.go(
-            '/wallet/v2-${base64Encode(encoded.codeUnits)}?alias=${widget.alias}');
+        throw Exception('old format');
       }
     } catch (exception, stackTrace) {
       // something is wrong with the encoding
@@ -205,8 +197,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     if (voucher == null || voucherParams == null) {
       return;
     }
-
-    final navigator = GoRouter.of(context);
 
     final address = await _voucherLogic.readVoucher(voucher, voucherParams);
     if (address == null) {

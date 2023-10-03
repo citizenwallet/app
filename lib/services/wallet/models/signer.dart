@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -8,49 +7,49 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 /// Signer loads a wallet from a json file and signs messages
-class Signer {
-  late EthPrivateKey _privateKey;
+// class Signer {
+//   late EthPrivateKey _privateKey;
 
-  Signer(this._privateKey);
+//   Signer(this._privateKey);
 
-  Signer.fromWalletFile(
-    String walletFile,
-    String password,
-  ) {
-    Wallet wallet = Wallet.fromJson(walletFile, password);
+//   Signer.fromWalletFile(
+//     String walletFile,
+//     String password,
+//   ) {
+//     Wallet wallet = Wallet.fromJson(walletFile, password);
 
-    _privateKey = wallet.privateKey;
-  }
-  Signer.fromQRWallet(
-    QRWallet qrwallet,
-    String password,
-  ) {
-    Wallet wallet = Wallet.fromJson(jsonEncode(qrwallet.data.wallet), password);
+//     _privateKey = wallet.privateKey;
+//   }
+//   Signer.fromQRWallet(
+//     QRWallet qrwallet,
+//     String password,
+//   ) {
+//     Wallet wallet = Wallet.fromJson(jsonEncode(qrwallet.data.wallet), password);
 
-    _privateKey = wallet.privateKey;
-  }
+//     _privateKey = wallet.privateKey;
+//   }
 
-  EthPrivateKey get privateKey => _privateKey;
-  Uint8List get publicKey => _privateKey.encodedPublicKey;
-  String get address => _privateKey.address.hexEip55;
+//   EthPrivateKey get privateKey => _privateKey;
+//   Uint8List get publicKey => _privateKey.encodedPublicKey;
+//   String get address => _privateKey.address.hexEip55;
 
-  String _sign(String data) {
-    final signature =
-        _privateKey.signToEcSignature(convertStringToUint8List(data));
+//   String _sign(String data) {
+//     final signature =
+//         _privateKey.signToEcSignature(convertStringToUint8List(data));
 
-    final msgsignature = Signature.fromMsgSignature(signature);
+//     final msgsignature = Signature.fromMsgSignature(signature);
 
-    final strsignature = jsonEncode(msgsignature.toJson());
+//     final strsignature = jsonEncode(msgsignature.toJson());
 
-    return bytesToHex(strsignature.codeUnits, include0x: true);
-  }
+//     return bytesToHex(strsignature.codeUnits, include0x: true);
+//   }
 
-  /// signs a message with the wallet's private key
-  /// returns the signature as a hex string
-  Future<String> sign(String data) {
-    return compute(_sign, data);
-  }
-}
+//   /// signs a message with the wallet's private key
+//   /// returns the signature as a hex string
+//   Future<String> sign(String data) {
+//     return compute(_sign, data);
+//   }
+// }
 
 /// Extends the MsgSignature class from web3dart to allow for json conversion
 class Signature extends MsgSignature {

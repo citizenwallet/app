@@ -6,8 +6,6 @@ import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
-import 'package:citizenwallet/services/wallet/models/qr/qr.dart';
-import 'package:citizenwallet/services/wallet/models/qr/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -136,21 +134,6 @@ class AppLogic {
     return (null, null);
   }
 
-  Future<bool> isVerifiedWallet(String qrWallet) async {
-    try {
-      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
-
-      return wallet.verifyData();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return false;
-  }
-
   Future<String?> createWallet(String alias) async {
     try {
       _appState.importLoadingReq();
@@ -258,61 +241,37 @@ class AppLogic {
 
       // check if it is a private key and create a new wallet from the private key with auto-password
       final isPrivateKey = isValidPrivateKey(qrWallet);
-      if (isPrivateKey) {
-        final credentials = stringToPrivateKey(qrWallet);
-        if (credentials == null) {
-          throw Exception('Invalid private key');
-        }
-
-        _config.init(
-          dotenv.get('WALLET_CONFIG_URL'),
-          alias,
-        );
-
-        final config = await _config.config;
-
-        final name = 'Imported ${config.token.symbol} Account';
-
-        final address = credentials.address.hexEip55;
-
-        await _encPrefs.setWalletBackup(
-          BackupWallet(
-            address: address,
-            privateKey: bytesToHex(credentials.privateKey),
-            name: name,
-            alias: config.community.alias,
-          ),
-        );
-
-        await _preferences.setLastWallet(address);
-        await _preferences.setLastAlias(config.community.alias);
-
-        _appState.importLoadingSuccess();
-
-        return address;
+      if (!isPrivateKey) {
+        return null;
       }
 
-      final QRWallet wallet = QR.fromCompressedJson(qrWallet).toQRWallet();
+      final credentials = stringToPrivateKey(qrWallet);
+      if (credentials == null) {
+        throw Exception('Invalid private key');
+      }
 
-      await wallet.verifyData();
+      _config.init(
+        dotenv.get('WALLET_CONFIG_URL'),
+        alias,
+      );
 
-      final address = EthereumAddress.fromHex(wallet.data.address).hexEip55;
+      final config = await _config.config;
 
-      // TODO: remove this
-      // final DBWallet dbwallet = DBWallet(
-      //   type: 'regular',
-      //   name: name,
-      //   address: address,
-      //   publicKey: wallet.data.publicKey,
-      //   balance: 0,
-      //   wallet: jsonEncode(wallet.data.wallet),
-      //   locked: true,
-      // );
+      final name = 'Imported ${config.token.symbol} Account';
 
-      // await _db.wallet.create(dbwallet);
+      final address = credentials.address.hexEip55;
+
+      await _encPrefs.setWalletBackup(
+        BackupWallet(
+          address: address,
+          privateKey: bytesToHex(credentials.privateKey),
+          name: name,
+          alias: config.community.alias,
+        ),
+      );
 
       await _preferences.setLastWallet(address);
-      await _preferences.setLastAlias(alias);
+      await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
