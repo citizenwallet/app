@@ -18,6 +18,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:collection/collection.dart';
@@ -1312,59 +1313,21 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QREmptyException();
       }
 
-      final isHex = isHexValue(raw);
-
-      if (isHex) {
-        updateAddressFromHexCapture(raw);
-        return raw;
-      }
-
-      final includesHex = includesHexValue(raw);
-      if (includesHex && !raw.contains('/#/')) {
-        final hex = extractHexFromText(raw);
-        if (hex.isNotEmpty) {
-          updateAddressFromHexCapture(hex);
-          return hex;
-        }
-      }
-
-      final receiveUrl = Uri.parse(raw.split('/#/').last);
-
-      final encodedParams = receiveUrl.queryParameters['receiveParams'];
-      if (encodedParams == null) {
+      final format = parseQRFormat(raw);
+      if (format == QRFormat.unsupported || format == QRFormat.voucher) {
         throw QRInvalidException();
       }
 
-      final decodedParams = decompress(encodedParams);
-
-      final paramUrl = Uri.parse(decodedParams);
-
-      final config = await _config.config;
-
-      final alias = paramUrl.queryParameters['alias'];
-      if (config.community.alias != alias) {
-        throw QRAliasMismatchException();
+      final (address, amount) = parseQRCode(raw);
+      if (address == '') {
+        throw QRInvalidException();
       }
-
-      final address = paramUrl.queryParameters['address'];
-      if (address == null) {
-        throw QRMissingAddressException();
-      }
-
-      updateAddressFromHexCapture(address);
-
-      final amount = paramUrl.queryParameters['amount'];
 
       if (amount != null) {
         _amountController.text = amount;
-        updateAmount();
       }
 
-      final message = paramUrl.queryParameters['message'];
-
-      if (message != null) {
-        _messageController.text = message;
-      }
+      updateAddressFromHexCapture(address);
 
       return address;
     } on QREmptyException catch (e) {

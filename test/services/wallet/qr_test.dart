@@ -16,6 +16,8 @@ const List<String> cases = [
   'ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26&uint256=1',
   '',
   'DA9e31F176F5B499b3B208a20Fe169b3aA01BA26',
+  'ethereum:0x845598Da418890a674cbaBA26b70807aF0c61dFE@8453/transfer?address=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+  'ethereum:0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@8453',
 ];
 
 const List<QRFormat> expected = [
@@ -30,6 +32,24 @@ const List<QRFormat> expected = [
   QRFormat.eip681Transfer,
   QRFormat.unsupported,
   QRFormat.unsupported,
+  QRFormat.eip681Transfer,
+  QRFormat.eip681,
+];
+
+const List<(String, String?)> expectedParse = [
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1.00'),
+  ('', null),
+  ('', null),
+  ('', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '0.1'),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1'),
+  ('', null),
+  ('', null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null),
 ];
 
 void main() {
@@ -39,6 +59,16 @@ void main() {
     test('detect various formats', () async {
       for (int i = 0; i < cases.length; i++) {
         expect(parseQRFormat(cases[i]), expected[i]);
+      }
+    });
+
+    test('extracting address and value from qr codes', () async {
+      for (int i = 0; i < cases.length; i++) {
+        final raw = cases[i];
+
+        final (address, amount) = parseQRCode(raw);
+
+        expect((address, amount), expectedParse[i]);
       }
     });
   });
