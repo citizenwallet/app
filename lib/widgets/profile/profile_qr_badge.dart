@@ -84,7 +84,11 @@ class ProfileQRBadge extends StatelessWidget {
                       maxWidth: 200,
                     ),
                     child: Text(
-                      hasNoProfile ? '' : '@${profile?.username ?? ''}',
+                      !hasNoProfile &&
+                              profile != null &&
+                              profile!.username.isNotEmpty
+                          ? '@${profile?.username ?? ''}'
+                          : '',
                       style: TextStyle(
                         color: ThemeColors.black.resolveFrom(context),
                         fontSize: 16,
