@@ -1,6 +1,7 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -34,6 +35,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   final FocusNode descriptionFocusNode = FocusNode();
 
   late ProfileLogic _logic;
+  late WalletLogic _walletLogic;
 
   late Debounce debouncedHandleUsernameUpdate;
   late Debounce debouncedHandleNameUpdate;
@@ -44,6 +46,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     super.initState();
 
     _logic = ProfileLogic(context);
+    _walletLogic = WalletLogic(context);
 
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
@@ -115,16 +118,25 @@ class EditProfileModalState extends State<EditProfileModal> {
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
+    final newName = context.read<ProfileState>().nameController.value.text;
+
+    if (wallet == null) {
+      return;
+    }
 
     final success = await _logic.save(
       ProfileV1(
-        account: wallet?.account ?? '',
+        account: wallet.account,
       ),
       image,
     );
 
     if (!success) {
       return;
+    }
+
+    if (newName.isNotEmpty) {
+      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();
@@ -137,15 +149,24 @@ class EditProfileModalState extends State<EditProfileModal> {
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
+    final newName = context.read<ProfileState>().nameController.value.text;
+
+    if (wallet == null) {
+      return;
+    }
 
     final success = await _logic.update(
       ProfileV1(
-        account: wallet?.account ?? '',
+        account: wallet.account,
       ),
     );
 
     if (!success) {
       return;
+    }
+
+    if (newName.isNotEmpty) {
+      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();

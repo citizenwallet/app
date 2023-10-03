@@ -119,6 +119,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     String alias,
     String name,
     bool locked,
+    bool hasProfile,
   ) async {
     final wallet = context.read<WalletState>().wallet;
 
@@ -129,13 +130,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         builder: (BuildContext dialogContext) {
           return CupertinoActionSheet(
             actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('edit');
-                },
-                child: const Text('Edit name'),
-              ),
+              if (!hasProfile)
+                CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit name'),
+                ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
@@ -361,6 +363,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                                   wallet.alias,
                                   wallet.name,
                                   wallet.locked,
+                                  profiles.containsKey(wallet.account),
                                 ),
                                 onLoadProfile: handleLoadProfile,
                               );

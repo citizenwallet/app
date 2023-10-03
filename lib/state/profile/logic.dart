@@ -134,8 +134,25 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
-      final profile =
-          await _wallet.getProfile(account ?? _wallet.account.hexEip55);
+      final acc = account ?? _wallet.account.hexEip55;
+
+      final cachedProfile =
+          _profiles.profiles.containsKey(acc) ? _profiles.profiles[acc] : null;
+
+      if (cachedProfile?.profile != null) {
+        final profile = cachedProfile!.profile;
+        _state.setProfileSuccess(
+          account: profile.account,
+          username: profile.username,
+          name: profile.name,
+          description: profile.description,
+          image: profile.image,
+          imageMedium: profile.imageMedium,
+          imageSmall: profile.imageSmall,
+        );
+      }
+
+      final profile = await _wallet.getProfile(acc);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
@@ -170,6 +187,14 @@ class ProfileLogic {
   Future<void> loadViewProfile(String account) async {
     try {
       _state.viewProfileRequest();
+
+      final cachedProfile = _profiles.profiles.containsKey(account)
+          ? _profiles.profiles[account]
+          : null;
+
+      if (cachedProfile?.profile != null) {
+        _state.viewProfileSuccess(cachedProfile!.profile);
+      }
 
       final profile = await _wallet.getProfile(account);
       if (profile == null) {
