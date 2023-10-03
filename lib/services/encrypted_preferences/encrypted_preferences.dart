@@ -55,7 +55,8 @@ class BackupWallet {
   }
 
   String get legacyKey => '$backupPrefix${address.toLowerCase()}';
-  String get legacyKey2 => '$backupPrefix$legacyHash}';
+  String get legacyKey2 =>
+      '$backupPrefix$legacyHash}'; // the typo '}' is intentional, a typo was released to production
   String get key => '$backupPrefix$hashed';
   String get value => '$name|$address|$privateKey|$alias';
 }
