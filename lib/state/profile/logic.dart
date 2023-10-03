@@ -239,14 +239,17 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       );
 
-      _db.contacts.insert(DBContact(
+      _db.contacts.insert(
+        DBContact(
           account: newProfile.account,
           username: newProfile.username,
           name: newProfile.name,
           description: newProfile.description,
           image: newProfile.image,
           imageMedium: newProfile.imageMedium,
-          imageSmall: newProfile.imageSmall));
+          imageSmall: newProfile.imageSmall,
+        ),
+      );
 
       _profiles.isLoaded(
         newProfile.account,

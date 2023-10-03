@@ -485,7 +485,7 @@ class WalletState with ChangeNotifier {
   }
 
   void loadWalletsSuccess(List<CWWallet> wallets) {
-    this.wallets = wallets;
+    this.wallets = [...wallets];
 
     cwWalletsLoading = false;
     cwWalletsError = false;
