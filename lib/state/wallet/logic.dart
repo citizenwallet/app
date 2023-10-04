@@ -1320,7 +1320,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final (address, amount) = parseQRCode(raw);
       if (address == '') {
-        throw QRInvalidException();
+        throw QRMissingAddressException();
       }
 
       if (amount != null) {
