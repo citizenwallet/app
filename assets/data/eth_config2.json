@@ -1,0 +1,43 @@
+{
+    "community": {
+        "name": "Citizen Wallet",
+        "description": "The community of communities.",
+        "url": "https://citizenwallet.xyz",
+        "alias": "cw",
+        "logo": "https://app.citizenwallet.xyz/assets/assets/logo.svg"
+    },
+    "scan": {
+        "url": "https://etherscan.io",
+        "name": "Ethereum Explorer"
+    },
+    "indexer": {
+        "url": "https://indexer-ethereum.internal.citizenwallet.xyz",
+        "ipfs_url": "https://indexer-ethereum.internal.citizenwallet.xyz",
+        "key": "x"
+    },
+    "ipfs": {
+        "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+        "url": "https://ethereum-mainnet.core.chainstack.com/b0673ac8a939dd2f8c266b1fc8f40c22",
+        "ws_url": "wss://ethereum-mainnet.core.chainstack.com/ws/b0673ac8a939dd2f8c266b1fc8f40c22"
+    },
+    "erc4337": {
+        "rpc_url": "https://api.stackup.sh/v1/node/0178eef98e72004d083f1d209fb4b97b642f8187a0a17638522c74e0c369cfac",
+        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/0178eef98e72004d083f1d209fb4b97b642f8187a0a17638522c74e0c369cfac",
+        "paymaster_type": "payg"
+    },
+    "token": {
+        "standard": "erc20",
+        "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        "name": "Eth",
+        "symbol": "ETH",
+        "decimals": 18
+    },
+    "profile": {
+        "address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7"
+    },
+    "version": 1
+}

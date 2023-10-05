@@ -373,6 +373,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleConnect() async {
+    //
+  }
+
   void handleCopy(String value) {
     Clipboard.setData(ClipboardData(text: value));
 
@@ -506,6 +510,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleSendModal: handleSendModal,
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
+                      handleConnect: handleConnect,
                       handleTransactionTap: handleTransactionTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,

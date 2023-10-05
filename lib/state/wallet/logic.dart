@@ -84,7 +84,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
   String? get lastWallet => _preferences.lastWallet;
   String get address => _wallet.address.hexEip55;
+  String get account => _wallet.account.hexEip55;
+  EthPrivateKey get credentials => _wallet.credentials;
   String get token => _wallet.erc20Address;
+  String get chainId => _wallet.chainId.toString();
 
   WalletLogic(BuildContext context) {
     _state = context.read<WalletState>();

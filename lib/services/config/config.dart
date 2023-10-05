@@ -373,6 +373,13 @@ class ConfigService {
 
   Config? _config;
 
+  Future<Config> get mainConfig async {
+    final jsonConfig =
+        jsonDecode(await rootBundle.loadString('assets/data/configs2.json'));
+
+    return Config.fromJson(jsonConfig);
+  }
+
   Future<Config> get config async {
     if (_config != null && _config!.community.alias == _alias) {
       return _config!;
