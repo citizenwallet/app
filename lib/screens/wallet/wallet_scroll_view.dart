@@ -24,6 +24,7 @@ class WalletScrollView extends StatefulWidget {
   final Future<void> Function() handleRefresh;
   final void Function() handleSendModal;
   final void Function() handleReceive;
+  final void Function()? handle3rdParty;
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
   final void Function(String) handleFailedTransactionTap;
@@ -38,6 +39,7 @@ class WalletScrollView extends StatefulWidget {
     required this.handleRefresh,
     required this.handleSendModal,
     required this.handleReceive,
+    this.handle3rdParty,
     required this.handleVouchers,
     required this.handleTransactionTap,
     required this.handleFailedTransactionTap,
@@ -67,6 +69,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final handleRefresh = widget.handleRefresh;
     final handleSendModal = widget.handleSendModal;
     final handleReceive = widget.handleReceive;
+    final handle3rdParty = widget.handle3rdParty;
     final handleVouchers = widget.handleVouchers;
     final handleTransactionTap = widget.handleTransactionTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
@@ -281,6 +284,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 shrink: shrink,
                 handleSendModal: handleSendModal,
                 handleReceive: handleReceive,
+                handle3rdParty: handle3rdParty,
                 handleVouchers: handleVouchers,
               ),
             ),
