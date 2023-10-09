@@ -16,6 +16,7 @@ class WalletActions extends StatelessWidget {
 
   final void Function()? handleSendModal;
   final void Function()? handleReceive;
+  final void Function()? handleCards;
   final void Function()? handleVouchers;
 
   WalletActions({
@@ -23,6 +24,7 @@ class WalletActions extends StatelessWidget {
     this.shrink = 0,
     this.handleSendModal,
     this.handleReceive,
+    this.handleCards,
     this.handleVouchers,
   }) : super(key: key);
 
@@ -258,6 +260,46 @@ class WalletActions extends StatelessWidget {
                                     color: sendLoading
                                         ? ThemeColors.subtleEmphasis
                                         : ThemeColors.black,
+                                    fontSize: buttonFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (wallet?.locked == false) const SizedBox(width: 40),
+                      if (wallet?.locked == false &&
+                          (!loading || !firstLoad) &&
+                          handleSendModal != null &&
+                          handleCards != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: sendLoading ? () => () : handleCards,
+                          borderRadius: BorderRadius.circular(
+                              progressiveClamp(14, 20, shrink)),
+                          color: ThemeColors.background.resolveFrom(context),
+                          child: SizedBox(
+                            height: buttonSize,
+                            width: buttonSize,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.creditcard,
+                                  size: buttonIconSize,
+                                  color: sendLoading
+                                      ? ThemeColors.subtleEmphasis
+                                      : ThemeColors.text.resolveFrom(context),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Cards',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: sendLoading
+                                        ? ThemeColors.subtleEmphasis
+                                        : ThemeColors.text.resolveFrom(context),
                                     fontSize: buttonFontSize,
                                   ),
                                 ),
