@@ -8,8 +8,8 @@ String getRandomString(int len) {
   return base64UrlEncode(values);
 }
 
-String generateRandomId() {
-  final randomId = getRandomString(64);
+String generateRandomId({int len = 64}) {
+  final randomId = getRandomString(len);
 
   final timestamp = DateTime.now().millisecondsSinceEpoch;
 

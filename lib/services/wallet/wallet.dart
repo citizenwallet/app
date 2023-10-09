@@ -859,6 +859,13 @@ class WalletService {
     return false;
   }
 
+  String signMessage(String message) {
+    final signature = _credentials
+        .signPersonalMessageToUint8List(Uint8List.fromList(message.codeUnits));
+
+    return bytesToHex(signature, include0x: true);
+  }
+
   /// dispose of resources
   void dispose() {
     _ethClient.dispose();

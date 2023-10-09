@@ -1552,6 +1552,10 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
+  String signMessage(String message) {
+    return _wallet.signMessage(message);
+  }
+
   void pauseFetching() {
     transferEventUnsubscribe();
   }

@@ -359,6 +359,7 @@ class WalletScreenState extends State<WalletScreen> {
           url: 'DEFINE LATER',
           account: wallet.account,
           alias: wallet.alias,
+          walletLogic: _logic,
         ),
       ),
     );
