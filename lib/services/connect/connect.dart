@@ -104,9 +104,9 @@ class ConnectService {
     final walletNamespaces = {
       'eip155': Namespace(
         accounts: [
-          // 'eip155:$chainId:$account',
+          'eip155:$chainId:$account',
           // 'eip155:137:$account',
-          'eip155:$chainId:$address',
+          // 'eip155:$chainId:$address',
         ],
         methods: [
           'eth_sendTransaction',

@@ -25,15 +25,15 @@
     "erc4337": {
         "rpc_url": "https://api.stackup.sh/v1/node/0178eef98e72004d083f1d209fb4b97b642f8187a0a17638522c74e0c369cfac",
         "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "account_factory_address": "0xFE213c74e25505B232CE4C7f89647408bE6f71d2",
         "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/0178eef98e72004d083f1d209fb4b97b642f8187a0a17638522c74e0c369cfac",
         "paymaster_type": "payg"
     },
     "token": {
         "standard": "erc20",
-        "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        "name": "Eth",
-        "symbol": "ETH",
+        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "name": "DAI Stablecoin",
+        "symbol": "DAI",
         "decimals": 18
     },
     "profile": {
