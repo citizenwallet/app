@@ -7,10 +7,14 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ThirdPartyModal extends StatefulWidget {
   final String url;
+  final String account;
+  final String alias;
 
   const ThirdPartyModal({
     Key? key,
     required this.url,
+    required this.account,
+    required this.alias,
   }) : super(key: key);
 
   @override
@@ -41,10 +45,10 @@ class ThirdPartyModalState extends State<ThirdPartyModal> {
   }
 
   void onLoad() async {
-    await delay(const Duration(milliseconds: 500));
+    // await delay(const Duration(milliseconds: 500));
 
-    await _logic
-        .openApp('https://citizenwallet.xyz'); // HARD CODE YOUR APP URL HERE
+    await _logic.openApp(
+        'https://citizenwallet.xyz?account=${widget.account}&alias=${widget.alias}'); // HARD CODE YOUR APP URL HERE
 
     handleDismiss();
   }

@@ -337,6 +337,11 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handle3rdParty() async {
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      return;
+    }
+
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
@@ -350,8 +355,10 @@ class WalletScreenState extends State<WalletScreen> {
       builder: (_) => CupertinoScaffold(
         topRadius: const Radius.circular(40),
         transitionBackgroundColor: ThemeColors.transparent,
-        body: const ThirdPartyModal(
+        body: ThirdPartyModal(
           url: 'DEFINE LATER',
+          account: wallet.account,
+          alias: wallet.alias,
         ),
       ),
     );
