@@ -1,11 +1,15 @@
 import 'package:citizenwallet/state/cards/logic.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 
 class CardsScreen extends StatefulWidget {
+  final WalletLogic walletLogic;
+
   const CardsScreen({
     super.key,
+    required this.walletLogic,
   });
 
   @override
@@ -33,6 +37,7 @@ class CardsScreenState extends State<CardsScreen> {
   }
 
   void handleAddCard() {
+    // _logic.configure(widget.walletLogic.privateKey, widget.walletLogic.account);
     _logic.read();
   }
 

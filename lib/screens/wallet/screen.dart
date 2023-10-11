@@ -350,7 +350,9 @@ class WalletScreenState extends State<WalletScreen> {
       builder: (_) => CupertinoScaffold(
         topRadius: const Radius.circular(40),
         transitionBackgroundColor: ThemeColors.transparent,
-        body: const CardsScreen(),
+        body: CardsScreen(
+          walletLogic: _logic,
+        ),
       ),
     );
 
