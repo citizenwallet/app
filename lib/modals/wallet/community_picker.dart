@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
+import 'package:citizenwallet/state/communities/selectors.dart';
 import 'package:citizenwallet/state/communities/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/communities/community_row.dart';
@@ -65,8 +66,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
-    final communities =
-        context.select((CommunitiesState state) => state.communities);
+    final communities = context.select(selectVisibleCommunities);
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),

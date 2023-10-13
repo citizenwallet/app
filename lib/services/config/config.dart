@@ -14,6 +14,7 @@ class CommunityConfig {
   final String alias;
   final String logo;
   final String? customDomain;
+  final bool hidden;
 
   CommunityConfig({
     required this.name,
@@ -22,6 +23,7 @@ class CommunityConfig {
     required this.alias,
     required this.logo,
     this.customDomain,
+    this.hidden = false,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class CommunityConfig {
       alias: json['alias'],
       logo: json['logo'] ?? '',
       customDomain: json['custom_domain'],
+      hidden: json['hidden'] ?? false,
     );
   }
 
@@ -44,6 +47,7 @@ class CommunityConfig {
       'alias': alias,
       'logo': logo,
       'custom_domain': customDomain,
+      'hidden': hidden,
     };
   }
 

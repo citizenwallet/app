@@ -1,6 +1,11 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/communities/state.dart';
 
+List<Config> selectVisibleCommunities(CommunitiesState state) =>
+    state.communities
+        .where((Config config) => !config.community.hidden)
+        .toList();
+
 Map<String, CommunityConfig> selectMappedCommunityConfigs(
         CommunitiesState state) =>
     state.communities.fold({},
