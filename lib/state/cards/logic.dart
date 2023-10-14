@@ -13,6 +13,10 @@ class CardsLogic {
     _state.setAvailable(await _nfc.isAvailable);
   }
 
+  Future<void> fetchCards() async {
+    //
+  }
+
   Future<void> read() async {
     try {
       final card = await _nfc.readCard();
@@ -20,18 +24,18 @@ class CardsLogic {
         throw Exception('Invalid card.');
       }
 
-      print('Card read successfully ${card.uid} ${card.account}');
+      print('Card read successfully ${card.uid} ${card.account} ${card.alias}');
       print('signature ${card.signature}');
-    } catch (e, stack) {
+    } catch (e) {
       //
       print(e);
-      print(stack);
     }
   }
 
-  Future<void> configure(EthPrivateKey credentials, String account) async {
+  Future<void> configure(
+      EthPrivateKey credentials, String account, String alias) async {
     try {
-      await _nfc.configureCard(credentials, account);
+      await _nfc.configureCard(credentials, account, alias);
     } catch (e) {
       //
       print(e);

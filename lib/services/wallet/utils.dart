@@ -162,3 +162,30 @@ String generateSignature((String body, Uint8List privateKey) args) {
   // s - 32 bytes
   return '0x$v$r$s';
 }
+
+Uint8List hashSignatureData(Uint8List payload) {
+  const messagePrefix = '\u0019Ethereum Signed Message:\n';
+
+  final prefix = messagePrefix + payload.length.toString();
+  final prefixBytes = ascii.encode(prefix);
+
+  return keccak256(Uint8List.fromList(prefixBytes + payload));
+}
+
+// parseSignature parses a signature string into its components (r, s, v)
+MsgSignature parseSignature(Uint8List signature) {
+  final r = bytesToInt(signature.sublist(0, 32));
+  final s = bytesToInt(signature.sublist(32, 64));
+  final v = bytesToInt(signature.sublist(64, 65));
+
+  return MsgSignature(r, s, v.toInt());
+}
+
+EthereumAddress recoverAddressFromPersonalSignature(
+    Uint8List originalData, Uint8List signature) {
+  final hashedPayload = hashSignatureData(originalData);
+
+  final pubKey = ecRecover(hashedPayload, parseSignature(signature));
+
+  return EthereumAddress.fromPublicKey(pubKey);
+}

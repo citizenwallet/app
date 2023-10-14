@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:web3dart/credentials.dart';
@@ -47,11 +48,13 @@ class NFCCard {
   static const int version = 1;
 
   final String uid;
+  final String alias;
   final String account;
   String signature = '';
 
   NFCCard({
     required this.uid,
+    required this.alias,
     required this.account,
     this.signature = '',
   });
@@ -62,6 +65,7 @@ class NFCCard {
       'uid': uid,
       'version': version,
       'account': account,
+      'alias': alias,
       'signature': signature,
     };
   }
@@ -76,6 +80,7 @@ class NFCCard {
     return NFCCard(
       uid: map['uid'],
       account: map['account'],
+      alias: map['alias'],
       signature: map['signature'],
     );
   }
@@ -179,89 +184,115 @@ class NFCService {
 
     final card = NFCCard.fromJson(decompress(compressedCard));
 
+    // check if signature is valid
+    final originalCard = NFCCard(
+      uid: card.uid,
+      account: card.account,
+      alias: card.alias,
+    );
+
+    final address = recoverAddressFromPersonalSignature(
+      Uint8List.fromList(originalCard.toJson().codeUnits),
+      hexToBytes(card.signature),
+    );
+
+    // check if address matches
+    print('address ${address.hexEip55}');
+
     return card;
   }
 
-  Future<bool> configureCard(EthPrivateKey credentials, String account) async {
-    Completer<bool> completedSuccess = Completer<bool>();
+  Future<void> configureCard(
+    EthPrivateKey credentials,
+    String account,
+    String alias, {
+    bool forceWrite = false,
+  }) async {
+    Completer<Exception?> completion = Completer<Exception?>();
 
-    await NfcManager.instance.startSession(
-      alertMessage: 'Place your card on the phone.',
-      onError: (error) async {
-        completedSuccess.complete(false);
-      },
-      onDiscovered: (NfcTag tag) async {
-        Ndef? ndef = Ndef.from(tag);
-        if (ndef == null) {
-          completedSuccess.complete(false);
-          return;
-        }
+    try {
+      await NfcManager.instance.startSession(
+        alertMessage: 'Place your card on the phone.',
+        onError: (error) async {
+          completion.complete(Exception(error.message));
+        },
+        onDiscovered: (NfcTag tag) async {
+          Ndef? ndef = Ndef.from(tag);
+          if (ndef == null) {
+            completion.complete(Exception('Invalid card format.'));
+            return;
+          }
 
-        // check max size
-        // TODO: determine what the max size is after we implement the format
+          // check max size
+          // TODO: determine what the max size is after we implement the format
 
-        // check if writable
-        if (!ndef.isWritable) {
-          completedSuccess.complete(false);
-          return;
-        }
+          // check if writable
+          if (!ndef.isWritable) {
+            completion.complete(Exception('Card is locked.'));
+            return;
+          }
 
-        // check if formatted
-        if (tag.data.values.isNotEmpty) {
-          // tag.data..clear();
-        }
+          final message = await ndef.read();
+          if (message.records.isNotEmpty && !forceWrite) {
+            completion.complete(Exception('Card already configured.'));
+            return;
+          }
+          // if (message.records.isNotEmpty) {
+          //   await ndef.write(
+          //     NdefMessage([
+          //       NdefRecord.createUri(Uri.parse('https://citizenwallet.xyz')),
+          //     ]),
+          //   );
+          // }
 
-        // if (message.records.isNotEmpty) {
-        //   await ndef.write(
-        //     NdefMessage([
-        //       NdefRecord.createUri(Uri.parse('https://citizenwallet.xyz')),
-        //     ]),
-        //   );
-        // }
+          final mifareCard = MiFareCard.fromMap(tag.data);
+          if (mifareCard.mifare.mifareFamily != 2 ||
+              mifareCard.mifare.identifier.isEmpty) {
+            completion.complete(Exception('Invalid card format.'));
+            return;
+          }
 
-        final mifareCard = MiFareCard.fromMap(tag.data);
-        if (mifareCard.mifare.mifareFamily != 2 ||
-            mifareCard.mifare.identifier.isEmpty) {
-          completedSuccess.complete(false);
-          return;
-        }
+          final card = NFCCard(
+            uid: bytesToHex(
+              Uint8List.fromList(mifareCard.mifare.identifier),
+              include0x: true,
+            ),
+            account: account,
+            alias: alias,
+          );
 
-        final card = NFCCard(
-          uid: bytesToHex(
-            Uint8List.fromList(mifareCard.mifare.identifier),
-            include0x: true,
-          ),
-          account: account,
-        );
+          // final signature = await compute(
+          //     generateSignature, (card.toJson(), credentials.privateKey));
 
-        final signature = credentials.signPersonalMessageToUint8List(
-            Uint8List.fromList(card.toJson().codeUnits));
+          final signature = credentials.signPersonalMessageToUint8List(
+              Uint8List.fromList(card.toJson().codeUnits));
 
-        card.addSignature(bytesToHex(signature, include0x: true));
+          card.addSignature(bytesToHex(signature, include0x: true));
+          // card.addSignature(signature);
 
-        await ndef.write(
-          NdefMessage([
-            NdefRecord.createUri(
-                Uri.parse('$origin/#/?card=${compress(card.toJson())}')),
-          ]),
-        );
+          await ndef.write(
+            NdefMessage([
+              NdefRecord.createUri(
+                  Uri.parse('$origin/#/?card=${compress(card.toJson())}')),
+            ]),
+          );
 
-        await NfcManager.instance.stopSession(
-          alertMessage: 'Card ready.',
-        );
+          await NfcManager.instance.stopSession(
+            alertMessage: 'Card ready.',
+          );
 
-        completedSuccess.complete(true);
-      },
-    );
+          completion.complete();
+        },
+      );
 
-    final success = await completedSuccess.future;
-
-    if (!success) {
+      final error = await completion.future;
+      if (error != null) {
+        throw error;
+      }
+    } catch (e) {
       NfcManager.instance.stopSession(
-        errorMessage: 'Invalid card.',
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
       );
     }
-
-    return success;
   }
 }
