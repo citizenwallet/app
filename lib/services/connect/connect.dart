@@ -105,7 +105,7 @@ class ConnectService {
       'eip155': Namespace(
         accounts: [
           'eip155:$chainId:$account',
-          // 'eip155:137:$account',
+          'eip155:137:$account',
           // 'eip155:$chainId:$address',
         ],
         methods: [
@@ -127,7 +127,8 @@ class ConnectService {
     );
 
     _client.registerRequestHandler(
-      chainId: 'eip155:$chainId',
+      // chainId: 'eip155:$chainId',
+      chainId: 'eip155:137',
       method: 'personal_sign',
       handler: (String topic, dynamic parameters) async {
         // https://github.com/WalletConnect/WalletConnectFlutterV2/blob/bdda5e9a8834dd11f535c06789c3f2b46d601e9b/example/wallet/lib/dependencies/chains/evm_service.dart#L143C10-L143C22
