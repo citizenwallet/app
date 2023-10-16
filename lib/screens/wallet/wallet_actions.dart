@@ -7,6 +7,7 @@ import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
@@ -267,8 +268,10 @@ class WalletActions extends StatelessWidget {
                             ),
                           ),
                         ),
-                      if (wallet?.locked == false) const SizedBox(width: 40),
-                      if (wallet?.locked == false &&
+                      if (!kIsWeb && wallet?.locked == false)
+                        const SizedBox(width: 40),
+                      if (!kIsWeb &&
+                          wallet?.locked == false &&
                           (!loading || !firstLoad) &&
                           handleSendModal != null &&
                           handleCards != null)

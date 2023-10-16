@@ -923,6 +923,72 @@ class WalletLogic extends WidgetsBindingObserver {
     return to.isNotEmpty && amount.isNotEmpty;
   }
 
+  void preSendingTransaction(
+    BigInt amount,
+    String tempId,
+    String to, {
+    String message = '',
+  }) {
+    _state.preSendingTransaction(
+      CWTransaction.sending(
+        fromDoubleUnit(
+          amount.toString(),
+          decimals: _wallet.currency.decimals,
+        ),
+        id: tempId,
+        hash: '',
+        chainId: _wallet.chainId,
+        to: to,
+        title: message,
+        date: DateTime.now(),
+      ),
+    );
+  }
+
+  void sendingTransaction(
+    BigInt amount,
+    String hash,
+    String to, {
+    String message = '',
+  }) {
+    _state.sendingTransaction(
+      CWTransaction.sending(
+        fromDoubleUnit(
+          amount.toString(),
+          decimals: _wallet.currency.decimals,
+        ),
+        id: hash,
+        hash: '',
+        chainId: _wallet.chainId,
+        to: to,
+        title: message,
+        date: DateTime.now(),
+      ),
+    );
+  }
+
+  void pendingTransaction(
+    BigInt amount,
+    String hash,
+    String to, {
+    String message = '',
+  }) {
+    _state.pendingTransaction(
+      CWTransaction.pending(
+        fromDoubleUnit(
+          amount.toString(),
+          decimals: _wallet.currency.decimals,
+        ),
+        id: hash,
+        hash: '',
+        chainId: _wallet.chainId,
+        to: to,
+        title: message,
+        date: DateTime.now(),
+      ),
+    );
+  }
+
   Future<bool> sendTransactionFromLocked(
     String amount,
     String to, {

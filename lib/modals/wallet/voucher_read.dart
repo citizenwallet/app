@@ -2,6 +2,7 @@ import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -17,10 +18,12 @@ import 'package:provider/provider.dart';
 
 class VoucherReadModal extends StatefulWidget {
   final String address;
+  final WalletLogic logic;
 
   const VoucherReadModal({
     Key? key,
     required this.address,
+    required this.logic,
   }) : super(key: key);
 
   @override
@@ -79,9 +82,14 @@ class VoucherReadModalState extends State<VoucherReadModal>
   void handleRedeem() async {
     final navigator = GoRouter.of(context);
 
-    _logic.returnVoucher(widget.address);
+    _logic.returnVoucher(
+      widget.address,
+      preSendingTransaction: widget.logic.preSendingTransaction,
+      sendingTransaction: widget.logic.sendingTransaction,
+      pendingTransaction: widget.logic.pendingTransaction,
+    );
 
-    await delay(const Duration(milliseconds: 1000));
+    await delay(const Duration(milliseconds: 1500));
 
     navigator.pop();
   }

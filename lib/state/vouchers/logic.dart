@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/random.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -449,7 +450,27 @@ class VoucherLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<void> returnVoucher(String address) async {
+  Future<void> returnVoucher(
+    String address, {
+    Function(
+      BigInt amount,
+      String tempId,
+      String to, {
+      String message,
+    })? preSendingTransaction,
+    Function(
+      BigInt amount,
+      String hash,
+      String to, {
+      String message,
+    })? sendingTransaction,
+    Function(
+      BigInt amount,
+      String hash,
+      String to, {
+      String message,
+    })? pendingTransaction,
+  }) async {
     try {
       _state.returnVoucherRequest();
 
@@ -467,6 +488,16 @@ class VoucherLogic extends WidgetsBindingObserver {
         decimals: _wallet.currency.decimals,
       );
 
+      final tempId = '${pendingTransactionId}_${generateRandomId()}';
+
+      if (preSendingTransaction != null) {
+        preSendingTransaction(
+          amount,
+          tempId,
+          _wallet.account.hexEip55,
+        );
+      }
+
       final calldata = _wallet.erc20TransferCallData(
         _wallet.account.hexEip55,
         amount,
@@ -480,6 +511,14 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
+
+      if (sendingTransaction != null) {
+        sendingTransaction(
+          amount,
+          hash,
+          _wallet.account.hexEip55,
+        );
+      }
 
       final tx = await _wallet.addSendingLog(
         TransferEvent(
@@ -503,6 +542,14 @@ class VoucherLogic extends WidgetsBindingObserver {
       if (!success) {
         await _wallet.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
+      }
+
+      if (pendingTransaction != null) {
+        pendingTransaction(
+          amount,
+          hash,
+          _wallet.account.hexEip55,
+        );
       }
 
       await _wallet.setStatusLog(

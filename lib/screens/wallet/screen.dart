@@ -167,6 +167,7 @@ class WalletScreenState extends State<WalletScreen> {
       useRootNavigator: true,
       builder: (modalContext) => VoucherReadModal(
         address: address,
+        logic: _logic,
       ),
     );
 
