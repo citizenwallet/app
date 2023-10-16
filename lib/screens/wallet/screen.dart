@@ -141,9 +141,6 @@ class WalletScreenState extends State<WalletScreen> {
     if (widget.receiveParams != null) {
       await handleSendModal(receiveParams: widget.receiveParams);
     }
-
-    // TODO: remove this
-    handleConnect();
   }
 
   Future<void> handleLoadFromVoucher() async {
