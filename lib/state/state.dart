@@ -1,4 +1,5 @@
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/cards/state.dart';
 import 'package:citizenwallet/state/communities/state.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -29,6 +30,10 @@ Widget provideAppState(Widget child) => MultiProvider(
         ChangeNotifierProvider(
           create: (_) => CommunitiesState(),
         ),
+        if (!kIsWeb)
+          ChangeNotifierProvider(
+            create: (_) => CardsState(),
+          ),
         if (kIsWeb)
           ChangeNotifierProvider(
             create: (_) => BackupWebState(),

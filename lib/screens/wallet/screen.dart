@@ -3,6 +3,7 @@ import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
+import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -166,6 +167,7 @@ class WalletScreenState extends State<WalletScreen> {
       useRootNavigator: true,
       builder: (modalContext) => VoucherReadModal(
         address: address,
+        logic: _logic,
       ),
     );
 
@@ -335,6 +337,33 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleCards() async {
+    HapticFeedback.heavyImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: ThemeColors.transparent,
+        body: CardsScreen(
+          walletLogic: _logic,
+        ),
+      ),
+    );
+
+    await _voucherLogic.fetchVouchers();
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleVouchers() async {
     HapticFeedback.heavyImpact();
 
@@ -436,6 +465,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleRefresh: handleRefresh,
                   handleSendModal: handleSendModal,
                   handleReceive: handleReceive,
+                  handleCards: handleCards,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
                   handleFailedTransactionTap: handleFailedTransaction,

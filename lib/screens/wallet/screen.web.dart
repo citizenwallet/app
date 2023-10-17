@@ -213,6 +213,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       useRootNavigator: true,
       builder: (modalContext) => VoucherReadModal(
         address: address,
+        logic: _logic,
       ),
     );
 
