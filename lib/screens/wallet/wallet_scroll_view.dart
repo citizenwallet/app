@@ -13,6 +13,7 @@ import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/transaction_row.dart';
+import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -52,6 +53,7 @@ class WalletScrollView extends StatefulWidget {
 
 class WalletScrollViewState extends State<WalletScrollView> {
   String _selectedValue = 'Citizen Wallet';
+  bool _refreshing = false;
 
   void handleSelect(String? value) {
     if (value != null) {
@@ -59,6 +61,18 @@ class WalletScrollViewState extends State<WalletScrollView> {
         _selectedValue = value;
       });
     }
+  }
+
+  void handleRefreshing(bool value) {
+    if (_refreshing == value) {
+      return;
+    }
+
+    Future.delayed(const Duration(milliseconds: 10), () {
+      setState(() {
+        _refreshing = value;
+      });
+    });
   }
 
   @override
@@ -247,28 +261,45 @@ class WalletScrollViewState extends State<WalletScrollView> {
       scrollBehavior: const CupertinoScrollBehavior(),
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: handleRefresh,
-          builder: (
-            context,
-            mode,
-            pulledExtent,
-            refreshTriggerPullDistance,
-            refreshIndicatorExtent,
-          ) =>
-              SafeArea(
-            child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
-              child: CupertinoSliverRefreshControl.buildRefreshIndicator(
-                context,
-                mode,
-                pulledExtent,
-                refreshTriggerPullDistance,
-                refreshIndicatorExtent,
-              ),
-            ),
-          ),
-        ),
+            onRefresh: handleRefresh,
+            builder: (
+              context,
+              mode,
+              pulledExtent,
+              refreshTriggerPullDistance,
+              refreshIndicatorExtent,
+            ) {
+              handleRefreshing(pulledExtent >= 0.39);
+
+              return SafeArea(
+                child: Container(
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  child: (wallet != null)
+                      ? Center(
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                top: 26.5,
+                                left: 0.0,
+                                right: 0.0,
+                                child: CoinSpinner(
+                                  size: 80,
+                                  logo: wallet.currencyLogo,
+                                  spin: pulledExtent >=
+                                      refreshTriggerPullDistance,
+                                  value: pulledExtent / 200,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : null,
+                ),
+              );
+            }),
         SliverPersistentHeader(
           pinned: true,
           floating: false,
@@ -279,6 +310,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
               onTap: widget.handleScrollToTop,
               child: WalletActions(
                 shrink: shrink,
+                refreshing: _refreshing,
                 handleSendModal: handleSendModal,
                 handleReceive: handleReceive,
                 handleVouchers: handleVouchers,

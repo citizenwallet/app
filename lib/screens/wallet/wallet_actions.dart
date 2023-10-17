@@ -13,6 +13,7 @@ class WalletActions extends StatelessWidget {
   final ScrollController controller = ScrollController();
 
   final double shrink;
+  final bool refreshing;
 
   final void Function()? handleSendModal;
   final void Function()? handleReceive;
@@ -21,6 +22,7 @@ class WalletActions extends StatelessWidget {
   WalletActions({
     Key? key,
     this.shrink = 0,
+    this.refreshing = false,
     this.handleSendModal,
     this.handleReceive,
     this.handleVouchers,
@@ -65,6 +67,8 @@ class WalletActions extends StatelessWidget {
     final buttonFontSize =
         (1 - shrink) < 0.6 ? 12.0 : progressiveClamp(10, 14, shrink);
 
+    final shouldShowCoin = shrink > 0 || !refreshing;
+
     return Stack(
       children: [
         BlurryChild(
@@ -81,7 +85,11 @@ class WalletActions extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if ((1 - shrink) > 0.6 && wallet != null)
+                  if ((1 - shrink) > 0.6 && wallet != null && !shouldShowCoin)
+                    SizedBox(
+                      height: coinSize,
+                    ),
+                  if ((1 - shrink) > 0.6 && wallet != null && shouldShowCoin)
                     CoinLogo(
                       size: coinSize,
                       logo: wallet.currencyLogo,
