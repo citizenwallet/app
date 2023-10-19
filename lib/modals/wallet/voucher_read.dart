@@ -21,10 +21,10 @@ class VoucherReadModal extends StatefulWidget {
   final WalletLogic logic;
 
   const VoucherReadModal({
-    Key? key,
+    super.key,
     required this.address,
     required this.logic,
-  }) : super(key: key);
+  });
 
   @override
   VoucherReadModalState createState() => VoucherReadModalState();

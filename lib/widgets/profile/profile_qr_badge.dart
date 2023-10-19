@@ -15,13 +15,13 @@ class ProfileQRBadge extends StatelessWidget {
   final Function(String) handleCopy;
 
   const ProfileQRBadge({
-    Key? key,
+    super.key,
     this.profile,
     this.profileLink = '',
     this.loading = false,
     this.showQRCode = false,
     required this.handleCopy,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

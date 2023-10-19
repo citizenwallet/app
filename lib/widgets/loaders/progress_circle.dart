@@ -7,10 +7,10 @@ class ProgressCircle extends StatelessWidget {
   final double size;
 
   const ProgressCircle({
-    Key? key,
+    super.key,
     required this.progress,
     this.size = 50,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

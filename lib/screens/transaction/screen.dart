@@ -26,11 +26,11 @@ class TransactionScreen extends StatefulWidget {
   final ProfilesLogic profilesLogic;
 
   const TransactionScreen({
-    Key? key,
+    super.key,
     required this.transactionId,
     required this.logic,
     required this.profilesLogic,
-  }) : super(key: key);
+  });
 
   @override
   TransactionScreenState createState() => TransactionScreenState();

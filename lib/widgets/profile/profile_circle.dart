@@ -14,7 +14,7 @@ class ProfileCircle extends StatelessWidget {
   final Color? backgroundColor;
 
   const ProfileCircle({
-    Key? key,
+    super.key,
     this.imageUrl,
     this.imageBytes,
     this.size = 50,
@@ -22,7 +22,7 @@ class ProfileCircle extends StatelessWidget {
     this.borderWidth,
     this.borderColor,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

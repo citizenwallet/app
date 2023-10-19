@@ -12,11 +12,11 @@ class ExportWalletModal extends StatelessWidget {
   final void Function() onCopy;
 
   const ExportWalletModal({
-    Key? key,
+    super.key,
     this.title = 'Wallet',
     required this.toCopy,
     required this.onCopy,
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();

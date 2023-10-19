@@ -13,8 +13,8 @@ class AndroidRecoveryModal extends StatefulWidget {
   final String title = 'Account Recovery';
 
   const AndroidRecoveryModal({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   AndroidRecoveryModalState createState() => AndroidRecoveryModalState();

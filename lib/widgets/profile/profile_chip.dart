@@ -9,11 +9,11 @@ class ProfileChip extends StatelessWidget {
   final void Function()? handleDeSelect;
 
   const ProfileChip({
-    Key? key,
+    super.key,
     this.selectedProfile,
     this.selectedAddress,
     this.handleDeSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

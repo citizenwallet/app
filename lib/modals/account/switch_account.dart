@@ -27,10 +27,10 @@ class SwitchAccountModal extends StatefulWidget {
   final String? currentAddress;
 
   const SwitchAccountModal({
-    Key? key,
+    super.key,
     required this.logic,
     this.currentAddress,
-  }) : super(key: key);
+  });
 
   @override
   SwitchAccountModalState createState() => SwitchAccountModalState();

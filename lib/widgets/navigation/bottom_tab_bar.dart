@@ -18,11 +18,11 @@ class BottomTabBar extends StatefulWidget {
   final void Function(int) onItemSelected;
 
   const BottomTabBar({
-    Key? key,
+    super.key,
     required this.items,
     required this.selectedIndex,
     required this.onItemSelected,
-  }) : super(key: key);
+  });
 
   @override
   BottomTabBarState createState() => BottomTabBarState();

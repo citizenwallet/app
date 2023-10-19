@@ -20,8 +20,8 @@ import 'package:rate_limiter/rate_limiter.dart';
 
 class EditProfileModal extends StatefulWidget {
   const EditProfileModal({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   EditProfileModalState createState() => EditProfileModalState();

@@ -18,7 +18,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 class ReceiveModal extends StatefulWidget {
   final WalletLogic logic;
 
-  const ReceiveModal({Key? key, required this.logic}) : super(key: key);
+  const ReceiveModal({super.key, required this.logic});
 
   @override
   ReceiveModalState createState() => ReceiveModalState();

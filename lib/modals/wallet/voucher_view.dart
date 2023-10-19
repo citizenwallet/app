@@ -17,9 +17,9 @@ class VoucherViewModal extends StatefulWidget {
   final String address;
 
   const VoucherViewModal({
-    Key? key,
+    super.key,
     required this.address,
-  }) : super(key: key);
+  });
 
   @override
   VoucherViewModalState createState() => VoucherViewModalState();

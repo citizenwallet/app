@@ -13,11 +13,11 @@ class Scanner extends StatefulWidget {
   final void Function(String value) onScan;
 
   const Scanner({
-    Key? key,
+    super.key,
     this.height = 200,
     this.width = 200,
     required this.onScan,
-  }) : super(key: key);
+  });
 
   @override
   ScannerState createState() => ScannerState();

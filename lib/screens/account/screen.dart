@@ -22,11 +22,11 @@ class AccountScreen extends StatefulWidget {
   final WalletLogic wallet;
 
   const AccountScreen({
-    Key? key,
+    super.key,
     required this.address,
     required this.alias,
     required this.wallet,
-  }) : super(key: key);
+  });
 
   @override
   AccountScreenState createState() => AccountScreenState();

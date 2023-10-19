@@ -13,14 +13,14 @@ class ProfileRow extends StatelessWidget {
   final void Function()? onTap;
 
   const ProfileRow({
-    Key? key,
+    super.key,
     this.profile,
     this.loading = false,
     this.active = false,
     this.size = 60,
     this.fontSize = 12,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

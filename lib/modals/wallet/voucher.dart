@@ -18,10 +18,10 @@ class VoucherModal extends StatefulWidget {
   final String? symbol;
 
   const VoucherModal({
-    Key? key,
+    super.key,
     required this.amount,
     this.symbol,
-  }) : super(key: key);
+  });
 
   @override
   VoucherModalState createState() => VoucherModalState();

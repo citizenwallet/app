@@ -15,7 +15,7 @@ class ProfileBadge extends StatelessWidget {
   final void Function()? onTap;
 
   const ProfileBadge({
-    Key? key,
+    super.key,
     this.profile,
     this.loading = false,
     this.size = 80,
@@ -24,7 +24,7 @@ class ProfileBadge extends StatelessWidget {
     this.borderColor,
     this.backgroundColor,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

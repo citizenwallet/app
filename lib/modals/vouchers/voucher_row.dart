@@ -13,14 +13,14 @@ class VoucherRow extends StatefulWidget {
   final void Function(String, String, bool)? onTap;
 
   const VoucherRow({
-    Key? key,
+    super.key,
     required this.voucher,
     required this.logic,
     this.active = false,
     this.size = 60,
     this.logo = 'assets/icons/voucher.svg',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   VoucherRowState createState() => VoucherRowState();

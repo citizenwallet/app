@@ -36,14 +36,14 @@ class SendModal extends StatefulWidget {
   final String? receiveParams;
 
   const SendModal({
-    Key? key,
+    super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.id,
     this.to,
     this.amount,
     this.receiveParams,
-  }) : super(key: key);
+  });
 
   @override
   SendModalState createState() => SendModalState();

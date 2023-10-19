@@ -9,11 +9,11 @@ class CommunityRow extends StatelessWidget {
   final Function(String) onInfoTap;
 
   const CommunityRow({
-    Key? key,
+    super.key,
     required this.config,
     required this.onTap,
     required this.onInfoTap,
-  }) : super(key: key);
+  });
 
   void handleTap() {
     onTap(config);
