@@ -1261,6 +1261,10 @@ class WalletLogic extends WidgetsBindingObserver {
     return false;
   }
 
+  void clearInProgressTransaction() {
+    _state.clearInProgressTransaction();
+  }
+
   void clearInputControllers() {
     _addressController.clear();
     _amountController.clear();

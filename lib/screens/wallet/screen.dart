@@ -2,6 +2,7 @@ import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
+import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
@@ -300,7 +301,8 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    final sending =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -310,6 +312,17 @@ class WalletScreenState extends State<WalletScreen> {
         receiveParams: receiveParams,
       ),
     );
+
+    if (sending == true) {
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        expand: true,
+        useRootNavigator: true,
+        builder: (_) => SendingModal(
+          logic: _logic,
+        ),
+      );
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -402,13 +415,24 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await GoRouter.of(context).push(
+    final sending = await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.address!}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
       },
     );
+
+    if (sending == true) {
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        expand: true,
+        useRootNavigator: true,
+        builder: (_) => SendingModal(
+          logic: _logic,
+        ),
+      );
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();

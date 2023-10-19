@@ -31,7 +31,7 @@ class _CoinSpinnerState extends State<CoinSpinner>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 

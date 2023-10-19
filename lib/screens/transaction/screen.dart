@@ -70,7 +70,7 @@ class TransactionScreenState extends State<TransactionScreen> {
     );
 
     if (sent == true) {
-      navigator.pop();
+      navigator.pop(sent);
     }
   }
 
@@ -106,7 +106,7 @@ class TransactionScreenState extends State<TransactionScreen> {
     );
 
     if (sent == true) {
-      navigator.pop();
+      navigator.pop(sent);
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
+import 'package:citizenwallet/widgets/wallet/transaction_state_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
@@ -272,55 +273,9 @@ class TransactionRowState extends State<TransactionRow> {
             Positioned(
               bottom: 0,
               right: 0,
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: ThemeColors.white,
-                ),
-                child: (transaction.state == TransactionState.success)
-                    ? const Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            left: 1,
-                            child: Center(
-                              child: Icon(
-                                CupertinoIcons.checkmark_alt,
-                                color: ThemeColors.black,
-                                size: 14,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 5,
-                            child: Center(
-                              child: Icon(
-                                CupertinoIcons.checkmark_alt,
-                                color: ThemeColors.black,
-                                size: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Center(
-                        child: Icon(
-                          switch (transaction.state) {
-                            TransactionState.sending => isIncoming
-                                ? CupertinoIcons.arrow_down
-                                : CupertinoIcons.arrow_up,
-                            TransactionState.pending =>
-                              CupertinoIcons.checkmark_alt,
-                            TransactionState.fail =>
-                              CupertinoIcons.exclamationmark,
-                            _ => CupertinoIcons.checkmark_alt,
-                          },
-                          color: ThemeColors.black,
-                          size: 14,
-                        ),
-                      ),
+              child: TransactionStateIcon(
+                state: transaction.state,
+                isIncoming: isIncoming,
               ),
             )
           ],

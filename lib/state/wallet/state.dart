@@ -273,6 +273,10 @@ class WalletState with ChangeNotifier {
 
     transactions.insert(0, transaction);
 
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
+
     notifyListeners();
   }
 
@@ -285,6 +289,10 @@ class WalletState with ChangeNotifier {
         .toList();
 
     transactions.insert(0, transaction);
+
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
 
     notifyListeners();
   }
@@ -299,7 +307,22 @@ class WalletState with ChangeNotifier {
 
     transactions.insert(0, transaction);
 
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
+
     notifyListeners();
+  }
+
+  CWTransaction? inProgressTransaction;
+  bool inProgressTransactionLoading = true;
+  bool inProgressTransactionError = false;
+
+  void clearInProgressTransaction({bool notify = false}) {
+    inProgressTransaction = null;
+    inProgressTransactionLoading = false;
+    inProgressTransactionError = false;
+    if (notify) notifyListeners();
   }
 
   void sendTransactionSuccess(CWTransaction? transaction) {
@@ -318,6 +341,8 @@ class WalletState with ChangeNotifier {
   void sendTransactionError() {
     transactionSendLoading = false;
     transactionSendError = true;
+
+    inProgressTransactionError = true;
     notifyListeners();
   }
 
@@ -361,6 +386,17 @@ class WalletState with ChangeNotifier {
           .subtract(const Duration(minutes: 1));
 
       this.transactions = filteredTransactions;
+    }
+
+    if (hasChanges && inProgressTransaction != null) {
+      final index = this
+          .transactions
+          .indexWhere((t) => t.id == inProgressTransaction!.id);
+      if (index != -1) {
+        inProgressTransaction = this.transactions[index];
+        inProgressTransactionLoading = false;
+        inProgressTransactionError = false;
+      }
     }
 
     if (hasChanges) notifyListeners();
