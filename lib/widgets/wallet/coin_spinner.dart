@@ -11,12 +11,12 @@ class CoinSpinner extends StatefulWidget {
   final double? value;
 
   const CoinSpinner({
-    Key? key,
+    super.key,
     this.size = 40,
     required this.logo,
     this.spin = false,
     this.value,
-  }) : super(key: key);
+  });
 
   @override
   State<CoinSpinner> createState() => _CoinSpinnerState();
@@ -35,6 +35,14 @@ class _CoinSpinnerState extends State<CoinSpinner>
       vsync: this,
     );
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // make initial requests here
+
+      onLoad();
+    });
+  }
+
+  void onLoad() {
     if (widget.spin) {
       spin();
     }
@@ -72,8 +80,7 @@ class _CoinSpinnerState extends State<CoinSpinner>
     if (_controller.isAnimating) {
       _controller.stop();
       _controller.animateTo(
-        // _controller.value > 0.5 ? 1 : 0,
-        0,
+        _controller.value > 0.5 ? 1 : 0,
         duration: const Duration(milliseconds: 150),
       );
       _controller.reset();
@@ -82,8 +89,6 @@ class _CoinSpinnerState extends State<CoinSpinner>
 
   @override
   Widget build(BuildContext context) {
-    final value =
-        widget.spin ? _controller.value : widget.value ?? _controller.value;
     return SizedBox(
       width: widget.size,
       height: widget.size,
@@ -98,7 +103,11 @@ class _CoinSpinnerState extends State<CoinSpinner>
                   transform: Matrix4.identity()
                     ..setEntry(1, 2, 0.15)
                     ..rotateY(
-                      math.pi * 2 * value,
+                      math.pi *
+                          2 *
+                          (widget.spin
+                              ? _controller.value
+                              : widget.value ?? _controller.value),
                     ),
                   child: CoinLogo(
                     size: widget.size,

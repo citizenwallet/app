@@ -35,7 +35,7 @@ class WalletScrollView extends StatefulWidget {
   final void Function() handleScrollToTop;
 
   const WalletScrollView({
-    Key? key,
+    super.key,
     required this.controller,
     required this.handleRefresh,
     required this.handleSendModal,
@@ -47,7 +47,7 @@ class WalletScrollView extends StatefulWidget {
     required this.handleCopy,
     required this.handleLoad,
     required this.handleScrollToTop,
-  }) : super(key: key);
+  });
 
   @override
   WalletScrollViewState createState() => WalletScrollViewState();
@@ -70,7 +70,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
       return;
     }
 
-    Future.delayed(const Duration(milliseconds: 10), () {
+    Future.delayed(Duration(milliseconds: value ? 10 : 250), () {
       setState(() {
         _refreshing = value;
       });
@@ -273,6 +273,20 @@ class WalletScrollViewState extends State<WalletScrollView> {
               refreshIndicatorExtent,
             ) {
               handleRefreshing(pulledExtent >= 0.39);
+
+              return SafeArea(
+                child: Container(
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
+                  child: CupertinoSliverRefreshControl.buildRefreshIndicator(
+                    context,
+                    mode,
+                    pulledExtent,
+                    refreshTriggerPullDistance,
+                    refreshIndicatorExtent,
+                  ),
+                ),
+              );
 
               return SafeArea(
                 child: Container(

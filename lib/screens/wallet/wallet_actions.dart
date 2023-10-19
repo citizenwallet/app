@@ -6,6 +6,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
+import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -22,14 +23,14 @@ class WalletActions extends StatelessWidget {
   final void Function()? handleVouchers;
 
   WalletActions({
-    Key? key,
+    super.key,
     this.shrink = 0,
     this.refreshing = false,
     this.handleSendModal,
     this.handleReceive,
     this.handleCards,
     this.handleVouchers,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +71,6 @@ class WalletActions extends StatelessWidget {
     final buttonFontSize =
         (1 - shrink) < 0.6 ? 12.0 : progressiveClamp(10, 14, shrink);
 
-    final shouldShowCoin = shrink > 0 || !refreshing;
-
     return Stack(
       children: [
         BlurryChild(
@@ -88,14 +87,12 @@ class WalletActions extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if ((1 - shrink) > 0.6 && wallet != null && !shouldShowCoin)
-                    SizedBox(
-                      height: coinSize,
-                    ),
-                  if ((1 - shrink) > 0.6 && wallet != null && shouldShowCoin)
-                    CoinLogo(
+                  if ((1 - shrink) > 0.6 && wallet != null)
+                    CoinSpinner(
+                      key: Key('${wallet.alias}-spinner'),
                       size: coinSize,
                       logo: wallet.currencyLogo,
+                      spin: refreshing || hasPending,
                     ),
                   if ((1 - shrink) > 0.75)
                     const SizedBox(
