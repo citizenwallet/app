@@ -18,6 +18,7 @@ class TransactionRow extends StatefulWidget {
   final Map<String, ProfileItem> profiles;
   final Map<String, Voucher> vouchers;
   final void Function(String transactionId)? onTap;
+  final void Function()? onProcessingTap;
   final void Function(String address)? onLoad;
 
   const TransactionRow({
@@ -28,6 +29,7 @@ class TransactionRow extends StatefulWidget {
     required this.profiles,
     required this.vouchers,
     this.onTap,
+    this.onProcessingTap,
     this.onLoad,
   });
 
@@ -60,6 +62,7 @@ class TransactionRowState extends State<TransactionRow> {
     final transaction = widget.transaction;
     final wallet = widget.wallet;
     final onTap = widget.onTap;
+    final onProcessingTap = widget.onProcessingTap;
 
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
@@ -69,8 +72,11 @@ class TransactionRowState extends State<TransactionRow> {
     final voucher = widget.vouchers[address];
 
     return GestureDetector(
-      onTap:
-          transaction.isProcessing ? null : () => onTap?.call(transaction.id),
+      onTap: transaction.isProcessing
+          ? isIncoming
+              ? null
+              : () => onProcessingTap?.call()
+          : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
         key: widget.key,
         duration: const Duration(milliseconds: 300),

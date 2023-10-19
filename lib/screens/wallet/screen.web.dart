@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -312,7 +313,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet(
+    final sending = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -322,6 +323,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         receiveParams: receiveParams,
       ),
     );
+
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -387,13 +392,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await GoRouter.of(context).push(
+    final sending = await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.encoded}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
       },
     );
+
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -456,6 +465,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => SendingModal(
+        logic: _logic,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -508,6 +528,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
+                      handleTransactionSendingTap: handleTransactionSendingTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,

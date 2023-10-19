@@ -13,7 +13,6 @@ import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/transaction_row.dart';
-import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -28,6 +27,7 @@ class WalletScrollView extends StatefulWidget {
   final void Function()? handleCards;
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
+  final void Function() handleTransactionSendingTap;
   final void Function(String) handleFailedTransactionTap;
   final void Function(String) handleCopy;
 
@@ -43,6 +43,7 @@ class WalletScrollView extends StatefulWidget {
     this.handleCards,
     required this.handleVouchers,
     required this.handleTransactionTap,
+    required this.handleTransactionSendingTap,
     required this.handleFailedTransactionTap,
     required this.handleCopy,
     required this.handleLoad,
@@ -86,6 +87,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final handleCards = widget.handleCards;
     final handleVouchers = widget.handleVouchers;
     final handleTransactionTap = widget.handleTransactionTap;
+    final handleTransactionSendingTap = widget.handleTransactionSendingTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
     final handleLoad = widget.handleLoad;
@@ -287,35 +289,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   ),
                 ),
               );
-
-              return SafeArea(
-                child: Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
-                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  child: (wallet != null)
-                      ? Center(
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Positioned(
-                                top: 26.5,
-                                left: 0.0,
-                                right: 0.0,
-                                child: CoinSpinner(
-                                  size: 80,
-                                  logo: wallet.currencyLogo,
-                                  spin: pulledExtent >=
-                                      refreshTriggerPullDistance,
-                                  value: pulledExtent / 200,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : null,
-                ),
-              );
             }),
         SliverPersistentHeader(
           pinned: true,
@@ -442,6 +415,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: handleTransactionTap,
+                    onProcessingTap: handleTransactionSendingTap,
                     onLoad: handleLoad,
                   ),
                 );

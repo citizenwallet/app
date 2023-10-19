@@ -314,14 +314,7 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     if (sending == true) {
-      CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => SendingModal(
-          logic: _logic,
-        ),
-      );
+      handleTransactionSendingTap();
     }
 
     _logic.resumeFetching();
@@ -424,19 +417,23 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     if (sending == true) {
-      CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => SendingModal(
-          logic: _logic,
-        ),
-      );
+      handleTransactionSendingTap();
     }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
+  }
+
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => SendingModal(
+        logic: _logic,
+      ),
+    );
   }
 
   void handleLoad(String address) async {
@@ -492,6 +489,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleCards: handleCards,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
+                  handleTransactionSendingTap: handleTransactionSendingTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,
