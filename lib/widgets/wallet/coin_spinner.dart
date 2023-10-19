@@ -81,9 +81,9 @@ class _CoinSpinnerState extends State<CoinSpinner>
       _controller.stop();
       _controller.animateTo(
         _controller.value > 0.5 ? 1 : 0,
+        // 0,
         duration: const Duration(milliseconds: 150),
       );
-      _controller.reset();
     }
   }
 
