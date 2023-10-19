@@ -1011,19 +1011,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('invalid address');
       }
 
-      _state.preSendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: tempId,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1038,19 +1029,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      _state.sendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      sendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       // this is an optional operation
@@ -1075,19 +1057,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      _state.pendingTransaction(
-        CWTransaction.pending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      pendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       // this is an optional operation
@@ -1174,19 +1147,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('invalid address');
       }
 
-      _state.preSendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: tempId,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1201,19 +1165,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      _state.sendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      sendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       // this is an optional operation
@@ -1238,19 +1193,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      _state.pendingTransaction(
-        CWTransaction.pending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      pendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       // this is an optional operation
