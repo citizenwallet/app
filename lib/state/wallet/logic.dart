@@ -17,6 +17,7 @@ import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
@@ -60,14 +61,14 @@ class QRMissingAddressException implements Exception {
 
 class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
-  late WalletState _state;
+  final WalletState _state;
+  final NotificationsLogic _notificationsLogic;
 
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
-  final AudioService _audio = AudioService();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
@@ -88,9 +89,9 @@ class WalletLogic extends WidgetsBindingObserver {
   String get address => _wallet.address.hexEip55;
   String get token => _wallet.erc20Address;
 
-  WalletLogic(BuildContext context) {
-    _state = context.read<WalletState>();
-  }
+  WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
+      : _state = context.read<WalletState>(),
+        _notificationsLogic = notificationsLogic;
 
   EthPrivateKey get privateKey {
     return _wallet.credentials;
@@ -587,11 +588,9 @@ class WalletLogic extends WidgetsBindingObserver {
         txList,
       );
 
-      incomingTxNotification(txList
-          .where((element) =>
-              element.to == _wallet.account.hexEip55 &&
-              element.state != TransactionState.success)
-          .length);
+      incomingTxNotification(txList.where((element) =>
+          element.to == _wallet.account.hexEip55 &&
+          element.state != TransactionState.success));
 
       if (hasChanges) {
         updateBalance();
@@ -615,10 +614,24 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   int _incomingTxCount = 0;
+  CWTransaction? _lastIncomingTx;
 
-  void incomingTxNotification(int incomingTxCount) {
-    if (incomingTxCount > _incomingTxCount) {
-      _audio.txNotification();
+  void incomingTxNotification(Iterable<CWTransaction> incomingTx) {
+    final incomingTxCount = incomingTx.length;
+
+    if (incomingTxCount > 0 && incomingTxCount > _incomingTxCount) {
+      _lastIncomingTx = incomingTx.first;
+      _notificationsLogic.show(
+        'Receiving ${incomingTx.first.amount} ${_wallet.currency.symbol}...',
+      );
+    }
+
+    if (_lastIncomingTx != null && incomingTxCount < _incomingTxCount) {
+      _notificationsLogic.show(
+        '${_lastIncomingTx!.amount} ${_wallet.currency.symbol} is now in your account.',
+        playSound: true,
+      );
+      _lastIncomingTx = null;
     }
 
     _incomingTxCount = incomingTxCount;

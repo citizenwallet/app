@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -36,6 +37,7 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   late ProfileLogic _logic;
   late WalletLogic _walletLogic;
+  late NotificationsLogic _notificationsLogic;
 
   late Debounce debouncedHandleUsernameUpdate;
   late Debounce debouncedHandleNameUpdate;
@@ -46,7 +48,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     super.initState();
 
     _logic = ProfileLogic(context);
-    _walletLogic = WalletLogic(context);
+    _notificationsLogic = NotificationsLogic(context);
+    _walletLogic = WalletLogic(context, _notificationsLogic);
 
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
