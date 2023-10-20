@@ -147,6 +147,7 @@ class _NotificationBannerState extends State<NotificationBanner> {
                 color: ThemeColors.text.resolveFrom(context),
               ),
             ),
+            const SizedBox(width: 10),
           ],
         ),
       ),
