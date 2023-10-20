@@ -46,6 +46,11 @@ class SettingsScreenState extends State<SettingsScreen> {
     HapticFeedback.mediumImpact();
   }
 
+  void onToggleMuted(bool enabled) {
+    _appLogic.setMuted(!enabled);
+    HapticFeedback.mediumImpact();
+  }
+
   void handleOpenContract(String address) {
     final Uri url = Uri.parse('${widget.scanUrl}/address/$address');
 
@@ -97,6 +102,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
     final darkMode = context.select((AppState state) => state.darkMode);
+    final muted = context.select((AppState state) => state.muted);
 
     final wallet = context.select((WalletState state) => state.wallet);
 
@@ -134,6 +140,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                   trailing: CupertinoSwitch(
                     value: darkMode,
                     onChanged: onToggleDarkMode,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'Audio',
+                  icon: 'assets/icons/sound.svg',
+                  trailing: CupertinoSwitch(
+                    value: !muted,
+                    onChanged: onToggleMuted,
                   ),
                 ),
                 SettingsRow(

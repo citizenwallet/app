@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citizenwallet/router/router.dart';
+import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -37,6 +38,8 @@ FutureOr<void> appRunner() async {
   WalletService();
 
   ConfigService();
+
+  await AudioService().init(muted: PreferencesService().muted);
 
   runApp(provideAppState(const MyApp()));
 }

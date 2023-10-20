@@ -56,6 +56,7 @@ dependencies:
   cached_network_image: ^3.2.3
   universal_html: ^2.2.4
   nfc_manager: ^3.3.0
+  audio_in_app: ^2.0.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.0
@@ -72,6 +73,7 @@ flutter:
     - assets/logo.png
     - assets/logo.svg
     - assets/about/about.md
+    - assets/audio/tx_notification.wav
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
     - assets/images/citizenwallet-qrcode.svg
@@ -80,6 +82,7 @@ flutter:
     - assets/images/google-play-badge.png
     - assets/icons/app.svg
     - assets/icons/dark-mode.svg
+    - assets/icons/sound.svg
     - assets/icons/docs.svg
     - assets/icons/website.svg
     - assets/icons/cloud-settings.svg

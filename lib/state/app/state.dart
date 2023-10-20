@@ -39,12 +39,15 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
+  bool muted = false;
+
   bool chainsLoading = false;
   bool chainsError = false;
   List<Chain> chains = [];
 
   AppState() {
     _darkMode = PreferencesService().darkMode;
+    muted = PreferencesService().muted;
     onLoad();
   }
 
@@ -134,6 +137,11 @@ class AppState with ChangeNotifier {
   void deleteBackupLoadingSuccess() {
     backupDeleteLoading = false;
     backupDeleteError = false;
+    notifyListeners();
+  }
+
+  void setMuted(bool muted) {
+    this.muted = muted;
     notifyListeners();
   }
 }

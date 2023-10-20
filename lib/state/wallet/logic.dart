@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
@@ -66,6 +67,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
+  final AudioService _audio = AudioService();
 
   final PreferencesService _preferences = PreferencesService();
   final EncryptedPreferencesService _encPrefs =
@@ -579,9 +581,13 @@ class WalletLogic extends WidgetsBindingObserver {
         iterableRemoteTxs.toList(),
       );
 
+      final txList = cwtransactions.toList();
+
       final hasChanges = _state.incomingTransactionsRequestSuccess(
-        cwtransactions.toList(),
+        txList,
       );
+
+      soundNotification(txList.length);
 
       if (hasChanges) {
         updateBalance();
@@ -602,6 +608,16 @@ class WalletLogic extends WidgetsBindingObserver {
     await delay(txFetchInterval);
 
     fetchNewTransfers(id);
+  }
+
+  int _incomingTxCount = 0;
+
+  void soundNotification(int incomingTxCount) {
+    if (incomingTxCount > _incomingTxCount && _incomingTxCount != 0) {
+      _audio.txNotification();
+    }
+
+    _incomingTxCount = incomingTxCount;
   }
 
   // takes a password and returns a wallet

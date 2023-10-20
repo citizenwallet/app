@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
@@ -23,6 +24,8 @@ class AppLogic {
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
   final ConfigService _config = ConfigService();
+  final AudioService _audio = AudioService();
+
   late AppState _appState;
 
   AppLogic(BuildContext context) {
@@ -30,13 +33,33 @@ class AppLogic {
   }
 
   void setDarkMode(bool darkMode) {
-    _preferences.setDarkMode(darkMode);
+    try {
+      _preferences.setDarkMode(darkMode);
 
-    _appState.darkMode = darkMode;
+      _appState.darkMode = darkMode;
+    } catch (e) {
+      //
+    }
+  }
+
+  void setMuted(bool muted) {
+    try {
+      _preferences.setMuted(muted);
+
+      _audio.setMuted(muted);
+
+      _appState.setMuted(muted);
+    } catch (e) {
+      //
+    }
   }
 
   void setFirstLaunch(bool firstLaunch) {
-    _preferences.setFirstLaunch(firstLaunch);
+    try {
+      _preferences.setFirstLaunch(firstLaunch);
+    } catch (e) {
+      //
+    }
   }
 
   void configureGenericConfig() {

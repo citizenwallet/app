@@ -20,6 +20,13 @@ class PreferencesService {
     await _preferences.clear();
   }
 
+  // save the muted preference for audio service
+  Future setMuted(bool muted) async {
+    await _preferences.setBool('muted', muted);
+  }
+
+  bool get muted => _preferences.getBool('muted') ?? false;
+
   Future setDarkMode(bool darkMode) async {
     await _preferences.setBool('darkMode', darkMode);
   }
