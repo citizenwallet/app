@@ -325,10 +325,6 @@ class WalletScreenState extends State<WalletScreen> {
   void handleReceive() async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       expand: true,
@@ -337,10 +333,6 @@ class WalletScreenState extends State<WalletScreen> {
         logic: _logic,
       ),
     );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
   }
 
   void handleCards() async {

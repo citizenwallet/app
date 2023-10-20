@@ -587,7 +587,11 @@ class WalletLogic extends WidgetsBindingObserver {
         txList,
       );
 
-      soundNotification(txList.length);
+      incomingTxNotification(txList
+          .where((element) =>
+              element.to == _wallet.account.hexEip55 &&
+              element.state != TransactionState.success)
+          .length);
 
       if (hasChanges) {
         updateBalance();
@@ -612,8 +616,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
   int _incomingTxCount = 0;
 
-  void soundNotification(int incomingTxCount) {
-    if (incomingTxCount > _incomingTxCount && _incomingTxCount != 0) {
+  void incomingTxNotification(int incomingTxCount) {
+    if (incomingTxCount > _incomingTxCount) {
       _audio.txNotification();
     }
 

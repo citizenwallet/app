@@ -17,7 +17,7 @@ class AudioService {
     return _audioInApp.createNewAudioCache(
       playerId: 'tx_notification',
       route: 'audio/tx_notification.wav',
-      audioInAppType: AudioInAppType.background,
+      audioInAppType: AudioInAppType.determined,
     );
   }
 

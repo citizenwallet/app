@@ -143,7 +143,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SettingsRow(
-                  label: 'Audio',
+                  label: 'Notification sounds',
                   icon: 'assets/icons/sound.svg',
                   trailing: CupertinoSwitch(
                     value: !muted,
