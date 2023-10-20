@@ -4,8 +4,6 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/widgets/blurry_child.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/modals/vouchers/voucher_row.dart';
@@ -19,7 +17,7 @@ import 'package:provider/provider.dart';
 class VouchersModal extends StatefulWidget {
   final String title = 'Vouchers';
 
-  const VouchersModal({Key? key}) : super(key: key);
+  const VouchersModal({super.key});
 
   @override
   VouchersModalState createState() => VouchersModalState();

@@ -277,7 +277,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     );
 
     if (shouldDismiss == true) {
-      navigator.pop(true);
+      navigator.pop();
     }
   }
 
