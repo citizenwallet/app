@@ -240,8 +240,8 @@ class WalletService {
 
       final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
-      final sig =
-          await compute(generateSignature, (json, _credentials.privateKey));
+      final sig = await compute(generateSignature,
+          (jsonEncode(body.toJson()), _credentials.privateKey));
 
       final resp = await _indexerIPFS.filePut(
         url: url,
@@ -289,8 +289,8 @@ class WalletService {
 
       final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
-      final sig =
-          await compute(generateSignature, (json, _credentials.privateKey));
+      final sig = await compute(generateSignature,
+          (jsonEncode(body.toJson()), _credentials.privateKey));
 
       final resp = await _indexerIPFS.patch(
         url: url,
@@ -339,8 +339,8 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig =
-          await compute(generateSignature, (encoded, _credentials.privateKey));
+      final sig = await compute(generateSignature,
+          (jsonEncode(body.toJson()), _credentials.privateKey));
 
       await _indexerIPFS.delete(
         url: url,
@@ -787,7 +787,8 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(generateSignature, (encoded, cred.privateKey));
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
 
       final response = await _indexer.post(
         url: url,
@@ -812,7 +813,7 @@ class WalletService {
 
   /// set status of existing erc20 transfer event that are not success
   ///
-  /// [status] number of seconds to go back, uses block time to calculate
+  /// [status] the status to set
   Future<bool> setStatusLog(
     String hash,
     TransactionState status, {
@@ -836,7 +837,8 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(generateSignature, (encoded, cred.privateKey));
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
 
       await _indexer.patch(
         url: url,

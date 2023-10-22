@@ -8,6 +8,7 @@ class SignedRequest {
       .add(const Duration(seconds: 5))
       .toUtc()
       .millisecondsSinceEpoch;
+  final int version = 2;
 
   SignedRequest(this.data);
 
@@ -16,5 +17,6 @@ class SignedRequest {
         'data': base64Encode(data),
         'encoding': encoding,
         'expiry': expiry,
+        'version': version,
       };
 }

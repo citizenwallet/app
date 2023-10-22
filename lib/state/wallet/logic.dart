@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
-import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
