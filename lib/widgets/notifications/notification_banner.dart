@@ -129,10 +129,10 @@ class _NotificationBannerState extends State<NotificationBanner> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: ThemeColors.text.resolveFrom(context),
+                      color: ThemeColors.text,
                     ),
                   ),
                 ],
@@ -142,9 +142,9 @@ class _NotificationBannerState extends State<NotificationBanner> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
               onPressed: widget.onDismiss,
               minSize: 20,
-              child: Icon(
+              child: const Icon(
                 CupertinoIcons.clear,
-                color: ThemeColors.text.resolveFrom(context),
+                color: ThemeColors.text,
               ),
             ),
             const SizedBox(width: 10),
