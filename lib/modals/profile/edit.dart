@@ -118,6 +118,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   void handleSave(Uint8List? image) async {
     final navigator = GoRouter.of(context);
 
+    FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
@@ -149,6 +150,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   void handleUpdate() async {
     final navigator = GoRouter.of(context);
 
+    FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
