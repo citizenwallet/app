@@ -83,7 +83,7 @@ class _SendingModalState extends State<SendingModal> {
       return const SizedBox();
     }
 
-    if (inProgressTransaction.state == TransactionState.success) {
+    if (inProgressTransaction.state == TransactionState.pending) {
       handleDismissLater();
     }
 
@@ -169,9 +169,8 @@ class _SendingModalState extends State<SendingModal> {
                                     child: ProgressBar(
                                       switch (inProgressTransaction.state) {
                                         TransactionState.sending => 0,
-                                        TransactionState.pending => 0.5,
-                                        TransactionState.success => 1,
-                                        _ => 0,
+                                        TransactionState.pending => 1,
+                                        _ => 0.5,
                                       },
                                       width: width - 80,
                                       height: 16,
@@ -189,20 +188,9 @@ class _SendingModalState extends State<SendingModal> {
                                               )
                                         ),
                                         (
-                                          0.5,
-                                          (reached) => TransactionStateIcon(
-                                                state: TransactionState.pending,
-                                                color: reached
-                                                    ? ThemeColors.primary
-                                                        .resolveFrom(context)
-                                                    : ThemeColors.white,
-                                                duration: 750,
-                                              )
-                                        ),
-                                        (
                                           1,
                                           (reached) => TransactionStateIcon(
-                                                state: TransactionState.success,
+                                                state: TransactionState.pending,
                                                 color: reached
                                                     ? ThemeColors.primary
                                                         .resolveFrom(context)
@@ -269,7 +257,7 @@ class _SendingModalState extends State<SendingModal> {
                                 const SizedBox(height: 10),
                                 if (!inProgressTransactionLoading &&
                                     inProgressTransaction.state ==
-                                        TransactionState.success) ...[
+                                        TransactionState.pending) ...[
                                   Text(
                                     'on',
                                     style: TextStyle(
@@ -296,33 +284,30 @@ class _SendingModalState extends State<SendingModal> {
                               ],
                       ),
                     ),
-                    if (!inProgressTransactionLoading ||
-                        inProgressTransactionError)
-                      Positioned(
-                        bottom: 0,
-                        width: width,
-                        child: BlurryChild(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                ),
+                    Positioned(
+                      bottom: 0,
+                      width: width,
+                      child: BlurryChild(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: ThemeColors.subtle.resolveFrom(context),
                               ),
                             ),
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Column(children: [
-                              Button(
-                                text: 'Close',
-                                onPressed: () => handleDismiss(context),
-                                minWidth: 200,
-                                maxWidth: 200,
-                              ),
-                            ]),
                           ),
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                          child: Column(children: [
+                            Button(
+                              text: 'Dismiss',
+                              onPressed: () => handleDismiss(context),
+                              minWidth: 200,
+                              maxWidth: 200,
+                            ),
+                          ]),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),

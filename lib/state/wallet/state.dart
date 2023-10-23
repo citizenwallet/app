@@ -308,7 +308,7 @@ class WalletState with ChangeNotifier {
     transactions.insert(0, transaction);
 
     inProgressTransaction = transaction;
-    inProgressTransactionLoading = true;
+    inProgressTransactionLoading = false;
     inProgressTransactionError = false;
 
     notifyListeners();
