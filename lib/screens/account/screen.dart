@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/account/switch_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -35,6 +36,7 @@ class AccountScreen extends StatefulWidget {
 class AccountScreenState extends State<AccountScreen> {
   late ProfileLogic _logic;
   late WalletLogic _walletLogic;
+  late NotificationsLogic _notificationsLogic;
 
   bool _showQRCode = false;
 
@@ -44,6 +46,7 @@ class AccountScreenState extends State<AccountScreen> {
 
     _logic = ProfileLogic(context);
     _walletLogic = widget.wallet;
+    _notificationsLogic = NotificationsLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -75,6 +78,8 @@ class AccountScreenState extends State<AccountScreen> {
         }
       },
     );
+
+    _notificationsLogic.init();
 
     setState(() {
       _showQRCode = true;

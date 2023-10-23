@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
 class NotificationsState with ChangeNotifier {
+  bool _push = false;
+
+  bool get push => _push;
+
   bool _display = false;
   String _title = '';
 
@@ -16,6 +20,12 @@ class NotificationsState with ChangeNotifier {
 
   void hide() {
     _display = false;
+
+    notifyListeners();
+  }
+
+  void setPush(bool push) {
+    _push = push;
 
     notifyListeners();
   }

@@ -1,5 +1,7 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -28,6 +30,7 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   late AppLogic _appLogic;
+  late NotificationsLogic _notificationsLogic;
 
   bool _protected = false;
 
@@ -38,12 +41,23 @@ class SettingsScreenState extends State<SettingsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
       _appLogic = AppLogic(context);
+      _notificationsLogic = NotificationsLogic(context);
+
+      onLoad();
     });
+  }
+
+  void onLoad() async {
+    _notificationsLogic.checkPushPermissions();
   }
 
   void onToggleDarkMode(bool enabled) {
     _appLogic.setDarkMode(enabled);
     HapticFeedback.mediumImpact();
+  }
+
+  void handleTogglePushNotifications(bool enabled) {
+    _notificationsLogic.togglePushNotifications();
   }
 
   void onToggleMuted(bool enabled) {
@@ -104,6 +118,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     final darkMode = context.select((AppState state) => state.darkMode);
     final muted = context.select((AppState state) => state.muted);
 
+    final push = context.select((NotificationsState state) => state.push);
+
     final wallet = context.select((WalletState state) => state.wallet);
 
     final packageInfo = context.select((AppState state) => state.packageInfo);
@@ -143,14 +159,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SettingsRow(
-                  label: 'Notification sounds',
-                  icon: 'assets/icons/sound.svg',
-                  trailing: CupertinoSwitch(
-                    value: !muted,
-                    onChanged: onToggleMuted,
-                  ),
-                ),
-                SettingsRow(
                   label: 'About',
                   icon: 'assets/icons/docs.svg',
                   onTap: handleOpenAbout,
@@ -158,6 +166,32 @@ class SettingsScreenState extends State<SettingsScreen> {
                 if (packageInfo != null)
                   SettingsSubRow(
                       'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Notifications',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  label: 'Push Notifications',
+                  icon: 'assets/icons/notification_bell.svg',
+                  trailing: CupertinoSwitch(
+                    value: push,
+                    onChanged: handleTogglePushNotifications,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'In-app sounds',
+                  icon: 'assets/icons/sound.svg',
+                  trailing: CupertinoSwitch(
+                    value: !muted,
+                    onChanged: onToggleMuted,
+                  ),
+                ),
                 // const Padding(
                 //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 //   child: Text(
@@ -278,6 +312,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(
+                  height: 60,
                 ),
               ],
             ),

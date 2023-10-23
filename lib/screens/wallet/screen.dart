@@ -6,6 +6,7 @@ import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
@@ -43,6 +44,7 @@ class WalletScreen extends StatefulWidget {
 
 class WalletScreenState extends State<WalletScreen> {
   final ScrollController _scrollController = ScrollController();
+  late NotificationsLogic _notificationsLogic;
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
@@ -52,6 +54,7 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
 
+    _notificationsLogic = NotificationsLogic(context);
     _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
@@ -133,6 +136,8 @@ class WalletScreenState extends State<WalletScreen> {
         await _voucherLogic.fetchVouchers();
       },
     );
+
+    _notificationsLogic.init();
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();

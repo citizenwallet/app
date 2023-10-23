@@ -4,6 +4,7 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
+import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/indexer/status_update_request.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -841,6 +842,107 @@ class WalletService {
           generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
 
       await _indexer.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer $_indexerKey',
+          'X-Signature': sig,
+          'X-Address': cred.address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// updates the push token for the current account
+  ///
+  /// [token] the push token
+  /// [customCredentials] optional credentials to use
+  Future<bool> updatePushToken(
+    String token, {
+    EthPrivateKey? customCredentials,
+  }) async {
+    try {
+      final cred = customCredentials ?? _credentials;
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+      }
+
+      final url = '/push/${_contractToken.addr}';
+
+      final encoded = jsonEncode(
+        PushUpdateRequest(token, acc.hexEip55).toJson(),
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+
+      await _indexer.put(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer $_indexerKey',
+          'X-Signature': sig,
+          'X-Address': cred.address.hexEip55,
+        },
+        body: body.toJson(),
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
+  /// removes the push token for the current account
+  ///
+  /// [token] the push token
+  /// [customCredentials] optional credentials to use
+  Future<bool> removePushToken(
+    String token, {
+    EthPrivateKey? customCredentials,
+  }) async {
+    try {
+      final cred = customCredentials ?? _credentials;
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+      }
+
+      final url = '/push/${_contractToken.addr}/${acc.hexEip55}/$token';
+
+      final encoded = jsonEncode(
+        {
+          'account': acc.hexEip55,
+          'date': DateTime.now().toUtc().toIso8601String(),
+        },
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+
+      await _indexer.delete(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',

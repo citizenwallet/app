@@ -31,6 +31,14 @@ class PreferencesService {
     await _preferences.setBool('darkMode', darkMode);
   }
 
+  // save the push notifications preference
+  Future setPushNotifications(String account, bool pushNotifications) async {
+    await _preferences.setBool('pushNotifications_$account', pushNotifications);
+  }
+
+  bool pushNotifications(String account) =>
+      _preferences.getBool('pushNotifications_$account') ?? false;
+
   bool get darkMode =>
       _preferences.getBool('darkMode') ??
       SchedulerBinding.instance.platformDispatcher.platformBrightness ==

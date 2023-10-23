@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citizenwallet/firebase_options.dart';
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
@@ -13,8 +14,8 @@ import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -36,6 +37,10 @@ FutureOr<void> appRunner() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await PreferencesService().init(await SharedPreferences.getInstance());
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   DBService();
 
@@ -96,6 +101,8 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
+    _notificationsLogic.checkPushPermissions();
+
     await _logic.fetchWalletConfig();
   }
 
