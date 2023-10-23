@@ -613,25 +613,25 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   int _incomingTxCount = 0;
-  CWTransaction? _lastIncomingTx;
+  // CWTransaction? _lastIncomingTx;
 
   void incomingTxNotification(Iterable<CWTransaction> incomingTx) {
     final incomingTxCount = incomingTx.length;
 
     if (incomingTxCount > 0 && incomingTxCount > _incomingTxCount) {
-      _lastIncomingTx = incomingTx.first;
+      // _lastIncomingTx = incomingTx.first;
       _notificationsLogic.show(
         'Receiving ${incomingTx.first.amount} ${_wallet.currency.symbol}...',
       );
     }
 
-    if (_lastIncomingTx != null && incomingTxCount < _incomingTxCount) {
-      _notificationsLogic.show(
-        '${_lastIncomingTx!.amount} ${_wallet.currency.symbol} is now in your account.',
-        playSound: true,
-      );
-      _lastIncomingTx = null;
-    }
+    // if (_lastIncomingTx != null && incomingTxCount < _incomingTxCount) {
+    //   _notificationsLogic.show(
+    //     '${_lastIncomingTx!.amount} ${_wallet.currency.symbol} is now in your account.',
+    //     playSound: true,
+    //   );
+    //   _lastIncomingTx = null;
+    // }
 
     _incomingTxCount = incomingTxCount;
   }

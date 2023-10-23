@@ -70,7 +70,7 @@ class NotificationsLogic {
     if (notification != null) {
       final message = notification.body ?? notification.title;
       if (message != null) {
-        // show(message, playSound: !_prefs.muted);
+        show(message, playSound: !_prefs.muted);
       }
     }
   }
