@@ -132,6 +132,10 @@ class MyAppState extends State<MyApp> {
             routerConfig: router,
             theme: theme,
             title: '$titlePrefix Wallet',
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              child: child ?? const SizedBox(),
+            ),
           ),
           NotificationBanner(
             title: title,
