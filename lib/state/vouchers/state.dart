@@ -135,7 +135,7 @@ class VoucherState with ChangeNotifier {
 
     final index = vouchers.indexWhere((v) => v.address == voucher.address);
     if (index < 0) {
-      vouchers.add(voucher);
+      vouchers.insert(0, voucher);
     } else {
       vouchers[index] = voucher;
     }

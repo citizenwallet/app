@@ -76,26 +76,38 @@ class HeaderState extends State<Header> {
                 ),
               if (widget.titleWidget == null && widget.title != null)
                 Expanded(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            widget.title!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: widget.textAlign,
-                            style: TextStyle(
-                              fontSize: widget.fontSize,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    widget.title!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: widget.textAlign,
+                    style: TextStyle(
+                      fontSize: widget.fontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+              // Expanded(
+              //   child: Row(
+              //     children: [
+              //       Flexible(
+              //         child: FittedBox(
+              //           fit: BoxFit.fitWidth,
+              //           child: Text(
+              //             widget.title!,
+              //             maxLines: 1,
+              //             overflow: TextOverflow.ellipsis,
+              //             textAlign: widget.textAlign,
+              //             style: TextStyle(
+              //               fontSize: widget.fontSize,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               if (widget.titleWidget != null)
                 Expanded(child: widget.titleWidget!),
               if (widget.actionButton != null)

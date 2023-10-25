@@ -121,8 +121,7 @@ class VoucherModalState extends State<VoucherModal>
 
     final size = height > width ? width : height;
 
-    final createdVoucher =
-        context.select((VoucherState state) => state.createdVoucher);
+    final createdVoucher = context.watch<VoucherState>().createdVoucher;
     final creationState =
         context.select((VoucherState state) => state.creationState);
     final createLoading =

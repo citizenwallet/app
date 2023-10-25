@@ -158,7 +158,7 @@ class _SendingModalState extends State<SendingModal> {
                                     child: CoinSpinner(
                                       size: 160,
                                       logo: wallet.currencyLogo,
-                                      spin: inProgressTransactionLoading,
+                                      spin: true,
                                     ),
                                   ),
                                 ),
