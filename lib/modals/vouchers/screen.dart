@@ -151,7 +151,7 @@ class VouchersModalState extends State<VouchersModal> {
       if (confirm == true) await _logic.deleteVoucher(address);
     }
 
-    _logic.resume();
+    _logic.resume(address: address);
   }
 
   void handleCreateVoucher() {
@@ -166,11 +166,9 @@ class VouchersModalState extends State<VouchersModal> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     final config = context.select((WalletState state) => state.config);
 
-    final vouchers = context.select(selectVouchers);
+    final vouchers = selectVouchers(context.watch<VoucherState>());
 
     final loading = context.select((VoucherState state) => state.loading);
 
@@ -243,7 +241,7 @@ class VouchersModalState extends State<VouchersModal> {
                                 final voucher = vouchers[index];
 
                                 return Padding(
-                                  key: Key(voucher.address),
+                                  key: Key(voucher.id),
                                   padding:
                                       const EdgeInsets.fromLTRB(10, 10, 10, 10),
                                   child: VoucherRow(

@@ -54,6 +54,21 @@ class Voucher {
 
     return link;
   }
+
+  String get id => '$address-$balance';
+
+  // address + balance is used to determine if a voucher is the same
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Voucher &&
+          runtimeType == other.runtimeType &&
+          address == other.address &&
+          balance == other.balance;
+
+  // hashcode is used to determine if a voucher is the same
+  @override
+  int get hashCode => address.hashCode ^ balance.hashCode;
 }
 
 class VoucherState with ChangeNotifier {
@@ -70,7 +85,7 @@ class VoucherState with ChangeNotifier {
   }
 
   void vouchersSuccess(List<Voucher> vouchers) {
-    this.vouchers = vouchers;
+    this.vouchers = [...vouchers];
     loading = false;
     error = false;
     notifyListeners();

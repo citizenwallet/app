@@ -593,8 +593,14 @@ class VoucherLogic extends WidgetsBindingObserver {
     stopLoading = true;
   }
 
-  void resume() {
+  void resume({String? address}) {
     stopLoading = false;
+
+    if (address != null) {
+      updateVoucher(address);
+      return;
+    }
+
     debouncedLoad();
   }
 

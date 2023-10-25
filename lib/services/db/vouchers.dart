@@ -191,8 +191,11 @@ class VouchersTable extends DBTable {
 
   // Retrieves all vouchers from the table by alias
   Future<List<DBVoucher>> getAllByAlias(String token) async {
-    List<Map<String, dynamic>> maps = await db
-        .query(name, columns: null, where: 'alias = ?', whereArgs: [token]);
+    List<Map<String, dynamic>> maps = await db.query(name,
+        columns: null,
+        where: 'alias = ?',
+        whereArgs: [token],
+        orderBy: 'createdAt DESC');
 
     return List.generate(maps.length, (i) {
       return DBVoucher.fromMap(maps[i]);
