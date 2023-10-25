@@ -92,7 +92,7 @@
             "name": "USDC on Base",
             "description": "The community of people using USDC on Base.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
-            "alias": "app",
+            "alias": "usdc.base",
             "logo": "https://app.citizenwallet.xyz/wallet-config/_images/usdc.svg"
         },
         "scan": {
@@ -127,7 +127,7 @@
             "decimals": 6
         },
         "profile": {
-            "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986"
+            "address": "0x51Ef5Add405CCF63c206A80AF8c2B3cEE0282830"
         },
         "version": 1
     },
