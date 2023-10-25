@@ -170,7 +170,7 @@ class _SendingModalState extends State<SendingModal> {
                                       switch (inProgressTransaction.state) {
                                         TransactionState.sending => 0,
                                         TransactionState.pending => 1,
-                                        _ => 0.5,
+                                        _ => 1,
                                       },
                                       width: width - 80,
                                       height: 16,
