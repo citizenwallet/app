@@ -223,9 +223,54 @@
             "name": "Stable Coin",
             "description": "SBC is a digital dollar stablecoin issued by Brale",
             "url": "https://brale.xyz/",
+            "alias": "sbc.polygon",
+            "logo": "https://sbc.polygon.citizenwallet.xyz/wallet-config/_images/sbc.svg"
+        },
+        "scan": {
+            "url": "https://polygonscan.com",
+            "name": "Polygon Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+        },
+        "erc4337": {
+            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+            "paymaster_type": "payg",
+            "gas_extra_percentage": 50
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
+            "name": "Stable Coin",
+            "symbol": "SBC",
+            "decimals": 18
+        },
+        "profile": {
+            "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2"
+        },
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Stable Coin [Deprecated]",
+            "description": "Please switch to 'Stable Coin'",
+            "url": "https://brale.xyz/",
             "alias": "middlebit.xyz",
-            "logo": "https://middlebit.xyz/wallet-config/_images/sbc.svg",
-            "custom_domain": "middlebit.xyz"
+            "logo": "https://sbc.polygon.citizenwallet.xyz/wallet-config/_images/sbc_deprecated.svg",
+            "custom_domain": "middlebit.xyz",
+            "hidden": true
         },
         "scan": {
             "url": "https://polygonscan.com",

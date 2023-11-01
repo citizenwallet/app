@@ -1,11 +1,17 @@
-import 'package:citizenwallet/services/nfc/nfc.dart';
+import 'package:citizenwallet/state/cards/logic.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 class CardsScreen extends StatefulWidget {
+  final WalletLogic walletLogic;
+
   const CardsScreen({
     super.key,
+    required this.walletLogic,
   });
 
   @override
@@ -13,23 +19,36 @@ class CardsScreen extends StatefulWidget {
 }
 
 class CardsScreenState extends State<CardsScreen> {
-  late NFCService nfcService;
+  late CardsLogic _logic;
 
   @override
   void initState() {
     super.initState();
 
-    nfcService = NFCService();
+    _logic = CardsLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
 
-      nfcService.init();
+      onLoad();
     });
   }
 
+  void onLoad() async {
+    _logic.init();
+  }
+
   void handleAddCard() {
-    nfcService.read();
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      return;
+    }
+
+    print('initial address: ${widget.walletLogic.privateKey.address.hexEip55}');
+
+    // _logic.configure(
+    //     widget.walletLogic.privateKey, wallet.account, wallet.alias);
+    _logic.read();
   }
 
   @override

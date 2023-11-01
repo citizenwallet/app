@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.35+82
+version: 1.0.36+84
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -10,7 +10,7 @@ dependencies:
       url: https://github.com/citizenwallet/smartcontracts.git
       ref: v0.0.51
   cupertino_icons: ^1.0.2
-  go_router: ^10.0.0
+  go_router: ^11.1.2
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
@@ -34,7 +34,6 @@ dependencies:
   rate_limiter: ^1.0.0
   cryptography: ^2.5.0
   collection: ^1.17.0
-  dartsv: ^1.0.1
   web_socket_channel: ^2.2.0
   stream_channel: ^2.1.1
   graphql: ^5.1.2
@@ -50,12 +49,13 @@ dependencies:
   username_gen: ^1.0.4
   file_picker: ^5.3.3
   universal_io: ^2.2.2
-  share_plus: ^7.1.0
+  share_plus: ^8.0.0
   sqflite_common: ^2.5.0
   image: ^4.0.17
   qr_flutter: ^4.1.0
   cached_network_image: ^3.2.3
   universal_html: ^2.2.4
+  nfc_manager: ^3.3.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
