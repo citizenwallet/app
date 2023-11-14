@@ -233,7 +233,7 @@ class WalletService {
     required String fileType,
   }) async {
     try {
-      final url = '/profiles/${_account.hexEip55}';
+      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -282,7 +282,7 @@ class WalletService {
   /// update profile data
   Future<String?> updateProfile(ProfileV1 profile) async {
     try {
-      final url = '/profiles/${_account.hexEip55}';
+      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -329,7 +329,7 @@ class WalletService {
   /// set profile data
   Future<bool> unpinCurrentProfile() async {
     try {
-      final url = '/profiles/${_account.hexEip55}';
+      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         {
