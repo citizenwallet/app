@@ -8,7 +8,7 @@ dependencies:
   smartcontracts:
     git:
       url: https://github.com/citizenwallet/smartcontracts.git
-      ref: v0.0.51
+      ref: v0.0.53
   cupertino_icons: ^1.0.2
   go_router: ^12.0.0
   provider: ^6.0.5
@@ -118,10 +118,12 @@ flutter:
     - assets/lottie/wallet_receive.json
     - assets/lottie/qr_scan_success.json
     - assets/lottie/piggie_bank.json
+    - packages/smartcontracts/contracts/accounts/Account.abi.json
+    - packages/smartcontracts/contracts/accounts/AccountFactory.abi.json
     - packages/smartcontracts/contracts/external/DERC20.abi.json
-    - packages/smartcontracts/contracts/external/SimpleAccount.abi.json
+    - packages/smartcontracts/contracts/accounts/Account.abi.json
     - packages/smartcontracts/contracts/external/SimpleAccountFactory.abi.json
-    - packages/smartcontracts/contracts/external/EntryPoint.abi.json
+    - packages/smartcontracts/contracts/accounts/TokenEntryPoint.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
