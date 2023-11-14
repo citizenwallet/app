@@ -81,6 +81,9 @@ class AccountScreenState extends State<AccountScreen> {
 
     _notificationsLogic.init();
 
+    if (!super.mounted) {
+      return;
+    }
     setState(() {
       _showQRCode = true;
     });

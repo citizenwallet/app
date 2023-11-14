@@ -113,6 +113,23 @@ class UserOp {
     };
   }
 
+  // convert to List<dynamic> compatible with smart contracts
+  List<dynamic> toParams() {
+    return [
+      EthereumAddress.fromHex(sender),
+      nonce,
+      initCode,
+      callData,
+      callGasLimit,
+      verificationGasLimit,
+      preVerificationGas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      paymasterAndData,
+      signature,
+    ];
+  }
+
   // getUserOpHash returns the hash of the user op
   Uint8List getHash(String entrypoint, String chainId) {
     final packed = LengthTrackingByteSink();

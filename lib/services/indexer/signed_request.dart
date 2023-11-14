@@ -5,10 +5,10 @@ class SignedRequest {
   final Uint8List data;
   final String encoding = 'base64';
   final int expiry = DateTime.now()
-      .add(const Duration(seconds: 5))
+      .add(const Duration(seconds: 30))
       .toUtc()
       .millisecondsSinceEpoch;
-  final int version = 2;
+  final int version = 3;
 
   SignedRequest(this.data);
 

@@ -37,23 +37,23 @@ class AccountFactoryService {
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
 
-  Future<String> createAccount(EthPrivateKey cred, String addr) async {
-    final account = await contract.createAccount(
-        EthereumAddress.fromHex(addr), BigInt.from(0),
-        credentials: cred);
+  // Future<String> createAccount(EthPrivateKey cred, String addr) async {
+  //   final account = await contract.createAccount(
+  //       EthereumAddress.fromHex(addr), BigInt.from(0),
+  //       credentials: cred);
 
-    // final uri = await contract.uri(tokenId);
-    // return '/$uri';
-    return account;
-  }
+  //   // final uri = await contract.uri(tokenId);
+  //   // return '/$uri';
+  //   return account;
+  // }
 
   Future<EthereumAddress> getAddress(String owner) {
     return contract.getAddress(EthereumAddress.fromHex(owner), BigInt.zero);
   }
 
-  Future<BigInt> getNonce(String sender) async {
-    return contract.getNonce(EthereumAddress.fromHex(sender), BigInt.zero);
-  }
+  // Future<BigInt> getNonce(String sender) async {
+  //   return contract.getNonce(EthereumAddress.fromHex(sender), BigInt.zero);
+  // }
 
   Future<Uint8List> createAccountInitCode(String owner, BigInt amount) async {
     // final function = rcontract.function('createAccount');

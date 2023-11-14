@@ -12,7 +12,7 @@ import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
-import 'package:citizenwallet/services/wallet/contracts/simple_account_factory.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/gas.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -73,7 +73,7 @@ class WalletService {
   late EthereumAddress _account; // Represents an Ethereum address.
   late StackupEntryPoint
       _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
-  late AccountFactory
+  late AccountFactoryService
       _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
   late ERC20Contract
       _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
@@ -241,8 +241,8 @@ class WalletService {
 
       final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
-      final sig = await compute(generateSignature,
-          (jsonEncode(body.toJson()), _credentials.privateKey));
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), _credentials));
 
       final resp = await _indexerIPFS.filePut(
         url: url,
@@ -251,7 +251,7 @@ class WalletService {
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': address.hexEip55,
+          'X-Address': _account.hexEip55,
         },
         body: body.toJson(),
       );
@@ -290,15 +290,15 @@ class WalletService {
 
       final body = SignedRequest(convertBytesToUint8List(utf8.encode(json)));
 
-      final sig = await compute(generateSignature,
-          (jsonEncode(body.toJson()), _credentials.privateKey));
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), _credentials));
 
       final resp = await _indexerIPFS.patch(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': address.hexEip55,
+          'X-Address': _account.hexEip55,
         },
         body: body.toJson(),
       );
@@ -340,15 +340,15 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(generateSignature,
-          (jsonEncode(body.toJson()), _credentials.privateKey));
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), _credentials));
 
       await _indexerIPFS.delete(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': address.hexEip55,
+          'X-Address': _account.hexEip55,
         },
         body: body.toJson(),
       );
@@ -584,12 +584,12 @@ class WalletService {
 
   /// makes a jsonrpc request from this wallet
   Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _paymasterRPC.post(
+    final rawResponse = await _paymasterRPC.post(
       body: body,
       headers: erc4337Headers,
     );
 
-    final response = SUJSONRPCResponse.fromJson(rawRespoonse);
+    final response = SUJSONRPCResponse.fromJson(rawResponse);
 
     if (response.error != null) {
       throw Exception(response.error!.message);
@@ -676,14 +676,14 @@ class WalletService {
       userop.sender = acc.hexEip55;
 
       // determine the appropriate nonce
-      final nonce =
+      BigInt nonce =
           customNonce ?? await _contractEntryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero) {
         // construct the init code to deploy the account
-        userop.initCode = _contractAccountFactory.createAccountInitCode(
+        userop.initCode = await _contractAccountFactory.createAccountInitCode(
           cred.address.hexEip55,
           BigInt.zero,
         );
@@ -703,7 +703,6 @@ class WalletService {
             );
 
       // set the appropriate gas fees based on network
-      // final fees = await _ethClient.getGasInEIP1559();
       final fees = await _gasPriceEstimator.estimate;
       if (fees == null) {
         throw Exception('unable to estimate fees');
@@ -735,7 +734,7 @@ class WalletService {
       userop.callGasLimit = paymasterData.callGasLimit;
 
       // get the hash of the user op
-      final hash = userop.getHash(_contractEntryPoint.addr, chainId.toString());
+      final hash = await _contractEntryPoint.getUserOpHash(userop);
 
       // now we can sign the user op
       userop.generateSignature(cred, hash);
@@ -788,15 +787,15 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(
-          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+      final sig =
+          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
 
       final response = await _indexer.post(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': cred.address.hexEip55,
+          'X-Address': acc.hexEip55,
         },
         body: body.toJson(),
       );
@@ -838,15 +837,15 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(
-          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+      final sig =
+          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
 
       await _indexer.patch(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': cred.address.hexEip55,
+          'X-Address': acc.hexEip55,
         },
         body: body.toJson(),
       );
@@ -879,7 +878,7 @@ class WalletService {
         );
       }
 
-      final url = '/push/${_contractToken.addr}';
+      final url = '/push/${_contractToken.addr}/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         PushUpdateRequest(token, acc.hexEip55).toJson(),
@@ -887,15 +886,15 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(
-          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+      final sig =
+          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
 
       await _indexer.put(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': cred.address.hexEip55,
+          'X-Address': acc.hexEip55,
         },
         body: body.toJson(),
       );
@@ -939,15 +938,15 @@ class WalletService {
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(
-          generateSignature, (jsonEncode(body.toJson()), cred.privateKey));
+      final sig =
+          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
 
       await _indexer.delete(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': cred.address.hexEip55,
+          'X-Address': acc.hexEip55,
         },
         body: body.toJson(),
       );

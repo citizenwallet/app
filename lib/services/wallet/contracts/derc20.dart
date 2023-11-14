@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/external.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class TransferEvent {

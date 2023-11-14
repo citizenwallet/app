@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
+import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:smartcontracts/external.dart';
+import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/web3dart.dart';
 
 StackupEntryPoint newEntryPoint(int chainId, Web3Client client, String addr) {
@@ -12,13 +14,11 @@ class StackupEntryPoint {
   final int chainId;
   final Web3Client client;
   final String addr;
-  late EntryPoint contract;
+  late TokenEntryPoint contract;
   late DeployedContract rcontract;
 
-  // StreamSubscription<TransferSingle>? _sub;
-
   StackupEntryPoint(this.chainId, this.client, this.addr) {
-    contract = EntryPoint(
+    contract = TokenEntryPoint(
       address: EthereumAddress.fromHex(addr),
       chainId: chainId,
       client: client,
@@ -27,9 +27,9 @@ class StackupEntryPoint {
 
   Future<void> init() async {
     final abi = await rootBundle.loadString(
-        'packages/smartcontracts/contracts/external/EntryPoint.abi.json');
+        'packages/smartcontracts/contracts/accounts/TokenEntryPoint.abi.json');
 
-    final cabi = ContractAbi.fromJson(abi, 'EntryPoint');
+    final cabi = ContractAbi.fromJson(abi, 'TokenEntryPoint');
 
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
@@ -39,6 +39,15 @@ class StackupEntryPoint {
         await contract.getNonce(EthereumAddress.fromHex(addr), BigInt.from(0));
 
     return nonce;
+  }
+
+  Future<Uint8List> getUserOpHash(UserOp userop) async {
+    final function = rcontract.function("getUserOpHash");
+
+    final result = await client.call(
+        contract: rcontract, function: function, params: [userop.toParams()]);
+
+    return result[0];
   }
 
   void dispose() {
