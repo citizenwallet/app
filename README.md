@@ -5,24 +5,36 @@
 
 <p align="center">An open source wallet for your community currency.</p>
 
+## About this repo
 
-Deploy a web wallet for your community token that can be imported in a native [iOS](https://www.immoweb.be/en/classified/hotel-restaurant-cafe/for-rent/bruxelles/1000/10870997) and [Android](https://www.immoweb.be/en/classified/hotel-restaurant-cafe/for-rent/bruxelles/1000/10870997) app.
+This is the repo for the web/iOS/Android app of the Citizen Wallet (using DART/Flutter).
+[See below](#running-the-project) for instructions on how to run it locally.
+
+## About the Citizen Wallet
+
+Our goal is to give communities the tools they need to build a resilient and regenerative economy 👠💪🌱🌻🌳.
+
+It starts with a wallet to enable all of us, citizens, to receive and send the tokens of our communities without any prior knowledge of web3. 
+
+![Citizen Wallet banner](https://github.com/citizenwallet/.github/assets/74358/2d7b214d-7d1c-4042-af18-c8cf9973d3c2)
 
 Read more on our website: [citizenwallet.xyz](https://citizenwallet.xyz/).
 
-## Why yet another crypto wallet?
+### Why yet another crypto wallet?
 Existing crypto wallets assume that you are either a technical person (e.g. metamask) or a trader (e.g. Rainbow wallet). Chances are that most of the people in your community do not fit any of those two categories.
 
 That's why we are building the Citizen Wallet, a new category of wallets for everyday people, that just want to receive and send your community token.
 
-## The easiest way to onboard someone to web3
+### The easiest way to onboard someone to web3
+<img width="1237" alt="Screenshot 2023-11-15 at 10 17 12 AM" src="https://github.com/citizenwallet/app/assets/74358/4b2cd189-0652-400c-ba3f-7f921912b284">
+
 - Create a voucher with a QR code
 - When the user scans it, it automatically creates a new Citizen Wallet in their mobile browser and redeems the voucher.
 - The private key is in local storage and in the URL after the hash, so that it is never sent over the wire and the user can simply bookmark the page to never lose their new wallet
 - They can also install the native app and import their web wallet.
 - No need to sign in with any social or enter any email or phone number.
 
-## Features
+### Features
 
 - Send money by creating a QR code 
 - Account abstraction with ERC4337
@@ -30,11 +42,13 @@ That's why we are building the Citizen Wallet, a new category of wallets for eve
 - Host it on your own (sub)domain (e.g. https://wallet.oak.community)
 - Support for Polygon, Optimism and Base
 
+<img width="1238" alt="Screenshot 2023-11-15 at 10 17 44 AM" src="https://github.com/citizenwallet/app/assets/74358/9d250c45-9e90-4504-94e9-31ac83e37487">
 
 ## Contributors
 
 - Kevin Sundar Raj
 - Xavier Damman
+- Guil Is
 - Jonas Boury
 
 ## Current communities
@@ -44,10 +58,6 @@ That's why we are building the Citizen Wallet, a new category of wallets for eve
 - https://eure.polygon.citizenwallet.xyz (EURe stable coin on Polygon)
 
 Join us on discord to discuss: https://discord.citizenwallet.xyz
-
-## Screenshots
-
-![Group 482450](https://github.com/citizenwallet/app/assets/74358/b6edc920-0c69-44f7-ad86-f98e32febd44)
 
 ## Links
 - https://citizenwallet.xyz
