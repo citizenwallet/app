@@ -128,12 +128,12 @@ class PreferencesService {
     return _preferences.getString('balance_$key');
   }
 
-  // save account address for given alias + address
-  Future setAccountAddress(String address, String accaddress) async {
-    await _preferences.setString('accountAddress_$address', accaddress);
+  // save account address for given key
+  Future setAccountAddress(String key, String accaddress) async {
+    await _preferences.setString('accountAddress_$key', accaddress);
   }
 
-  String? getAccountAddress(String address) {
-    return _preferences.getString('accountAddress_$address');
+  String? getAccountAddress(String key) {
+    return _preferences.getString('accountAddress_$key');
   }
 }

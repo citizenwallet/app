@@ -50,6 +50,15 @@ class StackupEntryPoint {
     return result[0];
   }
 
+  Future<EthereumAddress> paymaster() async {
+    final function = rcontract.function('paymaster');
+
+    final result =
+        await client.call(contract: rcontract, function: function, params: []);
+
+    return result[0];
+  }
+
   void dispose() {
     // _sub?.cancel();
   }

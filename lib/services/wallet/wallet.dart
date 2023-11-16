@@ -112,6 +112,7 @@ class WalletService {
       _contractEntryPoint.getNonce(_account.hexEip55);
 
   Future<void> init(
+    String account,
     String privateKey,
     NativeCurrency currency,
     Config config,
@@ -162,12 +163,59 @@ class WalletService {
     this.currency = currency;
 
     await _initContracts(
+      account,
       config.community.alias,
       config.erc4337.entrypointAddress,
       config.erc4337.accountFactoryAddress,
       config.token.address,
       config.profile.address,
     );
+
+    await _initAccount();
+  }
+
+  Future<void> _initAccount() async {
+    // purely checking if there is byte code
+    final exists = await _contractAccount.exists();
+
+    if (!exists) {
+      await createAccount();
+    }
+
+    // here we check if the account byte code is different from the byte code of the account implementation on the factory
+    final needsUpgrade = await _contractAccountFactory.needsUpgrade(
+      _account,
+    );
+
+    if (needsUpgrade) {
+      // call the upgrade function on our API, it will return the new implementation address
+      final implementation = await upgradeAccount();
+
+      if (implementation == null) {
+        // something went wrong
+        return;
+      }
+
+      // upgrade the account to the new implementation address
+      final calldata = _contractAccount.upgradeToCallData(implementation);
+
+      // final ep = await _contractAccount.tokenEntryPoint();
+
+      // final contractEntryPoint =
+      //     newEntryPoint(chainId, _ethClient, ep.hexEip55);
+      // await contractEntryPoint.init();
+
+      final (hash, userop) = await prepareUserop(
+        [_account.hexEip55],
+        [calldata],
+        // customEntryPoint: contractEntryPoint,
+      );
+
+      final success = await submitUserop(
+        userop,
+        // customEntryPoint: contractEntryPoint.addr,
+      );
+    }
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -178,6 +226,7 @@ class WalletService {
   /// [taddr] The Ethereum address of the ERC20 token smart contract.
   /// [prfaddr] The Ethereum address of the user profile smart contract.
   Future<void> _initContracts(
+    String account,
     String alias,
     String eaddr,
     String afaddr,
@@ -197,16 +246,8 @@ class WalletService {
     await _contractAccountFactory.init();
 
     // Get the Ethereum address for the current account.
-    final cachedAccAddress =
-        _pref.getAccountAddress(_credentials.address.hexEip55);
-    _account = cachedAccAddress != null
-        ? EthereumAddress.fromHex(cachedAccAddress)
-        : await _contractAccountFactory
-            .getAddress(_credentials.address.hexEip55);
-    await _pref.setAccountAddress(
-      _credentials.address.hexEip55,
-      _account.hexEip55,
-    );
+    // _account = EthereumAddress.fromHex(account);
+    _account = await getAccountAddress(_credentials.address.hexEip55);
 
     // Create a new ERC20 token contract instance and initialize it.
     _contractToken = newERC20Contract(chainId, _ethClient, taddr);
@@ -432,6 +473,98 @@ class WalletService {
     return false;
   }
 
+  /// Accounts
+
+  /// create an account
+  Future<void> createAccount() async {
+    try {
+      final url = '/accounts/factory/${_contractAccountFactory.addr}';
+
+      print(url);
+      print(_credentials.address.hexEip55);
+
+      final encoded = jsonEncode(
+        {
+          'owner': _credentials.address.hexEip55,
+          'salt': BigInt.zero.toInt(),
+        },
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), _credentials));
+
+      await _indexer.post(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer $_indexerKey',
+          'X-Signature': sig,
+          'X-Address': _credentials.address
+              .hexEip55, // owner verification since 1271 is impossible at this point
+        },
+        body: body.toJson(),
+      );
+
+      return;
+    } catch (exception, stackTrace) {
+      print(exception);
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// upgrade an account
+  Future<String?> upgradeAccount() async {
+    try {
+      final url =
+          '/accounts/factory/${_contractAccountFactory.addr}/sca/${_account.hexEip55}';
+
+      print(url);
+      print(_credentials.address.hexEip55);
+
+      final encoded = jsonEncode(
+        {
+          'owner': _credentials.address.hexEip55,
+          'salt': BigInt.zero.toInt(),
+          'token_entry_point': ''
+        },
+      );
+
+      final body = SignedRequest(convertStringToUint8List(encoded));
+
+      final sig = await compute(
+          generateSignature, (jsonEncode(body.toJson()), _credentials));
+
+      final response = await _indexer.patch(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer $_indexerKey',
+          'X-Signature': sig,
+          'X-Address': _account
+              .hexEip55, // owner verification since 1271 is impossible at this point
+        },
+        body: body.toJson(),
+      );
+
+      print(response['object']);
+
+      return response['object']['account_implementation'];
+    } catch (exception, stackTrace) {
+      print(exception);
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return null;
+  }
+
+  /// Transactions
+
   /// fetch erc20 transfer events
   ///
   /// [offset] number of transfers to skip
@@ -500,8 +633,6 @@ class WalletService {
     return null;
   }
 
-  /// Transactions
-
   /// construct erc20 transfer call data
   Uint8List erc20TransferCallData(
     String to,
@@ -517,16 +648,25 @@ class WalletService {
 
   // get account address
   Future<EthereumAddress> getAccountAddress(String addr) async {
-    final cachedAccAddress = _pref.getAccountAddress(addr);
+    final prefKey = addr;
+    final cachedAccAddress = _pref.getAccountAddress(prefKey);
 
     final address = cachedAccAddress != null
         ? EthereumAddress.fromHex(cachedAccAddress)
         : await _contractAccountFactory.getAddress(addr);
     await _pref.setAccountAddress(
-      addr,
+      prefKey,
       address.hexEip55,
     );
     return address;
+  }
+
+  setAccountAddress(EthereumAddress address) async {
+    final prefKey = _credentials.address.hexEip55;
+    await _pref.setAccountAddress(
+      prefKey,
+      address.hexEip55,
+    );
   }
 
   /// Submits a user operation to the Ethereum network.
@@ -563,6 +703,8 @@ class WalletService {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
+      print('_submitUserOp');
+      print(exception);
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -659,6 +801,7 @@ class WalletService {
     List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
+    StackupEntryPoint? customEntryPoint,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -668,6 +811,8 @@ class WalletService {
           customCredentials.address.hexEip55,
         );
       }
+      final StackupEntryPoint entryPoint =
+          customEntryPoint ?? _contractEntryPoint;
 
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -676,8 +821,7 @@ class WalletService {
       userop.sender = acc.hexEip55;
 
       // determine the appropriate nonce
-      BigInt nonce =
-          customNonce ?? await _contractEntryPoint.getNonce(acc.hexEip55);
+      BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
@@ -715,7 +859,7 @@ class WalletService {
       // submit the user op to the paymaster in order to receive information to complete the user op
       final (paymasterData, paymasterErr) = await _getPaymasterData(
         userop,
-        _contractEntryPoint.addr,
+        entryPoint.addr,
         _paymasterType,
       );
 
@@ -734,7 +878,7 @@ class WalletService {
       userop.callGasLimit = paymasterData.callGasLimit;
 
       // get the hash of the user op
-      final hash = await _contractEntryPoint.getUserOpHash(userop);
+      final hash = await entryPoint.getUserOpHash(userop);
 
       // now we can sign the user op
       userop.generateSignature(cred, hash);
@@ -746,17 +890,19 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool> submitUserop(UserOp userop) async {
+  Future<bool> submitUserop(UserOp userop, {String? customEntryPoint}) async {
     try {
       // send the user op
-      final (result, useropErr) =
-          await _submitUserOp(userop, _contractEntryPoint.addr);
+      final (result, useropErr) = await _submitUserOp(
+          userop, customEntryPoint ?? _contractEntryPoint.addr);
       if (useropErr != null) {
+        print(useropErr);
         throw useropErr;
       }
 
       return result != null;
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

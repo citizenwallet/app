@@ -34,6 +34,21 @@ class SimpleAccount {
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
 
+  Future<bool> exists() async {
+    final code = await client.getCode(EthereumAddress.fromHex(addr));
+
+    return code.length > 2;
+  }
+
+  Future<EthereumAddress> tokenEntryPoint() async {
+    final function = rcontract.function('tokenEntryPoint');
+
+    final result =
+        await client.call(contract: rcontract, function: function, params: []);
+
+    return result[0];
+  }
+
   Uint8List executeCallData(String dest, BigInt amount, Uint8List calldata) {
     final function = rcontract.function('execute');
 
@@ -51,6 +66,12 @@ class SimpleAccount {
       dest.map((d) => EthereumAddress.fromHex(d)).toList(),
       calldata,
     ]);
+  }
+
+  Uint8List upgradeToCallData(String implementation) {
+    final function = rcontract.function('upgradeTo');
+
+    return function.encodeCall([EthereumAddress.fromHex(implementation)]);
   }
 
   void dispose() {

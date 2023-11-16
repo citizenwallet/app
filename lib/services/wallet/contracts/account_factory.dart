@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:collection/collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/accounts.dart';
@@ -37,27 +38,35 @@ class AccountFactoryService {
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
 
-  // Future<String> createAccount(EthPrivateKey cred, String addr) async {
-  //   final account = await contract.createAccount(
-  //       EthereumAddress.fromHex(addr), BigInt.from(0),
-  //       credentials: cred);
-
-  //   // final uri = await contract.uri(tokenId);
-  //   // return '/$uri';
-  //   return account;
-  // }
-
   Future<EthereumAddress> getAddress(String owner) {
     return contract.getAddress(EthereumAddress.fromHex(owner), BigInt.zero);
   }
 
-  // Future<BigInt> getNonce(String sender) async {
-  //   return contract.getNonce(EthereumAddress.fromHex(sender), BigInt.zero);
-  // }
+  Future<bool> needsUpgrade(EthereumAddress account) async {
+    // The storage slot of the implementation address (EIP-1967)
+    BigInt slot = hexToInt(
+        '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc');
+
+    // Get the implementation address
+    Uint8List proxyImplementation = await client.getStorage(account, slot);
+
+    final implementationAddress = EthereumAddress(
+        Uint8List.fromList(proxyImplementation.slice(12).toList()));
+
+    final code = await client.getCode(implementationAddress);
+
+    if (code.length <= 2) {
+      return false;
+    }
+
+    final implementation = await contract.accountImplementation();
+
+    final expectedCode = await client.getCode(implementation);
+
+    return bytesToHex(code) != bytesToHex(expectedCode);
+  }
 
   Future<Uint8List> createAccountInitCode(String owner, BigInt amount) async {
-    // final function = rcontract.function('createAccount');
-
     final abi = await rootBundle.loadString(
         'packages/smartcontracts/contracts/accounts/AccountFactory.abi.json');
 
