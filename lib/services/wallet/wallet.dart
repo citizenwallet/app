@@ -108,8 +108,8 @@ class WalletService {
   String get erc20Address => _contractToken.addr;
   String get profileAddress => _contractProfile.addr;
 
-  Future<BigInt> get accountNonce =>
-      _contractEntryPoint.getNonce(_account.hexEip55);
+  Future<BigInt> get accountNonce async =>
+      (await getAccountEntryPoint()).getNonce(_account.hexEip55);
 
   Future<void> init(
     String account,
@@ -199,21 +199,13 @@ class WalletService {
       // upgrade the account to the new implementation address
       final calldata = _contractAccount.upgradeToCallData(implementation);
 
-      // final ep = await _contractAccount.tokenEntryPoint();
-
-      // final contractEntryPoint =
-      //     newEntryPoint(chainId, _ethClient, ep.hexEip55);
-      // await contractEntryPoint.init();
-
       final (hash, userop) = await prepareUserop(
         [_account.hexEip55],
         [calldata],
-        // customEntryPoint: contractEntryPoint,
       );
 
       final success = await submitUserop(
         userop,
-        // customEntryPoint: contractEntryPoint.addr,
       );
     }
   }
@@ -256,6 +248,20 @@ class WalletService {
     // Create a new simple account instance and initialize it.
     _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hexEip55);
     await _contractAccount.init();
+  }
+
+  Future<StackupEntryPoint> getAccountEntryPoint() async {
+    StackupEntryPoint entryPoint = _contractEntryPoint;
+    try {
+      final ep = await _contractAccount.tokenEntryPoint();
+
+      entryPoint = newEntryPoint(chainId, _ethClient, ep.hexEip55);
+      await entryPoint.init();
+    } catch (e) {
+      //
+    }
+
+    return entryPoint;
   }
 
   /// fetches the balance of a given address
@@ -801,7 +807,6 @@ class WalletService {
     List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
-    StackupEntryPoint? customEntryPoint,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -811,8 +816,7 @@ class WalletService {
           customCredentials.address.hexEip55,
         );
       }
-      final StackupEntryPoint entryPoint =
-          customEntryPoint ?? _contractEntryPoint;
+      final StackupEntryPoint entryPoint = await getAccountEntryPoint();
 
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -890,11 +894,12 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool> submitUserop(UserOp userop, {String? customEntryPoint}) async {
+  Future<bool> submitUserop(UserOp userop) async {
     try {
+      final entryPoint = await getAccountEntryPoint();
+
       // send the user op
-      final (result, useropErr) = await _submitUserOp(
-          userop, customEntryPoint ?? _contractEntryPoint.addr);
+      final (result, useropErr) = await _submitUserOp(userop, entryPoint.addr);
       if (useropErr != null) {
         print(useropErr);
         throw useropErr;
