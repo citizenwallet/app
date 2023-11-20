@@ -11,6 +11,18 @@ class UnauthorizedException implements Exception {
   UnauthorizedException();
 }
 
+class NotFoundException implements Exception {
+  final String message = 'not found';
+
+  NotFoundException();
+}
+
+class ConflictException implements Exception {
+  final String message = 'conflict';
+
+  ConflictException();
+}
+
 class APIService {
   final String baseURL;
 
@@ -32,6 +44,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -60,6 +80,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -88,6 +116,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -116,6 +152,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -144,6 +188,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -186,6 +238,14 @@ class APIService {
     ).timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
