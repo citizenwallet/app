@@ -182,20 +182,10 @@ class WalletService {
       await createAccount();
     }
 
-    // here we check if the account byte code is different from the byte code of the account implementation on the factory
-    final needsUpgrade = await _contractAccountFactory.needsUpgrade(
-      _account,
-    );
+    // call the upgrade function on our API, it will return the new implementation address
+    final implementation = await upgradeAccount();
 
-    if (needsUpgrade) {
-      // call the upgrade function on our API, it will return the new implementation address
-      final implementation = await upgradeAccount();
-
-      if (implementation == null) {
-        // something went wrong
-        return;
-      }
-
+    if (implementation != null) {
       // upgrade the account to the new implementation address
       final calldata = _contractAccount.upgradeToCallData(implementation);
 
@@ -514,7 +504,6 @@ class WalletService {
 
       return;
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -527,9 +516,6 @@ class WalletService {
     try {
       final url =
           '/accounts/factory/${_contractAccountFactory.addr}/sca/${_account.hexEip55}';
-
-      print(url);
-      print(_credentials.address.hexEip55);
 
       final encoded = jsonEncode(
         {
@@ -555,11 +541,11 @@ class WalletService {
         body: body.toJson(),
       );
 
-      print(response['object']);
-
       return response['object']['account_implementation'];
+    } on ConflictException {
+      // account is already up to date
+      return null;
     } catch (exception, stackTrace) {
-      print(exception);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -709,8 +695,6 @@ class WalletService {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
-      print('_submitUserOp');
-      print(exception);
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -828,8 +812,10 @@ class WalletService {
       BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
+      final exists = await _contractAccount.exists();
+
       // if it's the first user op from this account, we need to deploy the account contract
-      if (nonce == BigInt.zero) {
+      if (nonce == BigInt.zero && !exists) {
         // construct the init code to deploy the account
         userop.initCode = await _contractAccountFactory.createAccountInitCode(
           cred.address.hexEip55,
