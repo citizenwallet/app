@@ -68,10 +68,10 @@
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
         "erc4337": {
-            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
-            "entrypoint_address": "0x3a851Eb4c4426e5498204da9C9E60D017686184B",
-            "account_factory_address": "0xd395dF9971CF0b6a4649568c9Fe07abbe1461003",
-            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0xB948c47ebb1621cC356F9a3d2b08FdD50599f8D1",
+            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            "account_factory_address": "0xE5D955691468F8e702c20D18153D42565c5fe787",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0xB948c47ebb1621cC356F9a3d2b08FdD50599f8D1",
             "paymaster_type": "cw"
         },
         "token": {

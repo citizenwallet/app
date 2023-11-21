@@ -371,6 +371,10 @@ class ConfigService {
 
   ConfigService._internal();
 
+  static const int version = 3;
+  static const String communityConfigListFileName = 'communities';
+  static const String communityDebugFileName = 'debug';
+
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
   String _alias = '';
@@ -406,8 +410,8 @@ class ConfigService {
 
   Future<Config> _getConfig() async {
     if (kDebugMode) {
-      final localConfigs =
-          jsonDecode(await rootBundle.loadString('assets/data/configs2.json'));
+      final localConfigs = jsonDecode(await rootBundle
+          .loadString('assets/config/v$version/$communityDebugFileName.json'));
 
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();
@@ -420,7 +424,7 @@ class ConfigService {
       final response = await _api
           .get(
               url:
-                  '/$_alias/config2.json?cachebuster=${generateCacheBusterValue()}')
+                  '/v$version/$_alias.json?cachebuster=${generateCacheBusterValue()}')
           .timeout(
             const Duration(seconds: 2),
             onTimeout: () => null,
@@ -435,7 +439,8 @@ class ConfigService {
     }
 
     final response = await _api.get(
-        url: '/$_alias/config2.json?cachebuster=${generateCacheBusterValue()}');
+        url:
+            '/v$version/$_alias.json?cachebuster=${generateCacheBusterValue()}');
 
     _pref.setConfig(_alias, response);
 
@@ -444,9 +449,11 @@ class ConfigService {
 
   Future<List<Config>> getConfigs() async {
     final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString('assets/data/configs2.json'))
+        ? jsonDecode(await rootBundle.loadString(
+            'assets/config/v$version/$communityConfigListFileName.json'))
         : await _api.get(
-            url: '/configs2.json?cachebuster=${generateCacheBusterValue()}');
+            url:
+                '/v$version/$communityConfigListFileName.json?cachebuster=${generateCacheBusterValue()}');
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 

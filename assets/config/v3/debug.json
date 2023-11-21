@@ -1,17 +1,18 @@
 {
     "community": {
-        "name": "Citizen Wallet Global",
-        "description": "The global community for Citizen Wallet",
-        "url": "https://citizenwallet.xyz",
-        "alias": "global"
+        "name": "Zinne.brussels",
+        "description": "A community currency for the city of Brussels",
+        "url": "https://zinne.brussels",
+        "alias": "zinne",
+        "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg"
     },
     "scan": {
         "url": "https://polygonscan.com",
         "name": "Polygon Explorer"
     },
     "indexer": {
-        "url": "https://indexer-polygon.techi.be",
-        "ipfs_url": "https://indexer-polygon.techi.be",
+        "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+        "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
         "key": "x"
     },
     "ipfs": {
@@ -24,18 +25,20 @@
     "erc4337": {
         "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
         "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
         "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-        "paymaster_type": "payg"
+        "paymaster_type": "payg",
+        "gas_extra_percentage": 50
     },
     "token": {
         "standard": "erc20",
-        "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        "name": "USD Coin",
-        "symbol": "USDC",
-        "decimals": 2
+        "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd",
+        "name": "Zinne.brussels Token",
+        "symbol": "ZINNE",
+        "decimals": 6
     },
     "profile": {
-        "address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7"
-    }
+        "address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F"
+    },
+    "version": 1
 }

@@ -69,37 +69,6 @@ class AppLogic {
     );
   }
 
-  void loadChains() async {
-    try {
-      _appState.loadChains();
-
-      final List rawNativeChains = jsonDecode(
-          await rootBundle.loadString('assets/data/native_chains.json'));
-
-      final List<Chain> nativeChains =
-          rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-      final List rawChains =
-          jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-      final List<Chain> chains =
-          rawChains.map((c) => Chain.fromJson(c)).toList();
-
-      final List<Chain> allChains = [...nativeChains, ...chains];
-
-      _appState.loadChainsSuccess(allChains);
-
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    _appState.loadChainsError();
-  }
-
   Future<(String?, String?)> loadLastWallet() async {
     try {
       _appState.importLoadingReq();

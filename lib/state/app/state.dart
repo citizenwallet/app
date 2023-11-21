@@ -41,10 +41,6 @@ class AppState with ChangeNotifier {
 
   bool muted = false;
 
-  bool chainsLoading = false;
-  bool chainsError = false;
-  List<Chain> chains = [];
-
   AppState() {
     _darkMode = PreferencesService().darkMode;
     muted = PreferencesService().muted;
@@ -99,26 +95,6 @@ class AppState with ChangeNotifier {
 
   void hasCopied(bool hasCopied) {
     hasCopiedPassword = hasCopied;
-    notifyListeners();
-  }
-
-  void loadChains() {
-    chainsLoading = true;
-    chainsError = false;
-    notifyListeners();
-  }
-
-  void loadChainsSuccess(List<Chain> chains) {
-    this.chains = chains;
-
-    chainsLoading = false;
-    chainsError = false;
-    notifyListeners();
-  }
-
-  void loadChainsError() {
-    chainsLoading = false;
-    chainsError = true;
     notifyListeners();
   }
 
