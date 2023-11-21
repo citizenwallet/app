@@ -6,7 +6,6 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
