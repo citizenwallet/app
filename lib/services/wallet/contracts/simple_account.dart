@@ -4,10 +4,6 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:web3dart/web3dart.dart';
 
-SimpleAccount newSimpleAccount(int chainId, Web3Client client, String addr) {
-  return SimpleAccount(chainId, client, addr);
-}
-
 class SimpleAccount {
   final int chainId;
   final Web3Client client;
@@ -32,12 +28,6 @@ class SimpleAccount {
     final cabi = ContractAbi.fromJson(abi, 'Account');
 
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
-  }
-
-  Future<bool> exists() async {
-    final code = await client.getCode(EthereumAddress.fromHex(addr));
-
-    return code.length > 2;
   }
 
   Future<EthereumAddress> tokenEntryPoint() async {

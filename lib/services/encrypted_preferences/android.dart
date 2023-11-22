@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -59,6 +60,7 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
 
   late FlutterSecureStorage _secure;
   late SharedPreferences _preferences;
+  final PreferencesService _prefs = PreferencesService();
 
   late int pin;
 
@@ -201,6 +203,50 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
           if (saved) {
             await _preferences.remove(
               backup.legacyKey2,
+            );
+          }
+        }
+      },
+      3: () async {
+        final allBackups = await getAllWalletBackups();
+
+        for (final backup in allBackups) {
+          final saved = _preferences.containsKey(backup.key);
+          if (!saved) {
+            continue;
+          }
+
+          final address = backup.address;
+
+          final account = _prefs.getAccountAddress(address);
+
+          if (account == null) {
+            continue;
+          }
+
+          final newBackup = BackupWallet(
+            address: account,
+            privateKey: backup.privateKey,
+            name: backup.name,
+            alias: backup.alias,
+          );
+
+          await _preferences.setString(
+            newBackup.key,
+            newBackup.value,
+          );
+        }
+
+        // delete all old keys
+        for (final backup in allBackups) {
+          // delete legacy keys
+          final saved = _preferences.containsKey(
+            backup.key,
+          );
+
+          if (saved) {
+            await _preferences.remove(
+              backup.key,
             );
           }
         }

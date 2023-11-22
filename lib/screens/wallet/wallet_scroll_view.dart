@@ -101,6 +101,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final safePadding = MediaQuery.of(context).padding.top;
 
     final wallet = context.select((WalletState state) => state.wallet);
+    final walletLoading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
 
     final transactionsLoading =
@@ -146,115 +147,137 @@ class WalletScrollViewState extends State<WalletScrollView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  wallet.currencyName,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.normal,
-                    color: ThemeColors.text.resolveFrom(context),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '0.00',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.normal,
-                        color: ThemeColors.text.resolveFrom(context),
+              children: walletLoading
+                  ? [
+                      CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
                       ),
-                    ),
-                    const SizedBox(width: 5),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        0,
-                        0,
-                        0,
-                        3,
+                      const SizedBox(
+                        height: 20,
                       ),
-                      child: Text(
-                        wallet.symbol,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.start,
+                      Text(
+                        'Preparing wallet...',
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ]
+                  : [
+                      Text(
+                        wallet.currencyName,
                         style: TextStyle(
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           color: ThemeColors.text.resolveFrom(context),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Ready to receive tokens',
-                  style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                AnimatedOpacity(
-                  opacity: profileLinkLoading ? 0 : 1,
-                  duration: const Duration(milliseconds: 250),
-                  child: QR(
-                    data: qrData,
-                    size: qrSize,
-                    padding: const EdgeInsets.all(20),
-                    logo: isExternalWallet ? null : 'assets/logo.png',
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Chip(
-                      isExternalWallet
-                          ? formatLongText(qrData, length: 6)
-                          : ellipsizeLongText(
-                              qrData.replaceFirst('https://', ''),
-                              startLength: 30,
-                              endLength: 6,
-                            ),
-                      onTap: () => handleCopy(qrData),
-                      fontSize: 14,
-                      color: ThemeColors.subtleEmphasis.resolveFrom(context),
-                      textColor: ThemeColors.touchable.resolveFrom(context),
-                      suffix: Icon(
-                        CupertinoIcons.square_on_square,
-                        size: 14,
-                        color: ThemeColors.touchable.resolveFrom(context),
+                      const SizedBox(
+                        height: 5,
                       ),
-                      maxWidth: isExternalWallet ? 160 : 290,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Picker(
-                      options: const ['Citizen Wallet', 'External Wallet'],
-                      selected: _selectedValue,
-                      handleSelect: handleSelect,
-                    ),
-                  ],
-                ),
-              ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '0.00',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.normal,
+                              color: ThemeColors.text.resolveFrom(context),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              0,
+                              0,
+                              0,
+                              3,
+                            ),
+                            child: Text(
+                              wallet.symbol,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: ThemeColors.text.resolveFrom(context),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        'Ready to receive tokens',
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedOpacity(
+                        opacity: profileLinkLoading ? 0 : 1,
+                        duration: const Duration(milliseconds: 250),
+                        child: QR(
+                          data: qrData,
+                          size: qrSize,
+                          padding: const EdgeInsets.all(20),
+                          logo: isExternalWallet ? null : 'assets/logo.png',
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Chip(
+                            isExternalWallet
+                                ? formatLongText(qrData, length: 6)
+                                : ellipsizeLongText(
+                                    qrData.replaceFirst('https://', ''),
+                                    startLength: 30,
+                                    endLength: 6,
+                                  ),
+                            onTap: () => handleCopy(qrData),
+                            fontSize: 14,
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            textColor:
+                                ThemeColors.touchable.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: 14,
+                              color: ThemeColors.touchable.resolveFrom(context),
+                            ),
+                            maxWidth: isExternalWallet ? 160 : 290,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Picker(
+                            options: const [
+                              'Citizen Wallet',
+                              'External Wallet'
+                            ],
+                            selected: _selectedValue,
+                            handleSelect: handleSelect,
+                          ),
+                        ],
+                      ),
+                    ],
             ),
           ),
         ],

@@ -158,14 +158,14 @@ class RouterShell extends StatelessWidget {
                           switch (index) {
                             case 0:
                               GoRouter.of(context).go(
-                                  '/wallet/${wallet?.address}?alias=${wallet?.alias}');
+                                  '/wallet/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             case 1:
                               GoRouter.of(context).go('/contacts');
                               break;
                             case 2:
                               GoRouter.of(context).go(
-                                  '/account/${wallet?.address}?alias=${wallet?.alias}');
+                                  '/account/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             default:
                             // GoRouter.of(context).go('/404');

@@ -21,10 +21,6 @@ class TransferEvent {
   });
 }
 
-Token newToken(int chainId, Web3Client client, String addr) {
-  return Token(chainId, client, addr);
-}
-
 class Token {
   final int chainId;
   final Web3Client client;

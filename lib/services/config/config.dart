@@ -410,8 +410,8 @@ class ConfigService {
 
   Future<Config> _getConfig() async {
     if (kDebugMode) {
-      final localConfigs = jsonDecode(await rootBundle
-          .loadString('assets/config/v$version/$communityDebugFileName.json'));
+      final localConfigs = jsonDecode(await rootBundle.loadString(
+          'assets/config/v$version/$communityConfigListFileName.json'));
 
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();

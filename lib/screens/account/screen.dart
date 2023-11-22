@@ -146,7 +146,7 @@ class AccountScreenState extends State<AccountScreen> {
 
     final (address, alias) = wallet;
 
-    if (address == _walletLogic.address) {
+    if (address == _walletLogic.account) {
       await delay(const Duration(milliseconds: 250));
 
       setState(() {
@@ -266,34 +266,34 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                             ],
                           ),
-                        if (!profileLoading && !cleaningUp)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              profileLoading
-                                  ? CupertinoActivityIndicator(
-                                      color: ThemeColors.subtle
-                                          .resolveFrom(context),
-                                    )
-                                  : CupertinoButton(
-                                      onPressed: handleEdit,
-                                      child: Text(
-                                        hasNoProfile
-                                            ? 'Create a profile'
-                                            : 'Edit',
-                                        style: TextStyle(
-                                          color: ThemeColors.text
-                                              .resolveFrom(context),
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                        textAlign: TextAlign.center,
+                        // if (!profileLoading && !cleaningUp)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            profileLoading
+                                ? CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  )
+                                : CupertinoButton(
+                                    onPressed: handleEdit,
+                                    child: Text(
+                                      hasNoProfile
+                                          ? 'Create a profile'
+                                          : 'Edit',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
-                            ],
-                          ),
+                                  ),
+                          ],
+                        ),
                         const SizedBox(height: 120),
                       ],
                     ),
@@ -308,9 +308,10 @@ class AccountScreenState extends State<AccountScreen> {
                 color: ThemeColors.transparent,
                 titleWidget: CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed: transactionSendLoading || cleaningUp
-                      ? null
-                      : () => handleSwitchWalletModal(context),
+                  onPressed:
+                      transactionSendLoading || cleaningUp || profileLoading
+                          ? null
+                          : () => handleSwitchWalletModal(context),
                   child: wallet == null
                       ? const PulsingContainer(
                           height: 30,

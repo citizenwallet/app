@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
@@ -86,6 +87,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   String? get lastWallet => _preferences.lastWallet;
   String get address => _wallet.address.hexEip55;
+  String get account => _wallet.account.hexEip55;
   String get token => _wallet.erc20Address;
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
@@ -129,12 +131,75 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<bool> openWalletFromURL(
+  Future<(bool, bool)> openWalletFromURL(
+    String account,
     String encodedWallet,
     String password,
-    String alias,
-    Future<void> Function() loadAdditionalData,
-  ) async {
+    String alias, {
+    Future<void> Function()? loadAdditionalData,
+    void Function()? goBackHome,
+  }) async {
+    try {
+      // on web, use host
+      _config.initWeb(
+        dotenv.get('APP_LINK_SUFFIX'),
+      );
+    } catch (_) {
+      return (false, false);
+    }
+
+    String encoded = encodedWallet;
+    String password = '';
+
+    try {
+      password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      if (!encoded.startsWith('v3-')) {
+        // old format, convert
+        throw Exception('old format');
+      }
+    } catch (exception, stackTrace) {
+      if (!encoded.startsWith('v2-')) {
+        // something is wrong with the encoding
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
+
+        // try and reset preferences so we don't end up in a loop
+        await resetWalletPreferences();
+
+        // go back to the home screen
+        if (goBackHome != null) goBackHome();
+        return (false, true);
+      }
+
+      // old format, convert
+      final decoded = convertUint8ListToString(
+          base64Decode(encoded.replaceFirst('v2-', '')));
+
+      if (password.isEmpty) {
+        return (false, false);
+      }
+
+      Wallet cred = Wallet.fromJson(decoded, password);
+
+      final config = await _config.config;
+
+      // load the legacy account factory
+      final accFactory = await accountFactoryServiceFromConfig(config,
+          customAccountFactory: dotenv.get('WEB_BURNER_ACCOUNT_FACTORY'));
+      final address =
+          await accFactory.getAddress(cred.privateKey.address.hexEip55);
+
+      // construct the new encoded url
+      encoded = 'v3-${base64Encode('$address|${cred.toJson()}'.codeUnits)}';
+    }
+
+    if (password.isEmpty) {
+      return (false, false);
+    }
+
     try {
       _state.loadWallet();
 
@@ -142,27 +207,24 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      if (!encodedWallet.startsWith('v2-')) {
-        return false;
+      final decoded = convertUint8ListToString(
+          base64Decode(encoded.replaceFirst('v3-', '')));
+      final decodedSplit = decoded.split('|');
+
+      if (decodedSplit.length != 2) {
+        throw Exception('invalid format');
       }
 
-      final decoded = convertUint8ListToString(
-          base64Decode(encodedWallet.replaceFirst('v2-', '')));
-
       await delay(const Duration(milliseconds: 0));
 
-      Wallet cred = Wallet.fromJson(decoded, password);
+      Wallet cred = Wallet.fromJson(decodedSplit[1], password);
 
       await delay(const Duration(milliseconds: 0));
-
-      // on web, use host
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
 
       final config = await _config.config;
 
       await _wallet.init(
+        decodedSplit[0],
         bytesToHex(cred.privateKey.privateKey),
         NativeCurrency(
           name: config.token.name,
@@ -170,6 +232,9 @@ class WalletLogic extends WidgetsBindingObserver {
           decimals: config.token.decimals,
         ),
         config,
+        onNotify: (String message) {
+          _notificationsLogic.show(message);
+        },
       );
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
@@ -197,15 +262,15 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await loadAdditionalData();
+      if (loadAdditionalData != null) await loadAdditionalData();
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
-      await _preferences.setLastWalletLink(encodedWallet);
+      await _preferences.setLastWalletLink(encoded);
 
       _state.loadWalletSuccess();
 
-      return true;
+      return (true, false);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -214,7 +279,7 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletError();
-    return false;
+    return (false, false);
   }
 
   /// openWallet opens a wallet given an address and also loads additional data
@@ -271,6 +336,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       await _wallet.init(
+        dbWallet.address,
         dbWallet.privateKey,
         NativeCurrency(
           name: config.token.name,
@@ -278,6 +344,9 @@ class WalletLogic extends WidgetsBindingObserver {
           decimals: config.token.decimals,
         ),
         config,
+        onNotify: (String message) {
+          _notificationsLogic.show(message);
+        },
       );
 
       await _db.init('wallet_${_wallet.address.hexEip55}');
@@ -337,8 +406,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final address = credentials.address.hexEip55;
-
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
         alias,
@@ -346,14 +413,17 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.config;
 
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
+
       _state.setWalletConfig(config);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: 'New ${config.token.symbol} Account',
-        address: address,
+        address: credentials.address.hexEip55,
         alias: config.community.alias,
-        account: '',
+        account: address.hexEip55,
         currencyName: config.token.name,
         symbol: config.token.symbol,
         currencyLogo: config.community.logo,
@@ -361,20 +431,20 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: address.hexEip55,
         privateKey: bytesToHex(credentials.privateKey),
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(
         cwwallet,
       );
 
-      return credentials.address.hexEip55;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -401,14 +471,15 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('Invalid private key');
       }
 
-      final address = credentials.address.hexEip55;
-
       _config.init(
         dotenv.get('WALLET_CONFIG_URL'),
         alias,
       );
 
       final config = await _config.config;
+
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       final name = 'Imported ${config.token.symbol} Account';
 
@@ -417,9 +488,9 @@ class WalletLogic extends WidgetsBindingObserver {
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: name,
-        address: address,
+        address: credentials.address.hexEip55,
         alias: config.community.alias,
-        account: '',
+        account: address.hexEip55,
         currencyName: config.token.name,
         symbol: config.token.symbol,
         currencyLogo: config.community.logo,
@@ -427,18 +498,18 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: address.hexEip55,
         privateKey: bytesToHex(credentials.privateKey),
         name: name,
         alias: config.community.alias,
       ));
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(cwwallet);
 
-      return address;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1492,30 +1563,30 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<CancelableOperation<void>?> loadDBWallets() async {
+  Future<void> loadDBWallets() async {
     try {
       _state.loadWallets();
 
       final wallets = await _encPrefs.getAllWalletBackups();
 
-      _state.loadWalletsSuccess(wallets
-          .map((w) => CWWallet(
-                '0.0',
-                name: w.name,
-                address: w.address,
-                alias: w.alias,
-                account: '',
-                currencyName: '',
-                symbol: '',
-                currencyLogo: '',
-                locked: false,
-              ))
-          .toList());
+      final List<CWWallet> cwwallets = await compute((ws) {
+        return ws.map((w) {
+          final creds = EthPrivateKey.fromHex(w.privateKey);
+          return CWWallet(
+            '0.0',
+            name: w.name,
+            address: creds.address.hexEip55,
+            alias: w.alias,
+            account: w.address,
+            currencyName: '',
+            symbol: '',
+            currencyLogo: '',
+            locked: false,
+          );
+        }).toList();
+      }, wallets);
 
-      return CancelableOperation.fromFuture(
-        loadDBWalletAccountAddresses(wallets.map((w) => w.address)),
-        onCancel: () => cancelLoadAccounts = true,
-      );
+      _state.loadWalletsSuccess(cwwallets);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1524,32 +1595,6 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletsError();
-    return null;
-  }
-
-  Future<void> loadDBWalletAccountAddresses(Iterable<String> addrs) async {
-    cancelLoadAccounts = false;
-    try {
-      for (final addr in addrs) {
-        if (cancelLoadAccounts) {
-          cancelLoadAccounts = false;
-          break;
-        }
-
-        final address = EthereumAddress.fromHex(addr);
-
-        final account = await _wallet.getAccountAddress(address.hexEip55);
-
-        _state.updateDBWalletAccountAddress(address.hexEip55, account.hexEip55);
-      }
-
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
   }
 
   void prepareReplyTransaction(String address) {

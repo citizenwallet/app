@@ -6,10 +6,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/web3dart.dart';
 
-StackupEntryPoint newEntryPoint(int chainId, Web3Client client, String addr) {
-  return StackupEntryPoint(chainId, client, addr);
-}
-
 class StackupEntryPoint {
   final int chainId;
   final Web3Client client;

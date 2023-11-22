@@ -1,15 +1,33 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart';
 
 import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
-AccountFactoryService newAccountFactory(
-    int chainId, Web3Client client, String addr) {
-  return AccountFactoryService(chainId, client, addr);
+Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
+    {String? customAccountFactory}) async {
+  final url = config.node.url;
+  final wsurl = config.node.wsUrl;
+
+  final client = Client();
+
+  final ethClient = Web3Client(
+    url,
+    client,
+    socketConnector: () =>
+        WebSocketChannel.connect(Uri.parse(wsurl)).cast<String>(),
+  );
+
+  final chainId = await ethClient.getChainId();
+
+  return AccountFactoryService(chainId.toInt(), ethClient,
+      customAccountFactory ?? config.erc4337.accountFactoryAddress);
 }
 
 class AccountFactoryService {

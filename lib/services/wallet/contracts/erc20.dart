@@ -56,10 +56,6 @@ class TransferEvent {
       };
 }
 
-ERC20Contract newERC20Contract(int chainId, Web3Client client, String addr) {
-  return ERC20Contract(chainId, client, addr);
-}
-
 class ERC20Contract {
   final int chainId;
   final Web3Client client;

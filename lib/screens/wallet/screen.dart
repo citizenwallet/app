@@ -450,7 +450,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final walletNamePrefix = config?.token.symbol ?? 'Citizen';
 
-    final walletName = '$walletNamePrefix Wallet';
+    final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

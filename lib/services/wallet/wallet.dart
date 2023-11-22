@@ -112,11 +112,8 @@ class WalletService {
       (await getAccountEntryPoint()).getNonce(_account.hexEip55);
 
   Future<void> init(
-    String account,
-    String privateKey,
-    NativeCurrency currency,
-    Config config,
-  ) async {
+      String account, String privateKey, NativeCurrency currency, Config config,
+      {void Function(String)? onNotify}) async {
     _indexerKey = config.indexer.key;
 
     _url = config.node.url;
@@ -171,33 +168,7 @@ class WalletService {
       config.profile.address,
     );
 
-    await _initAccount();
-  }
-
-  Future<void> _initAccount() async {
-    // purely checking if there is byte code
-    final exists = await _contractAccount.exists();
-
-    if (!exists) {
-      await createAccount();
-    }
-
-    // call the upgrade function on our API, it will return the new implementation address
-    final implementation = await upgradeAccount();
-
-    if (implementation != null) {
-      // upgrade the account to the new implementation address
-      final calldata = _contractAccount.upgradeToCallData(implementation);
-
-      final (hash, userop) = await prepareUserop(
-        [_account.hexEip55],
-        [calldata],
-      );
-
-      final success = await submitUserop(
-        userop,
-      );
-    }
+    await _initAccount(onNotify);
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -216,36 +187,73 @@ class WalletService {
     String prfaddr,
   ) async {
     // Create a new entry point instance and initialize it.
-    _contractEntryPoint = newEntryPoint(chainId, _ethClient, eaddr);
+    _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
 
     // Create a new user profile contract instance and initialize it.
-    _contractProfile = newProfileContract(chainId, _ethClient, prfaddr);
+    _contractProfile = ProfileContract(chainId, _ethClient, prfaddr);
     await _contractProfile.init();
 
     // Create a new account factory instance and initialize it.
-    _contractAccountFactory = newAccountFactory(chainId, _ethClient, afaddr);
+    _contractAccountFactory =
+        AccountFactoryService(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
 
     // Get the Ethereum address for the current account.
     // _account = EthereumAddress.fromHex(account);
-    _account = await getAccountAddress(_credentials.address.hexEip55);
+    _account = EthereumAddress.fromHex(account);
+    await _pref.setAccountAddress(
+      _credentials.address.hexEip55,
+      address.hexEip55,
+    );
 
     // Create a new ERC20 token contract instance and initialize it.
-    _contractToken = newERC20Contract(chainId, _ethClient, taddr);
+    _contractToken = ERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
     // Create a new simple account instance and initialize it.
-    _contractAccount = newSimpleAccount(chainId, _ethClient, _account.hexEip55);
+    _contractAccount = SimpleAccount(chainId, _ethClient, _account.hexEip55);
     await _contractAccount.init();
+  }
+
+  Future<void> _initAccount(void Function(String)? onNotify) async {
+    // purely checking if there is byte code
+    final exists = await accountExists();
+
+    if (!exists) {
+      await createAccount();
+    }
+
+    // call the upgrade function on our API, it will return the new implementation address
+    final implementation = await upgradeAccount();
+
+    if (implementation != null) {
+      onNotify?.call('Upgrading account...');
+      // upgrade the account to the new implementation address
+      final calldata = _contractAccount.upgradeToCallData(implementation);
+
+      final (hash, userop) = await prepareUserop(
+        [_account.hexEip55],
+        [calldata],
+      );
+
+      final success = await submitUserop(
+        userop,
+      );
+
+      onNotify?.call('Account upgraded...');
+    }
   }
 
   Future<StackupEntryPoint> getAccountEntryPoint() async {
     StackupEntryPoint entryPoint = _contractEntryPoint;
+    if (_paymasterType == 'payg') {
+      return entryPoint;
+    }
     try {
       final ep = await _contractAccount.tokenEntryPoint();
 
-      entryPoint = newEntryPoint(chainId, _ethClient, ep.hexEip55);
+      entryPoint = StackupEntryPoint(chainId, _ethClient, ep.hexEip55);
       await entryPoint.init();
     } catch (e) {
       //
@@ -471,13 +479,33 @@ class WalletService {
 
   /// Accounts
 
+  /// check if an account exists
+  Future<bool> accountExists() async {
+    try {
+      final url = '/accounts/${_account.hexEip55}/exists';
+
+      await _indexer.get(
+        url: url,
+        headers: {
+          'Authorization': 'Bearer $_indexerKey',
+        },
+      );
+
+      return true;
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return false;
+  }
+
   /// create an account
   Future<void> createAccount() async {
     try {
       final url = '/accounts/factory/${_contractAccountFactory.addr}';
-
-      print(url);
-      print(_credentials.address.hexEip55);
 
       final encoded = jsonEncode(
         {
@@ -766,6 +794,9 @@ class WalletService {
 
       return (PaymasterData.fromJson(response.result), null);
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
+
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -812,7 +843,7 @@ class WalletService {
       BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
-      final exists = await _contractAccount.exists();
+      final exists = await accountExists();
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && !exists) {
@@ -887,13 +918,11 @@ class WalletService {
       // send the user op
       final (result, useropErr) = await _submitUserOp(userop, entryPoint.addr);
       if (useropErr != null) {
-        print(useropErr);
         throw useropErr;
       }
 
       return result != null;
     } catch (e) {
-      print(e);
       rethrow;
     }
   }

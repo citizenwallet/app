@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -57,8 +59,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
-
-  late String _password;
 
   @override
   void initState() {
@@ -123,42 +123,57 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
 
-    try {
-      _password = dotenv.get('WEB_BURNER_PASSWORD');
+    String password = '';
+    String account = '';
 
-      if (!widget.encoded.startsWith('v2-')) {
+    try {
+      password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      if (!widget.encoded.startsWith('v3-')) {
         // old format, convert
         throw Exception('old format');
       }
     } catch (exception, stackTrace) {
-      // something is wrong with the encoding
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+      if (!widget.encoded.startsWith('v2-')) {
+        // something is wrong with the encoding
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
 
-      // try and reset preferences so we don't end up in a loop
-      await _logic.resetWalletPreferences();
+        // try and reset preferences so we don't end up in a loop
+        await _logic.resetWalletPreferences();
 
-      // go back to the home screen
-      navigator.go('/');
+        // go back to the home screen
+        navigator.go('/');
+        return;
+      }
+
+      // old format, convert
+    }
+
+    if (password.isEmpty) {
       return;
     }
 
-    if (_password.isEmpty) {
-      return;
-    }
-
-    final ok = await _logic.openWalletFromURL(
+    final (ok, stop) = await _logic.openWalletFromURL(
+      '',
       widget.encoded,
-      _password,
+      password,
       widget.alias,
-      () async {
+      loadAdditionalData: () async {
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
       },
+      goBackHome: () {
+        navigator.go('/');
+      },
     );
+
+    if (stop) {
+      return;
+    }
 
     if (!ok) {
       onLoad(retry: true);
@@ -171,13 +186,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       // await handleOnboarding();
       await _preferences.setFirstLaunch(false);
 
-      navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
+      // check if ios web
+      if (Platform.isIOS) {
+        // we have a wallet, go to the wallet screen
+        // (this is a workaround for the native install banner
+        navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
 
-      // reload the page now that we have a wallet
-      // fixes issue with the wrong link being used in native install banners
-      html.window.location.reload();
-
-      return;
+        // reload the page now that we have a wallet
+        // fixes issue with the wrong link being used in native install banners
+        html.window.location.reload();
+        return;
+      }
     }
 
     if (widget.voucher != null && widget.voucherParams != null) {

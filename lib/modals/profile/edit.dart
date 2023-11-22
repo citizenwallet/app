@@ -140,7 +140,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     }
 
     if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
+      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();
@@ -171,7 +171,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     }
 
     if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
+      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();

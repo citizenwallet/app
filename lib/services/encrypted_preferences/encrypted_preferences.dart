@@ -54,9 +54,12 @@ class BackupWallet {
     return bytesToHex(bytes);
   }
 
+  // legacy properties from old migrations
   String get legacyKey => '$backupPrefix${address.toLowerCase()}';
   String get legacyKey2 =>
       '$backupPrefix$legacyHash}'; // the typo '}' is intentional, a typo was released to production
+
+  // current properties
   String get key => '$backupPrefix$hashed';
   String get value => '$name|$address|$privateKey|$alias';
 }
@@ -67,7 +70,7 @@ abstract class EncryptedPreferencesOptions {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class EncryptedPreferencesService {
-  final int _version = 2;
+  final int _version = 3;
 
   int get version => _version;
 

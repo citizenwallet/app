@@ -40,8 +40,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
-  CancelableOperation<void>? _operation;
-
   late ProfilesLogic _profilesLogic;
   late CommunitiesLogic _communitiesLogic;
 
@@ -63,10 +61,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
   @override
   void dispose() {
-    if (_operation != null) {
-      _operation!.cancel();
-    }
-
     WidgetsBinding.instance.removeObserver(_profilesLogic);
 
     _profilesLogic.dispose();
@@ -79,7 +73,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
     _communitiesLogic.fetchCommunities();
 
-    _operation = await widget.logic.loadDBWallets();
+    await widget.logic.loadDBWallets();
   }
 
   void handleDismiss(BuildContext context) {
@@ -145,7 +139,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   },
                   child: const Text('Export'),
                 ),
-              if (wallet != null && wallet.address != address)
+              if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
                   isDestructiveAction: true,
                   onPressed: () {
@@ -347,19 +341,19 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               final wallet = cwWallets[index];
 
                               return WalletRow(
-                                key: Key('${wallet.address}_${wallet.alias}'),
+                                key: Key('${wallet.account}_${wallet.alias}'),
                                 wallet,
                                 communities: communities,
                                 profiles: profiles,
                                 isSelected:
-                                    widget.currentAddress == wallet.address,
+                                    widget.currentAddress == wallet.account,
                                 onTap: () => handleWalletTap(
-                                  wallet.address,
+                                  wallet.account,
                                   wallet.alias,
                                 ),
                                 onMore: () => handleMore(
                                   context,
-                                  wallet.address,
+                                  wallet.account,
                                   wallet.alias,
                                   wallet.name,
                                   wallet.locked,
