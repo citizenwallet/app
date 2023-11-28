@@ -239,4 +239,17 @@ class TransactionsTable extends DBTable {
       return DBTransaction.fromMap(maps[i]);
     });
   }
+
+  // clearOldTransactions clears transactions that are not of status 'success' and older than 30 seconds
+  Future<void> clearOldTransactions() async {
+    final now = DateTime.now();
+    final formattedDate =
+        now.subtract(const Duration(seconds: 30)).toIso8601String();
+
+    await db.delete(
+      name,
+      where: 'created_at < ? AND status != ?',
+      whereArgs: [formattedDate, 'success'],
+    );
+  }
 }
