@@ -752,6 +752,10 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadTransactions();
 
+      // with network errors or bugs there can be a build up of invalid transactions that will never return
+      // clear the old ones out when the user pulls to refresh
+      await _db.transactions.clearOldTransactions();
+
       transferEventUnsubscribe();
 
       final maxDate = DateTime.now().toUtc();

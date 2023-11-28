@@ -84,7 +84,6 @@ class ERC20Contract {
 
   Future<BigInt> getBalance(String addr) async {
     final balance = await contract.balanceOf(EthereumAddress.fromHex(addr));
-
     return balance;
   }
 

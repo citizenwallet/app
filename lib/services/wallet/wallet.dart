@@ -181,8 +181,6 @@ class WalletService {
       config.profile.address,
     );
 
-    _useLegacyBundlers = await _contractAccount.isLegacy();
-
     await _initLegacyContracts();
     await _initLegacyRPCs();
 
@@ -267,6 +265,8 @@ class WalletService {
       if (!exists) {
         await createAccount();
       }
+
+      _useLegacyBundlers = await _contractAccount.isLegacy();
 
       // call the upgrade function on our API, it will return the new implementation address
       final implementation = await upgradeAccount();
@@ -538,9 +538,11 @@ class WalletService {
   /// Accounts
 
   /// check if an account exists
-  Future<bool> accountExists() async {
+  Future<bool> accountExists({
+    String? account,
+  }) async {
     try {
-      final url = '/accounts/${_account.hexEip55}/exists';
+      final url = '/accounts/${account ?? _account.hexEip55}/exists';
 
       await _indexer.get(
         url: url,
@@ -561,50 +563,56 @@ class WalletService {
   }
 
   /// create an account
-  Future<void> createAccount() async {
+  Future<bool> createAccount({
+    EthPrivateKey? customCredentials,
+  }) async {
     try {
+      final cred = customCredentials ?? _credentials;
+
       final accountFactory = getAccounFactoryContract();
 
       final url = '/accounts/factory/${accountFactory.addr}';
 
       final encoded = jsonEncode(
         {
-          'owner': _credentials.address.hexEip55,
+          'owner': cred.address.hexEip55,
           'salt': BigInt.zero.toInt(),
         },
       );
 
       final body = SignedRequest(convertStringToUint8List(encoded));
 
-      final sig = await compute(
-          generateSignature, (jsonEncode(body.toJson()), _credentials));
+      final sig =
+          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
 
       await _indexer.post(
         url: url,
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': _credentials.address
+          'X-Address': cred.address
               .hexEip55, // owner verification since 1271 is impossible at this point
         },
         body: body.toJson(),
       );
 
-      return;
+      return true;
+    } on ConflictException {
+      return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
       );
     }
+
+    return false;
   }
 
   /// upgrade an account
   Future<String?> upgradeAccount() async {
     try {
       final accountFactory = getAccounFactoryContract();
-
-      print('_useLegacyBundlers: $_useLegacyBundlers');
 
       final url =
           '/accounts/factory/${accountFactory.addr}/sca/${_account.hexEip55}';
@@ -639,8 +647,6 @@ class WalletService {
       // account is already up to date
       return null;
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -667,8 +673,10 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
+      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+          '/$path/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer $_indexerKey',
@@ -697,8 +705,10 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
+      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+
       final url =
-          '/logs/transfers/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+          '/$path/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url, headers: {
         'Authorization': 'Bearer $_indexerKey',
@@ -734,13 +744,17 @@ class WalletService {
   /// Account Abstraction
 
   // get account address
-  Future<EthereumAddress> getAccountAddress(String addr) async {
+  Future<EthereumAddress> getAccountAddress(
+    String addr, {
+    bool legacy = false,
+    bool cache = true,
+  }) async {
     final prefKey = addr;
     final cachedAccAddress = _pref.getAccountAddress(prefKey);
 
     EthereumAddress address;
-    if (cachedAccAddress == null) {
-      final accountFactory = getAccounFactoryContract();
+    if (!cache || cachedAccAddress == null) {
+      final accountFactory = getAccounFactoryContract(legacy: legacy);
 
       address = await accountFactory.getAddress(addr);
     } else {
@@ -876,9 +890,6 @@ class WalletService {
 
       return (PaymasterData.fromJson(response.result), null);
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
-
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -904,10 +915,11 @@ class WalletService {
     List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
+    bool legacy = false,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
-      bool isLegacy = false;
+      bool isLegacy = legacy;
 
       EthereumAddress acc = _account;
       if (customCredentials != null) {
@@ -915,9 +927,13 @@ class WalletService {
           customCredentials.address.hexEip55,
         );
 
-        // check if this account does not support a token entrypoint
-        isLegacy =
-            await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
+        final exists = await accountExists(account: acc.hexEip55);
+
+        if (exists) {
+          // check if this account does not support a token entrypoint
+          isLegacy =
+              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
+        }
       }
       final StackupEntryPoint entryPoint =
           getEntryPointContract(legacy: isLegacy);
@@ -932,10 +948,8 @@ class WalletService {
       BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
       userop.nonce = nonce;
 
-      final exists = await accountExists();
-
       // if it's the first user op from this account, we need to deploy the account contract
-      if (nonce == BigInt.zero && !exists) {
+      if (nonce == BigInt.zero) {
         final accountFactory = getAccounFactoryContract(legacy: isLegacy);
 
         // construct the init code to deploy the account
@@ -997,7 +1011,7 @@ class WalletService {
       userop.generateSignature(cred, hash);
 
       return (bytesToHex(hash, include0x: true), userop);
-    } catch (e) {
+    } catch (_) {
       rethrow;
     }
   }
@@ -1006,9 +1020,10 @@ class WalletService {
   Future<bool> submitUserop(
     UserOp userop, {
     EthPrivateKey? customCredentials,
+    bool legacy = false,
   }) async {
     try {
-      bool isLegacy = false;
+      bool isLegacy = legacy;
 
       EthereumAddress acc = _account;
       if (customCredentials != null) {
@@ -1016,11 +1031,15 @@ class WalletService {
           customCredentials.address.hexEip55,
         );
 
-        // check if this account does not support a token entrypoint
-        isLegacy =
-            await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
+        final exists = await accountExists(account: acc.hexEip55);
+
+        if (exists) {
+          // check if this account does not support a token entrypoint
+          isLegacy =
+              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
+        }
       }
-      final entryPoint = getEntryPointContract();
+      final entryPoint = getEntryPointContract(legacy: isLegacy);
 
       // send the user op
       final (result, useropErr) = await _submitUserOp(
@@ -1046,6 +1065,7 @@ class WalletService {
   Future<TransferEvent?> addSendingLog(
     TransferEvent tx, {
     EthPrivateKey? customCredentials,
+    bool legacy = false,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -1057,7 +1077,9 @@ class WalletService {
         );
       }
 
-      final url = '/logs/transfers/${_contractToken.addr}/${acc.hexEip55}';
+      final path = legacy ? 'logs/transfers' : 'logs/v2/transfers';
+
+      final url = '/$path/${_contractToken.addr}/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         tx.toJson(),
@@ -1073,15 +1095,13 @@ class WalletService {
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': acc.hexEip55,
+          'X-Address': legacy ? cred.address.hexEip55 : acc.hexEip55,
         },
         body: body.toJson(),
       );
 
       return TransferEvent.fromJson(response['object']);
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -1098,6 +1118,7 @@ class WalletService {
     String hash,
     TransactionState status, {
     EthPrivateKey? customCredentials,
+    bool legacy = false,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -1109,8 +1130,9 @@ class WalletService {
         );
       }
 
-      final url =
-          '/logs/transfers/${_contractToken.addr}/${acc.hexEip55}/$hash';
+      final path = legacy ? 'logs/transfers' : 'logs/v2/transfers';
+
+      final url = '/$path/${_contractToken.addr}/${acc.hexEip55}/$hash';
 
       final encoded = jsonEncode(
         StatusUpdateRequest(status).toJson(),
@@ -1126,15 +1148,13 @@ class WalletService {
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': acc.hexEip55,
+          'X-Address': legacy ? cred.address.hexEip55 : acc.hexEip55,
         },
         body: body.toJson(),
       );
 
       return true;
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

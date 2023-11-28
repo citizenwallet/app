@@ -228,7 +228,6 @@ class WalletActions extends StatelessWidget {
                                       ? ThemeColors.subtleEmphasis
                                       : ThemeColors.black,
                                 ),
-                                const SizedBox(width: 10),
                                 Text(
                                   blockSending ? 'Sending' : 'Send',
                                   style: TextStyle(
@@ -266,7 +265,6 @@ class WalletActions extends StatelessWidget {
                                       ? ThemeColors.subtleEmphasis
                                       : ThemeColors.black,
                                 ),
-                                const SizedBox(width: 10),
                                 Text(
                                   'Receive',
                                   style: TextStyle(
@@ -345,7 +343,6 @@ class WalletActions extends StatelessWidget {
                                       ? ThemeColors.subtleEmphasis
                                       : ThemeColors.text.resolveFrom(context),
                                 ),
-                                const SizedBox(width: 10),
                                 Text(
                                   'Vouchers',
                                   style: TextStyle(
@@ -375,7 +372,7 @@ class WalletActions extends StatelessWidget {
                                       : () => handlePlugin!(plugin.url),
                                   borderRadius: BorderRadius.circular(
                                       progressiveClamp(14, 20, shrink)),
-                                  color: ThemeColors.surfacePrimary
+                                  color: ThemeColors.background
                                       .resolveFrom(context),
                                   child: SizedBox(
                                     height: buttonSize,
@@ -389,8 +386,8 @@ class WalletActions extends StatelessWidget {
                                         SvgPicture.network(
                                           plugin.icon,
                                           semanticsLabel: '${plugin.name} icon',
-                                          height: 30,
-                                          width: 30,
+                                          height: buttonIconSize,
+                                          width: buttonIconSize,
                                           placeholderBuilder: (_) => Icon(
                                             CupertinoIcons.arrow_down,
                                             size: buttonIconSize,
@@ -399,14 +396,14 @@ class WalletActions extends StatelessWidget {
                                                 : ThemeColors.black,
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
                                         Text(
                                           plugin.name,
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: sendLoading
                                                 ? ThemeColors.subtleEmphasis
-                                                : ThemeColors.black,
+                                                : ThemeColors.text
+                                                    .resolveFrom(context),
                                             fontSize: buttonFontSize,
                                           ),
                                         ),
