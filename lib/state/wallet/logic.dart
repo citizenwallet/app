@@ -28,6 +28,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -66,6 +67,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final NotificationsLogic _notificationsLogic;
 
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String appUniversalURL = dotenv.get('MAIN_APP_SCHEME');
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
@@ -1647,12 +1649,14 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<void> openPluginUrl(String url) async {
+  Future<void> openPluginUrl(String url, GoRouterState routerState) async {
     try {
       final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
 
+      final redirectUrl = '$appUniversalURL${routerState.uri.path}';
+
       final Uri uri = Uri.parse(
-        '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&signature=0x123',
+        '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$redirectUrl&signature=0x123',
       );
 
       await launchUrl(uri);

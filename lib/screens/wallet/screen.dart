@@ -343,7 +343,9 @@ class WalletScreenState extends State<WalletScreen> {
   void handlePlugin(String url) async {
     HapticFeedback.heavyImpact();
 
-    _logic.openPluginUrl(url);
+    final routerState = GoRouterState.of(context);
+
+    _logic.openPluginUrl(url, routerState);
   }
 
   void handleCards() async {
