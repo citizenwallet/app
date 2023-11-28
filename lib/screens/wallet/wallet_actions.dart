@@ -9,6 +9,7 @@ import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class WalletActions extends StatelessWidget {
@@ -19,6 +20,7 @@ class WalletActions extends StatelessWidget {
 
   final void Function()? handleSendModal;
   final void Function()? handleReceive;
+  final void Function(String url)? handlePlugin;
   final void Function()? handleCards;
   final void Function()? handleVouchers;
 
@@ -28,6 +30,7 @@ class WalletActions extends StatelessWidget {
     this.refreshing = false,
     this.handleSendModal,
     this.handleReceive,
+    this.handlePlugin,
     this.handleCards,
     this.handleVouchers,
   });
@@ -355,6 +358,62 @@ class WalletActions extends StatelessWidget {
                           ),
                         ),
                       const SizedBox(width: 40),
+                      if ((!loading || !firstLoad) &&
+                          handlePlugin != null &&
+                          wallet != null)
+                        ...(wallet.plugins
+                            .map(
+                              (plugin) => Container(
+                                margin: const EdgeInsets.only(right: 40),
+                                child: CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: sendLoading
+                                      ? () => ()
+                                      : () => handlePlugin!(plugin.url),
+                                  borderRadius: BorderRadius.circular(
+                                      progressiveClamp(14, 20, shrink)),
+                                  color: ThemeColors.surfacePrimary
+                                      .resolveFrom(context),
+                                  child: SizedBox(
+                                    height: buttonSize,
+                                    width: buttonSize,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.network(
+                                          plugin.icon,
+                                          semanticsLabel: '${plugin.name} icon',
+                                          height: 30,
+                                          width: 30,
+                                          placeholderBuilder: (_) => Icon(
+                                            CupertinoIcons.arrow_down,
+                                            size: buttonIconSize,
+                                            color: sendLoading
+                                                ? ThemeColors.subtleEmphasis
+                                                : ThemeColors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          plugin.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: sendLoading
+                                                ? ThemeColors.subtleEmphasis
+                                                : ThemeColors.black,
+                                            fontSize: buttonFontSize,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList()),
                     ],
                   ),
                 ),

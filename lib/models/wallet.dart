@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/utils/currency.dart';
 
 class CWWallet {
@@ -11,6 +12,7 @@ class CWWallet {
   final String currencyLogo;
   final int decimalDigits;
   final bool locked;
+  final List<PluginConfig> plugins;
 
   CWWallet(
     this._balance, {
@@ -23,6 +25,7 @@ class CWWallet {
     required this.currencyLogo,
     this.decimalDigits = 2,
     this.locked = true,
+    this.plugins = const [],
   });
 
   // copy
@@ -37,6 +40,7 @@ class CWWallet {
     String? currencyLogo,
     int? decimalDigits,
     bool? locked,
+    List<PluginConfig>? plugins,
   }) {
     return CWWallet(
       balance ?? _balance,
@@ -49,6 +53,7 @@ class CWWallet {
       currencyLogo: currencyLogo ?? this.currencyLogo,
       decimalDigits: decimalDigits ?? this.decimalDigits,
       locked: locked ?? this.locked,
+      plugins: plugins ?? this.plugins,
     );
   }
 
@@ -66,7 +71,11 @@ class CWWallet {
         symbol = json['symbol'],
         currencyLogo = json['currencyLogo'],
         decimalDigits = json['decimalDigits'],
-        locked = json['locked'];
+        locked = json['locked'],
+        plugins = json['plugins'] != null
+            ? List<PluginConfig>.from(
+                json['plugins'].map((x) => PluginConfig.fromJson(x)))
+            : [];
 
   // Convert a Conversation object into a Map object.
   // The keys must correspond to the names of the columns in the database.
@@ -81,6 +90,7 @@ class CWWallet {
         'currencyLogo': currencyLogo,
         'decimalDigits': decimalDigits,
         'locked': locked,
+        'plugins': plugins,
       };
 
   void setBalance(String balance) {

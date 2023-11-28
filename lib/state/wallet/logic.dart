@@ -30,6 +30,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -370,6 +371,7 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey.isEmpty,
+          plugins: config.plugins,
         ),
       );
 
@@ -1643,6 +1645,18 @@ class WalletLogic extends WidgetsBindingObserver {
         stackTrace: stackTrace,
       );
     }
+  }
+
+  Future<void> openPluginUrl(String url) async {
+    try {
+      final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
+
+      final Uri uri = Uri.parse(
+        '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&signature=0x123',
+      );
+
+      await launchUrl(uri);
+    } catch (_) {}
   }
 
   void pauseFetching() {

@@ -303,6 +303,73 @@ class ProfileConfig {
   }
 }
 
+class PluginConfig {
+  final String name;
+  final String icon;
+  final String url;
+
+  PluginConfig({
+    required this.name,
+    required this.icon,
+    required this.url,
+  });
+
+  factory PluginConfig.fromJson(Map<String, dynamic> json) {
+    return PluginConfig(
+      name: json['name'],
+      icon: json['icon'],
+      url: json['url'],
+    );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'icon': icon,
+      'url': url,
+    };
+  }
+
+  // to string
+  @override
+  String toString() {
+    return 'IndexerConfig{name: $name, icon: $icon, url: $url}';
+  }
+}
+
+Future<Legacy4337Bundlers> getLegacy4337Bundlers() async {
+  final localFile = jsonDecode(await rootBundle
+      .loadString('assets/config/v3/legacy_4337_bundlers.json'));
+
+  return Legacy4337Bundlers.fromJson(localFile);
+}
+
+class Legacy4337Bundlers {
+  final ERC4337Config polygon;
+  final ERC4337Config base;
+
+  Legacy4337Bundlers({
+    required this.polygon,
+    required this.base,
+  });
+
+  factory Legacy4337Bundlers.fromJson(Map<String, dynamic> json) {
+    return Legacy4337Bundlers(
+      polygon: ERC4337Config.fromJson(json['137']),
+      base: ERC4337Config.fromJson(json['8453']),
+    );
+  }
+
+  ERC4337Config get(String chainId) {
+    if (chainId == '137') {
+      return polygon;
+    }
+
+    return base;
+  }
+}
+
 class Config {
   final CommunityConfig community;
   final ScanConfig scan;
@@ -312,6 +379,7 @@ class Config {
   final ERC4337Config erc4337;
   final TokenConfig token;
   final ProfileConfig profile;
+  final List<PluginConfig> plugins;
   final int version;
 
   Config({
@@ -323,6 +391,7 @@ class Config {
     required this.erc4337,
     required this.token,
     required this.profile,
+    required this.plugins,
     this.version = 0,
   });
 
@@ -336,6 +405,11 @@ class Config {
       erc4337: ERC4337Config.fromJson(json['erc4337']),
       token: TokenConfig.fromJson(json['token']),
       profile: ProfileConfig.fromJson(json['profile']),
+      plugins: json['plugins'] != null
+          ? (json['plugins'] as List)
+              .map((e) => PluginConfig.fromJson(e))
+              .toList()
+          : [],
       version: json['version'] ?? 0,
     );
   }
@@ -351,6 +425,7 @@ class Config {
       'erc4337': erc4337,
       'token': token,
       'profile': profile,
+      'plugins': plugins,
       'version': version,
     };
   }
