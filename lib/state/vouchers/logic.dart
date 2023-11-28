@@ -371,7 +371,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      final tx = await _wallet.addSendingLog(
+      await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
@@ -384,17 +384,14 @@ class VoucherLogic extends WidgetsBindingObserver {
           TransactionState.sending.name,
         ),
       );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
 
       final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
+        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
+      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       final voucher = Voucher(
         address: dbvoucher.address,
@@ -417,8 +414,10 @@ class VoucherLogic extends WidgetsBindingObserver {
           ));
 
       return;
-    } catch (exception) {
+    } catch (exception, stacktrace) {
       //
+      print(exception);
+      print(stacktrace);
     }
 
     _state.createVoucherError();
@@ -520,7 +519,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         );
       }
 
-      final tx = await _wallet.addSendingLog(
+      await _wallet.addSendingLog(
         TransferEvent(
           hash,
           '',
@@ -534,13 +533,13 @@ class VoucherLogic extends WidgetsBindingObserver {
         ),
         customCredentials: credentials,
       );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
 
-      final success = await _wallet.submitUserop(userop);
+      final success = await _wallet.submitUserop(
+        userop,
+        customCredentials: credentials,
+      );
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
+        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
@@ -553,7 +552,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       await _wallet.setStatusLog(
-        tx.hash,
+        hash,
         TransactionState.pending,
         customCredentials: credentials,
       );

@@ -340,6 +340,12 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  void handlePlugin(String url) async {
+    HapticFeedback.heavyImpact();
+
+    _logic.openPluginUrl(url);
+  }
+
   void handleCards() async {
     HapticFeedback.heavyImpact();
 
@@ -483,6 +489,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleRefresh: handleRefresh,
                   handleSendModal: handleSendModal,
                   handleReceive: handleReceive,
+                  handlePlugin: handlePlugin,
                   handleCards: handleCards,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,

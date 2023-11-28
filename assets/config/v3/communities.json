@@ -12,7 +12,7 @@
             "name": "Polygon Explorer"
         },
         "indexer": {
-            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "url": "http://192.168.1.44:3000",
             "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
             "key": "x"
         },
@@ -24,11 +24,11 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "paymaster_type": "payg",
+            "rpc_url": "http://192.168.1.44:3000/rpc/0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
+            "entrypoint_address": "0xaDed079d71DDb042EA1623b7C2310EF565BAdDF5",
+            "account_factory_address": "0x2D811F9C2D402aA5a0de038a975dFf2017d3f105",
+            "paymaster_rpc_url": "http://192.168.1.44:3000/rpc/0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
+            "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
@@ -440,6 +440,13 @@
         "profile": {
             "address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F"
         },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
+                "url": "https://citizenwallet.xyz"
+            }
+        ],
         "version": 1
     }
 ]

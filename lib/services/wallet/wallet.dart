@@ -37,6 +37,8 @@ class WalletService {
 
   final PreferencesService _pref = PreferencesService();
 
+  bool _useLegacyBundlers = false;
+
   BigInt? _chainId;
   late NativeCurrency currency;
 
@@ -57,6 +59,8 @@ class WalletService {
   late APIService _bundlerRPC;
   late APIService _paymasterRPC;
   late String _paymasterType;
+
+  late Legacy4337Bundlers _legacy4337Bundlers;
 
   late EIP1559GasPriceEstimator _gasPriceEstimator;
 
@@ -80,6 +84,13 @@ class WalletService {
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
+
+  // legacy contracts
+  late StackupEntryPoint _contractLegacyEntryPoint;
+  late AccountFactoryService _contractLegacyAccountFactory;
+  late APIService _bundlerLegacyRPC;
+  late APIService _paymasterLegacyRPC;
+  late String _paymasterLegacyType;
 
   EthPrivateKey get credentials => _credentials;
   EthereumAddress get address => _credentials.address;
@@ -109,7 +120,7 @@ class WalletService {
   String get profileAddress => _contractProfile.addr;
 
   Future<BigInt> get accountNonce async =>
-      (await getAccountEntryPoint()).getNonce(_account.hexEip55);
+      getEntryPointContract().getNonce(_account.hexEip55);
 
   Future<void> init(
       String account, String privateKey, NativeCurrency currency, Config config,
@@ -159,6 +170,8 @@ class WalletService {
 
     this.currency = currency;
 
+    _legacy4337Bundlers = await getLegacy4337Bundlers();
+
     await _initContracts(
       account,
       config.community.alias,
@@ -168,11 +181,17 @@ class WalletService {
       config.profile.address,
     );
 
+    _useLegacyBundlers = await _contractAccount.isLegacy();
+
+    await _initLegacyContracts();
+    await _initLegacyRPCs();
+
     await _initAccount(onNotify);
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
   ///
+  /// [account] The account address
   /// [alias] The community alias
   /// [eaddr] The Ethereum address of the entry point for the smart contract.
   /// [afaddr] The Ethereum address of the account factory smart contract.
@@ -186,19 +205,6 @@ class WalletService {
     String taddr,
     String prfaddr,
   ) async {
-    // Create a new entry point instance and initialize it.
-    _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
-    await _contractEntryPoint.init();
-
-    // Create a new user profile contract instance and initialize it.
-    _contractProfile = ProfileContract(chainId, _ethClient, prfaddr);
-    await _contractProfile.init();
-
-    // Create a new account factory instance and initialize it.
-    _contractAccountFactory =
-        AccountFactoryService(chainId, _ethClient, afaddr);
-    await _contractAccountFactory.init();
-
     // Get the Ethereum address for the current account.
     // _account = EthereumAddress.fromHex(account);
     _account = EthereumAddress.fromHex(account);
@@ -207,59 +213,111 @@ class WalletService {
       address.hexEip55,
     );
 
+    // Create a new simple account instance and initialize it.
+    _contractAccount = SimpleAccount(chainId, _ethClient, _account.hexEip55);
+    await _contractAccount.init();
+
+    // Create a new entry point instance and initialize it.
+    _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
+    await _contractEntryPoint.init();
+
+    // Create a new account factory instance and initialize it.
+    _contractAccountFactory =
+        AccountFactoryService(chainId, _ethClient, afaddr);
+    await _contractAccountFactory.init();
+
     // Create a new ERC20 token contract instance and initialize it.
     _contractToken = ERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
-    // Create a new simple account instance and initialize it.
-    _contractAccount = SimpleAccount(chainId, _ethClient, _account.hexEip55);
-    await _contractAccount.init();
+    // Create a new user profile contract instance and initialize it.
+    _contractProfile = ProfileContract(chainId, _ethClient, prfaddr);
+    await _contractProfile.init();
+  }
+
+  /// Initializes the Legacy Ethereum smart contracts used by the wallet.
+  Future<void> _initLegacyContracts() async {
+    final legacyConfig = _legacy4337Bundlers.get(chainId.toString());
+
+    // Create a new entry point instance and initialize it.
+    _contractLegacyEntryPoint =
+        StackupEntryPoint(chainId, _ethClient, legacyConfig.entrypointAddress);
+    await _contractLegacyEntryPoint.init();
+
+    // Create a new account factory instance and initialize it.
+    _contractLegacyAccountFactory = AccountFactoryService(
+        chainId, _ethClient, legacyConfig.accountFactoryAddress);
+    await _contractLegacyAccountFactory.init();
+  }
+
+  /// Initializes the Legacy RPCs used by the wallet.
+  Future<void> _initLegacyRPCs() async {
+    final legacyConfig = _legacy4337Bundlers.get(chainId.toString());
+
+    _bundlerLegacyRPC = APIService(baseURL: legacyConfig.rpcUrl);
+    _paymasterLegacyRPC = APIService(baseURL: legacyConfig.paymasterRPCUrl);
+    _paymasterLegacyType = legacyConfig.paymasterType;
   }
 
   Future<void> _initAccount(void Function(String)? onNotify) async {
-    // purely checking if there is byte code
-    final exists = await accountExists();
+    try {
+      // purely checking if there is byte code
+      final exists = await accountExists();
 
-    if (!exists) {
-      await createAccount();
-    }
+      if (!exists) {
+        await createAccount();
+      }
 
-    // call the upgrade function on our API, it will return the new implementation address
-    final implementation = await upgradeAccount();
+      // call the upgrade function on our API, it will return the new implementation address
+      final implementation = await upgradeAccount();
 
-    if (implementation != null) {
-      onNotify?.call('Upgrading account...');
-      // upgrade the account to the new implementation address
-      final calldata = _contractAccount.upgradeToCallData(implementation);
+      if (implementation != null) {
+        onNotify?.call('Upgrading account...');
+        // upgrade the account to the new implementation address
+        final calldata = _contractAccount.upgradeToCallData(implementation);
 
-      final (hash, userop) = await prepareUserop(
-        [_account.hexEip55],
-        [calldata],
-      );
+        final (_, userop) = await prepareUserop(
+          [_account.hexEip55],
+          [calldata],
+        );
 
-      final success = await submitUserop(
-        userop,
-      );
+        final success = await submitUserop(
+          userop,
+        );
 
-      onNotify?.call('Account upgraded...');
-    }
+        if (!success) {
+          return;
+        }
+
+        _useLegacyBundlers = false;
+
+        onNotify?.call('Account upgraded...');
+      }
+    } catch (_) {}
   }
 
-  Future<StackupEntryPoint> getAccountEntryPoint() async {
-    StackupEntryPoint entryPoint = _contractEntryPoint;
-    if (_paymasterType == 'payg') {
-      return entryPoint;
-    }
-    try {
-      final ep = await _contractAccount.tokenEntryPoint();
+  StackupEntryPoint getEntryPointContract({bool legacy = false}) {
+    return _useLegacyBundlers || legacy
+        ? _contractLegacyEntryPoint
+        : _contractEntryPoint;
+  }
 
-      entryPoint = StackupEntryPoint(chainId, _ethClient, ep.hexEip55);
-      await entryPoint.init();
-    } catch (e) {
-      //
-    }
+  AccountFactoryService getAccounFactoryContract({bool legacy = false}) {
+    return _useLegacyBundlers || legacy
+        ? _contractLegacyAccountFactory
+        : _contractAccountFactory;
+  }
 
-    return entryPoint;
+  APIService getBundlerRPC({bool legacy = false}) {
+    return _useLegacyBundlers || legacy ? _bundlerLegacyRPC : _bundlerRPC;
+  }
+
+  APIService getPaymasterRPC({bool legacy = false}) {
+    return _useLegacyBundlers || legacy ? _paymasterLegacyRPC : _paymasterRPC;
+  }
+
+  String getPaymasterType({bool legacy = false}) {
+    return _useLegacyBundlers || legacy ? _paymasterLegacyType : _paymasterType;
   }
 
   /// fetches the balance of a given address
@@ -505,7 +563,9 @@ class WalletService {
   /// create an account
   Future<void> createAccount() async {
     try {
-      final url = '/accounts/factory/${_contractAccountFactory.addr}';
+      final accountFactory = getAccounFactoryContract();
+
+      final url = '/accounts/factory/${accountFactory.addr}';
 
       final encoded = jsonEncode(
         {
@@ -542,8 +602,12 @@ class WalletService {
   /// upgrade an account
   Future<String?> upgradeAccount() async {
     try {
+      final accountFactory = getAccounFactoryContract();
+
+      print('_useLegacyBundlers: $_useLegacyBundlers');
+
       final url =
-          '/accounts/factory/${_contractAccountFactory.addr}/sca/${_account.hexEip55}';
+          '/accounts/factory/${accountFactory.addr}/sca/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         {
@@ -563,8 +627,9 @@ class WalletService {
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': _account
-              .hexEip55, // owner verification since 1271 is impossible at this point
+          'X-Address': _useLegacyBundlers
+              ? _credentials.address.hexEip55
+              : _account.hexEip55,
         },
         body: body.toJson(),
       );
@@ -574,6 +639,8 @@ class WalletService {
       // account is already up to date
       return null;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -671,9 +738,14 @@ class WalletService {
     final prefKey = addr;
     final cachedAccAddress = _pref.getAccountAddress(prefKey);
 
-    final address = cachedAccAddress != null
-        ? EthereumAddress.fromHex(cachedAccAddress)
-        : await _contractAccountFactory.getAddress(addr);
+    EthereumAddress address;
+    if (cachedAccAddress == null) {
+      final accountFactory = getAccounFactoryContract();
+
+      address = await accountFactory.getAddress(addr);
+    } else {
+      address = EthereumAddress.fromHex(cachedAccAddress);
+    }
     await _pref.setAccountAddress(
       prefKey,
       address.hexEip55,
@@ -711,15 +783,16 @@ class WalletService {
   ///         request failed.
   Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
-    String eaddr,
-  ) async {
+    String eaddr, {
+    bool legacy = false,
+  }) async {
     final body = SUJSONRPCRequest(
       method: 'eth_sendUserOperation',
       params: [userop.toJson(), eaddr],
     );
 
     try {
-      final response = await _requestBundler(body);
+      final response = await _requestBundler(body, legacy: legacy);
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
@@ -743,8 +816,13 @@ class WalletService {
   }
 
   /// makes a jsonrpc request from this wallet
-  Future<SUJSONRPCResponse> _requestPaymaster(SUJSONRPCRequest body) async {
-    final rawResponse = await _paymasterRPC.post(
+  Future<SUJSONRPCResponse> _requestPaymaster(
+    SUJSONRPCRequest body, {
+    bool legacy = false,
+  }) async {
+    final paymasterRPC = getPaymasterRPC(legacy: legacy);
+
+    final rawResponse = await paymasterRPC.post(
       body: body,
       headers: erc4337Headers,
     );
@@ -759,8 +837,11 @@ class WalletService {
   }
 
   /// makes a jsonrpc request from this wallet
-  Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
-    final rawRespoonse = await _bundlerRPC.post(
+  Future<SUJSONRPCResponse> _requestBundler(
+    SUJSONRPCRequest body, {
+    bool legacy = false,
+  }) async {
+    final rawRespoonse = await getBundlerRPC(legacy: legacy).post(
       body: body,
       headers: erc4337Headers,
     );
@@ -778,8 +859,9 @@ class WalletService {
   Future<(PaymasterData?, Exception?)> _getPaymasterData(
     UserOp userop,
     String eaddr,
-    String ptype,
-  ) async {
+    String ptype, {
+    bool legacy = false,
+  }) async {
     final body = SUJSONRPCRequest(
       method: 'pm_sponsorUserOperation',
       params: [
@@ -790,7 +872,7 @@ class WalletService {
     );
 
     try {
-      final response = await _requestPaymaster(body);
+      final response = await _requestPaymaster(body, legacy: legacy);
 
       return (PaymasterData.fromJson(response.result), null);
     } catch (exception, stackTrace) {
@@ -825,13 +907,20 @@ class WalletService {
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
+      bool isLegacy = false;
+
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
           customCredentials.address.hexEip55,
         );
+
+        // check if this account does not support a token entrypoint
+        isLegacy =
+            await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
       }
-      final StackupEntryPoint entryPoint = await getAccountEntryPoint();
+      final StackupEntryPoint entryPoint =
+          getEntryPointContract(legacy: isLegacy);
 
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -847,8 +936,10 @@ class WalletService {
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && !exists) {
+        final accountFactory = getAccounFactoryContract(legacy: isLegacy);
+
         // construct the init code to deploy the account
-        userop.initCode = await _contractAccountFactory.createAccountInitCode(
+        userop.initCode = await accountFactory.createAccountInitCode(
           cred.address.hexEip55,
           BigInt.zero,
         );
@@ -881,7 +972,8 @@ class WalletService {
       final (paymasterData, paymasterErr) = await _getPaymasterData(
         userop,
         entryPoint.addr,
-        _paymasterType,
+        getPaymasterType(legacy: isLegacy),
+        legacy: isLegacy,
       );
 
       if (paymasterErr != null) {
@@ -911,12 +1003,31 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool> submitUserop(UserOp userop) async {
+  Future<bool> submitUserop(
+    UserOp userop, {
+    EthPrivateKey? customCredentials,
+  }) async {
     try {
-      final entryPoint = await getAccountEntryPoint();
+      bool isLegacy = false;
+
+      EthereumAddress acc = _account;
+      if (customCredentials != null) {
+        acc = await getAccountAddress(
+          customCredentials.address.hexEip55,
+        );
+
+        // check if this account does not support a token entrypoint
+        isLegacy =
+            await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
+      }
+      final entryPoint = getEntryPointContract();
 
       // send the user op
-      final (result, useropErr) = await _submitUserOp(userop, entryPoint.addr);
+      final (result, useropErr) = await _submitUserOp(
+        userop,
+        entryPoint.addr,
+        legacy: isLegacy,
+      );
       if (useropErr != null) {
         throw useropErr;
       }
@@ -938,6 +1049,7 @@ class WalletService {
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
+
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
@@ -968,6 +1080,8 @@ class WalletService {
 
       return TransferEvent.fromJson(response['object']);
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -987,6 +1101,7 @@ class WalletService {
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
+
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
@@ -1018,6 +1133,8 @@ class WalletService {
 
       return true;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -1037,6 +1154,7 @@ class WalletService {
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
+
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
@@ -1086,6 +1204,7 @@ class WalletService {
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
+
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(

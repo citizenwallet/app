@@ -39,6 +39,21 @@ class SimpleAccount {
     return result[0];
   }
 
+  Future<bool> isLegacy() async {
+    try {
+      final address = await tokenEntryPoint();
+      if (address.addressBytes.isEmpty) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      print('isLegacy: $e');
+    }
+
+    return true;
+  }
+
   Uint8List executeCallData(String dest, BigInt amount, Uint8List calldata) {
     final function = rcontract.function('execute');
 

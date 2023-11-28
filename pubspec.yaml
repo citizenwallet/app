@@ -107,6 +107,7 @@ flutter:
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
     - assets/config/v3/communities.json
+    - assets/config/v3/legacy_4337_bundlers.json
     - assets/config/v3/debug.json
     - assets/lottie/chat.json
     - assets/lottie/gift-voucher.json
