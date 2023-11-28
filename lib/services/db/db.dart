@@ -78,7 +78,7 @@ class DBService {
 
         return;
       },
-      version: 6,
+      version: 7,
     );
 
     final db = await databaseFactory.openDatabase(

@@ -1,5 +1,4 @@
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/utils/currency.dart';
 
 class CWWallet {
   String name;

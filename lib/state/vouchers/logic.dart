@@ -103,6 +103,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               creator: e.creator,
               createdAt: e.createdAt,
               archived: e.archived,
+              legacy: e.legacy,
             ),
           )
           .toList());
@@ -135,8 +136,13 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final credentials = wallet.privateKey;
 
-      final account =
-          await _wallet.getAccountAddress(credentials.address.hexEip55);
+      EthereumAddress account = uri.queryParameters['account'] != null
+          ? EthereumAddress.fromHex(uri.queryParameters['account']!)
+          : await _wallet.getAccountAddress(
+              credentials.address.hexEip55,
+              legacy: true,
+              cache: false,
+            );
 
       final balance = await _wallet.getBalance(account.hexEip55);
 
@@ -148,6 +154,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: uri.queryParameters['creator'] ?? '',
         createdAt: DateTime.now(),
         archived: true,
+        legacy: uri.queryParameters['account'] == null,
       );
 
       final dbvoucher = DBVoucher(
@@ -159,13 +166,14 @@ class VoucherLogic extends WidgetsBindingObserver {
         salt: salt,
         creator: voucher.creator,
         archived: voucher.archived,
+        legacy: voucher.legacy,
       );
 
       await _db.vouchers.insert(dbvoucher);
 
       _state.readVoucherSuccess(voucher);
       return voucher.address;
-    } catch (e) {
+    } catch (_) {
       //
     }
 
@@ -194,6 +202,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
+        legacy: dbvoucher.legacy,
       );
 
       final config = await _config.config;
@@ -209,7 +218,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           ));
 
       return voucher;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -270,6 +279,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           voucher: wallet.toJson(),
           salt: salt,
           creator: _wallet.account.hexEip55,
+          legacy: false,
         );
 
         dbvouchers.add(dbvoucher);
@@ -287,6 +297,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           creator: dbvoucher.creator,
           createdAt: dbvoucher.createdAt,
           archived: dbvoucher.archived,
+          legacy: dbvoucher.legacy,
         );
 
         vouchers.add(voucher);
@@ -311,7 +322,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -355,6 +366,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         voucher: wallet.toJson(),
         salt: salt,
         creator: _wallet.account.hexEip55,
+        legacy: false,
       );
 
       await _db.vouchers.insert(dbvoucher);
@@ -401,23 +413,25 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
+        legacy: false,
       );
 
       final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.createVoucherSuccess(
-          voucher,
-          voucher.getLink(
-            appLink,
-            symbol,
-            dbvoucher.voucher,
-          ));
+        voucher,
+        voucher.getLink(
+          appLink,
+          symbol,
+          dbvoucher.voucher,
+        ),
+      );
 
+      // pre-create account of voucher
+      _wallet.createAccount(customCredentials: credentials);
       return;
-    } catch (exception, stacktrace) {
+    } catch (_) {
       //
-      print(exception);
-      print(stacktrace);
     }
 
     _state.createVoucherError();
@@ -506,6 +520,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         [_wallet.erc20Address],
         [calldata],
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
 
       final account =
@@ -532,11 +547,13 @@ class VoucherLogic extends WidgetsBindingObserver {
           TransactionState.sending.name,
         ),
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
 
       final success = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
       if (!success) {
         await _wallet.setStatusLog(hash, TransactionState.fail);
@@ -555,13 +572,14 @@ class VoucherLogic extends WidgetsBindingObserver {
         hash,
         TransactionState.pending,
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
 
       await _db.vouchers.archive(address);
 
       _state.returnVoucherSuccess(address);
       return;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 

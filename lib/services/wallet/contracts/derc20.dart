@@ -63,32 +63,6 @@ class Token {
     return function.encodeCall([EthereumAddress.fromHex(to), amount]);
   }
 
-  // void listen(String from) async {
-  //   final ev = rcontract.event('Transfer');
-
-  //   final filter = FilterOptions(
-  //     address: rcontract.address,
-  //     topics: [
-  //       [
-  //         bytesToHex(ev.signature, forcePadLength: 64, include0x: true),
-  //       ],
-  //       [
-  //         bytesToHex(hexToBytes(from), forcePadLength: 64, include0x: true),
-  //       ]
-  //     ],
-  //   );
-
-  //   _sub = client.events(filter).listen((event) {
-  //     final decoded = ev.decodeResults(event.topics!, event.data!);
-
-  //     final from = decoded[0] as EthereumAddress;
-  //     final to = decoded[1] as EthereumAddress;
-  //     final value = decoded[2] as BigInt;
-
-  //     print('$from sent $value DERC20 to $to');
-  //   });
-  // }
-
   void dispose() {
     _sub?.cancel();
   }

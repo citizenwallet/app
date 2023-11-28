@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:smartcontracts/contracts/accounts/Account.g.dart';
 
 import 'package:web3dart/web3dart.dart';
 
@@ -8,17 +9,17 @@ class SimpleAccount {
   final int chainId;
   final Web3Client client;
   final String addr;
-  // late DERC20 contract;
+  late Account contract;
   late DeployedContract rcontract;
 
   // StreamSubscription<TransferSingle>? _sub;
 
   SimpleAccount(this.chainId, this.client, this.addr) {
-    // contract = DERC20(
-    //   address: EthereumAddress.fromHex(addr),
-    //   chainId: chainId,
-    //   client: client,
-    // );
+    contract = Account(
+      address: EthereumAddress.fromHex(addr),
+      chainId: chainId,
+      client: client,
+    );
   }
 
   Future<void> init() async {
@@ -31,12 +32,14 @@ class SimpleAccount {
   }
 
   Future<EthereumAddress> tokenEntryPoint() async {
-    final function = rcontract.function('tokenEntryPoint');
+    // final function = rcontract.function('tokenEntryPoint');
 
-    final result =
-        await client.call(contract: rcontract, function: function, params: []);
+    // final result =
+    //     await client.call(contract: rcontract, function: function, params: []);
 
-    return result[0];
+    // return result[0];
+
+    return contract.tokenEntryPoint();
   }
 
   Future<bool> isLegacy() async {
@@ -47,9 +50,7 @@ class SimpleAccount {
       }
 
       return false;
-    } catch (e) {
-      print('isLegacy: $e');
-    }
+    } catch (_) {}
 
     return true;
   }

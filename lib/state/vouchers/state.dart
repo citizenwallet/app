@@ -23,6 +23,7 @@ class Voucher {
   final String creator;
   final DateTime createdAt;
   bool archived;
+  bool legacy;
 
   Voucher({
     required this.address,
@@ -32,6 +33,7 @@ class Voucher {
     required this.creator,
     required this.createdAt,
     required this.archived,
+    this.legacy = false,
   });
 
   String get formattedBalance =>
@@ -41,7 +43,7 @@ class Voucher {
   String getLink(String appLink, String symbol, String voucher) {
     final encoded = compress(voucher);
 
-    String params = 'alias=$alias&creator=$creator';
+    String params = 'alias=$alias&creator=$creator&account=$address';
 
     if (name.isNotEmpty) {
       params += '&name=$name';
