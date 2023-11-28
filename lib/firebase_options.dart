@@ -28,10 +28,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -58,6 +55,15 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDmaPtoo8Z-kMnYF_7eQYX-s9K-HlIzv8E',
+    appId: '1:344121608635:ios:c0ca8f95084443d4d65c9e',
+    messagingSenderId: '344121608635',
+    projectId: 'citizen-wallet-b1262',
+    storageBucket: 'citizen-wallet-b1262.appspot.com',
+    iosBundleId: 'xyz.citizenwallet.wallet',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDmaPtoo8Z-kMnYF_7eQYX-s9K-HlIzv8E',
     appId: '1:344121608635:ios:c0ca8f95084443d4d65c9e',
     messagingSenderId: '344121608635',
