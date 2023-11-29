@@ -200,6 +200,8 @@ class VouchersModalState extends State<VouchersModal> {
 
     final config = context.select((WalletState state) => state.config);
 
+    final ready = context.select((WalletState state) => state.ready);
+
     final vouchers = selectVouchers(context.watch<VoucherState>());
 
     final loading = context.select((VoucherState state) => state.loading);
@@ -293,35 +295,37 @@ class VouchersModalState extends State<VouchersModal> {
                           ),
                       ],
                     ),
-                    Positioned(
-                      bottom: 0,
-                      width: width,
-                      child: BlurryChild(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(
-                                color: ThemeColors.subtle.resolveFrom(context),
+                    if (ready)
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
                               ),
                             ),
-                          ),
-                          padding:
-                              EdgeInsets.fromLTRB(0, 10, 0, safeBottomPadding),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              Button(
-                                text: 'Create Voucher',
-                                onPressed: handleCreateVoucher,
-                                minWidth: 200,
-                                maxWidth: 200,
-                              ),
-                              const SizedBox(height: 10),
-                            ],
+                            padding: EdgeInsets.fromLTRB(
+                                0, 10, 0, safeBottomPadding),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Button(
+                                  text: 'Create Voucher',
+                                  onPressed: handleCreateVoucher,
+                                  minWidth: 200,
+                                  maxWidth: 200,
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

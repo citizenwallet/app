@@ -123,8 +123,13 @@ class WalletService {
       getEntryPointContract().getNonce(_account.hexEip55);
 
   Future<void> init(
-      String account, String privateKey, NativeCurrency currency, Config config,
-      {void Function(String)? onNotify}) async {
+    String account,
+    String privateKey,
+    NativeCurrency currency,
+    Config config, {
+    void Function(String)? onNotify,
+    void Function(bool)? onFinished,
+  }) async {
     _indexerKey = config.indexer.key;
 
     _url = config.node.url;
@@ -143,8 +148,14 @@ class WalletService {
     _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
 
     _rpc = APIService(baseURL: config.node.url);
-    _bundlerRPC = APIService(baseURL: config.erc4337.rpcUrl);
-    _paymasterRPC = APIService(baseURL: config.erc4337.paymasterRPCUrl);
+    _bundlerRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.rpcUrl);
+    _paymasterRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.paymasterRPCUrl);
     _paymasterType = config.erc4337.paymasterType;
 
     _gasPriceEstimator = EIP1559GasPriceEstimator(
@@ -184,7 +195,7 @@ class WalletService {
     await _initLegacyContracts();
     await _initLegacyRPCs();
 
-    await _initAccount(onNotify);
+    _initAccount(onNotify, onFinished);
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -257,7 +268,10 @@ class WalletService {
     _paymasterLegacyType = legacyConfig.paymasterType;
   }
 
-  Future<void> _initAccount(void Function(String)? onNotify) async {
+  Future<void> _initAccount(
+    void Function(String)? onNotify,
+    void Function(bool)? onFinished,
+  ) async {
     try {
       // purely checking if there is byte code
       final exists = await accountExists();
@@ -293,7 +307,13 @@ class WalletService {
 
         onNotify?.call('Account upgraded...');
       }
+      onFinished?.call(true);
+      return;
     } catch (_) {}
+
+    _useLegacyBundlers = true;
+
+    onFinished?.call(false);
   }
 
   StackupEntryPoint getEntryPointContract({bool legacy = false}) {
