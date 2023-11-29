@@ -106,12 +106,12 @@ class PreferencesService {
   }
 
   // saved configs
-  Future setConfig(String key, dynamic value) async {
-    await _preferences.setString('config_$key', jsonEncode(value));
+  Future setConfigs(dynamic value) async {
+    await _preferences.setString('configs', jsonEncode(value));
   }
 
-  dynamic getConfig(String key) {
-    final config = _preferences.getString('config_$key');
+  dynamic getConfigs() {
+    final config = _preferences.getString('configs');
     if (config == null) {
       return null;
     }
