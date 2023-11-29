@@ -12,7 +12,7 @@
             "name": "Polygon Explorer"
         },
         "indexer": {
-            "url": "http://192.168.1.44:3000",
+            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
             "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
             "key": "x"
         },
@@ -24,10 +24,11 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "http://192.168.1.44:3000/rpc/0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
             "entrypoint_address": "0xaDed079d71DDb042EA1623b7C2310EF565BAdDF5",
             "account_factory_address": "0x2D811F9C2D402aA5a0de038a975dFf2017d3f105",
-            "paymaster_rpc_url": "http://192.168.1.44:3000/rpc/0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
@@ -68,10 +69,11 @@
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
         "erc4337": {
-            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0xB948c47ebb1621cC356F9a3d2b08FdD50599f8D1",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0xE5D955691468F8e702c20D18153D42565c5fe787",
-            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0xB948c47ebb1621cC356F9a3d2b08FdD50599f8D1",
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xA505A5c3486E5732d037294B4D42b0c38B77E5a9",
+            "entrypoint_address": "0xbCA3057D93c5715Ff1731996892F205d4452D4b9",
+            "account_factory_address": "0x31b6412c997586040B2966E85caE37ba2D649D47",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw"
         },
         "token": {
@@ -111,10 +113,11 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc/0xa74Fc360C34642F0823F1964EEfd9E6dc73037Bb",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc/0xa74Fc360C34642F0823F1964EEfd9E6dc73037Bb",
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x8f59917f1066380D0FFA271baB8F5890dAEbb301",
+            "entrypoint_address": "0x47ACDa951469c8B9D08139708330dEd988c519C3",
+            "account_factory_address": "0xaeCFfA13Ee0B7E8aD700E528CB321103f4B1F950",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
@@ -157,7 +160,7 @@
         "erc4337": {
             "rpc_url": "https://api.stackup.sh/v1/node/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
             "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x4B76dF1325Ca68F987Fff5B509dAD91039A9708B",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
             "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
             "paymaster_type": "payg",
             "gas_extra_percentage": 50
@@ -202,7 +205,7 @@
         "erc4337": {
             "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
             "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
             "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
             "paymaster_type": "payg",
             "gas_extra_percentage": 50
@@ -247,7 +250,7 @@
         "erc4337": {
             "rpc_url": "https://api.stackup.sh/v1/node/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
             "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x4B76dF1325Ca68F987Fff5B509dAD91039A9708B",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
             "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
             "paymaster_type": "payg"
         },
@@ -289,11 +292,12 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "paymaster_type": "payg",
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x156e47D926D63047Cadd97538B429473D40f3bbb",
+            "entrypoint_address": "0x2121D71310aC344C6BE84002132db6433C657381",
+            "account_factory_address": "0x09162E3639Dd4C7e57E35880e804AfC78AFe7aD7",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
@@ -333,11 +337,12 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "paymaster_type": "payg",
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xe3C5917F880C65754D708892C6c75401C4AC2f00",
+            "entrypoint_address": "0x6D20CB260741f0675b6018c58627e61c9DB802B3",
+            "account_factory_address": "0x58f23446A9FC9eAcCf8653CBC98BC488Ff9E0F9d",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
@@ -381,7 +386,7 @@
         "erc4337": {
             "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
             "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
+            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
             "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
             "paymaster_type": "payg",
             "gas_extra_percentage": 50
@@ -423,11 +428,12 @@
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
         "erc4337": {
-            "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-            "paymaster_type": "payg",
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x749dbd6f3a579A9DBb549Dfb7bD02B8EAA7B2a47",
+            "entrypoint_address": "0x1e3d80adaF509aB5745f629359ADeeaC96C46c87",
+            "account_factory_address": "0x5b72B1E8640B03b6F7497E307742269774F8F32A",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
