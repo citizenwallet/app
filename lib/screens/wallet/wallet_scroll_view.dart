@@ -232,7 +232,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (wallet != null &&
             wallet.doubleBalance == 0.0 &&
             transactions.isEmpty)
-          SliverFillRemaining(
+          SliverToBoxAdapter(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -304,6 +304,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
                             ],
                             selected: _selectedValue,
                             handleSelect: handleSelect,
+                          ),
+                          const SizedBox(
+                            height: 20,
                           ),
                         ],
                       ),
