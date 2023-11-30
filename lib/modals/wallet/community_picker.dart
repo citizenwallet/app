@@ -85,9 +85,9 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
-                  child: Icon(
+                  child: const Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color: ThemeColors.white,
                   ),
                 ),
               ),
@@ -105,7 +105,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                         builder: (context, shrink) {
                           return Container(
                             color: ThemeColors.black,
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -115,7 +115,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                                   children: [
                                     Expanded(
                                       child: Image.asset(
-                                        'assets/images/community_background.jpg',
+                                        'assets/images/community_background.png',
                                         fit: BoxFit.contain,
                                       ),
                                     ),
@@ -139,7 +139,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                                       ],
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
                           );
