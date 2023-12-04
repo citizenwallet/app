@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class VoucherLogic extends WidgetsBindingObserver {
@@ -135,12 +136,18 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final uri = Uri(query: voucherParams);
 
-      final wallet = Wallet.fromJson(
-        jsonVoucher,
-        '$password$salt',
-      );
-
-      final credentials = wallet.privateKey;
+      final EthPrivateKey credentials;
+      if (jsonVoucher.startsWith('v2-')) {
+        credentials =
+            EthPrivateKey.fromHex(jsonVoucher.replaceFirst('v2-', ''));
+      } else {
+        // legacy voucher format
+        final wallet = Wallet.fromJson(
+          jsonVoucher,
+          '$password$salt',
+        );
+        credentials = wallet.privateKey;
+      }
 
       EthereumAddress account = uri.queryParameters['account'] != null
           ? EthereumAddress.fromHex(uri.queryParameters['account']!)
@@ -216,12 +223,13 @@ class VoucherLogic extends WidgetsBindingObserver {
       final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.openVoucherSuccess(
-          voucher,
-          voucher.getLink(
-            appLink,
-            _wallet.currency.symbol,
-            dbvoucher.voucher,
-          ));
+        voucher,
+        voucher.getLink(
+          appLink,
+          _wallet.currency.symbol,
+          dbvoucher.voucher,
+        ),
+      );
 
       return voucher;
     } catch (_) {
@@ -346,13 +354,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final wallet = Wallet.createNew(
-        credentials,
-        '$password$salt',
-        Random.secure(),
-        scryptN: 2,
-      );
-
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
@@ -369,7 +370,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         alias: config.community.alias,
         name: name ?? 'Voucher for $balance $symbol',
         balance: parsedAmount.toString(),
-        voucher: wallet.toJson(),
+        voucher: 'v2-${bytesToHex(credentials.privateKey)}',
         salt: salt,
         creator: _wallet.account.hexEip55,
         legacy: false,
@@ -498,9 +499,20 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('voucher not found');
       }
 
-      final credentials =
-          Wallet.fromJson(voucher.voucher, '$password${voucher.salt}')
-              .privateKey;
+      final jsonVoucher = voucher.voucher;
+
+      final EthPrivateKey credentials;
+      if (jsonVoucher.startsWith('v2-')) {
+        credentials =
+            EthPrivateKey.fromHex(jsonVoucher.replaceFirst('v2-', ''));
+      } else {
+        // legacy voucher format
+        final wallet = Wallet.fromJson(
+          jsonVoucher,
+          '$password${voucher.salt}',
+        );
+        credentials = wallet.privateKey;
+      }
 
       final amount = toUnit(
         voucher.balance,
