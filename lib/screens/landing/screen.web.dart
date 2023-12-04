@@ -31,9 +31,10 @@ class WebLandingScreenState extends State<WebLandingScreen>
   void initState() {
     super.initState();
 
+    _appLogic = AppLogic(context);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      _appLogic = AppLogic(context);
 
       onLoad();
     });
