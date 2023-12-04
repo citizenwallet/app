@@ -83,8 +83,6 @@ class LandingScreenState extends State<LandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
-    _appLogic.configureGenericConfig();
-
     // set up recovery
     await handleAppleRecover();
     await handleAndroidRecover();

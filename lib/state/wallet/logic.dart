@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
@@ -116,12 +115,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> fetchWalletConfig() async {
     try {
-      // on web, use host
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
-
-      final config = await _config.config;
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       _state.setWalletConfig(config);
 
@@ -142,15 +136,6 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function()? loadAdditionalData,
     void Function()? goBackHome,
   }) async {
-    try {
-      // on web, use host
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
-    } catch (_) {
-      return (false, false);
-    }
-
     String encoded = encodedWallet;
     String password = '';
 
@@ -187,7 +172,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       Wallet cred = Wallet.fromJson(decoded, password);
 
-      final config = await _config.config;
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       // load the legacy account factory
       final accFactory = await accountFactoryServiceFromConfig(config,
@@ -225,7 +210,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await delay(const Duration(milliseconds: 0));
 
-      final config = await _config.config;
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       await _wallet.init(
         decodedSplit[0],
@@ -244,7 +229,8 @@ class WalletLogic extends WidgetsBindingObserver {
         },
       );
 
-      await _db.init('wallet_${_wallet.address.hexEip55}');
+      await _db.init(
+          'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
       ContactsCache().init(_db);
 
@@ -306,13 +292,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('address not found');
       }
 
-      // on native, use env
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       if (isWalletLoaded &&
           paramAlias == alias &&
@@ -361,7 +341,8 @@ class WalletLogic extends WidgetsBindingObserver {
         },
       );
 
-      await _db.init('wallet_${_wallet.address.hexEip55}');
+      await _db.init(
+          'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
       ContactsCache().init(_db);
 
@@ -420,12 +401,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -485,12 +461,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('Invalid private key');
       }
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -1484,7 +1455,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void updateReceiveQR({bool? onlyHex}) async {
     try {
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
 

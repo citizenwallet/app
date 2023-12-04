@@ -46,7 +46,15 @@ FutureOr<void> appRunner() async {
 
   WalletService();
 
-  ConfigService();
+  final config = ConfigService();
+
+  if (kIsWeb) {
+    config.initWeb();
+  } else {
+    config.init(
+      dotenv.get('WALLET_CONFIG_URL'),
+    );
+  }
 
   await AudioService().init(muted: PreferencesService().muted);
 

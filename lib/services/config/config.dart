@@ -353,16 +353,19 @@ Future<Legacy4337Bundlers> getLegacy4337Bundlers() async {
 class Legacy4337Bundlers {
   final ERC4337Config polygon;
   final ERC4337Config base;
+  final ERC4337Config celo;
 
   Legacy4337Bundlers({
     required this.polygon,
     required this.base,
+    required this.celo,
   });
 
   factory Legacy4337Bundlers.fromJson(Map<String, dynamic> json) {
     return Legacy4337Bundlers(
       polygon: ERC4337Config.fromJson(json['137']),
       base: ERC4337Config.fromJson(json['8453']),
+      celo: ERC4337Config.fromJson(json['42220']),
     );
   }
 
@@ -372,6 +375,19 @@ class Legacy4337Bundlers {
     }
 
     return base;
+  }
+
+  ERC4337Config? getFromAlias(String alias) {
+    if (alias.contains('celo')) {
+      return null;
+    }
+
+    return switch (alias) {
+      'usdc.base' => base,
+      'wallet.oak.community' => base,
+      'ceur.celo' => celo,
+      _ => polygon
+    };
   }
 }
 
@@ -457,19 +473,32 @@ class ConfigService {
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
-  String _alias = '';
 
   List<Config> _configs = [];
 
-  Future<Config> get config async {
+  Future<Config> getConfig(String alias) async {
+    return _getConfig(fixLegacyAliases(alias));
+  }
+
+  Future<Config> getWebConfig(String appLinkSuffix) async {
+    String alias = Uri.base.host.endsWith(appLinkSuffix)
+        ? Uri.base.host.replaceFirst(appLinkSuffix, '')
+        : Uri.base.host;
+
+    alias = alias == 'localhost' || alias == '' ? 'app' : alias;
+
+    return _getConfig(alias);
+  }
+
+  Future<Config> _getConfig(String alias) async {
     if (_configs.isNotEmpty) {
       final Config? config = _configs.firstWhereOrNull(
-        (element) => element.community.alias == _alias,
+        (element) => element.community.alias == alias,
       );
 
       if (config != null) {
         // still fetch and update the local cache in the background
-        getConfigs().then((value) {
+        getConfigs(alias: kIsWeb ? alias : null).then((value) {
           _configs = value;
         }).catchError((_) {});
 
@@ -479,27 +508,26 @@ class ConfigService {
 
     try {
       // fetch the config and await
-      _configs = await getConfigs();
+      _configs = await getConfigs(alias: kIsWeb ? alias : null);
     } catch (_) {}
 
-    return _configs.firstWhere((element) => element.community.alias == _alias);
+    return _configs.firstWhere((element) => element.community.alias == alias);
   }
 
-  void initWeb(String appLinkSuffix) {
-    String alias = Uri.base.host.endsWith(appLinkSuffix)
-        ? Uri.base.host.replaceFirst(appLinkSuffix, '')
-        : Uri.base.host;
-
+  void initWeb() {
     final url =
         '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
-    _alias = alias == 'localhost' || alias == '' ? 'app' : alias;
   }
 
-  void init(String endpoint, String alias) {
+  void init(String endpoint) {
     _api = APIService(baseURL: endpoint);
-    _alias = fixLegacyAliases(alias);
+
+    if (kDebugMode) {
+      _loadFromLocal();
+      return;
+    }
 
     _loadFromCache();
   }
@@ -525,7 +553,7 @@ class ConfigService {
     _configs = (localFile as List).map((e) => Config.fromJson(e)).toList();
   }
 
-  Future<List<Config>> getConfigs() async {
+  Future<List<Config>> getConfigs({String? alias}) async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(
           'assets/config/v$version/$communityConfigListFileName.json'));
@@ -536,11 +564,11 @@ class ConfigService {
       return configs;
     }
 
-    if (kIsWeb) {
+    if (alias != null) {
       // we only need a single file for the web
       final response = await _api.get(
           url:
-              '/v$version/$_alias.json?cachebuster=${generateCacheBusterValue()}');
+              '/v$version/$alias.json?cachebuster=${generateCacheBusterValue()}');
 
       return [Config.fromJson(response)];
     }
