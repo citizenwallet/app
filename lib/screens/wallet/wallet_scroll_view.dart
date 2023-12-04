@@ -138,155 +138,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
-    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
-      return CustomScrollView(
-        controller: controller,
-        scrollBehavior: const CupertinoScrollBehavior(),
-        slivers: [
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 60),
-          ),
-          SliverFillRemaining(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: walletLoading
-                  ? [
-                      CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Preparing wallet...',
-                        style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ]
-                  : [
-                      Text(
-                        wallet.currencyName,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '0.00',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.normal,
-                              color: ThemeColors.text.resolveFrom(context),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              0,
-                              0,
-                              0,
-                              3,
-                            ),
-                            child: Text(
-                              wallet.symbol,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Ready to receive tokens',
-                        style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      AnimatedOpacity(
-                        opacity: profileLinkLoading ? 0 : 1,
-                        duration: const Duration(milliseconds: 250),
-                        child: QR(
-                          data: qrData,
-                          size: qrSize,
-                          padding: const EdgeInsets.all(20),
-                          logo: isExternalWallet ? null : 'assets/logo.png',
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Chip(
-                            isExternalWallet
-                                ? formatLongText(qrData, length: 6)
-                                : ellipsizeLongText(
-                                    qrData.replaceFirst('https://', ''),
-                                    startLength: 30,
-                                    endLength: 6,
-                                  ),
-                            onTap: () => handleCopy(qrData),
-                            fontSize: 14,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
-                            suffix: Icon(
-                              CupertinoIcons.square_on_square,
-                              size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
-                            ),
-                            maxWidth: isExternalWallet ? 160 : 290,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Picker(
-                            options: const [
-                              'Citizen Wallet',
-                              'External Wallet'
-                            ],
-                            selected: _selectedValue,
-                            handleSelect: handleSelect,
-                          ),
-                        ],
-                      ),
-                    ],
-            ),
-          ),
-        ],
-      );
-    }
-
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
@@ -378,19 +229,104 @@ class WalletScrollViewState extends State<WalletScrollView> {
               },
             ),
           ),
-        SliverToBoxAdapter(
-          child: Container(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: const Text(
-              'Transactions',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+        if (wallet != null &&
+            wallet.doubleBalance == 0.0 &&
+            transactions.isEmpty)
+          SliverToBoxAdapter(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: walletLoading
+                  ? [
+                      CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        'Preparing wallet...',
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ]
+                  : [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedOpacity(
+                        opacity: profileLinkLoading ? 0 : 1,
+                        duration: const Duration(milliseconds: 250),
+                        child: QR(
+                          data: qrData,
+                          size: qrSize,
+                          padding: const EdgeInsets.all(20),
+                          logo: isExternalWallet ? null : 'assets/logo.png',
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Chip(
+                            isExternalWallet
+                                ? formatLongText(qrData, length: 6)
+                                : ellipsizeLongText(
+                                    qrData.replaceFirst('https://', ''),
+                                    startLength: 30,
+                                    endLength: 6,
+                                  ),
+                            onTap: () => handleCopy(qrData),
+                            fontSize: 14,
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            textColor:
+                                ThemeColors.touchable.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: 14,
+                              color: ThemeColors.touchable.resolveFrom(context),
+                            ),
+                            maxWidth: isExternalWallet ? 160 : 290,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Picker(
+                            options: const [
+                              'Citizen Wallet',
+                              'External Wallet'
+                            ],
+                            selected: _selectedValue,
+                            handleSelect: handleSelect,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
+                      ),
+                    ],
+            ),
+          ),
+        if (transactions.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: const Text(
+                'Transactions',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
         if (loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
@@ -399,24 +335,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
                 ),
-              ),
-            ),
-          ),
-        if (!loading && transactions.isEmpty)
-          SliverFillRemaining(
-            child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/empty_pockets.svg',
-                    semanticsLabel: 'empty pockets icon',
-                    height: height * 0.15,
-                    width: height * 0.15,
-                  ),
-                ],
               ),
             ),
           ),
@@ -444,21 +362,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     onTap: handleTransactionTap,
                     onProcessingTap: handleTransactionSendingTap,
                     onLoad: handleLoad,
-                  ),
-                );
-              },
-            ),
-          ),
-        if (transactions.isNotEmpty && wallet != null && loading && hasMore)
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              childCount: 10,
-              (context, index) {
-                return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: SkeletonTransactionRow(
-                    key: Key('loading-$index'),
                   ),
                 );
               },

@@ -59,6 +59,11 @@ class WalletActions extends StatelessWidget {
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
 
+    final showVouchers = wallet?.locked == false &&
+        (!loading || !firstLoad) &&
+        wallet?.doubleBalance != 0.0 &&
+        handleSendModal != null;
+
     final isIncreasing = newBalance > balance;
 
     final coinSize = progressiveClamp(2, 80, shrink);
@@ -317,9 +322,7 @@ class WalletActions extends StatelessWidget {
                       //     ),
                       //   ),
                       // if (wallet?.locked == false) const SizedBox(width: 40),
-                      if (wallet?.locked == false &&
-                          (!loading || !firstLoad) &&
-                          handleSendModal != null)
+                      if (showVouchers)
                         CupertinoButton(
                           padding: const EdgeInsets.all(5),
                           onPressed: sendLoading ? () => () : handleVouchers,
@@ -354,7 +357,7 @@ class WalletActions extends StatelessWidget {
                             ),
                           ),
                         ),
-                      const SizedBox(width: 40),
+                      if (showVouchers) const SizedBox(width: 40),
                       if ((!loading || !firstLoad) &&
                           handlePlugin != null &&
                           wallet != null)
