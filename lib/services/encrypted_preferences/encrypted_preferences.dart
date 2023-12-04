@@ -1,6 +1,8 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
 import 'package:citizenwallet/services/encrypted_preferences/web.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
@@ -110,4 +112,30 @@ EncryptedPreferencesService getEncryptedPreferencesService() {
   return isPlatformApple()
       ? AppleEncryptedPreferencesService()
       : AndroidEncryptedPreferencesService();
+}
+
+Future<EthereumAddress?> getLegacyAccountAddress(BackupWallet backup) async {
+  try {
+    final config = await ConfigService().getConfig(backup.alias);
+
+    final legacy4337 = await getLegacy4337Bundlers();
+
+    final legacyConfig = legacy4337.getFromAlias(backup.alias);
+    if (legacyConfig == null) {
+      return null;
+    }
+
+    final legacyAccountFactory = await accountFactoryServiceFromConfig(
+      config,
+      customAccountFactory: legacyConfig.accountFactoryAddress,
+    );
+
+    final account = await legacyAccountFactory.getAddress(backup.address);
+
+    return account;
+  } catch (e) {
+    print('getLegacyAccountAddress error: $e');
+  }
+
+  return null;
 }

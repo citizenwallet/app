@@ -1,5 +1,6 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -32,7 +33,6 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       );
 
   late FlutterSecureStorage _preferences;
-  final PreferencesService _prefs = PreferencesService();
 
   @override
   Future init(EncryptedPreferencesOptions options) async {
@@ -49,6 +49,10 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
   Future<void> migrate(int version) async {
     final int oldVersion =
         int.tryParse(await _preferences.read(key: versionPrefix) ?? '0') ?? 0;
+
+    if (oldVersion == version) {
+      return;
+    }
 
     final migrations = {
       1: () async {
@@ -112,22 +116,21 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       3: () async {
         final allBackups = await getAllWalletBackups();
 
+        final toDelete = <String>[];
+
         for (final backup in allBackups) {
-          final saved = await _preferences.containsKey(key: backup.key);
+          bool saved = await _preferences.containsKey(key: backup.key);
           if (!saved) {
             continue;
           }
 
-          final address = backup.address;
-
-          final account = _prefs.getAccountAddress(address);
-
+          final account = await getLegacyAccountAddress(backup);
           if (account == null) {
             continue;
           }
 
           final newBackup = BackupWallet(
-            address: account,
+            address: account.hexEip55,
             privateKey: backup.privateKey,
             name: backup.name,
             alias: backup.alias,
@@ -137,10 +140,16 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
             key: newBackup.key,
             value: newBackup.value,
           );
+
+          toDelete.add(backup.key);
         }
 
         // delete all old keys
         for (final backup in allBackups) {
+          if (!toDelete.contains(backup.key)) {
+            continue;
+          }
+
           // delete legacy keys
           final saved = await _preferences.containsKey(
             key: backup.key,
