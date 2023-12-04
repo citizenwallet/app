@@ -175,6 +175,7 @@ class AccountScreenState extends State<AccountScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
     final loading = context.select((WalletState state) => state.loading);
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
+    final ready = context.select((WalletState state) => state.ready);
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
@@ -271,7 +272,7 @@ class AccountScreenState extends State<AccountScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            profileLoading
+                            profileLoading || !ready
                                 ? CupertinoActivityIndicator(
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
@@ -308,10 +309,12 @@ class AccountScreenState extends State<AccountScreen> {
                 color: ThemeColors.transparent,
                 titleWidget: CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed:
-                      transactionSendLoading || cleaningUp || profileLoading
-                          ? null
-                          : () => handleSwitchWalletModal(context),
+                  onPressed: transactionSendLoading ||
+                          cleaningUp ||
+                          profileLoading ||
+                          !ready
+                      ? null
+                      : () => handleSwitchWalletModal(context),
                   child: wallet == null
                       ? const PulsingContainer(
                           height: 30,
@@ -345,8 +348,12 @@ class AccountScreenState extends State<AccountScreen> {
                                             style: TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
+                                              color: ready
+                                                  ? ThemeColors.text
+                                                      .resolveFrom(context)
+                                                  : ThemeColors.text
+                                                      .resolveFrom(context)
+                                                      .withOpacity(0.5),
                                             ),
                                           ),
                                         ),
@@ -360,7 +367,10 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                               Icon(
                                 CupertinoIcons.chevron_down,
-                                color: transactionSendLoading || cleaningUp
+                                color: transactionSendLoading ||
+                                        cleaningUp ||
+                                        profileLoading ||
+                                        !ready
                                     ? ThemeColors.subtle.resolveFrom(context)
                                     : ThemeColors.primary.resolveFrom(context),
                               ),

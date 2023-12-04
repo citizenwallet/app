@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
@@ -298,7 +297,12 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          minimum: const EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [

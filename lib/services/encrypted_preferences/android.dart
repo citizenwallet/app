@@ -54,7 +54,7 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
 
   _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
-        resetOnError: true,
+        resetOnError: false,
         storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
       );
 
@@ -75,12 +75,18 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
 
     final aOptions = options as AndroidEncryptedPreferencesOptions;
 
+    print('aOptions.fromScratch');
+    print(aOptions.fromScratch);
+
     if (aOptions.fromScratch) {
       // remove all keys
       await _secure.deleteAll();
       await _preferences.clear();
       return;
     }
+
+    print('aOptions.pin');
+    print(aOptions.pin);
 
     if (aOptions.pin != null) {
       // the intention is to set a pin code
@@ -118,8 +124,12 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
       return;
     }
 
+    print('existing pin code');
+
     // the intention is to use an existing pin code
     final securedPin = await _secure.read(key: pinCodeKey);
+    print('securedPin');
+    print(securedPin);
     if (securedPin == null) {
       throw Exception('no pin code set');
     }
@@ -153,6 +163,10 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
   @override
   Future<void> migrate(int version) async {
     final int oldVersion = _preferences.getInt(versionPrefix) ?? 0;
+
+    if (oldVersion == version) {
+      return;
+    }
 
     final migrations = {
       1: () async {
@@ -210,22 +224,21 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
       3: () async {
         final allBackups = await getAllWalletBackups();
 
+        final toDelete = <String>[];
+
         for (final backup in allBackups) {
           final saved = _preferences.containsKey(backup.key);
           if (!saved) {
             continue;
           }
 
-          final address = backup.address;
-
-          final account = _prefs.getAccountAddress(address);
-
+          final account = await getLegacyAccountAddress(backup);
           if (account == null) {
             continue;
           }
 
           final newBackup = BackupWallet(
-            address: account,
+            address: account.hexEip55,
             privateKey: backup.privateKey,
             name: backup.name,
             alias: backup.alias,
@@ -235,10 +248,16 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
             newBackup.key,
             newBackup.value,
           );
+
+          toDelete.add(backup.key);
         }
 
         // delete all old keys
         for (final backup in allBackups) {
+          if (!toDelete.contains(backup.key)) {
+            continue;
+          }
+
           // delete legacy keys
           final saved = _preferences.containsKey(
             backup.key,
@@ -435,6 +454,14 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
     return wallets.firstWhereOrNull(
       (w) => w.address == address && w.alias == alias,
     );
+  }
+
+  // get wallet backups for alias
+  @override
+  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias) async {
+    final wallets = await getAllWalletBackups();
+
+    return wallets.where((w) => w.alias == alias).toList();
   }
 
   // delete wallet backup

@@ -46,6 +46,7 @@ class WalletService {
 
   late String _indexerKey;
 
+  late String _alias;
   late String _url;
   late String _wsurl;
   late Web3Client _ethClient;
@@ -115,6 +116,7 @@ class WalletService {
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
+  String get alias => _alias;
 
   String get erc20Address => _contractToken.addr;
   String get profileAddress => _contractProfile.addr;
@@ -123,10 +125,16 @@ class WalletService {
       getEntryPointContract().getNonce(_account.hexEip55);
 
   Future<void> init(
-      String account, String privateKey, NativeCurrency currency, Config config,
-      {void Function(String)? onNotify}) async {
+    String account,
+    String privateKey,
+    NativeCurrency currency,
+    Config config, {
+    void Function(String)? onNotify,
+    void Function(bool)? onFinished,
+  }) async {
     _indexerKey = config.indexer.key;
 
+    _alias = config.community.alias;
     _url = config.node.url;
     _wsurl = config.node.wsUrl;
 
@@ -143,8 +151,14 @@ class WalletService {
     _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
 
     _rpc = APIService(baseURL: config.node.url);
-    _bundlerRPC = APIService(baseURL: config.erc4337.rpcUrl);
-    _paymasterRPC = APIService(baseURL: config.erc4337.paymasterRPCUrl);
+    _bundlerRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.rpcUrl);
+    _paymasterRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.paymasterRPCUrl);
     _paymasterType = config.erc4337.paymasterType;
 
     _gasPriceEstimator = EIP1559GasPriceEstimator(
@@ -184,7 +198,7 @@ class WalletService {
     await _initLegacyContracts();
     await _initLegacyRPCs();
 
-    await _initAccount(onNotify);
+    _initAccount(onNotify, onFinished);
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -257,7 +271,10 @@ class WalletService {
     _paymasterLegacyType = legacyConfig.paymasterType;
   }
 
-  Future<void> _initAccount(void Function(String)? onNotify) async {
+  Future<void> _initAccount(
+    void Function(String)? onNotify,
+    void Function(bool)? onFinished,
+  ) async {
     try {
       // purely checking if there is byte code
       final exists = await accountExists();
@@ -293,7 +310,13 @@ class WalletService {
 
         onNotify?.call('Account upgraded...');
       }
+      onFinished?.call(true);
+      return;
     } catch (_) {}
+
+    _useLegacyBundlers = true;
+
+    onFinished?.call(false);
   }
 
   StackupEntryPoint getEntryPointContract({bool legacy = false}) {
@@ -569,7 +592,7 @@ class WalletService {
     try {
       final cred = customCredentials ?? _credentials;
 
-      final accountFactory = getAccounFactoryContract();
+      final accountFactory = _contractAccountFactory;
 
       final url = '/accounts/factory/${accountFactory.addr}';
 
@@ -612,7 +635,7 @@ class WalletService {
   /// upgrade an account
   Future<String?> upgradeAccount() async {
     try {
-      final accountFactory = getAccounFactoryContract();
+      final accountFactory = _contractAccountFactory;
 
       final url =
           '/accounts/factory/${accountFactory.addr}/sca/${_account.hexEip55}';
@@ -621,7 +644,6 @@ class WalletService {
         {
           'owner': _credentials.address.hexEip55,
           'salt': BigInt.zero.toInt(),
-          'token_entry_point': ''
         },
       );
 
@@ -635,9 +657,7 @@ class WalletService {
         headers: {
           'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
-          'X-Address': _useLegacyBundlers
-              ? _credentials.address.hexEip55
-              : _account.hexEip55,
+          'X-Address': _account.hexEip55,
         },
         body: body.toJson(),
       );
@@ -810,6 +830,8 @@ class WalletService {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -855,12 +877,12 @@ class WalletService {
     SUJSONRPCRequest body, {
     bool legacy = false,
   }) async {
-    final rawRespoonse = await getBundlerRPC(legacy: legacy).post(
+    final rawResponse = await getBundlerRPC(legacy: legacy).post(
       body: body,
       headers: erc4337Headers,
     );
 
-    final response = SUJSONRPCResponse.fromJson(rawRespoonse);
+    final response = SUJSONRPCResponse.fromJson(rawResponse);
 
     if (response.error != null) {
       throw Exception(response.error!.message);

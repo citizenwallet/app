@@ -4,6 +4,7 @@ import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/utils/date.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -188,6 +189,7 @@ class NodeConfig {
 
 class ERC4337Config {
   final String rpcUrl;
+  final String? paymasterAddress;
   final String entrypointAddress;
   final String accountFactoryAddress;
   final String paymasterRPCUrl;
@@ -196,6 +198,7 @@ class ERC4337Config {
 
   ERC4337Config({
     required this.rpcUrl,
+    this.paymasterAddress,
     required this.entrypointAddress,
     required this.accountFactoryAddress,
     required this.paymasterRPCUrl,
@@ -206,6 +209,7 @@ class ERC4337Config {
   factory ERC4337Config.fromJson(Map<String, dynamic> json) {
     return ERC4337Config(
       rpcUrl: json['rpc_url'],
+      paymasterAddress: json['paymaster_address'],
       entrypointAddress: json['entrypoint_address'],
       accountFactoryAddress: json['account_factory_address'],
       paymasterRPCUrl: json['paymaster_rpc_url'],
@@ -218,6 +222,7 @@ class ERC4337Config {
   Map<String, dynamic> toJson() {
     return {
       'rpc_url': rpcUrl,
+      if (paymasterAddress != null) 'paymaster_address': paymasterAddress,
       'entrypoint_address': entrypointAddress,
       'account_factory_address': accountFactoryAddress,
       'paymaster_rpc_url': paymasterRPCUrl,
@@ -229,7 +234,7 @@ class ERC4337Config {
   // to string
   @override
   String toString() {
-    return 'ERC4337Config{rpcUrl: $rpcUrl, entrypointAddress: $entrypointAddress, accountFactoryAddress: $accountFactoryAddress, paymasterRPCUrl: $paymasterRPCUrl, paymasterType: $paymasterType}';
+    return 'ERC4337Config{rpcUrl: $rpcUrl, paymasterAddress: $paymasterAddress, entrypointAddress: $entrypointAddress, accountFactoryAddress: $accountFactoryAddress, paymasterRPCUrl: $paymasterRPCUrl, paymasterType: $paymasterType}';
   }
 }
 
@@ -348,16 +353,19 @@ Future<Legacy4337Bundlers> getLegacy4337Bundlers() async {
 class Legacy4337Bundlers {
   final ERC4337Config polygon;
   final ERC4337Config base;
+  final ERC4337Config celo;
 
   Legacy4337Bundlers({
     required this.polygon,
     required this.base,
+    required this.celo,
   });
 
   factory Legacy4337Bundlers.fromJson(Map<String, dynamic> json) {
     return Legacy4337Bundlers(
       polygon: ERC4337Config.fromJson(json['137']),
       base: ERC4337Config.fromJson(json['8453']),
+      celo: ERC4337Config.fromJson(json['42220']),
     );
   }
 
@@ -367,6 +375,19 @@ class Legacy4337Bundlers {
     }
 
     return base;
+  }
+
+  ERC4337Config? getFromAlias(String alias) {
+    if (alias.contains('celo')) {
+      return null;
+    }
+
+    return switch (alias) {
+      'usdc.base' => base,
+      'wallet.oak.community' => base,
+      'ceur.celo' => celo,
+      _ => polygon
+    };
   }
 }
 
@@ -452,38 +473,87 @@ class ConfigService {
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
-  String _alias = '';
 
-  Config? _config;
+  List<Config> _configs = [];
 
-  Future<Config> get config async {
-    if (_config != null && _config!.community.alias == _alias) {
-      return _config!;
-    }
-
-    _config = await _getConfig();
-
-    return _config!;
+  Future<Config> getConfig(String alias) async {
+    return _getConfig(fixLegacyAliases(alias));
   }
 
-  void initWeb(String appLinkSuffix) {
+  Future<Config> getWebConfig(String appLinkSuffix) async {
     String alias = Uri.base.host.endsWith(appLinkSuffix)
         ? Uri.base.host.replaceFirst(appLinkSuffix, '')
         : Uri.base.host;
 
+    alias = alias == 'localhost' || alias == '' ? 'app' : alias;
+
+    return _getConfig(alias);
+  }
+
+  Future<Config> _getConfig(String alias) async {
+    if (_configs.isNotEmpty) {
+      final Config? config = _configs.firstWhereOrNull(
+        (element) => element.community.alias == alias,
+      );
+
+      if (config != null) {
+        // still fetch and update the local cache in the background
+        getConfigs(alias: kIsWeb ? alias : null).then((value) {
+          _configs = value;
+        }).catchError((_) {});
+
+        return config;
+      }
+    }
+
+    try {
+      // fetch the config and await
+      _configs = await getConfigs(alias: kIsWeb ? alias : null);
+    } catch (_) {}
+
+    return _configs.firstWhere((element) => element.community.alias == alias);
+  }
+
+  void initWeb() {
     final url =
         '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
-    _alias = alias == 'localhost' || alias == '' ? 'app' : alias;
   }
 
-  void init(String endpoint, String alias) {
+  void init(String endpoint) {
     _api = APIService(baseURL: endpoint);
-    _alias = fixLegacyAliases(alias);
+
+    if (kDebugMode) {
+      _loadFromLocal();
+      return;
+    }
+
+    _loadFromCache();
   }
 
-  Future<Config> _getConfig() async {
+  void _loadFromCache() {
+    final cachedConfig = _pref.getConfigs();
+    if (cachedConfig != null) {
+      try {
+        _configs =
+            (cachedConfig as List).map((e) => Config.fromJson(e)).toList();
+
+        return;
+      } catch (_) {}
+    }
+
+    _loadFromLocal();
+  }
+
+  void _loadFromLocal() async {
+    final localFile = jsonDecode(await rootBundle.loadString(
+        'assets/config/v$version/$communityConfigListFileName.json'));
+
+    _configs = (localFile as List).map((e) => Config.fromJson(e)).toList();
+  }
+
+  Future<List<Config>> getConfigs({String? alias}) async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(
           'assets/config/v$version/$communityConfigListFileName.json'));
@@ -491,44 +561,23 @@ class ConfigService {
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();
 
-      return configs.firstWhere((element) => element.community.alias == _alias);
+      return configs;
     }
 
-    final cachedConfig = _pref.getConfig(_alias);
-    if (cachedConfig != null) {
-      final response = await _api
-          .get(
-              url:
-                  '/v$version/$_alias.json?cachebuster=${generateCacheBusterValue()}')
-          .timeout(
-            const Duration(seconds: 2),
-            onTimeout: () => null,
-          );
+    if (alias != null) {
+      // we only need a single file for the web
+      final response = await _api.get(
+          url:
+              '/v$version/$alias.json?cachebuster=${generateCacheBusterValue()}');
 
-      if (response != null) {
-        _pref.setConfig(_alias, response);
-        return Config.fromJson(response);
-      }
-
-      return Config.fromJson(cachedConfig);
+      return [Config.fromJson(response)];
     }
 
     final response = await _api.get(
         url:
-            '/v$version/$_alias.json?cachebuster=${generateCacheBusterValue()}');
+            '/v$version/$communityConfigListFileName.json?cachebuster=${generateCacheBusterValue()}');
 
-    _pref.setConfig(_alias, response);
-
-    return Config.fromJson(response);
-  }
-
-  Future<List<Config>> getConfigs() async {
-    final response = kDebugMode
-        ? jsonDecode(await rootBundle.loadString(
-            'assets/config/v$version/$communityConfigListFileName.json'))
-        : await _api.get(
-            url:
-                '/v$version/$communityConfigListFileName.json?cachebuster=${generateCacheBusterValue()}');
+    _pref.setConfigs(response);
 
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 

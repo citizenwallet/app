@@ -55,13 +55,11 @@ class DBService {
         transactions = TransactionsTable(db);
       },
       onCreate: (db, version) async {
-        // migrate data
+        // create tables
         await contacts.create(db);
 
-        // migrate data
         await vouchers.create(db);
 
-        // migrate data
         await transactions.create(db);
 
         return;
@@ -70,10 +68,8 @@ class DBService {
         // migrate data
         await contacts.migrate(db, oldVersion, newVersion);
 
-        // migrate data
         await vouchers.migrate(db, oldVersion, newVersion);
 
-        // migrate data
         await transactions.migrate(db, oldVersion, newVersion);
 
         return;

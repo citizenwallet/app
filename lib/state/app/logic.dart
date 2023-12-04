@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
@@ -62,13 +63,6 @@ class AppLogic {
     }
   }
 
-  void configureGenericConfig() {
-    _config.init(
-      dotenv.get('WALLET_CONFIG_URL'),
-      'app',
-    );
-  }
-
   Future<(String?, String?)> loadLastWallet() async {
     try {
       _appState.importLoadingReq();
@@ -126,18 +120,54 @@ class AppLogic {
     return (null, null);
   }
 
+  Future<List<CWWallet>> loadWalletsFromAlias(String alias) async {
+    try {
+      _appState.importLoadingReq();
+
+      final dbWallets = await _encPrefs.getWalletBackupsForAlias(alias);
+
+      await delay(
+          const Duration(milliseconds: 500)); // smoother launch experience
+
+      final config = await _config.getConfig(alias);
+
+      _appState.importLoadingSuccess();
+
+      return dbWallets.map((e) {
+        final credentials = stringToPrivateKey(e.privateKey);
+
+        return CWWallet(
+          '0.0',
+          name: e.name,
+          address: credentials?.address.hexEip55 ?? '',
+          alias: config.community.alias,
+          account: e.address,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
+          decimalDigits: config.token.decimals,
+          locked: false,
+        );
+      }).toList();
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _appState.importLoadingError();
+
+    return [];
+  }
+
   Future<String?> createWallet(String alias) async {
     try {
       _appState.importLoadingReq();
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -210,11 +240,7 @@ class AppLogic {
 
       await delay(const Duration(milliseconds: 0));
 
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
-
-      final config = await _config.config;
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -252,12 +278,7 @@ class AppLogic {
         throw Exception('Invalid private key');
       }
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final name = 'Imported ${config.token.symbol} Account';
 
@@ -307,12 +328,7 @@ class AppLogic {
 
       final credentials = wallet.privateKey;
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);

@@ -619,4 +619,13 @@ class WalletState with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // wallet account upgrade status
+  bool ready = false;
+
+  void setWalletReady(bool ready) {
+    this.ready = ready;
+
+    notifyListeners();
+  }
 }

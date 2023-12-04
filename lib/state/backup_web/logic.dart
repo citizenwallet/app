@@ -21,7 +21,7 @@ class BackupWebLogic {
 
   void setShareLink() async {
     try {
-      final config = await _config.config;
+      final config = await _config.getWebConfig(appLinkSuffix);
 
       final link = config.community.walletUrl(appLinkSuffix);
       _state.setShareLink(link);

@@ -6,12 +6,14 @@ class PersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final double minHeight;
   final bool blur;
+  final double sigma;
   final Widget Function(BuildContext context, double shrink) builder;
 
   PersistentHeaderDelegate({
     required this.expandedHeight,
     this.minHeight = 60,
     this.blur = false,
+    this.sigma = 10,
     required this.builder,
   });
 
@@ -30,8 +32,8 @@ class PersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
             ? ClipRect(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(
-                    sigmaX: 10,
-                    sigmaY: 10,
+                    sigmaX: sigma,
+                    sigmaY: sigma,
                   ),
                   child: builder(
                       context, (shrinkOffset / expandedHeight).clamp(0, 1)),

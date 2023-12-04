@@ -33,8 +33,7 @@ bool selectShouldBlockSending(WalletState state) {
   if (state.wallet == null) {
     return true;
   }
-
-  if (state.wallet?.doubleBalance == 0.0) {
+  if (!state.ready || state.wallet?.doubleBalance == 0.0) {
     return true;
   }
 

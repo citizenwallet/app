@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img style="height: 100px; width: 100px;" src="https://github.com/daobrussels/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
+  <img style="height: 100px; width: 100px;" src="https://github.com/citizenwallet/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
   Citizen Wallet
 </h1>
 

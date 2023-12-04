@@ -167,7 +167,9 @@ class VouchersTable extends DBTable {
 
       if (queries != null) {
         for (final query in queries) {
-          await db.execute(query);
+          try {
+            await db.execute(query); // TODO: fix/check crash
+          } catch (_) {}
         }
       }
     }
