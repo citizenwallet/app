@@ -1,4 +1,6 @@
+import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
+import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
 import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
@@ -6,6 +8,7 @@ import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferenc
 import 'package:citizenwallet/state/android_pin_code/state.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -40,14 +43,17 @@ class LandingScreen extends StatefulWidget {
 class LandingScreenState extends State<LandingScreen>
     with TickerProviderStateMixin {
   late AppLogic _appLogic;
+  late VoucherLogic _voucherLogic;
 
   @override
   void initState() {
     super.initState();
 
+    _appLogic = AppLogic(context);
+    _voucherLogic = VoucherLogic(context);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
-      _appLogic = AppLogic(context);
 
       onLoad();
     });
@@ -100,6 +106,15 @@ class LandingScreenState extends State<LandingScreen>
       );
     }
 
+    // handle voucher redemption
+    // pick an appropriate wallet to load
+    if (widget.voucher != null &&
+        widget.voucherParams != null &&
+        address == null &&
+        alias == null) {
+      (address, alias) = await handleLoadFromVoucher();
+    }
+
     // load the last wallet if there was no deeplink
     if (address == null || alias == null) {
       (address, alias) = await _appLogic.loadLastWallet();
@@ -114,6 +129,58 @@ class LandingScreenState extends State<LandingScreen>
     ]);
 
     navigator.go('/wallet/$address$params');
+  }
+
+  Future<(String?, String?)> handleLoadFromVoucher() async {
+    final voucher = widget.voucher;
+    final voucherParams = widget.voucherParams;
+
+    if (voucher == null || voucherParams == null) {
+      return (null, null);
+    }
+
+    _voucherLogic.pause();
+
+    final alias = _voucherLogic.voucherAlias(voucherParams);
+    if (alias == null) {
+      _voucherLogic.resume();
+      return (null, null);
+    }
+
+    final wallets = await _appLogic.loadWalletsFromAlias(alias);
+
+    if (wallets.isEmpty) {
+      _voucherLogic.resume();
+
+      final newAddress = await _appLogic.createWallet(alias);
+
+      return (newAddress, alias);
+    }
+
+    if (wallets.length == 1) {
+      _voucherLogic.resume();
+      return (wallets.first.account, alias);
+    }
+
+    final selection = await showCupertinoModalBottomSheet<(String?, String?)?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (modalContext) => SelectAccountModal(
+        title: 'Select Account',
+        wallets: wallets,
+      ),
+    );
+
+    if (selection == null || selection.$1 == null || selection.$2 == null) {
+      _voucherLogic.resume();
+      return (null, null);
+    }
+
+    _voucherLogic.resume();
+    return (selection.$1, selection.$2);
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns

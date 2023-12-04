@@ -456,6 +456,14 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
     );
   }
 
+  // get wallet backups for alias
+  @override
+  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias) async {
+    final wallets = await getAllWalletBackups();
+
+    return wallets.where((w) => w.alias == alias).toList();
+  }
+
   // delete wallet backup
   @override
   Future<void> deleteWalletBackup(String address, String alias) async {

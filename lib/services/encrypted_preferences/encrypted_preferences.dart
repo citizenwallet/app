@@ -97,6 +97,9 @@ abstract class EncryptedPreferencesService {
   // get wallet backup
   Future<BackupWallet?> getWalletBackup(String address, String alias);
 
+  // get wallet backups for alias
+  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias);
+
   // delete wallet backup
   Future<void> deleteWalletBackup(String address, String alias);
 

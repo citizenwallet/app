@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
@@ -117,6 +118,47 @@ class AppLogic {
     _appState.importLoadingError();
 
     return (null, null);
+  }
+
+  Future<List<CWWallet>> loadWalletsFromAlias(String alias) async {
+    try {
+      _appState.importLoadingReq();
+
+      final dbWallets = await _encPrefs.getWalletBackupsForAlias(alias);
+
+      await delay(
+          const Duration(milliseconds: 500)); // smoother launch experience
+
+      final config = await _config.getConfig(alias);
+
+      _appState.importLoadingSuccess();
+
+      return dbWallets.map((e) {
+        final credentials = stringToPrivateKey(e.privateKey);
+
+        return CWWallet(
+          '0.0',
+          name: e.name,
+          address: credentials?.address.hexEip55 ?? '',
+          alias: config.community.alias,
+          account: e.address,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
+          decimalDigits: config.token.decimals,
+          locked: false,
+        );
+      }).toList();
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _appState.importLoadingError();
+
+    return [];
   }
 
   Future<String?> createWallet(String alias) async {
