@@ -175,7 +175,11 @@ class AccountScreenState extends State<AccountScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
     final loading = context.select((WalletState state) => state.loading);
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
+
     final ready = context.select((WalletState state) => state.ready);
+    final readyLoading =
+        context.select((WalletState state) => state.readyLoading);
+
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
@@ -272,7 +276,7 @@ class AccountScreenState extends State<AccountScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            profileLoading || !ready
+                            profileLoading || readyLoading || !ready
                                 ? CupertinoActivityIndicator(
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
@@ -312,7 +316,7 @@ class AccountScreenState extends State<AccountScreen> {
                   onPressed: transactionSendLoading ||
                           cleaningUp ||
                           profileLoading ||
-                          !ready
+                          readyLoading
                       ? null
                       : () => handleSwitchWalletModal(context),
                   child: wallet == null
@@ -348,7 +352,7 @@ class AccountScreenState extends State<AccountScreen> {
                                             style: TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: ready
+                                              color: !readyLoading
                                                   ? ThemeColors.text
                                                       .resolveFrom(context)
                                                   : ThemeColors.text
@@ -370,7 +374,7 @@ class AccountScreenState extends State<AccountScreen> {
                                 color: transactionSendLoading ||
                                         cleaningUp ||
                                         profileLoading ||
-                                        !ready
+                                        readyLoading
                                     ? ThemeColors.subtle.resolveFrom(context)
                                     : ThemeColors.primary.resolveFrom(context),
                               ),

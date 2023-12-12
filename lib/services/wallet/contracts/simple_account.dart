@@ -32,14 +32,11 @@ class SimpleAccount {
   }
 
   Future<EthereumAddress> tokenEntryPoint() async {
-    // final function = rcontract.function('tokenEntryPoint');
-
-    // final result =
-    //     await client.call(contract: rcontract, function: function, params: []);
-
-    // return result[0];
-
     return contract.tokenEntryPoint();
+  }
+
+  Future<EthereumAddress> owner() async {
+    return contract.owner();
   }
 
   Future<bool> isLegacy() async {

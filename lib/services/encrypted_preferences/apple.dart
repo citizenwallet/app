@@ -1,6 +1,4 @@
-import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

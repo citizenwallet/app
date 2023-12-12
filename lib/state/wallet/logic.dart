@@ -191,6 +191,7 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadWallet();
       _state.setWalletReady(false);
+      _state.setWalletReadyLoading(true);
 
       final int chainId = _preferences.chainId;
 
@@ -226,6 +227,7 @@ class WalletLogic extends WidgetsBindingObserver {
         },
         onFinished: (bool ok) {
           _state.setWalletReady(ok);
+          _state.setWalletReadyLoading(false);
         },
       );
 
@@ -273,6 +275,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
     _state.loadWalletError();
     _state.setWalletReady(false);
+    _state.setWalletReadyLoading(false);
     return (false, false);
   }
 
@@ -313,6 +316,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.loadWallet();
       _state.setWalletReady(false);
+      _state.setWalletReadyLoading(true);
 
       final int chainId = _preferences.chainId;
 
@@ -338,6 +342,7 @@ class WalletLogic extends WidgetsBindingObserver {
         },
         onFinished: (bool ok) {
           _state.setWalletReady(ok);
+          _state.setWalletReadyLoading(false);
         },
       );
 
@@ -392,6 +397,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
     _state.loadWalletError();
     _state.setWalletReady(false);
+    _state.setWalletReadyLoading(false);
     return null;
   }
 

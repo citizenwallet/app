@@ -16,10 +16,11 @@
         "gas_extra_percentage": 50
     },
     "42220": {
-        "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
+        "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+        "paymaster_address": "0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
         "entrypoint_address": "0x3a851Eb4c4426e5498204da9C9E60D017686184B",
         "account_factory_address": "0xd395dF9971CF0b6a4649568c9Fe07abbe1461003",
-        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc/0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
+        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
     }
 }

@@ -1,46 +1,45 @@
 [
     {
         "community": {
-            "name": "EUR e-money",
-            "description": "Token by Monerium EMI, a regulated entity, licensed in the EEA.",
-            "url": "https://monerium.com/tokens/",
-            "alias": "eure.polygon",
-            "logo": "https://eure.polygon.citizenwallet.xyz/wallet-config/_images/eure.svg"
+            "name": "Gratitude Token",
+            "description": "Express your gratitude towards someone by sending them a token.",
+            "url": "https://citizenwallet.xyz",
+            "alias": "gt.celo",
+            "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg"
         },
         "scan": {
-            "url": "https://polygonscan.com",
-            "name": "Polygon Explorer"
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
         },
         "indexer": {
-            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
-            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
             "key": "x"
         },
         "ipfs": {
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
-            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
         "erc4337": {
-            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x4a02a31697917Ed40B74168eb50Fe4aa645c2d06",
-            "entrypoint_address": "0xaDed079d71DDb042EA1623b7C2310EF565BAdDF5",
-            "account_factory_address": "0x2D811F9C2D402aA5a0de038a975dFf2017d3f105",
-            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_type": "cw",
-            "gas_extra_percentage": 50
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+            "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+            "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
         },
         "token": {
             "standard": "erc20",
-            "address": "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6",
-            "name": "EUR emoney",
-            "symbol": "EURe",
-            "decimals": 18
+            "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+            "name": "Gratitude Token",
+            "symbol": "GT",
+            "decimals": 0
         },
         "profile": {
-            "address": "0xF5F7317EDb8E88CaE09071B0C4F0fd6EA20B21f9"
+            "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
         },
         "version": 1
     },
@@ -90,6 +89,51 @@
     },
     {
         "community": {
+            "name": "EUR e-money",
+            "description": "Token by Monerium EMI, a regulated entity, licensed in the EEA.",
+            "url": "https://monerium.com/tokens/",
+            "alias": "eure.polygon",
+            "logo": "https://eure.polygon.citizenwallet.xyz/wallet-config/_images/eure.svg"
+        },
+        "scan": {
+            "url": "https://polygonscan.com",
+            "name": "Polygon Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xB2cb6b75C2357Ca94dBdF58897E468E45fAC83Ec",
+            "entrypoint_address": "0x2027Bde7C276D5F128587E3107c68A488ee31c72",
+            "account_factory_address": "0x5bA08d9fC7b90f79B2b856bdB09FC9EB32e83616",
+            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw",
+            "gas_extra_percentage": 50
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6",
+            "name": "EUR emoney",
+            "symbol": "EURe",
+            "decimals": 18
+        },
+        "profile": {
+            "address": "0xF5F7317EDb8E88CaE09071B0C4F0fd6EA20B21f9"
+        },
+        "version": 1
+    },
+    {
+        "community": {
             "name": "USDC on Polygon",
             "description": "The community of people using USDC on Polygon.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
@@ -114,9 +158,9 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x8f59917f1066380D0FFA271baB8F5890dAEbb301",
-            "entrypoint_address": "0x47ACDa951469c8B9D08139708330dEd988c519C3",
-            "account_factory_address": "0xaeCFfA13Ee0B7E8aD700E528CB321103f4B1F950",
+            "paymaster_address": "0xB5D1C0167E6325466E2918e9fda8cc41384C0291",
+            "entrypoint_address": "0x466AA6ed2B7Bb829841F5aAEA9e82B840eC0feF9",
+            "account_factory_address": "0x270758454C012A1f51428b68aE473D728CCdFe88",
             "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
@@ -293,9 +337,9 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x156e47D926D63047Cadd97538B429473D40f3bbb",
-            "entrypoint_address": "0x2121D71310aC344C6BE84002132db6433C657381",
-            "account_factory_address": "0x09162E3639Dd4C7e57E35880e804AfC78AFe7aD7",
+            "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
+            "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
+            "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
             "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
@@ -338,9 +382,9 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0xe3C5917F880C65754D708892C6c75401C4AC2f00",
-            "entrypoint_address": "0x6D20CB260741f0675b6018c58627e61c9DB802B3",
-            "account_factory_address": "0x58f23446A9FC9eAcCf8653CBC98BC488Ff9E0F9d",
+            "paymaster_address": "0xE5c5412a31cEFa8e00F852800d29bcf8a30FCe50",
+            "entrypoint_address": "0xe84423Ba1A3f3535B09237245e22dBda5E27eB88",
+            "account_factory_address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5",
             "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
@@ -429,16 +473,16 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x749dbd6f3a579A9DBb549Dfb7bD02B8EAA7B2a47",
-            "entrypoint_address": "0x1e3d80adaF509aB5745f629359ADeeaC96C46c87",
-            "account_factory_address": "0x5b72B1E8640B03b6F7497E307742269774F8F32A",
+            "paymaster_address": "0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b",
+            "entrypoint_address": "0xF5507B3042f1C63625D856a2ABFF046243A5D74e",
+            "account_factory_address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
             "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
             "standard": "erc20",
-            "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd",
+            "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
             "name": "Zinne.brussels Token",
             "symbol": "ZINNE",
             "decimals": 6

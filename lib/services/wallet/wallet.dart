@@ -296,6 +296,7 @@ class WalletService {
         final (_, userop) = await prepareUserop(
           [_account.hexEip55],
           [calldata],
+          deploy: false,
         );
 
         final success = await submitUserop(
@@ -310,6 +311,7 @@ class WalletService {
 
         onNotify?.call('Account upgraded...');
       }
+
       onFinished?.call(true);
       return;
     } catch (_) {}
@@ -592,7 +594,7 @@ class WalletService {
     try {
       final cred = customCredentials ?? _credentials;
 
-      final accountFactory = _contractAccountFactory;
+      final accountFactory = getAccounFactoryContract();
 
       final url = '/accounts/factory/${accountFactory.addr}';
 
@@ -662,7 +664,12 @@ class WalletService {
         body: body.toJson(),
       );
 
-      return response['object']['account_implementation'];
+      final implementation = response['object']['account_implementation'];
+      if (implementation == "0x0000000000000000000000000000000000000000") {
+        throw Exception('invalid implementation');
+      }
+
+      return implementation;
     } on ConflictException {
       // account is already up to date
       return null;
@@ -830,8 +837,6 @@ class WalletService {
 
       return (response.result as String, null);
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       await Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -938,6 +943,7 @@ class WalletService {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
     bool legacy = false,
+    bool deploy = true,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -971,7 +977,7 @@ class WalletService {
       userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
-      if (nonce == BigInt.zero) {
+      if (nonce == BigInt.zero && deploy) {
         final accountFactory = getAccounFactoryContract(legacy: isLegacy);
 
         // construct the init code to deploy the account

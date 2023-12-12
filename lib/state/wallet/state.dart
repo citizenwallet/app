@@ -622,9 +622,17 @@ class WalletState with ChangeNotifier {
 
   // wallet account upgrade status
   bool ready = false;
+  bool readyLoading = false;
+
+  void setWalletReadyLoading(bool loading) {
+    readyLoading = loading;
+
+    notifyListeners();
+  }
 
   void setWalletReady(bool ready) {
     this.ready = ready;
+    loading = false;
 
     notifyListeners();
   }
