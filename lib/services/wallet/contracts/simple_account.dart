@@ -40,6 +40,7 @@ class SimpleAccount {
   }
 
   Future<bool> isLegacy() async {
+    // TODO: remove in 6 months (14/12/2023)
     try {
       final address = await tokenEntryPoint();
       if (address.addressBytes.isEmpty) {
