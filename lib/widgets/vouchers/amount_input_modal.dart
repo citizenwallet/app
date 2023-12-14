@@ -105,7 +105,7 @@ class TextInputModalState extends State<AmountInputModal> {
                       ),
                       CupertinoTextField(
                         controller: _controller,
-                        placeholder: formatCurrency(1500.00, ''),
+                        placeholder: formatCurrency(0.00, ''),
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 28,
