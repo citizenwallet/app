@@ -229,7 +229,7 @@ class WalletActions extends StatelessWidget {
                                       : ThemeColors.black,
                                 ),
                                 Text(
-                                  blockSending ? 'Sending' : 'Send',
+                                  sendLoading ? 'Sending' : 'Send',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: blockSending
