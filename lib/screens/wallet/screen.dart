@@ -11,6 +11,7 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -268,6 +269,7 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
+    // temporarily disabled until we move the account screen back
     _logic.updateWalletQR();
 
     _logic.pauseFetching();
@@ -450,6 +452,8 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final blockSending = context.select(selectShouldBlockSending);
+
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
@@ -511,16 +515,17 @@ class WalletScreenState extends State<WalletScreen> {
                 actionButton: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    CupertinoButton(
-                      padding: const EdgeInsets.all(5),
-                      onPressed: (firstLoad || wallet == null)
-                          ? null
-                          : () => handleDisplayWalletQR(context),
-                      child: Icon(
-                        CupertinoIcons.qrcode,
-                        color: ThemeColors.primary.resolveFrom(context),
+                    if (!blockSending)
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: (firstLoad || wallet == null)
+                            ? null
+                            : handleSendModal,
+                        child: Icon(
+                          CupertinoIcons.qrcode,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
