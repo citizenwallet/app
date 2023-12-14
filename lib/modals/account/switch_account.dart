@@ -196,7 +196,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         builder: (modalContext) => ExportWalletModal(
           title: 'Export Account',
           toCopy: '-----------',
-          onCopy: () => handleCopyWalletPrivateKey(privateKey),
+          onCopy: () => handleCopyWalletPrivateKey(privateKey, address),
         ),
       );
 
@@ -224,8 +224,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
   }
 
-  void handleCopyWalletPrivateKey(String privateKey) {
-    Clipboard.setData(ClipboardData(text: privateKey));
+  void handleCopyWalletPrivateKey(String privateKey, String address) {
+    Clipboard.setData(ClipboardData(text: '$privateKey:$address'));
 
     HapticFeedback.heavyImpact();
   }
