@@ -55,6 +55,14 @@ class AppLogic {
     }
   }
 
+  void loadApp() {
+    _appState.loadApp();
+  }
+
+  void appLoaded() {
+    _appState.appLoaded();
+  }
+
   void setFirstLaunch(bool firstLaunch) {
     try {
       _preferences.setFirstLaunch(firstLaunch);

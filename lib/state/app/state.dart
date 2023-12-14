@@ -1,5 +1,4 @@
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -118,6 +117,18 @@ class AppState with ChangeNotifier {
 
   void setMuted(bool muted) {
     this.muted = muted;
+    notifyListeners();
+  }
+
+  bool appLoading = true;
+
+  void loadApp() {
+    appLoading = true;
+    notifyListeners();
+  }
+
+  void appLoaded() {
+    appLoading = false;
     notifyListeners();
   }
 }

@@ -89,6 +89,8 @@ class LandingScreenState extends State<LandingScreen>
   void onLoad() async {
     final navigator = GoRouter.of(context);
 
+    _appLogic.loadApp();
+
     // set up recovery
     await handleAppleRecover();
     await handleAndroidRecover();
@@ -121,12 +123,15 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     if (address == null) {
+      _appLogic.appLoaded();
       return;
     }
 
     String params = parseParamsFromWidget(extra: [
       'alias=${alias ?? 'app'}',
     ]);
+
+    _appLogic.appLoaded();
 
     navigator.go('/wallet/$address$params');
   }
@@ -325,6 +330,7 @@ class LandingScreenState extends State<LandingScreen>
   Widget build(BuildContext context) {
     final walletLoading =
         context.select((AppState state) => state.walletLoading);
+    final appLoading = context.select((AppState state) => state.appLoading);
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -387,7 +393,7 @@ class LandingScreenState extends State<LandingScreen>
                     ),
                     Positioned(
                       bottom: 40,
-                      child: walletLoading
+                      child: walletLoading || appLoading
                           ? CupertinoActivityIndicator(
                               color: ThemeColors.subtle.resolveFrom(context),
                             )
