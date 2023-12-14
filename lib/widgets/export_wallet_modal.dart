@@ -40,7 +40,7 @@ class ExportWalletModal extends StatelessWidget {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+          backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
           child: SafeArea(
             child: Flex(
               direction: Axis.vertical,
