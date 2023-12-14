@@ -419,15 +419,18 @@ class EditProfileModalState extends State<EditProfileModal> {
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: descriptionController,
-                              placeholder: 'Enter a description',
+                              placeholder:
+                                  'Enter a description\n\n\n', // hack to align to top
                               minLines: 4,
                               maxLines: 8,
                               maxLength: 200,
                               autocorrect: false,
                               enableSuggestions: false,
+                              textCapitalization: TextCapitalization.sentences,
                               textInputAction: TextInputAction.newline,
                               onChanged: handleDescriptionUpdate,
                               focusNode: descriptionFocusNode,
+                              textAlignVertical: TextAlignVertical.top,
                               decoration: BoxDecoration(
                                 color:
                                     const CupertinoDynamicColor.withBrightness(
@@ -458,30 +461,6 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 60),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   crossAxisAlignment: CrossAxisAlignment.center,
-                            //   children: [
-                            //     loading
-                            //         ? CupertinoActivityIndicator(
-                            //             color: ThemeColors.subtle
-                            //                 .resolveFrom(context),
-                            //           )
-                            //         : Button(
-                            //             text: 'Save',
-                            //             color: ThemeColors.surfacePrimary
-                            //                 .resolveFrom(context),
-                            //             labelColor: ThemeColors.black,
-                            //             onPressed: isInvalid
-                            //                 ? null
-                            //                 : editingImage == null ||
-                            //                         editingImageExt == null
-                            //                     ? () => handleUpdate()
-                            //                     : () => handleSave(editingImage,
-                            //                         editingImageExt),
-                            //           ),
-                            //   ],
-                            // ),
                             const SizedBox(height: 10),
                             if (!loading && error)
                               Row(
