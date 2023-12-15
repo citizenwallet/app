@@ -70,6 +70,7 @@ dev_dependencies:
 flutter:
   assets:
     - .env
+    - .web.env
     - assets/logo_small.png
     - assets/logo_rounded.png
     - assets/logo.png

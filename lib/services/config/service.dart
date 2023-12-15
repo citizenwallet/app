@@ -73,7 +73,7 @@ class ConfigService {
   }
 
   void initWeb() {
-    final url = kDebugMode
+    final url = kDebugMode || Uri.base.host.contains('localhost')
         ? 'https://config.internal.citizenwallet.xyz'
         : '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
