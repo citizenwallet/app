@@ -223,13 +223,6 @@ class WalletLogic extends WidgetsBindingObserver {
           decimals: config.token.decimals,
         ),
         config,
-        onNotify: (String message) {
-          _notificationsLogic.show(message);
-        },
-        onFinished: (bool ok) {
-          _state.setWalletReady(ok);
-          _state.setWalletReadyLoading(false);
-        },
       );
 
       await _db.init(
@@ -265,6 +258,8 @@ class WalletLogic extends WidgetsBindingObserver {
       await _preferences.setLastWalletLink(encoded);
 
       _state.loadWalletSuccess();
+      _state.setWalletReady(true);
+      _state.setWalletReadyLoading(false);
 
       return (true, false);
     } catch (exception, stackTrace) {

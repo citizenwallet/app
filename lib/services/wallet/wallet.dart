@@ -207,8 +207,6 @@ class WalletService {
     String privateKey,
     NativeCurrency currency,
     Config config, {
-    void Function(String)? onNotify,
-    void Function(bool)? onFinished,
     bool legacy = false,
   }) async {
     _useLegacyBundlers = legacy;
