@@ -12,17 +12,14 @@ import 'package:citizenwallet/widgets/settings/settings_row.dart';
 import 'package:citizenwallet/widgets/settings_sub_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
-  final String scanUrl = dotenv.get('SCAN_URL');
-  final String scanName = dotenv.get('SCAN_NAME');
 
-  SettingsScreen({super.key});
+  const SettingsScreen({super.key});
 
   @override
   SettingsScreenState createState() => SettingsScreenState();
@@ -65,8 +62,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     HapticFeedback.mediumImpact();
   }
 
-  void handleOpenContract(String address) {
-    final Uri url = Uri.parse('${widget.scanUrl}/address/$address');
+  void handleOpenContract(String scanUrl, String address) {
+    final Uri url = Uri.parse('$scanUrl/address/$address');
 
     launchUrl(url, mode: LaunchMode.inAppWebView);
   }
@@ -121,6 +118,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     final push = context.select((NotificationsState state) => state.push);
 
     final wallet = context.select((WalletState state) => state.wallet);
+
+    final config = context.select((WalletState state) => state.config);
 
     final packageInfo = context.select((AppState state) => state.packageInfo);
 
@@ -248,13 +247,15 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                SettingsRow(
-                  label: 'View on ${widget.scanName}',
-                  icon: 'assets/icons/website.svg',
-                  onTap: wallet != null
-                      ? () => handleOpenContract(wallet.account)
-                      : null,
-                ),
+                if (config != null)
+                  SettingsRow(
+                    label: 'View on ${config.scan.name}',
+                    icon: 'assets/icons/website.svg',
+                    onTap: wallet != null
+                        ? () =>
+                            handleOpenContract(config.scan.url, wallet.account)
+                        : null,
+                  ),
                 SettingsRow(
                   label: 'Accounts',
                   icon: 'assets/icons/users.svg',

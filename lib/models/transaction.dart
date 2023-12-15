@@ -7,9 +7,7 @@ Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
       TransactionAuthor.bank: [
         dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),
       ],
-      TransactionAuthor.bar: [
-        dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase(),
-      ],
+      TransactionAuthor.bar: [],
     };
 
 TransactionAuthor getTransactionAuthor(String own, String from, String to) {

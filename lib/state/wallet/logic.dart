@@ -176,7 +176,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // load the legacy account factory
       final accFactory = await accountFactoryServiceFromConfig(config,
-          customAccountFactory: dotenv.get('WEB_BURNER_ACCOUNT_FACTORY'));
+          customAccountFactory: dotenv.get('WEB_LEGACY_ACCOUNT_FACTORY'));
       final address =
           await accFactory.getAddress(cred.privateKey.address.hexEip55);
 
@@ -706,7 +706,28 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      return dbWallet.privateKey;
+      final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
+
+      await delay(const Duration(milliseconds: 0));
+
+      final password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      final Wallet wallet = Wallet.createNew(
+        credentials,
+        password,
+        Random.secure(),
+        scryptN:
+            512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
+      );
+
+      await delay(const Duration(milliseconds: 0));
+
+      final config = await _config.getConfig(alias);
+
+      final domainPrefix = config.community.customDomain ??
+          '${config.community.alias}.citizenwallet.xyz';
+
+      return 'https://$domainPrefix/wallet/v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -56,9 +55,7 @@ class PreferencesService {
     await _preferences.setInt('chainId', chainId);
   }
 
-  int get chainId =>
-      _preferences.getInt('chainId') ??
-      int.parse(dotenv.get('DEFAULT_CHAIN_ID'));
+  int get chainId => _preferences.getInt('chainId') ?? 1;
 
   // save chain id for a given alias
   Future setChainIdForAlias(String alias, String chainId) async {

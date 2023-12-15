@@ -38,10 +38,6 @@ void main() async {
 FutureOr<void> appRunner() async {
   await PreferencesService().init(await SharedPreferences.getInstance());
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
   DBService();
 
   WalletService();
@@ -51,6 +47,9 @@ FutureOr<void> appRunner() async {
   if (kIsWeb) {
     config.initWeb();
   } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     config.init(
       dotenv.get('WALLET_CONFIG_URL'),
     );
