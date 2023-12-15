@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -149,7 +148,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       await _preferences.setFirstLaunch(false);
 
       // check if ios web
-      if (Platform.isIOS) {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
         // we have a wallet, go to the wallet screen
         // (this is a workaround for the native install banner
         navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
@@ -160,6 +159,9 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         return;
       }
     }
+
+    print(
+        'has voucher ${widget.voucher != null && widget.voucherParams != null}');
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
@@ -173,6 +175,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   Future<void> handleLoadFromVoucher() async {
+    print('parsing voucher');
     final voucher = widget.voucher;
     final voucherParams = widget.voucherParams;
 
