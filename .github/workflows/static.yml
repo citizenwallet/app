@@ -28,6 +28,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+
+      - name: Disable Analytics
+        run: flutter --disable-analytics
+
       - run: flutter pub get
       - run: flutter test
       - run: flutter build web --source-maps --web-renderer canvaskit
