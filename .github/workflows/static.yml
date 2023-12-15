@@ -32,6 +32,9 @@ jobs:
       - run: flutter test
       - run: flutter build web --source-maps --web-renderer canvaskit
 
+      - name: Create web config.json files
+        run: dart scripts/create_web_configs.dart
+
       - name: Upload source maps to Sentry
         run: flutter packages pub run sentry_dart_plugin
 
@@ -45,8 +48,14 @@ jobs:
       - name: Update S3 bucket
         run: aws s3 sync ./build/web s3://cw-wallet --delete
 
+      - name: Update S3 Configs bucket
+        run: aws s3 sync ./temp/web_configs s3://cw-wallet-configs
+
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3HSZG6HHL54A0 --paths '/*'
+
+      - name: Invalidate Config CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E2ML9Z329DNKZ5 --paths '/*'
 
       - name: Invalidate OAK CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3R7VPAU53LVEL --paths '/*'
