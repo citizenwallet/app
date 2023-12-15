@@ -59,7 +59,8 @@ class WalletActions extends StatelessWidget {
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
 
-    final showVouchers = wallet?.locked == false &&
+    final showVouchers = !kIsWeb &&
+        wallet?.locked == false &&
         (!loading || !firstLoad) &&
         wallet?.doubleBalance != 0.0 &&
         handleSendModal != null;
