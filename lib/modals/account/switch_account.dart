@@ -184,9 +184,9 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
 
     if (option == 'export') {
-      final privateKey = await widget.logic.returnWallet(address, alias);
+      final webWalletUrl = await widget.logic.returnWallet(address, alias);
 
-      if (privateKey == null) {
+      if (webWalletUrl == null) {
         return;
       }
 
@@ -196,7 +196,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         builder: (modalContext) => ExportWalletModal(
           title: 'Export Account',
           toCopy: '-----------',
-          onCopy: () => handleCopyWalletPrivateKey(privateKey, address),
+          onCopy: () => handleExportWallet(webWalletUrl),
         ),
       );
 
@@ -224,8 +224,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
   }
 
-  void handleCopyWalletPrivateKey(String privateKey, String address) {
-    Clipboard.setData(ClipboardData(text: '$privateKey:$address'));
+  void handleExportWallet(String webWalletUrl) {
+    Clipboard.setData(ClipboardData(text: webWalletUrl));
 
     HapticFeedback.heavyImpact();
   }
