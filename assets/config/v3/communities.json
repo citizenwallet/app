@@ -25,9 +25,9 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-            "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-            "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+            "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+            "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
             "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw"
         },
@@ -69,9 +69,9 @@
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0xA505A5c3486E5732d037294B4D42b0c38B77E5a9",
-            "entrypoint_address": "0xbCA3057D93c5715Ff1731996892F205d4452D4b9",
-            "account_factory_address": "0x31b6412c997586040B2966E85caE37ba2D649D47",
+            "paymaster_address": "0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F",
+            "entrypoint_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
+            "account_factory_address": "0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098",
             "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
             "paymaster_type": "cw"
         },
