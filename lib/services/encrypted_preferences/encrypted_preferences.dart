@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
 import 'package:citizenwallet/services/encrypted_preferences/web.dart';

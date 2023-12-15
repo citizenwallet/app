@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';

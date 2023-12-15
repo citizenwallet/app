@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';

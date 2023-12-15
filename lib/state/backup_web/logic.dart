@@ -1,4 +1,4 @@
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:flutter/cupertino.dart';

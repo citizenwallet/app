@@ -52,3 +52,6 @@ app.*.map.json
 firebase.json
 GoogleService-Info.plist
 google-services.json
+
+# temp files
+temp/

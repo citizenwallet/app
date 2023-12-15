@@ -1,4 +1,4 @@
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/contacts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';

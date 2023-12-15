@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:citizenwallet/services/share/share.dart';

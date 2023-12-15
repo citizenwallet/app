@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:citizenwallet/firebase_options.dart';
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/sentry/sentry.dart';
