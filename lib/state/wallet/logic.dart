@@ -129,15 +129,14 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   Future<(bool, bool)> openWalletFromURL(
-    String account,
-    String encodedWallet,
-    String password,
-    String alias, {
+    String encodedWallet, {
     Future<void> Function()? loadAdditionalData,
     void Function()? goBackHome,
   }) async {
     String encoded = encodedWallet;
     String password = '';
+
+    bool fromLegacy = false;
 
     try {
       password = dotenv.get('WEB_BURNER_PASSWORD');
@@ -161,6 +160,7 @@ class WalletLogic extends WidgetsBindingObserver {
         if (goBackHome != null) goBackHome();
         return (false, true);
       }
+      fromLegacy = true;
 
       // old format, convert
       final decoded = convertUint8ListToString(
@@ -213,9 +213,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
-      await _wallet.init(
+      await _wallet.initWeb(
         decodedSplit[0],
         bytesToHex(cred.privateKey.privateKey),
+        legacy: fromLegacy,
         NativeCurrency(
           name: config.token.name,
           symbol: config.token.symbol,

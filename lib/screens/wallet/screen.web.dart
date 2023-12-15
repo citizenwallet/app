@@ -22,12 +22,10 @@ import 'package:citizenwallet/modals/save/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
@@ -123,44 +121,8 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
 
-    String password = '';
-    String account = '';
-
-    try {
-      password = dotenv.get('WEB_BURNER_PASSWORD');
-
-      if (!widget.encoded.startsWith('v3-')) {
-        // old format, convert
-        throw Exception('old format');
-      }
-    } catch (exception, stackTrace) {
-      if (!widget.encoded.startsWith('v2-')) {
-        // something is wrong with the encoding
-        await Sentry.captureException(
-          exception,
-          stackTrace: stackTrace,
-        );
-
-        // try and reset preferences so we don't end up in a loop
-        await _logic.resetWalletPreferences();
-
-        // go back to the home screen
-        navigator.go('/');
-        return;
-      }
-
-      // old format, convert
-    }
-
-    if (password.isEmpty) {
-      return;
-    }
-
     final (ok, stop) = await _logic.openWalletFromURL(
-      '',
       widget.encoded,
-      password,
-      widget.alias,
       loadAdditionalData: () async {
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();

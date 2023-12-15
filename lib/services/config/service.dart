@@ -73,8 +73,9 @@ class ConfigService {
   }
 
   void initWeb() {
-    final url =
-        '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
+    final url = kDebugMode
+        ? 'https://config.internal.citizenwallet.xyz'
+        : '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
   }

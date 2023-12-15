@@ -202,6 +202,84 @@ class WalletService {
     _initAccount(onNotify, onFinished);
   }
 
+  Future<void> initWeb(
+    String account,
+    String privateKey,
+    NativeCurrency currency,
+    Config config, {
+    void Function(String)? onNotify,
+    void Function(bool)? onFinished,
+    bool legacy = false,
+  }) async {
+    _useLegacyBundlers = legacy;
+
+    _indexerKey = config.indexer.key;
+
+    _alias = config.community.alias;
+    _url = config.node.url;
+    _wsurl = config.node.wsUrl;
+
+    _ethClient = Web3Client(
+      _url,
+      _client,
+      socketConnector: () =>
+          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    );
+
+    ipfsUrl = config.ipfs.url;
+    _ipfs = APIService(baseURL: ipfsUrl);
+    _indexer = APIService(baseURL: config.indexer.url);
+    _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
+
+    _rpc = APIService(baseURL: config.node.url);
+    _bundlerRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.rpcUrl);
+    _paymasterRPC = APIService(
+        baseURL: config.erc4337.paymasterAddress != null
+            ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
+            : config.erc4337.paymasterRPCUrl);
+    _paymasterType = config.erc4337.paymasterType;
+
+    _gasPriceEstimator = EIP1559GasPriceEstimator(
+      _rpc,
+      _ethClient,
+      gasExtraPercentage: config.erc4337.gasExtraPercentage,
+    );
+
+    erc4337Headers = {};
+    if (!kIsWeb || kDebugMode) {
+      // on native, we need to set the origin header
+      erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
+    }
+
+    _credentials = EthPrivateKey.fromHex(privateKey);
+
+    final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
+    _chainId = cachedChainId != null
+        ? BigInt.parse(cachedChainId)
+        : await _ethClient.getChainId();
+    await _pref.setChainIdForAlias(
+        config.community.alias, _chainId!.toString());
+
+    this.currency = currency;
+
+    _legacy4337Bundlers = await getLegacy4337Bundlers();
+
+    await _initContracts(
+      account,
+      config.community.alias,
+      config.erc4337.entrypointAddress,
+      config.erc4337.accountFactoryAddress,
+      config.token.address,
+      config.profile.address,
+    );
+
+    await _initLegacyContracts();
+    await _initLegacyRPCs();
+  }
+
   /// Initializes the Ethereum smart contracts used by the wallet.
   ///
   /// [account] The account address
