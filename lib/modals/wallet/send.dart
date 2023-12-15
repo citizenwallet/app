@@ -75,6 +75,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     _logic = widget.walletLogic;
 
+    if (widget.to != null || widget.receiveParams != null) {
+      _isScanning = false;
+      _scannerOn = false;
+    }
+
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -116,9 +121,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     if (widget.to != null) {
-      _isScanning = false;
-      _scannerOn = false;
-
       _logic.addressController.text = widget.to ?? '';
       _logic.amountController.text = widget.amount ?? '';
 
@@ -425,6 +427,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final size = height > width ? width : height;
     final scannerSize = size * 0.88;
+
+    print('_scannerOn: $_scannerOn');
+    print('_isScanning: $_isScanning');
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
