@@ -385,32 +385,15 @@ class VoucherLogic extends WidgetsBindingObserver {
         parsedAmount,
       );
 
-      final (hash, userop) = await _wallet.prepareUserop(
+      final (_, userop) = await _wallet.prepareUserop(
         [_wallet.erc20Address],
         [calldata],
       );
 
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          account,
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
-      );
-
       final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
-
-      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       final voucher = Voucher(
         address: dbvoucher.address,
@@ -541,9 +524,6 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: voucher.legacy,
       );
 
-      final account =
-          await _wallet.getAccountAddress(credentials.address.hexEip55);
-
       if (sendingTransaction != null) {
         sendingTransaction(
           amount,
@@ -552,29 +532,12 @@ class VoucherLogic extends WidgetsBindingObserver {
         );
       }
 
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          account,
-          _wallet.account,
-          amount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
-        customCredentials: credentials,
-        legacy: voucher.legacy,
-      );
-
       final success = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
         legacy: voucher.legacy,
       );
       if (!success) {
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
@@ -585,13 +548,6 @@ class VoucherLogic extends WidgetsBindingObserver {
           _wallet.account.hexEip55,
         );
       }
-
-      await _wallet.setStatusLog(
-        hash,
-        TransactionState.pending,
-        customCredentials: credentials,
-        legacy: voucher.legacy,
-      );
 
       await _db.vouchers.archive(address);
 

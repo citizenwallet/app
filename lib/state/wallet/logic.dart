@@ -1044,7 +1044,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.preSendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.sending(
         fromDoubleUnit(
           amount.toString(),
@@ -1066,7 +1066,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.sendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.sending(
         fromDoubleUnit(
           amount.toString(),
@@ -1088,7 +1088,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.pendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.pending(
         fromDoubleUnit(
           amount.toString(),
@@ -1150,25 +1150,9 @@ class WalletLogic extends WidgetsBindingObserver {
         to,
       );
 
-      // this is an optional operation
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          EthereumAddress.fromHex(to),
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
-      );
-
       final success = await _wallet.submitUserop(userop);
       if (!success) {
         // this is an optional operation
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
@@ -1177,9 +1161,6 @@ class WalletLogic extends WidgetsBindingObserver {
         hash,
         to,
       );
-
-      // this is an optional operation
-      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -1286,25 +1267,9 @@ class WalletLogic extends WidgetsBindingObserver {
         to,
       );
 
-      // this is an optional operation
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          EthereumAddress.fromHex(to),
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
-      );
-
       final success = await _wallet.submitUserop(userop);
       if (!success) {
         // this is an optional operation
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
@@ -1313,9 +1278,6 @@ class WalletLogic extends WidgetsBindingObserver {
         hash,
         to,
       );
-
-      // this is an optional operation
-      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
