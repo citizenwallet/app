@@ -176,7 +176,6 @@ class AccountScreenState extends State<AccountScreen> {
     final loading = context.select((WalletState state) => state.loading);
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
 
-    final ready = context.select((WalletState state) => state.ready);
     final readyLoading =
         context.select((WalletState state) => state.readyLoading);
 
@@ -276,7 +275,7 @@ class AccountScreenState extends State<AccountScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            profileLoading || readyLoading || !ready
+                            profileLoading
                                 ? CupertinoActivityIndicator(
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),

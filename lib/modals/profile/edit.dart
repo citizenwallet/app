@@ -191,6 +191,10 @@ class EditProfileModalState extends State<EditProfileModal> {
     final loading = context.select((ProfileState state) => state.loading);
     final error = context.select((ProfileState state) => state.error);
 
+    final ready = context.select((WalletState state) => state.ready);
+    final readyLoading =
+        context.select((WalletState state) => state.readyLoading);
+
     final updateState =
         context.select((ProfileState state) => state.updateState);
 
@@ -525,7 +529,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     ),
                                   )
                                 ],
-                                if (!loading)
+                                if (!loading && !readyLoading && ready)
                                   Button(
                                     text: 'Save',
                                     color: ThemeColors.surfacePrimary
