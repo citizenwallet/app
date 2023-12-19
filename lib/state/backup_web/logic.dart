@@ -1,4 +1,4 @@
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +21,7 @@ class BackupWebLogic {
 
   void setShareLink() async {
     try {
-      final config = await _config.config;
+      final config = await _config.getWebConfig(appLinkSuffix);
 
       final link = config.community.walletUrl(appLinkSuffix);
       _state.setShareLink(link);

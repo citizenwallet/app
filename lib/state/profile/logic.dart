@@ -1,4 +1,4 @@
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/contacts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
@@ -69,7 +69,7 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
 

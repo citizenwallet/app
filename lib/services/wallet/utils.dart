@@ -143,24 +143,18 @@ Uint8List decompressBytes(Uint8List data) {
   return convertBytesToUint8List(decodegZipData);
 }
 
-String generateSignature((String body, Uint8List privateKey) args) {
-  // hash the body
-  final messageHash = keccak256(convertBytesToUint8List(utf8.encode(args.$1)));
+String generateSignature((String body, EthPrivateKey privateKey) args) {
+  final message = args.$1;
 
-  // sign the body
-  final signature = sign(messageHash, args.$2);
+  // hash the message
+  final hash = keccak256(convertBytesToUint8List(utf8.encode(message)));
 
-  // encode the signature
-  final r = signature.r.toRadixString(16).padLeft(64, '0');
-  final s = signature.s.toRadixString(16).padLeft(64, '0');
-  final v = bytesToHex(intToBytes(BigInt.from(signature.v + 4)));
+  // sign the message
+  final signature =
+      args.$2.signPersonalMessageToUint8List(convertBytesToUint8List(hash));
 
-  // compact the signature
-  // 0x - padding
-  // v - 1 byte
-  // r - 32 bytes
-  // s - 32 bytes
-  return '0x$v$r$s';
+  // convert to hex
+  return bytesToHex(signature, include0x: true);
 }
 
 Uint8List hashSignatureData(Uint8List payload) {

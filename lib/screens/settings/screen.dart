@@ -1,5 +1,7 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -10,17 +12,14 @@ import 'package:citizenwallet/widgets/settings/settings_row.dart';
 import 'package:citizenwallet/widgets/settings_sub_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
-  final String scanUrl = dotenv.get('SCAN_URL');
-  final String scanName = dotenv.get('SCAN_NAME');
 
-  SettingsScreen({super.key});
+  const SettingsScreen({super.key});
 
   @override
   SettingsScreenState createState() => SettingsScreenState();
@@ -28,6 +27,7 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   late AppLogic _appLogic;
+  late NotificationsLogic _notificationsLogic;
 
   bool _protected = false;
 
@@ -38,7 +38,14 @@ class SettingsScreenState extends State<SettingsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
       _appLogic = AppLogic(context);
+      _notificationsLogic = NotificationsLogic(context);
+
+      onLoad();
     });
+  }
+
+  void onLoad() async {
+    _notificationsLogic.checkPushPermissions();
   }
 
   void onToggleDarkMode(bool enabled) {
@@ -46,8 +53,17 @@ class SettingsScreenState extends State<SettingsScreen> {
     HapticFeedback.mediumImpact();
   }
 
-  void handleOpenContract(String address) {
-    final Uri url = Uri.parse('${widget.scanUrl}/address/$address');
+  void handleTogglePushNotifications(bool enabled) {
+    _notificationsLogic.togglePushNotifications();
+  }
+
+  void onToggleMuted(bool enabled) {
+    _appLogic.setMuted(!enabled);
+    HapticFeedback.mediumImpact();
+  }
+
+  void handleOpenContract(String scanUrl, String address) {
+    final Uri url = Uri.parse('$scanUrl/address/$address');
 
     launchUrl(url, mode: LaunchMode.inAppWebView);
   }
@@ -97,8 +113,13 @@ class SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
     final darkMode = context.select((AppState state) => state.darkMode);
+    final muted = context.select((AppState state) => state.muted);
+
+    final push = context.select((NotificationsState state) => state.push);
 
     final wallet = context.select((WalletState state) => state.wallet);
+
+    final config = context.select((WalletState state) => state.config);
 
     final packageInfo = context.select((AppState state) => state.packageInfo);
 
@@ -144,6 +165,32 @@ class SettingsScreenState extends State<SettingsScreen> {
                 if (packageInfo != null)
                   SettingsSubRow(
                       'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Notifications',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SettingsRow(
+                  label: 'Push Notifications',
+                  icon: 'assets/icons/notification_bell.svg',
+                  trailing: CupertinoSwitch(
+                    value: push,
+                    onChanged: handleTogglePushNotifications,
+                  ),
+                ),
+                SettingsRow(
+                  label: 'In-app sounds',
+                  icon: 'assets/icons/sound.svg',
+                  trailing: CupertinoSwitch(
+                    value: !muted,
+                    onChanged: onToggleMuted,
+                  ),
+                ),
                 // const Padding(
                 //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 //   child: Text(
@@ -200,13 +247,15 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                SettingsRow(
-                  label: 'View on ${widget.scanName}',
-                  icon: 'assets/icons/website.svg',
-                  onTap: wallet != null
-                      ? () => handleOpenContract(wallet.account)
-                      : null,
-                ),
+                if (config != null)
+                  SettingsRow(
+                    label: 'View on ${config.scan.name}',
+                    icon: 'assets/icons/website.svg',
+                    onTap: wallet != null
+                        ? () =>
+                            handleOpenContract(config.scan.url, wallet.account)
+                        : null,
+                  ),
                 SettingsRow(
                   label: 'Accounts',
                   icon: 'assets/icons/users.svg',
@@ -264,6 +313,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(
+                  height: 60,
                 ),
               ],
             ),

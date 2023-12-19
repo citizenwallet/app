@@ -18,7 +18,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 class ReceiveModal extends StatefulWidget {
   final WalletLogic logic;
 
-  const ReceiveModal({Key? key, required this.logic}) : super(key: key);
+  const ReceiveModal({super.key, required this.logic});
 
   @override
   ReceiveModalState createState() => ReceiveModalState();
@@ -233,7 +233,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                   child: Center(
                     child: CupertinoTextField(
                       controller: widget.logic.amountController,
-                      placeholder: formatCurrency(1500.00, ''),
+                      placeholder: formatCurrency(0.00, ''),
                       prefix: Center(
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),

@@ -13,14 +13,14 @@ class VoucherRow extends StatefulWidget {
   final void Function(String, String, bool)? onTap;
 
   const VoucherRow({
-    Key? key,
+    super.key,
     required this.voucher,
     required this.logic,
     this.active = false,
     this.size = 60,
     this.logo = 'assets/icons/voucher.svg',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   VoucherRowState createState() => VoucherRowState();
@@ -40,7 +40,6 @@ class VoucherRowState extends State<VoucherRow> {
   }
 
   void onLoad() async {
-    //
     widget.logic.updateVoucher(widget.voucher.address);
   }
 
@@ -123,44 +122,32 @@ class VoucherRowState extends State<VoucherRow> {
               right: 0,
               child: Container(
                 height: 20,
-                width: 20,
+                // width: 20,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: ThemeColors.white,
+                  color: isRedeemed
+                      ? ThemeColors.surfacePrimary
+                      : ThemeColors.white,
                 ),
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: Center(
-                  child: isRedeemed
-                      ? const Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Positioned(
-                              left: 1,
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.checkmark_alt,
-                                  color: ThemeColors.black,
-                                  size: 14,
-                                ),
-                              ),
+                    child: isRedeemed
+                        ? const Text(
+                            'redeemed',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeColors.text,
                             ),
-                            Positioned(
-                              left: 5,
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.checkmark_alt,
-                                  color: ThemeColors.black,
-                                  size: 14,
-                                ),
-                              ),
+                          )
+                        : const Text(
+                            'issued',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeColors.text,
                             ),
-                          ],
-                        )
-                      : const Icon(
-                          CupertinoIcons.checkmark_alt,
-                          color: ThemeColors.black,
-                          size: 14,
-                        ),
-                ),
+                          )),
               ),
             ),
           ],

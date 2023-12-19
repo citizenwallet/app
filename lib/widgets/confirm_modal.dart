@@ -13,11 +13,11 @@ class ConfirmModal extends StatelessWidget {
   final String? confirmText;
 
   const ConfirmModal({
-    Key? key,
+    super.key,
     this.title = 'Confirm',
     this.details = emptyDetails,
     this.confirmText,
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop(false);

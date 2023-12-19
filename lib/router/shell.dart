@@ -14,10 +14,10 @@ class RouterShell extends StatelessWidget {
   final GoRouterState state;
 
   const RouterShell({
-    Key? key,
+    super.key,
     required this.child,
     required this.state,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +43,6 @@ class RouterShell extends StatelessWidget {
         icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
         activeIcon: Icon(
           CupertinoIcons.rectangle_on_rectangle_angled,
-        ),
-      ),
-      const BottomNavigationBarItem(
-        label: 'Contacts',
-        icon: Icon(CupertinoIcons.person_3),
-        activeIcon: Icon(
-          CupertinoIcons.person_3_fill,
         ),
       ),
       BottomNavigationBarItem(
@@ -122,8 +115,7 @@ class RouterShell extends StatelessWidget {
 
     final routes = {
       'wallet': 0,
-      'contacts': 1,
-      'account': 2,
+      'account': 1,
     };
 
     final app = CupertinoScaffold(
@@ -158,14 +150,11 @@ class RouterShell extends StatelessWidget {
                           switch (index) {
                             case 0:
                               GoRouter.of(context).go(
-                                  '/wallet/${wallet?.address}?alias=${wallet?.alias}');
+                                  '/wallet/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             case 1:
-                              GoRouter.of(context).go('/contacts');
-                              break;
-                            case 2:
                               GoRouter.of(context).go(
-                                  '/account/${wallet?.address}?alias=${wallet?.alias}');
+                                  '/account/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             default:
                             // GoRouter.of(context).go('/404');

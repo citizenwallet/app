@@ -1,5 +1,4 @@
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -39,12 +38,11 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  bool chainsLoading = false;
-  bool chainsError = false;
-  List<Chain> chains = [];
+  bool muted = false;
 
   AppState() {
     _darkMode = PreferencesService().darkMode;
+    muted = PreferencesService().muted;
     onLoad();
   }
 
@@ -99,26 +97,6 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadChains() {
-    chainsLoading = true;
-    chainsError = false;
-    notifyListeners();
-  }
-
-  void loadChainsSuccess(List<Chain> chains) {
-    this.chains = chains;
-
-    chainsLoading = false;
-    chainsError = false;
-    notifyListeners();
-  }
-
-  void loadChainsError() {
-    chainsLoading = false;
-    chainsError = true;
-    notifyListeners();
-  }
-
   void deleteBackupLoadingReq() {
     backupDeleteLoading = true;
     backupDeleteError = false;
@@ -134,6 +112,23 @@ class AppState with ChangeNotifier {
   void deleteBackupLoadingSuccess() {
     backupDeleteLoading = false;
     backupDeleteError = false;
+    notifyListeners();
+  }
+
+  void setMuted(bool muted) {
+    this.muted = muted;
+    notifyListeners();
+  }
+
+  bool appLoading = true;
+
+  void loadApp() {
+    appLoading = true;
+    notifyListeners();
+  }
+
+  void appLoaded() {
+    appLoading = false;
     notifyListeners();
   }
 }

@@ -7,10 +7,10 @@ class CoinLogo extends StatelessWidget {
   final String? logo;
 
   const CoinLogo({
-    Key? key,
+    super.key,
     required this.size,
     this.logo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

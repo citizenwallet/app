@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/audio/audio.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/encrypted_preferences/android.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/models/chain.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -23,6 +25,8 @@ class AppLogic {
   final EncryptedPreferencesService _encPrefs =
       getEncryptedPreferencesService();
   final ConfigService _config = ConfigService();
+  final AudioService _audio = AudioService();
+
   late AppState _appState;
 
   AppLogic(BuildContext context) {
@@ -30,51 +34,41 @@ class AppLogic {
   }
 
   void setDarkMode(bool darkMode) {
-    _preferences.setDarkMode(darkMode);
+    try {
+      _preferences.setDarkMode(darkMode);
 
-    _appState.darkMode = darkMode;
+      _appState.darkMode = darkMode;
+    } catch (e) {
+      //
+    }
+  }
+
+  void setMuted(bool muted) {
+    try {
+      _preferences.setMuted(muted);
+
+      _audio.setMuted(muted);
+
+      _appState.setMuted(muted);
+    } catch (e) {
+      //
+    }
+  }
+
+  void loadApp() {
+    _appState.loadApp();
+  }
+
+  void appLoaded() {
+    _appState.appLoaded();
   }
 
   void setFirstLaunch(bool firstLaunch) {
-    _preferences.setFirstLaunch(firstLaunch);
-  }
-
-  void configureGenericConfig() {
-    _config.init(
-      dotenv.get('WALLET_CONFIG_URL'),
-      'app',
-    );
-  }
-
-  void loadChains() async {
     try {
-      _appState.loadChains();
-
-      final List rawNativeChains = jsonDecode(
-          await rootBundle.loadString('assets/data/native_chains.json'));
-
-      final List<Chain> nativeChains =
-          rawNativeChains.map((c) => Chain.fromJson(c)).toList();
-
-      final List rawChains =
-          jsonDecode(await rootBundle.loadString('assets/data/chains.json'));
-
-      final List<Chain> chains =
-          rawChains.map((c) => Chain.fromJson(c)).toList();
-
-      final List<Chain> allChains = [...nativeChains, ...chains];
-
-      _appState.loadChainsSuccess(allChains);
-
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
+      _preferences.setFirstLaunch(firstLaunch);
+    } catch (e) {
+      //
     }
-
-    _appState.loadChainsError();
   }
 
   Future<(String?, String?)> loadLastWallet() async {
@@ -134,34 +128,71 @@ class AppLogic {
     return (null, null);
   }
 
+  Future<List<CWWallet>> loadWalletsFromAlias(String alias) async {
+    try {
+      _appState.importLoadingReq();
+
+      final dbWallets = await _encPrefs.getWalletBackupsForAlias(alias);
+
+      await delay(
+          const Duration(milliseconds: 500)); // smoother launch experience
+
+      final config = await _config.getConfig(alias);
+
+      _appState.importLoadingSuccess();
+
+      return dbWallets.map((e) {
+        final credentials = stringToPrivateKey(e.privateKey);
+
+        return CWWallet(
+          '0.0',
+          name: e.name,
+          address: credentials?.address.hexEip55 ?? '',
+          alias: config.community.alias,
+          account: e.address,
+          currencyName: config.token.name,
+          symbol: config.token.symbol,
+          currencyLogo: config.community.logo,
+          decimalDigits: config.token.decimals,
+          locked: false,
+        );
+      }).toList();
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _appState.importLoadingError();
+
+    return [];
+  }
+
   Future<String?> createWallet(String alias) async {
     try {
       _appState.importLoadingReq();
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final address = credentials.address.hexEip55;
+      final config = await _config.getConfig(alias);
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: address.hexEip55,
         privateKey: (bytesToHex(credentials.privateKey)),
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
-      return credentials.address.hexEip55;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -217,9 +248,14 @@ class AppLogic {
 
       await delay(const Duration(milliseconds: 0));
 
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
+
       _appState.importLoadingWebSuccess(password);
 
-      return 'v2-${base64Encode(wallet.toJson().codeUnits)}';
+      return 'v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -250,32 +286,28 @@ class AppLogic {
         throw Exception('Invalid private key');
       }
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       final name = 'Imported ${config.token.symbol} Account';
 
-      final address = credentials.address.hexEip55;
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       await _encPrefs.setWalletBackup(
         BackupWallet(
-          address: address,
+          address: address.hexEip55,
           privateKey: bytesToHex(credentials.privateKey),
           name: name,
           alias: config.community.alias,
         ),
       );
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
-      return address;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -304,36 +336,32 @@ class AppLogic {
 
       final credentials = wallet.privateKey;
 
-      final address = credentials.address.hexEip55;
+      final config = await _config.getConfig(alias);
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      final config = await _config.config;
-
-      final existing =
-          await _encPrefs.getWalletBackup(address, config.community.alias);
+      final existing = await _encPrefs.getWalletBackup(
+          address.hexEip55, config.community.alias);
       if (existing != null) {
         return (existing.address, alias);
       }
 
       await _encPrefs.setWalletBackup(
         BackupWallet(
-          address: address,
+          address: address.hexEip55,
           privateKey: bytesToHex(credentials.privateKey),
           name: '${config.token.symbol} Web Account',
           alias: config.community.alias,
         ),
       );
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _appState.importLoadingSuccess();
 
-      return (address, alias);
+      return (address.hexEip55, alias);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -382,7 +410,7 @@ class AppLogic {
 
       _preferences.setAndroidBackupIsConfigured(true);
       return true;
-    } catch (e) {
+    } catch (_) {
       //
     }
 

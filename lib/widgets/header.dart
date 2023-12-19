@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 class Header extends StatefulWidget {
   final String? title;
+  final Color? titleColor;
   final double fontSize;
   final TextAlign? textAlign;
   final Widget? titleWidget;
@@ -21,6 +22,7 @@ class Header extends StatefulWidget {
   const Header({
     super.key,
     this.title,
+    this.titleColor,
     this.fontSize = 32,
     this.textAlign,
     this.titleWidget,
@@ -82,11 +84,33 @@ class HeaderState extends State<Header> {
                     overflow: TextOverflow.ellipsis,
                     textAlign: widget.textAlign,
                     style: TextStyle(
+                      color: widget.titleColor,
                       fontSize: widget.fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+              // Expanded(
+              //   child: Row(
+              //     children: [
+              //       Flexible(
+              //         child: FittedBox(
+              //           fit: BoxFit.fitWidth,
+              //           child: Text(
+              //             widget.title!,
+              //             maxLines: 1,
+              //             overflow: TextOverflow.ellipsis,
+              //             textAlign: widget.textAlign,
+              //             style: TextStyle(
+              //               fontSize: widget.fontSize,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               if (widget.titleWidget != null)
                 Expanded(child: widget.titleWidget!),
               if (widget.actionButton != null)

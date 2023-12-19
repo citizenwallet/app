@@ -28,11 +28,11 @@ class PickeSenderModal extends StatefulWidget {
   final String amount;
 
   const PickeSenderModal({
-    Key? key,
+    super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.amount = '0.0',
-  }) : super(key: key);
+  });
 
   @override
   PickeSenderModalState createState() => PickeSenderModalState();

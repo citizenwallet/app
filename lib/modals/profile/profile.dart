@@ -3,7 +3,6 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -17,11 +16,11 @@ class ProfileModal extends StatefulWidget {
   final bool keepLink;
 
   const ProfileModal({
-    Key? key,
+    super.key,
     required this.account,
     this.readonly = false,
     this.keepLink = false,
-  }) : super(key: key);
+  });
 
   @override
   ProfileModalState createState() => ProfileModalState();

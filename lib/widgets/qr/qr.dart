@@ -9,12 +9,12 @@ class QR extends StatelessWidget {
   final String? logo;
 
   const QR({
-    Key? key,
+    super.key,
     required this.data,
     this.size = 200,
     this.padding = const EdgeInsets.all(10),
     this.logo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -13,8 +13,8 @@ class AndroidPinCodeModal extends StatefulWidget {
   final String title = 'Account Backup';
 
   const AndroidPinCodeModal({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   AndroidPinCodeModalState createState() => AndroidPinCodeModalState();

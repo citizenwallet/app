@@ -14,7 +14,7 @@ class SlideToComplete extends StatefulWidget {
   final Color thumbColor;
 
   const SlideToComplete({
-    Key? key,
+    super.key,
     required this.child,
     this.completionLabel = 'Slide to complete',
     this.width = 200,
@@ -24,7 +24,7 @@ class SlideToComplete extends StatefulWidget {
     this.onCompleted,
     this.onSlide,
     this.thumbColor = CupertinoColors.systemGrey,
-  }) : super(key: key);
+  });
 
   @override
   SlideToCompleteState createState() => SlideToCompleteState();

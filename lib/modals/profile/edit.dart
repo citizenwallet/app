@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -20,8 +21,8 @@ import 'package:rate_limiter/rate_limiter.dart';
 
 class EditProfileModal extends StatefulWidget {
   const EditProfileModal({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   EditProfileModalState createState() => EditProfileModalState();
@@ -36,6 +37,7 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   late ProfileLogic _logic;
   late WalletLogic _walletLogic;
+  late NotificationsLogic _notificationsLogic;
 
   late Debounce debouncedHandleUsernameUpdate;
   late Debounce debouncedHandleNameUpdate;
@@ -46,7 +48,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     super.initState();
 
     _logic = ProfileLogic(context);
-    _walletLogic = WalletLogic(context);
+    _notificationsLogic = NotificationsLogic(context);
+    _walletLogic = WalletLogic(context, _notificationsLogic);
 
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
@@ -115,6 +118,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   void handleSave(Uint8List? image) async {
     final navigator = GoRouter.of(context);
 
+    FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
@@ -136,7 +140,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     }
 
     if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
+      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();
@@ -146,6 +150,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   void handleUpdate() async {
     final navigator = GoRouter.of(context);
 
+    FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
@@ -166,7 +171,7 @@ class EditProfileModalState extends State<EditProfileModal> {
     }
 
     if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.address, wallet.alias, newName);
+      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
     }
 
     HapticFeedback.heavyImpact();
@@ -185,6 +190,10 @@ class EditProfileModalState extends State<EditProfileModal> {
 
     final loading = context.select((ProfileState state) => state.loading);
     final error = context.select((ProfileState state) => state.error);
+
+    final ready = context.select((WalletState state) => state.ready);
+    final readyLoading =
+        context.select((WalletState state) => state.readyLoading);
 
     final updateState =
         context.select((ProfileState state) => state.updateState);
@@ -414,15 +423,18 @@ class EditProfileModalState extends State<EditProfileModal> {
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: descriptionController,
-                              placeholder: 'Enter a description',
+                              placeholder:
+                                  'Enter a description\n\n\n', // hack to align to top
                               minLines: 4,
                               maxLines: 8,
                               maxLength: 200,
                               autocorrect: false,
                               enableSuggestions: false,
+                              textCapitalization: TextCapitalization.sentences,
                               textInputAction: TextInputAction.newline,
                               onChanged: handleDescriptionUpdate,
                               focusNode: descriptionFocusNode,
+                              textAlignVertical: TextAlignVertical.top,
                               decoration: BoxDecoration(
                                 color:
                                     const CupertinoDynamicColor.withBrightness(
@@ -453,30 +465,6 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 60),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   crossAxisAlignment: CrossAxisAlignment.center,
-                            //   children: [
-                            //     loading
-                            //         ? CupertinoActivityIndicator(
-                            //             color: ThemeColors.subtle
-                            //                 .resolveFrom(context),
-                            //           )
-                            //         : Button(
-                            //             text: 'Save',
-                            //             color: ThemeColors.surfacePrimary
-                            //                 .resolveFrom(context),
-                            //             labelColor: ThemeColors.black,
-                            //             onPressed: isInvalid
-                            //                 ? null
-                            //                 : editingImage == null ||
-                            //                         editingImageExt == null
-                            //                     ? () => handleUpdate()
-                            //                     : () => handleSave(editingImage,
-                            //                         editingImageExt),
-                            //           ),
-                            //   ],
-                            // ),
                             const SizedBox(height: 10),
                             if (!loading && error)
                               Row(
@@ -541,7 +529,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     ),
                                   )
                                 ],
-                                if (!loading)
+                                if (!loading && !readyLoading && ready)
                                   Button(
                                     text: 'Save',
                                     color: ThemeColors.surfacePrimary

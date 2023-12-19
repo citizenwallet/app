@@ -12,6 +12,7 @@ class DBVoucher {
   final String salt;
   final String creator;
   final bool archived;
+  final bool legacy;
   DateTime createdAt = DateTime.now();
 
   DBVoucher({
@@ -23,6 +24,7 @@ class DBVoucher {
     required this.salt,
     required this.creator,
     this.archived = false,
+    this.legacy = false,
   });
 
   DBVoucher.read({
@@ -35,6 +37,7 @@ class DBVoucher {
     required this.creator,
     required this.createdAt,
     required this.archived,
+    required this.legacy,
   });
 
   Map<String, dynamic> toMap() {
@@ -48,6 +51,7 @@ class DBVoucher {
       'creator': creator,
       'createdAt': createdAt.toIso8601String(),
       'archived': archived ? 1 : 0,
+      'legacy': legacy ? 1 : 0,
     };
   }
 
@@ -62,6 +66,7 @@ class DBVoucher {
       creator: map['creator'],
       createdAt: DateTime.parse(map['createdAt']),
       archived: map['archived'] == 1,
+      legacy: map['legacy'] == 1,
     );
   }
 
@@ -87,7 +92,8 @@ class VouchersTable extends DBTable {
     salt TEXT NOT NULL,
     creator TEXT NOT NULL DEFAULT '',
     createdAt TEXT NOT NULL,
-    archived INTEGER DEFAULT 0
+    archived INTEGER DEFAULT 0,
+    legacy INTEGER DEFAULT 0
   )
 ''';
 
@@ -149,6 +155,11 @@ class VouchersTable extends DBTable {
           ALTER TABLE $name DROP COLUMN token
         '''
       ],
+      7: [
+        '''
+          ALTER TABLE $name ADD COLUMN legacy INTEGER DEFAULT 0
+        ''',
+      ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
@@ -156,7 +167,9 @@ class VouchersTable extends DBTable {
 
       if (queries != null) {
         for (final query in queries) {
-          await db.execute(query);
+          try {
+            await db.execute(query); // TODO: fix/check crash
+          } catch (_) {}
         }
       }
     }
@@ -191,8 +204,11 @@ class VouchersTable extends DBTable {
 
   // Retrieves all vouchers from the table by alias
   Future<List<DBVoucher>> getAllByAlias(String token) async {
-    List<Map<String, dynamic>> maps = await db
-        .query(name, columns: null, where: 'alias = ?', whereArgs: [token]);
+    List<Map<String, dynamic>> maps = await db.query(name,
+        columns: null,
+        where: 'alias = ?',
+        whereArgs: [token],
+        orderBy: 'createdAt DESC');
 
     return List.generate(maps.length, (i) {
       return DBVoucher.fromMap(maps[i]);

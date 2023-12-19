@@ -17,9 +17,9 @@ class ShareModal extends StatefulWidget {
   final String title;
 
   const ShareModal({
-    Key? key,
+    super.key,
     this.title = 'Wallet',
-  }) : super(key: key);
+  });
 
   @override
   ShareModalState createState() => ShareModalState();

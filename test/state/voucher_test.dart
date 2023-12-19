@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test/test.dart';
@@ -133,7 +134,6 @@ void main() {
 
     ConfigService().init(
       dotenv.get('WALLET_CONFIG_URL'),
-      'app',
     );
   });
 

@@ -24,29 +24,33 @@ class WalletScrollView extends StatefulWidget {
   final Future<void> Function() handleRefresh;
   final void Function() handleSendModal;
   final void Function() handleReceive;
+  final void Function(String url)? handlePlugin;
   final void Function()? handleCards;
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
-  final void Function(String) handleFailedTransactionTap;
+  final void Function() handleTransactionSendingTap;
+  final void Function(String, bool) handleFailedTransactionTap;
   final void Function(String) handleCopy;
 
   final void Function(String) handleLoad;
   final void Function() handleScrollToTop;
 
   const WalletScrollView({
-    Key? key,
+    super.key,
     required this.controller,
     required this.handleRefresh,
     required this.handleSendModal,
     required this.handleReceive,
+    this.handlePlugin,
     this.handleCards,
     required this.handleVouchers,
     required this.handleTransactionTap,
+    required this.handleTransactionSendingTap,
     required this.handleFailedTransactionTap,
     required this.handleCopy,
     required this.handleLoad,
     required this.handleScrollToTop,
-  }) : super(key: key);
+  });
 
   @override
   WalletScrollViewState createState() => WalletScrollViewState();
@@ -54,6 +58,7 @@ class WalletScrollView extends StatefulWidget {
 
 class WalletScrollViewState extends State<WalletScrollView> {
   String _selectedValue = 'Citizen Wallet';
+  bool _refreshing = false;
 
   void handleSelect(String? value) {
     if (value != null) {
@@ -63,15 +68,29 @@ class WalletScrollViewState extends State<WalletScrollView> {
     }
   }
 
+  void handleRefreshing(bool value) {
+    if (_refreshing == value) {
+      return;
+    }
+
+    Future.delayed(Duration(milliseconds: value ? 10 : 250), () {
+      setState(() {
+        _refreshing = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final handleRefresh = widget.handleRefresh;
     final handleSendModal = widget.handleSendModal;
     final handleReceive = widget.handleReceive;
+    final handlePlugin = widget.handlePlugin;
     final handleCards = widget.handleCards;
     final handleVouchers = widget.handleVouchers;
     final handleTransactionTap = widget.handleTransactionTap;
+    final handleTransactionSendingTap = widget.handleTransactionSendingTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
     final handleLoad = widget.handleLoad;
@@ -85,6 +104,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final safePadding = MediaQuery.of(context).padding.top;
 
     final wallet = context.select((WalletState state) => state.wallet);
+    final walletLoading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
 
     final transactionsLoading =
@@ -96,6 +116,13 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final hasMore =
         context.select((WalletState state) => state.transactionsHasMore);
+
+    final inProgressTransaction =
+        context.select((WalletState state) => state.inProgressTransaction);
+    final inProgressTransactionLoading = context
+        .select((WalletState state) => state.inProgressTransactionLoading);
+    final inProgressTransactionError =
+        context.select((WalletState state) => state.inProgressTransactionError);
 
     final transactions = context.watch<WalletState>().transactions;
 
@@ -118,160 +145,35 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
-    if (wallet != null && wallet.doubleBalance == 0.0 && transactions.isEmpty) {
-      return CustomScrollView(
-        controller: controller,
-        scrollBehavior: const CupertinoScrollBehavior(),
-        slivers: [
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 60),
-          ),
-          SliverFillRemaining(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  wallet.currencyName,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.normal,
-                    color: ThemeColors.text.resolveFrom(context),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '0.00',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.normal,
-                        color: ThemeColors.text.resolveFrom(context),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        0,
-                        0,
-                        0,
-                        3,
-                      ),
-                      child: Text(
-                        wallet.symbol,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Ready to receive tokens',
-                  style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                AnimatedOpacity(
-                  opacity: profileLinkLoading ? 0 : 1,
-                  duration: const Duration(milliseconds: 250),
-                  child: QR(
-                    data: qrData,
-                    size: qrSize,
-                    padding: const EdgeInsets.all(20),
-                    logo: isExternalWallet ? null : 'assets/logo.png',
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Chip(
-                      isExternalWallet
-                          ? formatLongText(qrData, length: 6)
-                          : ellipsizeLongText(
-                              qrData.replaceFirst('https://', ''),
-                              startLength: 30,
-                              endLength: 6,
-                            ),
-                      onTap: () => handleCopy(qrData),
-                      fontSize: 14,
-                      color: ThemeColors.subtleEmphasis.resolveFrom(context),
-                      textColor: ThemeColors.touchable.resolveFrom(context),
-                      suffix: Icon(
-                        CupertinoIcons.square_on_square,
-                        size: 14,
-                        color: ThemeColors.touchable.resolveFrom(context),
-                      ),
-                      maxWidth: isExternalWallet ? 160 : 290,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Picker(
-                      options: const ['Citizen Wallet', 'External Wallet'],
-                      selected: _selectedValue,
-                      handleSelect: handleSelect,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: handleRefresh,
-          builder: (
-            context,
-            mode,
-            pulledExtent,
-            refreshTriggerPullDistance,
-            refreshIndicatorExtent,
-          ) =>
-              SafeArea(
-            child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
-              child: CupertinoSliverRefreshControl.buildRefreshIndicator(
-                context,
-                mode,
-                pulledExtent,
-                refreshTriggerPullDistance,
-                refreshIndicatorExtent,
-              ),
-            ),
-          ),
-        ),
+            onRefresh: handleRefresh,
+            builder: (
+              context,
+              mode,
+              pulledExtent,
+              refreshTriggerPullDistance,
+              refreshIndicatorExtent,
+            ) {
+              handleRefreshing(pulledExtent >= 0.39);
+
+              return SafeArea(
+                child: Container(
+                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
+                  child: CupertinoSliverRefreshControl.buildRefreshIndicator(
+                    context,
+                    mode,
+                    pulledExtent,
+                    refreshTriggerPullDistance,
+                    refreshIndicatorExtent,
+                  ),
+                ),
+              );
+            }),
         SliverPersistentHeader(
           pinned: true,
           floating: false,
@@ -282,8 +184,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
               onTap: widget.handleScrollToTop,
               child: WalletActions(
                 shrink: shrink,
+                refreshing: _refreshing,
                 handleSendModal: handleSendModal,
                 handleReceive: handleReceive,
+                handlePlugin: handlePlugin,
                 handleCards: handleCards,
                 handleVouchers: handleVouchers,
               ),
@@ -325,26 +229,112 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,
-                    onTap: blockSending ? null : handleFailedTransactionTap,
+                    onTap: (String id) =>
+                        handleFailedTransactionTap(id, blockSending),
                     onLoad: handleLoad,
                   ),
                 );
               },
             ),
           ),
-        SliverToBoxAdapter(
-          child: Container(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: const Text(
-              'Transactions',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+        if (wallet != null &&
+            wallet.doubleBalance == 0.0 &&
+            transactions.isEmpty)
+          SliverToBoxAdapter(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: walletLoading
+                  ? [
+                      CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        'Preparing wallet...',
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ]
+                  : [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedOpacity(
+                        opacity: profileLinkLoading ? 0 : 1,
+                        duration: const Duration(milliseconds: 250),
+                        child: QR(
+                          data: qrData,
+                          size: qrSize,
+                          padding: const EdgeInsets.all(20),
+                          logo: isExternalWallet ? null : 'assets/logo.png',
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Chip(
+                            isExternalWallet
+                                ? formatLongText(qrData, length: 6)
+                                : ellipsizeLongText(
+                                    qrData.replaceFirst('https://', ''),
+                                    startLength: 30,
+                                    endLength: 6,
+                                  ),
+                            onTap: () => handleCopy(qrData),
+                            fontSize: 14,
+                            color:
+                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            textColor:
+                                ThemeColors.touchable.resolveFrom(context),
+                            suffix: Icon(
+                              CupertinoIcons.square_on_square,
+                              size: 14,
+                              color: ThemeColors.touchable.resolveFrom(context),
+                            ),
+                            maxWidth: isExternalWallet ? 160 : 290,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Picker(
+                            options: const [
+                              'Citizen Wallet',
+                              'External Wallet'
+                            ],
+                            selected: _selectedValue,
+                            handleSelect: handleSelect,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
+                      ),
+                    ],
+            ),
+          ),
+        if (transactions.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: const Text(
+                'Transactions',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
         if (loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
@@ -356,21 +346,23 @@ class WalletScrollViewState extends State<WalletScrollView> {
               ),
             ),
           ),
-        if (!loading && transactions.isEmpty)
-          SliverFillRemaining(
+        if (inProgressTransaction != null &&
+            wallet != null &&
+            !inProgressTransactionError)
+          SliverToBoxAdapter(
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/empty_pockets.svg',
-                    semanticsLabel: 'empty pockets icon',
-                    height: height * 0.15,
-                    width: height * 0.15,
-                  ),
-                ],
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: TransactionRow(
+                key: Key(inProgressTransaction.id),
+                transaction: inProgressTransaction,
+                logo: config?.community.logo,
+                wallet: wallet,
+                profiles: profiles,
+                vouchers: vouchers,
+                onTap: handleTransactionTap,
+                onProcessingTap: handleTransactionSendingTap,
+                onLoad: handleLoad,
               ),
             ),
           ),
@@ -396,22 +388,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: handleTransactionTap,
+                    onProcessingTap: handleTransactionSendingTap,
                     onLoad: handleLoad,
-                  ),
-                );
-              },
-            ),
-          ),
-        if (transactions.isNotEmpty && wallet != null && loading && hasMore)
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              childCount: 10,
-              (context, index) {
-                return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: SkeletonTransactionRow(
-                    key: Key('loading-$index'),
                   ),
                 );
               },

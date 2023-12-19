@@ -1,0 +1,26 @@
+{
+    "137": {
+        "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
+        "paymaster_type": "payg",
+        "gas_extra_percentage": 50
+    },
+    "8453": {
+        "rpc_url": "https://api.stackup.sh/v1/node/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
+        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
+        "paymaster_type": "payg",
+        "gas_extra_percentage": 50
+    },
+    "42220": {
+        "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+        "paymaster_address": "0x4145007Da8f9FFB57811ab548de2cEA50CaDDe3F",
+        "entrypoint_address": "0x3a851Eb4c4426e5498204da9C9E60D017686184B",
+        "account_factory_address": "0xd395dF9971CF0b6a4649568c9Fe07abbe1461003",
+        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+        "paymaster_type": "cw"
+    }
+}

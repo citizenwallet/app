@@ -12,11 +12,11 @@ class ExportWalletModal extends StatelessWidget {
   final void Function() onCopy;
 
   const ExportWalletModal({
-    Key? key,
+    super.key,
     this.title = 'Wallet',
     required this.toCopy,
     required this.onCopy,
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();
@@ -40,7 +40,7 @@ class ExportWalletModal extends StatelessWidget {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+          backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
           child: SafeArea(
             child: Flex(
               direction: Axis.vertical,

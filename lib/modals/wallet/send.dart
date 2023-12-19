@@ -36,14 +36,14 @@ class SendModal extends StatefulWidget {
   final String? receiveParams;
 
   const SendModal({
-    Key? key,
+    super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.id,
     this.to,
     this.amount,
     this.receiveParams,
-  }) : super(key: key);
+  });
 
   @override
   SendModalState createState() => SendModalState();
@@ -279,7 +279,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     );
 
     if (shouldDismiss == true) {
-      navigator.pop(true);
+      navigator.pop();
     }
   }
 
@@ -428,9 +428,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final size = height > width ? width : height;
     final scannerSize = size * 0.88;
 
-    print('_scannerOn: $_scannerOn');
-    print('_isScanning: $_isScanning');
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -563,7 +560,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   children: [
                                     CupertinoTextField(
                                       controller: _logic.amountController,
-                                      placeholder: formatCurrency(1500.00, ''),
+                                      placeholder: formatCurrency(0.00, ''),
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),

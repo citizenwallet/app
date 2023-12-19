@@ -48,6 +48,10 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
     final int oldVersion =
         int.tryParse(await _preferences.read(key: versionPrefix) ?? '0') ?? 0;
 
+    if (oldVersion == version) {
+      return;
+    }
+
     final migrations = {
       1: () async {
         // coming from the old version, migrate all keys and delete the old ones
@@ -103,6 +107,55 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
           if (saved) {
             await _preferences.delete(
               key: backup.legacyKey2,
+            );
+          }
+        }
+      },
+      3: () async {
+        final allBackups = await getAllWalletBackups();
+
+        final toDelete = <String>[];
+
+        for (final backup in allBackups) {
+          bool saved = await _preferences.containsKey(key: backup.key);
+          if (!saved) {
+            continue;
+          }
+
+          final account = await getLegacyAccountAddress(backup);
+          if (account == null) {
+            continue;
+          }
+
+          final newBackup = BackupWallet(
+            address: account.hexEip55,
+            privateKey: backup.privateKey,
+            name: backup.name,
+            alias: backup.alias,
+          );
+
+          await _preferences.write(
+            key: newBackup.key,
+            value: newBackup.value,
+          );
+
+          toDelete.add(backup.key);
+        }
+
+        // delete all old keys
+        for (final backup in allBackups) {
+          if (!toDelete.contains(backup.key)) {
+            continue;
+          }
+
+          // delete legacy keys
+          final saved = await _preferences.containsKey(
+            key: backup.key,
+          );
+
+          if (saved) {
+            await _preferences.delete(
+              key: backup.key,
             );
           }
         }
@@ -196,6 +249,14 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
     return wallets.firstWhereOrNull(
       (w) => w.address == address && w.alias == alias,
     );
+  }
+
+  // get wallet backups for alias
+  @override
+  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias) async {
+    final wallets = await getAllWalletBackups();
+
+    return wallets.where((w) => w.alias == alias).toList();
   }
 
   // delete wallet backup

@@ -1,3 +1,5 @@
+import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -19,12 +21,10 @@ import 'package:citizenwallet/modals/save/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
@@ -56,8 +56,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
-
-  late String _password;
 
   @override
   void initState() {
@@ -122,42 +120,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     final navigator = GoRouter.of(context);
     await delay(const Duration(milliseconds: 350));
 
-    try {
-      _password = dotenv.get('WEB_BURNER_PASSWORD');
-
-      if (!widget.encoded.startsWith('v2-')) {
-        // old format, convert
-        throw Exception('old format');
-      }
-    } catch (exception, stackTrace) {
-      // something is wrong with the encoding
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
-      // try and reset preferences so we don't end up in a loop
-      await _logic.resetWalletPreferences();
-
-      // go back to the home screen
-      navigator.go('/');
-      return;
-    }
-
-    if (_password.isEmpty) {
-      return;
-    }
-
-    final ok = await _logic.openWalletFromURL(
+    final (ok, stop) = await _logic.openWalletFromURL(
       widget.encoded,
-      _password,
-      widget.alias,
-      () async {
+      loadAdditionalData: () async {
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
       },
+      goBackHome: () {
+        navigator.go('/');
+      },
     );
+
+    if (stop) {
+      return;
+    }
 
     if (!ok) {
       onLoad(retry: true);
@@ -170,14 +147,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       // await handleOnboarding();
       await _preferences.setFirstLaunch(false);
 
-      navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
+      // check if ios web
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        // we have a wallet, go to the wallet screen
+        // (this is a workaround for the native install banner
+        navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
 
-      // reload the page now that we have a wallet
-      // fixes issue with the wrong link being used in native install banners
-      html.window.location.reload();
-
-      return;
+        // reload the page now that we have a wallet
+        // fixes issue with the wrong link being used in native install banners
+        html.window.location.reload();
+        return;
+      }
     }
+
+    print(
+        'has voucher ${widget.voucher != null && widget.voucherParams != null}');
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
@@ -191,6 +175,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   Future<void> handleLoadFromVoucher() async {
+    print('parsing voucher');
     final voucher = widget.voucher;
     final voucherParams = widget.voucherParams;
 
@@ -222,7 +207,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleFailedTransaction(String id) async {
+  void handleFailedTransaction(String id, bool blockSending) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
@@ -232,19 +217,21 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         builder: (BuildContext dialogContext) {
           return CupertinoActionSheet(
             actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('retry');
-                },
-                child: const Text('Retry'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('edit');
-                },
-                child: const Text('Edit'),
-              ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('retry');
+                  },
+                  child: const Text('Retry'),
+                ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit'),
+                ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
@@ -312,7 +299,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet(
+    final sending = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -322,6 +309,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         receiveParams: receiveParams,
       ),
     );
+
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -387,13 +378,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await GoRouter.of(context).push(
+    final sending = await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.encoded}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
       },
     );
+
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -456,6 +451,15 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => const SendingModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -508,6 +512,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
+                      handleTransactionSendingTap: handleTransactionSendingTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,

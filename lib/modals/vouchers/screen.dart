@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/modals/wallet/voucher_view.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
@@ -9,6 +10,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/modals/vouchers/voucher_row.dart';
+import 'package:citizenwallet/widgets/vouchers/amount_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,7 +21,7 @@ import 'package:provider/provider.dart';
 class VouchersModal extends StatefulWidget {
   final String title = 'Vouchers';
 
-  const VouchersModal({Key? key}) : super(key: key);
+  const VouchersModal({super.key});
 
   @override
   VouchersModalState createState() => VouchersModalState();
@@ -153,26 +155,54 @@ class VouchersModalState extends State<VouchersModal> {
       if (confirm == true) await _logic.deleteVoucher(address);
     }
 
-    _logic.resume();
+    _logic.resume(address: address);
   }
 
-  void handleCreateVoucher() {
+  void handleCreateVoucher() async {
     HapticFeedback.heavyImpact();
 
-    // _logic.createMultipleVouchers(
-    //   quantity: 20,
-    //   balance: '1.0',
-    //   symbol: 'RGN',
-    // );
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      return;
+    }
+
+    final amount = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (modalContext) => AmountInputModal(
+        title: 'Voucher Amount',
+        placeholder: 'Enter amount',
+        symbol: wallet.symbol,
+      ),
+    );
+
+    if (amount == null) {
+      return;
+    }
+
+    await showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      topRadius: const Radius.circular(40),
+      builder: (_) => VoucherModal(
+        amount: amount,
+        symbol: wallet.symbol,
+      ),
+    );
+
+    onLoad();
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final safeBottomPadding = MediaQuery.of(context).padding.bottom;
 
     final config = context.select((WalletState state) => state.config);
 
-    final vouchers = context.select(selectVouchers);
+    final ready = context.select((WalletState state) => state.ready);
+
+    final vouchers = selectVouchers(context.watch<VoucherState>());
 
     final loading = context.select((VoucherState state) => state.loading);
 
@@ -184,7 +214,8 @@ class VouchersModalState extends State<VouchersModal> {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
+          bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -245,7 +276,7 @@ class VouchersModalState extends State<VouchersModal> {
                                 final voucher = vouchers[index];
 
                                 return Padding(
-                                  key: Key(voucher.address),
+                                  key: Key(voucher.id),
                                   padding:
                                       const EdgeInsets.fromLTRB(10, 10, 10, 10),
                                   child: VoucherRow(
@@ -258,36 +289,43 @@ class VouchersModalState extends State<VouchersModal> {
                               },
                             ),
                           ),
+                        if (vouchers.isNotEmpty)
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 120),
+                          ),
                       ],
                     ),
-                    // Positioned(
-                    //   bottom: 0,
-                    //   width: width,
-                    //   child: BlurryChild(
-                    //     child: Container(
-                    //       decoration: BoxDecoration(
-                    //         border: Border(
-                    //           top: BorderSide(
-                    //             color: ThemeColors.subtle.resolveFrom(context),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    //       child: Column(
-                    //         children: [
-                    //           const SizedBox(height: 10),
-                    //           Button(
-                    //             text: 'Create Voucher',
-                    //             onPressed: handleCreateVoucher,
-                    //             minWidth: 200,
-                    //             maxWidth: 200,
-                    //           ),
-                    //           const SizedBox(height: 10),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
+                    if (ready)
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                            padding: EdgeInsets.fromLTRB(
+                                0, 10, 0, safeBottomPadding),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Button(
+                                  text: 'Create Voucher',
+                                  onPressed: handleCreateVoucher,
+                                  minWidth: 200,
+                                  maxWidth: 200,
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

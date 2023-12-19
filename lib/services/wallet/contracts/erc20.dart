@@ -56,10 +56,6 @@ class TransferEvent {
       };
 }
 
-ERC20Contract newERC20Contract(int chainId, Web3Client client, String addr) {
-  return ERC20Contract(chainId, client, addr);
-}
-
 class ERC20Contract {
   final int chainId;
   final Web3Client client;
@@ -88,7 +84,6 @@ class ERC20Contract {
 
   Future<BigInt> getBalance(String addr) async {
     final balance = await contract.balanceOf(EthereumAddress.fromHex(addr));
-
     return balance;
   }
 

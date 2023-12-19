@@ -33,6 +33,9 @@ bool selectShouldBlockSending(WalletState state) {
   if (state.wallet == null) {
     return true;
   }
+  if (!state.ready || state.wallet?.doubleBalance == 0.0) {
+    return true;
+  }
 
   return state.transactions
           .any((tx) => tx.isPending && !tx.isIncoming(state.wallet!.account)) ||

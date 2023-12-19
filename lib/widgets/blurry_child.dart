@@ -7,10 +7,10 @@ class BlurryChild extends StatelessWidget {
   final double intensity;
 
   const BlurryChild({
-    Key? key,
+    super.key,
     required this.child,
-    this.intensity = 20,
-  }) : super(key: key);
+    this.intensity = 10,
+  });
 
   @override
   Widget build(BuildContext context) {

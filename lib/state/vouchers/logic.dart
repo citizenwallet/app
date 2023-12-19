@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/vouchers.dart';
 import 'package:citizenwallet/services/share/share.dart';
@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class VoucherLogic extends WidgetsBindingObserver {
@@ -89,9 +90,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.vouchersRequest();
 
-      final config = await _config.config;
-
-      final vouchers = await _db.vouchers.getAllByAlias(config.community.alias);
+      final vouchers = await _db.vouchers.getAllByAlias(_wallet.alias);
 
       _state.vouchersSuccess(vouchers
           .map(
@@ -103,6 +102,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               creator: e.creator,
               createdAt: e.createdAt,
               archived: e.archived,
+              legacy: e.legacy,
             ),
           )
           .toList());
@@ -113,6 +113,14 @@ class VoucherLogic extends WidgetsBindingObserver {
     }
 
     _state.vouchersError();
+  }
+
+  String? voucherAlias(String compressedVoucherParams) {
+    final voucherParams = decompress(compressedVoucherParams);
+
+    final uri = Uri(query: voucherParams);
+
+    return uri.queryParameters['alias'];
   }
 
   Future<String?> readVoucher(
@@ -128,15 +136,26 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final uri = Uri(query: voucherParams);
 
-      final wallet = Wallet.fromJson(
-        jsonVoucher,
-        '$password$salt',
-      );
+      final EthPrivateKey credentials;
+      if (jsonVoucher.startsWith('v2-')) {
+        credentials =
+            EthPrivateKey.fromHex(jsonVoucher.replaceFirst('v2-', ''));
+      } else {
+        // legacy voucher format
+        final wallet = Wallet.fromJson(
+          jsonVoucher,
+          '$password$salt',
+        );
+        credentials = wallet.privateKey;
+      }
 
-      final credentials = wallet.privateKey;
-
-      final account =
-          await _wallet.getAccountAddress(credentials.address.hexEip55);
+      EthereumAddress account = uri.queryParameters['account'] != null
+          ? EthereumAddress.fromHex(uri.queryParameters['account']!)
+          : await _wallet.getAccountAddress(
+              credentials.address.hexEip55,
+              legacy: true,
+              cache: false,
+            );
 
       final balance = await _wallet.getBalance(account.hexEip55);
 
@@ -148,6 +167,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: uri.queryParameters['creator'] ?? '',
         createdAt: DateTime.now(),
         archived: true,
+        legacy: uri.queryParameters['account'] == null,
       );
 
       final dbvoucher = DBVoucher(
@@ -159,13 +179,14 @@ class VoucherLogic extends WidgetsBindingObserver {
         salt: salt,
         creator: voucher.creator,
         archived: voucher.archived,
+        legacy: voucher.legacy,
       );
 
       await _db.vouchers.insert(dbvoucher);
 
       _state.readVoucherSuccess(voucher);
       return voucher.address;
-    } catch (e) {
+    } catch (_) {
       //
     }
 
@@ -194,22 +215,24 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
+        legacy: dbvoucher.legacy,
       );
 
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.openVoucherSuccess(
-          voucher,
-          voucher.getLink(
-            appLink,
-            _wallet.currency.symbol,
-            dbvoucher.voucher,
-          ));
+        voucher,
+        voucher.getLink(
+          appLink,
+          _wallet.currency.symbol,
+          dbvoucher.voucher,
+        ),
+      );
 
       return voucher;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -237,7 +260,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         decimals: _wallet.currency.decimals,
       );
 
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       _state.createVoucherFunding();
 
@@ -270,6 +293,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           voucher: wallet.toJson(),
           salt: salt,
           creator: _wallet.account.hexEip55,
+          legacy: false,
         );
 
         dbvouchers.add(dbvoucher);
@@ -287,6 +311,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           creator: dbvoucher.creator,
           createdAt: dbvoucher.createdAt,
           archived: dbvoucher.archived,
+          legacy: dbvoucher.legacy,
         );
 
         vouchers.add(voucher);
@@ -311,7 +336,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -329,13 +354,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final wallet = Wallet.createNew(
-        credentials,
-        '$password$salt',
-        Random.secure(),
-        scryptN: 2,
-      );
-
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
@@ -345,16 +363,17 @@ class VoucherLogic extends WidgetsBindingObserver {
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
 
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       final dbvoucher = DBVoucher(
         address: account.hexEip55,
         alias: config.community.alias,
         name: name ?? 'Voucher for $balance $symbol',
         balance: parsedAmount.toString(),
-        voucher: wallet.toJson(),
+        voucher: 'v2-${bytesToHex(credentials.privateKey)}',
         salt: salt,
         creator: _wallet.account.hexEip55,
+        legacy: false,
       );
 
       await _db.vouchers.insert(dbvoucher);
@@ -366,35 +385,15 @@ class VoucherLogic extends WidgetsBindingObserver {
         parsedAmount,
       );
 
-      final (hash, userop) = await _wallet.prepareUserop(
+      final (_, userop) = await _wallet.prepareUserop(
         [_wallet.erc20Address],
         [calldata],
       );
 
-      final tx = await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          account,
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
-      );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
-
       final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
-
-      await _wallet.setStatusLog(tx.hash, TransactionState.pending);
 
       final voucher = Voucher(
         address: dbvoucher.address,
@@ -404,20 +403,24 @@ class VoucherLogic extends WidgetsBindingObserver {
         creator: dbvoucher.creator,
         createdAt: dbvoucher.createdAt,
         archived: dbvoucher.archived,
+        legacy: false,
       );
 
       final appLink = config.community.walletUrl(appLinkSuffix);
 
       _state.createVoucherSuccess(
-          voucher,
-          voucher.getLink(
-            appLink,
-            symbol,
-            dbvoucher.voucher,
-          ));
+        voucher,
+        voucher.getLink(
+          appLink,
+          symbol,
+          dbvoucher.voucher,
+        ),
+      );
 
+      // pre-create account of voucher
+      _wallet.createAccount(customCredentials: credentials);
       return;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -479,9 +482,20 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('voucher not found');
       }
 
-      final credentials =
-          Wallet.fromJson(voucher.voucher, '$password${voucher.salt}')
-              .privateKey;
+      final jsonVoucher = voucher.voucher;
+
+      final EthPrivateKey credentials;
+      if (jsonVoucher.startsWith('v2-')) {
+        credentials =
+            EthPrivateKey.fromHex(jsonVoucher.replaceFirst('v2-', ''));
+      } else {
+        // legacy voucher format
+        final wallet = Wallet.fromJson(
+          jsonVoucher,
+          '$password${voucher.salt}',
+        );
+        credentials = wallet.privateKey;
+      }
 
       final amount = toUnit(
         voucher.balance,
@@ -507,10 +521,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         [_wallet.erc20Address],
         [calldata],
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
-
-      final account =
-          await _wallet.getAccountAddress(credentials.address.hexEip55);
 
       if (sendingTransaction != null) {
         sendingTransaction(
@@ -520,27 +532,12 @@ class VoucherLogic extends WidgetsBindingObserver {
         );
       }
 
-      final tx = await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          account,
-          _wallet.account,
-          amount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
+      final success = await _wallet.submitUserop(
+        userop,
         customCredentials: credentials,
+        legacy: voucher.legacy,
       );
-      if (tx == null) {
-        throw Exception('failed to send log');
-      }
-
-      final success = await _wallet.submitUserop(userop);
       if (!success) {
-        await _wallet.setStatusLog(tx.hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
@@ -552,17 +549,11 @@ class VoucherLogic extends WidgetsBindingObserver {
         );
       }
 
-      await _wallet.setStatusLog(
-        tx.hash,
-        TransactionState.pending,
-        customCredentials: credentials,
-      );
-
       await _db.vouchers.archive(address);
 
       _state.returnVoucherSuccess(address);
       return;
-    } catch (exception) {
+    } catch (_) {
       //
     }
 
@@ -593,8 +584,14 @@ class VoucherLogic extends WidgetsBindingObserver {
     stopLoading = true;
   }
 
-  void resume() {
+  void resume({String? address}) {
     stopLoading = false;
+
+    if (address != null) {
+      updateVoucher(address);
+      return;
+    }
+
     debouncedLoad();
   }
 

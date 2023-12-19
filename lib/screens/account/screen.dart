@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/account/switch_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -22,11 +23,11 @@ class AccountScreen extends StatefulWidget {
   final WalletLogic wallet;
 
   const AccountScreen({
-    Key? key,
+    super.key,
     required this.address,
     required this.alias,
     required this.wallet,
-  }) : super(key: key);
+  });
 
   @override
   AccountScreenState createState() => AccountScreenState();
@@ -35,6 +36,7 @@ class AccountScreen extends StatefulWidget {
 class AccountScreenState extends State<AccountScreen> {
   late ProfileLogic _logic;
   late WalletLogic _walletLogic;
+  late NotificationsLogic _notificationsLogic;
 
   bool _showQRCode = false;
 
@@ -44,6 +46,7 @@ class AccountScreenState extends State<AccountScreen> {
 
     _logic = ProfileLogic(context);
     _walletLogic = widget.wallet;
+    _notificationsLogic = NotificationsLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -76,6 +79,11 @@ class AccountScreenState extends State<AccountScreen> {
       },
     );
 
+    _notificationsLogic.init();
+
+    if (!super.mounted) {
+      return;
+    }
     setState(() {
       _showQRCode = true;
     });
@@ -138,7 +146,7 @@ class AccountScreenState extends State<AccountScreen> {
 
     final (address, alias) = wallet;
 
-    if (address == _walletLogic.address) {
+    if (address == _walletLogic.account) {
       await delay(const Duration(milliseconds: 250));
 
       setState(() {
@@ -167,6 +175,10 @@ class AccountScreenState extends State<AccountScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
     final loading = context.select((WalletState state) => state.loading);
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
+
+    final readyLoading =
+        context.select((WalletState state) => state.readyLoading);
+
     final transactionSendLoading =
         context.select((WalletState state) => state.transactionSendLoading);
 
@@ -258,34 +270,34 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                             ],
                           ),
-                        if (!profileLoading && !cleaningUp)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              profileLoading
-                                  ? CupertinoActivityIndicator(
-                                      color: ThemeColors.subtle
-                                          .resolveFrom(context),
-                                    )
-                                  : CupertinoButton(
-                                      onPressed: handleEdit,
-                                      child: Text(
-                                        hasNoProfile
-                                            ? 'Create a profile'
-                                            : 'Edit',
-                                        style: TextStyle(
-                                          color: ThemeColors.text
-                                              .resolveFrom(context),
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                        textAlign: TextAlign.center,
+                        // if (!profileLoading && !cleaningUp)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            profileLoading
+                                ? CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  )
+                                : CupertinoButton(
+                                    onPressed: handleEdit,
+                                    child: Text(
+                                      hasNoProfile
+                                          ? 'Create a profile'
+                                          : 'Edit',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
-                            ],
-                          ),
+                                  ),
+                          ],
+                        ),
                         const SizedBox(height: 120),
                       ],
                     ),
@@ -300,7 +312,10 @@ class AccountScreenState extends State<AccountScreen> {
                 color: ThemeColors.transparent,
                 titleWidget: CupertinoButton(
                   padding: const EdgeInsets.all(5),
-                  onPressed: transactionSendLoading || cleaningUp
+                  onPressed: transactionSendLoading ||
+                          cleaningUp ||
+                          profileLoading ||
+                          readyLoading
                       ? null
                       : () => handleSwitchWalletModal(context),
                   child: wallet == null
@@ -336,8 +351,12 @@ class AccountScreenState extends State<AccountScreen> {
                                             style: TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
+                                              color: !readyLoading
+                                                  ? ThemeColors.text
+                                                      .resolveFrom(context)
+                                                  : ThemeColors.text
+                                                      .resolveFrom(context)
+                                                      .withOpacity(0.5),
                                             ),
                                           ),
                                         ),
@@ -351,7 +370,10 @@ class AccountScreenState extends State<AccountScreen> {
                               ),
                               Icon(
                                 CupertinoIcons.chevron_down,
-                                color: transactionSendLoading || cleaningUp
+                                color: transactionSendLoading ||
+                                        cleaningUp ||
+                                        profileLoading ||
+                                        readyLoading
                                     ? ThemeColors.subtle.resolveFrom(context)
                                     : ThemeColors.primary.resolveFrom(context),
                               ),

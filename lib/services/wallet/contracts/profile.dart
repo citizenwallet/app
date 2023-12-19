@@ -139,11 +139,6 @@ class ProfileV1 {
   int get hashCode => super.hashCode;
 }
 
-ProfileContract newProfileContract(
-    int chainId, Web3Client client, String addr) {
-  return ProfileContract(chainId, client, addr);
-}
-
 class ProfileContract {
   final int chainId;
   final Web3Client client;

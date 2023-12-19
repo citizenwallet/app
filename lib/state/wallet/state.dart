@@ -273,6 +273,10 @@ class WalletState with ChangeNotifier {
 
     transactions.insert(0, transaction);
 
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
+
     notifyListeners();
   }
 
@@ -285,6 +289,10 @@ class WalletState with ChangeNotifier {
         .toList();
 
     transactions.insert(0, transaction);
+
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
 
     notifyListeners();
   }
@@ -299,7 +307,29 @@ class WalletState with ChangeNotifier {
 
     transactions.insert(0, transaction);
 
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = false;
+    inProgressTransactionError = false;
+
     notifyListeners();
+  }
+
+  CWTransaction? inProgressTransaction;
+  bool inProgressTransactionLoading = true;
+  bool inProgressTransactionError = false;
+
+  void setInProgressTransaction(CWTransaction transaction) {
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = true;
+    inProgressTransactionError = false;
+    notifyListeners();
+  }
+
+  void clearInProgressTransaction({bool notify = false}) {
+    inProgressTransaction = null;
+    inProgressTransactionLoading = false;
+    inProgressTransactionError = false;
+    if (notify) notifyListeners();
   }
 
   void sendTransactionSuccess(CWTransaction? transaction) {
@@ -318,6 +348,8 @@ class WalletState with ChangeNotifier {
   void sendTransactionError() {
     transactionSendLoading = false;
     transactionSendError = true;
+
+    inProgressTransactionError = true;
     notifyListeners();
   }
 
@@ -361,6 +393,17 @@ class WalletState with ChangeNotifier {
           .subtract(const Duration(minutes: 1));
 
       this.transactions = filteredTransactions;
+    }
+
+    if (hasChanges && inProgressTransaction != null) {
+      final index = this
+          .transactions
+          .indexWhere((t) => t.id == inProgressTransaction!.id);
+      if (index != -1) {
+        inProgressTransaction = this.transactions[index];
+        inProgressTransactionLoading = false;
+        inProgressTransactionError = false;
+      }
     }
 
     if (hasChanges) notifyListeners();
@@ -498,17 +541,6 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateDBWalletAccountAddress(String addr, String accaddr) {
-    final index = wallets.indexWhere((w) => w.address == addr);
-    if (index < 0) {
-      return;
-    }
-
-    wallets[index] = wallets[index].copyWith(account: accaddr);
-
-    notifyListeners();
-  }
-
   void createWallet() {
     cwWalletsLoading = true;
     cwWalletsError = false;
@@ -591,6 +623,23 @@ class WalletState with ChangeNotifier {
 
   void setWalletConfig(Config? config) {
     this.config = config;
+
+    notifyListeners();
+  }
+
+  // wallet account upgrade status
+  bool ready = false;
+  bool readyLoading = false;
+
+  void setWalletReadyLoading(bool loading) {
+    readyLoading = loading;
+
+    notifyListeners();
+  }
+
+  void setWalletReady(bool ready) {
+    this.ready = ready;
+    loading = false;
 
     notifyListeners();
   }

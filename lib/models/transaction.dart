@@ -1,15 +1,19 @@
-import 'package:citizenwallet/utils/currency.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:typed_data';
 
-const String pendingTransactionId = 'PENDING_TRANSACTION';
+import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/currency.dart';
+import 'package:convert/convert.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pointycastle/digests/keccak.dart';
+import 'package:web3dart/crypto.dart';
+
+const String pendingTransactionId = 'TEMP_HASH';
 
 Map<TransactionAuthor, List<String>> createKnownAuthorsMap() => {
       TransactionAuthor.bank: [
         dotenv.get('KNOWN_ADDRESS_BANK').toLowerCase(),
       ],
-      TransactionAuthor.bar: [
-        dotenv.get('KNOWN_ADDRESS_BAR').toLowerCase(),
-      ],
+      TransactionAuthor.bar: [],
     };
 
 TransactionAuthor getTransactionAuthor(String own, String from, String to) {
@@ -178,6 +182,30 @@ class CWTransaction {
   //       isIncoming: isIncoming,
   //     );
 
+  String generateHash(BigInt nonce, BigInt amount) {
+    var buf = BytesBuilder();
+
+    // Write each value to the buffer as bytes
+    buf.add(_int64ToBytes(chainId));
+    buf.add(_int64ToBytes(0));
+
+    final hexNonce = nonce.toRadixString(16);
+    buf.add(hexToBytes(hexNonce.padLeft(64, '0')));
+    // buf.add(_int64ToBytes(nonce.toInt()));
+
+    buf.add(hexToBytes(from));
+    buf.add(hexToBytes(to));
+
+    final hexAmount = amount.toRadixString(16);
+    buf.add(hexToBytes(hexAmount.padLeft(64, '0')));
+
+    // Calculate the Keccak256 hash
+    var digest = KeccakDigest(256);
+    var hash = digest.process(buf.toBytes());
+
+    return bytesToHex(hash, include0x: true);
+  }
+
   // convert to Transaction object from JSON
   CWTransaction.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -212,4 +240,10 @@ class CWTransaction {
   void success() {
     state = TransactionState.success;
   }
+}
+
+Uint8List _int64ToBytes(int value) {
+  var bdata = ByteData(8);
+  bdata.setInt64(0, value, Endian.big);
+  return bdata.buffer.asUint8List();
 }

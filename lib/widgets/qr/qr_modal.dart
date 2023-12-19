@@ -15,13 +15,13 @@ class QRModal extends StatelessWidget {
   final void Function()? onCopy;
 
   const QRModal({
-    Key? key,
+    super.key,
     this.title = 'Wallet',
     required this.qrCode,
     this.copyLabel = '',
     this.externalLink,
     this.onCopy,
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();

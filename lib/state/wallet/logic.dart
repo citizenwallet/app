@@ -2,20 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:async/async.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
@@ -26,8 +27,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -59,9 +62,11 @@ class QRMissingAddressException implements Exception {
 
 class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
-  late WalletState _state;
+  final WalletState _state;
+  final NotificationsLogic _notificationsLogic;
 
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String appUniversalURL = dotenv.get('MAIN_APP_SCHEME');
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
@@ -84,11 +89,12 @@ class WalletLogic extends WidgetsBindingObserver {
 
   String? get lastWallet => _preferences.lastWallet;
   String get address => _wallet.address.hexEip55;
+  String get account => _wallet.account.hexEip55;
   String get token => _wallet.erc20Address;
 
-  WalletLogic(BuildContext context) {
-    _state = context.read<WalletState>();
-  }
+  WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
+      : _state = context.read<WalletState>(),
+        _notificationsLogic = notificationsLogic;
 
   EthPrivateKey get privateKey {
     return _wallet.credentials;
@@ -109,12 +115,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> fetchWalletConfig() async {
     try {
-      // on web, use host
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
-
-      final config = await _config.config;
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       _state.setWalletConfig(config);
 
@@ -127,41 +128,95 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<bool> openWalletFromURL(
-    String encodedWallet,
-    String password,
-    String alias,
-    Future<void> Function() loadAdditionalData,
-  ) async {
+  Future<(bool, bool)> openWalletFromURL(
+    String encodedWallet, {
+    Future<void> Function()? loadAdditionalData,
+    void Function()? goBackHome,
+  }) async {
+    String encoded = encodedWallet;
+    String password = '';
+
+    bool fromLegacy = false;
+
+    try {
+      password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      if (!encoded.startsWith('v3-')) {
+        // old format, convert
+        throw Exception('old format');
+      }
+    } catch (exception, stackTrace) {
+      if (!encoded.startsWith('v2-')) {
+        // something is wrong with the encoding
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
+
+        // try and reset preferences so we don't end up in a loop
+        await resetWalletPreferences();
+
+        // go back to the home screen
+        if (goBackHome != null) goBackHome();
+        return (false, true);
+      }
+      fromLegacy = true;
+
+      // old format, convert
+      final decoded = convertUint8ListToString(
+          base64Decode(encoded.replaceFirst('v2-', '')));
+
+      if (password.isEmpty) {
+        return (false, false);
+      }
+
+      Wallet cred = Wallet.fromJson(decoded, password);
+
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+
+      // load the legacy account factory
+      final accFactory = await accountFactoryServiceFromConfig(config,
+          customAccountFactory: dotenv.get('WEB_LEGACY_ACCOUNT_FACTORY'));
+      final address =
+          await accFactory.getAddress(cred.privateKey.address.hexEip55);
+
+      // construct the new encoded url
+      encoded = 'v3-${base64Encode('$address|${cred.toJson()}'.codeUnits)}';
+    }
+
+    if (password.isEmpty) {
+      return (false, false);
+    }
+
     try {
       _state.loadWallet();
+      _state.setWalletReady(false);
+      _state.setWalletReadyLoading(true);
 
       final int chainId = _preferences.chainId;
 
       _state.setChainId(chainId);
 
-      if (!encodedWallet.startsWith('v2-')) {
-        return false;
+      final decoded = convertUint8ListToString(
+          base64Decode(encoded.replaceFirst('v3-', '')));
+      final decodedSplit = decoded.split('|');
+
+      if (decodedSplit.length != 2) {
+        throw Exception('invalid format');
       }
 
-      final decoded = convertUint8ListToString(
-          base64Decode(encodedWallet.replaceFirst('v2-', '')));
+      await delay(const Duration(milliseconds: 0));
+
+      Wallet cred = Wallet.fromJson(decodedSplit[1], password);
 
       await delay(const Duration(milliseconds: 0));
 
-      Wallet cred = Wallet.fromJson(decoded, password);
+      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
-      await delay(const Duration(milliseconds: 0));
-
-      // on web, use host
-      _config.initWeb(
-        dotenv.get('APP_LINK_SUFFIX'),
-      );
-
-      final config = await _config.config;
-
-      await _wallet.init(
+      await _wallet.initWeb(
+        decodedSplit[0],
         bytesToHex(cred.privateKey.privateKey),
+        legacy: fromLegacy,
         NativeCurrency(
           name: config.token.name,
           symbol: config.token.symbol,
@@ -170,7 +225,8 @@ class WalletLogic extends WidgetsBindingObserver {
         config,
       );
 
-      await _db.init('wallet_${_wallet.address.hexEip55}');
+      await _db.init(
+          'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
       ContactsCache().init(_db);
 
@@ -195,15 +251,17 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await loadAdditionalData();
+      if (loadAdditionalData != null) await loadAdditionalData();
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
-      await _preferences.setLastWalletLink(encodedWallet);
+      await _preferences.setLastWalletLink(encoded);
 
       _state.loadWalletSuccess();
+      _state.setWalletReady(true);
+      _state.setWalletReadyLoading(false);
 
-      return true;
+      return (true, false);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -212,7 +270,9 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletError();
-    return false;
+    _state.setWalletReady(false);
+    _state.setWalletReadyLoading(false);
+    return (false, false);
   }
 
   /// openWallet opens a wallet given an address and also loads additional data
@@ -231,17 +291,11 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('address not found');
       }
 
-      // on native, use env
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final config = await _config.getConfig(alias);
 
       if (isWalletLoaded &&
-          paramAlias == alias &&
-          paramAddress == _wallet.address.hexEip55) {
+          address == _wallet.account.hexEip55 &&
+          alias == _wallet.alias) {
         final balance = await _wallet.balance;
 
         _state.updateWalletBalanceSuccess(balance);
@@ -257,6 +311,8 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       _state.loadWallet();
+      _state.setWalletReady(false);
+      _state.setWalletReadyLoading(true);
 
       final int chainId = _preferences.chainId;
 
@@ -269,6 +325,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       await _wallet.init(
+        dbWallet.address,
         dbWallet.privateKey,
         NativeCurrency(
           name: config.token.name,
@@ -276,9 +333,17 @@ class WalletLogic extends WidgetsBindingObserver {
           decimals: config.token.decimals,
         ),
         config,
+        onNotify: (String message) {
+          _notificationsLogic.show(message);
+        },
+        onFinished: (bool ok) {
+          _state.setWalletReady(ok);
+          _state.setWalletReadyLoading(false);
+        },
       );
 
-      await _db.init('wallet_${_wallet.address.hexEip55}');
+      await _db.init(
+          'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
       ContactsCache().init(_db);
 
@@ -299,6 +364,7 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey.isEmpty,
+          plugins: config.plugins,
         ),
       );
 
@@ -326,6 +392,8 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletError();
+    _state.setWalletReady(false);
+    _state.setWalletReadyLoading(false);
     return null;
   }
 
@@ -335,23 +403,19 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final address = credentials.address.hexEip55;
+      final config = await _config.getConfig(alias);
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       _state.setWalletConfig(config);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: 'New ${config.token.symbol} Account',
-        address: address,
+        address: credentials.address.hexEip55,
         alias: config.community.alias,
-        account: '',
+        account: address.hexEip55,
         currencyName: config.token.name,
         symbol: config.token.symbol,
         currencyLogo: config.community.logo,
@@ -359,20 +423,20 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: address.hexEip55,
         privateKey: bytesToHex(credentials.privateKey),
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(
         cwwallet,
       );
 
-      return credentials.address.hexEip55;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -399,14 +463,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('Invalid private key');
       }
 
-      final address = credentials.address.hexEip55;
+      final config = await _config.getConfig(alias);
 
-      _config.init(
-        dotenv.get('WALLET_CONFIG_URL'),
-        alias,
-      );
-
-      final config = await _config.config;
+      final accFactory = await accountFactoryServiceFromConfig(config);
+      final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       final name = 'Imported ${config.token.symbol} Account';
 
@@ -415,9 +475,9 @@ class WalletLogic extends WidgetsBindingObserver {
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: name,
-        address: address,
+        address: credentials.address.hexEip55,
         alias: config.community.alias,
-        account: '',
+        account: address.hexEip55,
         currencyName: config.token.name,
         symbol: config.token.symbol,
         currencyLogo: config.community.logo,
@@ -425,18 +485,18 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       await _encPrefs.setWalletBackup(BackupWallet(
-        address: address,
+        address: address.hexEip55,
         privateKey: bytesToHex(credentials.privateKey),
         name: name,
         alias: config.community.alias,
       ));
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
       _state.createWalletSuccess(cwwallet);
 
-      return address;
+      return address.hexEip55;
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -579,9 +639,15 @@ class WalletLogic extends WidgetsBindingObserver {
         iterableRemoteTxs.toList(),
       );
 
+      final txList = cwtransactions.toList();
+
       final hasChanges = _state.incomingTransactionsRequestSuccess(
-        cwtransactions.toList(),
+        txList,
       );
+
+      incomingTxNotification(txList.where((element) =>
+          element.to == _wallet.account.hexEip55 &&
+          element.state != TransactionState.success));
 
       if (hasChanges) {
         updateBalance();
@@ -604,6 +670,30 @@ class WalletLogic extends WidgetsBindingObserver {
     fetchNewTransfers(id);
   }
 
+  int _incomingTxCount = 0;
+  // CWTransaction? _lastIncomingTx;
+
+  void incomingTxNotification(Iterable<CWTransaction> incomingTx) {
+    final incomingTxCount = incomingTx.length;
+
+    if (incomingTxCount > 0 && incomingTxCount > _incomingTxCount) {
+      // _lastIncomingTx = incomingTx.first;
+      _notificationsLogic.show(
+        'Receiving ${incomingTx.first.amount} ${_wallet.currency.symbol}...',
+      );
+    }
+
+    // if (_lastIncomingTx != null && incomingTxCount < _incomingTxCount) {
+    //   _notificationsLogic.show(
+    //     '${_lastIncomingTx!.amount} ${_wallet.currency.symbol} is now in your account.',
+    //     playSound: true,
+    //   );
+    //   _lastIncomingTx = null;
+    // }
+
+    _incomingTxCount = incomingTxCount;
+  }
+
   // takes a password and returns a wallet
   Future<String?> returnWallet(String address, String alias) async {
     try {
@@ -613,6 +703,30 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       return dbWallet.privateKey;
+
+      // TODO: export to web instead of returning private key
+      // final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
+
+      // await delay(const Duration(milliseconds: 0));
+
+      // final password = dotenv.get('WEB_BURNER_PASSWORD');
+
+      // final Wallet wallet = Wallet.createNew(
+      //   credentials,
+      //   password,
+      //   Random.secure(),
+      //   scryptN:
+      //       512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
+      // );
+
+      // await delay(const Duration(milliseconds: 0));
+
+      // final config = await _config.getConfig(alias);
+
+      // final domainPrefix = config.community.customDomain ??
+      //     '${config.community.alias}.citizenwallet.xyz';
+
+      // return 'https://$domainPrefix/wallet/v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -644,6 +758,10 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> loadTransactions() async {
     try {
       _state.loadTransactions();
+
+      // with network errors or bugs there can be a build up of invalid transactions that will never return
+      // clear the old ones out when the user pulls to refresh
+      await _db.transactions.clearOldTransactions();
 
       transferEventUnsubscribe();
 
@@ -866,6 +984,7 @@ class WalletLogic extends WidgetsBindingObserver {
         HapticFeedback.lightImpact();
 
         _state.updateWalletBalanceSuccess(balance, notify: true);
+        clearInProgressTransaction();
       }
       return;
     } catch (exception, stackTrace) {
@@ -929,7 +1048,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.preSendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.sending(
         fromDoubleUnit(
           amount.toString(),
@@ -951,7 +1070,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.sendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.sending(
         fromDoubleUnit(
           amount.toString(),
@@ -973,7 +1092,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
   }) {
-    _state.pendingTransaction(
+    _state.setInProgressTransaction(
       CWTransaction.pending(
         fromDoubleUnit(
           amount.toString(),
@@ -1011,19 +1130,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('invalid address');
       }
 
-      _state.preSendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: tempId,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1038,60 +1148,23 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      _state.sendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
-      );
-
-      // this is an optional operation
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          EthereumAddress.fromHex(to),
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
+      sendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       final success = await _wallet.submitUserop(userop);
       if (!success) {
         // this is an optional operation
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      _state.pendingTransaction(
-        CWTransaction.pending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      pendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
-
-      // this is an optional operation
-      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -1174,19 +1247,10 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('invalid address');
       }
 
-      _state.preSendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: tempId,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1201,60 +1265,23 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      _state.sendingTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
-      );
-
-      // this is an optional operation
-      await _wallet.addSendingLog(
-        TransferEvent(
-          hash,
-          '',
-          0,
-          DateTime.now().toUtc(),
-          _wallet.account,
-          EthereumAddress.fromHex(to),
-          parsedAmount,
-          Uint8List(0),
-          TransactionState.sending.name,
-        ),
+      sendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
 
       final success = await _wallet.submitUserop(userop);
       if (!success) {
         // this is an optional operation
-        await _wallet.setStatusLog(hash, TransactionState.fail);
         throw Exception('transaction failed');
       }
 
-      _state.pendingTransaction(
-        CWTransaction.pending(
-          fromDoubleUnit(
-            parsedAmount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: hash,
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          title: message,
-          date: DateTime.now(),
-        ),
+      pendingTransaction(
+        parsedAmount,
+        hash,
+        to,
       );
-
-      // this is an optional operation
-      await _wallet.setStatusLog(hash, TransactionState.pending);
 
       clearInputControllers();
 
@@ -1313,6 +1340,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.sendTransactionError();
 
     return false;
+  }
+
+  void clearInProgressTransaction() {
+    _state.clearInProgressTransaction();
   }
 
   void clearInputControllers() {
@@ -1413,7 +1444,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void updateReceiveQR({bool? onlyHex}) async {
     try {
-      final config = await _config.config;
+      final config = await _config.getConfig(_wallet.alias);
 
       final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
 
@@ -1510,30 +1541,30 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  Future<CancelableOperation<void>?> loadDBWallets() async {
+  Future<void> loadDBWallets() async {
     try {
       _state.loadWallets();
 
       final wallets = await _encPrefs.getAllWalletBackups();
 
-      _state.loadWalletsSuccess(wallets
-          .map((w) => CWWallet(
-                '0.0',
-                name: w.name,
-                address: w.address,
-                alias: w.alias,
-                account: '',
-                currencyName: '',
-                symbol: '',
-                currencyLogo: '',
-                locked: false,
-              ))
-          .toList());
+      final List<CWWallet> cwwallets = await compute((ws) {
+        return ws.map((w) {
+          final creds = EthPrivateKey.fromHex(w.privateKey);
+          return CWWallet(
+            '0.0',
+            name: w.name,
+            address: creds.address.hexEip55,
+            alias: w.alias,
+            account: w.address,
+            currencyName: '',
+            symbol: '',
+            currencyLogo: '',
+            locked: false,
+          );
+        }).toList();
+      }, wallets);
 
-      return CancelableOperation.fromFuture(
-        loadDBWalletAccountAddresses(wallets.map((w) => w.address)),
-        onCancel: () => cancelLoadAccounts = true,
-      );
+      _state.loadWalletsSuccess(cwwallets);
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
@@ -1542,32 +1573,6 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.loadWalletsError();
-    return null;
-  }
-
-  Future<void> loadDBWalletAccountAddresses(Iterable<String> addrs) async {
-    cancelLoadAccounts = false;
-    try {
-      for (final addr in addrs) {
-        if (cancelLoadAccounts) {
-          cancelLoadAccounts = false;
-          break;
-        }
-
-        final address = EthereumAddress.fromHex(addr);
-
-        final account = await _wallet.getAccountAddress(address.hexEip55);
-
-        _state.updateDBWalletAccountAddress(address.hexEip55, account.hexEip55);
-      }
-
-      return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
   }
 
   void prepareReplyTransaction(String address) {
@@ -1616,6 +1621,20 @@ class WalletLogic extends WidgetsBindingObserver {
         stackTrace: stackTrace,
       );
     }
+  }
+
+  Future<void> openPluginUrl(String url, GoRouterState routerState) async {
+    try {
+      final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
+
+      final redirectUrl = '$appUniversalURL${routerState.uri.path}';
+
+      final Uri uri = Uri.parse(
+        '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$redirectUrl&signature=0x123',
+      );
+
+      await launchUrl(uri);
+    } catch (_) {}
   }
 
   void pauseFetching() {

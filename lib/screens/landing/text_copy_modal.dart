@@ -14,10 +14,10 @@ class TextCopyModal extends StatelessWidget {
   final String title;
 
   const TextCopyModal({
-    Key? key,
+    super.key,
     required this.logic,
     this.title = 'Copy',
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     GoRouter.of(context).pop();

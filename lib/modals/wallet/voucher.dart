@@ -18,10 +18,10 @@ class VoucherModal extends StatefulWidget {
   final String? symbol;
 
   const VoucherModal({
-    Key? key,
+    super.key,
     required this.amount,
     this.symbol,
-  }) : super(key: key);
+  });
 
   @override
   VoucherModalState createState() => VoucherModalState();
@@ -121,8 +121,7 @@ class VoucherModalState extends State<VoucherModal>
 
     final size = height > width ? width : height;
 
-    final createdVoucher =
-        context.select((VoucherState state) => state.createdVoucher);
+    final createdVoucher = context.watch<VoucherState>().createdVoucher;
     final creationState =
         context.select((VoucherState state) => state.creationState);
     final createLoading =

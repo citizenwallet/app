@@ -11,6 +11,18 @@ class UnauthorizedException implements Exception {
   UnauthorizedException();
 }
 
+class NotFoundException implements Exception {
+  final String message = 'not found';
+
+  NotFoundException();
+}
+
+class ConflictException implements Exception {
+  final String message = 'conflict';
+
+  ConflictException();
+}
+
 class APIService {
   final String baseURL;
 
@@ -32,6 +44,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -60,6 +80,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -88,6 +116,50 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
+      throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
+    }
+
+    return jsonDecode(utf8.decode(response.bodyBytes));
+  }
+
+  Future<dynamic> put({
+    String? url,
+    required Object body,
+    Map<String, String>? headers,
+  }) async {
+    final mergedHeaders = <String, String>{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    if (headers != null) {
+      mergedHeaders.addAll(headers);
+    }
+
+    final response = await http
+        .put(
+          Uri.parse('$baseURL${url ?? ''}'),
+          headers: mergedHeaders,
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: netTimeoutSeconds));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -116,6 +188,14 @@ class APIService {
         .timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 
@@ -158,6 +238,14 @@ class APIService {
     ).timeout(const Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      switch (response.statusCode) {
+        case 401:
+          throw UnauthorizedException();
+        case 404:
+          throw NotFoundException();
+        case 409:
+          throw ConflictException();
+      }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
 

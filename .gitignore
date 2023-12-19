@@ -46,3 +46,12 @@ app.*.map.json
 # env
 *.env
 !example.env
+
+
+# firebase
+firebase.json
+GoogleService-Info.plist
+google-services.json
+
+# temp files
+temp/

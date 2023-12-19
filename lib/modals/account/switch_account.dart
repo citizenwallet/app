@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
@@ -27,10 +26,10 @@ class SwitchAccountModal extends StatefulWidget {
   final String? currentAddress;
 
   const SwitchAccountModal({
-    Key? key,
+    super.key,
     required this.logic,
     this.currentAddress,
-  }) : super(key: key);
+  });
 
   @override
   SwitchAccountModalState createState() => SwitchAccountModalState();
@@ -39,8 +38,6 @@ class SwitchAccountModal extends StatefulWidget {
 class SwitchAccountModalState extends State<SwitchAccountModal> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
-
-  CancelableOperation<void>? _operation;
 
   late ProfilesLogic _profilesLogic;
   late CommunitiesLogic _communitiesLogic;
@@ -63,10 +60,6 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
   @override
   void dispose() {
-    if (_operation != null) {
-      _operation!.cancel();
-    }
-
     WidgetsBinding.instance.removeObserver(_profilesLogic);
 
     _profilesLogic.dispose();
@@ -79,7 +72,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
 
     _communitiesLogic.fetchCommunities();
 
-    _operation = await widget.logic.loadDBWallets();
+    await widget.logic.loadDBWallets();
   }
 
   void handleDismiss(BuildContext context) {
@@ -145,7 +138,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   },
                   child: const Text('Export'),
                 ),
-              if (wallet != null && wallet.address != address)
+              if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
                   isDestructiveAction: true,
                   onPressed: () {
@@ -191,9 +184,9 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
 
     if (option == 'export') {
-      final privateKey = await widget.logic.returnWallet(address, alias);
+      final webWalletUrl = await widget.logic.returnWallet(address, alias);
 
-      if (privateKey == null) {
+      if (webWalletUrl == null) {
         return;
       }
 
@@ -203,7 +196,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         builder: (modalContext) => ExportWalletModal(
           title: 'Export Account',
           toCopy: '-----------',
-          onCopy: () => handleCopyWalletPrivateKey(privateKey),
+          onCopy: () => handleExportWallet(webWalletUrl),
         ),
       );
 
@@ -231,8 +224,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     }
   }
 
-  void handleCopyWalletPrivateKey(String privateKey) {
-    Clipboard.setData(ClipboardData(text: privateKey));
+  void handleExportWallet(String webWalletUrl) {
+    Clipboard.setData(ClipboardData(text: webWalletUrl));
 
     HapticFeedback.heavyImpact();
   }
@@ -304,7 +297,12 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          minimum: const EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -347,19 +345,19 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               final wallet = cwWallets[index];
 
                               return WalletRow(
-                                key: Key('${wallet.address}_${wallet.alias}'),
+                                key: Key('${wallet.account}_${wallet.alias}'),
                                 wallet,
                                 communities: communities,
                                 profiles: profiles,
                                 isSelected:
-                                    widget.currentAddress == wallet.address,
+                                    widget.currentAddress == wallet.account,
                                 onTap: () => handleWalletTap(
-                                  wallet.address,
+                                  wallet.account,
                                   wallet.alias,
                                 ),
                                 onMore: () => handleMore(
                                   context,
-                                  wallet.address,
+                                  wallet.account,
                                   wallet.alias,
                                   wallet.name,
                                   wallet.locked,

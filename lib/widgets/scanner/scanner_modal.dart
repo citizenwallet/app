@@ -12,10 +12,10 @@ class ScannerModal extends StatefulWidget {
   final bool confirm;
 
   const ScannerModal({
-    Key? key,
+    super.key,
     this.modalKey,
     this.confirm = false,
-  }) : super(key: key);
+  });
 
   @override
   ScannerModalState createState() => ScannerModalState();

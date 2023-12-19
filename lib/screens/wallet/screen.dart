@@ -2,13 +2,16 @@ import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
+import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -42,6 +45,7 @@ class WalletScreen extends StatefulWidget {
 
 class WalletScreenState extends State<WalletScreen> {
   final ScrollController _scrollController = ScrollController();
+  late NotificationsLogic _notificationsLogic;
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
@@ -51,6 +55,7 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
 
+    _notificationsLogic = NotificationsLogic(context);
     _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
@@ -133,6 +138,8 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
+    _notificationsLogic.init();
+
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
     }
@@ -178,7 +185,7 @@ class WalletScreenState extends State<WalletScreen> {
     navigator.go('/wallet/${widget.address}');
   }
 
-  void handleFailedTransaction(String id) async {
+  void handleFailedTransaction(String id, bool blockSending) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
@@ -188,19 +195,21 @@ class WalletScreenState extends State<WalletScreen> {
         builder: (BuildContext dialogContext) {
           return CupertinoActionSheet(
             actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('retry');
-                },
-                child: const Text('Retry'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('edit');
-                },
-                child: const Text('Edit'),
-              ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('retry');
+                  },
+                  child: const Text('Retry'),
+                ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit'),
+                ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
@@ -262,6 +271,7 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
+    // temporarily disabled until we move the account screen back
     _logic.updateWalletQR();
 
     _logic.pauseFetching();
@@ -300,7 +310,8 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    final sending =
+        await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -311,6 +322,10 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
+
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
@@ -318,10 +333,6 @@ class WalletScreenState extends State<WalletScreen> {
 
   void handleReceive() async {
     HapticFeedback.heavyImpact();
-
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -331,10 +342,14 @@ class WalletScreenState extends State<WalletScreen> {
         logic: _logic,
       ),
     );
+  }
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+  void handlePlugin(String url) async {
+    HapticFeedback.heavyImpact();
+
+    final routerState = GoRouterState.of(context);
+
+    _logic.openPluginUrl(url, routerState);
   }
 
   void handleCards() async {
@@ -402,7 +417,7 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await GoRouter.of(context).push(
+    final sending = await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.address!}/transactions/$transactionId',
       extra: {
         'logic': _logic,
@@ -410,9 +425,22 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
+    if (sending == true) {
+      handleTransactionSendingTap();
+    }
+
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
+  }
+
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => const SendingModal(),
+    );
   }
 
   void handleLoad(String address) async {
@@ -424,6 +452,8 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
+    final blockSending = context.select(selectShouldBlockSending);
+
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
@@ -432,7 +462,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final walletNamePrefix = config?.token.symbol ?? 'Citizen';
 
-    final walletName = '$walletNamePrefix Wallet';
+    final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -465,9 +495,11 @@ class WalletScreenState extends State<WalletScreen> {
                   handleRefresh: handleRefresh,
                   handleSendModal: handleSendModal,
                   handleReceive: handleReceive,
+                  handlePlugin: handlePlugin,
                   handleCards: handleCards,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
+                  handleTransactionSendingTap: handleTransactionSendingTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,
@@ -475,25 +507,29 @@ class WalletScreenState extends State<WalletScreen> {
                 ),
           GestureDetector(
             onTap: handleScrollToTop,
-            child: SafeArea(
-              child: Header(
-                transparent: true,
-                color: ThemeColors.transparent,
-                title: walletName,
-                actionButton: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CupertinoButton(
-                      padding: const EdgeInsets.all(5),
-                      onPressed: (firstLoad || wallet == null)
-                          ? null
-                          : () => handleDisplayWalletQR(context),
-                      child: Icon(
-                        CupertinoIcons.qrcode,
-                        color: ThemeColors.primary.resolveFrom(context),
-                      ),
-                    ),
-                  ],
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              child: SafeArea(
+                child: Header(
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  title: walletName,
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!blockSending)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: (firstLoad || wallet == null)
+                              ? null
+                              : handleSendModal,
+                          child: Icon(
+                            CupertinoIcons.qrcode,
+                            color: ThemeColors.primary.resolveFrom(context),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

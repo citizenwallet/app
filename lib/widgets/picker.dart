@@ -8,11 +8,11 @@ class Picker extends StatelessWidget {
   final Function(String?) handleSelect;
 
   const Picker({
-    Key? key,
+    super.key,
     required this.options,
     required this.selected,
     required this.handleSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

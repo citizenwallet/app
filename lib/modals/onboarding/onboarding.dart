@@ -10,9 +10,9 @@ class OnboardingModal extends StatelessWidget {
   final String title;
 
   const OnboardingModal({
-    Key? key,
+    super.key,
     this.title = 'Hello 👋',
-  }) : super(key: key);
+  });
 
   void handleDismiss(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -20,9 +19,24 @@ class PreferencesService {
     await _preferences.clear();
   }
 
+  // save the muted preference for audio service
+  Future setMuted(bool muted) async {
+    await _preferences.setBool('muted', muted);
+  }
+
+  bool get muted => _preferences.getBool('muted') ?? false;
+
   Future setDarkMode(bool darkMode) async {
     await _preferences.setBool('darkMode', darkMode);
   }
+
+  // save the push notifications preference
+  Future setPushNotifications(String account, bool pushNotifications) async {
+    await _preferences.setBool('pushNotifications_$account', pushNotifications);
+  }
+
+  bool pushNotifications(String account) =>
+      _preferences.getBool('pushNotifications_$account') ?? false;
 
   bool get darkMode =>
       _preferences.getBool('darkMode') ??
@@ -41,9 +55,7 @@ class PreferencesService {
     await _preferences.setInt('chainId', chainId);
   }
 
-  int get chainId =>
-      _preferences.getInt('chainId') ??
-      int.parse(dotenv.get('DEFAULT_CHAIN_ID'));
+  int get chainId => _preferences.getInt('chainId') ?? 1;
 
   // save chain id for a given alias
   Future setChainIdForAlias(String alias, String chainId) async {
@@ -91,12 +103,12 @@ class PreferencesService {
   }
 
   // saved configs
-  Future setConfig(String key, dynamic value) async {
-    await _preferences.setString('config_$key', jsonEncode(value));
+  Future setConfigs(dynamic value) async {
+    await _preferences.setString('configs', jsonEncode(value));
   }
 
-  dynamic getConfig(String key) {
-    final config = _preferences.getString('config_$key');
+  dynamic getConfigs() {
+    final config = _preferences.getString('configs');
     if (config == null) {
       return null;
     }
@@ -113,12 +125,12 @@ class PreferencesService {
     return _preferences.getString('balance_$key');
   }
 
-  // save account address for given alias + address
-  Future setAccountAddress(String address, String accaddress) async {
-    await _preferences.setString('accountAddress_$address', accaddress);
+  // save account address for given key
+  Future setAccountAddress(String key, String accaddress) async {
+    await _preferences.setString('accountAddress_$key', accaddress);
   }
 
-  String? getAccountAddress(String address) {
-    return _preferences.getString('accountAddress_$address');
+  String? getAccountAddress(String key) {
+    return _preferences.getString('accountAddress_$key');
   }
 }

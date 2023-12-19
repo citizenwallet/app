@@ -46,6 +46,12 @@ class WebEncryptedPreferencesService extends EncryptedPreferencesService {
     return null;
   }
 
+  // get wallet backups for alias
+  @override
+  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias) async {
+    return [];
+  }
+
   // delete wallet backup
   @override
   Future<void> deleteWalletBackup(String address, String alias) async {}

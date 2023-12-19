@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.36+85
+version: 1.0.37+110
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -8,9 +8,9 @@ dependencies:
   smartcontracts:
     git:
       url: https://github.com/citizenwallet/smartcontracts.git
-      ref: v0.0.51
+      ref: fcff23b8b909238b8492e97ee59767fe654e2983
   cupertino_icons: ^1.0.2
-  go_router: ^11.1.2
+  go_router: ^12.0.0
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
@@ -40,25 +40,28 @@ dependencies:
   hive: ^2.2.3
   url_launcher: ^6.1.11
   flutter_markdown: ^0.6.15
-  package_info_plus: ^4.0.2
+  package_info_plus: ^5.0.1
   rxdart: ^0.27.7
-  sentry_flutter: ^7.9.0
+  sentry_flutter: ^7.13.2
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
   username_gen: ^1.0.4
-  file_picker: ^5.3.3
+  file_picker: ^6.0.0
   universal_io: ^2.2.2
-  share_plus: ^8.0.0
+  share_plus: ^7.2.1
   sqflite_common: ^2.5.0
   image: ^4.0.17
   qr_flutter: ^4.1.0
   cached_network_image: ^3.2.3
   universal_html: ^2.2.4
   nfc_manager: ^3.3.0
+  audio_in_app: ^2.0.0
+  firebase_messaging: ^14.7.1
+  firebase_core: ^2.19.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.0
@@ -67,19 +70,22 @@ dev_dependencies:
 flutter:
   assets:
     - .env
+    - .web.env
     - assets/logo_small.png
     - assets/logo_rounded.png
     - assets/logo.png
     - assets/logo.svg
     - assets/about/about.md
+    - assets/audio/tx_notification.wav
     - assets/wallet.svg
     - assets/icons/empty_pockets.svg
     - assets/images/citizenwallet-qrcode.svg
-    - assets/images/community_background.jpg
+    - assets/images/community_background.png
     - assets/images/app-store-badge.svg
     - assets/images/google-play-badge.png
     - assets/icons/app.svg
     - assets/icons/dark-mode.svg
+    - assets/icons/sound.svg
     - assets/icons/docs.svg
     - assets/icons/website.svg
     - assets/icons/cloud-settings.svg
@@ -88,6 +94,7 @@ flutter:
     - assets/icons/share.svg
     - assets/icons/contacts.svg
     - assets/icons/profile.svg
+    - assets/icons/notification_bell.svg
     - assets/icons/profile.png
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
@@ -100,10 +107,9 @@ flutter:
     - assets/icons/anonymous_user.svg
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
-    - assets/data/native_chains.json
-    - assets/data/chains.json
-    - assets/data/config.json
-    - assets/data/configs2.json
+    - assets/config/v3/communities.json
+    - assets/config/v3/legacy_4337_bundlers.json
+    - assets/config/v3/debug.json
     - assets/lottie/chat.json
     - assets/lottie/gift-voucher.json
     - assets/lottie/success.json
@@ -112,10 +118,12 @@ flutter:
     - assets/lottie/wallet_receive.json
     - assets/lottie/qr_scan_success.json
     - assets/lottie/piggie_bank.json
+    - packages/smartcontracts/contracts/accounts/Account.abi.json
+    - packages/smartcontracts/contracts/accounts/AccountFactory.abi.json
     - packages/smartcontracts/contracts/external/DERC20.abi.json
-    - packages/smartcontracts/contracts/external/SimpleAccount.abi.json
+    - packages/smartcontracts/contracts/accounts/Account.abi.json
     - packages/smartcontracts/contracts/external/SimpleAccountFactory.abi.json
-    - packages/smartcontracts/contracts/external/EntryPoint.abi.json
+    - packages/smartcontracts/contracts/accounts/TokenEntryPoint.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
   uses-material-design: false
