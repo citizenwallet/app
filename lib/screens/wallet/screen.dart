@@ -507,26 +507,29 @@ class WalletScreenState extends State<WalletScreen> {
                 ),
           GestureDetector(
             onTap: handleScrollToTop,
-            child: SafeArea(
-              child: Header(
-                transparent: true,
-                color: ThemeColors.transparent,
-                title: walletName,
-                actionButton: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (!blockSending)
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: (firstLoad || wallet == null)
-                            ? null
-                            : handleSendModal,
-                        child: Icon(
-                          CupertinoIcons.qrcode,
-                          color: ThemeColors.primary.resolveFrom(context),
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              child: SafeArea(
+                child: Header(
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  title: walletName,
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!blockSending)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: (firstLoad || wallet == null)
+                              ? null
+                              : handleSendModal,
+                          child: Icon(
+                            CupertinoIcons.qrcode,
+                            color: ThemeColors.primary.resolveFrom(context),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
