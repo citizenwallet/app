@@ -294,8 +294,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final config = await _config.getConfig(alias);
 
       if (isWalletLoaded &&
-          paramAlias == alias &&
-          paramAddress == _wallet.address.hexEip55) {
+          address == _wallet.account.hexEip55 &&
+          alias == _wallet.alias) {
         final balance = await _wallet.balance;
 
         _state.updateWalletBalanceSuccess(balance);

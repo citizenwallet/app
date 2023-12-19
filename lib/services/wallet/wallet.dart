@@ -357,6 +357,7 @@ class WalletService {
       final exists = await accountExists();
 
       if (!exists) {
+        _useLegacyBundlers = false;
         await createAccount();
       }
 
