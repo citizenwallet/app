@@ -702,28 +702,31 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
+      return dbWallet.privateKey;
 
-      await delay(const Duration(milliseconds: 0));
+      // TODO: export to web instead of returning private key
+      // final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
 
-      final password = dotenv.get('WEB_BURNER_PASSWORD');
+      // await delay(const Duration(milliseconds: 0));
 
-      final Wallet wallet = Wallet.createNew(
-        credentials,
-        password,
-        Random.secure(),
-        scryptN:
-            512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
-      );
+      // final password = dotenv.get('WEB_BURNER_PASSWORD');
 
-      await delay(const Duration(milliseconds: 0));
+      // final Wallet wallet = Wallet.createNew(
+      //   credentials,
+      //   password,
+      //   Random.secure(),
+      //   scryptN:
+      //       512, // TODO: increase factor if we can threading >> https://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
+      // );
 
-      final config = await _config.getConfig(alias);
+      // await delay(const Duration(milliseconds: 0));
 
-      final domainPrefix = config.community.customDomain ??
-          '${config.community.alias}.citizenwallet.xyz';
+      // final config = await _config.getConfig(alias);
 
-      return 'https://$domainPrefix/wallet/v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
+      // final domainPrefix = config.community.customDomain ??
+      //     '${config.community.alias}.citizenwallet.xyz';
+
+      // return 'https://$domainPrefix/wallet/v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
     } catch (exception, stackTrace) {
       Sentry.captureException(
         exception,
