@@ -428,9 +428,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     final size = height > width ? width : height;
     final scannerSize = size * 0.88;
 
-    print('_scannerOn: $_scannerOn');
-    print('_isScanning: $_isScanning');
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
