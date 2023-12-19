@@ -355,7 +355,6 @@ class WalletService {
     try {
       // purely checking if there is byte code
       final exists = await accountExists();
-
       if (!exists) {
         _useLegacyBundlers = false;
         await createAccount();
@@ -1056,13 +1055,21 @@ class WalletService {
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && deploy) {
-        final accountFactory = getAccounFactoryContract(legacy: isLegacy);
+        bool exists = false;
+        if (getPaymasterType(legacy: isLegacy) == 'payg') {
+          // solves edge case with legacy account migration
+          exists = await accountExists(account: acc.hexEip55);
+        }
 
-        // construct the init code to deploy the account
-        userop.initCode = await accountFactory.createAccountInitCode(
-          cred.address.hexEip55,
-          BigInt.zero,
-        );
+        if (!exists) {
+          final accountFactory = getAccounFactoryContract(legacy: isLegacy);
+
+          // construct the init code to deploy the account
+          userop.initCode = await accountFactory.createAccountInitCode(
+            cred.address.hexEip55,
+            BigInt.zero,
+          );
+        }
       }
 
       // set the appropriate call data for the transfer
