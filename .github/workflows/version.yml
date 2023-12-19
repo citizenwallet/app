@@ -24,6 +24,8 @@ jobs:
       - name: Copy env file
         run: echo "${{ secrets.SU_MAIN_ENV }}" >> .env
 
+      - run: echo "${{ secrets.WEB_MAIN_ENV }}" >> .web.env
+
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
