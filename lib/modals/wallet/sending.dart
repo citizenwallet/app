@@ -35,6 +35,8 @@ class _SendingModalState extends State<SendingModal> {
 
   late ProfilesLogic _profileLogic;
 
+  CWTransaction? _previousTx;
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +50,7 @@ class _SendingModalState extends State<SendingModal> {
     super.dispose();
   }
 
-  void handleDismissLater() async {
+  void handleDismissLater({int seconds = 10}) async {
     _timer ??= Timer(const Duration(seconds: 10), () {
       handleDismiss(context);
     });
@@ -74,6 +76,12 @@ class _SendingModalState extends State<SendingModal> {
         .select((WalletState state) => state.inProgressTransactionLoading);
     final inProgressTransactionError =
         context.select((WalletState state) => state.inProgressTransactionError);
+
+    if (_previousTx != null && inProgressTransaction == null) {
+      handleDismiss(context);
+    }
+
+    _previousTx = inProgressTransaction;
 
     if (wallet == null || inProgressTransaction == null) {
       return const SizedBox();
