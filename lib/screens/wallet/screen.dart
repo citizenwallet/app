@@ -185,7 +185,7 @@ class WalletScreenState extends State<WalletScreen> {
     navigator.go('/wallet/${widget.address}');
   }
 
-  void handleFailedTransaction(String id) async {
+  void handleFailedTransaction(String id, bool blockSending) async {
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
@@ -195,19 +195,21 @@ class WalletScreenState extends State<WalletScreen> {
         builder: (BuildContext dialogContext) {
           return CupertinoActionSheet(
             actions: [
-              CupertinoActionSheetAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('retry');
-                },
-                child: const Text('Retry'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop('edit');
-                },
-                child: const Text('Edit'),
-              ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('retry');
+                  },
+                  child: const Text('Retry'),
+                ),
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit'),
+                ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
@@ -437,9 +439,7 @@ class WalletScreenState extends State<WalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (_) => SendingModal(
-        logic: _logic,
-      ),
+      builder: (_) => const SendingModal(),
     );
   }
 

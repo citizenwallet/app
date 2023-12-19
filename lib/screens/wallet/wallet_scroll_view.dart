@@ -29,7 +29,7 @@ class WalletScrollView extends StatefulWidget {
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
   final void Function() handleTransactionSendingTap;
-  final void Function(String) handleFailedTransactionTap;
+  final void Function(String, bool) handleFailedTransactionTap;
   final void Function(String) handleCopy;
 
   final void Function(String) handleLoad;
@@ -116,6 +116,13 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final hasMore =
         context.select((WalletState state) => state.transactionsHasMore);
+
+    final inProgressTransaction =
+        context.select((WalletState state) => state.inProgressTransaction);
+    final inProgressTransactionLoading = context
+        .select((WalletState state) => state.inProgressTransactionLoading);
+    final inProgressTransactionError =
+        context.select((WalletState state) => state.inProgressTransactionError);
 
     final transactions = context.watch<WalletState>().transactions;
 
@@ -222,7 +229,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,
-                    onTap: blockSending ? null : handleFailedTransactionTap,
+                    onTap: (String id) =>
+                        handleFailedTransactionTap(id, blockSending),
                     onLoad: handleLoad,
                   ),
                 );
@@ -335,6 +343,26 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
                 ),
+              ),
+            ),
+          ),
+        if (inProgressTransaction != null &&
+            wallet != null &&
+            !inProgressTransactionError)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: TransactionRow(
+                key: Key(inProgressTransaction.id),
+                transaction: inProgressTransaction,
+                logo: config?.community.logo,
+                wallet: wallet,
+                profiles: profiles,
+                vouchers: vouchers,
+                onTap: handleTransactionTap,
+                onProcessingTap: handleTransactionSendingTap,
+                onLoad: handleLoad,
               ),
             ),
           ),

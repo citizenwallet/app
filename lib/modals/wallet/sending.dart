@@ -22,11 +22,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class SendingModal extends StatefulWidget {
-  final WalletLogic logic;
-
   const SendingModal({
     super.key,
-    required this.logic,
   });
 
   @override
@@ -47,7 +44,6 @@ class _SendingModalState extends State<SendingModal> {
 
   @override
   void dispose() {
-    widget.logic.clearInProgressTransaction();
     _timer?.cancel();
     super.dispose();
   }

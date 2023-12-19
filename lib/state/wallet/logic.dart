@@ -650,6 +650,7 @@ class WalletLogic extends WidgetsBindingObserver {
           element.state != TransactionState.success));
 
       if (hasChanges) {
+        clearInProgressTransaction();
         updateBalance();
       }
 
