@@ -650,7 +650,6 @@ class WalletLogic extends WidgetsBindingObserver {
           element.state != TransactionState.success));
 
       if (hasChanges) {
-        clearInProgressTransaction();
         updateBalance();
       }
 
@@ -982,6 +981,7 @@ class WalletLogic extends WidgetsBindingObserver {
         HapticFeedback.lightImpact();
 
         _state.updateWalletBalanceSuccess(balance, notify: true);
+        clearInProgressTransaction();
       }
       return;
     } catch (exception, stackTrace) {

@@ -50,7 +50,7 @@ class _SendingModalState extends State<SendingModal> {
     super.dispose();
   }
 
-  void handleDismissLater({int seconds = 10}) async {
+  void handleDismissLater() async {
     _timer ??= Timer(const Duration(seconds: 10), () {
       handleDismiss(context);
     });
