@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.37+110
+version: 1.0.37+111
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -55,7 +55,6 @@ dependencies:
   qr_flutter: ^4.1.0
   cached_network_image: ^3.2.3
   universal_html: ^2.2.4
-  nfc_manager: ^3.3.0
   audio_in_app: ^2.0.0
   firebase_messaging: ^14.7.1
   firebase_core: ^2.19.0
