@@ -296,3 +296,18 @@
 //     }
 //   }
 // }
+
+import 'package:web3dart/web3dart.dart';
+
+class NFCService {
+  Future<bool> get isAvailable => Future.value(false);
+
+  Future<void> readCard() async {}
+
+  Future<void> configureCard(
+    EthPrivateKey credentials,
+    String account,
+    String alias, {
+    bool forceWrite = false,
+  }) async {}
+}

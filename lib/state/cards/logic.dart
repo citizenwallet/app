@@ -20,12 +20,12 @@ class CardsLogic {
   Future<void> read() async {
     try {
       final card = await _nfc.readCard();
-      if (card == null) {
-        throw Exception('Invalid card.');
-      }
+      // if (card == null) {
+      //   throw Exception('Invalid card.');
+      // }
 
-      print('Card read successfully ${card.uid} ${card.account} ${card.alias}');
-      print('signature ${card.signature}');
+      // print('Card read successfully ${card.uid} ${card.account} ${card.alias}');
+      // print('signature ${card.signature}');
     } catch (e) {
       //
       print(e);
