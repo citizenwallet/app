@@ -75,18 +75,12 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
 
     final aOptions = options as AndroidEncryptedPreferencesOptions;
 
-    print('aOptions.fromScratch');
-    print(aOptions.fromScratch);
-
     if (aOptions.fromScratch) {
       // remove all keys
       await _secure.deleteAll();
       await _preferences.clear();
       return;
     }
-
-    print('aOptions.pin');
-    print(aOptions.pin);
 
     if (aOptions.pin != null) {
       // the intention is to set a pin code
@@ -124,12 +118,9 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
       return;
     }
 
-    print('existing pin code');
-
     // the intention is to use an existing pin code
-    final securedPin = await _secure.read(key: pinCodeKey);
-    print('securedPin');
-    print(securedPin);
+    final potentialPins = await _secure.readAll();
+    final securedPin = potentialPins[pinCodeKey];
     if (securedPin == null) {
       throw Exception('no pin code set');
     }
