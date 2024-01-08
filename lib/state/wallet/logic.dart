@@ -1622,18 +1622,23 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<void> openPluginUrl(String url, GoRouterState routerState) async {
+  Future<(String?, String?)> openPluginUrl(
+    String url,
+  ) async {
     try {
       final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
 
-      final redirectUrl = '$appUniversalURL${routerState.uri.path}';
+      final redirectUrl = '$appUniversalURL/';
 
-      final Uri uri = Uri.parse(
+      final parsedURL = Uri.parse(appUniversalURL);
+
+      return (
         '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$redirectUrl&signature=0x123',
+        parsedURL.scheme,
       );
-
-      await launchUrl(uri);
     } catch (_) {}
+
+    return (null, null);
   }
 
   void pauseFetching() {
