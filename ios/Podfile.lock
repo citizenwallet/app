@@ -40,10 +40,10 @@ PODS:
   - Firebase/Messaging (10.18.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.18.0)
-  - firebase_core (2.24.0):
+  - firebase_core (2.24.2):
     - Firebase/CoreOnly (= 10.18.0)
     - Flutter
-  - firebase_messaging (14.7.6):
+  - firebase_messaging (14.7.10):
     - Firebase/Messaging (= 10.18.0)
     - firebase_core
     - Flutter
@@ -149,13 +149,13 @@ PODS:
   - SDWebImage (5.18.5):
     - SDWebImage/Core (= 5.18.5)
   - SDWebImage/Core (5.18.5)
-  - Sentry/HybridSDK (8.15.2):
-    - SentryPrivate (= 8.15.2)
+  - Sentry/HybridSDK (8.17.2):
+    - SentryPrivate (= 8.17.2)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.15.2)
-  - SentryPrivate (8.15.2)
+    - Sentry/HybridSDK (= 8.17.2)
+  - SentryPrivate (8.17.2)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -247,8 +247,8 @@ SPEC CHECKSUMS:
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: c103e5bcafd5d2cfa4c2dfbbbcc48e7de3245399
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
-  firebase_core: f802c5c1f6caff9b8d38b591a36e7b25f8878936
-  firebase_messaging: ca2fc59ddd52ef032d80f1a717d12eae8fa0e994
+  firebase_core: 0af4a2b24f62071f9bf283691c0ee41556dcb3f5
+  firebase_messaging: 90e8a6db84b6e1e876cebce4f30f01dc495e7014
   FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
   FirebaseCoreInternal: 8eb002e564b533bdcf1ba011f33f2b5c10e2ed4a
   FirebaseInstallations: e842042ec6ac1fd2e37d7706363ebe7f662afea4
@@ -272,9 +272,9 @@ SPEC CHECKSUMS:
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   SDWebImage: 7ac2b7ddc5e8484c79aa90fc4e30b149d6a2c88f
-  Sentry: 6f5742b4c47c17c9adcf265f6f328cf4a0ed1923
-  sentry_flutter: 2c309a1d4b45e59d02cfa15795705687f1e2081b
-  SentryPrivate: b2f7996f37781080f04a946eb4e377ff63c64195
+  Sentry: 64a9f9c3637af913adcf53deced05bbe452d1410
+  sentry_flutter: 57912cf425e09398bdf47f38842a1fcb9836f1be
+  SentryPrivate: 024c6fed507ac39ae98e6d087034160f942920d5
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
