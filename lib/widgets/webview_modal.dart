@@ -22,7 +22,10 @@ class _WebViewModalState extends State<WebViewModal> {
   final GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
+  HeadlessInAppWebView? headlessWebView;
   late InAppWebViewSettings settings;
+
+  bool _show = false;
 
   @override
   void initState() {
@@ -32,17 +35,59 @@ class _WebViewModalState extends State<WebViewModal> {
       javaScriptEnabled: true,
       resourceCustomSchemes: [widget.customScheme],
     );
+
+    headlessWebView = HeadlessInAppWebView(
+      initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+      initialSettings: settings,
+      onWebViewCreated: (controller) {
+        webViewController = controller;
+      },
+      onLoadResourceWithCustomScheme: (controller, request) async {
+        final uri = Uri.parse(request.url.toString());
+        handleDismiss(context, path: uri.queryParameters['response']);
+        return null;
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // make initial requests here
+
+      handleRunWebView();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    headlessWebView?.dispose();
+    webViewController = null;
   }
 
   void handleDismiss(BuildContext context, {String? path}) async {
     webViewController?.stopLoading();
-    webViewController?.dispose();
 
     final navigator = GoRouter.of(context);
 
     await delay(const Duration(milliseconds: 250));
 
     navigator.pop(path);
+  }
+
+  void handleRunWebView() async {
+    if (headlessWebView == null || headlessWebView!.isRunning()) {
+      return;
+    }
+
+    await delay(const Duration(milliseconds: 250));
+
+    headlessWebView!.run();
+
+    await delay(const Duration(milliseconds: 250));
+
+    setState(() {
+      _show = true;
+    });
   }
 
   @override
@@ -57,20 +102,29 @@ class _WebViewModalState extends State<WebViewModal> {
             Expanded(
               child: Stack(
                 children: [
-                  InAppWebView(
-                    key: webViewKey,
-                    initialUrlRequest: URLRequest(url: WebUri(widget.url)),
-                    initialSettings: settings,
-                    onWebViewCreated: (controller) {
-                      webViewController = controller;
-                    },
-                    onLoadResourceWithCustomScheme:
-                        (controller, request) async {
-                      final uri = Uri.parse(request.url.toString());
-                      handleDismiss(context,
-                          path: uri.queryParameters['response']);
-                      return null;
-                    },
+                  AnimatedOpacity(
+                    opacity: _show ? 1 : 0,
+                    duration: const Duration(milliseconds: 750),
+                    child: _show
+                        ? InAppWebView(
+                            key: webViewKey,
+                            headlessWebView: headlessWebView,
+                            initialUrlRequest:
+                                URLRequest(url: WebUri(widget.url)),
+                            initialSettings: settings,
+                            onWebViewCreated: (controller) {
+                              headlessWebView = null;
+                              webViewController = controller;
+                            },
+                            onLoadResourceWithCustomScheme:
+                                (controller, request) async {
+                              final uri = Uri.parse(request.url.toString());
+                              handleDismiss(context,
+                                  path: uri.queryParameters['response']);
+                              return null;
+                            },
+                          )
+                        : const SizedBox(),
                   ),
                   Positioned(
                     top: 0,
