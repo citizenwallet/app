@@ -41,6 +41,13 @@
         "profile": {
             "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
         },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+                "url": "https://topup.citizenwallet.xyz/gt.celo"
+            }
+        ],
         "version": 1
     },
     {
@@ -494,7 +501,7 @@
             {
                 "name": "Top Up",
                 "icon": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
-                "url": "https://citizenwallet.xyz"
+                "url": "https://topup.citizenwallet.xyz/zinne"
             }
         ],
         "version": 1

@@ -15,6 +15,7 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -347,9 +348,28 @@ class WalletScreenState extends State<WalletScreen> {
   void handlePlugin(String url) async {
     HapticFeedback.heavyImpact();
 
-    final routerState = GoRouterState.of(context);
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
 
-    _logic.openPluginUrl(url, routerState);
+    final (uri, customScheme) = await _logic.openPluginUrl(url);
+    if (uri == null || customScheme == null) {
+      return;
+    }
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => WebViewModal(
+        url: uri,
+        customScheme: customScheme,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   void handleCards() async {

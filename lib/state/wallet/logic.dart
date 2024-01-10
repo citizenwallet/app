@@ -11,7 +11,6 @@ import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
-import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -27,10 +26,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -1623,18 +1620,23 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<void> openPluginUrl(String url, GoRouterState routerState) async {
+  Future<(String?, String?)> openPluginUrl(
+    String url,
+  ) async {
     try {
       final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
 
-      final redirectUrl = '$appUniversalURL${routerState.uri.path}';
+      final redirectUrl = '$appUniversalURL/?alias=${_wallet.alias}';
 
-      final Uri uri = Uri.parse(
+      final parsedURL = Uri.parse(appUniversalURL);
+
+      return (
         '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$redirectUrl&signature=0x123',
+        parsedURL.scheme,
       );
-
-      await launchUrl(uri);
     } catch (_) {}
+
+    return (null, null);
   }
 
   void pauseFetching() {
