@@ -11,11 +11,14 @@ class PreferencesService {
 
   late SharedPreferences _preferences;
 
+  SharedPreferences get instance => _preferences;
+
   Future init(SharedPreferences pref) async {
     _preferences = pref;
   }
 
   Future clear() async {
+    print('PreferencesService CLEAR ALL');
     await _preferences.clear();
   }
 

@@ -20,6 +20,12 @@ class AndroidEncryptedPreferencesOptions
     this.pin,
     this.fromScratch = false,
   });
+
+  // string
+  @override
+  String toString() {
+    return 'AndroidEncryptedPreferencesOptions{pin: $pin, fromScratch: $fromScratch}';
+  }
 }
 
 class EncryptedData {
@@ -71,9 +77,14 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
     _secure = FlutterSecureStorage(
       aOptions: _getAndroidOptions(),
     );
-    _preferences = await SharedPreferences.getInstance();
+    _preferences = _prefs.instance;
 
     final aOptions = options as AndroidEncryptedPreferencesOptions;
+
+    print('AndroidEncryptedPreferencesService.init');
+    print(aOptions);
+
+    print('from scratch?');
 
     if (aOptions.fromScratch) {
       // remove all keys
@@ -81,6 +92,8 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
       await _preferences.clear();
       return;
     }
+
+    print('pin?');
 
     if (aOptions.pin != null) {
       // the intention is to set a pin code
@@ -126,6 +139,8 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
     }
 
     final hash = await _hash(securedPin);
+
+    print('saved pin?');
 
     // check if there is a pin code saved
     final saved = _preferences.containsKey(pinCodeCheckKey);
@@ -269,6 +284,8 @@ class AndroidEncryptedPreferencesService extends EncryptedPreferencesService {
         await migrations[i]!();
       }
     }
+
+    print('migrated from $oldVersion to $version');
 
     // after success, we can update the version
     await _preferences.setInt(versionPrefix, version);

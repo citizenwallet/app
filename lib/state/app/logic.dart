@@ -403,6 +403,7 @@ class AppLogic {
   }
 
   Future<bool> configureAndroidBackup() async {
+    print('configureAndroidBackup');
     try {
       await getEncryptedPreferencesService().init(
         AndroidEncryptedPreferencesOptions(),
@@ -410,8 +411,10 @@ class AppLogic {
 
       _preferences.setAndroidBackupIsConfigured(true);
       return true;
-    } catch (_) {
+    } catch (e, s) {
       //
+      print(e);
+      print(s);
     }
 
     return false;

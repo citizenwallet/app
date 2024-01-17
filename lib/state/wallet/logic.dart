@@ -99,10 +99,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> resetWalletPreferences() async {
     try {
+      print('resetWalletPreferences');
       await _preferences.clear();
 
       return;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

@@ -207,9 +207,12 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
+    print('is android');
+
     // since shared preferences are backed up by default on android,
     // it should be possible to figure out if there is a backup available
     final isConfigured = _appLogic.androidBackupIsConfigured();
+    print('is configured: $isConfigured');
     if (!isConfigured) {
       return;
     }

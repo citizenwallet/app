@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup disableIfNoEncryptionCapabilities="true">
-        <include domain="sharedpref" path="."/>
         <exclude domain="sharedpref" path="FlutterSecureStorage"/>
     </cloud-backup>
 </data-extraction-rules>

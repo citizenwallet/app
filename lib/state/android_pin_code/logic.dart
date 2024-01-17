@@ -52,8 +52,11 @@ class AndroidPinCodeLogic {
         fromScratch: true,
       ));
 
+      print('clearDataAndBackups clear');
       await _preferences.clear();
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
