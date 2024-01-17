@@ -505,5 +505,109 @@
             }
         ],
         "version": 1
+    },
+    {
+        "community": {
+            "name": "Bonne Heure",
+            "description": "Système d'Échange Local de Villers-la-Ville",
+            "url": "https://selcoupdepouce.be",
+            "alias": "selcoupdepouce",
+            "logo": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/sel-coin.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
+            "entrypoint_address": "0xA90904F33df36899d810d040b8d5b3b77265Bb05",
+            "account_factory_address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
+            "name": "Bonne Heure",
+            "symbol": "BHR",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0xfB8F1e7ED42599638B3c509679E2F43937002C56"
+        },
+        "plugins": [
+            {
+                "name": "Get started",
+                "icon": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/topup.svg",
+                "url": "https://topup.citizenwallet.xyz/selcoupdepouce"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Bonne Heure Test",
+            "hidden": true,
+            "description": "Système d'Échange Local de Villers-la-Ville",
+            "url": "https://selcoupdepouce.be",
+            "alias": "selcoupdepouce-test",
+            "logo": "http://localhost:3001/communities/selcoupdepouce/sel-coin.svg"
+        },
+        "scan": {
+            "url": "https://alfajores.celoscan.io",
+            "name": "Celo Testnet Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://alfajores-forno.celo-testnet.org",
+            "ws_url": "wss://alfajores-forno.celo-testnet.org"
+        },
+        "erc4337": {
+            "rpc_url": "http://localhost:3000/rpc",
+            "paymaster_address": "0xdc894C6E509751970c7C9c29973Ec3c48F096a9a",
+            "entrypoint_address": "0x45Ca5c69Cb15876418491585f6aD159Bd4b6F4C8",
+            "account_factory_address": "0x26F7a5BD591030f17331fff1A79339a1eA722055",
+            "paymaster_rpc_url": "http://localhost:3000/rpc",
+            "paymaster_type": "cw",
+            "gas_extra_percentage": 50
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
+            "name": "Bonne Heure Test",
+            "symbol": "BHR",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970"
+        },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "http://localhost:3001/communities/selcoupdepouce/sel-coin.svg",
+                "url": "http://localhost:3001/selcoupdepouce"
+            }
+        ],
+        "version": 1
     }
 ]
