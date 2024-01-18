@@ -1,7 +1,7 @@
 <h1 align="center">
   <img style="height: 100px; width: 100px;" src="https://github.com/citizenwallet/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
   Citizen Wallet
-</h1>  
+</h1>
 
 <p align="center">An open source wallet for your community currency.</p>
 
@@ -14,18 +14,20 @@ This is the repo for the web/iOS/Android app of the Citizen Wallet (using DART/F
 
 Our goal is to give communities the tools they need to build a resilient and regenerative economy 👠💪🌱🌻🌳.
 
-It starts with a wallet to enable all of us, citizens, to receive and send the tokens of our communities without any prior knowledge of web3. 
+It starts with a wallet to enable all of us, citizens, to receive and send the tokens of our communities without any prior knowledge of web3.
 
 ![Citizen Wallet banner](https://github.com/citizenwallet/.github/assets/74358/2d7b214d-7d1c-4042-af18-c8cf9973d3c2)
 
 Read more on our website: [citizenwallet.xyz](https://citizenwallet.xyz/).
 
 ### Why yet another crypto wallet?
+
 Existing crypto wallets assume that you are either a technical person (e.g. metamask) or a trader (e.g. Rainbow wallet). Chances are that most of the people in your community do not fit any of those two categories.
 
 That's why we are building the Citizen Wallet, a new category of wallets for everyday people, that just want to receive and send your community token.
 
 ### The easiest way to onboard someone to web3
+
 <img width="1237" alt="Screenshot 2023-11-15 at 10 17 12 AM" src="https://github.com/citizenwallet/app/assets/74358/4b2cd189-0652-400c-ba3f-7f921912b284">
 
 - Create a voucher with a QR code
@@ -36,7 +38,7 @@ That's why we are building the Citizen Wallet, a new category of wallets for eve
 
 ### Features
 
-- Send money by creating a QR code 
+- Send money by creating a QR code
 - Account abstraction with ERC4337
 - Subsidized gas fees (the token issuer pays for the gas fees, so that users don't have to)
 - Host it on your own (sub)domain (e.g. https://wallet.oak.community)
@@ -52,6 +54,7 @@ That's why we are building the Citizen Wallet, a new category of wallets for eve
 - Jonas Boury
 
 ## Current communities
+
 - https://wallet.regensunite.earth (RGN token on Polygon)
 - https://wallet.oak.community (OAK token on Base)
 - https://wallet.sfluv.org (SFLuv token on Polygon)
@@ -60,6 +63,7 @@ That's why we are building the Citizen Wallet, a new category of wallets for eve
 Join us on discord to discuss: https://discord.citizenwallet.xyz
 
 ## Links
+
 - https://citizenwallet.xyz
 - https://discord.citizenwallet.xyz
 - https://figma.citizenwallet.xyz
@@ -103,4 +107,16 @@ sudo docker run --detach --publish 8545:8545 trufflesuite/ganache:latest --accou
 2cf01f52d6254ef24bed71b85253be48351de50b6b23c021863ad14d497249de
 ```
 
+## Deploy the app
 
+```
+flutter build web
+```
+
+This will create a build in `build/web` with all the static assets that you can deploy on your server.
+
+## Test locally
+
+```
+flutter run -d web
+```
