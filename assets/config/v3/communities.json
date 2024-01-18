@@ -556,58 +556,5 @@
             }
         ],
         "version": 1
-    },
-    {
-        "community": {
-            "name": "Bonne Heure Test",
-            "hidden": true,
-            "description": "Système d'Échange Local de Villers-la-Ville",
-            "url": "https://selcoupdepouce.be",
-            "alias": "selcoupdepouce-test",
-            "logo": "http://localhost:3001/communities/selcoupdepouce/sel-coin.svg"
-        },
-        "scan": {
-            "url": "https://alfajores.celoscan.io",
-            "name": "Celo Testnet Explorer"
-        },
-        "indexer": {
-            "url": "https://indexer-celo.internal.citizenwallet.xyz",
-            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
-            "key": "x"
-        },
-        "ipfs": {
-            "url": "https://ipfs.internal.citizenwallet.xyz"
-        },
-        "node": {
-            "url": "https://alfajores-forno.celo-testnet.org",
-            "ws_url": "wss://alfajores-forno.celo-testnet.org"
-        },
-        "erc4337": {
-            "rpc_url": "http://localhost:3000/rpc",
-            "paymaster_address": "0xdc894C6E509751970c7C9c29973Ec3c48F096a9a",
-            "entrypoint_address": "0x45Ca5c69Cb15876418491585f6aD159Bd4b6F4C8",
-            "account_factory_address": "0x26F7a5BD591030f17331fff1A79339a1eA722055",
-            "paymaster_rpc_url": "http://localhost:3000/rpc",
-            "paymaster_type": "cw",
-            "gas_extra_percentage": 50
-        },
-        "token": {
-            "standard": "erc20",
-            "address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
-            "name": "Bonne Heure Test",
-            "symbol": "BHR",
-            "decimals": 6
-        },
-        "profile": {
-            "address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970"
-        },
-        "plugins": [
-            {
-                "name": "Top Up",
-                "icon": "http://localhost:3001/communities/selcoupdepouce/sel-coin.svg",
-                "url": "http://localhost:3001/selcoupdepouce"
-            }
-        ],
-        "version": 1
     }
 ]
