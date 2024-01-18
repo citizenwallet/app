@@ -390,7 +390,10 @@ class VoucherLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      final success = await _wallet.submitUserop(userop);
+      final success = await _wallet.submitUserop(
+        userop,
+        data: name != null ? TransferData(name) : null,
+      );
       if (!success) {
         throw Exception('transaction failed');
       }

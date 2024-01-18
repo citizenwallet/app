@@ -259,7 +259,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     _logic.sendTransaction(
       _logic.amountController.value.text,
       selectedAddress ?? _logic.addressController.value.text,
-      message: _logic.messageController.value.text,
+      message: _logic.messageController.value.text.trim(),
       id: widget.id,
     );
 
@@ -311,6 +311,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
 
     final wallet = context.read<WalletState>().wallet;
 
+    final name = _logic.messageController.value.text.trim().isEmpty
+        ? null
+        : _logic.messageController.value.text;
+
     final shouldDismiss = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
@@ -318,6 +322,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       builder: (_) => VoucherModal(
         amount: _logic.amountController.value.text,
         symbol: wallet?.symbol,
+        name: name,
       ),
     );
 
