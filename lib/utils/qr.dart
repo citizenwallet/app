@@ -107,3 +107,20 @@ String? parseAliasFromReceiveParams(String receiveParams) {
 
   return alias;
 }
+
+String? parseMessageFromReceiveParams(String receiveParams) {
+  final receiveUrl = Uri.parse(receiveParams.split('/#/').last);
+
+  final encodedParams = receiveUrl.queryParameters['receiveParams'];
+  if (encodedParams == null) {
+    return null;
+  }
+
+  final decodedParams = decompress(encodedParams);
+
+  final paramUrl = Uri.parse(decodedParams);
+
+  final message = paramUrl.queryParameters['message'];
+
+  return message;
+}

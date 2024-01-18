@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -95,6 +96,30 @@ class WalletLogic extends WidgetsBindingObserver {
 
   EthPrivateKey get privateKey {
     return _wallet.credentials;
+  }
+
+  void updateMessage() {
+    _state.updateMessage(_messageController.value.text);
+  }
+
+  void startListeningMessage() {
+    _messageController.addListener(updateMessage);
+  }
+
+  void stopListeningMessage() {
+    _messageController.removeListener(updateMessage);
+  }
+
+  void updateListenerAmount() {
+    _state.updateAmount(_amountController.value.text);
+  }
+
+  void startListeningAmount() {
+    _amountController.addListener(updateAmount);
+  }
+
+  void stopListeningAmount() {
+    _amountController.removeListener(updateAmount);
   }
 
   Future<void> resetWalletPreferences() async {
@@ -607,7 +632,7 @@ class WalletLogic extends WidgetsBindingObserver {
           chainId: _wallet.chainId,
           from: tx.from.hexEip55,
           to: tx.to.hexEip55,
-          title: '',
+          description: tx.data?.description ?? '',
           date: tx.createdAt,
           state: TransactionState.values.firstWhereOrNull(
                 (v) => v.name == tx.status,
@@ -626,7 +651,7 @@ class WalletLogic extends WidgetsBindingObserver {
           to: tx.to.hexEip55,
           nonce: 0, // TODO: remove nonce hardcode
           value: tx.value.toInt(),
-          data: '',
+          data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
           status: tx.status,
           contract: _wallet.erc20Address,
         ),
@@ -785,7 +810,10 @@ class WalletLogic extends WidgetsBindingObserver {
                     chainId: _wallet.chainId,
                     from: EthereumAddress.fromHex(dbtx.from).hexEip55,
                     to: EthereumAddress.fromHex(dbtx.to).hexEip55,
-                    title: '',
+                    description: dbtx.data != ''
+                        ? TransferData.fromJson(jsonDecode(dbtx.data))
+                            .description
+                        : '',
                     date: dbtx.createdAt,
                     state: TransactionState.values.firstWhereOrNull(
                           (v) => v.name == dbtx.status,
@@ -813,7 +841,7 @@ class WalletLogic extends WidgetsBindingObserver {
               to: tx.to.hexEip55,
               nonce: 0, // TODO: remove nonce hardcode
               value: tx.value.toInt(),
-              data: '',
+              data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.erc20Address,
             ),
@@ -834,7 +862,9 @@ class WalletLogic extends WidgetsBindingObserver {
                 chainId: _wallet.chainId,
                 from: EthereumAddress.fromHex(dbtx.from).hexEip55,
                 to: EthereumAddress.fromHex(dbtx.to).hexEip55,
-                title: '',
+                description: dbtx.data != ''
+                    ? TransferData.fromJson(jsonDecode(dbtx.data)).description
+                    : '',
                 date: dbtx.createdAt,
                 state: TransactionState.values.firstWhereOrNull(
                       (v) => v.name == dbtx.status,
@@ -893,7 +923,10 @@ class WalletLogic extends WidgetsBindingObserver {
                     chainId: _wallet.chainId,
                     from: EthereumAddress.fromHex(dbtx.from).hexEip55,
                     to: EthereumAddress.fromHex(dbtx.to).hexEip55,
-                    title: '',
+                    description: dbtx.data != ''
+                        ? TransferData.fromJson(jsonDecode(dbtx.data))
+                            .description
+                        : '',
                     date: dbtx.createdAt,
                     state: TransactionState.values.firstWhereOrNull(
                           (v) => v.name == dbtx.status,
@@ -921,7 +954,7 @@ class WalletLogic extends WidgetsBindingObserver {
               to: tx.to.hexEip55,
               nonce: 0, // TODO: remove nonce hardcode
               value: tx.value.toInt(),
-              data: '',
+              data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.erc20Address,
             ),
@@ -942,7 +975,9 @@ class WalletLogic extends WidgetsBindingObserver {
                 chainId: _wallet.chainId,
                 from: EthereumAddress.fromHex(dbtx.from).hexEip55,
                 to: EthereumAddress.fromHex(dbtx.to).hexEip55,
-                title: '',
+                description: dbtx.data != ''
+                    ? TransferData.fromJson(jsonDecode(dbtx.data)).description
+                    : '',
                 date: dbtx.createdAt,
                 state: TransactionState.values.firstWhereOrNull(
                       (v) => v.name == dbtx.status,
@@ -1008,7 +1043,7 @@ class WalletLogic extends WidgetsBindingObserver {
     return sendTransactionFromLocked(
       tx.amount,
       tx.to,
-      message: tx.title,
+      message: tx.description,
     );
   }
 
@@ -1055,7 +1090,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        title: message,
+        description: message,
         date: DateTime.now(),
       ),
     );
@@ -1077,7 +1112,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        title: message,
+        description: message,
         date: DateTime.now(),
       ),
     );
@@ -1099,7 +1134,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        title: message,
+        description: message,
         date: DateTime.now(),
       ),
     );
@@ -1151,7 +1186,10 @@ class WalletLogic extends WidgetsBindingObserver {
         to,
       );
 
-      final success = await _wallet.submitUserop(userop);
+      final success = await _wallet.submitUserop(
+        userop,
+        data: message != '' ? TransferData(message) : null,
+      );
       if (!success) {
         // this is an optional operation
         throw Exception('transaction failed');
@@ -1178,7 +1216,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkCongestedException().message),
       );
@@ -1192,7 +1230,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
@@ -1211,7 +1249,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkUnknownException().message),
       );
@@ -1268,7 +1306,10 @@ class WalletLogic extends WidgetsBindingObserver {
         to,
       );
 
-      final success = await _wallet.submitUserop(userop);
+      final success = await _wallet.submitUserop(
+        userop,
+        data: message != '' ? TransferData(message) : null,
+      );
       if (!success) {
         // this is an optional operation
         throw Exception('transaction failed');
@@ -1295,7 +1336,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkCongestedException().message),
       );
@@ -1309,7 +1350,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
@@ -1328,7 +1369,7 @@ class WalletLogic extends WidgetsBindingObserver {
             id: tempId,
             hash: '',
             to: to,
-            title: message,
+            description: message,
             date: DateTime.now(),
             error: NetworkUnknownException().message),
       );
@@ -1419,9 +1460,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (amount != null) {
         _amountController.text = amount;
+
+        updateAmount();
       }
 
       updateAddressFromHexCapture(address);
+
+      _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
 
       return address;
     } on QREmptyException catch (e) {
@@ -1441,6 +1486,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void updateReceiveQR({bool? onlyHex}) async {
     try {
+      updateListenerAmount();
+
       final config = await _config.getConfig(_wallet.alias);
 
       final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
@@ -1453,17 +1500,22 @@ class WalletLogic extends WidgetsBindingObserver {
         return;
       }
 
-      final double amount = _amountController.value.text.isEmpty
-          ? 0
-          : double.tryParse(
-                  _amountController.value.text.replaceAll(',', '.')) ??
-              0;
-
       String params =
           '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}';
 
-      params += '&amount=${amount.toStringAsFixed(2)}';
-      params += '&message=${_messageController.value.text}';
+      if (_amountController.value.text.isNotEmpty) {
+        final double amount = _amountController.value.text.isEmpty
+            ? 0
+            : double.tryParse(
+                    _amountController.value.text.replaceAll(',', '.')) ??
+                0;
+
+        params += '&amount=${amount.toStringAsFixed(2)}';
+      }
+
+      if (_messageController.value.text.isNotEmpty) {
+        params += '&message=${_messageController.value.text}';
+      }
 
       final compressedParams = compress(params);
 
@@ -1591,7 +1643,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    prepareReplayTransaction(tx.to, amount: tx.amount, message: tx.title);
+    prepareReplayTransaction(tx.to, amount: tx.amount, message: tx.description);
   }
 
   void prepareReplayTransaction(

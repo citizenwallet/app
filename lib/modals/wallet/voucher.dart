@@ -16,11 +16,13 @@ import 'package:citizenwallet/utils/strings.dart';
 class VoucherModal extends StatefulWidget {
   final String amount;
   final String? symbol;
+  final String? name;
 
   const VoucherModal({
     super.key,
     required this.amount,
     this.symbol,
+    this.name,
   });
 
   @override
@@ -76,6 +78,7 @@ class VoucherModalState extends State<VoucherModal>
 
   void handleCreateVoucher() async {
     await _logic.createVoucher(
+      name: widget.name,
       balance: widget.amount,
       symbol: widget.symbol!,
     );

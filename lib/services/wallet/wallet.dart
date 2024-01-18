@@ -903,10 +903,16 @@ class WalletService {
     UserOp userop,
     String eaddr, {
     bool legacy = false,
+    TransferData? data,
   }) async {
+    final params = [userop.toJson(), eaddr];
+    if (!legacy && data != null) {
+      params.add(data.toJson());
+    }
+
     final body = SUJSONRPCRequest(
       method: 'eth_sendUserOperation',
-      params: [userop.toJson(), eaddr],
+      params: params,
     );
 
     try {
@@ -1134,6 +1140,7 @@ class WalletService {
     UserOp userop, {
     EthPrivateKey? customCredentials,
     bool legacy = false,
+    TransferData? data,
   }) async {
     try {
       bool isLegacy = legacy;
@@ -1159,6 +1166,7 @@ class WalletService {
         userop,
         entryPoint.addr,
         legacy: isLegacy,
+        data: data,
       );
       if (useropErr != null) {
         throw useropErr;
