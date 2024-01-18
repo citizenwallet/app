@@ -469,12 +469,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
             !parsingQRAddress) ||
         selectedProfile != null;
 
-    print('invalidAmount: $invalidAmount');
-    print('_isScanning: $_isScanning');
-    print('_isDescribing: $_isDescribing');
-    print('_isSending: $_isSending');
-    print('hasAmount: $hasAmount');
-
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 

@@ -1407,7 +1407,6 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void updateAmount() {
-    print('_amountController.text ${_amountController.text}');
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text),
