@@ -142,26 +142,31 @@ class TransactionRowState extends State<TransactionRow> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: profile != null
-                                        ? '${profile.profile.name} '
-                                        : 'Anonymous ',
+                                    text: voucher != null
+                                        ? isIncoming
+                                            ? 'Voucher redeemed'
+                                            : 'Voucher created'
+                                        : profile != null
+                                            ? profile.profile.name
+                                            : 'Anonymous',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color:
                                           ThemeColors.text.resolveFrom(context),
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: profile != null
-                                        ? '@${profile.profile.username}'
-                                        : '$formattedAddress',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                      color: ThemeColors.subtleText
-                                          .resolveFrom(context),
+                                  if (voucher == null)
+                                    TextSpan(
+                                      text: profile != null
+                                          ? ' @${profile.profile.username}'
+                                          : ' $formattedAddress',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                        color: ThemeColors.subtleText
+                                            .resolveFrom(context),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                               maxLines: 1,
