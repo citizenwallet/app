@@ -505,5 +505,56 @@
             }
         ],
         "version": 1
+    },
+    {
+        "community": {
+            "name": "Bonne Heure",
+            "description": "Système d'Échange Local de Villers-la-Ville",
+            "url": "https://selcoupdepouce.be",
+            "alias": "selcoupdepouce",
+            "logo": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/sel-coin.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
+            "entrypoint_address": "0xA90904F33df36899d810d040b8d5b3b77265Bb05",
+            "account_factory_address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
+            "name": "Bonne Heure",
+            "symbol": "BHR",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0xfB8F1e7ED42599638B3c509679E2F43937002C56"
+        },
+        "plugins": [
+            {
+                "name": "Get started",
+                "icon": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/topup.svg",
+                "url": "https://topup.citizenwallet.xyz/selcoupdepouce"
+            }
+        ],
+        "version": 1
     }
 ]

@@ -5,6 +5,21 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
 import 'package:web3dart/web3dart.dart';
 
+class TransferData {
+  final String description;
+
+  TransferData(this.description);
+
+  // from json
+  TransferData.fromJson(Map<String, dynamic> json)
+      : description = json['description'];
+
+  // to json
+  Map<String, dynamic> toJson() => {
+        'description': description,
+      };
+}
+
 class TransferEvent {
   final String hash;
   final String txhash;
@@ -13,7 +28,7 @@ class TransferEvent {
   final EthereumAddress from;
   final EthereumAddress to;
   final BigInt value;
-  final Uint8List data;
+  final TransferData? data;
   final String status;
 
   TransferEvent(
@@ -37,9 +52,8 @@ class TransferEvent {
         from = EthereumAddress.fromHex(json['from']),
         to = EthereumAddress.fromHex(json['to']),
         value = BigInt.from(json['value']),
-        data = json['data'] != null
-            ? Uint8List.fromList(json['data'].codeUnits)
-            : Uint8List(0),
+        data =
+            json['data'] != null ? TransferData.fromJson(json['data']) : null,
         status = json['status'];
 
   // map to json
@@ -51,7 +65,7 @@ class TransferEvent {
         'from': from.hexEip55,
         'to': to.hexEip55,
         'value': value.toInt(),
-        'data': data.isNotEmpty ? String.fromCharCodes(data) : null,
+        'data': data?.toJson(),
         'status': status,
       };
 }

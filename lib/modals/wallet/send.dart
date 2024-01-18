@@ -32,6 +32,7 @@ class SendModal extends StatefulWidget {
   final String? id;
   final String? to;
   final String? amount;
+  final String? message;
 
   final String? receiveParams;
 
@@ -42,6 +43,7 @@ class SendModal extends StatefulWidget {
     this.id,
     this.to,
     this.amount,
+    this.message,
     this.receiveParams,
   });
 
@@ -57,7 +59,6 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
 
-  final FocusNode nameFocusNode = FocusNode();
   final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
@@ -68,6 +69,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   bool _isScanning = true;
   bool _scannerOn = true;
   bool _isSending = false;
+  bool _isDescribing = false;
 
   @override
   void initState() {
@@ -103,12 +105,16 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   void dispose() {
     //
     _scrollController.removeListener(onScrollUpdate);
+    _logic.stopListeningMessage();
+    messageFocusNode.removeListener(handleMessageListenerUpdate);
 
     super.dispose();
   }
 
   void onLoad() async {
     _scrollController.addListener(onScrollUpdate);
+    _logic.startListeningMessage();
+    messageFocusNode.addListener(handleMessageListenerUpdate);
 
     if (widget.id != null) {
       // there is a retry id
@@ -123,6 +129,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     if (widget.to != null) {
       _logic.addressController.text = widget.to ?? '';
       _logic.amountController.text = widget.amount ?? '';
+      _logic.messageController.text = widget.message ?? '';
+      _logic.updateMessage();
+      _logic.updateListenerAmount();
 
       final profile = await widget.profilesLogic.getProfile(widget.to!);
 
@@ -137,6 +146,12 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
   }
 
+  void handleMessageListenerUpdate() {
+    if (!messageFocusNode.hasFocus) {
+      handleDescribeDone();
+    }
+  }
+
   void onScrollUpdate() {
     const threshold = 20;
     final isAtTop = _scrollController.position.pixels <= threshold;
@@ -146,6 +161,34 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     _isAtTop = _scrollController.position.pixels <= threshold;
+  }
+
+  void handleDescribe() async {
+    setState(() {
+      _isDescribing = true;
+    });
+
+    await delay(const Duration(milliseconds: 50));
+
+    messageFocusNode.requestFocus();
+  }
+
+  void handleDescribeDone() {
+    setState(() {
+      _isDescribing = false;
+    });
+  }
+
+  void handleCloseDescribe() {
+    handleDescribeDone();
+
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  void handleClearDescribe() {
+    _logic.messageController.clear();
+
+    _logic.updateMessage();
   }
 
   void handleDismiss(BuildContext context) {
@@ -393,6 +436,10 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       (WalletState state) => state.hasAmount,
     );
 
+    final message = context.select(
+      (WalletState state) => state.message,
+    );
+
     final parsingQRAddressError = context.select(
       (WalletState state) => state.parsingQRAddressError,
     );
@@ -421,6 +468,12 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
             !parsingQRAddressError &&
             !parsingQRAddress) ||
         selectedProfile != null;
+
+    print('invalidAmount: $invalidAmount');
+    print('_isScanning: $_isScanning');
+    print('_isDescribing: $_isDescribing');
+    print('_isSending: $_isSending');
+    print('hasAmount: $hasAmount');
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -546,7 +599,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           const Text(
                             'Amount',
                             style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Column(
@@ -619,7 +674,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       onChanged: (_) =>
                                           handleThrottledUpdateAmount(),
                                       onSubmitted: (_) {
-                                        nameFocusNode.requestFocus();
+                                        messageFocusNode.requestFocus();
                                       },
                                       prefix: Center(
                                         child: Padding(
@@ -637,13 +692,18 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       suffix: Center(
                                           child: CupertinoButton(
                                         padding: const EdgeInsets.fromLTRB(
-                                            10, 0, 10, 0),
+                                          10,
+                                          0,
+                                          10,
+                                          0,
+                                        ),
                                         onPressed: handleSetMaxAmount,
                                         child: const Text(
                                           'max',
                                           style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w500),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                           textAlign: TextAlign.center,
                                         ),
                                       )),
@@ -719,6 +779,52 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       ? null
                                       : handleScanAgain,
                             ),
+                          if (isValid) const SizedBox(height: 20),
+                          if (!_isDescribing)
+                            const Text(
+                              'Description',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          const SizedBox(height: 10),
+                          GestureDetector(
+                            onTap: handleDescribe,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    ThemeColors.background.resolveFrom(context),
+                                border: Border.all(
+                                  color:
+                                      ThemeColors.border.resolveFrom(context),
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(5.0),
+                                ),
+                              ),
+                              padding:
+                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _isDescribing
+                                          ? '...'
+                                          : message != ''
+                                              ? message
+                                              : 'Add a description (optional)',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(CupertinoIcons.pencil),
+                                ],
+                              ),
+                            ),
+                          ),
                           const SizedBox(
                             height: 200,
                           ),
@@ -732,7 +838,67 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           color: ThemeColors.subtle.resolveFrom(context),
                         ),
                       ),
+                    if (_isDescribing)
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: message.isEmpty
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    if (message.isNotEmpty)
+                                      CupertinoButton(
+                                        onPressed: handleClearDescribe,
+                                        child: Text(
+                                          'Clear',
+                                          style: TextStyle(
+                                            color: ThemeColors.danger
+                                                .resolveFrom(context),
+                                          ),
+                                        ),
+                                      ),
+                                    CupertinoButton(
+                                      onPressed: handleCloseDescribe,
+                                      child: const Text('Done'),
+                                    ),
+                                  ],
+                                ),
+                                CupertinoTextField(
+                                  controller: _logic.messageController,
+                                  placeholder:
+                                      'Add a description (optional)\n\n\n',
+                                  minLines: 4,
+                                  maxLines: 10,
+                                  maxLength: 200,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  textInputAction: TextInputAction.newline,
+                                  textAlignVertical: TextAlignVertical.top,
+                                  focusNode: messageFocusNode,
+                                  autocorrect: true,
+                                  enableSuggestions: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     if (!_isScanning &&
+                        !_isDescribing &&
                         !_isSending &&
                         hasAmount &&
                         !invalidAmount)

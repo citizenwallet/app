@@ -5,6 +5,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/strings.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/picker.dart';
@@ -33,6 +34,8 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   double _opacity = 0;
   String _selectedValue = 'Citizen Wallet';
+  bool _isEnteringAmount = false;
+  bool _isDescribing = false;
 
   @override
   void initState() {
@@ -42,12 +45,9 @@ class ReceiveModalState extends State<ReceiveModal> {
       // initial requests go here
 
       debouncedQRCode = debounce(
-        (String value) => widget.logic.updateReceiveQR(
-            onlyHex: value == '' || (double.tryParse(value) ?? 0.0) == 0.0),
+        widget.logic.updateReceiveQR,
         const Duration(milliseconds: 500),
       );
-
-      amountFocusNode.requestFocus();
 
       onLoad();
     });
@@ -55,17 +55,104 @@ class ReceiveModalState extends State<ReceiveModal> {
 
   @override
   void dispose() {
+    widget.logic.stopListeningMessage();
+    messageFocusNode.removeListener(handleMessageListenerUpdate);
+
+    widget.logic.stopListeningAmount();
+    amountFocusNode.removeListener(handleAmountListenerUpdate);
+
+    widget.logic.clearInputControllers();
+
     super.dispose();
   }
 
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
+    widget.logic.startListeningMessage();
+    messageFocusNode.addListener(handleMessageListenerUpdate);
+
+    widget.logic.startListeningAmount();
+    amountFocusNode.addListener(handleAmountListenerUpdate);
+
     widget.logic.updateReceiveQR(onlyHex: true);
+
+    handleAmount();
 
     setState(() {
       _opacity = 1;
     });
+  }
+
+  void handleAmountListenerUpdate() {
+    if (!amountFocusNode.hasFocus) {
+      handleAmountDone();
+    }
+  }
+
+  void handleAmount() async {
+    setState(() {
+      _isEnteringAmount = true;
+      _isDescribing = false;
+    });
+
+    await delay(const Duration(milliseconds: 50));
+
+    amountFocusNode.requestFocus();
+  }
+
+  void handleAmountDone() {
+    setState(() {
+      _isEnteringAmount = false;
+    });
+
+    ModalScrollController.of(context)?.animateTo(0,
+        duration: const Duration(milliseconds: 250), curve: Curves.easeInOut);
+  }
+
+  void handleMessageListenerUpdate() {
+    if (!messageFocusNode.hasFocus) {
+      handleDescribeDone();
+    }
+  }
+
+  void handleDescribe() async {
+    setState(() {
+      _isDescribing = true;
+      _isEnteringAmount = false;
+    });
+
+    await delay(const Duration(milliseconds: 50));
+
+    messageFocusNode.requestFocus();
+  }
+
+  void handleDescribeDone() {
+    setState(() {
+      _isDescribing = false;
+    });
+
+    ModalScrollController.of(context)?.animateTo(0,
+        duration: const Duration(milliseconds: 250), curve: Curves.easeInOut);
+  }
+
+  void handleCloseEditing() {
+    handleDescribeDone();
+    handleAmountDone();
+
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  void handleClearDescribe() {
+    widget.logic.messageController.clear();
+
+    widget.logic.updateMessage();
+  }
+
+  void handleResetQRCode() {
+    widget.logic.clearInputControllers();
+
+    widget.logic.updateReceiveQR(onlyHex: true);
   }
 
   void handleDismiss(BuildContext context) {
@@ -81,7 +168,7 @@ class ReceiveModalState extends State<ReceiveModal> {
   }
 
   void handleThrottledUpdateQRCode(String value) {
-    debouncedQRCode([value]);
+    debouncedQRCode();
   }
 
   void handleSubmit() {
@@ -113,8 +200,12 @@ class ReceiveModalState extends State<ReceiveModal> {
 
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final invalidAmount = context.select(
-      (WalletState state) => state.invalidAmount,
+    final message = context.select(
+      (WalletState state) => state.message,
+    );
+
+    final amount = context.select(
+      (WalletState state) => state.amount,
     );
 
     final isExternalWallet = _selectedValue == 'External Wallet';
@@ -126,7 +217,12 @@ class ReceiveModalState extends State<ReceiveModal> {
       child: CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          minimum: const EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -142,12 +238,20 @@ class ReceiveModalState extends State<ReceiveModal> {
                 ),
               ),
               Expanded(
-                child: CustomScrollView(
-                  controller: ModalScrollController.of(context),
-                  scrollBehavior: const CupertinoScrollBehavior(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Row(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    10,
+                    10,
+                    10,
+                    0,
+                  ),
+                  child: ListView(
+                    controller: ModalScrollController.of(context),
+                    physics:
+                        const ScrollPhysics(parent: BouncingScrollPhysics()),
+                    scrollDirection: Axis.vertical,
+                    children: [
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -164,57 +268,233 @@ class ReceiveModalState extends State<ReceiveModal> {
                           ),
                         ],
                       ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 10,
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                        ),
+                        child: Chip(
+                          isExternalWallet
+                              ? formatLongText(qrData, length: 6)
+                              : ellipsizeLongText(
+                                  qrData.replaceFirst('https://', ''),
+                                  startLength: 30,
+                                  endLength: 6,
+                                ),
+                          onTap: () => handleCopy(qrData),
+                          fontSize: 14,
+                          color:
+                              ThemeColors.subtleEmphasis.resolveFrom(context),
+                          textColor: ThemeColors.touchable.resolveFrom(context),
+                          suffix: Icon(
+                            CupertinoIcons.square_on_square,
+                            size: 14,
+                            color: ThemeColors.touchable.resolveFrom(context),
                           ),
-                          Chip(
-                            isExternalWallet
-                                ? formatLongText(qrData, length: 6)
-                                : ellipsizeLongText(
-                                    qrData.replaceFirst('https://', ''),
-                                    startLength: 30,
-                                    endLength: 6,
-                                  ),
-                            onTap: () => handleCopy(qrData),
-                            fontSize: 14,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
-                            suffix: Icon(
-                              CupertinoIcons.square_on_square,
-                              size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
+                          maxWidth: isExternalWallet ? 160 : 290,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                        ),
+                        child: Picker(
+                          options: const ['Citizen Wallet', 'External Wallet'],
+                          selected: _selectedValue,
+                          handleSelect: handleSelect,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      if (!isExternalWallet)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Button(
+                              text: 'Reset QR Code',
+                              onPressed: handleResetQRCode,
+                              minWidth: 200,
+                              maxWidth: 200,
+                              color:
+                                  ThemeColors.uiBackground.resolveFrom(context),
+                              labelColor: ThemeColors.text.resolveFrom(context),
                             ),
-                            maxWidth: isExternalWallet ? 160 : 290,
+                          ],
+                        ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      if (!isExternalWallet)
+                        const Text(
+                          'Amount',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(
-                            height: 10,
+                        ),
+                      if (!isExternalWallet) const SizedBox(height: 10),
+                      if (!isExternalWallet)
+                        GestureDetector(
+                          onTap: handleAmount,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color:
+                                  ThemeColors.background.resolveFrom(context),
+                              border: Border.all(
+                                color: ThemeColors.border.resolveFrom(context),
+                              ),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(5.0),
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Row(
+                              children: [
+                                Center(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    child: Text(
+                                      wallet?.symbol ?? '',
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    _isEnteringAmount
+                                        ? '...'
+                                        : amount != ''
+                                            ? amount
+                                            : formatCurrency(0.00, ''),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                const Icon(CupertinoIcons.keyboard),
+                              ],
+                            ),
                           ),
-                          Picker(
-                            options: const [
-                              'Citizen Wallet',
-                              'External Wallet'
-                            ],
-                            selected: _selectedValue,
-                            handleSelect: handleSelect,
+                        ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      if (!isExternalWallet)
+                        const Text(
+                          'Description',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      if (!isExternalWallet) const SizedBox(height: 10),
+                      if (!isExternalWallet)
+                        GestureDetector(
+                          onTap: handleDescribe,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color:
+                                  ThemeColors.background.resolveFrom(context),
+                              border: Border.all(
+                                color: ThemeColors.border.resolveFrom(context),
+                              ),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(5.0),
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _isDescribing
+                                        ? '...'
+                                        : message != ''
+                                            ? message
+                                            : 'Add a description (optional)',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                const Icon(CupertinoIcons.pencil),
+                              ],
+                            ),
+                          ),
+                        ),
+                      const SizedBox(
+                        height: 160,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if ((_isEnteringAmount || _isDescribing) && !isExternalWallet)
+                const SizedBox(height: 10),
+              if (_isDescribing && !isExternalWallet)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      ),
+                    ),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: message.isEmpty
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (message.isNotEmpty)
+                            CupertinoButton(
+                              onPressed: handleClearDescribe,
+                              child: Text(
+                                'Clear',
+                                style: TextStyle(
+                                  color:
+                                      ThemeColors.danger.resolveFrom(context),
+                                ),
+                              ),
+                            ),
+                          CupertinoButton(
+                            onPressed: handleCloseEditing,
+                            child: const Text('Done'),
                           ),
                         ],
                       ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 160,
+                      CupertinoTextField(
+                        controller: widget.logic.messageController,
+                        placeholder: 'Add a description (optional)\n\n\n',
+                        minLines: 4,
+                        maxLines: 10,
+                        maxLength: 200,
+                        textCapitalization: TextCapitalization.sentences,
+                        textInputAction: TextInputAction.newline,
+                        textAlignVertical: TextAlignVertical.top,
+                        focusNode: messageFocusNode,
+                        autocorrect: true,
+                        enableSuggestions: true,
+                        onChanged: handleThrottledUpdateQRCode,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              if (!isExternalWallet)
+              if (_isEnteringAmount && !isExternalWallet)
                 const Row(
                   children: [
                     Padding(
@@ -227,7 +507,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                     ),
                   ],
                 ),
-              if (!isExternalWallet)
+              if (_isEnteringAmount && !isExternalWallet)
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   child: Center(
@@ -245,29 +525,17 @@ class ReceiveModalState extends State<ReceiveModal> {
                           ),
                         ),
                       ),
-                      decoration: invalidAmount
-                          ? BoxDecoration(
-                              color: const CupertinoDynamicColor.withBrightness(
-                                color: CupertinoColors.white,
-                                darkColor: CupertinoColors.black,
-                              ),
-                              border: Border.all(
-                                color: ThemeColors.danger,
-                              ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5.0)),
-                            )
-                          : BoxDecoration(
-                              color: const CupertinoDynamicColor.withBrightness(
-                                color: CupertinoColors.white,
-                                darkColor: CupertinoColors.black,
-                              ),
-                              border: Border.all(
-                                color: ThemeColors.border.resolveFrom(context),
-                              ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5.0)),
-                            ),
+                      decoration: BoxDecoration(
+                        color: const CupertinoDynamicColor.withBrightness(
+                          color: CupertinoColors.white,
+                          darkColor: CupertinoColors.black,
+                        ),
+                        border: Border.all(
+                          color: ThemeColors.border.resolveFrom(context),
+                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5.0)),
+                      ),
                       maxLines: 1,
                       maxLength: 25,
                       focusNode: amountFocusNode,

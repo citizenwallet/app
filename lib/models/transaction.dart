@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/utils/currency.dart';
-import 'package:convert/convert.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pointycastle/digests/keccak.dart';
 import 'package:web3dart/crypto.dart';
@@ -62,7 +60,7 @@ class CWTransaction {
   final int chainId;
   final String from;
   final String to;
-  final String title;
+  final String description;
   String _amount = '0.0';
   DateTime date = DateTime.now();
   final int blockNumber;
@@ -77,7 +75,7 @@ class CWTransaction {
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
-    required this.title,
+    required this.description,
     required this.date,
     this.blockNumber = 0,
     this.state = TransactionState.success,
@@ -88,7 +86,7 @@ class CWTransaction {
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
-    this.title = '',
+    this.description = '',
     this.blockNumber = 0,
     this.state = TransactionState.success,
   });
@@ -99,7 +97,7 @@ class CWTransaction {
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
-    required this.title,
+    required this.description,
     required this.date,
     this.blockNumber = 0,
     this.state = TransactionState.sending,
@@ -111,7 +109,7 @@ class CWTransaction {
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
-    required this.title,
+    required this.description,
     required this.date,
     this.blockNumber = 0,
     this.state = TransactionState.pending,
@@ -123,7 +121,7 @@ class CWTransaction {
     this.chainId = 0,
     this.from = '0x',
     this.to = '0x',
-    required this.title,
+    required this.description,
     required this.date,
     this.blockNumber = 0,
     this.state = TransactionState.fail,
@@ -150,7 +148,7 @@ class CWTransaction {
       chainId: chainId ?? this.chainId,
       from: from ?? this.from,
       to: to ?? this.to,
-      title: title ?? this.title,
+      description: title ?? this.description,
       date: date ?? this.date,
       blockNumber: blockNumber ?? this.blockNumber,
       state: state ?? this.state,
@@ -213,7 +211,7 @@ class CWTransaction {
         chainId = json['chainId'],
         from = json['from'],
         to = json['to'],
-        title = json['title'],
+        description = json['description'],
         _amount = json['amount'],
         date = DateTime.parse(json['date']),
         blockNumber = json['blockNumber'],
@@ -227,7 +225,7 @@ class CWTransaction {
         'chainId': chainId,
         'from': from,
         'to': to,
-        'title': title,
+        'description': description,
         'amount': _amount,
         'blockNumber': blockNumber,
         'date': date.toIso8601String(),
