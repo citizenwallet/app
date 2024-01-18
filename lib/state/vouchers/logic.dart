@@ -536,6 +536,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         userop,
         customCredentials: credentials,
         legacy: voucher.legacy,
+        data: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
       );
       if (!success) {
         throw Exception('transaction failed');
