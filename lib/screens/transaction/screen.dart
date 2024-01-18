@@ -102,6 +102,7 @@ class TransactionScreenState extends State<TransactionScreen> {
         profilesLogic: widget.profilesLogic,
         to: address,
         amount: (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
+        message: message,
       ),
     );
 
@@ -157,6 +158,8 @@ class TransactionScreenState extends State<TransactionScreen> {
     final vouchers = context.select(selectMappedVoucher);
 
     final voucher = vouchers[from];
+
+    final hasDescription = transaction.description != '';
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -305,7 +308,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'When',
+                                    'Date',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.start,
@@ -331,41 +334,62 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'What',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      transaction.title != ''
-                                          ? transaction.title
-                                          : '...',
+                              if (hasDescription)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Description',
+                                      maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.end,
+                                      textAlign: TextAlign.start,
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                         color: ThemeColors.text
                                             .resolveFrom(context),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              if (hasDescription) const SizedBox(height: 10),
+                              if (hasDescription)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: ThemeColors.background
+                                              .resolveFrom(context),
+                                          border: Border.all(
+                                            color: ThemeColors.border
+                                                .resolveFrom(context),
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 10, 10, 10),
+                                        child: Text(
+                                          transaction.description != ''
+                                              ? transaction.description
+                                              : '...',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            color: ThemeColors.text
+                                                .resolveFrom(context),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (hasDescription) const SizedBox(height: 200),
                             ],
                           ),
                         ),
@@ -444,7 +468,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       : () => handleReplay(
                                             transaction.to,
                                             transaction.amount,
-                                            transaction.title,
+                                            transaction.description,
                                           ),
                                   borderRadius: BorderRadius.circular(25),
                                   color: ThemeColors.surfacePrimary

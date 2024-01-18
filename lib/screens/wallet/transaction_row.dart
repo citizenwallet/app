@@ -125,7 +125,7 @@ class TransactionRowState extends State<TransactionRow> {
                               imageUrl: profile?.profile.imageMedium,
                             )
                     },
-                    if (transaction.title != '')
+                    if (transaction.description != '')
                       Positioned(
                         top: 0,
                         right: 0,

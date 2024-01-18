@@ -41,6 +41,9 @@ class WalletState with ChangeNotifier {
   bool hasAddress = false;
   bool hasAmount = false;
 
+  String amount = '';
+  String message = '';
+
   String receiveQR = '';
 
   String walletQR = '';
@@ -51,6 +54,16 @@ class WalletState with ChangeNotifier {
 
   bool cwWalletsLoading = false;
   bool cwWalletsError = false;
+
+  void updateAmount(String amount) {
+    this.amount = amount;
+    notifyListeners();
+  }
+
+  void updateMessage(String message) {
+    this.message = message;
+    notifyListeners();
+  }
 
   void setChainId(int chainId) {
     this.chainId = chainId;
