@@ -125,24 +125,6 @@ class TransactionRowState extends State<TransactionRow> {
                               imageUrl: profile?.profile.imageMedium,
                             )
                     },
-                    if (transaction.description != '')
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Container(
-                          height: 20,
-                          width: 20,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: ThemeColors.background.resolveFrom(context),
-                          ),
-                          child: Icon(
-                            CupertinoIcons.text_alignleft,
-                            size: 14,
-                            color: ThemeColors.subtleText.resolveFrom(context),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
                 const SizedBox(width: 10),
@@ -156,44 +138,51 @@ class TransactionRowState extends State<TransactionRow> {
                               height: 24,
                               width: 100,
                             )
-                          : Text(
-                              voucher != null
-                                  ? isIncoming
-                                      ? 'Voucher redeemed'
-                                      : 'Voucher created'
-                                  : profile != null
-                                      ? profile.profile.name
-                                      : 'Anonymous',
+                          : RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: profile != null
+                                        ? '${profile.profile.name} '
+                                        : 'Anonymous ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: profile != null
+                                        ? '@${profile.profile.username}'
+                                        : '$formattedAddress',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                      color: ThemeColors.subtleText
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
                             ),
-                      if (voucher != null && profile != null && profile.loading)
-                        const SizedBox(height: 2),
-                      voucher != null && profile != null && profile.loading
-                          ? const PulsingContainer(
-                              height: 20,
-                              width: 80,
-                            )
-                          : SizedBox(
-                              height: 20,
-                              child: Text(
-                                profile != null
-                                    ? '@${profile.profile.username}'
-                                    : formattedAddress,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: ThemeColors.subtleText
-                                      .resolveFrom(context),
-                                ),
-                              ),
-                            ),
+                      const SizedBox(height: 2),
+                      SizedBox(
+                        height: 20,
+                        child: Text(
+                          transaction.description.isNotEmpty
+                              ? transaction.description
+                              : 'no description',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: ThemeColors.subtleText.resolveFrom(context),
+                          ),
+                        ),
+                      ),
                       if (voucher != null && profile != null && profile.loading)
                         const SizedBox(height: 2),
                       voucher != null && profile != null && profile.loading
