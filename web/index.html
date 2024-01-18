@@ -487,7 +487,10 @@
       // *********************************
 
       // Android Chrome app install banner
-      const hasDismissedBanner = localStorage.getItem("hasDismissedBanner");
+      const hasDismissedBanner = true; // TODO: enable again localStorage.getItem("hasDismissedBanner");
+      // along with "sha256_cert_fingerprints": [
+      //     "7B:6D:E0:1C:16:65:8C:8C:83:FC:02:F1:27:D6:86:C9:05:45:0C:C2:27:7A:A2:2D:04:DB:BA:F1:39:24:25:0F"
+      // ]
 
       if (!hasDismissedBanner) {
         let deferredPrompt = null;
