@@ -651,7 +651,7 @@ class WalletLogic extends WidgetsBindingObserver {
           to: tx.to.hexEip55,
           nonce: 0, // TODO: remove nonce hardcode
           value: tx.value.toInt(),
-          data: '',
+          data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
           status: tx.status,
           contract: _wallet.erc20Address,
         ),
@@ -841,7 +841,7 @@ class WalletLogic extends WidgetsBindingObserver {
               to: tx.to.hexEip55,
               nonce: 0, // TODO: remove nonce hardcode
               value: tx.value.toInt(),
-              data: '',
+              data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.erc20Address,
             ),
@@ -954,7 +954,7 @@ class WalletLogic extends WidgetsBindingObserver {
               to: tx.to.hexEip55,
               nonce: 0, // TODO: remove nonce hardcode
               value: tx.value.toInt(),
-              data: '',
+              data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.erc20Address,
             ),
