@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/contacts.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/db/vouchers.dart';
@@ -40,6 +41,7 @@ class DBService {
   late ContactTable contacts;
   late VouchersTable vouchers;
   late TransactionsTable transactions;
+  late AccountsTable accounts;
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
@@ -53,6 +55,9 @@ class DBService {
 
         // instantiate a transactions table
         transactions = TransactionsTable(db);
+
+        // instantiate a accounts table
+        accounts = AccountsTable(db);
       },
       onCreate: (db, version) async {
         // create tables
@@ -61,6 +66,8 @@ class DBService {
         await vouchers.create(db);
 
         await transactions.create(db);
+
+        await accounts.create(db);
 
         return;
       },
@@ -72,9 +79,11 @@ class DBService {
 
         await transactions.migrate(db, oldVersion, newVersion);
 
+        await accounts.migrate(db, oldVersion, newVersion);
+
         return;
       },
-      version: 7,
+      version: 8,
     );
 
     final db = await databaseFactory.openDatabase(
