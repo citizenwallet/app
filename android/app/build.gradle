@@ -35,7 +35,8 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    // compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -72,6 +73,9 @@ android {
    buildTypes {
        release {
            signingConfig signingConfigs.release
+           //add these lines 
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
        }
    }
     namespace 'xyz.citizenwallet.wallet'
