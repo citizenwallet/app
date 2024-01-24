@@ -1,25 +1,36 @@
+import 'dart:convert';
+
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:sqflite/sqlite_api.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
 
 class DBAccount {
   final String id;
   final String alias;
-  final String address;
+  final EthereumAddress address;
   final String name;
+  EthPrivateKey? privateKey;
+  final ProfileV1? profile;
 
   DBAccount({
     required this.alias,
     required this.address,
     required this.name,
-  }) : id = '$alias|$address';
+    this.privateKey,
+    this.profile,
+  }) : id = getAccountID(address, alias);
 
   // toMap
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'alias': alias,
-      'address': address,
+      'address': address.hexEip55,
       'name': name,
+      if (privateKey != null) 'privateKey': bytesToHex(privateKey!.privateKey),
+      if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
   }
 
@@ -27,10 +38,20 @@ class DBAccount {
   factory DBAccount.fromMap(Map<String, dynamic> map) {
     return DBAccount(
       alias: map['alias'],
-      address: map['address'],
+      address: EthereumAddress.fromHex(map['address']),
       name: map['name'],
+      privateKey: map['privateKey'] != null
+          ? EthPrivateKey.fromHex(map['privateKey'])
+          : null,
+      profile: map['profile'] != null
+          ? ProfileV1.fromJson(jsonDecode(map['profile']))
+          : null,
     );
   }
+}
+
+String getAccountID(EthereumAddress address, String alias) {
+  return '${address.hexEip55}@$alias';
 }
 
 class AccountsTable extends DBTable {
@@ -45,7 +66,9 @@ class AccountsTable extends DBTable {
         id TEXT PRIMARY KEY,
         alias TEXT NOT NULL,
         address TEXT NOT NULL,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        privateKey TEXT,
+        profile TEXT
       )
   ''';
 
@@ -56,11 +79,7 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {
-      8: [
-        createQuery,
-      ],
-    };
+    final migrations = {};
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
       final queries = migrations[i];
@@ -71,6 +90,21 @@ class AccountsTable extends DBTable {
         }
       }
     }
+  }
+
+  // get account by id
+  Future<DBAccount?> get(EthereumAddress address, String alias) async {
+    final List<Map<String, dynamic>> maps = await db.query(
+      name,
+      where: 'id = ?',
+      whereArgs: [getAccountID(address, alias)],
+    );
+
+    if (maps.isEmpty) {
+      return null;
+    }
+
+    return DBAccount.fromMap(maps.first);
   }
 
   Future<void> insert(DBAccount account) async {
@@ -90,16 +124,34 @@ class AccountsTable extends DBTable {
     );
   }
 
-  Future<void> delete(DBAccount account) async {
+  Future<void> delete(EthereumAddress address, String alias) async {
     await db.delete(
       name,
       where: 'id = ?',
-      whereArgs: [account.id],
+      whereArgs: [getAccountID(address, alias)],
     );
+  }
+
+  // delete all
+  Future<void> deleteAll() async {
+    await db.delete(name);
   }
 
   Future<List<DBAccount>> all() async {
     final List<Map<String, dynamic>> maps = await db.query(name);
+
+    return List.generate(maps.length, (i) {
+      return DBAccount.fromMap(maps[i]);
+    });
+  }
+
+  // get all accounts for alias
+  Future<List<DBAccount>> allForAlias(String alias) async {
+    final List<Map<String, dynamic>> maps = await db.query(
+      name,
+      where: 'alias = ?',
+      whereArgs: [alias],
+    );
 
     return List.generate(maps.length, (i) {
       return DBAccount.fromMap(maps[i]);

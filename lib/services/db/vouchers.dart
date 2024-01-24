@@ -75,7 +75,7 @@ class DBVoucher {
 }
 
 class VouchersTable extends DBTable {
-  VouchersTable(Database db) : super(db);
+  VouchersTable(super.db);
 
   // The name of the table
   @override

@@ -38,10 +38,14 @@ class DBService {
   DBService._internal();
 
   Database? _db;
+
+  String get path {
+    return _db!.path;
+  }
+
   late ContactTable contacts;
   late VouchersTable vouchers;
   late TransactionsTable transactions;
-  late AccountsTable accounts;
 
 // open a database, create tables and migrate data
   Future<Database> openDB(String path) async {
@@ -55,9 +59,6 @@ class DBService {
 
         // instantiate a transactions table
         transactions = TransactionsTable(db);
-
-        // instantiate a accounts table
-        accounts = AccountsTable(db);
       },
       onCreate: (db, version) async {
         // create tables
@@ -66,8 +67,6 @@ class DBService {
         await vouchers.create(db);
 
         await transactions.create(db);
-
-        await accounts.create(db);
 
         return;
       },
@@ -78,8 +77,6 @@ class DBService {
         await vouchers.migrate(db, oldVersion, newVersion);
 
         await transactions.migrate(db, oldVersion, newVersion);
-
-        await accounts.migrate(db, oldVersion, newVersion);
 
         return;
       },
@@ -117,9 +114,9 @@ class DBService {
       await _db!.close();
     }
 
-    final path =
+    final dbPath =
         kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
-    _db = await openDB(path);
+    _db = await openDB(dbPath);
   }
 
   // reset db
@@ -128,10 +125,10 @@ class DBService {
       return;
     }
 
-    final path = _db!.path;
+    final dbPath = _db!.path;
     await _db!.close();
-    await deleteDatabase(path);
-    _db = await openDB(path);
+    await deleteDatabase(dbPath);
+    _db = await openDB(dbPath);
   }
 
   // delete db
@@ -140,9 +137,9 @@ class DBService {
       return;
     }
 
-    final path = _db!.path;
+    final dbPath = _db!.path;
     await _db!.close();
-    await deleteDatabase(path);
+    await deleteDatabase(dbPath);
   }
 
   // get db size in bytes
@@ -151,8 +148,121 @@ class DBService {
       return 0;
     }
 
-    final path = _db!.path;
-    final file = File(path);
+    final dbPath = _db!.path;
+    final file = File(dbPath);
+    return file.length();
+  }
+}
+
+class AccountsDBService {
+  static final AccountsDBService _instance = AccountsDBService._internal();
+
+  factory AccountsDBService() {
+    return _instance;
+  }
+
+  AccountsDBService._internal();
+
+  Database? _db;
+
+  late String name;
+  String get path {
+    return _db!.path;
+  }
+
+  late AccountsTable accounts;
+
+// open a database, create tables and migrate data
+  Future<Database> openDB(String path) async {
+    final options = OpenDatabaseOptions(
+      onConfigure: (db) async {
+        // instantiate a accounts table
+        accounts = AccountsTable(db);
+      },
+      onCreate: (db, version) async {
+        // create tables
+        await accounts.create(db);
+
+        return;
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // migrate data
+        await accounts.migrate(db, oldVersion, newVersion);
+
+        return;
+      },
+      version: 0,
+    );
+
+    final db = await databaseFactory.openDatabase(
+      path,
+      options: options,
+    );
+
+    return db;
+  }
+
+  Future<void> init(String name) async {
+    print('init accounts db');
+    if (kIsWeb) {
+      // Change default factory on the web
+      final swOptions = SqfliteFfiWebOptions(
+        sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        sharedWorkerUri: Uri.parse('sqflite_sw.js'),
+        indexedDbName: '$name.db',
+      );
+
+      final webContext = defaultTargetPlatform == TargetPlatform.android
+          ? await sqfliteFfiWebLoadSqlite3Wasm(swOptions)
+          : await sqfliteFfiWebStartSharedWorker(swOptions);
+
+      databaseFactory =
+          createDatabaseFactoryFfiWeb(options: webContext.options);
+      // databaseFactory = databaseFactoryFfiWeb;
+      // path = 'my_web_web.db';
+    }
+
+    if (_db != null && _db!.isOpen) {
+      await _db!.close();
+    }
+
+    name = '$name.db';
+    final dbPath =
+        kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
+    _db = await openDB(dbPath);
+  }
+
+  // reset db
+  Future<void> resetDB() async {
+    if (_db == null) {
+      return;
+    }
+
+    final dbPath = _db!.path;
+    await _db!.close();
+    await deleteDatabase(dbPath);
+    _db = await openDB(dbPath);
+  }
+
+  // delete db
+  Future<void> deleteDB() async {
+    if (_db == null) {
+      return;
+    }
+
+    final dbPath = _db!.path;
+    await _db!.close();
+    await deleteDatabase(dbPath);
+  }
+
+  // get db size in bytes
+  Future<int> getDBSize() async {
+    if (_db == null) {
+      return 0;
+    }
+
+    final dbPath = _db!.path;
+    final file = File(dbPath);
     return file.length();
   }
 }

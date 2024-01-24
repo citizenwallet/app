@@ -6,9 +6,11 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/service.dart';
+import 'package:citizenwallet/services/accounts/backup.dart';
+import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -69,10 +71,10 @@ class WalletLogic extends WidgetsBindingObserver {
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
+  final AccountsDBService _accountsDB = AccountsDBService();
 
   final PreferencesService _preferences = PreferencesService();
-  final EncryptedPreferencesService _encPrefs =
-      getEncryptedPreferencesService();
+  final AccountsServiceInterface _encPrefs = getAccountsService();
 
   bool cancelLoadAccounts = false;
   String? _fetchRequest;
@@ -236,8 +238,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
       await _wallet.initWeb(
-        decodedSplit[0],
-        bytesToHex(cred.privateKey.privateKey),
+        EthereumAddress.fromHex(decodedSplit[0]),
+        cred.privateKey,
         legacy: fromLegacy,
         NativeCurrency(
           name: config.token.name,
@@ -340,15 +342,15 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias);
 
-      if (dbWallet == null || dbWallet.privateKey.isEmpty) {
+      if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }
 
       await _wallet.init(
         dbWallet.address,
-        dbWallet.privateKey,
+        dbWallet.privateKey!,
         NativeCurrency(
           name: config.token.name,
           symbol: config.token.symbol,
@@ -385,7 +387,7 @@ class WalletLogic extends WidgetsBindingObserver {
           symbol: config.token.symbol,
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
-          locked: dbWallet.privateKey.isEmpty,
+          locked: dbWallet.privateKey == null,
           plugins: config.plugins,
         ),
       );
@@ -444,9 +446,9 @@ class WalletLogic extends WidgetsBindingObserver {
         locked: false,
       );
 
-      await _encPrefs.setWalletBackup(BackupWallet(
-        address: address.hexEip55,
-        privateKey: bytesToHex(credentials.privateKey),
+      await _encPrefs.setAccount(DBAccount(
+        address: address,
+        privateKey: credentials,
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
@@ -506,9 +508,9 @@ class WalletLogic extends WidgetsBindingObserver {
         locked: false,
       );
 
-      await _encPrefs.setWalletBackup(BackupWallet(
-        address: address.hexEip55,
-        privateKey: bytesToHex(credentials.privateKey),
+      await _encPrefs.setAccount(DBAccount(
+        address: address,
+        privateKey: credentials,
         name: name,
         alias: config.community.alias,
       ));
@@ -533,13 +535,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> editWallet(String address, String alias, String name) async {
     try {
-      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias);
       if (dbWallet == null) {
         throw NotFoundException();
       }
 
-      await _encPrefs.setWalletBackup(BackupWallet(
-        address: EthereumAddress.fromHex(address).hexEip55,
+      await _encPrefs.setAccount(DBAccount(
+        address: EthereumAddress.fromHex(address),
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
@@ -719,12 +721,12 @@ class WalletLogic extends WidgetsBindingObserver {
   // takes a password and returns a wallet
   Future<String?> returnWallet(String address, String alias) async {
     try {
-      final dbWallet = await _encPrefs.getWalletBackup(address, alias);
-      if (dbWallet == null) {
+      final dbWallet = await _encPrefs.getAccount(address, alias);
+      if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }
 
-      return dbWallet.privateKey;
+      return bytesToHex(dbWallet.privateKey!.privateKey);
 
       // TODO: export to web instead of returning private key
       // final credentials = EthPrivateKey.fromHex(dbWallet.privateKey);
@@ -762,7 +764,7 @@ class WalletLogic extends WidgetsBindingObserver {
   // permanently deletes a wallet
   Future<void> deleteWallet(String address, String alias) async {
     try {
-      await _encPrefs.deleteWalletBackup(address, alias);
+      await _encPrefs.deleteAccount(address, alias);
 
       loadDBWallets();
 
@@ -1570,7 +1572,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<String?> tryUnlockWallet(String strwallet, String address) async {
     try {
       // final password =
-      //     await EncryptedPreferencesService().getWalletPassword(address);
+      //     await AccountsServiceInterface().getWalletPassword(address);
 
       // if (password == null) {
       //   return null;
@@ -1594,17 +1596,17 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.loadWallets();
 
-      final wallets = await _encPrefs.getAllWalletBackups();
+      final wallets = await _encPrefs.getAllAccounts();
 
       final List<CWWallet> cwwallets = await compute((ws) {
-        return ws.map((w) {
-          final creds = EthPrivateKey.fromHex(w.privateKey);
+        return ws.where((w) => w.privateKey != null).map((w) {
+          final creds = w.privateKey!;
           return CWWallet(
             '0.0',
             name: w.name,
             address: creds.address.hexEip55,
             alias: w.alias,
-            account: w.address,
+            account: w.address.hexEip55,
             currencyName: '',
             symbol: '',
             currencyLogo: '',

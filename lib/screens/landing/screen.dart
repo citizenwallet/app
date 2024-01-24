@@ -1,11 +1,8 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
-import 'package:citizenwallet/modals/wallet/voucher_read.dart';
-import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
-import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
-import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:citizenwallet/state/android_pin_code/state.dart';
+import 'package:citizenwallet/services/accounts/options.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
@@ -100,7 +97,7 @@ class LandingScreenState extends State<LandingScreen>
 
     // load a deep linked wallet from web
     if (widget.webWallet != null) {
-      await handleAndroidBackup();
+      // await handleAndroidBackup();
 
       (address, alias) = await _appLogic.importWebWallet(
         widget.webWallet!,
@@ -196,9 +193,11 @@ class LandingScreenState extends State<LandingScreen>
 
     // on apple devices we can safely init the encrypted preferences without user input
     // icloud keychain manages everything for us
-    await getEncryptedPreferencesService().init(
-      AppleEncryptedPreferencesOptions(
-          groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID')),
+    await getAccountsService().init(
+      AppleAccountsOptions(
+        groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID'),
+        accountsDB: AccountsDBService(),
+      ),
     );
   }
 
@@ -208,57 +207,62 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
+    await getAccountsService().init(AndroidAccountsOptions(
+      accountsDB: AccountsDBService(),
+    ));
+
+    print('set up android accounts service');
     // since shared preferences are backed up by default on android,
     // it should be possible to figure out if there is a backup available
-    final isConfigured = _appLogic.androidBackupIsConfigured();
-    if (!isConfigured) {
-      return;
-    }
+    // final isConfigured = _appLogic.androidBackupIsConfigured();
+    // if (!isConfigured) {
+    //   return;
+    // }
 
-    // get the pin code stored in android encrypted preferences
-    final success = await _appLogic.configureAndroidBackup();
-    if (success) {
-      return;
-    }
+    // // get the pin code stored in android encrypted preferences
+    // final success = await _appLogic.configureAndroidBackup();
+    // if (success) {
+    //   return;
+    // }
 
-    // there is a backup available, ask the user to recover it with their pin code
-    await showCupertinoModalPopup<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => ChangeNotifierProvider(
-        create: (_) => AndroidPinCodeState(),
-        child: const AndroidRecoveryModal(),
-      ),
-    );
+    // // there is a backup available, ask the user to recover it with their pin code
+    // await showCupertinoModalPopup<void>(
+    //   context: context,
+    //   barrierDismissible: true,
+    //   builder: (_) => ChangeNotifierProvider(
+    //     create: (_) => AndroidPinCodeState(),
+    //     child: const AndroidRecoveryModal(),
+    //   ),
+    // );
   }
 
   /// handleAndroidBackup handles the android backup flow if needed and then returns
-  Future<void> handleAndroidBackup() async {
-    if (!isPlatformAndroid()) {
-      return;
-    }
+  // Future<void> handleAndroidBackup() async {
+  //   if (!isPlatformAndroid()) {
+  //     return;
+  //   }
 
-    // get the pin code stored in android encrypted preferences
-    final success = await _appLogic.configureAndroidBackup();
-    if (success) {
-      return;
-    }
+  //   // get the pin code stored in android encrypted preferences
+  //   final success = await _appLogic.configureAndroidBackup();
+  //   if (success) {
+  //     return;
+  //   }
 
-    // no backup configured, ask the user to set up a pin code
-    await showCupertinoModalPopup<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => ChangeNotifierProvider(
-        create: (_) => AndroidPinCodeState(),
-        child: const AndroidPinCodeModal(),
-      ),
-    );
-  }
+  //   // no backup configured, ask the user to set up a pin code
+  //   await showCupertinoModalPopup<void>(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (_) => ChangeNotifierProvider(
+  //       create: (_) => AndroidPinCodeState(),
+  //       child: const AndroidPinCodeModal(),
+  //     ),
+  //   );
+  // }
 
   void handleNewWallet() async {
     final navigator = GoRouter.of(context);
 
-    await handleAndroidBackup();
+    // await handleAndroidBackup();
 
     final alias = await showCupertinoModalBottomSheet<String?>(
       context: context,
@@ -287,7 +291,7 @@ class LandingScreenState extends State<LandingScreen>
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
 
-    await handleAndroidBackup();
+    // await handleAndroidBackup();
 
     final result = await showCupertinoModalPopup<String?>(
       context: context,

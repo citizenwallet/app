@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/credentials/backup.dart';
+import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -10,7 +10,8 @@ import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/web3dart.dart';
 
-Future<EthereumAddress?> getLegacyAccountAddress(BackupWallet backup) async {
+Future<EthereumAddress?> getLegacyAccountAddress(
+    LegacyBackupWallet backup) async {
   try {
     final config = await ConfigService().getConfig(backup.alias);
 

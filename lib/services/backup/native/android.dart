@@ -1,11 +1,16 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'package:citizenwallet/utils/encrypt.dart';
+import 'package:credential_manager/credential_manager.dart';
 import 'package:googleapis/drive/v3.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
+import 'package:web3dart/crypto.dart';
+
+const credentialStorageKey = 'app@cw';
 
 class AndroidConfig extends BackupConfigInterface {
   final Client client;
@@ -27,6 +32,9 @@ class AndroidBackupService extends BackupServiceInterface {
   late DriveApi _driveApi;
   late GoogleSignIn _googleSignIn;
 
+  late CredentialManager _credentials;
+  late Encrypt _encrypt;
+
   @override
   init(BackupConfigInterface config) async {
     final androidConfig = config as AndroidConfig;
@@ -36,6 +44,39 @@ class AndroidBackupService extends BackupServiceInterface {
     _googleSignIn = GoogleSignIn(scopes: scopes);
 
     await _googleSignIn.signIn();
+
+    _credentials = CredentialManager();
+
+    if (_credentials.isSupportedPlatform) {
+      throw BackupNotSupportedException();
+    }
+
+    // if supported
+    await _credentials.init(preferImmediatelyAvailableCredentials: true);
+
+    try {
+      // check if there is an encryption key available
+      final credential = await _credentials.getPasswordCredentials();
+
+      if (credential.password == null) {
+        throw BackupSourceMissingException();
+      }
+
+      _encrypt = Encrypt(hexToBytes(credential.password!));
+    } catch (e) {
+      // if not, create one
+      // generate a random key
+      final key = generateKey(32);
+
+      await _credentials.savePasswordCredentials(
+        PasswordCredential(
+          username: credentialStorageKey,
+          password: bytesToHex(key),
+        ),
+      );
+
+      _encrypt = Encrypt(key);
+    }
 
     return;
   }
@@ -85,20 +126,36 @@ class AndroidBackupService extends BackupServiceInterface {
       throw BackupSourceMissingException();
     }
 
+    final fileBytes = await file.readAsBytes();
+
+    final encryptedBytes = await _encrypt.encrypt(fileBytes);
+
+    final encryptedFile = io.File('$path.encrypted');
+    await encryptedFile.writeAsBytes(encryptedBytes);
+
     // if a backup exists, call update
     if (fileId != null) {
       await _driveApi.files.update(
         fileToUpload,
         fileId,
-        uploadMedia: Media(file.openRead(), file.lengthSync()),
+        uploadMedia: Media(
+          encryptedFile.openRead(),
+          encryptedFile.lengthSync(),
+        ),
       );
     } else {
       // if it does not exist, set path for file and call create
       await _driveApi.files.create(
         fileToUpload,
-        uploadMedia: Media(file.openRead(), file.lengthSync()),
+        uploadMedia: Media(
+          encryptedFile.openRead(),
+          encryptedFile.lengthSync(),
+        ),
       );
     }
+
+    // delete local encrypted file
+    await encryptedFile.delete();
     if (kDebugMode) {
       print('cloud : uploaded');
     }
@@ -116,16 +173,29 @@ class AndroidBackupService extends BackupServiceInterface {
     if (fileId == null) {
       throw BackupNotFoundException();
     }
-    // 2. get drive file
+    // get drive file
     final Media driveFile = await _driveApi.files.get(
       fileId,
       downloadOptions: DownloadOptions.fullMedia,
     ) as Media;
-    // 3. read all the data from the stream from Google Drive
+
+    // read all the data from the stream from Google Drive
     final bytes = await driveFile.stream.expand((x) => x).toList();
-    // 4. create a file at the provided path and write the bytes to it
+
+    // create a file at the provided path and write the bytes to it
+    final encryptedFile = io.File('$path.encrypted');
+    await encryptedFile.writeAsBytes(bytes);
+
+    // decrypt the file
+    final encryptedBytes = await encryptedFile.readAsBytes();
+    final decryptedBytes = await _encrypt.decrypt(encryptedBytes);
+
+    // create the final file
     final file = io.File(path);
-    await file.writeAsBytes(bytes);
+    await file.writeAsBytes(decryptedBytes);
+
+    // delete local encrypted file
+    await encryptedFile.delete();
   }
 
   @override

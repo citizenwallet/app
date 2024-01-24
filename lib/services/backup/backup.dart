@@ -24,6 +24,12 @@ class BackupException implements Exception {
   BackupException();
 }
 
+class BackupNotSupportedException implements Exception {
+  final String message = 'backup not supported';
+
+  BackupNotSupportedException();
+}
+
 abstract class BackupConfigInterface {}
 
 abstract class BackupServiceInterface {

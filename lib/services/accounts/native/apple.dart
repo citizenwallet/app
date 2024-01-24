@@ -1,22 +1,19 @@
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:collection/collection.dart';
+import 'package:citizenwallet/services/accounts/backup.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/accounts/options.dart';
+import 'package:citizenwallet/services/accounts/utils.dart';
+import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/db.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:web3dart/credentials.dart';
+import 'package:web3dart/crypto.dart';
 
-/// AppleEncryptedPreferencesOptions
-class AppleEncryptedPreferencesOptions implements EncryptedPreferencesOptions {
-  final String groupId;
-
-  AppleEncryptedPreferencesOptions({
-    required this.groupId,
-  });
-}
-
-/// AppleEncryptedPreferencesService implements an EncryptedPreferencesService for iOS and macOS
-class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
-  static final AppleEncryptedPreferencesService _instance =
-      AppleEncryptedPreferencesService._internal();
-  factory AppleEncryptedPreferencesService() => _instance;
-  AppleEncryptedPreferencesService._internal();
+/// AppleAccountsService implements an AccountsServiceInterface for iOS and macOS
+class AppleAccountsService extends AccountsServiceInterface {
+  static final AppleAccountsService _instance =
+      AppleAccountsService._internal();
+  factory AppleAccountsService() => _instance;
+  AppleAccountsService._internal();
 
   IOSOptions _getIOSOptions(String groupId) => IOSOptions(
         groupId: groupId,
@@ -31,14 +28,17 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       );
 
   late FlutterSecureStorage _preferences;
+  late AccountsDBService _accountsDB;
 
   @override
-  Future init(EncryptedPreferencesOptions options) async {
-    final appleOptions = options as AppleEncryptedPreferencesOptions;
+  Future init(AccountsOptionsInterface options) async {
+    final appleOptions = options as AppleAccountsOptions;
     _preferences = FlutterSecureStorage(
       iOptions: _getIOSOptions(appleOptions.groupId),
       mOptions: _getMacOsOptions(appleOptions.groupId),
     );
+
+    _accountsDB = appleOptions.accountsDB;
 
     await migrate(super.version);
   }
@@ -56,10 +56,10 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       1: () async {
         // coming from the old version, migrate all keys and delete the old ones
         // all or nothing, first write all the new ones, then delete all the old ones
-        final allBackups = await getAllWalletBackups();
+        final allBackups = await getAllLegacyWalletBackups();
 
         for (final backup in allBackups) {
-          // await setWalletBackup(backup);
+          // await setAccount(backup);
           final saved = await _preferences.containsKey(key: backup.legacyKey2);
           if (saved) {
             await _preferences.delete(key: backup.legacyKey2);
@@ -83,7 +83,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
         }
       },
       2: () async {
-        final allBackups = await getAllWalletBackups();
+        final allBackups = await getAllLegacyWalletBackups();
 
         for (final backup in allBackups) {
           final saved = await _preferences.containsKey(key: backup.key);
@@ -112,7 +112,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
         }
       },
       3: () async {
-        final allBackups = await getAllWalletBackups();
+        final allBackups = await getAllLegacyWalletBackups();
 
         final toDelete = <String>[];
 
@@ -127,7 +127,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
             continue;
           }
 
-          final newBackup = BackupWallet(
+          final newBackup = LegacyBackupWallet(
             address: account.hexEip55,
             privateKey: backup.privateKey,
             name: backup.name,
@@ -160,6 +160,55 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
           }
         }
       },
+      4: () async {
+        final allLegacyBackups = await getAllLegacyWalletBackups();
+
+        final toDelete = <String>[];
+
+        for (final legacyBackup in allLegacyBackups) {
+          final saved = await _preferences.containsKey(key: legacyBackup.key);
+          if (!saved) {
+            continue;
+          }
+
+          // write the account data in the accounts table
+          final DBAccount account = DBAccount(
+            alias: legacyBackup.alias,
+            address: EthereumAddress.fromHex(legacyBackup.address),
+            name: legacyBackup.name,
+          );
+
+          await _accountsDB.accounts.insert(account);
+
+          // write credentials into Keychain Services
+          final backup = BackupWallet(
+            address: legacyBackup.address,
+            alias: legacyBackup.alias,
+            privateKey: legacyBackup.privateKey,
+          );
+
+          await _preferences.write(
+            key: backup.key,
+            value: backup.value,
+          );
+
+          toDelete.add(legacyBackup.key);
+        }
+
+        // delete all old keys
+        for (final key in toDelete) {
+          // delete legacy keys
+          final saved = await _preferences.containsKey(
+            key: key,
+          );
+
+          if (saved) {
+            await _preferences.delete(
+              key: key,
+            );
+          }
+        }
+      },
     };
 
     // run all migrations
@@ -181,11 +230,94 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
 
   // get all wallet backups
   @override
-  Future<List<BackupWallet>> getAllWalletBackups() async {
+  Future<List<DBAccount>> getAllAccounts() async {
+    final List<DBAccount> accounts = await _accountsDB.accounts.all();
+
+    for (final account in accounts) {
+      final privateKey = await _preferences.read(key: account.id);
+      if (privateKey == null) {
+        continue;
+      }
+
+      account.privateKey = EthPrivateKey.fromHex(privateKey);
+    }
+
+    return accounts;
+  }
+
+  // set wallet backup
+  @override
+  Future<void> setAccount(DBAccount account) async {
+    await _accountsDB.accounts.insert(account);
+
+    if (account.privateKey == null) {
+      return;
+    }
+
+    await _preferences.write(
+      key: account.id,
+      value: bytesToHex(account.privateKey!.privateKey),
+    );
+  }
+
+  // get wallet backup
+  @override
+  Future<DBAccount?> getAccount(String address, String alias) async {
+    final account = await _accountsDB.accounts.get(
+      EthereumAddress.fromHex(address),
+      alias,
+    );
+
+    if (account == null) {
+      return null;
+    }
+
+    final privateKey = await _preferences.read(key: account.id);
+    if (privateKey == null) {
+      return account;
+    }
+
+    account.privateKey = EthPrivateKey.fromHex(privateKey);
+
+    return account;
+  }
+
+  // get wallet backups for alias
+  @override
+  Future<List<DBAccount>> getAccountsForAlias(String alias) async {
+    return _accountsDB.accounts.allForAlias(alias);
+  }
+
+  // delete wallet backup
+  @override
+  Future<void> deleteAccount(String address, String alias) async {
+    await _accountsDB.accounts.delete(
+      EthereumAddress.fromHex(address),
+      alias,
+    );
+
+    await _preferences.delete(
+      key: getAccountID(
+        EthereumAddress.fromHex(address),
+        alias,
+      ),
+    );
+  }
+
+  // delete all wallet backups
+  @override
+  Future<void> deleteAllAccounts() async {
+    await _accountsDB.accounts.deleteAll();
+
+    await _preferences.deleteAll();
+  }
+
+  // legacy methods
+  Future<List<LegacyBackupWallet>> getAllLegacyWalletBackups() async {
     final allValues = await _preferences.readAll();
     final keys = allValues.keys.where((key) => key.startsWith(backupPrefix));
 
-    final List<BackupWallet> backups = [];
+    final List<LegacyBackupWallet> backups = [];
 
     for (final k in keys) {
       final parsed = allValues[k]!.split('|');
@@ -195,7 +327,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       }
 
       if (parsed.length == 3) {
-        backups.add(BackupWallet(
+        backups.add(LegacyBackupWallet(
           address: k.replaceFirst(backupPrefix, ''),
           privateKey: parsed[1],
           name: parsed[0],
@@ -205,7 +337,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
       }
 
       if (parsed.length == 4) {
-        backups.add(BackupWallet(
+        backups.add(LegacyBackupWallet(
           name: parsed[0],
           address: parsed[1],
           privateKey: parsed[2],
@@ -214,7 +346,7 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
         continue;
       }
 
-      backups.add(BackupWallet(
+      backups.add(LegacyBackupWallet(
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
@@ -225,59 +357,5 @@ class AppleEncryptedPreferencesService extends EncryptedPreferencesService {
     backups.sort((a, b) => a.name.compareTo(b.name));
 
     return backups;
-  }
-
-  // set wallet backup
-  @override
-  Future<void> setWalletBackup(BackupWallet backup) async {
-    final saved = await _preferences.containsKey(key: backup.key);
-    if (saved) {
-      await _preferences.delete(key: backup.key);
-    }
-
-    await _preferences.write(
-      key: backup.key,
-      value: backup.value,
-    );
-  }
-
-  // get wallet backup
-  @override
-  Future<BackupWallet?> getWalletBackup(String address, String alias) async {
-    final wallets = await getAllWalletBackups();
-
-    return wallets.firstWhereOrNull(
-      (w) => w.address == address && w.alias == alias,
-    );
-  }
-
-  // get wallet backups for alias
-  @override
-  Future<List<BackupWallet>> getWalletBackupsForAlias(String alias) async {
-    final wallets = await getAllWalletBackups();
-
-    return wallets.where((w) => w.alias == alias).toList();
-  }
-
-  // delete wallet backup
-  @override
-  Future<void> deleteWalletBackup(String address, String alias) async {
-    final wallets = await getAllWalletBackups();
-
-    final wallet = wallets.firstWhereOrNull(
-      (w) => w.address == address && w.alias == alias,
-    );
-
-    if (wallet == null) {
-      return;
-    }
-
-    await _preferences.delete(key: wallet.key);
-  }
-
-  // delete all wallet backups
-  @override
-  Future<void> deleteWalletBackups() async {
-    await _preferences.deleteAll();
   }
 }

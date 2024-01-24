@@ -5,20 +5,20 @@ import 'package:web3dart/web3dart.dart';
 const String versionPrefix = 'w_version_enc_prefs';
 const String backupPrefix = 'w_bkp_';
 
-class BackupWallet {
+class LegacyBackupWallet {
   final String address;
   final String privateKey;
   final String name;
   final String alias;
 
-  BackupWallet({
+  LegacyBackupWallet({
     required String address,
     required this.privateKey,
     required this.name,
     required this.alias,
   }) : address = EthereumAddress.fromHex(address).hexEip55;
 
-  BackupWallet.fromJson(Map<String, dynamic> json)
+  LegacyBackupWallet.fromJson(Map<String, dynamic> json)
       : address = EthereumAddress.fromHex(json['address']).hexEip55,
         privateKey = json['privateKey'],
         name = json['name'],
@@ -51,4 +51,32 @@ class BackupWallet {
   // current properties
   String get key => '$backupPrefix$hashed';
   String get value => '$name|$address|$privateKey|$alias';
+}
+
+class BackupWallet {
+  final String address;
+  final String alias;
+  final String privateKey;
+
+  BackupWallet({
+    required String address,
+    required this.alias,
+    required this.privateKey,
+  }) : address = EthereumAddress.fromHex(address).hexEip55;
+
+  // fromJson
+  BackupWallet.fromJson(Map<String, dynamic> json)
+      : address = EthereumAddress.fromHex(json['address']).hexEip55,
+        alias = json['alias'],
+        privateKey = json['privateKey'];
+
+  // toJson
+  Map<String, dynamic> toJson() => {
+        'address': address,
+        'alias': alias,
+        'privateKey': privateKey,
+      };
+
+  String get key => '$address@$alias';
+  String get value => privateKey;
 }
