@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:citizenwallet/services/backup/backup.dart';
+import 'package:citizenwallet/services/backup/native/utils.dart';
+import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:icloud_storage/icloud_storage.dart';
+
+const credentialStorageKey = 'app@cw';
 
 class ICloudConfig extends BackupConfigInterface {
   final String containerId;
@@ -16,6 +21,8 @@ class ICloudConfig extends BackupConfigInterface {
 class ICloudBackupService extends BackupServiceInterface {
   late String _containerId;
 
+  final CredentialsServiceInterface _credentials = getCredentialsService();
+
   @override
   init(BackupConfigInterface config) async {
     final icloudConfig = config as ICloudConfig;
@@ -26,15 +33,15 @@ class ICloudBackupService extends BackupServiceInterface {
   }
 
   @override
-  Future<String?> backupExists(String name) async {
+  Future<(String?, DateTime?)> backupExists(String name) async {
     final files = await ICloudStorage.gather(containerId: _containerId);
 
     final file =
         files.firstWhereOrNull((element) => element.relativePath == '/$name');
     if (file == null) {
-      return null;
+      return (null, null);
     }
-    return file.relativePath;
+    return (file.relativePath, file.contentChangeDate);
   }
 
   @override
@@ -45,9 +52,14 @@ class ICloudBackupService extends BackupServiceInterface {
     Future<dynamic>? subscriptionFuture;
     bool isDone = false;
 
+    // encrypt file before upload
+    final file = File(path);
+
+    final encryptedFile = await encryptFile(file, _credentials);
+
     await ICloudStorage.upload(
         containerId: _containerId,
-        filePath: path,
+        filePath: encryptedFile.path,
         destinationRelativePath: '/$name',
         onProgress: (stream) {
           // set subscription
@@ -79,6 +91,7 @@ class ICloudBackupService extends BackupServiceInterface {
         if (!isDone) {
           // this will end stream, so subscriptionFuture also will be end
           subscription?.cancel();
+          encryptedFile.delete();
           throw BackupTimeoutException();
         }
       },
@@ -88,6 +101,7 @@ class ICloudBackupService extends BackupServiceInterface {
       if (!isDone) {
         // this will end stream, so subscriptionFuture also will be end
         subscription?.cancel();
+        encryptedFile.delete();
         throw BackupTimeoutException();
       }
     });
@@ -96,6 +110,8 @@ class ICloudBackupService extends BackupServiceInterface {
     if (kDebugMode) {
       print('ios cloud : upload start');
     }
+
+    encryptedFile.delete();
     return;
   }
 
@@ -112,7 +128,7 @@ class ICloudBackupService extends BackupServiceInterface {
     await ICloudStorage.download(
         containerId: _containerId,
         relativePath: '/$name',
-        destinationFilePath: path,
+        destinationFilePath: '$path.encrypted',
         // 4. set subscription
         onProgress: (stream) {
           subscription = stream.listen((progress) {
@@ -124,6 +140,7 @@ class ICloudBackupService extends BackupServiceInterface {
             if (kDebugMode) {
               print('download done!');
             }
+
             isDone = true;
             // 6. on error, cancel the stream
           }, onError: (err) {
@@ -152,6 +169,14 @@ class ICloudBackupService extends BackupServiceInterface {
     if (kDebugMode) {
       print('ios cloud : downloaded from icloud dir');
     }
+
+    final encryptedFile = File('$path.encrypted');
+
+    await decryptFile(encryptedFile, _credentials);
+
+    // delete local encrypted file
+    await encryptedFile.delete();
+
     return;
   }
 

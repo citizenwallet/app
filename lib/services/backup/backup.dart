@@ -24,12 +24,6 @@ class BackupException implements Exception {
   BackupException();
 }
 
-class BackupNotSupportedException implements Exception {
-  final String message = 'backup not supported';
-
-  BackupNotSupportedException();
-}
-
 abstract class BackupConfigInterface {}
 
 abstract class BackupServiceInterface {
@@ -37,8 +31,8 @@ abstract class BackupServiceInterface {
 
   Future<void> init(BackupConfigInterface config) async {}
 
-  Future<String?> backupExists(String name) {
-    return Future.value(null);
+  Future<(String?, DateTime?)> backupExists(String name) {
+    return Future.value((null, null));
   }
 
   upload(String path, String name) {}

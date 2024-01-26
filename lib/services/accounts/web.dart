@@ -1,4 +1,3 @@
-import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
 

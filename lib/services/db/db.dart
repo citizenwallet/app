@@ -191,7 +191,7 @@ class AccountsDBService {
 
         return;
       },
-      version: 0,
+      version: 1,
     );
 
     final db = await databaseFactory.openDatabase(
@@ -203,7 +203,6 @@ class AccountsDBService {
   }
 
   Future<void> init(String name) async {
-    print('init accounts db');
     if (kIsWeb) {
       // Change default factory on the web
       final swOptions = SqfliteFfiWebOptions(
@@ -227,8 +226,7 @@ class AccountsDBService {
     }
 
     name = '$name.db';
-    final dbPath =
-        kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
+    final dbPath = kIsWeb ? name : join(await getDatabasesPath(), name);
     _db = await openDB(dbPath);
   }
 

@@ -9,8 +9,8 @@ class WebBackupService extends BackupServiceInterface {
   Future<void> init(BackupConfigInterface config) async {}
 
   @override
-  Future<String?> backupExists(String name) {
-    return Future.value(null);
+  Future<(String?, DateTime?)> backupExists(String name) {
+    return Future.value((null, null));
   }
 
   @override

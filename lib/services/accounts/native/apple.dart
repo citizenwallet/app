@@ -2,9 +2,10 @@ import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/accounts/utils.dart';
+import 'package:citizenwallet/services/credentials/credentials.dart';
+import 'package:citizenwallet/services/credentials/native/apple.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -15,27 +16,17 @@ class AppleAccountsService extends AccountsServiceInterface {
   factory AppleAccountsService() => _instance;
   AppleAccountsService._internal();
 
-  IOSOptions _getIOSOptions(String groupId) => IOSOptions(
-        groupId: groupId,
-        accessibility: KeychainAccessibility.unlocked,
-        synchronizable: true,
-      );
-
-  MacOsOptions _getMacOsOptions(String groupId) => MacOsOptions(
-        groupId: groupId,
-        accessibility: KeychainAccessibility.unlocked,
-        synchronizable: true,
-      );
-
-  late FlutterSecureStorage _preferences;
+  final CredentialsServiceInterface _credentials = getCredentialsService();
   late AccountsDBService _accountsDB;
 
   @override
   Future init(AccountsOptionsInterface options) async {
     final appleOptions = options as AppleAccountsOptions;
-    _preferences = FlutterSecureStorage(
-      iOptions: _getIOSOptions(appleOptions.groupId),
-      mOptions: _getMacOsOptions(appleOptions.groupId),
+
+    await _credentials.init(
+      options: AppleCredentialsOptions(
+        groupId: appleOptions.groupId,
+      ),
     );
 
     _accountsDB = appleOptions.accountsDB;
@@ -46,7 +37,7 @@ class AppleAccountsService extends AccountsServiceInterface {
   @override
   Future<void> migrate(int version) async {
     final int oldVersion =
-        int.tryParse(await _preferences.read(key: versionPrefix) ?? '0') ?? 0;
+        int.tryParse(await _credentials.read(versionPrefix) ?? '0') ?? 0;
 
     if (oldVersion == version) {
       return;
@@ -60,25 +51,25 @@ class AppleAccountsService extends AccountsServiceInterface {
 
         for (final backup in allBackups) {
           // await setAccount(backup);
-          final saved = await _preferences.containsKey(key: backup.legacyKey2);
+          final saved = await _credentials.containsKey(backup.legacyKey2);
           if (saved) {
-            await _preferences.delete(key: backup.legacyKey2);
+            await _credentials.delete(backup.legacyKey2);
           }
 
-          await _preferences.write(
-            key: backup.legacyKey2,
-            value: backup.value,
+          await _credentials.write(
+            backup.legacyKey2,
+            backup.value,
           );
         }
 
         // delete all old keys
         for (final backup in allBackups) {
           // legacy delete
-          final saved = await _preferences.containsKey(
-            key: backup.legacyKey,
+          final saved = await _credentials.containsKey(
+            backup.legacyKey,
           );
           if (saved) {
-            await _preferences.delete(key: backup.legacyKey);
+            await _credentials.delete(backup.legacyKey);
           }
         }
       },
@@ -86,27 +77,27 @@ class AppleAccountsService extends AccountsServiceInterface {
         final allBackups = await getAllLegacyWalletBackups();
 
         for (final backup in allBackups) {
-          final saved = await _preferences.containsKey(key: backup.key);
+          final saved = await _credentials.containsKey(backup.key);
           if (saved) {
-            await _preferences.delete(key: backup.key);
+            await _credentials.delete(backup.key);
           }
 
-          await _preferences.write(
-            key: backup.key,
-            value: backup.value,
+          await _credentials.write(
+            backup.key,
+            backup.value,
           );
         }
 
         // delete all old keys
         for (final backup in allBackups) {
           // delete legacy keys
-          final saved = await _preferences.containsKey(
-            key: backup.legacyKey2,
+          final saved = await _credentials.containsKey(
+            backup.legacyKey2,
           );
 
           if (saved) {
-            await _preferences.delete(
-              key: backup.legacyKey2,
+            await _credentials.delete(
+              backup.legacyKey2,
             );
           }
         }
@@ -117,7 +108,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         final toDelete = <String>[];
 
         for (final backup in allBackups) {
-          bool saved = await _preferences.containsKey(key: backup.key);
+          bool saved = await _credentials.containsKey(backup.key);
           if (!saved) {
             continue;
           }
@@ -134,9 +125,9 @@ class AppleAccountsService extends AccountsServiceInterface {
             alias: backup.alias,
           );
 
-          await _preferences.write(
-            key: newBackup.key,
-            value: newBackup.value,
+          await _credentials.write(
+            newBackup.key,
+            newBackup.value,
           );
 
           toDelete.add(backup.key);
@@ -149,13 +140,13 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
 
           // delete legacy keys
-          final saved = await _preferences.containsKey(
-            key: backup.key,
+          final saved = await _credentials.containsKey(
+            backup.key,
           );
 
           if (saved) {
-            await _preferences.delete(
-              key: backup.key,
+            await _credentials.delete(
+              backup.key,
             );
           }
         }
@@ -166,7 +157,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         final toDelete = <String>[];
 
         for (final legacyBackup in allLegacyBackups) {
-          final saved = await _preferences.containsKey(key: legacyBackup.key);
+          final saved = await _credentials.containsKey(legacyBackup.key);
           if (!saved) {
             continue;
           }
@@ -187,9 +178,9 @@ class AppleAccountsService extends AccountsServiceInterface {
             privateKey: legacyBackup.privateKey,
           );
 
-          await _preferences.write(
-            key: backup.key,
-            value: backup.value,
+          await _credentials.write(
+            backup.key,
+            backup.value,
           );
 
           toDelete.add(legacyBackup.key);
@@ -198,13 +189,13 @@ class AppleAccountsService extends AccountsServiceInterface {
         // delete all old keys
         for (final key in toDelete) {
           // delete legacy keys
-          final saved = await _preferences.containsKey(
-            key: key,
+          final saved = await _credentials.containsKey(
+            key,
           );
 
           if (saved) {
-            await _preferences.delete(
-              key: key,
+            await _credentials.delete(
+              key,
             );
           }
         }
@@ -219,7 +210,7 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     // after success, we can update the version
-    await _preferences.write(key: versionPrefix, value: version.toString());
+    await _credentials.write(versionPrefix, version.toString());
   }
 
   // handle wallet backups
@@ -234,7 +225,7 @@ class AppleAccountsService extends AccountsServiceInterface {
     final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
-      final privateKey = await _preferences.read(key: account.id);
+      final privateKey = await _credentials.read(account.id);
       if (privateKey == null) {
         continue;
       }
@@ -254,9 +245,9 @@ class AppleAccountsService extends AccountsServiceInterface {
       return;
     }
 
-    await _preferences.write(
-      key: account.id,
-      value: bytesToHex(account.privateKey!.privateKey),
+    await _credentials.write(
+      account.id,
+      bytesToHex(account.privateKey!.privateKey),
     );
   }
 
@@ -272,7 +263,7 @@ class AppleAccountsService extends AccountsServiceInterface {
       return null;
     }
 
-    final privateKey = await _preferences.read(key: account.id);
+    final privateKey = await _credentials.read(account.id);
     if (privateKey == null) {
       return account;
     }
@@ -296,8 +287,8 @@ class AppleAccountsService extends AccountsServiceInterface {
       alias,
     );
 
-    await _preferences.delete(
-      key: getAccountID(
+    await _credentials.delete(
+      getAccountID(
         EthereumAddress.fromHex(address),
         alias,
       ),
@@ -309,12 +300,12 @@ class AppleAccountsService extends AccountsServiceInterface {
   Future<void> deleteAllAccounts() async {
     await _accountsDB.accounts.deleteAll();
 
-    await _preferences.deleteAll();
+    await _credentials.deleteCredentials();
   }
 
   // legacy methods
   Future<List<LegacyBackupWallet>> getAllLegacyWalletBackups() async {
-    final allValues = await _preferences.readAll();
+    final allValues = await _credentials.readAll();
     final keys = allValues.keys.where((key) => key.startsWith(backupPrefix));
 
     final List<LegacyBackupWallet> backups = [];

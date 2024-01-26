@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
@@ -5,7 +6,6 @@ import 'package:citizenwallet/services/db/db.dart';
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -20,52 +20,19 @@ class AndroidAccountsService extends AccountsServiceInterface {
   factory AndroidAccountsService() => _instance;
   AndroidAccountsService._internal();
 
-  _getAndroidOptions() => const AndroidOptions(
-        encryptedSharedPreferences: true,
-        resetOnError: true,
-      );
-
-  late FlutterSecureStorage _preferences;
-  // late CredentialManager _credentials;
+  final CredentialsServiceInterface _credentials = getCredentialsService();
   late SharedPreferences _sharedPreferences;
   late AccountsDBService _accountsDB;
-
-  // late Encrypt _encrypt;
 
   @override
   Future init(AccountsOptionsInterface options) async {
     final AndroidAccountsOptions androidOptions =
         options as AndroidAccountsOptions;
 
-    _preferences = FlutterSecureStorage(
-      aOptions: _getAndroidOptions(),
-    );
-
-    // _credentials = CredentialManager();
-
-    // if (_credentials.isSupportedPlatform) {
-    //   // if supported
-    //   await _credentials.init(preferImmediatelyAvailableCredentials: true);
-    // }
-
     _sharedPreferences = await SharedPreferences.getInstance();
     _accountsDB = androidOptions.accountsDB;
 
-    // try {
-    //   // check if there is an encryption key available
-    //   final credential = await _credentials.getPasswordCredentials();
-    // } catch (e) {
-    //   // if not, create one
-    //   // generate a random key
-    //   final key = generateKey(32);
-
-    //   await _credentials.savePasswordCredentials(
-    //     PasswordCredential(
-    //       username: credentialStorageKey,
-    //       password: bytesToHex(key),
-    //     ),
-    //   );
-    // }
+    await _credentials.init();
 
     await migrate(super.version);
   }
@@ -101,8 +68,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
           await _accountsDB.accounts.insert(account);
 
           // write credentials into Keychain Services
-          await _preferences.write(
-              key: account.id, value: legacyBackup.privateKey);
+          await _credentials.write(account.id, legacyBackup.privateKey);
 
           toDelete.add(legacyBackup.key);
         }
@@ -146,7 +112,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
     final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
-      final privateKey = await _preferences.read(key: account.id);
+      final privateKey = await _credentials.read(account.id);
       if (privateKey == null) {
         continue;
       }
@@ -166,9 +132,9 @@ class AndroidAccountsService extends AccountsServiceInterface {
       return;
     }
 
-    await _preferences.write(
-      key: account.id,
-      value: bytesToHex(account.privateKey!.privateKey),
+    await _credentials.write(
+      account.id,
+      bytesToHex(account.privateKey!.privateKey),
     );
   }
 
@@ -184,7 +150,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
       return null;
     }
 
-    final privateKey = await _preferences.read(key: account.id);
+    final privateKey = await _credentials.read(account.id);
     if (privateKey == null) {
       return account;
     }
@@ -208,8 +174,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
       alias,
     );
 
-    await _preferences.delete(
-      key: getAccountID(
+    await _credentials.delete(
+      getAccountID(
         EthereumAddress.fromHex(address),
         alias,
       ),
@@ -221,12 +187,12 @@ class AndroidAccountsService extends AccountsServiceInterface {
   Future<void> deleteAllAccounts() async {
     await _accountsDB.accounts.deleteAll();
 
-    await _preferences.deleteAll();
+    await _credentials.deleteCredentials();
   }
 
   // legacy methods
   Future<List<int>?> pinCode() async {
-    final securedPin = await _preferences.read(key: pinCodeKey);
+    final securedPin = await _credentials.read(pinCodeKey);
     if (securedPin == null) {
       return null;
     }
