@@ -233,6 +233,18 @@ class AccountsDBService {
     _db = await openDB(dbPath);
   }
 
+  Future<void> reInit() async {
+    if (_db == null || !_db!.isOpen) {
+      throw Exception('DB not initialized');
+    }
+
+    await _db!.close();
+
+    final dbPath = kIsWeb ? name : join(await getDatabasesPath(), name);
+
+    _db = await openDB(dbPath);
+  }
+
   // reset db
   Future<void> resetDB() async {
     if (_db == null) {
