@@ -18,7 +18,6 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
 
   final CredentialManager _credentials = CredentialManager();
   late FlutterSecureStorage _secure;
-  Encrypt? _encrypt;
 
   _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
@@ -41,11 +40,16 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
 
   @override
   Future<bool> isSetup() async {
-    return _encrypt != null;
+    final key = await _secure.read(
+        key: CredentialsServiceInterface.credentialStorageKey);
+
+    return key != null;
   }
 
   @override
   Future<void> setup({String? username}) async {
+    Uint8List key;
+
     try {
       // check if there is an encryption key available
       final credential = await _credentials.getPasswordCredentials();
@@ -54,40 +58,55 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
         throw SourceMissingException();
       }
 
-      _encrypt = Encrypt(hexToBytes(credential.password!));
+      key = hexToBytes(credential.password!);
     } catch (_) {
       // if not, create one
       // generate a random key
-      final key = generateKey(32);
+      key = generateKey(32);
 
       await _credentials.savePasswordCredentials(
         PasswordCredential(
-          username:
-              username ?? CredentialsServiceInterface.credentialStorageKey,
+          username: username ??
+              CredentialsServiceInterface
+                  .credentialStorageKey, // since users select credentials themselves, it makes sense to use something that is familiar to them
           password: bytesToHex(key),
         ),
       );
-
-      _encrypt = Encrypt(key);
     }
+
+    await _secure.write(
+      key: CredentialsServiceInterface
+          .credentialStorageKey, // internally, we don't care about the username, we need someething predictable
+      value: bytesToHex(key),
+    );
   }
 
   @override
   Future<Uint8List> encrypt(Uint8List data) async {
-    if (_encrypt == null) {
+    final key = await _secure.read(
+        key: CredentialsServiceInterface.credentialStorageKey);
+
+    if (key == null) {
       throw NotSetupException();
     }
 
-    return _encrypt!.encrypt(data);
+    final encrypt = Encrypt(hexToBytes(key));
+
+    return encrypt.encrypt(data);
   }
 
   @override
   Future<Uint8List> decrypt(Uint8List data) async {
-    if (_encrypt == null) {
+    final key = await _secure.read(
+        key: CredentialsServiceInterface.credentialStorageKey);
+
+    if (key == null) {
       throw NotSetupException();
     }
 
-    return _encrypt!.decrypt(data);
+    final encrypt = Encrypt(hexToBytes(key));
+
+    return encrypt.decrypt(data);
   }
 
   @override
@@ -118,7 +137,5 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
   @override
   Future<void> deleteCredentials() async {
     await _secure.deleteAll();
-
-    _encrypt = null;
   }
 }

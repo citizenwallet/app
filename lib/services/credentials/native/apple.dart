@@ -36,7 +36,6 @@ class AppleCredentialsService extends CredentialsServiceInterface {
       );
 
   late FlutterSecureStorage _secure;
-  Encrypt? _encrypt;
 
   @override
   Future<void> init({CredentialsOptionsInterface? options}) async {
@@ -53,13 +52,21 @@ class AppleCredentialsService extends CredentialsServiceInterface {
 
   @override
   Future<bool> isSetup() async {
-    return _encrypt != null;
+    final key = await _secure.read(
+      key: CredentialsServiceInterface.credentialStorageKey,
+    );
+
+    return key != null;
   }
 
   @override
-  Future<void> setup({String? username}) async {
+  Future<void> setup({
+    String?
+        username, // for the sake of respecting the interface. iCloud allows us to control what gets put in the keychain and it's app + account based already.
+  }) async {
     final exists = await _secure.containsKey(
-      key: username ?? CredentialsServiceInterface.credentialStorageKey,
+      key: CredentialsServiceInterface
+          .credentialStorageKey, // just use the app specific key so that it's predictable
     );
 
     Uint8List key;
@@ -70,37 +77,37 @@ class AppleCredentialsService extends CredentialsServiceInterface {
         key: CredentialsServiceInterface.credentialStorageKey,
         value: bytesToHex(key),
       );
-    } else {
-      final potentialKey = await _secure.read(
-        key: CredentialsServiceInterface.credentialStorageKey,
-      );
-
-      if (potentialKey == null) {
-        throw SourceMissingException();
-      }
-
-      key = hexToBytes(potentialKey);
     }
-
-    _encrypt = Encrypt(key);
   }
 
   @override
   Future<Uint8List> encrypt(Uint8List data) async {
-    if (_encrypt == null) {
+    final key = await _secure.read(
+      key: CredentialsServiceInterface.credentialStorageKey,
+    );
+
+    if (key == null) {
       throw NotSetupException();
     }
 
-    return _encrypt!.encrypt(data);
+    final encrypt = Encrypt(hexToBytes(key));
+
+    return encrypt.encrypt(data);
   }
 
   @override
   Future<Uint8List> decrypt(Uint8List data) async {
-    if (_encrypt == null) {
+    final key = await _secure.read(
+      key: CredentialsServiceInterface.credentialStorageKey,
+    );
+
+    if (key == null) {
       throw NotSetupException();
     }
 
-    return _encrypt!.decrypt(data);
+    final encrypt = Encrypt(hexToBytes(key));
+
+    return encrypt.decrypt(data);
   }
 
   @override
@@ -131,7 +138,5 @@ class AppleCredentialsService extends CredentialsServiceInterface {
   @override
   Future<void> deleteCredentials() async {
     await _secure.deleteAll();
-
-    _encrypt = null;
   }
 }
