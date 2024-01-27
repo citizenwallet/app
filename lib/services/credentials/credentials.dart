@@ -29,7 +29,7 @@ abstract class CredentialsServiceInterface {
 
   Future<bool> isSetup();
 
-  Future<void> setup();
+  Future<void> setup({String? username});
 
   Future<Uint8List> encrypt(Uint8List data);
 

@@ -7,6 +7,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:web3dart/crypto.dart';
 
 class AndroidCredentialsService extends CredentialsServiceInterface {
+  static final AndroidCredentialsService _instance =
+      AndroidCredentialsService._internal();
+
+  factory AndroidCredentialsService() {
+    return _instance;
+  }
+
+  AndroidCredentialsService._internal();
+
   final CredentialManager _credentials = CredentialManager();
   late FlutterSecureStorage _secure;
   Encrypt? _encrypt;
@@ -36,7 +45,7 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
   }
 
   @override
-  Future<void> setup() async {
+  Future<void> setup({String? username}) async {
     try {
       // check if there is an encryption key available
       final credential = await _credentials.getPasswordCredentials();
@@ -53,7 +62,8 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
 
       await _credentials.savePasswordCredentials(
         PasswordCredential(
-          username: CredentialsServiceInterface.credentialStorageKey,
+          username:
+              username ?? CredentialsServiceInterface.credentialStorageKey,
           password: bytesToHex(key),
         ),
       );

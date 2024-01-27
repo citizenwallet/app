@@ -19,17 +19,29 @@ class ICloudConfig extends BackupConfigInterface {
 }
 
 class ICloudBackupService extends BackupServiceInterface {
+  static final ICloudBackupService _instance = ICloudBackupService._internal();
+
+  factory ICloudBackupService() {
+    return _instance;
+  }
+
+  ICloudBackupService._internal();
+
   late String _containerId;
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
 
   @override
-  init(BackupConfigInterface config) async {
+  init({BackupConfigInterface? config}) async {
+    if (config == null) {
+      throw Exception('No options provided');
+    }
+
     final icloudConfig = config as ICloudConfig;
 
     _containerId = icloudConfig.containerId;
 
-    return;
+    return null;
   }
 
   @override

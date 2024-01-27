@@ -10,6 +10,7 @@ import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
@@ -141,7 +143,10 @@ GoRouter createRouter(
           name: 'Settings',
           path: '/settings',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => SettingsScreen(),
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => BackupState(),
+            child: const SettingsScreen(),
+          ),
         ),
         GoRoute(
           name: 'About',

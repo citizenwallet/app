@@ -3,10 +3,18 @@ import 'package:citizenwallet/services/backup/backup.dart';
 class WebBackupConfig {}
 
 class WebBackupService extends BackupServiceInterface {
-  WebBackupService();
+  static final WebBackupService _instance = WebBackupService._internal();
+
+  factory WebBackupService() {
+    return _instance;
+  }
+
+  WebBackupService._internal();
 
   @override
-  Future<void> init(BackupConfigInterface config) async {}
+  Future<String?> init({BackupConfigInterface? config}) async {
+    return null;
+  }
 
   @override
   Future<(String?, DateTime?)> backupExists(String name) {

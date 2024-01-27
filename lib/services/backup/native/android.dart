@@ -4,25 +4,24 @@ import 'package:citizenwallet/services/backup/native/utils.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:googleapis/drive/v3.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
-
-class AndroidConfig extends BackupConfigInterface {
-  final Client client;
-  final String oauthClientId;
-
-  AndroidConfig({
-    required this.client,
-    required this.oauthClientId,
-  });
-}
 
 class AndroidBackupService extends BackupServiceInterface {
+  static final AndroidBackupService _instance =
+      AndroidBackupService._internal();
+
+  factory AndroidBackupService() {
+    return _instance;
+  }
+
+  AndroidBackupService._internal();
+
   static const backupFolder = 'appDataFolder';
   static const scopes = [
-    'https://www.googleapis.com/auth/drive.file',
+    DriveApi.driveFileScope,
     DriveApi.driveAppdataScope,
   ];
 
@@ -32,16 +31,26 @@ class AndroidBackupService extends BackupServiceInterface {
   final _credentials = getCredentialsService();
 
   @override
-  init(BackupConfigInterface config) async {
-    final androidConfig = config as AndroidConfig;
+  init({BackupConfigInterface? config}) async {
+    _googleSignIn = GoogleSignIn(
+      scopes: scopes,
+    );
 
-    _driveApi = DriveApi(androidConfig.client);
+    final account = await _googleSignIn.signIn();
 
-    _googleSignIn = GoogleSignIn(scopes: scopes);
+    if (account == null) {
+      throw BackupSignInException();
+    }
 
-    await _googleSignIn.signIn();
+    final client = await _googleSignIn.authenticatedClient();
 
-    return;
+    if (client == null) {
+      throw BackupSignInException();
+    }
+
+    _driveApi = DriveApi(client);
+
+    return account.email;
   }
 
   @override

@@ -39,6 +39,7 @@ class DBService {
 
   Database? _db;
 
+  late String name;
   String get path {
     return _db!.path;
   }
@@ -114,8 +115,9 @@ class DBService {
       await _db!.close();
     }
 
+    this.name = '$name.db';
     final dbPath =
-        kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
+        kIsWeb ? this.name : join(await getDatabasesPath(), this.name);
     _db = await openDB(dbPath);
   }
 
@@ -225,8 +227,9 @@ class AccountsDBService {
       await _db!.close();
     }
 
-    name = '$name.db';
-    final dbPath = kIsWeb ? name : join(await getDatabasesPath(), name);
+    this.name = '$name.db';
+    final dbPath =
+        kIsWeb ? this.name : join(await getDatabasesPath(), this.name);
     _db = await openDB(dbPath);
   }
 

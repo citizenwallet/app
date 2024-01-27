@@ -18,6 +18,12 @@ class BackupSourceMissingException implements Exception {
   BackupSourceMissingException();
 }
 
+class BackupSignInException implements Exception {
+  final String message = 'backup sign in error';
+
+  BackupSignInException();
+}
+
 class BackupException implements Exception {
   final String message = 'backup error';
 
@@ -29,15 +35,13 @@ abstract class BackupConfigInterface {}
 abstract class BackupServiceInterface {
   BackupServiceInterface();
 
-  Future<void> init(BackupConfigInterface config) async {}
+  Future<String?> init({BackupConfigInterface? config});
 
-  Future<(String?, DateTime?)> backupExists(String name) {
-    return Future.value((null, null));
-  }
+  Future<(String?, DateTime?)> backupExists(String name);
 
-  upload(String path, String name) {}
+  upload(String path, String name);
 
-  download(String name, String path) {}
+  download(String name, String path);
 
-  delete(String name) {}
+  delete(String name);
 }

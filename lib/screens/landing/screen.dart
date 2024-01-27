@@ -203,6 +203,7 @@ class LandingScreenState extends State<LandingScreen>
 
   /// handleAndroidRecover handles the android recovery flow if needed and then returns
   Future<void> handleAndroidRecover() async {
+    print('handle android recover');
     if (!isPlatformAndroid()) {
       return;
     }

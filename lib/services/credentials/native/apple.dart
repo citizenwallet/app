@@ -14,6 +14,15 @@ class AppleCredentialsOptions implements CredentialsOptionsInterface {
 }
 
 class AppleCredentialsService extends CredentialsServiceInterface {
+  static final AppleCredentialsService _instance =
+      AppleCredentialsService._internal();
+
+  factory AppleCredentialsService() {
+    return _instance;
+  }
+
+  AppleCredentialsService._internal();
+
   IOSOptions _getIOSOptions(String groupId) => IOSOptions(
         groupId: groupId,
         accessibility: KeychainAccessibility.unlocked,
@@ -48,9 +57,9 @@ class AppleCredentialsService extends CredentialsServiceInterface {
   }
 
   @override
-  Future<void> setup() async {
+  Future<void> setup({String? username}) async {
     final exists = await _secure.containsKey(
-      key: CredentialsServiceInterface.credentialStorageKey,
+      key: username ?? CredentialsServiceInterface.credentialStorageKey,
     );
 
     Uint8List key;

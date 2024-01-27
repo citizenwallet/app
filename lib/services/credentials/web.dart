@@ -3,6 +3,15 @@ import 'dart:typed_data';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 
 class WebCredentialsService extends CredentialsServiceInterface {
+  static final WebCredentialsService _instance =
+      WebCredentialsService._internal();
+
+  factory WebCredentialsService() {
+    return _instance;
+  }
+
+  WebCredentialsService._internal();
+
   @override
   Future<void> init({CredentialsOptionsInterface? options}) async {}
 
@@ -12,7 +21,7 @@ class WebCredentialsService extends CredentialsServiceInterface {
   }
 
   @override
-  Future<void> setup() async {}
+  Future<void> setup({String? username}) async {}
 
   @override
   Future<Uint8List> encrypt(Uint8List data) async {

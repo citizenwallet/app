@@ -133,4 +133,13 @@ class PreferencesService {
   String? getAccountAddress(String key) {
     return _preferences.getString('accountAddress_$key');
   }
+
+  // last backup time
+  Future setLastBackupTime(String value) async {
+    await _preferences.setString('lastBackupTime', value);
+  }
+
+  String? getLastBackupTime() {
+    return _preferences.getString('lastBackupTime');
+  }
 }

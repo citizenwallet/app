@@ -64,6 +64,7 @@ dependencies:
   path_provider: ^2.1.2
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.0
@@ -101,6 +102,8 @@ flutter:
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
     - assets/icons/voucher.png
+    - assets/icons/drive.svg
+    - assets/icons/icloud.svg
     - assets/icons/wallet.png
     - assets/icons/bookmark.svg
     - assets/icons/bookmark_color.svg

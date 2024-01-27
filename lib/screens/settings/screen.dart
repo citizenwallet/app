@@ -1,5 +1,7 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/backup/logic.dart';
+import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -13,6 +15,7 @@ import 'package:citizenwallet/widgets/settings_sub_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,6 +31,7 @@ class SettingsScreen extends StatefulWidget {
 class SettingsScreenState extends State<SettingsScreen> {
   late AppLogic _appLogic;
   late NotificationsLogic _notificationsLogic;
+  late BackupLogic _backupLogic;
 
   bool _protected = false;
 
@@ -39,6 +43,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       // make initial requests here
       _appLogic = AppLogic(context);
       _notificationsLogic = NotificationsLogic(context);
+      _backupLogic = BackupLogic(context);
 
       onLoad();
     });
@@ -74,6 +79,15 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   void handleOpenBackup() {
     GoRouter.of(context).push('/backup');
+  }
+
+  void handleAppleBackup() {
+    print('icloud backup');
+  }
+
+  void handleAndroidBackup() {
+    print('android backup');
+    _backupLogic.backupAndroid();
   }
 
   void handleToggleProtection(bool enabled) {
@@ -124,6 +138,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     final packageInfo = context.select((AppState state) => state.packageInfo);
 
     final protected = _protected;
+
+    final loading = context.select((BackupState state) => state.loading);
+    final lastBackup = context.select((BackupState state) => state.lastBackup);
 
     return CupertinoPageScaffold(
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -256,17 +273,99 @@ class SettingsScreenState extends State<SettingsScreen> {
                             handleOpenContract(config.scan.url, wallet.account)
                         : null,
                   ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Text(
+                    'Backup',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 SettingsRow(
                   label: 'Accounts',
                   icon: 'assets/icons/users.svg',
                   subLabel: isPlatformApple()
                       ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
-                      : "All your accounts are automatically backed up to your Google Drive.",
-                  trailing: Icon(
-                    CupertinoIcons.cloud,
-                    color: ThemeColors.surfacePrimary.resolveFrom(context),
+                      : "All your accounts are backed up to your Google Drive account.",
+                  trailing: Row(
+                    children: [
+                      isPlatformApple()
+                          ? Text(
+                              'auto',
+                              style: TextStyle(
+                                color: ThemeColors.subtleSolidEmphasis
+                                    .resolveFrom(context),
+                              ),
+                            )
+                          : Text(
+                              lastBackup != null
+                                  ? DateFormat.yMMMd()
+                                      .add_Hm()
+                                      .format(lastBackup.toLocal())
+                                  : 'Never',
+                            ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Icon(
+                        CupertinoIcons.cloud,
+                        color: ThemeColors.surfacePrimary.resolveFrom(context),
+                      ),
+                    ],
                   ),
-                  onTap: handleOpenBackup,
+                ),
+                SettingsRow(
+                  label: 'App data',
+                  icon: isPlatformApple()
+                      ? 'assets/icons/icloud.svg'
+                      : 'assets/icons/drive.svg',
+                  subLabel: lastBackup != null
+                      ? "Your transaction list, vouchers, contacts and other app data that is stored locally. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
+                      : "Your transaction list, vouchers, contacts and other app data that is stored locally.",
+                  trailing: GestureDetector(
+                    onTap: loading
+                        ? null
+                        : isPlatformApple()
+                            ? handleAppleBackup
+                            : handleAndroidBackup,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: !loading
+                            ? ThemeColors.surfacePrimary.resolveFrom(context)
+                            : ThemeColors.surfacePrimary
+                                .resolveFrom(context)
+                                .withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Backup',
+                            style: TextStyle(
+                              color: ThemeColors.white,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          if (!loading)
+                            const Icon(
+                              CupertinoIcons.cloud_upload,
+                              color: ThemeColors.white,
+                            ),
+                          if (loading)
+                            CupertinoActivityIndicator(
+                              color: ThemeColors.subtle.resolveFrom(context),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 // Row(
                 //   mainAxisAlignment: MainAxisAlignment.center,
