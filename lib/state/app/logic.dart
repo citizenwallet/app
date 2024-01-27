@@ -21,7 +21,7 @@ import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
   final PreferencesService _preferences = PreferencesService();
-  final AccountsServiceInterface _encPrefs = getAccountsService();
+  final AccountsServiceInterface _accounts = getAccountsService();
   final ConfigService _config = ConfigService();
   final AudioService _audio = AudioService();
 
@@ -77,12 +77,12 @@ class AppLogic {
 
       DBAccount? dbWallet;
       if (lastWallet != null && lastAlias != null) {
-        dbWallet = await _encPrefs.getAccount(lastWallet, lastAlias);
+        dbWallet = await _accounts.getAccount(lastWallet, lastAlias);
       }
 
       if (dbWallet == null) {
         // attempt to see if there are any other wallets backed up
-        final dbWallets = await _encPrefs.getAllAccounts();
+        final dbWallets = await _accounts.getAllAccounts();
 
         if (dbWallets.isNotEmpty) {
           final dbWallet = dbWallets[0];
@@ -126,7 +126,7 @@ class AppLogic {
     try {
       _appState.importLoadingReq();
 
-      final dbWallets = await _encPrefs.getAccountsForAlias(alias);
+      final dbWallets = await _accounts.getAccountsForAlias(alias);
 
       await delay(
           const Duration(milliseconds: 500)); // smoother launch experience
@@ -174,7 +174,7 @@ class AppLogic {
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      await _encPrefs.setAccount(DBAccount(
+      await _accounts.setAccount(DBAccount(
         address: address,
         privateKey: credentials,
         name: 'New ${config.token.symbol} Account',
@@ -289,7 +289,7 @@ class AppLogic {
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      await _encPrefs.setAccount(
+      await _accounts.setAccount(
         DBAccount(
           address: address,
           privateKey: credentials,
@@ -338,12 +338,12 @@ class AppLogic {
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       final existing =
-          await _encPrefs.getAccount(address.hexEip55, config.community.alias);
+          await _accounts.getAccount(address.hexEip55, config.community.alias);
       if (existing != null) {
         return (existing.address.hexEip55, alias);
       }
 
-      await _encPrefs.setAccount(
+      await _accounts.setAccount(
         DBAccount(
           address: address,
           privateKey: credentials,
@@ -379,7 +379,7 @@ class AppLogic {
     try {
       _appState.deleteBackupLoadingReq();
 
-      await _encPrefs.deleteAllAccounts();
+      await _accounts.deleteAllAccounts();
 
       await _preferences.clear();
 
