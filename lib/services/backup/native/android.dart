@@ -88,8 +88,9 @@ class AndroidBackupService extends BackupServiceInterface {
 
     // 2. instanciate File(this is not from io, but from googleapis
     final fileToUpload = File();
-    // 3. set file name for file to upload
+    // 3. set file metadata for file to upload
     fileToUpload.name = name;
+    fileToUpload.modifiedTime = DateTime.now().toUtc();
     // 4. check if the backup file is already exist
     final (fileId, _) = await backupExists(path);
 
@@ -108,6 +109,10 @@ class AndroidBackupService extends BackupServiceInterface {
         ),
       );
     } else {
+      // put the file in the correct folder
+      fileToUpload.parents = [
+        backupFolder,
+      ];
       // if it does not exist, set path for file and call create
       await _driveApi.files.create(
         fileToUpload,
