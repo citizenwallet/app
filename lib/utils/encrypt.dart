@@ -4,11 +4,12 @@ import 'dart:math';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
+import 'package:web3dart/web3dart.dart';
 
 Uint8List generateKey(int length) {
   final random = Random.secure();
-  return Uint8List.fromList(
-      List<int>.generate(length, (_) => random.nextInt(256)));
+  final privateKey = EthPrivateKey.createRandom(random);
+  return privateKey.privateKey;
 }
 
 class EncryptedData {
