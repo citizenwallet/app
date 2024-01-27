@@ -1,17 +1,15 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
-import 'package:citizenwallet/services/accounts/options.dart';
-import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/backup/logic.dart';
+import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -41,6 +39,7 @@ class LandingScreenState extends State<LandingScreen>
     with TickerProviderStateMixin {
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
+  late BackupLogic _backupLogic;
 
   @override
   void initState() {
@@ -48,6 +47,7 @@ class LandingScreenState extends State<LandingScreen>
 
     _appLogic = AppLogic(context);
     _voucherLogic = VoucherLogic(context);
+    _backupLogic = BackupLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -191,79 +191,41 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    // on apple devices we can safely init the encrypted preferences without user input
-    // icloud keychain manages everything for us
-    await getAccountsService().init(
-      AppleAccountsOptions(
-        groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID'),
-        accountsDB: AccountsDBService(),
-      ),
-    );
+    await _backupLogic.setupApple();
   }
 
   /// handleAndroidRecover handles the android recovery flow if needed and then returns
   Future<void> handleAndroidRecover() async {
-    print('handle android recover');
     if (!isPlatformAndroid()) {
       return;
     }
 
-    await getAccountsService().init(AndroidAccountsOptions(
-      accountsDB: AccountsDBService(),
-    ));
-
-    print('set up android accounts service');
-    // since shared preferences are backed up by default on android,
-    // it should be possible to figure out if there is a backup available
-    // final isConfigured = _appLogic.androidBackupIsConfigured();
-    // if (!isConfigured) {
-    //   return;
-    // }
-
-    // // get the pin code stored in android encrypted preferences
-    // final success = await _appLogic.configureAndroidBackup();
-    // if (success) {
-    //   return;
-    // }
-
-    // // there is a backup available, ask the user to recover it with their pin code
-    // await showCupertinoModalPopup<void>(
-    //   context: context,
-    //   barrierDismissible: true,
-    //   builder: (_) => ChangeNotifierProvider(
-    //     create: (_) => AndroidPinCodeState(),
-    //     child: const AndroidRecoveryModal(),
-    //   ),
-    // );
+    await _backupLogic.setupAndroid();
   }
 
-  /// handleAndroidBackup handles the android backup flow if needed and then returns
-  // Future<void> handleAndroidBackup() async {
-  //   if (!isPlatformAndroid()) {
-  //     return;
-  //   }
+  Future<bool> handleAndroidStart() async {
+    if (!isPlatformAndroid()) {
+      return false;
+    }
 
-  //   // get the pin code stored in android encrypted preferences
-  //   final success = await _appLogic.configureAndroidBackup();
-  //   if (success) {
-  //     return;
-  //   }
+    await _backupLogic.setupAndroidFromRecovery();
 
-  //   // no backup configured, ask the user to set up a pin code
-  //   await showCupertinoModalPopup<void>(
-  //     context: context,
-  //     barrierDismissible: true,
-  //     builder: (_) => ChangeNotifierProvider(
-  //       create: (_) => AndroidPinCodeState(),
-  //       child: const AndroidPinCodeModal(),
-  //     ),
-  //   );
-  // }
+    return _backupLogic.hasAccounts();
+  }
 
-  void handleNewWallet() async {
+  void handleStart() async {
     final navigator = GoRouter.of(context);
 
-    // await handleAndroidBackup();
+    if (isPlatformAndroid()) {
+      // android needs manual recovery, iOS does this automatically
+      final hasAccounts = await handleAndroidStart();
+      if (hasAccounts) {
+        // there are accounts now after recovery
+        // attempt to reload the app
+        onLoad();
+        return;
+      }
+    }
 
     final alias = await showCupertinoModalBottomSheet<String?>(
       context: context,
@@ -289,10 +251,9 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/$address$params');
   }
 
+  // TODO: remove this
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
-
-    // await handleAndroidBackup();
 
     final result = await showCupertinoModalPopup<String?>(
       context: context,
@@ -336,6 +297,9 @@ class LandingScreenState extends State<LandingScreen>
     final walletLoading =
         context.select((AppState state) => state.walletLoading);
     final appLoading = context.select((AppState state) => state.appLoading);
+
+    final loading = context.select((BackupState state) => state.loading);
+    final backupStatus = context.select((BackupState state) => state.status);
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -390,6 +354,18 @@ class LandingScreenState extends State<LandingScreen>
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 30),
+                              if (backupStatus != null)
+                                Text(
+                                  backupStatus.message,
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               const SizedBox(height: 60),
                             ],
                           ),
@@ -398,32 +374,17 @@ class LandingScreenState extends State<LandingScreen>
                     ),
                     Positioned(
                       bottom: 40,
-                      child: walletLoading || appLoading
+                      child: walletLoading || appLoading || loading
                           ? CupertinoActivityIndicator(
                               color: ThemeColors.subtle.resolveFrom(context),
                             )
                           : Column(
                               children: [
                                 Button(
-                                  text: 'New Account',
-                                  onPressed: handleNewWallet,
+                                  text: 'Start',
+                                  onPressed: handleStart,
                                   minWidth: 200,
                                   maxWidth: 200,
-                                ),
-                                const SizedBox(height: 10),
-                                CupertinoButton(
-                                  onPressed: handleImportWallet,
-                                  child: Text(
-                                    'Import Account',
-                                    style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
                                 ),
                               ],
                             ),

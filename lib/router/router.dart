@@ -143,10 +143,7 @@ GoRouter createRouter(
           name: 'Settings',
           path: '/settings',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => ChangeNotifierProvider(
-            create: (_) => BackupState(),
-            child: const SettingsScreen(),
-          ),
+          builder: (context, state) => const SettingsScreen(),
         ),
         GoRoute(
           name: 'About',

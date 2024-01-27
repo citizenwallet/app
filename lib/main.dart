@@ -39,7 +39,6 @@ FutureOr<void> appRunner() async {
   await PreferencesService().init(await SharedPreferences.getInstance());
 
   DBService();
-  await AccountsDBService().init('accounts');
 
   WalletService();
 
