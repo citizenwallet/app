@@ -102,6 +102,7 @@ flutter:
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
     - assets/icons/voucher.png
+    - assets/icons/key.svg
     - assets/icons/drive.svg
     - assets/icons/icloud.svg
     - assets/icons/wallet.png

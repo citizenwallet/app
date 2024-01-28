@@ -23,6 +23,8 @@ class BackupState with ChangeNotifier {
 
   BackupStatus? status;
 
+  bool e2eEnabled = false;
+
   BackupState() {
     final lastTime = PreferencesService().getLastBackupTime();
     if (lastTime != null) {
@@ -69,6 +71,11 @@ class BackupState with ChangeNotifier {
 
   void setStatus(BackupStatus? status) {
     this.status = status;
+    notifyListeners();
+  }
+
+  void setE2E(bool enabled) {
+    e2eEnabled = enabled;
     notifyListeners();
   }
 }

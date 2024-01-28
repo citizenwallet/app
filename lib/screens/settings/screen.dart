@@ -51,6 +51,8 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   void onLoad() async {
     _notificationsLogic.checkPushPermissions();
+
+    _backupLogic.checkE2E();
   }
 
   void onToggleDarkMode(bool enabled) {
@@ -141,6 +143,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     final loading = context.select((BackupState state) => state.loading);
     final lastBackup = context.select((BackupState state) => state.lastBackup);
+    final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
 
     return CupertinoPageScaffold(
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
@@ -283,6 +286,16 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
+                if (isPlatformAndroid())
+                  SettingsRow(
+                    label: 'End-to-end encryption',
+                    icon: 'assets/icons/key.svg',
+                    subLabel: 'Backups are always end-to-end encrypted.',
+                    trailing: CupertinoSwitch(
+                      value: e2eEnabled,
+                      onChanged: null,
+                    ),
+                  ),
                 SettingsRow(
                   label: 'Accounts',
                   icon: 'assets/icons/users.svg',

@@ -183,4 +183,19 @@ class BackupLogic {
       _state.backupError();
     }
   }
+
+  Future<void> checkE2E() async {
+    try {
+      final isSetup = await _credentials.isSetup();
+
+      _state.setE2E(isSetup);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      _state.setE2E(false);
+    }
+  }
 }
