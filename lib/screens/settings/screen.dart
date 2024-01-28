@@ -289,8 +289,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                   subLabel: isPlatformApple()
                       ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
                       : lastBackup != null
-                          ? "All your accounts are backed up to your Google Drive account. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
-                          : "Back up all your accounts to your Google Drive account.",
+                          ? "Your accounts are backed up to your Google Drive account. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
+                          : "Back up your accounts to your Google Drive account.",
                   trailing: isPlatformApple()
                       ? Row(
                           children: [
