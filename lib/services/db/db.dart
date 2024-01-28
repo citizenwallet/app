@@ -279,3 +279,7 @@ class AccountsDBService {
     return file.length();
   }
 }
+
+Future<String> getDBPath(String name) async {
+  return kIsWeb ? '$name.db' : join(await getDatabasesPath(), '$name.db');
+}

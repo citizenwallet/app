@@ -106,6 +106,11 @@ class BackupLogic {
       );
 
       // TODO: download app data as well
+      // final accounts = await _accountsDB.accounts.all();
+
+      // for (final account in accounts) {
+
+      // }
 
       _state.setStatus(BackupStatus.success);
 
@@ -158,6 +163,11 @@ class BackupLogic {
       );
 
       // TODO: upload app data as well
+      // final accounts = await _accountsDB.accounts.all();
+
+      // for (final account in accounts) {
+
+      // }
 
       final backupTime = DateTime.now();
 

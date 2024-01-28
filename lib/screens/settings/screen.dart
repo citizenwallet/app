@@ -288,85 +288,121 @@ class SettingsScreenState extends State<SettingsScreen> {
                   icon: 'assets/icons/users.svg',
                   subLabel: isPlatformApple()
                       ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
-                      : "All your accounts are backed up to your Google Drive account.",
-                  trailing: Row(
-                    children: [
-                      isPlatformApple()
-                          ? Text(
+                      : lastBackup != null
+                          ? "All your accounts are backed up to your Google Drive account. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
+                          : "Back up all your accounts to your Google Drive account.",
+                  trailing: isPlatformApple()
+                      ? Row(
+                          children: [
+                            Text(
                               'auto',
                               style: TextStyle(
                                 color: ThemeColors.subtleSolidEmphasis
                                     .resolveFrom(context),
                               ),
-                            )
-                          : Text(
-                              lastBackup != null
-                                  ? DateFormat.yMMMd()
-                                      .add_Hm()
-                                      .format(lastBackup.toLocal())
-                                  : 'Never',
                             ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Icon(
-                        CupertinoIcons.cloud,
-                        color: ThemeColors.surfacePrimary.resolveFrom(context),
-                      ),
-                    ],
-                  ),
-                ),
-                SettingsRow(
-                  label: 'App data',
-                  icon: isPlatformApple()
-                      ? 'assets/icons/icloud.svg'
-                      : 'assets/icons/drive.svg',
-                  subLabel: lastBackup != null
-                      ? "Your transaction list, vouchers, contacts and other app data that is stored locally. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
-                      : "Your transaction list, vouchers, contacts and other app data that is stored locally.",
-                  trailing: GestureDetector(
-                    onTap: loading
-                        ? null
-                        : isPlatformApple()
-                            ? handleAppleBackup
-                            : handleAndroidBackup,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: !loading
-                            ? ThemeColors.surfacePrimary.resolveFrom(context)
-                            : ThemeColors.surfacePrimary
-                                .resolveFrom(context)
-                                .withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Backup',
-                            style: TextStyle(
-                              color: ThemeColors.white,
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Icon(
+                              CupertinoIcons.cloud,
+                              color: ThemeColors.surfacePrimary
+                                  .resolveFrom(context),
+                            ),
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: loading ? null : handleAndroidBackup,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: !loading
+                                  ? ThemeColors.surfacePrimary
+                                      .resolveFrom(context)
+                                  : ThemeColors.surfacePrimary
+                                      .resolveFrom(context)
+                                      .withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Backup',
+                                  style: TextStyle(
+                                    color: ThemeColors.white,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                if (!loading)
+                                  const Icon(
+                                    CupertinoIcons.cloud_upload,
+                                    color: ThemeColors.white,
+                                  ),
+                                if (loading)
+                                  CupertinoActivityIndicator(
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  ),
+                              ],
                             ),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          if (!loading)
-                            const Icon(
-                              CupertinoIcons.cloud_upload,
-                              color: ThemeColors.white,
-                            ),
-                          if (loading)
-                            CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                 ),
+                // SettingsRow( // TODO: implement app data backup
+                //   label: 'App data',
+                //   icon: isPlatformApple()
+                //       ? 'assets/icons/icloud.svg'
+                //       : 'assets/icons/drive.svg',
+                //   subLabel: lastBackup != null
+                //       ? "Your transaction list, vouchers, contacts and other app data that is stored locally. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
+                //       : "Your transaction list, vouchers, contacts and other app data that is stored locally.",
+                //   trailing: GestureDetector(
+                //     onTap: loading
+                //         ? null
+                //         : isPlatformApple()
+                //             ? handleAppleBackup
+                //             : handleAndroidBackup,
+                //     child: Container(
+                //       decoration: BoxDecoration(
+                //         color: !loading
+                //             ? ThemeColors.surfacePrimary.resolveFrom(context)
+                //             : ThemeColors.surfacePrimary
+                //                 .resolveFrom(context)
+                //                 .withOpacity(0.7),
+                //         borderRadius: BorderRadius.circular(5),
+                //       ),
+                //       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                //       child: Row(
+                //         mainAxisAlignment: MainAxisAlignment.center,
+                //         crossAxisAlignment: CrossAxisAlignment.center,
+                //         children: [
+                //           const Text(
+                //             'Backup',
+                //             style: TextStyle(
+                //               color: ThemeColors.white,
+                //             ),
+                //           ),
+                //           const SizedBox(
+                //             width: 10,
+                //           ),
+                //           if (!loading)
+                //             const Icon(
+                //               CupertinoIcons.cloud_upload,
+                //               color: ThemeColors.white,
+                //             ),
+                //           if (loading)
+                //             CupertinoActivityIndicator(
+                //               color: ThemeColors.subtle.resolveFrom(context),
+                //             ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 // Row(
                 //   mainAxisAlignment: MainAxisAlignment.center,
                 //   children: [
