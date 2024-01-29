@@ -216,17 +216,6 @@ class LandingScreenState extends State<LandingScreen>
   void handleStart() async {
     final navigator = GoRouter.of(context);
 
-    if (isPlatformAndroid()) {
-      // android needs manual recovery, iOS does this automatically
-      final hasAccounts = await handleAndroidStart();
-      if (hasAccounts) {
-        // there are accounts now after recovery
-        // attempt to reload the app
-        onLoad();
-        return;
-      }
-    }
-
     final alias = await showCupertinoModalBottomSheet<String?>(
       context: context,
       expand: true,
@@ -249,6 +238,17 @@ class LandingScreenState extends State<LandingScreen>
     ]);
 
     navigator.go('/wallet/$address$params');
+  }
+
+  void handleRecover() async {
+    // android needs manual recovery, iOS does this automatically
+    final hasAccounts = await handleAndroidStart();
+    if (hasAccounts) {
+      // there are accounts now after recovery
+      // attempt to reload the app
+      onLoad();
+      return;
+    }
   }
 
   // TODO: remove this
@@ -386,6 +386,30 @@ class LandingScreenState extends State<LandingScreen>
                                   minWidth: 200,
                                   maxWidth: 200,
                                 ),
+                                if (isPlatformAndroid()) ...[
+                                  const SizedBox(height: 30),
+                                  Container(
+                                    height: 1,
+                                    width: 200,
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  CupertinoButton(
+                                    onPressed: handleRecover,
+                                    child: Text(
+                                      'Recover Accounts',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ]
                               ],
                             ),
                     )

@@ -6,7 +6,6 @@ import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
