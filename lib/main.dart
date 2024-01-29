@@ -15,6 +15,7 @@ import 'package:citizenwallet/state/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
+import 'package:citizenwallet/widgets/notifications/toast.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -117,6 +118,10 @@ class MyAppState extends State<MyApp> {
     _notificationsLogic.hide();
   }
 
+  void handleDismissToast() {
+    _notificationsLogic.toastHide();
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -126,6 +131,10 @@ class MyAppState extends State<MyApp> {
 
     final title = context.select((NotificationsState s) => s.title);
     final display = context.select((NotificationsState s) => s.display);
+
+    final toastTitle = context.select((NotificationsState s) => s.toastTitle);
+    final toastDisplay =
+        context.select((NotificationsState s) => s.toastDisplay);
 
     final titlePrefix = config?.token.symbol ?? 'Citizen';
 
@@ -143,6 +152,11 @@ class MyAppState extends State<MyApp> {
               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
               child: child ?? const SizedBox(),
             ),
+          ),
+          Toast(
+            title: toastTitle,
+            display: toastDisplay,
+            onDismiss: handleDismissToast,
           ),
           NotificationBanner(
             title: title,

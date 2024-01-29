@@ -5,6 +5,9 @@ import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/backup/state.dart';
+import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/notifications/state.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +18,14 @@ class BackupLogic {
   final CredentialsServiceInterface _credentials = getCredentialsService();
   final AccountsServiceInterface _accounts = getAccountsService();
   final PreferencesService _preferences = PreferencesService();
+  final NotificationsLogic _notifications;
 
   final AccountsDBService _accountsDB = AccountsDBService();
 
-  BackupLogic(BuildContext context) : _state = context.read<BackupState>();
+  BackupLogic(
+    BuildContext context,
+  )   : _state = context.read<BackupState>(),
+        _notifications = NotificationsLogic(context);
 
   Future<void> setupAndroid() async {
     try {
@@ -136,7 +143,18 @@ class BackupLogic {
     } on BackupNotFoundException {
       _state.setStatus(BackupStatus.nobackup);
       _state.backupError();
+    } on SecretBoxAuthenticationError {
+      // handle wrong encryption key
+      _notifications.toastShow(
+        'Unable to recover backup: invalid decryption key.',
+        type: ToastType.error,
+      );
     } catch (exception, stackTrace) {
+      _notifications.toastShow(
+        'Unable to recover backup.',
+        type: ToastType.error,
+      );
+
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

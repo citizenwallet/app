@@ -1,5 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
+enum ToastType {
+  success,
+  error,
+}
+
 class NotificationsState with ChangeNotifier {
   bool _push = false;
 
@@ -26,6 +31,25 @@ class NotificationsState with ChangeNotifier {
 
   void setPush(bool push) {
     _push = push;
+
+    notifyListeners();
+  }
+
+  ToastType? _toastDisplay;
+  String _toastTitle = '';
+
+  ToastType? get toastDisplay => _toastDisplay;
+  String get toastTitle => _toastTitle;
+
+  void toastShow(String title, {ToastType type = ToastType.success}) {
+    _toastTitle = title;
+    _toastDisplay = type;
+
+    notifyListeners();
+  }
+
+  void toastHide() {
+    _toastDisplay = null;
 
     notifyListeners();
   }
