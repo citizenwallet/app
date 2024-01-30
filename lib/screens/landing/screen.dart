@@ -16,7 +16,7 @@ import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
@@ -260,16 +260,7 @@ class LandingScreenState extends State<LandingScreen>
 
     await handleAndroidBackup();
 
-    final alias = await showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => const CommunityPickerModal(),
-    );
-
-    if (alias == null || alias.isEmpty) {
-      return;
-    }
+    const alias = "gratitude";
 
     final address = await _appLogic.createWallet(alias);
 
@@ -356,24 +347,11 @@ class LandingScreenState extends State<LandingScreen>
                                 height: 300,
                                 width: 300,
                                 child: Center(
-                                  child: Lottie.asset(
-                                    'assets/lottie/chat.json',
-                                    height: 300,
-                                    width: 300,
-                                    animate: true,
-                                    repeat: true,
-                                    // controller: _controller,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'Citizen Wallet',
-                                style: TextStyle(
-                                  color: ThemeColors.text.resolveFrom(context),
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
+                                    child: SvgPicture.asset(
+                                  'assets/citizenwallet-logo-simple.svg',
+                                  semanticsLabel: 'Citizen Wallet Icon',
+                                  height: 300,
+                                )),
                               ),
                               const SizedBox(height: 30),
                               Text(

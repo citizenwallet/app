@@ -5,7 +5,8 @@
             "description": "Express your gratitude towards someone by sending them a token.",
             "url": "https://citizenwallet.xyz",
             "alias": "gt.celo",
-            "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg"
+            "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "hidden": true
         },
         "scan": {
             "url": "https://celoscan.io",
@@ -45,6 +46,57 @@
             {
                 "name": "Top Up",
                 "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+                "url": "https://topup.citizenwallet.xyz/gt.celo"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Gratitude Token",
+            "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+            "url": "https://citizenwallet.xyz",
+            "alias": "gratitude",
+            "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+            "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+            "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+            "name": "Gratitude Token",
+            "symbol": "GT",
+            "decimals": 0
+        },
+        "profile": {
+            "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+        },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
                 "url": "https://topup.citizenwallet.xyz/gt.celo"
             }
         ],
