@@ -164,7 +164,10 @@ class BackupLogic {
     }
   }
 
-  Future<void> backupAndroid() async {
+  Future<void> backupAndroid({
+    Future<bool?> Function()? handleConfirmReplace,
+    bool merge = true,
+  }) async {
     try {
       _state.backupRequest();
 
@@ -173,6 +176,33 @@ class BackupLogic {
       final username = await backupService.init();
 
       await _credentials.setup(username: username);
+
+      int amountRemoteAccounts = 0;
+
+      final (fileId, _) = await backupService.backupExists(_accountsDB.name);
+      if (fileId != null && merge) {
+        // there is already a backup, merge theme
+        final remoteDBName = '${_accountsDB.name}.remote';
+
+        await backupService.download(
+          _accountsDB.name,
+          '${_accountsDB.path}.remote.db',
+        );
+
+        final remoteDB = AccountsDBService.newInstance();
+
+        await remoteDB.init(remoteDBName);
+
+        final remoteAccounts = await remoteDB.accounts.all();
+
+        amountRemoteAccounts = remoteAccounts.length;
+
+        for (final account in remoteAccounts) {
+          await _accountsDB.accounts.insert(account);
+        }
+
+        await remoteDB.deleteDB();
+      }
 
       // this will upload, encrypt and replace any current backup in place
       await backupService.upload(
@@ -192,7 +222,35 @@ class BackupLogic {
       await _preferences.setLastBackupTime(backupTime.toIso8601String());
 
       _state.backupSuccess(backupTime);
+
+      String message = 'Backup successful.';
+      if (amountRemoteAccounts > 0) {
+        message =
+            'Backup successful. $amountRemoteAccounts ${amountRemoteAccounts == 1 ? 'account' : 'accounts'} merged.';
+      }
+
+      _notifications.toastShow(
+        message,
+        type: ToastType.success,
+      );
+    } on SecretBoxAuthenticationError {
+      // handle wrong encryption key
+      if (handleConfirmReplace != null) {
+        final confirm = await handleConfirmReplace();
+
+        if (confirm == true) {
+          await backupAndroid(
+            handleConfirmReplace: handleConfirmReplace,
+            merge: false,
+          );
+        }
+      }
+      _state.backupError();
     } catch (exception, stackTrace) {
+      _notifications.toastShow(
+        'Unable to backup.',
+        type: ToastType.error,
+      );
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -202,7 +260,7 @@ class BackupLogic {
     }
   }
 
-  Future<void> checkE2E() async {
+  Future<void> checkStatus() async {
     try {
       final isSetup = await _credentials.isSetup();
 

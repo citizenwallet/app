@@ -86,12 +86,15 @@ class AndroidBackupService extends BackupServiceInterface {
       await _googleSignIn.signIn();
     }
 
-    // 2. instanciate File(this is not from io, but from googleapis
-    final fileToUpload = File();
-    // 3. set file metadata for file to upload
-    fileToUpload.name = name;
-    fileToUpload.modifiedTime = DateTime.now().toUtc();
-    // 4. check if the backup file is already exist
+    // instantiate File(this is not from io, but from googleapis
+    final fileToUpload = File(
+      name: name,
+      modifiedTime: DateTime.now().toUtc(),
+      parents: [
+        backupFolder, // put the file in the correct folder
+      ],
+    );
+    // check if the backup file is already exist
     final (fileId, _) = await backupExists(path);
 
     final file = io.File(path);
@@ -109,10 +112,6 @@ class AndroidBackupService extends BackupServiceInterface {
         ),
       );
     } else {
-      // put the file in the correct folder
-      fileToUpload.parents = [
-        backupFolder,
-      ];
       // if it does not exist, set path for file and call create
       await _driveApi.files.create(
         fileToUpload,
@@ -131,7 +130,10 @@ class AndroidBackupService extends BackupServiceInterface {
   }
 
   @override
-  Future<void> download(String name, String path) async {
+  Future<void> download(
+    String name,
+    String path,
+  ) async {
     final user = await _googleSignIn.signInSilently();
     if (user == null) {
       await _googleSignIn.signIn();

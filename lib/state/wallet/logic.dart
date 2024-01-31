@@ -70,7 +70,6 @@ class WalletLogic extends WidgetsBindingObserver {
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
-  final AccountsDBService _accountsDB = AccountsDBService();
 
   final PreferencesService _preferences = PreferencesService();
   final AccountsServiceInterface _encPrefs = getAccountsService();

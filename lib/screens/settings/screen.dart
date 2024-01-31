@@ -52,7 +52,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   void onLoad() async {
     _notificationsLogic.checkPushPermissions();
 
-    _backupLogic.checkE2E();
+    _backupLogic.checkStatus();
   }
 
   void onToggleDarkMode(bool enabled) {
@@ -88,8 +88,20 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   void handleAndroidBackup() {
-    print('android backup');
-    _backupLogic.backupAndroid();
+    _backupLogic.backupAndroid(
+      handleConfirmReplace: () => showCupertinoModalPopup<bool?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (modalContext) => const ConfirmModal(
+          title: 'Replace existing backup',
+          details: [
+            'There is already a backup on your Google Drive account from different credentials.',
+            'Are you sure you want to replace it?',
+          ],
+          confirmText: 'Replace',
+        ),
+      ),
+    );
   }
 
   void handleToggleProtection(bool enabled) {
@@ -108,7 +120,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     final confirm = await showCupertinoModalPopup<bool?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => ConfirmModal(
+      builder: (modalContext) => const ConfirmModal(
         title: 'Clear data & backups',
         details: [
           'Are you sure you want to delete everything?',

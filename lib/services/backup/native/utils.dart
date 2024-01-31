@@ -5,7 +5,9 @@ import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 
 Future<File> encryptFile(
-    File file, CredentialsServiceInterface credentials) async {
+  File file,
+  CredentialsServiceInterface credentials,
+) async {
   if (!file.existsSync()) {
     throw BackupSourceMissingException();
   }
@@ -15,13 +17,16 @@ Future<File> encryptFile(
   final encryptedBytes = await credentials.encrypt(fileBytes);
 
   final encryptedFile = File('${file.path}.encrypted');
+
   await encryptedFile.writeAsBytes(encryptedBytes);
 
   return encryptedFile;
 }
 
 Future<File> decryptFile(
-    File file, CredentialsServiceInterface credentials) async {
+  File file,
+  CredentialsServiceInterface credentials,
+) async {
   if (!file.existsSync()) {
     throw BackupSourceMissingException();
   }

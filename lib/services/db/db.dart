@@ -163,6 +163,10 @@ class AccountsDBService {
     return _instance;
   }
 
+  factory AccountsDBService.newInstance() {
+    return AccountsDBService._internal();
+  }
+
   AccountsDBService._internal();
 
   Database? _db;
