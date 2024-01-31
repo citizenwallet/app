@@ -160,9 +160,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       }
     }
 
-    print(
-        'has voucher ${widget.voucher != null && widget.voucherParams != null}');
-
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
     }
@@ -175,7 +172,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
   }
 
   Future<void> handleLoadFromVoucher() async {
-    print('parsing voucher');
     final voucher = widget.voucher;
     final voucherParams = widget.voucherParams;
 

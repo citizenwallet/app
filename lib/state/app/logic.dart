@@ -188,8 +188,6 @@ class AppLogic {
 
       return address.hexEip55;
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
