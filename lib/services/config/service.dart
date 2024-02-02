@@ -43,7 +43,7 @@ class ConfigService {
         ? Uri.base.host.replaceFirst(appLinkSuffix, '')
         : Uri.base.host;
 
-    alias = alias == 'localhost' || alias == '' ? 'app' : alias;
+    alias = alias == 'localhost' || alias == '' ? 'gratitude' : alias;
 
     return _getConfig(alias);
   }

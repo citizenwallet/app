@@ -177,7 +177,7 @@ class AppLogic {
       await _accounts.setAccount(DBAccount(
         address: address,
         privateKey: credentials,
-        name: 'New ${config.token.symbol} Account',
+        name: config.token.name,
         alias: config.community.alias,
       ));
 
