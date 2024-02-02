@@ -100,6 +100,14 @@ You will be prompted to pick a platform.
 flutter run
 ```
 
+When updating, you may need to run the following:
+
+```
+flutter clean
+flutter pub get
+cd ios && pod install
+```
+
 ## Running a Ganache TestRPC
 
 ```

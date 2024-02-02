@@ -75,6 +75,7 @@ flutter:
     - assets/logo_rounded.png
     - assets/logo.png
     - assets/logo.svg
+    - assets/citizenwallet-logo-simple.svg
     - assets/about/about.md
     - assets/audio/tx_notification.wav
     - assets/images/citizenwallet-qrcode.svg

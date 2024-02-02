@@ -183,7 +183,7 @@ class AppLogic {
       await _encPrefs.setWalletBackup(BackupWallet(
         address: address.hexEip55,
         privateKey: (bytesToHex(credentials.privateKey)),
-        name: 'New ${config.token.symbol} Account',
+        name: config.token.name,
         alias: config.community.alias,
       ));
 
