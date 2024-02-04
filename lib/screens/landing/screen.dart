@@ -387,7 +387,23 @@ class LandingScreenState extends State<LandingScreen>
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
-                                ]
+                                ],
+                                const SizedBox(height: 5),
+                                CupertinoButton(
+                                  onPressed:
+                                      handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
+                                  child: Text(
+                                    'Import Account',
+                                    style: TextStyle(
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ],
                             ),
                     )
