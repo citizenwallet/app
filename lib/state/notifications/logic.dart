@@ -65,6 +65,19 @@ class NotificationsLogic {
     _state.hide();
   }
 
+  void toastShow(
+    String title, {
+    bool playSound = false,
+    ToastType type = ToastType.success,
+  }) {
+    if (playSound) _audio.txNotification();
+    _state.toastShow(title, type: type);
+  }
+
+  void toastHide() {
+    _state.toastHide();
+  }
+
   void onMessage(RemoteMessage message) {
     final notification = message.notification;
     if (notification != null) {

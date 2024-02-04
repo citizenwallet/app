@@ -1,20 +1,15 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
-import 'package:citizenwallet/modals/wallet/voucher_read.dart';
-import 'package:citizenwallet/screens/landing/android_pin_code_modal.dart';
-import 'package:citizenwallet/screens/landing/android_recovery_modal.dart';
-import 'package:citizenwallet/services/encrypted_preferences/apple.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
-import 'package:citizenwallet/state/android_pin_code/state.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/backup/logic.dart';
+import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -44,6 +39,7 @@ class LandingScreenState extends State<LandingScreen>
     with TickerProviderStateMixin {
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
+  late BackupLogic _backupLogic;
 
   @override
   void initState() {
@@ -51,6 +47,7 @@ class LandingScreenState extends State<LandingScreen>
 
     _appLogic = AppLogic(context);
     _voucherLogic = VoucherLogic(context);
+    _backupLogic = BackupLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -100,7 +97,7 @@ class LandingScreenState extends State<LandingScreen>
 
     // load a deep linked wallet from web
     if (widget.webWallet != null) {
-      await handleAndroidBackup();
+      // await handleAndroidBackup();
 
       (address, alias) = await _appLogic.importWebWallet(
         widget.webWallet!,
@@ -194,12 +191,7 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    // on apple devices we can safely init the encrypted preferences without user input
-    // icloud keychain manages everything for us
-    await getEncryptedPreferencesService().init(
-      AppleEncryptedPreferencesOptions(
-          groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID')),
-    );
+    await _backupLogic.setupApple();
   }
 
   /// handleAndroidRecover handles the android recovery flow if needed and then returns
@@ -208,57 +200,21 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    // since shared preferences are backed up by default on android,
-    // it should be possible to figure out if there is a backup available
-    final isConfigured = _appLogic.androidBackupIsConfigured();
-    if (!isConfigured) {
-      return;
-    }
-
-    // get the pin code stored in android encrypted preferences
-    final success = await _appLogic.configureAndroidBackup();
-    if (success) {
-      return;
-    }
-
-    // there is a backup available, ask the user to recover it with their pin code
-    await showCupertinoModalPopup<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => ChangeNotifierProvider(
-        create: (_) => AndroidPinCodeState(),
-        child: const AndroidRecoveryModal(),
-      ),
-    );
+    await _backupLogic.setupAndroid();
   }
 
-  /// handleAndroidBackup handles the android backup flow if needed and then returns
-  Future<void> handleAndroidBackup() async {
+  Future<bool> handleAndroidStart() async {
     if (!isPlatformAndroid()) {
-      return;
+      return false;
     }
 
-    // get the pin code stored in android encrypted preferences
-    final success = await _appLogic.configureAndroidBackup();
-    if (success) {
-      return;
-    }
+    await _backupLogic.setupAndroidFromRecovery();
 
-    // no backup configured, ask the user to set up a pin code
-    await showCupertinoModalPopup<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => ChangeNotifierProvider(
-        create: (_) => AndroidPinCodeState(),
-        child: const AndroidPinCodeModal(),
-      ),
-    );
+    return _backupLogic.hasAccounts();
   }
 
-  void handleNewWallet() async {
+  void handleStart() async {
     final navigator = GoRouter.of(context);
-
-    await handleAndroidBackup();
 
     const alias = "gratitude";
 
@@ -275,10 +231,20 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/$address$params');
   }
 
+  void handleRecover() async {
+    // android needs manual recovery, iOS does this automatically
+    final hasAccounts = await handleAndroidStart();
+    if (hasAccounts) {
+      // there are accounts now after recovery
+      // attempt to reload the app
+      onLoad();
+      return;
+    }
+  }
+
+  // TODO: remove this
   void handleImportWallet() async {
     final navigator = GoRouter.of(context);
-
-    await handleAndroidBackup();
 
     final result = await showCupertinoModalPopup<String?>(
       context: context,
@@ -323,6 +289,9 @@ class LandingScreenState extends State<LandingScreen>
         context.select((AppState state) => state.walletLoading);
     final appLoading = context.select((AppState state) => state.appLoading);
 
+    final loading = context.select((BackupState state) => state.loading);
+    final backupStatus = context.select((BackupState state) => state.status);
+
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
@@ -363,6 +332,18 @@ class LandingScreenState extends State<LandingScreen>
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 30),
+                              if (backupStatus != null)
+                                Text(
+                                  backupStatus.message,
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               const SizedBox(height: 60),
                             ],
                           ),
@@ -371,21 +352,46 @@ class LandingScreenState extends State<LandingScreen>
                     ),
                     Positioned(
                       bottom: 40,
-                      child: walletLoading || appLoading
+                      child: walletLoading || appLoading || loading
                           ? CupertinoActivityIndicator(
                               color: ThemeColors.subtle.resolveFrom(context),
                             )
                           : Column(
                               children: [
                                 Button(
-                                  text: 'New Account',
-                                  onPressed: handleNewWallet,
+                                  text: 'Create Account',
+                                  onPressed: handleStart,
                                   minWidth: 200,
                                   maxWidth: 200,
                                 ),
-                                const SizedBox(height: 10),
+                                if (isPlatformAndroid()) ...[
+                                  const SizedBox(height: 30),
+                                  Container(
+                                    height: 1,
+                                    width: 200,
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  CupertinoButton(
+                                    onPressed: handleRecover,
+                                    child: Text(
+                                      'Recover Accounts',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 5),
                                 CupertinoButton(
-                                  onPressed: handleImportWallet,
+                                  onPressed:
+                                      handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
                                   child: Text(
                                     'Import Account',
                                     style: TextStyle(

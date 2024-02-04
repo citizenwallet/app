@@ -64,7 +64,7 @@ class DBTransaction {
 }
 
 class TransactionsTable extends DBTable {
-  TransactionsTable(Database db) : super(db);
+  TransactionsTable(super.db);
 
   @override
   String get name => 't_transaction';

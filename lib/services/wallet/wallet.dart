@@ -126,8 +126,8 @@ class WalletService {
       getEntryPointContract().getNonce(_account.hexEip55);
 
   Future<void> init(
-    String account,
-    String privateKey,
+    EthereumAddress account,
+    EthPrivateKey privateKey,
     NativeCurrency currency,
     Config config, {
     void Function(String)? onNotify,
@@ -174,7 +174,7 @@ class WalletService {
       erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
     }
 
-    _credentials = EthPrivateKey.fromHex(privateKey);
+    _credentials = privateKey;
 
     final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
     _chainId = cachedChainId != null
@@ -203,8 +203,8 @@ class WalletService {
   }
 
   Future<void> initWeb(
-    String account,
-    String privateKey,
+    EthereumAddress account,
+    EthPrivateKey privateKey,
     NativeCurrency currency,
     Config config, {
     bool legacy = false,
@@ -252,7 +252,7 @@ class WalletService {
       erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
     }
 
-    _credentials = EthPrivateKey.fromHex(privateKey);
+    _credentials = privateKey;
 
     final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
     _chainId = cachedChainId != null
@@ -287,7 +287,7 @@ class WalletService {
   /// [taddr] The Ethereum address of the ERC20 token smart contract.
   /// [prfaddr] The Ethereum address of the user profile smart contract.
   Future<void> _initContracts(
-    String account,
+    EthereumAddress account,
     String alias,
     String eaddr,
     String afaddr,
@@ -296,7 +296,7 @@ class WalletService {
   ) async {
     // Get the Ethereum address for the current account.
     // _account = EthereumAddress.fromHex(account);
-    _account = EthereumAddress.fromHex(account);
+    _account = account;
     await _pref.setAccountAddress(
       _credentials.address.hexEip55,
       address.hexEip55,

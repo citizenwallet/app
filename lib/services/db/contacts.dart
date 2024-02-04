@@ -65,7 +65,7 @@ class DBContact {
 }
 
 class ContactTable extends DBTable {
-  ContactTable(Database db) : super(db);
+  ContactTable(super.db);
 
   // The name of the table
   @override

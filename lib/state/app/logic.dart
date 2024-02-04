@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/encrypted_preferences/android.dart';
-import 'package:citizenwallet/services/encrypted_preferences/encrypted_preferences.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -17,13 +17,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
   final PreferencesService _preferences = PreferencesService();
-  final EncryptedPreferencesService _encPrefs =
-      getEncryptedPreferencesService();
+  final AccountsServiceInterface _accounts = getAccountsService();
   final ConfigService _config = ConfigService();
   final AudioService _audio = AudioService();
 
@@ -77,19 +75,19 @@ class AppLogic {
       final String? lastWallet = _preferences.lastWallet;
       final String? lastAlias = _preferences.lastAlias;
 
-      BackupWallet? dbWallet;
+      DBAccount? dbWallet;
       if (lastWallet != null && lastAlias != null) {
-        dbWallet = await _encPrefs.getWalletBackup(lastWallet, lastAlias);
+        dbWallet = await _accounts.getAccount(lastWallet, lastAlias);
       }
 
       if (dbWallet == null) {
         // attempt to see if there are any other wallets backed up
-        final dbWallets = await _encPrefs.getAllWalletBackups();
+        final dbWallets = await _accounts.getAllAccounts();
 
         if (dbWallets.isNotEmpty) {
           final dbWallet = dbWallets[0];
 
-          final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
+          final address = dbWallet.address.hexEip55;
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
@@ -98,10 +96,6 @@ class AppLogic {
 
           return (address, dbWallet.alias);
         }
-        // there are no wallets backed up but we have a pin code
-        // clean up the pin code and start from scratch
-        await _encPrefs
-            .init(AndroidEncryptedPreferencesOptions(fromScratch: true));
 
         _appState.importLoadingError();
 
@@ -113,7 +107,7 @@ class AppLogic {
 
       _appState.importLoadingSuccess();
 
-      final address = EthereumAddress.fromHex(dbWallet.address).hexEip55;
+      final address = dbWallet.address.hexEip55;
 
       return (address, dbWallet.alias);
     } catch (exception, stackTrace) {
@@ -132,7 +126,7 @@ class AppLogic {
     try {
       _appState.importLoadingReq();
 
-      final dbWallets = await _encPrefs.getWalletBackupsForAlias(alias);
+      final dbWallets = await _accounts.getAccountsForAlias(alias);
 
       await delay(
           const Duration(milliseconds: 500)); // smoother launch experience
@@ -142,14 +136,14 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return dbWallets.map((e) {
-        final credentials = stringToPrivateKey(e.privateKey);
+        final credentials = e.privateKey;
 
         return CWWallet(
           '0.0',
           name: e.name,
           address: credentials?.address.hexEip55 ?? '',
           alias: config.community.alias,
-          account: e.address,
+          account: e.address.hexEip55,
           currencyName: config.token.name,
           symbol: config.token.symbol,
           currencyLogo: config.community.logo,
@@ -180,9 +174,9 @@ class AppLogic {
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      await _encPrefs.setWalletBackup(BackupWallet(
-        address: address.hexEip55,
-        privateKey: (bytesToHex(credentials.privateKey)),
+      await _accounts.setAccount(DBAccount(
+        address: address,
+        privateKey: credentials,
         name: config.token.name,
         alias: config.community.alias,
       ));
@@ -293,10 +287,10 @@ class AppLogic {
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      await _encPrefs.setWalletBackup(
-        BackupWallet(
-          address: address.hexEip55,
-          privateKey: bytesToHex(credentials.privateKey),
+      await _accounts.setAccount(
+        DBAccount(
+          address: address,
+          privateKey: credentials,
           name: name,
           alias: config.community.alias,
         ),
@@ -341,16 +335,16 @@ class AppLogic {
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      final existing = await _encPrefs.getWalletBackup(
-          address.hexEip55, config.community.alias);
+      final existing =
+          await _accounts.getAccount(address.hexEip55, config.community.alias);
       if (existing != null) {
-        return (existing.address, alias);
+        return (existing.address.hexEip55, alias);
       }
 
-      await _encPrefs.setWalletBackup(
-        BackupWallet(
-          address: address.hexEip55,
-          privateKey: bytesToHex(credentials.privateKey),
+      await _accounts.setAccount(
+        DBAccount(
+          address: address,
+          privateKey: credentials,
           name: '${config.token.symbol} Web Account',
           alias: config.community.alias,
         ),
@@ -383,7 +377,7 @@ class AppLogic {
     try {
       _appState.deleteBackupLoadingReq();
 
-      await _encPrefs.deleteWalletBackups();
+      await _accounts.deleteAllAccounts();
 
       await _preferences.clear();
 
@@ -404,9 +398,9 @@ class AppLogic {
 
   Future<bool> configureAndroidBackup() async {
     try {
-      await getEncryptedPreferencesService().init(
-        AndroidEncryptedPreferencesOptions(),
-      );
+      // await getAccountsService().init(
+      //   AndroidAccountsOptions(accountsDB: _dbAccounts),
+      // );
 
       _preferences.setAndroidBackupIsConfigured(true);
       return true;
