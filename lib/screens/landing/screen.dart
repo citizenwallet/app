@@ -359,7 +359,7 @@ class LandingScreenState extends State<LandingScreen>
                           : Column(
                               children: [
                                 Button(
-                                  text: 'Start',
+                                  text: 'Create Account',
                                   onPressed: handleStart,
                                   minWidth: 200,
                                   maxWidth: 200,
