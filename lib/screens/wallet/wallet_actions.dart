@@ -68,7 +68,7 @@ class WalletActions extends StatelessWidget {
     final isIncreasing = newBalance > balance;
 
     final coinSize = progressiveClamp(2, 80, shrink);
-    final coinNameSize = progressiveClamp(10, 22, shrink);
+    final coinNameSize = progressiveClamp(10, 20, shrink);
 
     final buttonOffset =
         (1 - shrink) < 0.6 ? 90.0 : progressiveClamp(90, 110, shrink);
@@ -112,8 +112,8 @@ class WalletActions extends StatelessWidget {
                     wallet?.currencyName ?? 'Token',
                     style: TextStyle(
                       fontSize: coinNameSize,
-                      fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
+                      fontWeight: FontWeight.bold,
+                      color: ThemeColors.subtleText.resolveFrom(context),
                     ),
                   ),
                 if ((1 - shrink) == 1)
@@ -143,8 +143,8 @@ class WalletActions extends StatelessWidget {
                             style: TextStyle(
                               fontSize: (1 - shrink) < 0.6
                                   ? 32
-                                  : progressiveClamp(12, 40, shrink),
-                              fontWeight: FontWeight.normal,
+                                  : progressiveClamp(12, 48, shrink),
+                              fontWeight: FontWeight.bold,
                               color: hasPending
                                   ? isIncreasing
                                       ? ThemeColors.primary.resolveFrom(context)
