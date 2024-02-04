@@ -60,6 +60,7 @@ class BackupState with ChangeNotifier {
     this.lastBackup = lastBackup;
     loading = false;
     error = false;
+    e2eEnabled = true;
     notifyListeners();
   }
 

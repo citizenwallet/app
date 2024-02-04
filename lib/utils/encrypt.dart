@@ -6,10 +6,16 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/web3dart.dart';
 
-Uint8List generateKey(int length) {
+Uint8List generateKey() {
   final random = Random.secure();
   final privateKey = EthPrivateKey.createRandom(random);
-  return privateKey.privateKey;
+  Uint8List key = privateKey.privateKey;
+
+  if (key.length == 33) {
+    key = key.sublist(1);
+  }
+
+  return key;
 }
 
 class EncryptedData {

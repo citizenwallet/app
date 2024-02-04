@@ -71,7 +71,7 @@ class AppleCredentialsService extends CredentialsServiceInterface {
 
     Uint8List key;
     if (!exists) {
-      key = generateKey(32);
+      key = generateKey();
 
       await _secure.write(
         key: CredentialsServiceInterface.credentialStorageKey,
