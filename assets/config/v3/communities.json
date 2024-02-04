@@ -261,11 +261,12 @@
             "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
         },
         "erc4337": {
-            "rpc_url": "https://api.stackup.sh/v1/node/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
-            "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-            "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
-            "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
-            "paymaster_type": "payg",
+            "rpc_url": "https://indexer-base.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7",
+            "entrypoint_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+            "account_factory_address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
+            "paymaster_rpc_url": "https://indexer-base.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw",
             "gas_extra_percentage": 50
         },
         "token": {
