@@ -28,7 +28,7 @@ class Button extends StatelessWidget {
     return CupertinoButton(
       color: color ?? ThemeColors.surfacePrimary.resolveFrom(context),
       onPressed: onPressed,
-      padding: const EdgeInsets.all(0),
+      padding: const EdgeInsets.all(8),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minWidth: minWidth,
@@ -38,14 +38,16 @@ class Button extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (prefix != null) prefix!,
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 18,
-                color: labelColor ?? CupertinoColors.black,
+            Expanded(
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: labelColor ?? CupertinoColors.black,
+                ),
               ),
             ),
             if (suffix != null) suffix!,

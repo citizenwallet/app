@@ -6,6 +6,8 @@ enum BackupStatus {
   e2e("Setting up end-to-end encryption."),
   restore("Restoring from backup."),
   nobackup("No backup found."),
+  nokey("No encryption key found."),
+  wrongkey("Wrong encryption key."),
   success("Restore successful."),
   error("Restore failed."),
   ;
@@ -19,6 +21,7 @@ class BackupState with ChangeNotifier {
   bool loading = false;
   bool error = false;
 
+  String? accountName;
   DateTime? lastBackup;
 
   BackupStatus? status;
@@ -29,6 +32,10 @@ class BackupState with ChangeNotifier {
     final lastTime = PreferencesService().getLastBackupTime();
     if (lastTime != null) {
       lastBackup = DateTime.tryParse(lastTime);
+    }
+    final accountName = PreferencesService().getLastBackupName();
+    if (accountName != null) {
+      this.accountName = accountName;
     }
   }
 
@@ -56,8 +63,9 @@ class BackupState with ChangeNotifier {
     notifyListeners();
   }
 
-  void backupSuccess(DateTime? lastBackup) {
+  void backupSuccess(DateTime? lastBackup, String? accountName) {
     this.lastBackup = lastBackup;
+    this.accountName = accountName;
     loading = false;
     error = false;
     e2eEnabled = true;
@@ -78,5 +86,34 @@ class BackupState with ChangeNotifier {
   void setE2E(bool enabled) {
     e2eEnabled = enabled;
     notifyListeners();
+  }
+
+  void decryptRequest() {
+    loading = true;
+    error = false;
+    notifyListeners();
+  }
+
+  void decryptSuccess(DateTime? lastBackup, String? accountName) {
+    this.lastBackup = lastBackup;
+    this.accountName = accountName;
+    loading = false;
+    error = false;
+    e2eEnabled = true;
+    notifyListeners();
+  }
+
+  void decryptError({BackupStatus? status = BackupStatus.error}) {
+    loading = false;
+    error = true;
+    this.status = status;
+    notifyListeners();
+  }
+
+  void resetState() {
+    loading = false;
+    error = false;
+    status = null;
+    e2eEnabled = false;
   }
 }

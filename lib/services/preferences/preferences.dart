@@ -142,4 +142,13 @@ class PreferencesService {
   String? getLastBackupTime() {
     return _preferences.getString('lastBackupTime');
   }
+
+  // last backup name
+  Future setLastBackupName(String value) async {
+    await _preferences.setString('lastBackupName', value);
+  }
+
+  String? getLastBackupName() {
+    return _preferences.getString('lastBackupName');
+  }
 }
