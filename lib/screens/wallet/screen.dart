@@ -533,7 +533,7 @@ class WalletScreenState extends State<WalletScreen> {
                 child: Header(
                   transparent: true,
                   color: ThemeColors.transparent,
-                  title: walletName,
+                  title: '',
                   actionButton: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
