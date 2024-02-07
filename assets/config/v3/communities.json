@@ -542,13 +542,13 @@
         },
         "token": {
             "standard": "erc20",
-            "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
+            "address": "0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D",
             "name": "Zinne.brussels Token",
             "symbol": "ZINNE",
             "decimals": 6
         },
         "profile": {
-            "address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F"
+            "address": "0x2d900678a66df705D3F3184267eAf603d809d3c4"
         },
         "plugins": [
             {
