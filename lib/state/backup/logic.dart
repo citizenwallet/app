@@ -7,6 +7,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -85,6 +86,150 @@ class BackupLogic {
     return false;
   }
 
+  Future<bool> connectGoogleDriveAccount() async {
+    try {
+      _state.backupRequest();
+
+      final BackupServiceInterface backupService = getBackupService();
+
+      final username = await backupService.init();
+
+      assert(username != null);
+
+      final (_, lastBackup) =
+          await backupService.backupExists(_accountsDB.name);
+
+      if (lastBackup == null) {
+        throw BackupNotFoundException();
+      }
+
+      // set the last backup time
+      await _preferences.setLastBackupTime(lastBackup.toIso8601String());
+      //set the last backup name
+      await _preferences.setLastBackupName(username!);
+
+      _state.backupSuccess(lastBackup, username);
+
+      return true;
+    } on BackupNotFoundException {
+      _state.setStatus(BackupStatus.nobackup);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _state.backupError();
+
+    return false;
+  }
+
+  Future<(String?, String?)> decryptFromPasswordManager({
+    String? manualKey,
+  }) async {
+    try {
+      _state.decryptRequest();
+
+      await delay(const Duration(milliseconds: 500));
+
+      final BackupServiceInterface backupService = getBackupService();
+
+      String? username;
+      if (manualKey != null) {
+        username = await backupService.init();
+
+        await _credentials.manualSetup(
+          username: username,
+          manualKey: manualKey,
+          saveKey: false,
+        );
+
+        final isSetup = await _credentials.isSetup();
+
+        assert(isSetup);
+
+        _state.setStatus(BackupStatus.restore);
+
+        assert(username != null);
+
+        // this will downlaod, decrypt and replace any current db in place
+        await backupService.download(
+          _accountsDB.name,
+          _accountsDB.path,
+        );
+
+        await _credentials.manualSetup(
+          username: username,
+          manualKey: manualKey,
+          saveKey: true,
+        );
+
+        _state.setStatus(BackupStatus.success);
+      } else {
+        await _credentials.setup(createKeyIfMissing: false);
+
+        final isSetup = await _credentials.isSetup();
+
+        assert(isSetup);
+
+        username = await backupService.init();
+
+        _state.setStatus(BackupStatus.restore);
+
+        assert(username != null);
+
+        // this will downlaod, decrypt and replace any current db in place
+        await backupService.download(
+          _accountsDB.name,
+          _accountsDB.path,
+        );
+
+        _state.setStatus(BackupStatus.success);
+      }
+
+      // instantiate the db again
+      await _accountsDB.init('accounts');
+
+      final backupTime = DateTime.now();
+
+      // set the last backup time
+      await _preferences.setLastBackupTime(backupTime.toIso8601String());
+
+      // see if there are wallets that were recovered
+      final accounts = await _accountsDB.accounts.all();
+
+      assert(accounts.isNotEmpty);
+
+      // set up the first wallet as the default, this will allow the app to start normally
+      _preferences.setLastAlias(accounts.first.alias);
+      _preferences.setLastWallet(accounts.first.address.hexEip55);
+
+      _state.decryptSuccess(backupTime, username);
+
+      return (
+        accounts.first.alias,
+        accounts.first.address.hexEip55,
+      );
+    } on SourceMissingException {
+      _state.decryptError(status: BackupStatus.nokey);
+      return (null, null);
+    } catch (exception, stackTrace) {
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      if (manualKey != null) {
+        _state.decryptError(status: BackupStatus.wrongkey);
+      } else {
+        _state.decryptError();
+      }
+    }
+
+    return (null, null);
+  }
+
   /// This is intended to run on first launch.
   ///
   /// It will try to recover the accounts from the backup
@@ -129,7 +274,7 @@ class BackupLogic {
       // set the last backup time
       await _preferences.setLastBackupTime(backupTime.toIso8601String());
 
-      _state.backupSuccess(backupTime);
+      _state.backupSuccess(backupTime, username);
 
       // see if there are wallets that were recovered
       final accounts = await _accountsDB.accounts.all();
@@ -221,7 +366,7 @@ class BackupLogic {
 
       await _preferences.setLastBackupTime(backupTime.toIso8601String());
 
-      _state.backupSuccess(backupTime);
+      _state.backupSuccess(backupTime, username);
 
       String message = 'Backup successful.';
       if (amountRemoteAccounts > 0) {
@@ -273,5 +418,9 @@ class BackupLogic {
 
       _state.setE2E(false);
     }
+  }
+
+  void resetBackupState() {
+    _state.resetState();
   }
 }

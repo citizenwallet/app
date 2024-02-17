@@ -4,6 +4,8 @@ import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
 import 'package:citizenwallet/screens/contacts/screen.dart';
+import 'package:citizenwallet/screens/landing/account_connected.dart';
+import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -68,6 +70,16 @@ GoRouter createRouter(
                 webWalletAlias: webWalletAlias,
                 receiveParams: receiveParams,
               );
+            }),
+        GoRoute(
+            path: '/recovery',
+            builder: (context, state) {
+              return const AccountRecoveryScreen();
+            }),
+        GoRoute(
+            path: '/recovery/connected',
+            builder: (context, state) {
+              return const AccountConnectedScreen();
             }),
         ShellRoute(
           navigatorKey: shellNavigatorKey,

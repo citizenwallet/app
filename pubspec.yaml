@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.38+127
+version: 1.0.40+129
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -92,7 +92,6 @@ flutter:
     - assets/icons/sound.svg
     - assets/icons/docs.svg
     - assets/icons/website.svg
-    - assets/icons/cloud-settings.svg
     - assets/icons/users.svg
     - assets/icons/coin.svg
     - assets/icons/share.svg
@@ -105,6 +104,8 @@ flutter:
     - assets/icons/voucher.png
     - assets/icons/key.svg
     - assets/icons/drive.svg
+    - assets/icons/cloud-empty.svg
+    - assets/icons/cloud-found.svg
     - assets/icons/icloud.svg
     - assets/icons/wallet.png
     - assets/icons/bookmark.svg

@@ -8,6 +8,7 @@ import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sig
 
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:flutter/foundation.dart';
+import 'package:googleapis/photoslibrary/v1.dart';
 
 class AndroidBackupService extends BackupServiceInterface {
   static final AndroidBackupService _instance =
@@ -76,7 +77,7 @@ class AndroidBackupService extends BackupServiceInterface {
       return (null, null);
     }
 
-    return (existingFile.id, existingFile.modifiedTime);
+    return (existingFile.id, existingFile.modifiedTime ?? DateTime.now());
   }
 
   @override

@@ -4,7 +4,6 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
-import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';

@@ -63,6 +63,7 @@ class AppleCredentialsService extends CredentialsServiceInterface {
   Future<void> setup({
     String?
         username, // for the sake of respecting the interface. iCloud allows us to control what gets put in the keychain and it's app + account based already.
+    createKeyIfMissing,
   }) async {
     final exists = await _secure.containsKey(
       key: CredentialsServiceInterface
@@ -78,6 +79,18 @@ class AppleCredentialsService extends CredentialsServiceInterface {
         value: bytesToHex(key),
       );
     }
+  }
+
+  @override
+  Future<void> manualSetup({
+    String? username,
+    required String manualKey,
+    bool saveKey = false,
+  }) async {
+    await _secure.write(
+      key: CredentialsServiceInterface.credentialStorageKey,
+      value: manualKey,
+    );
   }
 
   @override

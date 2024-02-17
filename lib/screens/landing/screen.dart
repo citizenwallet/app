@@ -232,14 +232,9 @@ class LandingScreenState extends State<LandingScreen>
   }
 
   void handleRecover() async {
-    // android needs manual recovery, iOS does this automatically
-    final hasAccounts = await handleAndroidStart();
-    if (hasAccounts) {
-      // there are accounts now after recovery
-      // attempt to reload the app
-      onLoad();
-      return;
-    }
+    final navigator = GoRouter.of(context);
+
+    navigator.push('/recovery');
   }
 
   // TODO: remove this
@@ -359,7 +354,7 @@ class LandingScreenState extends State<LandingScreen>
                           : Column(
                               children: [
                                 Button(
-                                  text: 'Create Account',
+                                  text: 'Create new Account',
                                   onPressed: handleStart,
                                   minWidth: 200,
                                   maxWidth: 200,
@@ -376,7 +371,7 @@ class LandingScreenState extends State<LandingScreen>
                                   CupertinoButton(
                                     onPressed: handleRecover,
                                     child: Text(
-                                      'Recover Accounts',
+                                      'Recover from backup',
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),
@@ -388,22 +383,25 @@ class LandingScreenState extends State<LandingScreen>
                                     ),
                                   ),
                                 ],
-                                const SizedBox(height: 5),
-                                CupertinoButton(
-                                  onPressed:
-                                      handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
-                                  child: Text(
-                                    'Import Account',
-                                    style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.normal,
-                                      decoration: TextDecoration.underline,
+                                if (isPlatformApple()) ...[
+                                  const SizedBox(height: 5),
+                                  CupertinoButton(
+                                    onPressed:
+                                        handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
+                                    child: Text(
+                                      'Recover Individual Account from a private key',
+                                      style: TextStyle(
+                                        color: ThemeColors.text
+                                            .resolveFrom(context),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      maxLines: 2,
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
-                                ),
+                                ]
                               ],
                             ),
                     )

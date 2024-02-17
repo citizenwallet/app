@@ -21,7 +21,17 @@ class WebCredentialsService extends CredentialsServiceInterface {
   }
 
   @override
-  Future<void> setup({String? username}) async {}
+  Future<void> setup({
+    String? username,
+    createKeyIfMissing,
+  }) async {}
+
+  @override
+  Future<void> manualSetup({
+    String? username,
+    required String manualKey,
+    bool saveKey = false,
+  }) async {}
 
   @override
   Future<Uint8List> encrypt(Uint8List data) async {

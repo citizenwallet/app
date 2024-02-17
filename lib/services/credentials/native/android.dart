@@ -48,7 +48,11 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
   }
 
   @override
-  Future<void> setup({String? username}) async {
+  Future<void> setup({
+    String? username,
+    String? manualKey,
+    createKeyIfMissing = true,
+  }) async {
     Uint8List key;
 
     try {
@@ -61,6 +65,9 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
 
       key = hexToBytes(credential.password!);
     } catch (_) {
+      if (!createKeyIfMissing) {
+        throw SourceMissingException();
+      }
       // if not, create one
       // generate a random key
       key = generateKey();
@@ -79,6 +86,30 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
       key: CredentialsServiceInterface
           .credentialStorageKey, // internally, we don't care about the username, we need someething predictable
       value: bytesToHex(key),
+    );
+  }
+
+  @override
+  Future<void> manualSetup({
+    String? username,
+    required String manualKey,
+    bool saveKey = false,
+  }) async {
+    if (saveKey) {
+      await _credentials.savePasswordCredentials(
+        PasswordCredential(
+          username: username ??
+              CredentialsServiceInterface
+                  .credentialStorageKey, // since users select credentials themselves, it makes sense to use something that is familiar to them
+          password: manualKey,
+        ),
+      );
+    }
+
+    await _secure.write(
+      key: CredentialsServiceInterface
+          .credentialStorageKey, // internally, we don't care about the username, we need someething predictable
+      value: manualKey,
     );
   }
 
