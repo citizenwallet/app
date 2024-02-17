@@ -15,7 +15,6 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -144,6 +143,8 @@ class WalletScreenState extends State<WalletScreen> {
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
     }
+
+    print('receiveParams: ${widget.receiveParams}');
 
     if (widget.receiveParams != null) {
       await handleSendModal(receiveParams: widget.receiveParams);
