@@ -30,6 +30,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -1732,5 +1733,11 @@ class WalletLogic extends WidgetsBindingObserver {
       default:
         transferEventUnsubscribe();
     }
+  }
+
+  void launchPluginUrl(String uri) {
+    try {
+      launchUrl(Uri.parse(uri), mode: LaunchMode.externalApplication);
+    } catch (_) {}
   }
 }

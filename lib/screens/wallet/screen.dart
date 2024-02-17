@@ -348,28 +348,12 @@ class WalletScreenState extends State<WalletScreen> {
   void handlePlugin(String url) async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
     final (uri, customScheme) = await _logic.openPluginUrl(url);
     if (uri == null || customScheme == null) {
       return;
     }
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => WebViewModal(
-        url: uri,
-        customScheme: customScheme,
-      ),
-    );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    _logic.launchPluginUrl(uri);
   }
 
   void handleCards() async {
