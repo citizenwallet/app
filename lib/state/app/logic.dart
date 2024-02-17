@@ -322,18 +322,23 @@ class AppLogic {
       _appState.importLoadingReq();
 
       final decoded = convertUint8ListToString(
-          base64Decode(webWallet.replaceFirst('v2-', '')));
+          base64Decode(webWallet.replaceFirst('v3-', '')));
+
+      final decodedSplit = decoded.split('|');
+
+      if (decodedSplit.length != 2) {
+        throw Exception('invalid format');
+      }
 
       final password = dotenv.get('WEB_BURNER_PASSWORD');
 
-      final wallet = Wallet.fromJson(decoded, password);
+      final wallet = Wallet.fromJson(decodedSplit[1], password);
 
       final credentials = wallet.privateKey;
 
       final config = await _config.getConfig(alias);
 
-      final accFactory = await accountFactoryServiceFromConfig(config);
-      final address = await accFactory.getAddress(credentials.address.hexEip55);
+      final address = EthereumAddress.fromHex(decodedSplit[0]);
 
       final existing =
           await _accounts.getAccount(address.hexEip55, config.community.alias);
