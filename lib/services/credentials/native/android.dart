@@ -59,11 +59,16 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
       // check if there is an encryption key available
       final credential = await _credentials.getPasswordCredentials();
 
-      if (credential.password == null) {
+      if (credential.passwordCredential == null) {
+        // this error should be handled differently, the credential is incompatible with the current setup
         throw SourceMissingException();
       }
 
-      key = hexToBytes(credential.password!);
+      if (credential.passwordCredential!.password == null) {
+        throw SourceMissingException();
+      }
+
+      key = hexToBytes(credential.passwordCredential!.password!);
     } catch (_) {
       if (!createKeyIfMissing) {
         throw SourceMissingException();
