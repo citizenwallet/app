@@ -144,8 +144,6 @@ class WalletScreenState extends State<WalletScreen> {
       await handleLoadFromVoucher();
     }
 
-    print('receiveParams: ${widget.receiveParams}');
-
     if (widget.receiveParams != null) {
       await handleSendModal(receiveParams: widget.receiveParams);
     }
