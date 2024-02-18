@@ -53,7 +53,10 @@ class ProfileChip extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  selectedAddress ?? '@${selectedProfile?.username}',
+                  selectedAddress ??
+                      (selectedProfile != null
+                          ? '@${selectedProfile!.username}'
+                          : ''),
                   style: TextStyle(
                     color: ThemeColors.surfaceText.resolveFrom(context),
                   ),
