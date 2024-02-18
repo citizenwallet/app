@@ -278,55 +278,6 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void preSendingTransaction(CWTransaction transaction) {
-    sendQueueRemoveTransaction(transaction.id);
-
-    transactions =
-        transactions.where((element) => element.id != transaction.id).toList();
-
-    transactions.insert(0, transaction);
-
-    inProgressTransaction = transaction;
-    inProgressTransactionLoading = true;
-    inProgressTransactionError = false;
-
-    notifyListeners();
-  }
-
-  void sendingTransaction(CWTransaction transaction) {
-    sendQueueRemoveTransaction(transaction.id);
-
-    transactions = transactions
-        .where((element) =>
-            element.id != transaction.id && !isPendingTransactionId(element.id))
-        .toList();
-
-    transactions.insert(0, transaction);
-
-    inProgressTransaction = transaction;
-    inProgressTransactionLoading = true;
-    inProgressTransactionError = false;
-
-    notifyListeners();
-  }
-
-  void pendingTransaction(CWTransaction transaction) {
-    sendQueueRemoveTransaction(transaction.id);
-
-    transactions = transactions
-        .where((element) =>
-            element.id != transaction.id && !isPendingTransactionId(element.id))
-        .toList();
-
-    transactions.insert(0, transaction);
-
-    inProgressTransaction = transaction;
-    inProgressTransactionLoading = false;
-    inProgressTransactionError = false;
-
-    notifyListeners();
-  }
-
   CWTransaction? inProgressTransaction;
   bool inProgressTransactionLoading = true;
   bool inProgressTransactionError = false;

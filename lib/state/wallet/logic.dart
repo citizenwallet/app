@@ -1679,7 +1679,8 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
 
-      final redirectUrl = '$appUniversalURL/?alias=${_wallet.alias}';
+      final redirectUrl =
+          Uri.encodeComponent('$appUniversalURL/?alias=${_wallet.alias}');
 
       final parsedURL = Uri.parse(appUniversalURL);
 
