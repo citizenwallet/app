@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.40+129
+version: 1.0.41+130
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -24,8 +24,8 @@ dependencies:
   convert: ^3.1.1
   flutter:
     sdk: flutter
-  lottie: ^2.3.2
-  mobile_scanner: ^3.3.0
+  lottie: ^3.0.0
+  mobile_scanner: ^4.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3

@@ -73,7 +73,7 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     if (widget.receiveParams != null) {
-      params += '?receiveParams=${widget.receiveParams}';
+      params += '&receiveParams=${widget.receiveParams}';
     }
 
     if (extra.isNotEmpty) {
@@ -127,6 +127,8 @@ class LandingScreenState extends State<LandingScreen>
     String params = parseParamsFromWidget(extra: [
       'alias=${alias ?? 'app'}',
     ]);
+
+    print('/wallet/$address$params');
 
     _appLogic.appLoaded();
 
