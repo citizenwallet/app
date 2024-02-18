@@ -97,7 +97,7 @@
             {
                 "name": "Top Up",
                 "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-                "url": "https://topup.citizenwallet.xyz/gt.celo"
+                "url": "https://topup.citizenwallet.xyz/gratitude"
             }
         ],
         "version": 1
