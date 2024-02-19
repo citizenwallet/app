@@ -609,5 +609,49 @@
             }
         ],
         "version": 1
+    },
+    {
+        "community": {
+            "name": "CI token",
+            "description": "Monnaie locale du Cercle Informatique de l’ULB",
+            "url": "https://citizenwallet.xyz/cit",
+            "alias": "cit.celo",
+            "logo": "https://cit.celo.citizenwallet.xyz/wallet-config/_images/cit.celo.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
+            "entrypoint_address": "0xB8d9412f3A91A00ca762B5c35cd0863E9b716D68",
+            "account_factory_address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9",
+            "name": "CI token",
+            "symbol": "CIT",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x4cB296BEc9FAd0B5e1E4FF1A2F307B425724AC82"
+        },
+        "version": 1
     }
 ]
