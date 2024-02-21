@@ -28,6 +28,7 @@ class _WebViewModalState extends State<WebViewModal> {
   late InAppWebViewSettings settings;
 
   bool _show = false;
+  bool _isDismissing = false;
 
   @override
   void initState() {
@@ -45,20 +46,28 @@ class _WebViewModalState extends State<WebViewModal> {
       onWebViewCreated: (controller) {
         webViewController = controller;
       },
+      onLoadStart: (controller, url) {
+        if (url == null) {
+          return;
+        }
+
+        final uri = Uri.parse(url.toString());
+        if (uri.toString() == widget.redirectUrl) {
+          handleDismiss(context, path: uri.queryParameters['response']);
+        }
+      },
       onUpdateVisitedHistory: (controller, url, androidIsReload) {
         if (url == null) {
           return;
         }
 
         final uri = Uri.parse(url.toString());
-
         if (uri.toString() == widget.redirectUrl) {
           handleDismiss(context, path: uri.queryParameters['response']);
         }
       },
       onLoadResource: (controller, request) async {
         final uri = Uri.parse(request.url.toString());
-
         if (uri.toString() == widget.redirectUrl) {
           handleDismiss(context, path: uri.queryParameters['response']);
         }
@@ -86,6 +95,12 @@ class _WebViewModalState extends State<WebViewModal> {
   }
 
   void handleDismiss(BuildContext context, {String? path}) async {
+    if (_isDismissing) {
+      return;
+    }
+
+    _isDismissing = true;
+
     webViewController?.stopLoading();
 
     final navigator = GoRouter.of(context);
@@ -136,6 +151,17 @@ class _WebViewModalState extends State<WebViewModal> {
                             onWebViewCreated: (controller) {
                               headlessWebView = null;
                               webViewController = controller;
+                            },
+                            onLoadStart: (controller, url) {
+                              if (url == null) {
+                                return;
+                              }
+
+                              final uri = Uri.parse(url.toString());
+                              if (uri.toString() == widget.redirectUrl) {
+                                handleDismiss(context,
+                                    path: uri.queryParameters['response']);
+                              }
                             },
                             onUpdateVisitedHistory:
                                 (controller, url, androidIsReload) {
