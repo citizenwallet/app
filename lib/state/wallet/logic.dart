@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
@@ -66,7 +67,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final NotificationsLogic _notificationsLogic;
 
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
-  final String appUniversalURL = dotenv.get('MAIN_APP_SCHEME');
+  final String appUniversalURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
@@ -1673,24 +1674,25 @@ class WalletLogic extends WidgetsBindingObserver {
     }
   }
 
-  Future<(String?, String?)> openPluginUrl(
-    String url,
+  Future<(String?, String?, String?)> constructPluginUri(
+    PluginConfig pluginConfig,
   ) async {
     try {
       final now = DateTime.now().toUtc().add(const Duration(seconds: 30));
 
-      final redirectUrl =
-          Uri.encodeComponent('$appUniversalURL/?alias=${_wallet.alias}');
+      final redirectUrl = '$appUniversalURL/?alias=${_wallet.alias}';
+      final encodedRedirectUrl = Uri.encodeComponent(redirectUrl);
 
       final parsedURL = Uri.parse(appUniversalURL);
 
       return (
-        '$url?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$redirectUrl&signature=0x123',
-        parsedURL.scheme,
+        '${pluginConfig.url}?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$encodedRedirectUrl&signature=0x123',
+        parsedURL.scheme != 'https' ? parsedURL.scheme : null,
+        redirectUrl,
       );
     } catch (_) {}
 
-    return (null, null);
+    return (null, null, null);
   }
 
   void pauseFetching() {

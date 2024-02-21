@@ -46,7 +46,8 @@
             {
                 "name": "Top Up",
                 "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
-                "url": "https://topup.citizenwallet.xyz/gt.celo"
+                "url": "https://topup.citizenwallet.xyz/gt.celo",
+                "launch_mode": "webview"
             }
         ],
         "version": 1
@@ -97,7 +98,8 @@
             {
                 "name": "Top Up",
                 "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-                "url": "https://topup.citizenwallet.xyz/gratitude"
+                "url": "https://topup.citizenwallet.xyz/gratitude",
+                "launch_mode": "webview"
             }
         ],
         "version": 1

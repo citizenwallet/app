@@ -298,15 +298,22 @@ class ProfileConfig {
   }
 }
 
+enum PluginLaunchMode {
+  webview,
+  external;
+}
+
 class PluginConfig {
   final String name;
   final String icon;
   final String url;
+  final PluginLaunchMode launchMode;
 
   PluginConfig({
     required this.name,
     required this.icon,
     required this.url,
+    this.launchMode = PluginLaunchMode.external,
   });
 
   factory PluginConfig.fromJson(Map<String, dynamic> json) {
@@ -314,6 +321,9 @@ class PluginConfig {
       name: json['name'],
       icon: json['icon'],
       url: json['url'],
+      launchMode: json['launch_mode'] == 'webview'
+          ? PluginLaunchMode.webview
+          : PluginLaunchMode.external,
     );
   }
 
@@ -323,6 +333,7 @@ class PluginConfig {
       'name': name,
       'icon': icon,
       'url': url,
+      'launch_mode': launchMode.name,
     };
   }
 

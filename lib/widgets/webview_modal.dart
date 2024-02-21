@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 
 class WebViewModal extends StatefulWidget {
   final String url;
-  final String customScheme;
+  final String redirectUrl;
+  final String? customScheme;
 
   const WebViewModal({
     super.key,
     required this.url,
-    required this.customScheme,
+    required this.redirectUrl,
+    this.customScheme,
   });
 
   @override
@@ -33,7 +35,8 @@ class _WebViewModalState extends State<WebViewModal> {
 
     settings = InAppWebViewSettings(
       javaScriptEnabled: true,
-      resourceCustomSchemes: [widget.customScheme],
+      resourceCustomSchemes:
+          widget.customScheme != null ? [widget.customScheme!] : [],
     );
 
     headlessWebView = HeadlessInAppWebView(
@@ -41,6 +44,24 @@ class _WebViewModalState extends State<WebViewModal> {
       initialSettings: settings,
       onWebViewCreated: (controller) {
         webViewController = controller;
+      },
+      onUpdateVisitedHistory: (controller, url, androidIsReload) {
+        if (url == null) {
+          return;
+        }
+
+        final uri = Uri.parse(url.toString());
+
+        if (uri.toString() == widget.redirectUrl) {
+          handleDismiss(context, path: uri.queryParameters['response']);
+        }
+      },
+      onLoadResource: (controller, request) async {
+        final uri = Uri.parse(request.url.toString());
+
+        if (uri.toString() == widget.redirectUrl) {
+          handleDismiss(context, path: uri.queryParameters['response']);
+        }
       },
       onLoadResourceWithCustomScheme: (controller, request) async {
         final uri = Uri.parse(request.url.toString());
@@ -115,6 +136,27 @@ class _WebViewModalState extends State<WebViewModal> {
                             onWebViewCreated: (controller) {
                               headlessWebView = null;
                               webViewController = controller;
+                            },
+                            onUpdateVisitedHistory:
+                                (controller, url, androidIsReload) {
+                              if (url == null) {
+                                return;
+                              }
+
+                              final uri = Uri.parse(url.toString());
+
+                              if (uri.toString() == widget.redirectUrl) {
+                                handleDismiss(context,
+                                    path: uri.queryParameters['response']);
+                              }
+                            },
+                            onLoadResource: (controller, request) async {
+                              final uri = Uri.parse(request.url.toString());
+
+                              if (uri.toString() == widget.redirectUrl) {
+                                handleDismiss(context,
+                                    path: uri.queryParameters['response']);
+                              }
                             },
                             onLoadResourceWithCustomScheme:
                                 (controller, request) async {
