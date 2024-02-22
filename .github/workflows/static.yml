@@ -83,5 +83,5 @@ jobs:
           curl --location '${{ secrets.DISCORD_WEBHOOK_URL }}' \
           --header 'Content-Type: application/json' \
           --data '{
-              "content": "Citizen Wallet web updated to version '$buildName'+'$buildNumber'"
+              "content": "updated to version '$buildName'+'$buildNumber'"
           }'
