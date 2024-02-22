@@ -82,7 +82,6 @@ jobs:
           buildNumber=$(echo $fullVersion | cut -d "+" -f 2 )
           curl --location '${{ secrets.DISCORD_WEBHOOK_URL }}' \
           --header 'Content-Type: application/json' \
-          --header 'Cookie: __cfruid=d3c9cf3e6e0989f59d65a979199e9d928266693c-1693907586; __dcfduid=0300e39c4bd211ee92ba76601606ba10; __sdcfduid=0300e39c4bd211ee92ba76601606ba104c66c70ce16f83ac0ab7dab5a2c00db41a6ae491f8d5fd2c405335aea5c168c3; _cfuvid=oyTswblHJBKePR__0PEqzFK3MZ_Ic04hL1.hQ_N6UyU-1693907586120-0-604800000' \
           --data '{
               "content": "Citizen Wallet web updated to version '$buildName'+'$buildNumber'"
           }'

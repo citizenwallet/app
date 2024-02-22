@@ -6,6 +6,7 @@ import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -15,6 +16,7 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -344,15 +346,40 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void handlePlugin(String url) async {
+  void handlePlugin(PluginConfig pluginConfig) async {
     HapticFeedback.heavyImpact();
 
-    final (uri, customScheme) = await _logic.openPluginUrl(url);
-    if (uri == null || customScheme == null) {
+    final (uri, customScheme, redirect) =
+        await _logic.constructPluginUri(pluginConfig);
+    if (uri == null || redirect == null) {
       return;
     }
 
-    _logic.launchPluginUrl(uri);
+    switch (pluginConfig.launchMode) {
+      case PluginLaunchMode.webview:
+        _logic.pauseFetching();
+        _profilesLogic.pause();
+        _voucherLogic.pause();
+
+        await CupertinoScaffold.showCupertinoModalBottomSheet(
+          context: context,
+          expand: true,
+          useRootNavigator: true,
+          builder: (_) => WebViewModal(
+            url: uri,
+            redirectUrl: redirect,
+            customScheme: customScheme,
+          ),
+        );
+
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        break;
+      default:
+        _logic.launchPluginUrl(uri);
+        break;
+    }
   }
 
   void handleCards() async {

@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -19,7 +20,7 @@ class WalletActions extends StatelessWidget {
 
   final void Function()? handleSendModal;
   final void Function()? handleReceive;
-  final void Function(String url)? handlePlugin;
+  final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
   final void Function()? handleVouchers;
 
@@ -367,7 +368,7 @@ class WalletActions extends StatelessWidget {
                                   padding: const EdgeInsets.all(5),
                                   onPressed: sendLoading
                                       ? () => ()
-                                      : () => handlePlugin!(plugin.url),
+                                      : () => handlePlugin!(plugin),
                                   borderRadius: BorderRadius.circular(
                                       progressiveClamp(14, 20, shrink)),
                                   color: ThemeColors.background

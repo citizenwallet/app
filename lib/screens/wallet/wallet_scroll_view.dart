@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
@@ -22,7 +23,7 @@ class WalletScrollView extends StatefulWidget {
   final Future<void> Function() handleRefresh;
   final void Function() handleSendModal;
   final void Function() handleReceive;
-  final void Function(String url)? handlePlugin;
+  final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
