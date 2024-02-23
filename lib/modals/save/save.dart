@@ -21,7 +21,7 @@ class SaveModal extends StatefulWidget {
 
 class SaveModalState extends State<SaveModal> {
   double _opacity = 0;
-
+  bool isCopied = false;
   late BackupWebLogic _logic;
 
   @override
@@ -61,10 +61,23 @@ class SaveModalState extends State<SaveModal> {
     );
   }
 
-  void onCopyUrl() {
+  void handleComposeEmail() {
+    _logic.composeEmail();
+  }
+
+  void handleCopyUrl() {
     _logic.copyUrl();
+    setState(() {
+      isCopied = true;
+    });
 
     HapticFeedback.heavyImpact();
+
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      setState(() {
+        isCopied = false;
+      });
+    });
   }
 
   void handleDismiss(BuildContext context) {
@@ -112,6 +125,22 @@ class SaveModalState extends State<SaveModal> {
                   ),
                 ),
               ),
+              Row(children: [
+                Flexible(
+                    child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Text(
+                    "Don't lose your wallet! Bookmark this page or save its unique address that contains your private key in a safe place.",
+                    textAlign: TextAlign.left,
+                    maxLines: 3,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                      color: ThemeColors.text.resolveFrom(context),
+                    ),
+                  ),
+                ))
+              ]),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -164,23 +193,6 @@ class SaveModalState extends State<SaveModal> {
                                 ),
                               )
                             ],
-                            if (isDesktop) ...[
-                              Text(
-                                'Bookmark this page to backup your wallet',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              SvgPicture.asset(
-                                'assets/icons/bookmark_color.svg',
-                                semanticsLabel: 'bookmark icon',
-                                height: 100,
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -222,35 +234,41 @@ class SaveModalState extends State<SaveModal> {
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
-                            const SizedBox(height: 100),
-                            Text(
-                              'Or copy your wallet url and save it somewhere safe',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 40,
-                            ),
+                            const SizedBox(height: 60),
                             Button(
-                              text: 'Copy URL',
+                              text: isCopied
+                                  ? 'Copied!'
+                                  : 'Copy your unique wallet URL',
                               suffix: Row(
                                 children: [
                                   const SizedBox(width: 10),
                                   Icon(
-                                    CupertinoIcons.link,
+                                    CupertinoIcons.doc_on_clipboard,
                                     size: 18,
                                     color:
                                         ThemeColors.black.resolveFrom(context),
                                   ),
                                 ],
                               ),
-                              onPressed: () => handleBackupWallet(context),
+                              onPressed: handleCopyUrl,
                               minWidth: 200,
-                              maxWidth: 200,
+                              maxWidth: 300,
+                            ),
+                            const SizedBox(height: 20),
+                            Text("- OR -"),
+                            const SizedBox(height: 10),
+                            CupertinoButton(
+                              onPressed: handleComposeEmail,
+                              child: Text(
+                                'Email to yourself your wallet url',
+                                style: TextStyle(
+                                  color: ThemeColors.text.resolveFrom(context),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ],
                         ),

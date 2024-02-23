@@ -80,4 +80,13 @@ class BackupWebLogic {
   void copyUrl() {
     Clipboard.setData(ClipboardData(text: Uri.base.toString()));
   }
+
+  void composeEmail() {
+    launchUrl(Uri(
+      scheme: 'mailto',
+      path: '',
+      query:
+          'subject=🔐%20Citizen%20Wallet%20Backup&body=Please%20keep%20this%20URL%20private.%20Anyone%20who%20has%20access%20to%20it%20can%20spend%20your%20funds.\n\n${Uri.base.toString()}',
+    ));
+  }
 }
