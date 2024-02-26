@@ -21,6 +21,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 42220,
             "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
@@ -73,6 +74,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 42220,
             "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
@@ -125,6 +127,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 42220,
             "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
@@ -169,6 +172,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -214,6 +218,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -259,6 +264,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 8453,
             "url": "https://nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e",
             "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
         },
@@ -305,6 +311,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -350,6 +357,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 8453,
             "url": "https://nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e",
             "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
         },
@@ -394,6 +402,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -439,6 +448,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -486,6 +496,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -530,6 +541,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 137,
             "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
             "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
         },
@@ -582,6 +594,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 42220,
             "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
@@ -633,6 +646,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "node": {
+            "chainId": 42220,
             "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
             "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
         },
