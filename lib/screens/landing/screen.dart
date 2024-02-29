@@ -128,8 +128,6 @@ class LandingScreenState extends State<LandingScreen>
       'alias=${alias ?? 'app'}',
     ]);
 
-    print('/wallet/$address$params');
-
     _appLogic.appLoaded();
 
     navigator.go('/wallet/$address$params');
