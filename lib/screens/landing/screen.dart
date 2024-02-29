@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
@@ -111,7 +112,13 @@ class LandingScreenState extends State<LandingScreen>
         widget.voucherParams != null &&
         address == null &&
         alias == null) {
-      (address, alias) = await handleLoadFromVoucher();
+      (address, alias) = await handleLoadFromParams(widget.voucherParams);
+    }
+
+    // handle voucher redemption
+    // pick an appropriate wallet to load
+    if (widget.receiveParams != null && address == null && alias == null) {
+      (address, alias) = await handleLoadFromParams(widget.receiveParams);
     }
 
     // load the last wallet if there was no deeplink
@@ -133,37 +140,29 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/$address$params');
   }
 
-  Future<(String?, String?)> handleLoadFromVoucher() async {
-    final voucher = widget.voucher;
-    final voucherParams = widget.voucherParams;
-
-    if (voucher == null || voucherParams == null) {
+  Future<(String?, String?)> handleLoadFromParams(String? params) async {
+    if (params == null) {
       return (null, null);
     }
 
-    _voucherLogic.pause();
-
-    final alias = _voucherLogic.voucherAlias(voucherParams);
+    final alias = paramsAlias(params);
     if (alias == null) {
-      _voucherLogic.resume();
       return (null, null);
     }
 
     final wallets = await _appLogic.loadWalletsFromAlias(alias);
 
     if (wallets.isEmpty) {
-      _voucherLogic.resume();
-
       final newAddress = await _appLogic.createWallet(alias);
 
       return (newAddress, alias);
     }
 
     if (wallets.length == 1) {
-      _voucherLogic.resume();
       return (wallets.first.account, alias);
     }
 
+    if (!mounted) return (null, null);
     final selection = await showCupertinoModalBottomSheet<(String?, String?)?>(
       context: context,
       expand: true,
@@ -177,12 +176,18 @@ class LandingScreenState extends State<LandingScreen>
     );
 
     if (selection == null || selection.$1 == null || selection.$2 == null) {
-      _voucherLogic.resume();
       return (null, null);
     }
 
-    _voucherLogic.resume();
     return (selection.$1, selection.$2);
+  }
+
+  String? paramsAlias(String compressedParams) {
+    final params = decompress(compressedParams);
+
+    final uri = Uri(query: params);
+
+    return uri.queryParameters['alias'];
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns

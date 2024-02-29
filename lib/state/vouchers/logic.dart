@@ -115,14 +115,6 @@ class VoucherLogic extends WidgetsBindingObserver {
     _state.vouchersError();
   }
 
-  String? voucherAlias(String compressedVoucherParams) {
-    final voucherParams = decompress(compressedVoucherParams);
-
-    final uri = Uri(query: voucherParams);
-
-    return uri.queryParameters['alias'];
-  }
-
   Future<String?> readVoucher(
     String compressedVoucher,
     String compressedVoucherParams, {
