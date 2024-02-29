@@ -662,8 +662,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       autocorrect: false,
                                       enableSuggestions: false,
                                       keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                        decimal: true,
+                                          TextInputType.numberWithOptions(
+                                        decimal:
+                                            (wallet?.decimalDigits ?? 0) > 0,
                                         signed: false,
                                       ),
                                       textInputAction: TextInputAction.next,
