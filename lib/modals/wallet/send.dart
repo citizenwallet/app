@@ -62,6 +62,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
   final FocusNode amountFocuseNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
+  final IntegerAmountFormatter integerAmountFormatter =
+      IntegerAmountFormatter();
 
   final double animationSize = 200;
 
@@ -669,7 +671,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       ),
                                       textInputAction: TextInputAction.next,
                                       inputFormatters: [
-                                        amountFormatter,
+                                        (wallet?.decimalDigits ?? 0) > 0
+                                            ? amountFormatter
+                                            : integerAmountFormatter,
                                       ],
                                       onChanged: (_) =>
                                           handleThrottledUpdateAmount(),
