@@ -1,0 +1,157 @@
+[
+  {
+    "community": {
+      "name": "Gratitude Token",
+      "description": "Express your gratitude towards someone by sending them a token.",
+      "url": "https://citizenwallet.xyz",
+      "alias": "gt.celo",
+      "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg"
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "Celo Explorer"
+    },
+    "indexer": {
+      "url": "https://indexer-celo.internal.citizenwallet.xyz",
+      "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+      "key": "x"
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+      "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+      "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+    },
+    "erc4337": {
+      "rpc_url": "http://localhost:3000/rpc",
+      "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+      "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+      "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+      "paymaster_rpc_url": "http://localhost:3000/rpc",
+      "paymaster_type": "cw"
+    },
+    "token": {
+      "standard": "erc20",
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "name": "Gratitude Token",
+      "symbol": "GT",
+      "decimals": 0
+    },
+    "profile": {
+      "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+        "url": "https://topup.citizenwallet.xyz/gt.celo"
+      }
+    ],
+    "version": 1
+  },
+  {
+    "community": {
+      "name": "Zinne Test",
+      "description": "A community currency for the city of Brussels",
+      "url": "https://zinne.brussels",
+      "alias": "zinnetest",
+      "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg"
+    },
+    "scan": {
+      "url": "https://mumbai.polygonscan.com",
+      "name": "Polygon Explorer"
+    },
+    "indexer": {
+      "url": "http://localhost:3000",
+      "ipfs_url": "http://localhost:3000",
+      "key": "x"
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+      "url": "https://nd-649-296-659.p2pify.com/aa0d23c081984262918b5684d8e84d38",
+      "ws_url": "wss://ws-nd-649-296-659.p2pify.com/aa0d23c081984262918b5684d8e84d38"
+    },
+    "erc4337": {
+      "rpc_url": "http://localhost:3000/rpc",
+      "paymaster_address": "0xc06bE1BbbeEAF2f34F3d5b76069D2560aee184Ae",
+      "entrypoint_address": "0x15276b4f385Dc60DF91DE2b1805D8F80474c0bFF",
+      "account_factory_address": "0x86D0046693E5f8a8dAc95f63e038116FA8f5cAe8",
+      "paymaster_rpc_url": "http://localhost:3000/rpc",
+      "paymaster_type": "cw",
+      "gas_extra_percentage": 50
+    },
+    "token": {
+      "standard": "erc20",
+      "address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
+      "name": "Zinne Test",
+      "symbol": "ZINNE",
+      "decimals": 6
+    },
+    "profile": {
+      "address": "0xbc0c20cB122263Ae9B8D285afeFd83cE25E49ee1"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
+        "url": "https://topup.test.citizenwallet.xyz/zinne"
+      }
+    ],
+    "version": 1
+  },
+  {
+    "community": {
+      "name": "Bonne Heure Test",
+      "description": "Système d'Échange Local de Villers-la-Ville",
+      "url": "https://selcoupdepouce.be",
+      "alias": "selcoupdepouce-test",
+      "logo": "/communities/selcoupdepouce/sel-coin.svg"
+    },
+    "scan": {
+      "url": "https://alfajores.celoscan.io/",
+      "name": "CELO Testnet Explorer"
+    },
+    "indexer": {
+      "url": "http://localhost:3000",
+      "ipfs_url": "http://localhost:3000",
+      "key": "x"
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+      "url": "https://alfajores-forno.celo-testnet.org",
+      "ws_url": ""
+    },
+    "erc4337": {
+      "rpc_url": "http://localhost:3000/rpc",
+      "paymaster_address": "0xdc894C6E509751970c7C9c29973Ec3c48F096a9a",
+      "entrypoint_address": "0x45Ca5c69Cb15876418491585f6aD159Bd4b6F4C8",
+      "account_factory_address": "0x26F7a5BD591030f17331fff1A79339a1eA722055",
+      "paymaster_rpc_url": "http://localhost:3000/rpc",
+      "paymaster_type": "cw",
+      "gas_extra_percentage": 50
+    },
+    "token": {
+      "standard": "erc20",
+      "address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
+      "name": "Bonne Heure Test",
+      "symbol": "BHR",
+      "decimals": 6
+    },
+    "profile": {
+      "address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "/communities/selcoupdepouce/sel-coin.svg",
+        "url": "http://localhost:3001/selcoupdepouce"
+      }
+    ],
+    "version": 1
+  }
+]

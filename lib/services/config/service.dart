@@ -25,7 +25,8 @@ class ConfigService {
 
   ConfigService._internal();
 
-  static const String communityConfigListFileName = 'communities';
+  static const String communityConfigListFileName =
+      kDebugMode ? 'communities.test' : 'communities';
   static const String communityDebugFileName = 'debug';
   static const int version = 3;
 
