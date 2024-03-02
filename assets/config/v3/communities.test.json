@@ -20,6 +20,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "node": {
+      "chain_id": 42220,
       "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
       "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
     },
@@ -71,6 +72,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "node": {
+      "chain_id": 137,
       "url": "https://nd-649-296-659.p2pify.com/aa0d23c081984262918b5684d8e84d38",
       "ws_url": "wss://ws-nd-649-296-659.p2pify.com/aa0d23c081984262918b5684d8e84d38"
     },
@@ -123,6 +125,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "node": {
+      "chain_id": 44787,
       "url": "https://alfajores-forno.celo-testnet.org",
       "ws_url": ""
     },

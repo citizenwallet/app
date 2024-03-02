@@ -19,6 +19,7 @@
         "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "node": {
+        "chain_id": 137,
         "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
         "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
     },
