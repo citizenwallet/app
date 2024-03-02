@@ -147,16 +147,19 @@ class IPFSConfig {
 }
 
 class NodeConfig {
+  final int chainId;
   final String url;
   final String wsUrl;
 
   NodeConfig({
+    required this.chainId,
     required this.url,
     required this.wsUrl,
   });
 
   factory NodeConfig.fromJson(Map<String, dynamic> json) {
     return NodeConfig(
+      chainId: json['chain_id'] ?? 1,
       url: json['url'],
       wsUrl: json['ws_url'],
     );
@@ -165,6 +168,7 @@ class NodeConfig {
   // to json
   Map<String, dynamic> toJson() {
     return {
+      'chain_id': chainId,
       'url': url,
       'ws_url': wsUrl,
     };
@@ -173,7 +177,7 @@ class NodeConfig {
   // to string
   @override
   String toString() {
-    return 'NodeConfig{url: $url, wsUrl: $wsUrl}';
+    return 'NodeConfig{chainId: $chainId url: $url, wsUrl: $wsUrl}';
   }
 }
 
