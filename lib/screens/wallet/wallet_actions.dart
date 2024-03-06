@@ -284,40 +284,43 @@ class WalletActions extends StatelessWidget {
                           wallet?.locked == false &&
                           wallet?.minter == true)
                         const SizedBox(width: 40),
-                      CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: sendLoading ? () => () : handleMint,
-                        borderRadius: BorderRadius.circular(
-                            progressiveClamp(14, 20, shrink)),
-                        color: ThemeColors.background.resolveFrom(context),
-                        child: SizedBox(
-                          height: buttonSize,
-                          width: buttonSize,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.hammer,
-                                size: buttonIconSize,
-                                color: sendLoading
-                                    ? ThemeColors.subtleEmphasis
-                                    : ThemeColors.text.resolveFrom(context),
-                              ),
-                              Text(
-                                'Mint',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                      if (!kIsWeb &&
+                          wallet?.locked == false &&
+                          wallet?.minter == true)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: sendLoading ? () => () : handleMint,
+                          borderRadius: BorderRadius.circular(
+                              progressiveClamp(14, 20, shrink)),
+                          color: ThemeColors.background.resolveFrom(context),
+                          child: SizedBox(
+                            height: buttonSize,
+                            width: buttonSize,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.hammer,
+                                  size: buttonIconSize,
                                   color: sendLoading
                                       ? ThemeColors.subtleEmphasis
                                       : ThemeColors.text.resolveFrom(context),
-                                  fontSize: buttonFontSize,
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  'Mint',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: sendLoading
+                                        ? ThemeColors.subtleEmphasis
+                                        : ThemeColors.text.resolveFrom(context),
+                                    fontSize: buttonFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                       if (!kIsWeb && wallet?.locked == false)
                         const SizedBox(width: 40),
                       // if (!kIsWeb &&
