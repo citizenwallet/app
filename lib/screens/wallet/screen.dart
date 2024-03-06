@@ -409,6 +409,30 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
+  Future<void> handleMint({String? receiveParams}) async {
+    HapticFeedback.heavyImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => SendModal(
+        walletLogic: _logic,
+        profilesLogic: _profilesLogic,
+        receiveParams: receiveParams,
+        isMinting: true,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleVouchers() async {
     HapticFeedback.heavyImpact();
 
@@ -527,6 +551,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleReceive: handleReceive,
                   handlePlugin: handlePlugin,
                   handleCards: handleCards,
+                  handleMint: handleMint,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
                   handleTransactionSendingTap: handleTransactionSendingTap,

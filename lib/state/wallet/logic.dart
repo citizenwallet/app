@@ -256,6 +256,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
+      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
@@ -272,6 +273,7 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: false,
+          minter: minter,
         ),
       );
 
@@ -373,6 +375,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final balance = await _wallet.balance;
       final currency = _wallet.currency;
+      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
@@ -389,6 +392,7 @@ class WalletLogic extends WidgetsBindingObserver {
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey == null,
           plugins: config.plugins,
+          minter: minter,
         ),
       );
 
@@ -1384,6 +1388,61 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void clearInProgressTransaction() {
     _state.clearInProgressTransaction();
+  }
+
+  Future<bool> mintTokens(String amount, String to) async {
+    final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = toUnit(
+      doubleAmount,
+      decimals: _wallet.currency.decimals,
+    );
+
+    try {
+      print('minting');
+      _state.sendTransaction();
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      final calldata = _wallet.erc20MintCallData(
+        to,
+        parsedAmount,
+      );
+
+      final (_, userop) = await _wallet.prepareUserop(
+        [_wallet.erc20Address],
+        [calldata],
+      );
+
+      final success = await _wallet.submitUserop(
+        userop,
+      );
+      if (!success) {
+        // this is an optional operation
+        throw Exception('transaction failed');
+      }
+
+      clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
+
+      return true;
+    } on NetworkCongestedException {
+      //
+    } on NetworkInvalidBalanceException {
+      //
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    _state.sendTransactionError();
+
+    return false;
   }
 
   void clearInputControllers() {

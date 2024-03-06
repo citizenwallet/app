@@ -36,6 +36,8 @@ class SendModal extends StatefulWidget {
 
   final String? receiveParams;
 
+  final bool isMinting;
+
   const SendModal({
     super.key,
     required this.walletLogic,
@@ -45,6 +47,7 @@ class SendModal extends StatefulWidget {
     this.amount,
     this.message,
     this.receiveParams,
+    this.isMinting = false,
   });
 
   @override
@@ -277,6 +280,51 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     return;
   }
 
+  void handleMint(BuildContext context, String? selectedAddress) async {
+    if (_isSending) {
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    setState(() {
+      _isSending = true;
+    });
+
+    HapticFeedback.lightImpact();
+
+    final navigator = GoRouter.of(context);
+
+    final isValid = _logic.validateSendFields(
+      _logic.amountController.value.text,
+      selectedAddress ?? _logic.addressController.value.text,
+    );
+
+    if (!isValid) {
+      setState(() {
+        _isSending = false;
+      });
+
+      return;
+    }
+
+    _logic.mintTokens(
+      _logic.amountController.value.text,
+      selectedAddress ?? _logic.addressController.value.text,
+    );
+
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    HapticFeedback.heavyImpact();
+
+    navigator.pop(true);
+    return;
+  }
+
   void handleChooseRecipient() async {
     HapticFeedback.heavyImpact();
 
@@ -290,6 +338,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
         walletLogic: _logic,
         profilesLogic: widget.profilesLogic,
         amount: _logic.amountController.value.text,
+        isMinting: widget.isMinting,
       ),
     );
 
@@ -494,7 +543,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: 'Send',
+                  title: widget.isMinting ? 'Mint' : 'Send',
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -784,7 +833,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       : handleScanAgain,
                             ),
                           if (isValid) const SizedBox(height: 20),
-                          if (!_isDescribing)
+                          if (!widget.isMinting && !_isDescribing)
                             const Text(
                               'Description',
                               style: TextStyle(
@@ -793,42 +842,43 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               ),
                             ),
                           const SizedBox(height: 10),
-                          GestureDetector(
-                            onTap: handleDescribe,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    ThemeColors.background.resolveFrom(context),
-                                border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                          if (!widget.isMinting)
+                            GestureDetector(
+                              onTap: handleDescribe,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.background
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color:
+                                        ThemeColors.border.resolveFrom(context),
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0),
+                                  ),
                                 ),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(5.0),
-                                ),
-                              ),
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      _isDescribing
-                                          ? '...'
-                                          : message != ''
-                                              ? message
-                                              : 'Add a description (optional)',
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _isDescribing
+                                            ? '...'
+                                            : message != ''
+                                                ? message
+                                                : 'Add a description (optional)',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Icon(CupertinoIcons.pencil),
-                                ],
+                                    const SizedBox(width: 10),
+                                    const Icon(CupertinoIcons.pencil),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
                           const SizedBox(
                             height: 200,
                           ),
@@ -842,7 +892,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           color: ThemeColors.subtle.resolveFrom(context),
                         ),
                       ),
-                    if (_isDescribing)
+                    if (!widget.isMinting && _isDescribing)
                       Positioned(
                         bottom: 0,
                         width: width,
@@ -930,35 +980,45 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         minWidth: 200,
                                         maxWidth: 200,
                                       ),
-                                      const SizedBox(height: 10),
-                                      CupertinoButton(
-                                        onPressed: handleCreateVoucher,
-                                        child: Text(
-                                          'Create Voucher',
-                                          style: TextStyle(
-                                            color: ThemeColors.text
-                                                .resolveFrom(context),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.normal,
-                                            decoration:
-                                                TextDecoration.underline,
+                                      if (!widget.isMinting)
+                                        const SizedBox(height: 10),
+                                      if (!widget.isMinting)
+                                        CupertinoButton(
+                                          onPressed: handleCreateVoucher,
+                                          child: Text(
+                                            'Create Voucher',
+                                            style: TextStyle(
+                                              color: ThemeColors.text
+                                                  .resolveFrom(context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.normal,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          textAlign: TextAlign.center,
                                         ),
-                                      ),
                                     ]
                                   : [
                                       SlideToComplete(
                                         onCompleted: !_isSending
-                                            ? () => handleSend(
-                                                  context,
-                                                  selectedProfile?.account,
-                                                )
+                                            ? widget.isMinting
+                                                ? () => handleMint(context,
+                                                    selectedProfile?.account)
+                                                : () => handleSend(
+                                                      context,
+                                                      selectedProfile?.account,
+                                                    )
                                             : null,
                                         enabled: isSendingValid,
                                         isComplete: _isSending,
-                                        completionLabel:
-                                            _isSending ? 'Sending...' : 'Send',
+                                        completionLabel: widget.isMinting
+                                            ? (_isSending
+                                                ? 'Minting...'
+                                                : 'Mint')
+                                            : _isSending
+                                                ? 'Sending...'
+                                                : 'Send',
                                         thumbColor: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         width: width * 0.5,

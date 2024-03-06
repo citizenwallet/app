@@ -11,6 +11,7 @@ class CWWallet {
   final String currencyLogo;
   final int decimalDigits;
   final bool locked;
+  final bool minter;
   final List<PluginConfig> plugins;
 
   CWWallet(
@@ -24,6 +25,7 @@ class CWWallet {
     required this.currencyLogo,
     this.decimalDigits = 2,
     this.locked = true,
+    this.minter = false,
     this.plugins = const [],
   });
 
@@ -39,6 +41,7 @@ class CWWallet {
     String? currencyLogo,
     int? decimalDigits,
     bool? locked,
+    bool? isMinter,
     List<PluginConfig>? plugins,
   }) {
     return CWWallet(
@@ -52,6 +55,7 @@ class CWWallet {
       currencyLogo: currencyLogo ?? this.currencyLogo,
       decimalDigits: decimalDigits ?? this.decimalDigits,
       locked: locked ?? this.locked,
+      minter: isMinter ?? this.minter,
       plugins: plugins ?? this.plugins,
     );
   }
@@ -71,6 +75,7 @@ class CWWallet {
         currencyLogo = json['currencyLogo'],
         decimalDigits = json['decimalDigits'],
         locked = json['locked'],
+        minter = json['minter'],
         plugins = json['plugins'] != null
             ? List<PluginConfig>.from(
                 json['plugins'].map((x) => PluginConfig.fromJson(x)))
@@ -89,6 +94,7 @@ class CWWallet {
         'currencyLogo': currencyLogo,
         'decimalDigits': decimalDigits,
         'locked': locked,
+        'minter': minter,
         'plugins': plugins,
       };
 

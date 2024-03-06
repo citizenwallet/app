@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
-import 'package:citizenwallet/services/indexer/status_update_request.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -83,6 +82,7 @@ class WalletService {
       _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
   late ERC20Contract
       _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
+  late AccessControlUpgradeableContract _contractAccessControl;
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
@@ -113,6 +113,10 @@ class WalletService {
     }
 
     return _pref.getBalance(_account.hexEip55) ?? '0.0';
+  }
+
+  Future<bool> get minter async {
+    return _contractAccessControl.isMinter(_account.hexEip55);
   }
 
   /// retrieve chain id
@@ -319,6 +323,10 @@ class WalletService {
     _contractToken = ERC20Contract(chainId, _ethClient, taddr);
     await _contractToken.init();
 
+    _contractAccessControl =
+        AccessControlUpgradeableContract(chainId, _ethClient, taddr);
+    await _contractAccessControl.init();
+
     // Create a new user profile contract instance and initialize it.
     _contractProfile = ProfileContract(chainId, _ethClient, prfaddr);
     await _contractProfile.init();
@@ -429,6 +437,10 @@ class WalletService {
       b.toString(),
       decimals: currency.decimals,
     );
+  }
+
+  Future<bool> isMinter(String addr) async {
+    return _contractAccessControl.isMinter(addr);
   }
 
   /// set profile data
@@ -840,6 +852,17 @@ class WalletService {
     BigInt amount,
   ) {
     return _contractToken.transferCallData(
+      to,
+      amount,
+    );
+  }
+
+  /// construct erc20 transfer call data
+  Uint8List erc20MintCallData(
+    String to,
+    BigInt amount,
+  ) {
+    return _contractToken.mintCallData(
       to,
       amount,
     );

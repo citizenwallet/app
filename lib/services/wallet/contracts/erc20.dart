@@ -107,6 +107,12 @@ class ERC20Contract {
     return function.encodeCall([EthereumAddress.fromHex(to), amount]);
   }
 
+  Uint8List mintCallData(String to, BigInt amount) {
+    final function = rcontract.function('mint');
+
+    return function.encodeCall([EthereumAddress.fromHex(to), amount]);
+  }
+
   void dispose() {
     _sub?.cancel();
   }

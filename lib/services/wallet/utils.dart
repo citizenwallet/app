@@ -64,6 +64,7 @@ String bigIntToHex(BigInt value) {
   return '0x$hex';
 }
 
+final emptyAddress = '0x${List.filled(40, '0').join()}';
 const zeroHexValue = '0x0';
 const hexPadding = '0x';
 
@@ -182,4 +183,8 @@ EthereumAddress recoverAddressFromPersonalSignature(
   final pubKey = ecRecover(hashedPayload, parseSignature(signature));
 
   return EthereumAddress.fromPublicKey(pubKey);
+}
+
+bool isEmptyAddress(String address) {
+  return address == emptyAddress;
 }

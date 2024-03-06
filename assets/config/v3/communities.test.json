@@ -156,5 +156,50 @@
       }
     ],
     "version": 1
+  },
+  {
+    "community": {
+      "name": "Woluwe Test",
+      "description": "Local currency for the Woluwe Test community.",
+      "url": "https://wollet-v2.citizenwallet.net/token",
+      "alias": "wtc.celo",
+      "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg"
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "Celo Explorer"
+    },
+    "indexer": {
+      "url": "https://indexer-celo.internal.citizenwallet.xyz",
+      "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+      "key": "x"
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+      "chain_id": 42220,
+      "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+      "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+    },
+    "erc4337": {
+      "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+      "paymaster_address": "0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9",
+      "entrypoint_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+      "account_factory_address": "0xE79E19594A749330036280c685E2719d58d99052",
+      "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+      "paymaster_type": "cw"
+    },
+    "token": {
+      "standard": "erc20",
+      "address": "0xc53Cb35591959cA62471dA9fF6AC16629A89874a",
+      "name": "Woluwe Test Coin",
+      "symbol": "WTC",
+      "decimals": 6
+    },
+    "profile": {
+      "address": "0xB99a7B1574f051020EB4cb2fce5d48EE07592AfF"
+    },
+    "version": 1
   }
 ]

@@ -66,7 +66,8 @@ class TransactionRowState extends State<TransactionRow> {
 
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
-    final formattedAddress = formatHexAddress(address);
+    final addressEmpty = isEmptyAddress(address);
+    final formattedAddress = addressEmpty ? '' : formatHexAddress(address);
 
     final profile = widget.profiles[address];
     final voucher = widget.vouchers[address];
@@ -115,7 +116,7 @@ class TransactionRowState extends State<TransactionRow> {
                             ),
                           ),
                         ),
-                      _ => voucher != null
+                      _ => voucher != null || addressEmpty
                           ? CoinLogo(
                               size: 50,
                               logo: widget.logo,
@@ -148,7 +149,9 @@ class TransactionRowState extends State<TransactionRow> {
                                             : 'Voucher created'
                                         : profile != null
                                             ? profile.profile.name
-                                            : 'Anonymous',
+                                            : addressEmpty
+                                                ? wallet.currencyName
+                                                : 'Anonymous',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color:
@@ -178,7 +181,9 @@ class TransactionRowState extends State<TransactionRow> {
                         child: Text(
                           transaction.description.isNotEmpty
                               ? transaction.description
-                              : 'no description',
+                              : addressEmpty
+                                  ? 'Minted'
+                                  : 'no description',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

@@ -26,12 +26,14 @@ class PickeSenderModal extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final String amount;
+  final bool isMinting;
 
   const PickeSenderModal({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.amount = '0.0',
+    this.isMinting = false,
   });
 
   @override
@@ -163,6 +165,51 @@ class PickeSenderModalState extends State<PickeSenderModal>
       widget.amount,
       selectedAddress ?? _logic.addressController.value.text,
       message: _logic.messageController.value.text,
+    );
+
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    HapticFeedback.heavyImpact();
+
+    navigator.pop(true);
+    return;
+  }
+
+  void handleMint(BuildContext context, String? selectedAddress) async {
+    if (_isSending) {
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    setState(() {
+      _isSending = true;
+    });
+
+    HapticFeedback.lightImpact();
+
+    final navigator = GoRouter.of(context);
+
+    final isValid = _logic.validateSendFields(
+      widget.amount,
+      selectedAddress ?? _logic.addressController.value.text,
+    );
+
+    if (!isValid) {
+      setState(() {
+        _isSending = false;
+      });
+
+      return;
+    }
+
+    _logic.mintTokens(
+      widget.amount,
+      selectedAddress ?? _logic.addressController.value.text,
     );
 
     _logic.clearInputControllers();
@@ -394,7 +441,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                   titleWidget: Row(
                     children: [
                       Text(
-                        'Send',
+                        widget.isMinting ? 'Mint' : 'Send',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -449,14 +496,21 @@ class PickeSenderModalState extends State<PickeSenderModal>
                         children: [
                           SlideToComplete(
                             onCompleted: !_isSending
-                                ? () => handleSend(
-                                      context,
-                                      selectedProfile?.account,
-                                    )
+                                ? widget.isMinting
+                                    ? () => handleMint(
+                                        context, selectedProfile?.account)
+                                    : () => handleSend(
+                                          context,
+                                          selectedProfile?.account,
+                                        )
                                 : null,
                             enabled: isValid,
                             isComplete: _isSending,
-                            completionLabel: _isSending ? 'Sending...' : 'Send',
+                            completionLabel: widget.isMinting
+                                ? (_isSending ? 'Minting...' : 'Mint')
+                                : _isSending
+                                    ? 'Sending...'
+                                    : 'Send',
                             thumbColor:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
                             width: width * 0.5,

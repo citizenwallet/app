@@ -22,6 +22,7 @@ class WalletActions extends StatelessWidget {
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
+  final void Function()? handleMint;
   final void Function()? handleVouchers;
 
   WalletActions({
@@ -32,6 +33,7 @@ class WalletActions extends StatelessWidget {
     this.handleReceive,
     this.handlePlugin,
     this.handleCards,
+    this.handleMint,
     this.handleVouchers,
   });
 
@@ -278,6 +280,44 @@ class WalletActions extends StatelessWidget {
                             ),
                           ),
                         ),
+                      if (!kIsWeb &&
+                          wallet?.locked == false &&
+                          wallet?.minter == true)
+                        const SizedBox(width: 40),
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: sendLoading ? () => () : handleMint,
+                        borderRadius: BorderRadius.circular(
+                            progressiveClamp(14, 20, shrink)),
+                        color: ThemeColors.background.resolveFrom(context),
+                        child: SizedBox(
+                          height: buttonSize,
+                          width: buttonSize,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.hammer,
+                                size: buttonIconSize,
+                                color: sendLoading
+                                    ? ThemeColors.subtleEmphasis
+                                    : ThemeColors.text.resolveFrom(context),
+                              ),
+                              Text(
+                                'Mint',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: sendLoading
+                                      ? ThemeColors.subtleEmphasis
+                                      : ThemeColors.text.resolveFrom(context),
+                                  fontSize: buttonFontSize,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       if (!kIsWeb && wallet?.locked == false)
                         const SizedBox(width: 40),
                       // if (!kIsWeb &&
