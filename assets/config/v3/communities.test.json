@@ -12,8 +12,8 @@
       "name": "Celo Explorer"
     },
     "indexer": {
-      "url": "https://indexer-celo.internal.citizenwallet.xyz",
-      "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+      "url": "https://indexer-gratitude.internal.citizenwallet.xyz",
+      "ipfs_url": "https://indexer-gratitude.internal.citizenwallet.xyz",
       "key": "x"
     },
     "ipfs": {
@@ -25,11 +25,11 @@
       "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
     },
     "erc4337": {
-      "rpc_url": "http://localhost:3000/rpc",
+      "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
       "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
       "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
       "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-      "paymaster_rpc_url": "http://localhost:3000/rpc",
+      "paymaster_rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
       "paymaster_type": "cw"
     },
     "token": {
