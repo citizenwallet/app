@@ -180,6 +180,8 @@ EthereumAddress recoverAddressFromPersonalSignature(
     Uint8List originalData, Uint8List signature) {
   final hashedPayload = hashSignatureData(originalData);
 
+  print('hashedPayload: ${bytesToHex(hashedPayload, include0x: true)}');
+
   final pubKey = ecRecover(hashedPayload, parseSignature(signature));
 
   return EthereumAddress.fromPublicKey(pubKey);

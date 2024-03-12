@@ -65,6 +65,7 @@ dependencies:
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  walletconnect_flutter_v2: ^2.2.1
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.0

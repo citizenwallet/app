@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/connect/screen.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
@@ -7,6 +8,7 @@ import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/state/connect/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -458,6 +460,36 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleConnect() async {
+    HapticFeedback.heavyImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: ThemeColors.transparent,
+        body: ChangeNotifierProvider(
+          create: (_) => ConnectState(),
+          child: ConnectModal(
+            account: _logic.account,
+            address: _logic.address,
+            credentials: _logic.privateKey,
+          ),
+        ),
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleCopy(String value) {
     Clipboard.setData(ClipboardData(text: value));
 
@@ -553,6 +585,7 @@ class WalletScreenState extends State<WalletScreen> {
                   handleCards: handleCards,
                   handleMint: handleMint,
                   handleVouchers: handleVouchers,
+                  handleConnect: handleConnect,
                   handleTransactionTap: handleTransactionTap,
                   handleTransactionSendingTap: handleTransactionSendingTap,
                   handleFailedTransactionTap: handleFailedTransaction,
