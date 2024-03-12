@@ -312,8 +312,7 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    final sending =
-        await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
+    await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -323,10 +322,6 @@ class WalletScreenState extends State<WalletScreen> {
         receiveParams: receiveParams,
       ),
     );
-
-    if (sending == true) {
-      handleTransactionSendingTap();
-    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -471,17 +466,13 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    final sending = await GoRouter.of(context).push<bool?>(
+    await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.address!}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
       },
     );
-
-    if (sending == true) {
-      handleTransactionSendingTap();
-    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();

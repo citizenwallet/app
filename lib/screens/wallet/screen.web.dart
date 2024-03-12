@@ -295,7 +295,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    final sending = await showCupertinoModalBottomSheet<bool?>(
+    await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
       useRootNavigator: true,
@@ -305,10 +305,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         receiveParams: receiveParams,
       ),
     );
-
-    if (sending == true) {
-      handleTransactionSendingTap();
-    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -374,17 +370,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    final sending = await GoRouter.of(context).push<bool?>(
+    await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.encoded}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
       },
     );
-
-    if (sending == true) {
-      handleTransactionSendingTap();
-    }
 
     _logic.resumeFetching();
     _profilesLogic.resume();
