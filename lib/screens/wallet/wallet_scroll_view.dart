@@ -126,6 +126,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final queuedTransactions =
         context.select((WalletState state) => state.transactionSendQueue);
 
+    final inProgressTransaction =
+        context.select((WalletState state) => state.inProgressTransaction);
+
     final blockSending = context.select(selectShouldBlockSending);
 
     final profiles = context.watch<ProfilesState>().profiles;
@@ -339,6 +342,24 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
                 ),
+              ),
+            ),
+          ),
+        if (inProgressTransaction != null && wallet != null)
+          SliverToBoxAdapter(
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: TransactionRow(
+                key: Key(inProgressTransaction.id),
+                transaction: inProgressTransaction,
+                logo: config?.community.logo,
+                wallet: wallet,
+                profiles: profiles,
+                vouchers: vouchers,
+                onTap: (String id) =>
+                    handleFailedTransactionTap(id, blockSending),
+                onLoad: handleLoad,
               ),
             ),
           ),

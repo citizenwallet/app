@@ -360,13 +360,12 @@ class WalletState with ChangeNotifier {
     }
 
     if (hasChanges && inProgressTransaction != null) {
-      final index = this
-          .transactions
-          .indexWhere((t) => t.id == inProgressTransaction!.id);
+      final index = this.transactions.indexWhere((t) =>
+          t.from == inProgressTransaction!.from &&
+          t.to == inProgressTransaction!.to &&
+          t.amount == inProgressTransaction!.amount);
       if (index != -1) {
-        inProgressTransaction = this.transactions[index];
-        inProgressTransactionLoading = false;
-        inProgressTransactionError = false;
+        clearInProgressTransaction();
       }
     }
 

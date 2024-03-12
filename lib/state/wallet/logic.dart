@@ -1083,7 +1083,8 @@ class WalletLogic extends WidgetsBindingObserver {
   void preSendingTransaction(
     BigInt amount,
     String tempId,
-    String to, {
+    String to,
+    String from, {
     String message = '',
   }) {
     _state.setInProgressTransaction(
@@ -1095,6 +1096,7 @@ class WalletLogic extends WidgetsBindingObserver {
         id: tempId,
         hash: '',
         chainId: _wallet.chainId,
+        from: from,
         to: to,
         description: message,
         date: DateTime.now(),
@@ -1105,7 +1107,8 @@ class WalletLogic extends WidgetsBindingObserver {
   void sendingTransaction(
     BigInt amount,
     String hash,
-    String to, {
+    String to,
+    String from, {
     String message = '',
   }) {
     _state.setInProgressTransaction(
@@ -1118,28 +1121,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        description: message,
-        date: DateTime.now(),
-      ),
-    );
-  }
-
-  void pendingTransaction(
-    BigInt amount,
-    String hash,
-    String to, {
-    String message = '',
-  }) {
-    _state.setInProgressTransaction(
-      CWTransaction.pending(
-        fromDoubleUnit(
-          amount.toString(),
-          decimals: _wallet.currency.decimals,
-        ),
-        id: hash,
-        hash: '',
-        chainId: _wallet.chainId,
-        to: to,
+        from: from,
         description: message,
         date: DateTime.now(),
       ),
@@ -1172,6 +1154,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         tempId,
         to,
+        _wallet.account.hexEip55,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1190,6 +1173,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         hash,
         to,
+        _wallet.account.hexEip55,
       );
 
       final success = await _wallet.submitUserop(
@@ -1200,12 +1184,6 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
-
-      pendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-      );
 
       clearInputControllers();
 
@@ -1292,6 +1270,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         tempId,
         to,
+        _wallet.account.hexEip55,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1310,6 +1289,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         hash,
         to,
+        _wallet.account.hexEip55,
       );
 
       final success = await _wallet.submitUserop(
@@ -1320,12 +1300,6 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
-
-      pendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-      );
 
       clearInputControllers();
 

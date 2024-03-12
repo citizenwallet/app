@@ -453,21 +453,17 @@ class VoucherLogic extends WidgetsBindingObserver {
     Function(
       BigInt amount,
       String tempId,
-      String to, {
+      String to,
+      String from, {
       String message,
     })? preSendingTransaction,
     Function(
       BigInt amount,
       String hash,
-      String to, {
+      String to,
+      String from, {
       String message,
     })? sendingTransaction,
-    Function(
-      BigInt amount,
-      String hash,
-      String to, {
-      String message,
-    })? pendingTransaction,
   }) async {
     try {
       _state.returnVoucherRequest();
@@ -501,10 +497,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       if (preSendingTransaction != null) {
         preSendingTransaction(
-          amount,
-          tempId,
-          _wallet.account.hexEip55,
-        );
+            amount, tempId, _wallet.account.hexEip55, voucher.address);
       }
 
       final calldata = _wallet.erc20TransferCallData(
@@ -521,10 +514,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       if (sendingTransaction != null) {
         sendingTransaction(
-          amount,
-          hash,
-          _wallet.account.hexEip55,
-        );
+            amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
       final success = await _wallet.submitUserop(
@@ -535,14 +525,6 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
       if (!success) {
         throw Exception('transaction failed');
-      }
-
-      if (pendingTransaction != null) {
-        pendingTransaction(
-          amount,
-          hash,
-          _wallet.account.hexEip55,
-        );
       }
 
       await _db.vouchers.archive(address);
