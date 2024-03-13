@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/gas.dart';
@@ -866,6 +867,17 @@ class WalletService {
       to,
       amount,
     );
+  }
+
+  /// construct simple faucet redeem call data
+  Future<Uint8List> simpleFaucetRedeemCallData(
+    String address,
+  ) async {
+    final contract = SimpleFaucetContract(chainId, _ethClient, address);
+
+    await contract.init();
+
+    return contract.redeemCallData();
   }
 
   /// Account Abstraction

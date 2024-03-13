@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/modals/vouchers/screen.dart';
+import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/sending.dart';
@@ -7,6 +8,8 @@ import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/cards/screen.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -30,6 +33,8 @@ class WalletScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;
+  final String? deepLink;
+  final String? deepLinkParams;
 
   const WalletScreen(
     this.address,
@@ -38,6 +43,8 @@ class WalletScreen extends StatefulWidget {
     this.voucher,
     this.voucherParams,
     this.receiveParams,
+    this.deepLink,
+    this.deepLinkParams,
     super.key,
   });
 
@@ -148,6 +155,55 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (widget.receiveParams != null) {
       await handleSendModal(receiveParams: widget.receiveParams);
+    }
+
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      await handleLoadDeepLink();
+    }
+  }
+
+  Future<void> handleLoadDeepLink() async {
+    final deepLink = widget.deepLink;
+    final deepLinkParams = widget.deepLinkParams;
+
+    if (deepLink == null || deepLinkParams == null || widget.alias == null) {
+      return;
+    }
+
+    final params = decodeParams(deepLinkParams);
+
+    switch (deepLink) {
+      case 'plugin':
+        final pluginConfig =
+            await _logic.getPluginConfig(widget.alias!, params);
+        if (pluginConfig == null) {
+          return;
+        }
+        await handlePlugin(pluginConfig);
+        break;
+      default:
+        _logic.pauseFetching();
+        _profilesLogic.pause();
+        _voucherLogic.pause();
+
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+          context: context,
+          expand: true,
+          useRootNavigator: true,
+          builder: (modalContext) => ChangeNotifierProvider(
+            create: (_) => DeepLinkState(deepLink),
+            child: DeepLinkModal(
+              wallet: _logic.wallet,
+              deepLink: deepLink,
+              deepLinkParams: params,
+            ),
+          ),
+        );
+
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        break;
     }
   }
 
@@ -341,7 +397,7 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void handlePlugin(PluginConfig pluginConfig) async {
+  Future<void> handlePlugin(PluginConfig pluginConfig) async {
     HapticFeedback.heavyImpact();
 
     final (uri, customScheme, redirect) =

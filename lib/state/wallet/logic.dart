@@ -79,6 +79,8 @@ class WalletLogic extends WidgetsBindingObserver {
   bool cancelLoadAccounts = false;
   String? _fetchRequest;
 
+  WalletService get wallet => _wallet;
+
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
@@ -1372,7 +1374,6 @@ class WalletLogic extends WidgetsBindingObserver {
     );
 
     try {
-      print('minting');
       _state.sendTransaction();
 
       if (to.isEmpty) {
@@ -1726,6 +1727,34 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
 
     return (null, null, null);
+  }
+
+  Future<PluginConfig?> getPluginConfig(String alias, String params) async {
+    try {
+      final uri = Uri(query: params);
+
+      String? url = uri.queryParameters['url'];
+      if (url == null) {
+        return null;
+      }
+
+      url = Uri.decodeComponent(url);
+
+      final config = await _config.getConfig(alias);
+
+      if (config.plugins.isEmpty) {
+        return null;
+      }
+
+      final plugin = config.plugins.firstWhereOrNull((p) => p.url == url);
+      if (plugin == null) {
+        return null;
+      }
+
+      return plugin;
+    } catch (_) {}
+
+    return null;
   }
 
   void pauseFetching() {

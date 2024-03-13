@@ -144,6 +144,14 @@ Uint8List decompressBytes(Uint8List data) {
   return convertBytesToUint8List(decodegZipData);
 }
 
+String encodeParams(String params) {
+  return Uri.encodeComponent(params);
+}
+
+String decodeParams(String params) {
+  return Uri.decodeComponent(params);
+}
+
 String generateSignature((String body, EthPrivateKey privateKey) args) {
   final message = args.$1;
 

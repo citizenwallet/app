@@ -1353,8 +1353,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.92"
-      resolved-ref: "28dd1a467d67f76f15997a38dced2d94b33d0491"
+      ref: "v0.0.93"
+      resolved-ref: "2fe9dee12916d0fc0fc84e9980cb8c3cd6896eee"
       url: "https://github.com/citizenwallet/smartcontracts.git"
     source: git
     version: "1.0.0"

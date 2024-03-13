@@ -1,4 +1,7 @@
+import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -33,6 +36,8 @@ class BurnerWalletScreen extends StatefulWidget {
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;
+  final String? deepLink;
+  final String? deepLinkParams;
 
   const BurnerWalletScreen(
     this.encoded,
@@ -42,6 +47,8 @@ class BurnerWalletScreen extends StatefulWidget {
     this.voucher,
     this.voucherParams,
     this.receiveParams,
+    this.deepLink,
+    this.deepLinkParams,
   });
 
   @override
@@ -171,6 +178,46 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
   }
 
+  Future<void> handleLoadDeepLink() async {
+    final deepLink = widget.deepLink;
+    final deepLinkParams = widget.deepLinkParams;
+
+    if (deepLink == null || deepLinkParams == null || widget.alias == null) {
+      return;
+    }
+
+    final params = decodeParams(deepLinkParams);
+
+    switch (deepLink) {
+      case 'plugin':
+        // web cannot handle plugins yet
+        break;
+      default:
+        _logic.pauseFetching();
+        _profilesLogic.pause();
+        _voucherLogic.pause();
+
+        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+          context: context,
+          expand: true,
+          useRootNavigator: true,
+          builder: (modalContext) => ChangeNotifierProvider(
+            create: (_) => DeepLinkState(deepLink),
+            child: DeepLinkModal(
+              wallet: _logic.wallet,
+              deepLink: deepLink,
+              deepLinkParams: params,
+            ),
+          ),
+        );
+
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        break;
+    }
+  }
+
   Future<void> handleLoadFromVoucher() async {
     final voucher = widget.voucher;
     final voucherParams = widget.voucherParams;
@@ -181,6 +228,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     final address = await _voucherLogic.readVoucher(voucher, voucherParams);
     if (address == null) {
+      return;
+    }
+
+    if (!context.mounted) {
       return;
     }
 

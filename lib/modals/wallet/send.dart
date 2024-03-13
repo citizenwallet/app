@@ -272,7 +272,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     _logic.resetInputErrorState();
     widget.profilesLogic.clearSearch();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
@@ -317,7 +317,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     _logic.resetInputErrorState();
     widget.profilesLogic.clearSearch();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
