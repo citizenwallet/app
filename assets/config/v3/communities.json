@@ -595,8 +595,8 @@
         },
         "node": {
             "chain_id": 100,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60",
+            "ws_url": "wss://ws-nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60"
         },
         "erc4337": {
             "rpc_url": "https://indexer-bread.internal.citizenwallet.xyz/rpc",
