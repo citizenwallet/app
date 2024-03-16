@@ -1,7 +1,6 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
-import 'package:citizenwallet/state/communities/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/communities/community_row.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -14,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CommunityPickerModal extends StatefulWidget {
-  const CommunityPickerModal({Key? key}) : super(key: key);
+  const CommunityPickerModal({super.key});
 
   @override
   State<CommunityPickerModal> createState() => _CommunityPickerModalState();

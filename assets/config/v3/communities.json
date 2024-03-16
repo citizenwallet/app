@@ -759,5 +759,50 @@
             "address": "0xB99a7B1574f051020EB4cb2fce5d48EE07592AfF"
         },
         "version": 1
+    },
+    {
+        "community": {
+            "name": "ETHGlobal London Token",
+            "description": "The community of people using ETHLDN on Base.",
+            "url": "https://en.wikipedia.org/wiki/USD_Coin",
+            "alias": "testnet-ethldn",
+            "logo": "https://app.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg"
+        },
+        "scan": {
+            "url": "https://sepolia.basescan.org",
+            "name": "Base Sepolia Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "chain_id": 84532,
+            "url": "https://sepolia.base.org",
+            "ws_url": "wss://base-sepolia-rpc.publicnode.com"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
+            "entrypoint_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "account_factory_address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
+            "paymaster_rpc_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd"
+        },
+        "version": 1
     }
 ]
