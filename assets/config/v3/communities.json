@@ -795,9 +795,9 @@
         },
         "token": {
             "standard": "erc20",
-            "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-            "name": "USD Coin",
-            "symbol": "USDC",
+            "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+            "name": "ETHGlobal London Token",
+            "symbol": "ETHLDN",
             "decimals": 6
         },
         "profile": {
