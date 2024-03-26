@@ -17,7 +17,6 @@ class TransactionRow extends StatefulWidget {
   final CWWallet wallet;
   final Map<String, ProfileItem> profiles;
   final Map<String, Voucher> vouchers;
-  final bool animateIn;
   final void Function(String transactionId)? onTap;
   final void Function()? onProcessingTap;
   final void Function(String address)? onLoad;
@@ -29,7 +28,6 @@ class TransactionRow extends StatefulWidget {
     required this.wallet,
     required this.profiles,
     required this.vouchers,
-    this.animateIn = false,
     this.onTap,
     this.onProcessingTap,
     this.onLoad,
@@ -40,15 +38,9 @@ class TransactionRow extends StatefulWidget {
 }
 
 class TransactionRowState extends State<TransactionRow> {
-  bool _animationComplete = true;
-
   @override
   void initState() {
     super.initState();
-
-    if (widget.animateIn) {
-      _animationComplete = false;
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -62,14 +54,6 @@ class TransactionRowState extends State<TransactionRow> {
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
 
-    if (widget.animateIn) {
-      if (!_animationComplete) {
-        setState(() {
-          _animationComplete = true;
-        });
-      }
-    }
-
     if (widget.onLoad != null) widget.onLoad!(address);
   }
 
@@ -80,6 +64,7 @@ class TransactionRowState extends State<TransactionRow> {
     final onTap = widget.onTap;
     final onProcessingTap = widget.onProcessingTap;
 
+    final isSending = TransactionState.sending == transaction.state;
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
     final addressEmpty = isEmptyAddress(address);
@@ -101,15 +86,15 @@ class TransactionRowState extends State<TransactionRow> {
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         height: 90,
         decoration: BoxDecoration(
-          color: _animationComplete
+          color: !isSending
               ? ThemeColors.subtle.resolveFrom(context)
               : ThemeColors.subtleEmphasis.resolveFrom(context),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             width: 2,
-            color: _animationComplete
+            color: !isSending
                 ? ThemeColors.uiBackgroundAlt.resolveFrom(context)
-                : ThemeColors.primary.resolveFrom(context),
+                : ThemeColors.secondary.resolveFrom(context),
           ),
         ),
         child: Stack(
