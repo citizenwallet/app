@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/connect/state.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/services.dart';
 import 'package:walletconnect_flutter_v2/apis/auth_api/models/auth_client_events.dart';
@@ -106,7 +107,7 @@ class ConnectService {
     final walletNamespaces = {
       'eip155': Namespace(
         accounts: [
-          // 'eip155:$chainId:$account',
+          'eip155:$chainId:$account',
           'eip155:137:$account',
           // 'eip155:$chainId:$address',
         ],
@@ -276,12 +277,12 @@ class ConnectService {
 
     // final hash = keccak256(concat);
 
-    final messageHash = hexToBytes(rawValues[0]);
-    // final messageHash = Uint8List.fromList(rawValues[0].codeUnits);
+    // final message = hexToBytes(rawValues[0]);
+    final message = Uint8List.fromList(rawValues[0].codeUnits);
 
-    print('messageHash: ${bytesToHex(messageHash, include0x: true)}');
+    print('messageHash: ${bytesToHex(message, include0x: true)}');
 
-    final signed = cred.signPersonalMessageToUint8List(messageHash);
+    final signed = cred.signPersonalMessageToUint8List(message);
 
     // final cacao = CacaoSignature(
     //   t: CacaoSignature.EIP191,
@@ -290,6 +291,12 @@ class ConnectService {
 
     // print(cacao.toJson());
     print('address ${cred.address.hexEip55}');
+
+    final psig = parseSignature(signed);
+
+    print('r: ${psig.r}');
+    print('s: ${psig.s}');
+    print('v: ${psig.v}');
 
     // await _client.emitSessionEvent(
     //   topic: topic,
@@ -305,9 +312,18 @@ class ConnectService {
 
     final result = bytesToHex(signed, include0x: true);
 
-    final rec = recoverAddressFromPersonalSignature(messageHash, signed);
+    try {
+      final rec = recoverAddressFromPersonalSignature(message, signed);
 
-    print('recovered: ${rec.hexEip55}');
+      if (rec.hexEip55 != cred.address.hexEip55) {
+        throw Exception('Invalid signature');
+      }
+      print('recovered: ${rec.hexEip55}');
+    } catch (e, s) {
+      print(e);
+      print(s);
+      return '0x';
+    }
 
     print('result: $result');
 
