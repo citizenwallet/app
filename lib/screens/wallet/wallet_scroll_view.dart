@@ -357,6 +357,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 wallet: wallet,
                 profiles: profiles,
                 vouchers: vouchers,
+                animateIn: true,
                 onTap: (String id) =>
                     handleFailedTransactionTap(id, blockSending),
                 onLoad: handleLoad,
