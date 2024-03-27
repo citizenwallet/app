@@ -185,7 +185,20 @@ class ConnectService {
         return;
       }
 
-      // await sign(credentials, metadata, args.topic, args.params, args.id);
+      // return await sign(credentials, metadata, topic, parameters);
+
+      final signature =
+          await sign(credentials, metadata, args.topic, args.params);
+
+      final auth = _client.authRequests.getAll();
+
+      print(auth);
+
+      final response =
+          JsonRpcResponse(id: args.id, jsonrpc: '2.0', result: signature);
+
+      await _client.respondSessionRequest(
+          topic: args.topic, response: response);
 
       // await _client.emitSessionEvent(topic: args.topic, chainId: 'eip155:$chainId', event: event)
       // await _client.approveSession(
@@ -200,13 +213,12 @@ class ConnectService {
       //   domain: metadata.url.replaceFirst('https://', ''),
       // );
 
-      // final request = await _client.authEngine.requestAuth(
-      //   params: params,
-      //   pairingTopic: args.session.pairingTopic,
+      // await _client.authEngine.respondAuthRequest(
+      //   id: args.id,
+      //   iss: 'did:pkh:eip155:137:${args.params[1]}',
+      //   signature: CacaoSignature(t: CacaoSignature.EIP1271, s: signature),
       // );
 
-      // final response = await request.completer.future;
-      // print(response);
       print('!!!!!!!REQUEST!!!!!!!!');
     });
 
@@ -277,8 +289,8 @@ class ConnectService {
 
     // final hash = keccak256(concat);
 
-    // final message = hexToBytes(rawValues[0]);
-    final message = Uint8List.fromList(rawValues[0].codeUnits);
+    final message = hexToBytes(rawValues[0]);
+    // final message = Uint8List.fromList(rawValues[0].codeUnits);
 
     print('messageHash: ${bytesToHex(message, include0x: true)}');
 
