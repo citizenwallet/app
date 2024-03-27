@@ -773,6 +773,21 @@ class WalletService {
     return null;
   }
 
+  /// get community data
+  Future<Config?> getCommunity(String hash) async {
+    try {
+      final configData = await _ipfs.get(url: '/$hash');
+
+      final config = Config.fromJson(configData);
+
+      return config;
+    } catch (exception) {
+      //
+    }
+
+    return null;
+  }
+
   /// Transactions
 
   /// fetch erc20 transfer events

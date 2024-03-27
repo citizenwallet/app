@@ -1,19 +1,11 @@
-import 'dart:async';
-
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/logic.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
-import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -65,6 +57,9 @@ class DeepLinkModalState extends State<DeepLinkModal> {
       case 'faucet-v1':
         // handle loading of metadata
         break;
+      case 'community':
+        // handle adding community
+        _logic.loadCommunityMetadata(widget.deepLinkParams);
       default:
         break;
     }
@@ -92,17 +87,9 @@ class DeepLinkModalState extends State<DeepLinkModal> {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = context.select((WalletState state) => state.wallet);
-
     final deepLink = context.select((DeepLinkState state) => state.deepLink);
 
     final loading = context.select((DeepLinkState state) => state.loading);
-
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-
-    final size = height > width ? width : height;
-    final scannerSize = size * 0.88;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -140,19 +127,41 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 60),
-                          SizedBox(
-                            height: 240,
-                            width: 240,
-                            child: Center(
-                              child: SvgPicture.asset(
-                                deepLink?.icon ?? 'assets/icons/missing.svg',
-                                semanticsLabel: deepLink?.icon != null
-                                    ? 'Deep link icon'
-                                    : 'Missing icon',
-                                height: 300,
+                          if (deepLink != null && deepLink.icon != null)
+                            SizedBox(
+                              height: 200,
+                              width: 200,
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  deepLink.icon!,
+                                  semanticsLabel: 'invalid deep link icon',
+                                  height: 200,
+                                ),
                               ),
                             ),
-                          ),
+                          if (deepLink != null && deepLink.remoteIcon != null)
+                            SizedBox(
+                              height: 200,
+                              width: 200,
+                              child: Center(
+                                child: CoinLogo(
+                                  logo: deepLink.remoteIcon,
+                                  size: 200,
+                                ),
+                              ),
+                            ),
+                          if (deepLink == null)
+                            SizedBox(
+                              height: 200,
+                              width: 200,
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  'assets/icons/missing.svg',
+                                  semanticsLabel: 'invalid deep link icon',
+                                  height: 200,
+                                ),
+                              ),
+                            ),
                           const SizedBox(height: 60),
                           Text(
                             deepLink?.description ?? 'Unable to handle link',
@@ -163,6 +172,17 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                             ),
                             textAlign: TextAlign.center,
                           ),
+                          const SizedBox(height: 20),
+                          if (deepLink != null && deepLink.content != null)
+                            Text(
+                              deepLink.content!,
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 18,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                         ],
                       ),
                     ),

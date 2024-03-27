@@ -14,6 +14,32 @@ class DeepLinkLogic {
         _wallet = wallet,
         _notifications = NotificationsLogic(context);
 
+  Future<void> loadCommunityMetadata(String communityHash) async {
+    try {
+      _state.request();
+
+      // load metadata here
+      final config = await _wallet.getCommunity(communityHash);
+      if (config == null) {
+        throw Exception('Community not found');
+      }
+
+      final deepLink = DeepLink(
+        title: 'Community',
+        description: '${config.community.name} (${config.token.symbol})',
+        content: config.community.description,
+        action: 'Join',
+        remoteIcon: config.community.logo,
+      );
+
+      _state.updateDeepLink(deepLink);
+
+      _state.success();
+      return;
+    } catch (_) {}
+    _state.fail();
+  }
+
   Future<void> faucetV1Redeem(String params) async {
     try {
       _state.request();
