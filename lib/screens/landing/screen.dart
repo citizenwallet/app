@@ -22,6 +22,8 @@ class LandingScreen extends StatefulWidget {
   final String? webWallet;
   final String? webWalletAlias;
   final String? receiveParams;
+  final String? deepLink;
+  final String? deepLinkParams;
 
   const LandingScreen({
     super.key,
@@ -30,6 +32,8 @@ class LandingScreen extends StatefulWidget {
     this.webWallet,
     this.webWalletAlias,
     this.receiveParams,
+    this.deepLink,
+    this.deepLinkParams,
   });
 
   @override
@@ -77,6 +81,11 @@ class LandingScreenState extends State<LandingScreen>
       params += '&receiveParams=${widget.receiveParams}';
     }
 
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      params += '&dl=${widget.deepLink}';
+      params += '&${widget.deepLink}=${widget.deepLinkParams}';
+    }
+
     if (extra.isNotEmpty) {
       params += '&${extra.join('&')}';
     }
@@ -119,6 +128,12 @@ class LandingScreenState extends State<LandingScreen>
     // pick an appropriate wallet to load
     if (widget.receiveParams != null && address == null && alias == null) {
       (address, alias) = await handleLoadFromParams(widget.receiveParams);
+    }
+
+    // handle deep link
+    // pick an appropriate wallet to load
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      (address, alias) = await handleLoadFromParams(widget.deepLinkParams);
     }
 
     // load the last wallet if there was no deeplink
@@ -183,7 +198,13 @@ class LandingScreenState extends State<LandingScreen>
   }
 
   String? paramsAlias(String compressedParams) {
-    final params = decompress(compressedParams);
+    String params;
+    try {
+      params = decodeParams(compressedParams);
+    } catch (_) {
+      // support the old format with compressed params
+      params = decompress(compressedParams);
+    }
 
     final uri = Uri(query: params);
 

@@ -10,6 +10,8 @@ class WebLandingScreen extends StatefulWidget {
   final String? voucherParams;
   final String? alias;
   final String? receiveParams;
+  final String? deepLink;
+  final String? deepLinkParams;
 
   const WebLandingScreen({
     super.key,
@@ -17,6 +19,8 @@ class WebLandingScreen extends StatefulWidget {
     this.voucherParams,
     this.alias,
     this.receiveParams,
+    this.deepLink,
+    this.deepLinkParams,
   });
 
   @override
@@ -53,6 +57,11 @@ class WebLandingScreenState extends State<WebLandingScreen>
 
     if (widget.receiveParams != null) {
       params += '&receiveParams=${widget.receiveParams}';
+    }
+
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      params += '&dl=${widget.deepLink}';
+      params += '&${widget.deepLink}=${widget.deepLinkParams}';
     }
 
     return params.replaceFirst('&', '?');

@@ -575,6 +575,51 @@
     },
     {
         "community": {
+            "name": "Breadchain Community Token",
+            "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
+            "url": "https://breadchain.xyz/",
+            "alias": "bread",
+            "logo": "https://bread.citizenwallet.xyz/wallet-config/_images/bread.svg"
+        },
+        "scan": {
+            "url": "https://gnosisscan.io",
+            "name": "Gnosis Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-bread.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-bread.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "chain_id": 100,
+            "url": "https://nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60",
+            "ws_url": "wss://ws-nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-bread.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
+            "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
+            "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+            "paymaster_rpc_url": "https://indexer-bread.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+            "name": "Breadchain Community Token",
+            "symbol": "BREAD",
+            "decimals": 18
+        },
+        "profile": {
+            "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986"
+        },
+        "version": 1
+    },
+    {
+        "community": {
             "name": "Bonne Heure",
             "description": "Système d'Échange Local de Villers-la-Ville",
             "url": "https://selcoupdepouce.be",
@@ -712,6 +757,51 @@
         },
         "profile": {
             "address": "0xB99a7B1574f051020EB4cb2fce5d48EE07592AfF"
+        },
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "ETHGlobal London Token",
+            "description": "The community of people using ETHLDN on Base.",
+            "url": "https://en.wikipedia.org/wiki/USD_Coin",
+            "alias": "testnet-ethldn",
+            "logo": "https://app.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg"
+        },
+        "scan": {
+            "url": "https://sepolia.basescan.org",
+            "name": "Base Sepolia Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "chain_id": 84532,
+            "url": "https://sepolia.base.org",
+            "ws_url": "wss://base-sepolia-rpc.publicnode.com"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
+            "entrypoint_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "account_factory_address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
+            "paymaster_rpc_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+            "name": "ETHGlobal London Token",
+            "symbol": "ETHLDN",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd"
         },
         "version": 1
     }

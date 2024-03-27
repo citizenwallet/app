@@ -79,6 +79,8 @@ class WalletLogic extends WidgetsBindingObserver {
   bool cancelLoadAccounts = false;
   String? _fetchRequest;
 
+  WalletService get wallet => _wallet;
+
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
@@ -1083,7 +1085,8 @@ class WalletLogic extends WidgetsBindingObserver {
   void preSendingTransaction(
     BigInt amount,
     String tempId,
-    String to, {
+    String to,
+    String from, {
     String message = '',
   }) {
     _state.setInProgressTransaction(
@@ -1095,6 +1098,7 @@ class WalletLogic extends WidgetsBindingObserver {
         id: tempId,
         hash: '',
         chainId: _wallet.chainId,
+        from: from,
         to: to,
         description: message,
         date: DateTime.now(),
@@ -1105,7 +1109,8 @@ class WalletLogic extends WidgetsBindingObserver {
   void sendingTransaction(
     BigInt amount,
     String hash,
-    String to, {
+    String to,
+    String from, {
     String message = '',
   }) {
     _state.setInProgressTransaction(
@@ -1118,28 +1123,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        description: message,
-        date: DateTime.now(),
-      ),
-    );
-  }
-
-  void pendingTransaction(
-    BigInt amount,
-    String hash,
-    String to, {
-    String message = '',
-  }) {
-    _state.setInProgressTransaction(
-      CWTransaction.pending(
-        fromDoubleUnit(
-          amount.toString(),
-          decimals: _wallet.currency.decimals,
-        ),
-        id: hash,
-        hash: '',
-        chainId: _wallet.chainId,
-        to: to,
+        from: from,
         description: message,
         date: DateTime.now(),
       ),
@@ -1172,6 +1156,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         tempId,
         to,
+        _wallet.account.hexEip55,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1190,6 +1175,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         hash,
         to,
+        _wallet.account.hexEip55,
       );
 
       final success = await _wallet.submitUserop(
@@ -1200,12 +1186,6 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
-
-      pendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-      );
 
       clearInputControllers();
 
@@ -1292,6 +1272,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         tempId,
         to,
+        _wallet.account.hexEip55,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1310,6 +1291,7 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
         hash,
         to,
+        _wallet.account.hexEip55,
       );
 
       final success = await _wallet.submitUserop(
@@ -1320,12 +1302,6 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
-
-      pendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-      );
 
       clearInputControllers();
 
@@ -1398,7 +1374,6 @@ class WalletLogic extends WidgetsBindingObserver {
     );
 
     try {
-      print('minting');
       _state.sendTransaction();
 
       if (to.isEmpty) {
@@ -1752,6 +1727,34 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
 
     return (null, null, null);
+  }
+
+  Future<PluginConfig?> getPluginConfig(String alias, String params) async {
+    try {
+      final uri = Uri(query: params);
+
+      String? url = uri.queryParameters['url'];
+      if (url == null) {
+        return null;
+      }
+
+      url = Uri.decodeComponent(url);
+
+      final config = await _config.getConfig(alias);
+
+      if (config.plugins.isEmpty) {
+        return null;
+      }
+
+      final plugin = config.plugins.firstWhereOrNull((p) => p.url == url);
+      if (plugin == null) {
+        return null;
+      }
+
+      return plugin;
+    } catch (_) {}
+
+    return null;
   }
 
   void pauseFetching() {

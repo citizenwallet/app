@@ -12,7 +12,7 @@ import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
-import 'package:citizenwallet/state/backup/state.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +20,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
@@ -41,6 +40,16 @@ GoRouter createRouter(
             builder: (context, state) {
               // coming in from a deep link "#/wallet/..." will come as a fragment
               final uri = Uri.parse(state.uri.fragment);
+
+              // parse from a deep link
+              String? deepLinkParams;
+              final deepLink = uri.queryParameters['dl'];
+              if (deepLink != null) {
+                final params = uri.queryParameters[deepLink];
+                if (params != null) {
+                  deepLinkParams = encodeParams(params);
+                }
+              }
 
               // parse from a voucher deep link
               final voucher = uri.queryParameters['voucher'];
@@ -69,6 +78,8 @@ GoRouter createRouter(
                     webWallet != null && webWallet.isEmpty ? null : webWallet,
                 webWalletAlias: webWalletAlias,
                 receiveParams: receiveParams,
+                deepLink: deepLink,
+                deepLinkParams: deepLinkParams,
               );
             }),
         GoRoute(
@@ -92,18 +103,29 @@ GoRouter createRouter(
               name: 'Wallet',
               path: '/wallet/:address',
               parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: WalletScreen(
-                  state.pathParameters['address'],
-                  state.uri.queryParameters['alias'],
-                  wallet,
-                  voucher: state.uri.queryParameters['voucher'],
-                  voucherParams: state.uri.queryParameters['params'],
-                  receiveParams: state.uri.queryParameters['receiveParams'],
-                ),
-              ),
+              pageBuilder: (context, state) {
+                // parse from a deep link
+                String? deepLinkParams;
+                final deepLink = state.uri.queryParameters['dl'];
+                if (deepLink != null) {
+                  deepLinkParams = state.uri.queryParameters[deepLink];
+                }
+
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  name: state.name,
+                  child: WalletScreen(
+                    state.pathParameters['address'],
+                    state.uri.queryParameters['alias'],
+                    wallet,
+                    voucher: state.uri.queryParameters['voucher'],
+                    voucherParams: state.uri.queryParameters['params'],
+                    receiveParams: state.uri.queryParameters['receiveParams'],
+                    deepLink: deepLink,
+                    deepLinkParams: deepLinkParams,
+                  ),
+                );
+              },
               routes: [
                 GoRoute(
                   name: 'Transaction',
@@ -195,11 +217,20 @@ GoRouter createWebRouter(
                 ? Uri.base.host.replaceFirst(dotenv.get('APP_LINK_SUFFIX'), '')
                 : Uri.base.host;
 
+            // parse from a deep link
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+
             return WebLandingScreen(
               voucher: state.uri.queryParameters['voucher'],
               voucherParams: state.uri.queryParameters['params'],
               alias: alias,
               receiveParams: state.uri.queryParameters['receiveParams'],
+              deepLink: deepLink,
+              deepLinkParams: deepLinkParams,
             );
           },
         ),
@@ -221,11 +252,18 @@ GoRouter createWebRouter(
                             .replaceFirst(dotenv.get('APP_LINK_SUFFIX'), '')
                         : Uri.base.host;
 
+                // parse from a deep link
+                String? deepLinkParams;
+                final deepLink = state.uri.queryParameters['dl'];
+                if (deepLink != null) {
+                  deepLinkParams = state.uri.queryParameters[deepLink];
+                }
+
                 return NoTransitionPage(
                   key: state.pageKey,
                   name: state.name,
-                  child: WillPopScope(
-                    onWillPop: () async => false,
+                  child: PopScope(
+                    canPop: false,
                     child: BurnerWalletScreen(
                       state.pathParameters['qr'] ?? '',
                       wallet,
@@ -233,6 +271,8 @@ GoRouter createWebRouter(
                       voucher: state.uri.queryParameters['voucher'],
                       voucherParams: state.uri.queryParameters['params'],
                       receiveParams: state.uri.queryParameters['receiveParams'],
+                      deepLink: deepLink,
+                      deepLinkParams: deepLinkParams,
                     ),
                   ),
                 );
@@ -249,8 +289,8 @@ GoRouter createWebRouter(
 
                     final extra = state.extra as Map<String, dynamic>;
 
-                    return WillPopScope(
-                      onWillPop: () async => false,
+                    return PopScope(
+                      canPop: false,
                       child: TransactionScreen(
                         transactionId: state.pathParameters['transactionId'],
                         logic: extra['logic'],

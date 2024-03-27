@@ -64,6 +64,7 @@ class TransactionRowState extends State<TransactionRow> {
     final onTap = widget.onTap;
     final onProcessingTap = widget.onProcessingTap;
 
+    final isSending = TransactionState.sending == transaction.state;
     final isIncoming = transaction.isIncoming(wallet.account);
     final address = isIncoming ? transaction.from : transaction.to;
     final addressEmpty = isEmptyAddress(address);
@@ -80,24 +81,20 @@ class TransactionRowState extends State<TransactionRow> {
           : () => onTap?.call(transaction.id),
       child: AnimatedContainer(
         key: widget.key,
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 500),
         margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         height: 90,
         decoration: BoxDecoration(
-          color: transaction.isPending || transaction.isSending
-              ? ThemeColors.subtleEmphasis.resolveFrom(context)
-              : ThemeColors.subtle.resolveFrom(context),
+          color: !isSending
+              ? ThemeColors.subtle.resolveFrom(context)
+              : ThemeColors.subtleEmphasis.resolveFrom(context),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             width: 2,
-            color: switch (transaction.state) {
-              TransactionState.sending =>
-                ThemeColors.secondary.resolveFrom(context),
-              TransactionState.pending =>
-                ThemeColors.primary.resolveFrom(context),
-              _ => ThemeColors.uiBackgroundAlt.resolveFrom(context),
-            },
+            color: !isSending
+                ? ThemeColors.uiBackgroundAlt.resolveFrom(context)
+                : ThemeColors.secondary.resolveFrom(context),
           ),
         ),
         child: Stack(
@@ -106,26 +103,15 @@ class TransactionRowState extends State<TransactionRow> {
               children: [
                 Stack(
                   children: [
-                    switch (transaction.state) {
-                      TransactionState.sending => SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: Center(
-                            child: CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
-                            ),
+                    voucher != null || addressEmpty
+                        ? CoinLogo(
+                            size: 50,
+                            logo: widget.logo,
+                          )
+                        : ProfileCircle(
+                            size: 50,
+                            imageUrl: profile?.profile.imageMedium,
                           ),
-                        ),
-                      _ => voucher != null || addressEmpty
-                          ? CoinLogo(
-                              size: 50,
-                              logo: widget.logo,
-                            )
-                          : ProfileCircle(
-                              size: 50,
-                              imageUrl: profile?.profile.imageMedium,
-                            )
-                    },
                   ],
                 ),
                 const SizedBox(width: 10),

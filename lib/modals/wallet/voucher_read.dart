@@ -86,7 +86,6 @@ class VoucherReadModalState extends State<VoucherReadModal>
       widget.address,
       preSendingTransaction: widget.logic.preSendingTransaction,
       sendingTransaction: widget.logic.sendingTransaction,
-      pendingTransaction: widget.logic.pendingTransaction,
     );
 
     await delay(const Duration(milliseconds: 1500));
