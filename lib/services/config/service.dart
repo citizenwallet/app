@@ -96,13 +96,13 @@ class ConfigService {
   }
 
   void initWeb() {
+    final scheme = Uri.base.scheme.isNotEmpty ? Uri.base.scheme : 'http';
     final url = kDebugMode || Uri.base.host.contains('localhost')
         ? 'https://config.internal.citizenwallet.xyz'
-        : '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
+        : '$scheme://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
-    _communityServer =
-        APIService(baseURL: '${Uri.base.scheme}://${Uri.base.host}');
+    _communityServer = APIService(baseURL: '$scheme://${Uri.base.host}');
   }
 
   void init(String endpoint) {
