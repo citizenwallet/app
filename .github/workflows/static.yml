@@ -64,7 +64,7 @@ jobs:
         run: mkdir -p build/outputs
 
       - name: Compress web build
-        run: tar -czf './build/outputs/cw-web-${{ steps.version_info.outputs.build_name }}+${{ steps.version_info.outputs.build_number }}.tar.gz' ./build/web
+        run: tar -czf './build/outputs/cw_web_${{ steps.version_info.outputs.build_name }}+${{ steps.version_info.outputs.build_number }}.tar.gz' ./build/web
 
       - name: Create version file
         run: echo '${{ steps.version_info.outputs.build_name }}+${{ steps.version_info.outputs.build_number }}' > ./build/outputs/version
