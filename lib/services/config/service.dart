@@ -47,7 +47,10 @@ class ConfigService {
           final config = Config.fromJson(response);
 
           _configs = [config];
-        }).catchError((_) {});
+        }).catchError((e, s) {
+          print('Error fetching config: $e');
+          print('Stacktrace: $s');
+        });
 
         return _configs.first;
       }
@@ -60,7 +63,10 @@ class ConfigService {
       _configs = [config];
 
       return config;
-    } catch (_) {}
+    } catch (e, s) {
+      print('Error fetching config: $e');
+      print('Stacktrace: $s');
+    }
 
     String alias = Uri.base.host.endsWith(appLinkSuffix)
         ? Uri.base.host.replaceFirst(appLinkSuffix, '')
