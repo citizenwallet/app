@@ -64,10 +64,10 @@ jobs:
         run: mkdir -p build/outputs
 
       - name: Compress web build
-        run: tar -czf './build/outputs/cw_web_${{ steps.version_info.outputs.build_name }}+${{ steps.version_info.outputs.build_number }}.tar.gz' ./build/web
+        run: tar -czf './build/outputs/cw_web_${{ steps.version_info.outputs.build_name }}_${{ steps.version_info.outputs.build_number }}.tar.gz' ./build/web
 
       - name: Create version file
-        run: echo '${{ steps.version_info.outputs.build_name }}+${{ steps.version_info.outputs.build_number }}' > ./build/outputs/version
+        run: echo '${{ steps.version_info.outputs.build_name }}_${{ steps.version_info.outputs.build_number }}' > ./build/outputs/version
 
       - name: Upload outputs to S3
         run: aws s3 sync ./build/outputs s3://cw-build-artifacts/web
