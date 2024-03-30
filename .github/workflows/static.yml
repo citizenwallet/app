@@ -78,6 +78,9 @@ jobs:
       - name: Update S3 Configs bucket
         run: aws s3 sync ./temp/web_configs s3://cw-wallet-configs/wallet-config/v3
 
+      - name: Invalidate Build Outputs CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id EKM5NR0TASZ5T --paths '/*'
+
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3HSZG6HHL54A0 --paths '/*'
 
