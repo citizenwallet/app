@@ -620,6 +620,51 @@
     },
     {
         "community": {
+            "name": "MOOS Token",
+            "description": "A community currency for MOOS.",
+            "url": "https://citizenwallet.xyz",
+            "alias": "moos",
+            "logo": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "chain_id": 42220,
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
+            "entrypoint_address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
+            "account_factory_address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
+            "name": "MOOS Token",
+            "symbol": "MOOS",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341"
+        },
+        "version": 1
+    },
+    {
+        "community": {
             "name": "Bonne Heure",
             "description": "Système d'Échange Local de Villers-la-Ville",
             "url": "https://selcoupdepouce.be",
