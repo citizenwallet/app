@@ -663,7 +663,7 @@
         },
         "plugins": [
             {
-                "name": "Marketplace",
+                "name": "Market",
                 "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
                 "url": "https://marketplace.citizenwallet.xyz/moos"
             }
