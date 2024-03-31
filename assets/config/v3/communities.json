@@ -661,6 +661,13 @@
         "profile": {
             "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341"
         },
+        "plugins": [
+            {
+                "name": "Marketplace",
+                "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
+                "url": "https://marketplace.citizenwallet.xyz/moos"
+            }
+        ],
         "version": 1
     },
     {
