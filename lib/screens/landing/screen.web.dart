@@ -4,6 +4,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebLandingScreen extends StatefulWidget {
   final String? voucher;
@@ -122,7 +123,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                               ),
                             ),
                             Text(
-                              'Citizen Wallet',
+                               AppLocalizations.of(context)!.citizenWallet,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 34,
@@ -132,7 +133,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                             ),
                             const SizedBox(height: 30),
                             Text(
-                              'A wallet for your community',
+                              AppLocalizations.of(context)!.aWalletForYourCommunity,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 20,
@@ -146,7 +147,7 @@ class WebLandingScreenState extends State<WebLandingScreen>
                             ),
                             const SizedBox(height: 30),
                             Text(
-                              'Opening your wallet...',
+                               AppLocalizations.of(context)!.openingYourWallet,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 16,

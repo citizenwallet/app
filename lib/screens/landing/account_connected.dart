@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountConnectedScreen extends StatefulWidget {
   const AccountConnectedScreen({
@@ -54,8 +55,8 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => TextInputModal(
-        title: 'Enter encryption key',
-        placeholder: 'Encryption key',
+        title: AppLocalizations.of(context)!.enterEncryptionKey,
+        placeholder: AppLocalizations.of(context)!.encryptionKey,
         secure: true,
       ),
     );
@@ -92,12 +93,12 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           child: InfoActionLayout(
-            title: 'Decrypt backup',
+            title: AppLocalizations.of(context)!.decryptBackup,
             icon: 'assets/icons/cloud-found.svg',
             descriptionWidget: Column(
               children: [
                 Text(
-                  'Google Drive account: ',
+                  AppLocalizations.of(context)!.googleDriveAccount,
                   style: TextStyle(
                     color: ThemeColors.text.resolveFrom(context),
                     fontSize: 18,
@@ -121,7 +122,7 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
                   height: 20,
                 ),
                 Text(
-                  'Backup date: ',
+                  AppLocalizations.of(context)!.backupDate,
                   style: TextStyle(
                     color: ThemeColors.text.resolveFrom(context),
                     fontSize: 18,
@@ -147,13 +148,13 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
             ),
             loading: loading,
             primaryActionErrorText: error && status == BackupStatus.nokey
-                ? 'No keys found, try entering manually.'
+                ?  AppLocalizations.of(context)!.noKeysFoundTryManually
                 : null,
-            primaryActionText: 'Get encryption key from your Password Manager',
+            primaryActionText: AppLocalizations.of(context)!.getEncryptionKeyFromYourPasswordManager,
             secondaryActionErrorText: error && status == BackupStatus.wrongkey
-                ? 'Invalid key encryption key.'
+                ? AppLocalizations.of(context)!.invalidKeyEncryptionKey
                 : null,
-            secondaryActionText: 'Enter encryption key manually',
+            secondaryActionText: AppLocalizations.of(context)!.enterEncryptionKeyManually,
             onPrimaryAction: handleGetFromPasswordManager,
             onSecondaryAction: handleManualEntry,
           ),

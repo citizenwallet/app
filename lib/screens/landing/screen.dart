@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingScreen extends StatefulWidget {
   final String? voucher;
@@ -345,7 +346,8 @@ class LandingScreenState extends State<LandingScreen>
                               ),
                               const SizedBox(height: 30),
                               Text(
-                                'A wallet for your community',
+                                AppLocalizations.of(context)!
+                                    .aWalletForYourCommunity,
                                 style: TextStyle(
                                   color: ThemeColors.text.resolveFrom(context),
                                   fontSize: 20,
@@ -380,7 +382,8 @@ class LandingScreenState extends State<LandingScreen>
                           : Column(
                               children: [
                                 Button(
-                                  text: 'Create new Account',
+                                  text: AppLocalizations.of(context)!
+                                      .createNewAccount,
                                   onPressed: handleStart,
                                   minWidth: 200,
                                   maxWidth: 200,
@@ -397,7 +400,7 @@ class LandingScreenState extends State<LandingScreen>
                                   CupertinoButton(
                                     onPressed: handleRecover,
                                     child: Text(
-                                      'Recover from backup',
+                                      AppLocalizations.of(context)!.recoverfrombackup,
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),
@@ -415,7 +418,8 @@ class LandingScreenState extends State<LandingScreen>
                                     onPressed:
                                         handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
                                     child: Text(
-                                      'Recover Individual Account from a private key',
+                                      AppLocalizations.of(context)!
+                                      .recoverIndividualAccountFromaPrivatekey,
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),

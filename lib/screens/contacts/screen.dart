@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ContactsScreen extends StatefulWidget {
   final String title = 'Contacts';
@@ -115,7 +116,7 @@ class ContactsScreenState extends State<ContactsScreen> {
                       ),
                       const SizedBox(height: 40),
                       Text(
-                        'Your contacts will appear here',
+                        AppLocalizations.of(context)!.yourContactsWillAppearHere,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.normal,

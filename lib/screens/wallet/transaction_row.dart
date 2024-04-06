@@ -10,6 +10,7 @@ import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/wallet/transaction_state_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
@@ -131,13 +132,13 @@ class TransactionRowState extends State<TransactionRow> {
                                   TextSpan(
                                     text: voucher != null
                                         ? isIncoming
-                                            ? 'Voucher redeemed'
-                                            : 'Voucher created'
+                                            ? AppLocalizations.of(context)!.voucherRedeemed
+                                            : AppLocalizations.of(context)!.voucherCreated
                                         : profile != null
                                             ? profile.profile.name
                                             : addressEmpty
                                                 ? wallet.currencyName
-                                                : 'Anonymous',
+                                                : AppLocalizations.of(context)!.anonymous,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color:
@@ -168,8 +169,8 @@ class TransactionRowState extends State<TransactionRow> {
                           transaction.description.isNotEmpty
                               ? transaction.description
                               : addressEmpty
-                                  ? 'Minted'
-                                  : 'no description',
+                                  ? AppLocalizations.of(context)!.minted
+                                  : AppLocalizations.of(context)!.noDescription,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

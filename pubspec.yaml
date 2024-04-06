@@ -17,7 +17,7 @@ dependencies:
   sqflite: ^2.3.0
   path: ^1.8.2
   flutter_svg: ^2.0.4
-  intl: ^0.19.0
+  intl: any
   web3dart: ^2.7.1
   http: ^1.1.0
   flutter_secure_storage: ^9.0.0
@@ -65,6 +65,8 @@ dependencies:
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  flutter_localizations:
+    sdk: flutter
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.0
@@ -140,7 +142,8 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
-  uses-material-design: false
+  uses-material-design: true
+  generate: true
 
 # flutter pub run flutter_launcher_icons
 flutter_launcher_icons:

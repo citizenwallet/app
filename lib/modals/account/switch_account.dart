@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SwitchAccountModal extends StatefulWidget {
   final WalletLogic logic;
@@ -307,7 +308,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Accounts',
+                title:  AppLocalizations.of(context)!.accounts,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -393,7 +394,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Import',
+                                  AppLocalizations.of(context)!.importText,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -414,18 +415,18 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                             borderRadius: BorderRadius.circular(25),
                             color:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
-                            child: const Row(
+                            child:  Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Join Community',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.joinCommunity,
+                                  style: const TextStyle(
                                     color: ThemeColors.black,
                                   ),
                                 ),
-                                SizedBox(width: 5),
-                                Icon(
+                                const SizedBox(width: 5),
+                                 const Icon(
                                   CupertinoIcons.plus,
                                   color: ThemeColors.black,
                                 ),

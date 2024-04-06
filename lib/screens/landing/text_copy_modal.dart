@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TextCopyModal extends StatelessWidget {
   final AppLogic logic;
@@ -93,7 +94,7 @@ class TextCopyModal extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Button(
-                            text: hasCopied ? 'Copied' : 'Copy',
+                            text: hasCopied ?  AppLocalizations.of(context)!.copied : AppLocalizations.of(context)!.copyText,
                             color: ThemeColors.primary.resolveFrom(context),
                             suffix: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -113,7 +114,7 @@ class TextCopyModal extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Button(
-                            text: 'Continue',
+                            text: AppLocalizations.of(context)!.continueText,
                             color: ThemeColors.primary.resolveFrom(context),
                             suffix: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
