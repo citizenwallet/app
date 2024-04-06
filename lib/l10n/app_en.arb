@@ -81,6 +81,10 @@
   "thisIsYourWallet" : "This is your wallet.",
   "itLivesInTheLinkOfThisPage" :"It lives in the link of this page.",
   "itIsUniqueToYouAndYourCommunity" : "It is unique to you and your community.",
-  "keepYourLink": "Keep your link private to make sure only you have access to this wallet."
-
+  "keepYourLink": "Keep your link private to make sure only you have access to this wallet.",
+  "send" :"Send",
+  "sending" :"Sending",
+  "receive" : "Receive",
+  "mint" :"Mint",
+  "vouchers" :"Vouchers"
 }   
