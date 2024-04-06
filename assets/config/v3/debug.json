@@ -22,8 +22,8 @@
         "name": "Gnosis Explorer"
     },
     "node": {
-        "url": "https://nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60",
-        "ws_url": "wss://ws-nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60",
+        "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+        "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
         "chain_id": 100
     },
     "ipfs": {
