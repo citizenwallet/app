@@ -86,5 +86,12 @@
   "sending" :"Sending",
   "receive" : "Receive",
   "mint" :"Mint",
-  "vouchers" :"Vouchers"
+  "vouchers" :"Vouchers",
+  "noBackupFound" :"No backup found",
+  "selectAnotherAccount" :"Select another account",
+  "recoverIndividualAccount" : "Recover individual account from a private key",
+  "restoreAllAccountsGoogleDrive" :"Restore all accounts from Google Drive",
+  "infoActionLayoutDescription":"You will be asked to log in to your Google account. We will only request access to this app\\'s folder in your Google Drive.",
+  "connectYourGoogleDriveAccount" : "Connect your Google Drive Account",
+  "recoverIndividualAccountPrivateKey" :"Recover individual account from a private key"
 }   
