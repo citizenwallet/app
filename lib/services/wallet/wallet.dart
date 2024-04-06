@@ -375,7 +375,6 @@ class WalletService {
       final implementation = await upgradeAccount();
 
       if (implementation != null) {
-        onNotify?.call('Upgrading account...');
         // upgrade the account to the new implementation address
         final calldata = _contractAccount.upgradeToCallData(implementation);
 
@@ -390,6 +389,7 @@ class WalletService {
         );
 
         if (!success) {
+          onFinished?.call(false);
           return;
         }
 

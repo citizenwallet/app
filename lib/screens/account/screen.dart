@@ -66,20 +66,17 @@ class AccountScreenState extends State<AccountScreen> {
       return;
     }
 
-    await _walletLogic.openWallet(
-      widget.address,
-      widget.alias,
-      (bool hasChanged) async {
-        await _logic.loadProfileLink();
+    await _walletLogic.openWallet(widget.address, widget.alias,
+        (bool hasChanged) async {
+      await _logic.loadProfileLink();
 
-        if (hasChanged) {
-          _logic.resetAll();
-          _logic.loadProfile();
-        }
-      },
-    );
+      if (hasChanged) {
+        _logic.resetAll();
+        _logic.loadProfile();
+      }
+    }, () async {});
 
-    _notificationsLogic.init();
+    _notificationsLogic.init(null);
 
     if (!super.mounted) {
       return;
@@ -120,6 +117,10 @@ class AccountScreenState extends State<AccountScreen> {
 
     await delay(const Duration(milliseconds: 50));
 
+    if (!mounted) {
+      return;
+    }
+
     final wallet = await CupertinoScaffold.showCupertinoModalBottomSheet<
         (String, String)?>(
       context: context,
@@ -138,6 +139,10 @@ class AccountScreenState extends State<AccountScreen> {
     if (wallet == null) {
       await delay(const Duration(milliseconds: 250));
 
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         _showQRCode = true;
       });
@@ -148,6 +153,10 @@ class AccountScreenState extends State<AccountScreen> {
 
     if (address == _walletLogic.account) {
       await delay(const Duration(milliseconds: 250));
+
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _showQRCode = true;

@@ -14,6 +14,8 @@ class PushService {
   StreamSubscription<String>? _tokenSubscription;
   StreamSubscription<RemoteMessage>? _messageSubscription;
 
+  bool tokenUpdated = false;
+
   Future<void> start(
     Future<void> Function(String token) onToken,
     void Function(RemoteMessage)? onMessage,

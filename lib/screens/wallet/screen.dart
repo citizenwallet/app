@@ -84,6 +84,7 @@ class WalletScreenState extends State<WalletScreen> {
 
   @override
   void dispose() {
+    _notificationsLogic.resetTokenUpdated();
     _logic.pauseFetching();
 
     _scrollController.removeListener(onScrollUpdate);
@@ -136,18 +137,17 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    await _logic.openWallet(
-      widget.address,
-      widget.alias,
-      (bool hasChanged) async {
-        if (hasChanged) _profileLogic.loadProfile();
-        await _profileLogic.loadProfileLink();
-        await _logic.loadTransactions();
-        await _voucherLogic.fetchVouchers();
-      },
-    );
+    await _logic.openWallet(widget.address, widget.alias,
+        (bool hasChanged) async {
+      if (hasChanged) _profileLogic.loadProfile();
+      await _profileLogic.loadProfileLink();
+      await _logic.loadTransactions();
+      await _voucherLogic.fetchVouchers();
+    }, () async {
+      resume();
+    });
 
-    _notificationsLogic.init();
+    _notificationsLogic.init(_logic.handleTx);
 
     if (widget.voucher != null && widget.voucherParams != null) {
       await handleLoadFromVoucher();
@@ -160,6 +160,20 @@ class WalletScreenState extends State<WalletScreen> {
     if (widget.deepLink != null && widget.deepLinkParams != null) {
       await handleLoadDeepLink();
     }
+  }
+
+  void pause() {
+    _notificationsLogic.removeNotificationTxDataHandler();
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+  }
+
+  void resume() {
+    _notificationsLogic.setNotificationTxDataHandler(_logic.handleTx);
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   Future<void> handleLoadDeepLink() async {
@@ -182,9 +196,7 @@ class WalletScreenState extends State<WalletScreen> {
         await handlePlugin(pluginConfig);
         break;
       default:
-        _logic.pauseFetching();
-        _profilesLogic.pause();
-        _voucherLogic.pause();
+        pause();
 
         await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
           context: context,
@@ -200,9 +212,7 @@ class WalletScreenState extends State<WalletScreen> {
           ),
         );
 
-        _logic.resumeFetching();
-        _profilesLogic.resume();
-        _voucherLogic.resume();
+        resume();
         break;
     }
   }
@@ -222,9 +232,11 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    if (!mounted) {
+      return;
+    }
+
+    pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
       context: context,
@@ -236,17 +248,13 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
 
     navigator.go('/wallet/${widget.address}');
   }
 
   void handleFailedTransaction(String id, bool blockSending) async {
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -286,9 +294,7 @@ class WalletScreenState extends State<WalletScreen> {
         });
 
     if (option == null) {
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
+      resume();
       return;
     }
 
@@ -317,9 +323,7 @@ class WalletScreenState extends State<WalletScreen> {
       _logic.removeQueuedTransaction(id);
     }
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   Future<void> handleRefresh() async {
@@ -332,16 +336,12 @@ class WalletScreenState extends State<WalletScreen> {
     // temporarily disabled until we move the account screen back
     _logic.updateWalletQR();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     final wallet = context.read<WalletState>().wallet;
 
     if (wallet == null) {
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
+      resume();
       return;
     }
 
@@ -356,17 +356,13 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   Future<void> handleSendModal({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
       context: context,
@@ -379,9 +375,7 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   void handleReceive() async {
@@ -408,9 +402,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     switch (pluginConfig.launchMode) {
       case PluginLaunchMode.webview:
-        _logic.pauseFetching();
-        _profilesLogic.pause();
-        _voucherLogic.pause();
+        pause();
 
         await CupertinoScaffold.showCupertinoModalBottomSheet(
           context: context,
@@ -423,9 +415,7 @@ class WalletScreenState extends State<WalletScreen> {
           ),
         );
 
-        _logic.resumeFetching();
-        _profilesLogic.resume();
-        _voucherLogic.resume();
+        resume();
         break;
       default:
         _logic.launchPluginUrl(uri);
@@ -436,9 +426,7 @@ class WalletScreenState extends State<WalletScreen> {
   void handleCards() async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -455,17 +443,13 @@ class WalletScreenState extends State<WalletScreen> {
 
     await _voucherLogic.fetchVouchers();
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   Future<void> handleMint({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
       context: context,
@@ -479,17 +463,13 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   void handleVouchers() async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -504,9 +484,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     await _voucherLogic.fetchVouchers();
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   void handleCopy(String value) {
@@ -518,9 +496,7 @@ class WalletScreenState extends State<WalletScreen> {
   void handleTransactionTap(String transactionId) async {
     HapticFeedback.lightImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+    pause();
 
     await GoRouter.of(context).push<bool?>(
       '/wallet/${widget.address!}/transactions/$transactionId',
@@ -530,9 +506,7 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
+    resume();
   }
 
   void handleTransactionSendingTap() async {

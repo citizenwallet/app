@@ -310,6 +310,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String? paramAddress,
     String? paramAlias,
     Future<void> Function(bool hasChanged) loadAdditionalData,
+    Future<void> Function() onWalletInit,
   ) async {
     try {
       final String? address = paramAddress ?? _preferences.lastWallet;
@@ -334,6 +335,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
+
+        _state.setWalletReady(true);
+        _state.setWalletReadyLoading(false);
 
         return address;
       }
@@ -367,6 +371,7 @@ class WalletLogic extends WidgetsBindingObserver {
         onFinished: (bool ok) {
           _state.setWalletReady(ok);
           _state.setWalletReadyLoading(false);
+          onWalletInit();
         },
       );
 
@@ -408,6 +413,8 @@ class WalletLogic extends WidgetsBindingObserver {
       return address;
     } on NotFoundException {
       _state.loadWalletError(exception: NotFoundException());
+      _state.setWalletReady(false);
+      _state.setWalletReadyLoading(false);
 
       Sentry.captureException(
         NotFoundException(),
@@ -580,7 +587,8 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _fetchRequest = generateRandomId();
 
-      fetchNewTransfers(_fetchRequest);
+      final pushEnabled = await _notificationsLogic.enabled;
+      fetchNewTransfers(_fetchRequest, once: pushEnabled);
 
       return;
     } catch (exception, stackTrace) {
@@ -595,7 +603,51 @@ class WalletLogic extends WidgetsBindingObserver {
     _fetchRequest = null;
   }
 
-  void fetchNewTransfers(String? id) async {
+  void handleTx(TransferEvent transfer) {
+    final tx = CWTransaction(
+      fromDoubleUnit(
+        transfer.value.toString(),
+        decimals: _wallet.currency.decimals,
+      ),
+      id: transfer.hash,
+      hash: transfer.txhash,
+      chainId: _wallet.chainId,
+      from: transfer.from.hexEip55,
+      to: transfer.to.hexEip55,
+      description: transfer.data?.description ?? '',
+      date: transfer.createdAt,
+      state: TransactionState.values.firstWhereOrNull(
+            (v) => v.name == transfer.status,
+          ) ??
+          TransactionState.success,
+    );
+
+    final dbtx = DBTransaction(
+      hash: transfer.hash,
+      txHash: transfer.txhash,
+      tokenId: transfer.tokenId,
+      createdAt: transfer.createdAt,
+      from: transfer.from.hexEip55,
+      to: transfer.to.hexEip55,
+      nonce: 0, // TODO: remove nonce hardcode
+      value: transfer.value.toInt(),
+      data: transfer.data != null ? jsonEncode(transfer.data?.toJson()) : '',
+      status: transfer.status,
+      contract: _wallet.erc20Address,
+    );
+
+    _db.transactions.insert(dbtx);
+
+    final hasChanges = _state.incomingTransactionsRequestSuccess(
+      [tx],
+    );
+
+    if (hasChanges) {
+      updateBalance();
+    }
+  }
+
+  void fetchNewTransfers(String? id, {bool once = false}) async {
     try {
       if (_fetchRequest == null || _fetchRequest != id) {
         // make sure that we only have one request at a time
@@ -611,9 +663,17 @@ class WalletLogic extends WidgetsBindingObserver {
         // still keep balance up to date no matter what
         updateBalance();
 
+        if (once) {
+          return;
+        }
+
         await delay(txFetchInterval);
 
-        fetchNewTransfers(id);
+        final pushEnabled = await _notificationsLogic.enabled;
+        if (!pushEnabled) {
+          await _notificationsLogic.updateToken();
+        }
+        fetchNewTransfers(id, once: pushEnabled);
         return;
       }
 
@@ -623,9 +683,17 @@ class WalletLogic extends WidgetsBindingObserver {
         // still keep balance up to date no matter what
         updateBalance();
 
+        if (once) {
+          return;
+        }
+
         await delay(txFetchInterval);
 
-        fetchNewTransfers(id);
+        final pushEnabled = await _notificationsLogic.enabled;
+        if (!pushEnabled) {
+          await _notificationsLogic.updateToken();
+        }
+        fetchNewTransfers(id, once: pushEnabled);
         return;
       }
 
@@ -683,9 +751,17 @@ class WalletLogic extends WidgetsBindingObserver {
         updateBalance();
       }
 
+      if (once) {
+        return;
+      }
+
       await delay(txFetchInterval);
 
-      fetchNewTransfers(id);
+      final pushEnabled = await _notificationsLogic.enabled;
+      if (!pushEnabled) {
+        await _notificationsLogic.updateToken();
+      }
+      fetchNewTransfers(id, once: pushEnabled);
       return;
     } catch (exception, stackTrace) {
       Sentry.captureException(

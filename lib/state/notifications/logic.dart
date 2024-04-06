@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/push/push.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,7 +21,10 @@ class NotificationsLogic {
   NotificationsLogic(BuildContext context)
       : _state = context.read<NotificationsState>();
 
-  void init() async {
+  void init(Function(TransferEvent)? handler) async {
+    _push.tokenUpdated = false;
+    setNotificationTxDataHandler(handler);
+
     try {
       final systemEnabled = await _push.isEnabled();
       bool enabled = _prefs.pushNotifications(_wallet.account.hexEip55);
@@ -44,6 +50,11 @@ class NotificationsLogic {
       //
     }
   }
+
+  Future<bool> get enabled async =>
+      (await _push.isEnabled()) &&
+      _prefs.pushNotifications(_wallet.account.hexEip55) &&
+      _push.tokenUpdated;
 
   void checkPushPermissions() async {
     try {
@@ -79,6 +90,20 @@ class NotificationsLogic {
   }
 
   void onMessage(RemoteMessage message) {
+    if (message.data.isNotEmpty && message.data['tx_data'] != null) {
+      final tx = TransferEvent.fromJson(jsonDecode(message.data['tx_data']));
+
+      final isOwnTx = _wallet.account == tx.to || _wallet.account == tx.from;
+
+      if (!isOwnTx) {
+        return;
+      }
+
+      if (notificationTxDataHandler != null) {
+        notificationTxDataHandler!(tx);
+      }
+    }
+
     final notification = message.notification;
     if (notification != null) {
       final message = notification.body ?? notification.title;
@@ -91,6 +116,24 @@ class NotificationsLogic {
   Future<void> onToken(String token) async {
     try {
       final updated = await _wallet.updatePushToken(token);
+      _push.tokenUpdated = updated;
+      if (!updated) {
+        throw Exception('Failed to update push token');
+      }
+    } catch (e) {
+      //
+    }
+  }
+
+  Future<void> updateToken() async {
+    try {
+      final token = await _push.token;
+      if (token == null) {
+        return;
+      }
+
+      final updated = await _wallet.updatePushToken(token);
+      _push.tokenUpdated = updated;
       if (!updated) {
         throw Exception('Failed to update push token');
       }
@@ -119,6 +162,8 @@ class NotificationsLogic {
         if (!updated) {
           throw Exception('Failed to update push token');
         }
+
+        _push.tokenUpdated = false;
         return;
       }
 
@@ -136,5 +181,22 @@ class NotificationsLogic {
     } catch (e) {
       //
     }
+  }
+
+  Function(TransferEvent)? _notificationTxDataHandler;
+
+  Function(TransferEvent)? get notificationTxDataHandler =>
+      _notificationTxDataHandler;
+
+  void setNotificationTxDataHandler(Function(TransferEvent)? handler) {
+    _notificationTxDataHandler = handler;
+  }
+
+  void removeNotificationTxDataHandler() {
+    _notificationTxDataHandler = null;
+  }
+
+  void resetTokenUpdated() {
+    _push.tokenUpdated = false;
   }
 }
