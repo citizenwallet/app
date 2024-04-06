@@ -42,6 +42,15 @@ class ConfigService {
 
   Future<Config> getWebConfig(String appLinkSuffix) async {
     try {
+      if (kDebugMode) {
+        final localConfig = jsonDecode(
+            await rootBundle.loadString('assets/config/v$version/debug.json'));
+
+        _configs = [Config.fromJson(localConfig)];
+
+        return _configs.first;
+      }
+
       if (_configs.isNotEmpty && _configs.length == 1) {
         _communityServer.get(url: '/config/community.json').then((response) {
           final config = Config.fromJson(response);
@@ -150,6 +159,10 @@ class ConfigService {
 
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+
+      print('configs: $configs');
+      print('local');
+      print('alias: $alias');
 
       return configs;
     }
