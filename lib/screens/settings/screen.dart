@@ -80,6 +80,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
+  void handlLanguage() {}
+
   void handleOpenBackup() {
     GoRouter.of(context).push('/backup');
   }
@@ -192,6 +194,24 @@ class SettingsScreenState extends State<SettingsScreen> {
                     onChanged: onToggleDarkMode,
                   ),
                 ),
+                SettingsRow(
+                    label: AppLocalizations.of(context)!.language,
+                    icon: 'assets/icons/language-svgrepo-com.svg',
+                    onTap: handlLanguage,
+                    trailing: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.localeName,
+                          style: TextStyle(
+                            color: ThemeColors.subtleSolidEmphasis
+                                .resolveFrom(context),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        )
+                      ],
+                    )),
                 SettingsRow(
                   label: AppLocalizations.of(context)!.about,
                   icon: 'assets/icons/docs.svg',
