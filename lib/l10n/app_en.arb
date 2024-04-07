@@ -119,5 +119,20 @@
   "copyyouruniquewalletURL" : "Copy your unique wallet URL",
   "emailtoyourselfyourwalleturl" : "Email to yourself your wallet url",
   "shareText1" : "Get someone else to scan this QR code.",
-  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device."
+  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device.",
+  "editname" : "Edit name",
+  "export" : "Export",
+  "cancel" : "Cancel",
+  "enteraccountname" : "Enter account name",
+  "exportAccount" : "Export Account",
+  "deleteaccount" : "Delete account",
+  "deleteaccountMsg1" : "Are you sure you want to delete this account?",
+  "deleteaccountMsg2" : "This action cannot be undone.",
+  "profileText1" : "It looks like you don't have a profile yet.",
+  "share" : "Share",
+  "returnFunds" : "Return Funds",
+  "returnVoucher" : "returnVoucher" ,
+  "returnVoucherMsg" : "will be returned to your wallet.",
+  "deleteVoucher" : "Delete Voucher",
+  "deleteVoucherMsg" : "This will remove the voucher from the list."
 }   

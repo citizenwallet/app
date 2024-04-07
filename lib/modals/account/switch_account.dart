@@ -130,14 +130,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: const Text('Edit name'),
+                  child:  Text(AppLocalizations.of(context)!.editname),
                 ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('export');
                   },
-                  child: const Text('Export'),
+                  child:  Text(AppLocalizations.of(context)!.export),
                 ),
               if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
@@ -145,14 +145,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('delete');
                   },
-                  child: const Text('Delete'),
+                  child: Text(AppLocalizations.of(context)!.delete),
                 ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop(widget.currentAddress);
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           );
         });
@@ -168,8 +168,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => TextInputModal(
-          title: 'Edit Account',
-          placeholder: 'Enter account name',
+          title: AppLocalizations.of(context)!.editname,
+          placeholder: AppLocalizations.of(context)!.enteraccountname,
           initialValue: name,
         ),
       );
@@ -195,7 +195,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ExportWalletModal(
-          title: 'Export Account',
+          title: AppLocalizations.of(context)!.exportAccount,
           toCopy: '-----------',
           onCopy: () => handleExportWallet(webWalletUrl),
         ),
@@ -209,10 +209,10 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Delete account',
+          title: AppLocalizations.of(context)!.deleteaccount,
           details: [
-            'Are you sure you want to delete this account?',
-            'This action cannot be undone.',
+            AppLocalizations.of(context)!.deleteaccountMsg1,
+            AppLocalizations.of(context)!.deleteaccountMsg2,
           ],
         ),
       );

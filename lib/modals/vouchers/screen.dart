@@ -17,6 +17,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VouchersModal extends StatefulWidget {
   final String title = 'Vouchers';
@@ -83,7 +84,7 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('share');
                   },
-                  child: const Text('Share'),
+                  child: Text(AppLocalizations.of(context)!.share),
                 ),
               if (!isRedeemed)
                 CupertinoActionSheetAction(
@@ -91,7 +92,7 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('return');
                   },
-                  child: const Text('Return Funds'),
+                  child: Text(AppLocalizations.of(context)!.returnFunds),
                 ),
               if (isRedeemed)
                 CupertinoActionSheetAction(
@@ -100,14 +101,14 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('delete');
                   },
-                  child: const Text('Delete'),
+                  child: Text(AppLocalizations.of(context)!.delete),
                 ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           );
         });
@@ -128,9 +129,9 @@ class VouchersModalState extends State<VouchersModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Return Voucher',
+          title: AppLocalizations.of(context)!.returnVoucher,
           details: [
-            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} will be returned to your wallet.',
+            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} ${AppLocalizations.of(context)!.returnVoucherMsg}',
           ],
           confirmText: 'Return',
         ),
@@ -144,9 +145,9 @@ class VouchersModalState extends State<VouchersModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Delete Voucher',
+          title: AppLocalizations.of(context)!.deleteVoucher,
           details: [
-            'This will remove the voucher from the list.',
+            AppLocalizations.of(context)!.deleteVoucherMsg,
           ],
           confirmText: 'Delete',
         ),
