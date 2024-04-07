@@ -108,5 +108,16 @@
   "almostDone" : "Almost done...",
   "saving" : "Saving...",
   "save" : "Save",
-  "language" : "Language"
+  "language" : "Language",
+  "saveWallet" : "Save Wallet",
+  "saveText1" : "Don't lose your wallet! Bookmark this page or save its unique address that contains your private key in a safe place.",
+  "gettheapp" : "Get the app",
+  "appstorebadge" : "app store badge",
+  "googleplaybadge" : "google play badge",
+  "opentheapp" : "Open the app",
+  "open" : "Open",
+  "copyyouruniquewalletURL" : "Copy your unique wallet URL",
+  "emailtoyourselfyourwalleturl" : "Email to yourself your wallet url",
+  "shareText1" : "Get someone else to scan this QR code.",
+  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device."
 }   

@@ -107,5 +107,17 @@
   "uploadingNewProfile" : "Uploading new profile... NL",
   "almostDone" : "Almost done... NL",
   "saving" : "Saving... NL",
-  "save" : "Save NL"
+  "save" : "Save NL",
+  "language" : "Language NL",
+  "saveWallet" : "Save Wallet NL",
+  "saveText1" : "Don't lose your wallet! Bookmark this page or save its unique address that contains your private key in a safe place. NL",
+  "gettheapp" : "Get the app NL",
+  "appstorebadge" : "app store badge NL",
+  "googleplaybadge" : "google play badge NL",
+  "opentheapp" : "Open the app NL",
+  "open" : "Open NL",
+  "copyyouruniquewalletURL" : "Copy your unique wallet URL NL",
+  "emailtoyourselfyourwalleturl" : "Email to yourself your wallet url NL",
+  "shareText1" : "Get someone else to scan this QR code. NL",
+  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device. NL"
 }   
