@@ -134,5 +134,6 @@
   "returnVoucher" : "returnVoucher" ,
   "returnVoucherMsg" : "will be returned to your wallet.",
   "deleteVoucher" : "Delete Voucher",
-  "deleteVoucherMsg" : "This will remove the voucher from the list."
+  "deleteVoucherMsg" : "This will remove the voucher from the list.",
+  "wallet":"Wallet"
 }   

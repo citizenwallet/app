@@ -127,5 +127,6 @@
   "exportAccount" : "Export Account NL",
   "deleteaccount" : "Delete account NL",
   "deleteaccountMsg1" : "Are you sure you want to delete this account? NL",
-  "deleteaccountMsg2" : "This action cannot be undone. NL" 
+  "deleteaccountMsg2" : "This action cannot be undone. NL",
+  "wallet":"Wallet NL"
 }   

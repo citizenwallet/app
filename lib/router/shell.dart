@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RouterShell extends StatelessWidget {
   final Widget child;
@@ -38,15 +39,15 @@ class RouterShell extends StatelessWidget {
     final location = parts.length > 1 ? parts[1] : '/';
 
     final List<BottomNavigationBarItem> items = [
-      const BottomNavigationBarItem(
-        label: 'Wallet',
-        icon: Icon(CupertinoIcons.rectangle_on_rectangle_angled),
-        activeIcon: Icon(
+      BottomNavigationBarItem(
+        label: AppLocalizations.of(context)!.wallet,
+        icon: const Icon(CupertinoIcons.rectangle_on_rectangle_angled),
+        activeIcon: const Icon(
           CupertinoIcons.rectangle_on_rectangle_angled,
         ),
       ),
       BottomNavigationBarItem(
-        label: 'Account',
+        label: AppLocalizations.of(context)!.account,
         icon: cleaningUp || wallet == null
             ? const PulsingContainer(
                 height: 30,

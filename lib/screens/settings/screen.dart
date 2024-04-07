@@ -1,3 +1,4 @@
+import 'package:citizenwallet/main.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
@@ -33,6 +34,12 @@ class SettingsScreenState extends State<SettingsScreen> {
   late AppLogic _appLogic;
   late NotificationsLogic _notificationsLogic;
   late BackupLogic _backupLogic;
+
+  final List<String> _languageNames = <String>['English', 'Dutch', 'French'];
+
+  final double _kItemExtent = 32.0;
+
+  int _selectedLanguage = 0;
 
   bool _protected = false;
 
@@ -80,7 +87,64 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
-  void handlLanguage() {}
+  void _showDialog(Widget child) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        // The Bottom margin is provided to align the popup above the system navigation bar.
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        // Provide a background color for the popup.
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        // Use a SafeArea widget to avoid system overlaps.
+        child: SafeArea(
+          top: false,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void handlLanguage() {
+    _showDialog(
+      CupertinoPicker(
+        magnification: 1.22,
+        squeeze: 1.2,
+        useMagnifier: true,
+        itemExtent: _kItemExtent,
+        // This sets the initial item.
+        scrollController: FixedExtentScrollController(
+          initialItem: _selectedLanguage,
+        ),
+        // This is called when selected item is changed.
+        onSelectedItemChanged: (int selectedItem) {
+          if (selectedItem == 0) {
+            Intl.defaultLocale = "en";
+            //AppLocalizations.delegate.isSupported(locale)
+            MyApp.setLocale(context, Locale("en"));
+            //  setState(() {
+            //         AppLocalizations.delegate.load(Locale("en"));
+            //       });
+          } else if (selectedItem == 1) {
+            AppLocalizations.delegate.load(Locale("nl"));
+            MyApp.setLocale(context, Locale("nl"));
+          } else {
+            MyApp.setLocale(context, Locale("fr"));
+            AppLocalizations.delegate.load(Locale("fr"));
+          }
+          setState(() {
+            _selectedLanguage = selectedItem;
+          });
+        },
+        children: List<Widget>.generate(_languageNames.length, (int index) {
+          return Center(child: Text(_languageNames[index]));
+        }),
+      ),
+    );
+  }
 
   void handleOpenBackup() {
     GoRouter.of(context).push('/backup');
@@ -201,7 +265,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     trailing: Row(
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.localeName,
+                          _languageNames[_selectedLanguage],
                           style: TextStyle(
                             color: ThemeColors.subtleSolidEmphasis
                                 .resolveFrom(context),
