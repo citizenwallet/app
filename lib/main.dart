@@ -70,6 +70,11 @@ class MyApp extends StatefulWidget {
 
   @override
   MyAppState createState() => MyAppState();
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    MyAppState? state = context.findAncestorStateOfType<MyAppState>();
+    state?.setLocale(newLocale);
+  }
 }
 
 class MyAppState extends State<MyApp> {
@@ -124,6 +129,14 @@ class MyAppState extends State<MyApp> {
     _notificationsLogic.toastHide();
   }
 
+  Locale? _locale;
+
+  setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -150,6 +163,7 @@ class MyAppState extends State<MyApp> {
             routerConfig: router,
             theme: theme,
             title: '$titlePrefix Wallet',
+            locale: _locale,
             localizationsDelegates: [
               AppLocalizations.delegate, // Add this line
               GlobalMaterialLocalizations.delegate,
@@ -161,6 +175,20 @@ class MyAppState extends State<MyApp> {
               Locale('fr'), // fench
               Locale('nl'), // ductch
             ],
+            localeResolutionCallback: (locale, supportedLocales) {
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale?.languageCode &&
+                    supportedLocale.countryCode == locale?.countryCode) {
+                  return supportedLocale;
+                } else {
+                  getLocale() {
+                    Locale myLocale = Localizations.localeOf(context);
+                    print(myLocale);
+                  }
+                }
+              }
+              return supportedLocales.first;
+            },
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
               child: child ?? const SizedBox(),

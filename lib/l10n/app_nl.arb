@@ -119,5 +119,6 @@
   "copyyouruniquewalletURL" : "Copy your unique wallet URL NL",
   "emailtoyourselfyourwalleturl" : "Email to yourself your wallet url NL",
   "shareText1" : "Get someone else to scan this QR code. NL",
-  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device. NL"
+  "shareText2" : "If they don't already have one, it will create a new Citizen Wallet on their device. NL",
+  "wallet":"Wallet NL"
 }   
