@@ -123,13 +123,13 @@ class SettingsScreenState extends State<SettingsScreen> {
           initialItem: _selectedLanguage,
         ),
         // This is called when selected item is changed.
-        onSelectedItemChanged: (int selectedItem) async{
+        onSelectedItemChanged: (int selectedItem) async {
           if (selectedItem == 0) {
             MyApp.setLocale(context, Locale("en"));
           } else if (selectedItem == 1) {
             MyApp.setLocale(context, Locale("nl"));
           } else {
-            AppLocalizations.delegate.load(Locale("fr"));
+            MyApp.setLocale(context, Locale("fr"));
           }
           setState(() {
             _selectedLanguage = selectedItem;
