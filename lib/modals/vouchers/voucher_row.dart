@@ -3,6 +3,7 @@ import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VoucherRow extends StatefulWidget {
   final Voucher voucher;
@@ -132,17 +133,17 @@ class VoucherRowState extends State<VoucherRow> {
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: Center(
                     child: isRedeemed
-                        ? const Text(
-                            'redeemed',
-                            style: TextStyle(
+                        ? Text(
+                            AppLocalizations.of(context)!.redeemed,
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: ThemeColors.text,
                             ),
                           )
-                        : const Text(
-                            'issued',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.issued,
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: ThemeColors.text,

@@ -128,5 +128,12 @@
   "deleteaccount" : "Delete account NL",
   "deleteaccountMsg1" : "Are you sure you want to delete this account? NL",
   "deleteaccountMsg2" : "This action cannot be undone. NL",
+  "profileText1" : "It looks like you don't have a profile yet. NL",
+  "share" : "Share NL",
+  "returnFunds" : "Return Funds NL",
+  "returnVoucher" : "returnVoucher NL" ,
+  "returnVoucherMsg" : "will be returned to your wallet. NL",
+  "deleteVoucher" : "Delete Voucher NL",
+  "deleteVoucherMsg" : "This will remove the voucher from the list. NL",
   "wallet":"Wallet NL"
 }   

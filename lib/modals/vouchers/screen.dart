@@ -133,7 +133,7 @@ class VouchersModalState extends State<VouchersModal> {
           details: [
             '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} ${AppLocalizations.of(context)!.returnVoucherMsg}',
           ],
-          confirmText: 'Return',
+          confirmText: AppLocalizations.of(context)!.returnText,
         ),
       );
 
@@ -149,7 +149,7 @@ class VouchersModalState extends State<VouchersModal> {
           details: [
             AppLocalizations.of(context)!.deleteVoucherMsg,
           ],
-          confirmText: 'Delete',
+          confirmText: AppLocalizations.of(context)!.delete,
         ),
       );
 
@@ -171,8 +171,8 @@ class VouchersModalState extends State<VouchersModal> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => AmountInputModal(
-        title: 'Voucher Amount',
-        placeholder: 'Enter amount',
+        title: AppLocalizations.of(context)!.voucherAmount,
+        placeholder: AppLocalizations.of(context)!.enteramount,
         symbol: wallet.symbol,
       ),
     );
@@ -252,13 +252,13 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 SvgPicture.asset(
                                   'assets/icons/voucher.svg',
-                                  semanticsLabel: 'voucher icon',
+                                  semanticsLabel: AppLocalizations.of(context)!.vouchericon,
                                   height: 200,
                                   width: 200,
                                 ),
                                 const SizedBox(height: 40),
                                 Text(
-                                  'Your vouchers will appear here',
+                                  AppLocalizations.of(context)!.vouchersMsg,
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
@@ -316,7 +316,7 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 const SizedBox(height: 10),
                                 Button(
-                                  text: 'Create Voucher',
+                                  text: AppLocalizations.of(context)!.createVoucher,
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,

@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CommunityPickerModal extends StatefulWidget {
   const CommunityPickerModal({super.key});
@@ -120,16 +121,16 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                                     ),
                                   ],
                                 ),
-                                const Column(
+                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         Text(
-                                          'Communities',
+                                          AppLocalizations.of(context)!.communities,
                                           textAlign: TextAlign.left,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: ThemeColors.white,
                                             fontSize: 36,
                                             fontWeight: FontWeight.bold,
