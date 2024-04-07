@@ -71,10 +71,25 @@ class MyApp extends StatefulWidget {
   @override
   MyAppState createState() => MyAppState();
 
-  static void setLocale(BuildContext context, Locale newLocale) {
+  static void setLocale(BuildContext context, Locale newLocale) async {
     MyAppState? state = context.findAncestorStateOfType<MyAppState>();
-    state?.setLocale(newLocale);
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString('languageCode', newLocale.languageCode);
+    state?.setState(() {
+      state._locale = newLocale;
+    });
   }
+}
+
+/*
+  To get local from SharedPreferences if exists
+   */
+Future<Locale> _fetchLocale() async {
+  var prefs = await SharedPreferences.getInstance();
+
+  String languageCode = prefs.getString('languageCode') ?? 'en';
+
+  return Locale(languageCode);
 }
 
 class MyAppState extends State<MyApp> {
@@ -84,6 +99,10 @@ class MyAppState extends State<MyApp> {
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+  var prefs = SharedPreferences.getInstance();
+
+  Locale? _locale;
 
   @override
   void initState() {
@@ -101,6 +120,12 @@ class MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
       onLoad();
+    });
+
+    _fetchLocale().then((locale) {
+      setState(() {
+        _locale = locale;
+      });
     });
   }
 
@@ -127,14 +152,6 @@ class MyAppState extends State<MyApp> {
 
   void handleDismissToast() {
     _notificationsLogic.toastHide();
-  }
-
-  Locale? _locale;
-
-  setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
   }
 
   // This widget is the root of your application.
@@ -175,20 +192,6 @@ class MyAppState extends State<MyApp> {
               Locale('fr'), // fench
               Locale('nl'), // ductch
             ],
-            localeResolutionCallback: (locale, supportedLocales) {
-              for (var supportedLocale in supportedLocales) {
-                if (supportedLocale.languageCode == locale?.languageCode &&
-                    supportedLocale.countryCode == locale?.countryCode) {
-                  return supportedLocale;
-                } else {
-                  getLocale() {
-                    Locale myLocale = Localizations.localeOf(context);
-                    print(myLocale);
-                  }
-                }
-              }
-              return supportedLocales.first;
-            },
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
               child: child ?? const SizedBox(),

@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
@@ -42,6 +43,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   int _selectedLanguage = 0;
 
   bool _protected = false;
+
+  var localName = "";
 
   @override
   void initState() {
@@ -120,19 +123,12 @@ class SettingsScreenState extends State<SettingsScreen> {
           initialItem: _selectedLanguage,
         ),
         // This is called when selected item is changed.
-        onSelectedItemChanged: (int selectedItem) {
+        onSelectedItemChanged: (int selectedItem) async{
           if (selectedItem == 0) {
-            Intl.defaultLocale = "en";
-            //AppLocalizations.delegate.isSupported(locale)
             MyApp.setLocale(context, Locale("en"));
-            //  setState(() {
-            //         AppLocalizations.delegate.load(Locale("en"));
-            //       });
           } else if (selectedItem == 1) {
-            AppLocalizations.delegate.load(Locale("nl"));
             MyApp.setLocale(context, Locale("nl"));
           } else {
-            MyApp.setLocale(context, Locale("fr"));
             AppLocalizations.delegate.load(Locale("fr"));
           }
           setState(() {
@@ -223,6 +219,18 @@ class SettingsScreenState extends State<SettingsScreen> {
     final loading = context.select((BackupState state) => state.loading);
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
+
+    localName = AppLocalizations.of(context)!.localeName;
+
+    if (localName == "en") {
+      _selectedLanguage = 0;
+    } else if (localName == "nl") {
+      _selectedLanguage = 1;
+    } else if (localName == "fr") {
+      _selectedLanguage = 2;
+    } else {
+      _selectedLanguage = 0;
+    }
 
     var appText = AppLocalizations.of(context)!.settingsScrApp;
 
