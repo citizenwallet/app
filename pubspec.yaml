@@ -144,7 +144,7 @@ flutter:
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
    
-  uses-material-design: true
+  uses-material-design: false
   generate: true
 
 # flutter pub run flutter_launcher_icons
