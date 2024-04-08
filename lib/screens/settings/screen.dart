@@ -40,7 +40,6 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   bool _protected = false;
 
-  var localName = "";
 
   @override
   void initState() {
@@ -206,10 +205,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     final loading = context.select((BackupState state) => state.loading);
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
-
-    localName = AppLocalizations.of(context)!.localeName;
-
-    //_appLogic.setLanguageSelected(localName);
 
     final _selectedLanguage =
         context.select((AppState state) => state.selectedLanguage);
