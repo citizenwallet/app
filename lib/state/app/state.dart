@@ -15,6 +15,10 @@ class AppState with ChangeNotifier {
 
   PackageInfo? packageInfo;
 
+  Locale locale = const Locale("en");
+  String languageCode = "en";
+  int selectedLanguage = 0;
+
   CupertinoThemeData get theme {
     return CupertinoThemeData(
       brightness: _darkMode ? Brightness.dark : Brightness.light,
@@ -43,6 +47,8 @@ class AppState with ChangeNotifier {
   AppState() {
     _darkMode = PreferencesService().darkMode;
     muted = PreferencesService().muted;
+    locale = Locale(PreferencesService().getLanguageCode());
+    selectedLanguage = PreferencesService().getLanguageSelectedItem();
     onLoad();
   }
 
@@ -129,6 +135,16 @@ class AppState with ChangeNotifier {
 
   void appLoaded() {
     appLoading = false;
+    notifyListeners();
+  }
+
+  void setLocale(Locale locale) {
+    this.locale = locale;
+    notifyListeners();
+  }
+
+  void setSelectedLanguage(int selectedLanguage) {
+    this.selectedLanguage = selectedLanguage;
     notifyListeners();
   }
 }

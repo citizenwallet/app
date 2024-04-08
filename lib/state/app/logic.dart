@@ -415,4 +415,44 @@ class AppLogic {
 
     return false;
   }
+
+  void setLanguageCode(int selectedItem) {
+    try {
+      var selectedLocaleCode = "en";
+      if (selectedItem == 0) {
+        selectedLocaleCode = "en";
+      } else if (selectedItem == 1) {
+        selectedLocaleCode = "nl";
+      } else {
+        selectedLocaleCode = "fr";
+      }
+      _preferences.setLanguageCode(selectedLocaleCode);
+      _preferences.setLanguageSelectedItem(selectedItem);
+      _appState.setLocale(Locale(selectedLocaleCode));
+      _appState.setSelectedLanguage(selectedItem);
+    } catch (e) {
+      //
+    }
+  }
+
+  void setLanguageSelected(String localName) {
+    try {
+      var _selectedLanguage = 0;
+      if (localName == "en") {
+        _selectedLanguage = 0;
+      } else if (localName == "nl") {
+        _selectedLanguage = 1;
+      } else if (localName == "fr") {
+        _selectedLanguage = 2;
+      } else {
+        _selectedLanguage = 0;
+      }
+      _preferences.setLanguageCode(localName);
+      _preferences.setLanguageSelectedItem(_selectedLanguage);
+      _appState.setLocale(Locale(localName));
+      _appState.setSelectedLanguage(_selectedLanguage);
+    } catch (e) {
+      //
+    }
+  }
 }
