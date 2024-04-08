@@ -47,6 +47,8 @@ class AppState with ChangeNotifier {
   AppState() {
     _darkMode = PreferencesService().darkMode;
     muted = PreferencesService().muted;
+    locale = Locale(PreferencesService().getLanguageCode());
+    selectedLanguage = PreferencesService().getLanguageSelectedItem();
     onLoad();
   }
 
