@@ -158,5 +158,19 @@
   "settings" : "Settings",
   "sent" :"Sent",
   "failedSend" :"Failed to send {currencyName}.",
-  "onText" :"on"
+  "onText" :"on",
+  "invalidQRCode" : "Invalid QR Code",
+  "enterManually" :"Enter Manually",
+  "scanAgain" : "Scan Again",
+  "max" : "max",
+  "insufficientFunds" :"Insufficient funds.",
+  "currentBalance":"Current balance: {symbol} {formattedBalance}",
+  "sendDescription" :"Add a description (optional)\n\n\n",
+  "chooseRecipient" : "Choose Recipient",
+  "createdBy" : "Created by",
+  "redeem" : "Redeem",
+  "voucher" : "Voucher",
+  "createVoucherText" : "Create a voucher which anyone can redeem for the amount shown above.",
+  "emptyBalanceText1" : "This voucher has already been redeemed.",
+  "emptyBalanceText2" : "Redeem this voucher to your account."
 }

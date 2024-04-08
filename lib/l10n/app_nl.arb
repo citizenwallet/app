@@ -156,6 +156,20 @@
   "clear" : "Clear NL",
   "done" : "done NL",
   "sent" :"Sent NL",
-  "failedSend" :"Failed to send ${currencyName}.",
-  "onText" :"on"
+  "failedSend" :"Failed to send ${currencyName}. NL",
+  "onText" :"on NL",
+  "invalidQRCode" : "Invalid QR Code NL",
+  "enterManually" :"Enter Manually NL",
+  "scanAgain" : "Scan Again NL",
+  "max" : "ma NL",
+  "insufficientFunds" :"Insufficient funds. NL",
+  "currentBalance":"Current balance: {symbol} {formattedBalance} NL",
+  "sendDescription" :"Add a description (optional)\n\n\n NL",
+  "chooseRecipient" : "Choose Recipient NL",
+  "createdBy" : "Created by NL",
+  "redeem" : "Redeem NL",
+  "voucher" : "Voucher NL",
+  "createVoucherText" : "Create a voucher which anyone can redeem for the amount shown above. NL",
+  "emptyBalanceText1" : "This voucher has already been redeemed. NL",
+  "emptyBalanceText2" : "Redeem this voucher to your account. NL"
 }   

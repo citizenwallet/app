@@ -157,6 +157,20 @@
   "done" : "done FR",
   "settings" : "Settings FR",
   "sent" :"Sent FR",
-  "failedSend" :"Failed to send ${currencyName}.",
-  "onText" :"on"
+  "failedSend" :"Failed to send ${currencyName}. FR",
+  "onText" :"on FR",
+  "invalidQRCode" : "Invalid QR Code FR",
+  "enterManually" :"Enter Manually FR",
+  "scanAgain" : "Scan Again FR",
+  "max" : "ma FR",
+  "insufficientFunds" :"Insufficient funds. FR",
+  "currentBalance":"Current balance: {symbol} {formattedBalance} FR",
+  "sendDescription" :"Add a description (optional)\n\n\n FR",
+  "chooseRecipient" : "Choose Recipient FR",
+  "createdBy" : "Created by FR",
+  "redeem" : "Redeem FR",
+  "voucher" : "Voucher FR",
+  "createVoucherText" : "Create a voucher which anyone can redeem for the amount shown above. FR",
+  "emptyBalanceText1" : "This voucher has already been redeemed. FR",
+  "emptyBalanceText2" : "Redeem this voucher to your account. FR"
 }   
