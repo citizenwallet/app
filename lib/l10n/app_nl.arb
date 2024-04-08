@@ -154,5 +154,6 @@
   "amount" : "Amount NL",
   "descriptionMsg" : "Add a description (optional) NL",
   "clear" : "Clear NL",
-  "done" : "done NL"
+  "done" : "done NL",
+  "settings" : "Settings NL"
 }   

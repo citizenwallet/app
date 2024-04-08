@@ -154,5 +154,6 @@
   "amount": "Amount",
   "descriptionMsg": "Add a description (optional)",
   "clear": "Clear",
-  "done": "done"
+  "done": "done",
+  "settings" : "Settings"
 }

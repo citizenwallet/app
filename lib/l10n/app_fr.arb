@@ -154,5 +154,6 @@
   "amount" : "Amount FR",
   "descriptionMsg" : "Add a description (optional) FR",
   "clear" : "Clear FR",
-  "done" : "done FR"
+  "done" : "done FR",
+  "settings" : "Settings FR"
 }   
