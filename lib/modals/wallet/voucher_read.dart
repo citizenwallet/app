@@ -15,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VoucherReadModal extends StatefulWidget {
   final String address;
@@ -181,7 +182,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
                           if (profile != null) ...[
                             const SizedBox(height: 30),
                             Text(
-                              'Created by',
+                              AppLocalizations.of(context)!.createdBy,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 18,
@@ -202,8 +203,8 @@ class VoucherReadModalState extends State<VoucherReadModal>
                               viewingVoucherLink != null)
                             Text(
                               emptyBalance
-                                  ? 'This voucher has already been redeemed.'
-                                  : 'Redeem this voucher to your account.',
+                                  ? AppLocalizations.of(context)!.emptyBalanceText1
+                                  : AppLocalizations.of(context)!.emptyBalanceText2,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 18,
@@ -236,7 +237,7 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                 const SizedBox(height: 10),
                                 if (!viewLoading && !returnLoading)
                                   Button(
-                                    text: 'Redeem',
+                                    text: AppLocalizations.of(context)!.redeem,
                                     suffix: Row(
                                       children: [
                                         const SizedBox(width: 10),

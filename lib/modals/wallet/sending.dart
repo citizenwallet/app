@@ -19,6 +19,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SendingModal extends StatefulWidget {
   const SendingModal({
@@ -105,7 +106,9 @@ class _SendingModalState extends State<SendingModal> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: inProgressTransactionLoading ? 'Sending' : 'Sent',
+                  title: inProgressTransactionLoading
+                      ? AppLocalizations.of(context)!.sending
+                      : AppLocalizations.of(context)!.sent,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -142,7 +145,8 @@ class _SendingModalState extends State<SendingModal> {
                                 ),
                                 const SizedBox(height: 20),
                                 Text(
-                                  'Failed to send ${wallet.currencyName}.',
+                                  AppLocalizations.of(context)!
+                                      .failedSend(wallet.currencyName),
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -228,7 +232,7 @@ class _SendingModalState extends State<SendingModal> {
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  'to',
+                                  AppLocalizations.of(context)!.to,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -262,7 +266,7 @@ class _SendingModalState extends State<SendingModal> {
                                     inProgressTransaction.state ==
                                         TransactionState.pending) ...[
                                   Text(
-                                    'on',
+                                    AppLocalizations.of(context)!.onText,
                                     style: TextStyle(
                                       color:
                                           ThemeColors.text.resolveFrom(context),
@@ -302,7 +306,7 @@ class _SendingModalState extends State<SendingModal> {
                           padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                           child: Column(children: [
                             Button(
-                              text: 'Dismiss',
+                              text: AppLocalizations.of(context)!.dismiss,
                               onPressed: () => handleDismiss(context),
                               minWidth: 200,
                               maxWidth: 200,

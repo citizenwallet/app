@@ -1,4 +1,3 @@
-import 'package:citizenwallet/main.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
@@ -20,11 +19,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final String title = 'Settings';
-
   const SettingsScreen({super.key});
 
   @override
@@ -40,11 +36,10 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   final double _kItemExtent = 32.0;
 
-  int _selectedLanguage = 0;
+  //int _selectedLanguage = 0;
 
   bool _protected = false;
 
-  var localName = "";
 
   @override
   void initState() {
@@ -111,7 +106,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void handlLanguage() {
+  void handlLanguage(int _selectedLanguage) {
     _showDialog(
       CupertinoPicker(
         magnification: 1.22,
@@ -124,16 +119,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         ),
         // This is called when selected item is changed.
         onSelectedItemChanged: (int selectedItem) async {
-          if (selectedItem == 0) {
-            MyApp.setLocale(context, Locale("en"));
-          } else if (selectedItem == 1) {
-            MyApp.setLocale(context, Locale("nl"));
-          } else {
-            MyApp.setLocale(context, Locale("fr"));
-          }
-          setState(() {
-            _selectedLanguage = selectedItem;
-          });
+          _appLogic.setLanguageCode(selectedItem);
         },
         children: List<Widget>.generate(_languageNames.length, (int index) {
           return Center(child: Text(_languageNames[index]));
@@ -220,17 +206,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
 
-    localName = AppLocalizations.of(context)!.localeName;
-
-    if (localName == "en") {
-      _selectedLanguage = 0;
-    } else if (localName == "nl") {
-      _selectedLanguage = 1;
-    } else if (localName == "fr") {
-      _selectedLanguage = 2;
-    } else {
-      _selectedLanguage = 0;
-    }
+    final _selectedLanguage =
+        context.select((AppState state) => state.selectedLanguage);
 
     var appText = AppLocalizations.of(context)!.settingsScrApp;
 
@@ -270,7 +247,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     label: AppLocalizations.of(context)!.language,
                     icon: 'assets/icons/language-svgrepo-com.svg',
                     iconColor: ThemeColors.text.resolveFrom(context),
-                    onTap: handlLanguage,
+                    onTap: () => {handlLanguage(_selectedLanguage)},
                     trailing: Row(
                       children: [
                         Text(
@@ -585,7 +562,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               blur: true,
               transparent: true,
               showBackButton: true,
-              title: widget.title,
+              title: AppLocalizations.of(context)!.settings,
               safePadding: safePadding,
             ),
           ],

@@ -151,4 +151,20 @@ class PreferencesService {
   String? getLastBackupName() {
     return _preferences.getString('lastBackupName');
   }
+
+  Future setLanguageCode(String value) async {
+    await _preferences.setString('languageCode', value);
+  }
+
+  String getLanguageCode() {
+    return _preferences.getString('languageCode') ?? 'en';
+  }
+
+  Future setLanguageSelectedItem(int value) async {
+    await _preferences.setInt('languageSelectedItem', value);
+  }
+
+  int getLanguageSelectedItem() {
+    return _preferences.getInt('languageSelectedItem') ?? 0;
+  }
 }

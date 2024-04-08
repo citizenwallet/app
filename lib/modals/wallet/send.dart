@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SendModal extends StatefulWidget {
   final WalletLogic walletLogic;
@@ -543,7 +544,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: widget.isMinting ? 'Mint' : 'Send',
+                  title: widget.isMinting
+                      ? AppLocalizations.of(context)!.mint
+                      : AppLocalizations.of(context)!.send,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -599,7 +602,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  invalidScanMessage ?? "Invalid QR Code",
+                                  invalidScanMessage ??
+                                      AppLocalizations.of(context)!
+                                          .invalidQRCode,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.danger.resolveFrom(context),
@@ -620,8 +625,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               children: [
                                 Button(
                                   text: _isScanning
-                                      ? 'Enter Manually'
-                                      : 'Scan Again',
+                                      ? AppLocalizations.of(context)!
+                                          .enterManually
+                                      : AppLocalizations.of(context)!.scanAgain,
                                   color: ThemeColors.surfaceBackground
                                       .resolveFrom(context),
                                   labelColor: ThemeColors.surfaceText
@@ -646,9 +652,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                               ],
                             ),
                           const SizedBox(height: 20),
-                          const Text(
-                            'Amount',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.amount,
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
@@ -751,9 +757,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                           0,
                                         ),
                                         onPressed: handleSetMaxAmount,
-                                        child: const Text(
-                                          'max',
-                                          style: TextStyle(
+                                        child: Text(
+                                          AppLocalizations.of(context)!.max,
+                                          style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -785,7 +791,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Insufficient funds.",
+                                      AppLocalizations.of(context)!
+                                          .insufficientFunds,
                                       style: TextStyle(
                                         color: ThemeColors.danger
                                             .resolveFrom(context),
@@ -803,7 +810,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Current balance: ${wallet?.symbol ?? ''} $formattedBalance',
+                                AppLocalizations.of(context)!.currentBalance(
+                                    formattedBalance, wallet?.symbol ?? ''),
                                 style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal),
@@ -812,9 +820,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 20),
                           if (selectedProfile != null)
-                            const Text(
-                              'To',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.to,
+                              style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           const SizedBox(height: 10),
@@ -834,9 +842,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             ),
                           if (isValid) const SizedBox(height: 20),
                           if (!widget.isMinting && !_isDescribing)
-                            const Text(
-                              'Description',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -867,7 +875,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                             ? '...'
                                             : message != ''
                                                 ? message
-                                                : 'Add a description (optional)',
+                                                : AppLocalizations.of(context)!
+                                                    .descriptionMsg,
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),
@@ -918,7 +927,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       CupertinoButton(
                                         onPressed: handleClearDescribe,
                                         child: Text(
-                                          'Clear',
+                                          AppLocalizations.of(context)!.clear,
                                           style: TextStyle(
                                             color: ThemeColors.danger
                                                 .resolveFrom(context),
@@ -927,14 +936,14 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       ),
                                     CupertinoButton(
                                       onPressed: handleCloseDescribe,
-                                      child: const Text('Done'),
+                                      child:  Text(AppLocalizations.of(context)!.done),
                                     ),
                                   ],
                                 ),
                                 CupertinoTextField(
                                   controller: _logic.messageController,
                                   placeholder:
-                                      'Add a description (optional)\n\n\n',
+                                     AppLocalizations.of(context)!.sendDescription,
                                   minLines: 4,
                                   maxLines: 10,
                                   maxLength: 200,
@@ -975,7 +984,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   ? [
                                       const SizedBox(height: 10),
                                       Button(
-                                        text: 'Choose Recipient',
+                                        text: AppLocalizations.of(context)!.chooseRecipient,
                                         onPressed: handleChooseRecipient,
                                         minWidth: 200,
                                         maxWidth: 200,
@@ -986,7 +995,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         CupertinoButton(
                                           onPressed: handleCreateVoucher,
                                           child: Text(
-                                            'Create Voucher',
+                                            AppLocalizations.of(context)!.createVoucher,
                                             style: TextStyle(
                                               color: ThemeColors.text
                                                   .resolveFrom(context),
@@ -1014,11 +1023,11 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         isComplete: _isSending,
                                         completionLabel: widget.isMinting
                                             ? (_isSending
-                                                ? 'Minting...'
-                                                : 'Mint')
+                                                ?  AppLocalizations.of(context)!.minting
+                                                : AppLocalizations.of(context)!.mint)
                                             : _isSending
-                                                ? 'Sending...'
-                                                : 'Send',
+                                                ? AppLocalizations.of(context)!.sending
+                                                : AppLocalizations.of(context)!.send,
                                         thumbColor: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         width: width * 0.5,

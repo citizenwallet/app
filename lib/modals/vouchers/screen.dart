@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VouchersModal extends StatefulWidget {
-  final String title = 'Vouchers';
+  //final String title = 'Vouchers';
 
   const VouchersModal({super.key});
 
@@ -221,7 +221,7 @@ class VouchersModalState extends State<VouchersModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: widget.title,
+                title: AppLocalizations.of(context)!.vouchers,
                 actionButton: returnLoading
                     ? CupertinoActivityIndicator(
                         color: ThemeColors.subtle.resolveFrom(context),
@@ -252,7 +252,8 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 SvgPicture.asset(
                                   'assets/icons/voucher.svg',
-                                  semanticsLabel: AppLocalizations.of(context)!.vouchericon,
+                                  semanticsLabel:
+                                      AppLocalizations.of(context)!.vouchericon,
                                   height: 200,
                                   width: 200,
                                 ),
@@ -316,7 +317,8 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 const SizedBox(height: 10),
                                 Button(
-                                  text: AppLocalizations.of(context)!.createVoucher,
+                                  text: AppLocalizations.of(context)!
+                                      .createVoucher,
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,

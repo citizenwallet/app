@@ -12,6 +12,7 @@ import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VoucherModal extends StatefulWidget {
   final String amount;
@@ -145,7 +146,7 @@ class VoucherModalState extends State<VoucherModal>
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: 'Voucher',
+                  title: AppLocalizations.of(context)!.voucher,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -210,7 +211,7 @@ class VoucherModalState extends State<VoucherModal>
                           const SizedBox(height: 30),
                           if (creationState == VoucherCreationState.none)
                             Text(
-                              'Create a voucher which anyone can redeem for the amount shown above.',
+                              AppLocalizations.of(context)!.createVoucherText,
                               style: TextStyle(
                                 color: ThemeColors.text.resolveFrom(context),
                                 fontSize: 18,
@@ -325,7 +326,7 @@ class VoucherModalState extends State<VoucherModal>
                                             ),
                                           )
                                         : Button(
-                                            text: 'Create',
+                                            text: AppLocalizations.of(context)!.create,
                                             onPressed: handleCreateVoucher,
                                             minWidth: 200,
                                             maxWidth: 200,
