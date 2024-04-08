@@ -269,6 +269,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 SettingsRow(
                     label: AppLocalizations.of(context)!.language,
                     icon: 'assets/icons/language-svgrepo-com.svg',
+                    iconColor: ThemeColors.text.resolveFrom(context),
                     onTap: handlLanguage,
                     trailing: Row(
                       children: [

@@ -53,7 +53,7 @@ void main() async {
     testWidgets('Settings screen with about page', (widgetTester) async {
       widgetTester.view.physicalSize = const Size(800, 1200);
       await widgetTester.pumpAppWithRouter(
-        SettingsScreen(),
+        const SettingsScreen(),
         routes: [
           GoRoute(
             name: 'About',

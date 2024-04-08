@@ -181,18 +181,19 @@ class MyAppState extends State<MyApp> {
             theme: theme,
             title: '$titlePrefix Wallet',
             locale: _locale,
-            localizationsDelegates: [
+            localizationsDelegates: const [
               AppLocalizations.delegate, // Add this line
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('en'), // English
               Locale('fr'), // fench
               Locale('nl'), // ductch
             ],
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child ?? const SizedBox(),
             ),
           ),

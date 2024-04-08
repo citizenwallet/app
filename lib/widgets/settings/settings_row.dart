@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 class SettingsRow extends StatelessWidget {
   final String label;
   final String? icon;
+  final Color? iconColor;
   final String? subLabel;
   final Widget? trailing;
   final void Function()? onTap;
@@ -14,6 +15,7 @@ class SettingsRow extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
+    this.iconColor,
     this.subLabel,
     this.trailing,
     this.onTap,
@@ -45,6 +47,12 @@ class SettingsRow extends StatelessWidget {
                           padding: const EdgeInsets.all(5),
                           child: SvgPicture.asset(
                             icon!,
+                            colorFilter: iconColor != null
+                                ? ColorFilter.mode(
+                                    iconColor!,
+                                    BlendMode.srcIn,
+                                  )
+                                : null,
                             semanticsLabel: '$label icon',
                             height: 20,
                             width: 20,
