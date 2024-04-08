@@ -155,5 +155,8 @@
   "descriptionMsg": "Add a description (optional)",
   "clear": "Clear",
   "done": "done",
-  "settings" : "Settings"
+  "settings" : "Settings",
+  "sent" :"Sent",
+  "failedSend" :"Failed to send {currencyName}.",
+  "onText" :"on"
 }

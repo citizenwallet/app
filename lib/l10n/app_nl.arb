@@ -155,5 +155,7 @@
   "descriptionMsg" : "Add a description (optional) NL",
   "clear" : "Clear NL",
   "done" : "done NL",
-  "settings" : "Settings NL"
+  "sent" :"Sent NL",
+  "failedSend" :"Failed to send ${currencyName}.",
+  "onText" :"on"
 }   
