@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OnboardingModal extends StatelessWidget {
   final String title;
@@ -34,10 +35,10 @@ class OnboardingModal extends StatelessWidget {
                 titleWidget: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Hello",
+                     Text(
+                      AppLocalizations.of(context)!.hello,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
@@ -76,7 +77,7 @@ class OnboardingModal extends StatelessWidget {
                             ),
                             const SizedBox(height: 60),
                             Text(
-                              'This is your wallet.',
+                              AppLocalizations.of(context)!.thisIsYourWallet,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 20,
@@ -87,10 +88,10 @@ class OnboardingModal extends StatelessWidget {
                             const SizedBox(
                               height: 20,
                             ),
-                            const Text(
-                              "It lives in the link of this page.",
+                             Text(
+                               AppLocalizations.of(context)!.itLivesInTheLinkOfThisPage,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -98,10 +99,10 @@ class OnboardingModal extends StatelessWidget {
                             const SizedBox(
                               height: 20,
                             ),
-                            const Text(
-                              "It is unique to you and your community.",
+                             Text(
+                               AppLocalizations.of(context)!.itIsUniqueToYouAndYourCommunity,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -109,10 +110,10 @@ class OnboardingModal extends StatelessWidget {
                             const SizedBox(
                               height: 60,
                             ),
-                            const Text(
-                              "Keep your link private to make sure only you have access to this wallet.",
+                             Text(
+                              AppLocalizations.of(context)!.keepYourLink,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -131,7 +132,7 @@ class OnboardingModal extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Button(
-                    text: 'Continue',
+                    text: AppLocalizations.of(context)!.continueText,
                     onPressed: () => handleDismiss(context),
                     minWidth: 200,
                     maxWidth: 200,

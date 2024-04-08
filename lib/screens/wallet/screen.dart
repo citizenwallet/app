@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
@@ -582,7 +583,7 @@ class WalletScreenState extends State<WalletScreen> {
                       height: 5,
                     ),
                     Text(
-                      'Loading',
+                      AppLocalizations.of(context)!.loading,
                       style: TextStyle(
                         color: ThemeColors.text.resolveFrom(context),
                         fontSize: 20,

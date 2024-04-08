@@ -5,6 +5,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CardsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
@@ -44,7 +45,7 @@ class CardsScreenState extends State<CardsScreen> {
       return;
     }
 
-    print('initial address: ${widget.walletLogic.privateKey.address.hexEip55}');
+    print('${AppLocalizations.of(context)!.initialAddress} ${widget.walletLogic.privateKey.address.hexEip55}');
 
     // _logic.configure(
     //     widget.walletLogic.privateKey, wallet.account, wallet.alias);
@@ -59,7 +60,7 @@ class CardsScreenState extends State<CardsScreen> {
         direction: Axis.vertical,
         children: [
           Header(
-            title: 'Cards',
+            title: AppLocalizations.of(context)!.cards,
             actionButton: CupertinoButton(
               padding: const EdgeInsets.all(5),
               onPressed: handleAddCard,

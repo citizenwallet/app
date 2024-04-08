@@ -1,3 +1,4 @@
+import 'package:citizenwallet/main.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
@@ -18,6 +19,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   final String title = 'Settings';
@@ -33,7 +36,15 @@ class SettingsScreenState extends State<SettingsScreen> {
   late NotificationsLogic _notificationsLogic;
   late BackupLogic _backupLogic;
 
+  final List<String> _languageNames = <String>['English', 'Dutch', 'French'];
+
+  final double _kItemExtent = 32.0;
+
+  int _selectedLanguage = 0;
+
   bool _protected = false;
+
+  var localName = "";
 
   @override
   void initState() {
@@ -79,6 +90,58 @@ class SettingsScreenState extends State<SettingsScreen> {
     GoRouter.of(context).push('/about');
   }
 
+  void _showDialog(Widget child) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        // The Bottom margin is provided to align the popup above the system navigation bar.
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        // Provide a background color for the popup.
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        // Use a SafeArea widget to avoid system overlaps.
+        child: SafeArea(
+          top: false,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void handlLanguage() {
+    _showDialog(
+      CupertinoPicker(
+        magnification: 1.22,
+        squeeze: 1.2,
+        useMagnifier: true,
+        itemExtent: _kItemExtent,
+        // This sets the initial item.
+        scrollController: FixedExtentScrollController(
+          initialItem: _selectedLanguage,
+        ),
+        // This is called when selected item is changed.
+        onSelectedItemChanged: (int selectedItem) async {
+          if (selectedItem == 0) {
+            MyApp.setLocale(context, Locale("en"));
+          } else if (selectedItem == 1) {
+            MyApp.setLocale(context, Locale("nl"));
+          } else {
+            MyApp.setLocale(context, Locale("fr"));
+          }
+          setState(() {
+            _selectedLanguage = selectedItem;
+          });
+        },
+        children: List<Widget>.generate(_languageNames.length, (int index) {
+          return Center(child: Text(_languageNames[index]));
+        }),
+      ),
+    );
+  }
+
   void handleOpenBackup() {
     GoRouter.of(context).push('/backup');
   }
@@ -92,13 +155,13 @@ class SettingsScreenState extends State<SettingsScreen> {
       handleConfirmReplace: () => showCupertinoModalPopup<bool?>(
         context: context,
         barrierDismissible: true,
-        builder: (modalContext) => const ConfirmModal(
-          title: 'Replace existing backup',
+        builder: (modalContext) => ConfirmModal(
+          title: AppLocalizations.of(context)!.replaceExistingBackup,
           details: [
-            'There is already a backup on your Google Drive account from different credentials.',
-            'Are you sure you want to replace it?',
+            AppLocalizations.of(context)!.androidBackupTexlineOne,
+            AppLocalizations.of(context)!.androidBackupTexlineTwo,
           ],
-          confirmText: 'Replace',
+          confirmText: AppLocalizations.of(context)!.replace,
         ),
       ),
     );
@@ -120,13 +183,13 @@ class SettingsScreenState extends State<SettingsScreen> {
     final confirm = await showCupertinoModalPopup<bool?>(
       context: context,
       barrierDismissible: true,
-      builder: (modalContext) => const ConfirmModal(
-        title: 'Clear data & backups',
+      builder: (modalContext) => ConfirmModal(
+        title: AppLocalizations.of(context)!.clearDataAndBackups,
         details: [
-          'Are you sure you want to delete everything?',
-          'This action cannot be undone.',
+          AppLocalizations.of(context)!.appResetTexlineOne,
+          AppLocalizations.of(context)!.appResetTexlineTwo,
         ],
-        confirmText: 'Delete',
+        confirmText: AppLocalizations.of(context)!.delete,
       ),
     );
 
@@ -157,6 +220,20 @@ class SettingsScreenState extends State<SettingsScreen> {
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
 
+    localName = AppLocalizations.of(context)!.localeName;
+
+    if (localName == "en") {
+      _selectedLanguage = 0;
+    } else if (localName == "nl") {
+      _selectedLanguage = 1;
+    } else if (localName == "fr") {
+      _selectedLanguage = 2;
+    } else {
+      _selectedLanguage = 0;
+    }
+
+    var appText = AppLocalizations.of(context)!.settingsScrApp;
+
     return CupertinoPageScaffold(
       backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
       child: GestureDetector(
@@ -171,18 +248,18 @@ class SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(
                   height: 60 + safePadding,
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
-                    'App',
-                    style: TextStyle(
+                    appText,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 SettingsRow(
-                  label: 'Dark mode',
+                  label: AppLocalizations.of(context)!.darkMode,
                   icon: 'assets/icons/dark-mode.svg',
                   trailing: CupertinoSwitch(
                     value: darkMode,
@@ -190,25 +267,43 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SettingsRow(
-                  label: 'About',
+                    label: AppLocalizations.of(context)!.language,
+                    icon: 'assets/icons/language-svgrepo-com.svg',
+                    onTap: handlLanguage,
+                    trailing: Row(
+                      children: [
+                        Text(
+                          _languageNames[_selectedLanguage],
+                          style: TextStyle(
+                            color: ThemeColors.subtleSolidEmphasis
+                                .resolveFrom(context),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        )
+                      ],
+                    )),
+                SettingsRow(
+                  label: AppLocalizations.of(context)!.about,
                   icon: 'assets/icons/docs.svg',
                   onTap: handleOpenAbout,
                 ),
                 if (packageInfo != null)
-                  SettingsSubRow(
-                      'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
-                const Padding(
+                  SettingsSubRow(AppLocalizations.of(context)!
+                      .varsion(packageInfo.version, packageInfo.buildNumber)),
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
-                    'Notifications',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.notifications,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 SettingsRow(
-                  label: 'Push Notifications',
+                  label: AppLocalizations.of(context)!.pushNotifications,
                   icon: 'assets/icons/notification_bell.svg',
                   trailing: CupertinoSwitch(
                     value: push,
@@ -216,7 +311,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SettingsRow(
-                  label: 'In-app sounds',
+                  label: AppLocalizations.of(context)!.inappsounds,
                   icon: 'assets/icons/sound.svg',
                   trailing: CupertinoSwitch(
                     value: !muted,
@@ -269,11 +364,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //       onChanged: onToggleDarkMode,
                 //     ),
                 //   ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
-                    'Account',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.account,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -281,18 +376,19 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (config != null)
                   SettingsRow(
-                    label: 'View on ${config.scan.name}',
+                    label:
+                        AppLocalizations.of(context)!.viewOn(config.scan.name),
                     icon: 'assets/icons/website.svg',
                     onTap: wallet != null
                         ? () =>
                             handleOpenContract(config.scan.url, wallet.account)
                         : null,
                   ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
-                    'Backup',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.backup,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -300,27 +396,32 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (isPlatformAndroid())
                   SettingsRow(
-                    label: 'End-to-end encryption',
+                    label: AppLocalizations.of(context)!.endToEndEncryption,
                     icon: 'assets/icons/key.svg',
-                    subLabel: 'Backups are always end-to-end encrypted.',
+                    subLabel:
+                        AppLocalizations.of(context)!.endToEndEncryptionSub,
                     trailing: CupertinoSwitch(
                       value: e2eEnabled,
                       onChanged: null,
                     ),
                   ),
                 SettingsRow(
-                  label: 'Accounts',
+                  label: AppLocalizations.of(context)!.accounts,
                   icon: 'assets/icons/users.svg',
                   subLabel: isPlatformApple()
-                      ? "All your accounts are automatically backed up to your device's keychain and synced with your iCloud keychain."
+                      ? AppLocalizations.of(context)!.accountsSubLableOne
                       : lastBackup != null
-                          ? "Your accounts are backed up to your Google Drive account. Last backup: ${DateFormat.yMMMd().add_Hm().format(lastBackup.toLocal())}."
-                          : "Back up your accounts to your Google Drive account.",
+                          ? AppLocalizations.of(context)!
+                              .accountsSubLableLastBackUp(DateFormat.yMMMd()
+                                  .add_Hm()
+                                  .format(lastBackup.toLocal()))
+                          : AppLocalizations.of(context)!
+                              .accountsSubLableLastBackUpSecond,
                   trailing: isPlatformApple()
                       ? Row(
                           children: [
                             Text(
-                              'auto',
+                              AppLocalizations.of(context)!.auto,
                               style: TextStyle(
                                 color: ThemeColors.subtleSolidEmphasis
                                     .resolveFrom(context),
@@ -353,9 +454,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Text(
-                                  'Backup',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.backup,
+                                  style: const TextStyle(
                                     color: ThemeColors.white,
                                   ),
                                 ),
@@ -449,11 +550,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //     ),
                 //   ],
                 // ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
                   child: Text(
-                    'Danger Zone',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.dangerZone,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -465,7 +566,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
                       child: Button(
-                        text: 'Clear data & backups',
+                        text: AppLocalizations.of(context)!.clearDataAndBackups,
                         minWidth: 220,
                         maxWidth: 220,
                         color: CupertinoColors.systemRed,

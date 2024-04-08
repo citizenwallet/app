@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SaveModal extends StatefulWidget {
   const SaveModal({
@@ -115,7 +116,7 @@ class SaveModalState extends State<SaveModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Save Wallet',
+                title: AppLocalizations.of(context)!.saveWallet,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -130,7 +131,7 @@ class SaveModalState extends State<SaveModal> {
                     child: Padding(
                   padding: const EdgeInsets.all(15),
                   child: Text(
-                    "Don't lose your wallet! Bookmark this page or save its unique address that contains your private key in a safe place.",
+                    AppLocalizations.of(context)!.saveText1,
                     textAlign: TextAlign.left,
                     maxLines: 3,
                     style: TextStyle(
@@ -155,7 +156,7 @@ class SaveModalState extends State<SaveModal> {
                             const SizedBox(height: 40),
                             if (isIOS) ...[
                               Text(
-                                'Get the app',
+                                AppLocalizations.of(context)!.gettheapp,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
@@ -168,14 +169,14 @@ class SaveModalState extends State<SaveModal> {
                                 onPressed: handleAppStoreLink,
                                 child: SvgPicture.asset(
                                   'assets/images/app-store-badge.svg',
-                                  semanticsLabel: 'app store badge',
+                                  semanticsLabel: AppLocalizations.of(context)!.appstorebadge,
                                   height: 70,
                                 ),
                               ),
                             ],
                             if (isAndroid) ...[
                               Text(
-                                'Get the app',
+                                AppLocalizations.of(context)!.gettheapp,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
@@ -188,7 +189,7 @@ class SaveModalState extends State<SaveModal> {
                                 onPressed: handleGooglePlayLink,
                                 child: Image.asset(
                                   'assets/images/google-play-badge.png',
-                                  semanticLabel: 'google play badge',
+                                  semanticLabel: AppLocalizations.of(context)!.googleplaybadge,
                                   height: 100,
                                 ),
                               )
@@ -202,7 +203,7 @@ class SaveModalState extends State<SaveModal> {
                             children: [
                               const SizedBox(height: 40),
                               Text(
-                                'Open the app',
+                                AppLocalizations.of(context)!.opentheapp,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 22,
@@ -212,7 +213,7 @@ class SaveModalState extends State<SaveModal> {
                               ),
                               const SizedBox(height: 20),
                               Button(
-                                text: 'Open',
+                                text : AppLocalizations.of(context)!.open,
                                 suffix: Row(
                                   children: [
                                     const SizedBox(width: 10),
@@ -237,8 +238,8 @@ class SaveModalState extends State<SaveModal> {
                             const SizedBox(height: 60),
                             Button(
                               text: isCopied
-                                  ? 'Copied!'
-                                  : 'Copy your unique wallet URL',
+                                  ? '${AppLocalizations.of(context)!.copied} !'
+                                  : AppLocalizations.of(context)!.copyyouruniquewalletURL,
                               suffix: Row(
                                 children: [
                                   const SizedBox(width: 10),
@@ -260,7 +261,7 @@ class SaveModalState extends State<SaveModal> {
                             CupertinoButton(
                               onPressed: handleComposeEmail,
                               child: Text(
-                                'Email to yourself your wallet url',
+                                AppLocalizations.of(context)!.emailtoyourselfyourwalleturl,
                                 style: TextStyle(
                                   color: ThemeColors.text.resolveFrom(context),
                                   fontSize: 18,

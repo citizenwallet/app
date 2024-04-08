@@ -16,6 +16,7 @@ import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletScrollView extends StatefulWidget {
   final ScrollController controller;
@@ -252,7 +253,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                         height: 20,
                       ),
                       Text(
-                        'Preparing wallet...',
+                        AppLocalizations.of(context)!.preparingWallet,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -325,9 +326,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: const Text(
-                'Transactions',
-                style: TextStyle(
+              child:  Text(
+                 AppLocalizations.of(context)!.transactions,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),

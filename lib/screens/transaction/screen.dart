@@ -19,6 +19,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TransactionScreen extends StatefulWidget {
   final String? transactionId;
@@ -244,7 +245,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                               ),
                               const SizedBox(height: 30),
                               Text(
-                                'Transaction details',
+                                AppLocalizations.of(context)!.transactionDetais,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.start,
@@ -261,7 +262,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Transaction ID',
+                                    AppLocalizations.of(context)!.transactionID,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.start,
@@ -308,7 +309,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Date',
+                                    AppLocalizations.of(context)!.date,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.start,
@@ -341,7 +342,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Description',
+                                      AppLocalizations.of(context)!.description,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.start,
@@ -426,19 +427,19 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   borderRadius: BorderRadius.circular(25),
                                   color: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Reply',
-                                        style: TextStyle(
+                                        AppLocalizations.of(context)!.reply,
+                                        style: const TextStyle(
                                           color: ThemeColors.black,
                                         ),
                                       ),
                                       SizedBox(width: 10),
-                                      Icon(
+                                      const Icon(
                                         CupertinoIcons.reply,
                                         color: ThemeColors.black,
                                       ),
@@ -473,19 +474,20 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   borderRadius: BorderRadius.circular(25),
                                   color: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Send again',
-                                        style: TextStyle(
+                                        AppLocalizations.of(context)!
+                                            .sendAgain,
+                                        style: const TextStyle(
                                           color: ThemeColors.black,
                                         ),
                                       ),
                                       SizedBox(width: 10),
-                                      Icon(
+                                      const Icon(
                                         CupertinoIcons.refresh_thick,
                                         color: ThemeColors.black,
                                       ),

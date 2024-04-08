@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditProfileModal extends StatefulWidget {
   const EditProfileModal({
@@ -229,7 +230,7 @@ class EditProfileModalState extends State<EditProfileModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: hasProfile ? 'Edit' : 'Create',
+                title: hasProfile ? AppLocalizations.of(context)!.edit : AppLocalizations.of(context)!.create,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -290,15 +291,15 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            const Text(
-                              'Username',
-                              style: TextStyle(
+                             Text(
+                              AppLocalizations.of(context)!.username,
+                              style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: usernameController,
-                              placeholder: 'Enter a username',
+                              placeholder: AppLocalizations.of(context)!.enterAUsername,
                               maxLines: 1,
                               maxLength: 30,
                               autocorrect: false,
@@ -366,8 +367,8 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 children: [
                                   Text(
                                     usernameController.value.text == ''
-                                        ? "Please pick a username."
-                                        : "This username is already taken.",
+                                        ? AppLocalizations.of(context)!.pleasePickAUsername
+                                        : AppLocalizations.of(context)!.thisUsernameIsAlreadyTaken,
                                     style: TextStyle(
                                       color: ThemeColors.danger
                                           .resolveFrom(context),
@@ -378,15 +379,15 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 ],
                               ),
                             const SizedBox(height: 20),
-                            const Text(
-                              'Name',
-                              style: TextStyle(
+                             Text(
+                              AppLocalizations.of(context)!.name,
+                              style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: nameController,
-                              placeholder: 'Enter a name',
+                              placeholder:  AppLocalizations.of(context)!.enterAName,
                               maxLines: 1,
                               maxLength: 50,
                               autocorrect: false,
@@ -415,16 +416,16 @@ class EditProfileModalState extends State<EditProfileModal> {
                               },
                             ),
                             const SizedBox(height: 20),
-                            const Text(
-                              'Description',
-                              style: TextStyle(
+                             Text(
+                               AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: descriptionController,
                               placeholder:
-                                  'Enter a description\n\n\n', // hack to align to top
+                                  AppLocalizations.of(context)!.enterDescription, // hack to align to top
                               minLines: 4,
                               maxLines: 8,
                               maxLength: 200,
@@ -471,7 +472,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Failed to save profile.",
+                                    AppLocalizations.of(context)!.failedSaveProfile,
                                     style: TextStyle(
                                       color: ThemeColors.danger
                                           .resolveFrom(context),
@@ -515,12 +516,12 @@ class EditProfileModalState extends State<EditProfileModal> {
                                   Text(
                                     switch (updateState) {
                                       ProfileUpdateState.existing =>
-                                        'Fetching existing profile...',
+                                         AppLocalizations.of(context)!.fetchingExistingProfile,
                                       ProfileUpdateState.uploading =>
-                                        'Uploading new profile...',
+                                        AppLocalizations.of(context)!.uploadingNewProfile,
                                       ProfileUpdateState.fetching =>
-                                        'Almost done...',
-                                      _ => 'Saving...',
+                                         AppLocalizations.of(context)!.almostDone,
+                                      _ => AppLocalizations.of(context)!.saving,
                                     },
                                     style: TextStyle(
                                       fontSize: 16,
@@ -531,7 +532,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 ],
                                 if (!loading && !readyLoading && ready)
                                   Button(
-                                    text: 'Save',
+                                    text:  AppLocalizations.of(context)!.save,
                                     color: ThemeColors.surfacePrimary
                                         .resolveFrom(context),
                                     labelColor: ThemeColors.black,

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -52,7 +53,7 @@ class AboutScreen extends StatelessWidget {
             blur: true,
             transparent: true,
             showBackButton: true,
-            title: 'About',
+            title: AppLocalizations.of(context)!.about,
             safePadding: safePadding,
           ),
         ],

@@ -23,6 +23,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +70,26 @@ class MyApp extends StatefulWidget {
 
   @override
   MyAppState createState() => MyAppState();
+
+  static void setLocale(BuildContext context, Locale newLocale) async {
+    MyAppState? state = context.findAncestorStateOfType<MyAppState>();
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString('languageCode', newLocale.languageCode);
+    state?.setState(() {
+      state._locale = newLocale;
+    });
+  }
+}
+
+/*
+  To get local from SharedPreferences if exists
+   */
+Future<Locale> _fetchLocale() async {
+  var prefs = await SharedPreferences.getInstance();
+
+  String languageCode = prefs.getString('languageCode') ?? 'en';
+
+  return Locale(languageCode);
 }
 
 class MyAppState extends State<MyApp> {
@@ -77,6 +99,10 @@ class MyAppState extends State<MyApp> {
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+  var prefs = SharedPreferences.getInstance();
+
+  Locale? _locale;
 
   @override
   void initState() {
@@ -94,6 +120,12 @@ class MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
       onLoad();
+    });
+
+    _fetchLocale().then((locale) {
+      setState(() {
+        _locale = locale;
+      });
     });
   }
 
@@ -148,6 +180,17 @@ class MyAppState extends State<MyApp> {
             routerConfig: router,
             theme: theme,
             title: '$titlePrefix Wallet',
+            locale: _locale,
+            localizationsDelegates: [
+              AppLocalizations.delegate, // Add this line
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              Locale('en'), // English
+              Locale('fr'), // fench
+              Locale('nl'), // ductch
+            ],
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
               child: child ?? const SizedBox(),

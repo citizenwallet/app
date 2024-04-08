@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileModal extends StatefulWidget {
   final String account;
@@ -160,8 +161,7 @@ class ProfileModalState extends State<ProfileModal> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? "It looks like you don't have a profile yet."
-                                      : profile.description,
+                                      ? AppLocalizations.of(context)!.profileText1 : profile.description,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -191,7 +191,7 @@ class ProfileModalState extends State<ProfileModal> {
                                 : CupertinoButton(
                                     onPressed: handleEdit,
                                     child: Text(
-                                      hasNoProfile ? 'Create' : 'Edit',
+                                      hasNoProfile ? AppLocalizations.of(context)!.create : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),

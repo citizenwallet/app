@@ -18,6 +18,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DeepLinkModal extends StatefulWidget {
   final WalletService wallet;
@@ -116,7 +117,7 @@ class DeepLinkModalState extends State<DeepLinkModal> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: deepLink?.title ?? 'Invalid link',
+                  title: deepLink?.title ?? AppLocalizations.of(context)!.invalidlink,
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
@@ -155,7 +156,7 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                           ),
                           const SizedBox(height: 60),
                           Text(
-                            deepLink?.description ?? 'Unable to handle link',
+                            deepLink?.description ?? AppLocalizations.of(context)!.unabltohandlelink,
                             style: TextStyle(
                               color: ThemeColors.text.resolveFrom(context),
                               fontSize: 20,
@@ -170,7 +171,7 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                       bottom: 40,
                       child: !loading
                           ? Button(
-                              text: deepLink?.action ?? 'Dismiss',
+                              text: deepLink?.action ?? AppLocalizations.of(context)!.dismiss,
                               onPressed: deepLink != null
                                   ? handleDeepLink
                                   : () => handleDismiss(context),
