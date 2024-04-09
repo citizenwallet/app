@@ -1,7 +1,21 @@
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+class Language {
+  final String name;
+  final String code;
+
+  Language(this.name, this.code);
+}
+
+final List<Language> languageOptions = [
+  Language('English', 'en'),
+  Language('Nederlands', 'nl'),
+  Language('Français', 'fr')
+];
 
 class AppState with ChangeNotifier {
   String walletPassword = '';
@@ -15,8 +29,7 @@ class AppState with ChangeNotifier {
 
   PackageInfo? packageInfo;
 
-  Locale locale = const Locale("en");
-  String languageCode = "en";
+  Language language = languageOptions[0];
   int selectedLanguage = 0;
 
   CupertinoThemeData get theme {
@@ -47,8 +60,24 @@ class AppState with ChangeNotifier {
   AppState() {
     _darkMode = PreferencesService().darkMode;
     muted = PreferencesService().muted;
-    locale = Locale(PreferencesService().getLanguageCode());
-    selectedLanguage = PreferencesService().getLanguageSelectedItem();
+
+    // get the system locale
+    final locales = WidgetsBinding.instance.platformDispatcher.locales;
+    final preferredSystemLocale = locales.isEmpty
+        ? const Locale('en').languageCode
+        : locales.first.languageCode;
+
+    // get the save language code or fall back to the system locale
+    final languageCode =
+        PreferencesService().getLanguageCode() ?? preferredSystemLocale;
+    int languageCodeIndex =
+        languageOptions.indexWhere((element) => element.code == languageCode);
+    if (languageCodeIndex < 0) {
+      languageCodeIndex = 0;
+    }
+
+    language = languageOptions[languageCodeIndex];
+    selectedLanguage = languageCodeIndex;
     onLoad();
   }
 
@@ -138,13 +167,27 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setLocale(Locale locale) {
-    this.locale = locale;
+  void setLocale(String code) {
+    int languageCodeIndex =
+        languageOptions.indexWhere((element) => element.code == code);
+    if (languageCodeIndex < 0) {
+      languageCodeIndex = 0;
+    }
+
+    language = languageOptions[languageCodeIndex];
+    selectedLanguage = languageCodeIndex;
     notifyListeners();
   }
 
-  void setSelectedLanguage(int selectedLanguage) {
-    this.selectedLanguage = selectedLanguage;
+  void setSelectedLanguage(Language language) {
+    int languageCodeIndex =
+        languageOptions.indexWhere((element) => element.code == language.code);
+    if (languageCodeIndex < 0) {
+      languageCodeIndex = 0;
+    }
+
+    this.language = language;
+    selectedLanguage = languageCodeIndex;
     notifyListeners();
   }
 }

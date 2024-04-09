@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.47+147
+version: 1.0.48+148
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -143,7 +143,7 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
-   
+
   uses-material-design: false
   generate: true
 

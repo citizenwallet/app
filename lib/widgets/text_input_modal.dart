@@ -5,6 +5,7 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TextInputModal extends StatefulWidget {
   final String title;
@@ -161,9 +162,9 @@ class TextInputModalState extends State<TextInputModal> {
                           height: 20,
                         ),
                       if (widget.confirm)
-                        const Text(
-                          'Confirm',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.confirm,
+                          style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       if (widget.confirm)
@@ -214,7 +215,7 @@ class TextInputModalState extends State<TextInputModal> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Button(
-                            text: 'Confirm',
+                            text: AppLocalizations.of(context)!.confirm,
                             color:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
                             labelColor: ThemeColors.black,
