@@ -306,9 +306,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
                             height: 10,
                           ),
                           Picker(
-                            options: const [
-                              'Citizen Wallet',
-                              'External Wallet'
+                            options: [
+                              AppLocalizations.of(context)!.citizenWallet,
+                              AppLocalizations.of(context)!.externalWallet
                             ],
                             selected: _selectedValue,
                             handleSelect: handleSelect,
@@ -326,8 +326,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child:  Text(
-                 AppLocalizations.of(context)!.transactions,
+              child: Text(
+                AppLocalizations.of(context)!.transactions,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,

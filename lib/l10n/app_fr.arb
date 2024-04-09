@@ -1,5 +1,6 @@
 {
   "@@locale": "fr",
+  "viewContract": "Voir le contrat",
   "confirm": "Confirmer",
   "aWalletForYourCommunity": "Un portefeuille pour votre communauté",
   "createNewAccount": "Créer un nouveau compte",

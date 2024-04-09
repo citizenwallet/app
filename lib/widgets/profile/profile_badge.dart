@@ -3,6 +3,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileBadge extends StatelessWidget {
   final ProfileV1? profile;
@@ -77,7 +78,7 @@ class ProfileBadge extends StatelessWidget {
                       ? profile!.name
                       : profile!.username.isNotEmpty
                           ? '@${profile!.username}'
-                          : 'Anonymous',
+                          : AppLocalizations.of(context)!.anonymous,
                   style: TextStyle(
                       fontSize: fontSize,
                       color: ThemeColors.text.resolveFrom(context)),
