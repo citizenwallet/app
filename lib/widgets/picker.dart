@@ -28,6 +28,7 @@ class Picker extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
                       element,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: ThemeColors.text,
                       ),

@@ -139,7 +139,7 @@ class MyAppState extends State<MyApp> {
 
     final titlePrefix = config?.token.symbol ?? 'Citizen';
 
-    final _locale = context.select((AppState state) => state.locale);
+    final language = context.select((AppState state) => state.language);
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -151,7 +151,7 @@ class MyAppState extends State<MyApp> {
             routerConfig: router,
             theme: theme,
             title: '$titlePrefix Wallet',
-            locale: _locale,
+            locale: Locale(language.code),
             localizationsDelegates: const [
               AppLocalizations.delegate, // Add this line
               GlobalWidgetsLocalizations.delegate,

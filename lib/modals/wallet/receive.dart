@@ -42,6 +42,8 @@ class ReceiveModalState extends State<ReceiveModal> {
   void initState() {
     super.initState();
 
+    _selectedValue = AppLocalizations.of(context)!.citizenWallet;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
 
@@ -209,7 +211,8 @@ class ReceiveModalState extends State<ReceiveModal> {
       (WalletState state) => state.amount,
     );
 
-    final isExternalWallet = _selectedValue == AppLocalizations.of(context)!.externalWallet;
+    final isExternalWallet =
+        _selectedValue == AppLocalizations.of(context)!.externalWallet;
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : qrCode;
 
@@ -302,10 +305,13 @@ class ReceiveModalState extends State<ReceiveModal> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
+                          horizontal: 20,
                         ),
                         child: Picker(
-                          options:  [AppLocalizations.of(context)!.citizenWallet, AppLocalizations.of(context)!.externalWallet],
+                          options: [
+                            AppLocalizations.of(context)!.citizenWallet,
+                            AppLocalizations.of(context)!.externalWallet
+                          ],
                           selected: _selectedValue,
                           handleSelect: handleSelect,
                         ),
@@ -392,7 +398,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                         height: 10,
                       ),
                       if (!isExternalWallet)
-                         Text(
+                        Text(
                           AppLocalizations.of(context)!.description,
                           style: const TextStyle(
                             fontSize: 24,
@@ -423,7 +429,8 @@ class ReceiveModalState extends State<ReceiveModal> {
                                         ? '...'
                                         : message != ''
                                             ? message
-                                            : AppLocalizations.of(context)!.descriptionMsg,
+                                            : AppLocalizations.of(context)!
+                                                .descriptionMsg,
                                     style: const TextStyle(
                                       fontSize: 14,
                                     ),
@@ -480,7 +487,8 @@ class ReceiveModalState extends State<ReceiveModal> {
                       ),
                       CupertinoTextField(
                         controller: widget.logic.messageController,
-                        placeholder: '${AppLocalizations.of(context)!.descriptionMsg}\n\n\n',
+                        placeholder:
+                            '${AppLocalizations.of(context)!.descriptionMsg}\n\n\n',
                         minLines: 4,
                         maxLines: 10,
                         maxLength: 200,
@@ -496,7 +504,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                   ),
                 ),
               if (_isEnteringAmount && !isExternalWallet)
-                 Row(
+                Row(
                   children: [
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
