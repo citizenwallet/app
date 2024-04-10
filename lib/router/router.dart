@@ -92,6 +92,28 @@ GoRouter createRouter(
             builder: (context, state) {
               return const AccountConnectedScreen();
             }),
+        GoRoute(
+          name: 'Wallet',
+          path: '/wallet/:address',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+            return WalletScreen(
+              state.pathParameters['address'],
+              state.uri.queryParameters['alias'],
+              wallet,
+              voucher: state.uri.queryParameters['voucher'],
+              voucherParams: state.uri.queryParameters['params'],
+              receiveParams: state.uri.queryParameters['receiveParams'],
+              deepLink: deepLink,
+              deepLinkParams: deepLinkParams,
+            );
+          },
+        ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
           builder: (context, state, child) => RouterShell(
@@ -100,8 +122,8 @@ GoRouter createRouter(
           ),
           routes: [
             GoRoute(
-              name: 'Wallet',
-              path: '/wallet/:address',
+              name: 'Wallets',
+              path: '/wallets/:address',
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
                 // parse from a deep link

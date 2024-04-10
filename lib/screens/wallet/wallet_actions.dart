@@ -189,14 +189,14 @@ class WalletActions extends StatelessWidget {
         ),
         Positioned(
           width: width,
-          bottom: 10,
+          bottom: 38,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: SizedBox(
-                  height: buttonSize + 10,
+                  height: buttonSize + 38,
                   child: ListView(
                     controller: controller,
                     physics:
@@ -209,80 +209,171 @@ class WalletActions extends StatelessWidget {
                       if (wallet?.locked == false &&
                           (!loading || !firstLoad) &&
                           handleSendModal != null)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: blockSending ? () => () : handleSendModal,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color:
-                              ThemeColors.surfacePrimary.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.arrow_up,
-                                  size: buttonIconSize,
-                                  color: blockSending
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.black,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CupertinoButton(
+                              padding: const EdgeInsets.all(5),
+                              onPressed:
+                                  blockSending ? () => () : handleSendModal,
+                              borderRadius: BorderRadius.circular(100),
+                              color: ThemeColors.surfacePrimary
+                                  .resolveFrom(context),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.arrow_up,
+                                      size: 30,
+                                      color: blockSending
+                                          ? ThemeColors.subtleEmphasis
+                                          : ThemeColors.white,
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                  sendLoading
-                                      ? AppLocalizations.of(context)!.sending
-                                      : AppLocalizations.of(context)!.send,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: blockSending
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.black,
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 11),
+                            Text(
+                              sendLoading
+                                  ? AppLocalizations.of(context)!.sending
+                                  : AppLocalizations.of(context)!.send,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: blockSending
+                                    ? ThemeColors.subtleEmphasis
+                                    : ThemeColors.black,
+                                fontSize: buttonFontSize,
+                              ),
+                            ),
+                          ],
                         ),
+
                       if (wallet?.locked == false) const SizedBox(width: 40),
                       if ((!loading || !firstLoad) && handleReceive != null)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: sendLoading ? () => () : handleReceive,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color:
-                              ThemeColors.surfacePrimary.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.arrow_down,
-                                  size: buttonIconSize,
-                                  color: sendLoading
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.black,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CupertinoButton(
+                              padding: const EdgeInsets.all(5),
+                              onPressed: sendLoading ? () => () : handleReceive,
+                              borderRadius: BorderRadius.circular(100),
+                              color: ThemeColors.surfacePrimary
+                                  .resolveFrom(context),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.arrow_down,
+                                      size: 30,
+                                      color: sendLoading
+                                          ? ThemeColors.subtleEmphasis
+                                          : ThemeColors.white,
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  AppLocalizations.of(context)!.receive,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: sendLoading
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.black,
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 11),
+                            Text(
+                              AppLocalizations.of(context)!.receive,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: sendLoading
+                                    ? ThemeColors.subtleEmphasis
+                                    : ThemeColors.black,
+                                fontSize: buttonFontSize,
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(width: 40),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CupertinoButton(
+                              padding: const EdgeInsets.all(5),
+                              onPressed: sendLoading ? () => () : handleReceive,
+                              borderRadius: BorderRadius.circular(100),
+                              color: ThemeColors.backgroundTransparent75
+                                  .resolveFrom(context),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.ellipsis,
+                                      size: 30,
+                                      color: sendLoading
+                                          ? ThemeColors.subtleEmphasis
+                                          : ThemeColors.surfacePrimary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 11),
+                            Text(
+                              AppLocalizations.of(context)!.receive,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: sendLoading
+                                    ? ThemeColors.subtleEmphasis
+                                    : ThemeColors.black,
+                                fontSize: buttonFontSize,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // CupertinoButton(
+                        //   padding: const EdgeInsets.all(5),
+                        //   onPressed: sendLoading ? () => () : handleReceive,
+                        //   borderRadius: BorderRadius.circular(
+                        //       progressiveClamp(14, 20, shrink)),
+                        //   color:
+                        //       ThemeColors.surfacePrimary.resolveFrom(context),
+                        //   child: SizedBox(
+                        //     height: buttonSize,
+                        //     width: buttonSize,
+                        //     child: Column(
+                        //       mainAxisAlignment: MainAxisAlignment.center,
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       children: [
+                        //         Icon(
+                        //           CupertinoIcons.arrow_down,
+                        //           size: buttonIconSize,
+                        //           color: sendLoading
+                        //               ? ThemeColors.subtleEmphasis
+                        //               : ThemeColors.black,
+                        //         ),
+                        //         Text(
+                        //           AppLocalizations.of(context)!.receive,
+                        //           style: TextStyle(
+                        //             fontWeight: FontWeight.bold,
+                        //             color: sendLoading
+                        //                 ? ThemeColors.subtleEmphasis
+                        //                 : ThemeColors.black,
+                        //             fontSize: buttonFontSize,
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                       if (!kIsWeb &&
                           wallet?.locked == false &&
                           wallet?.minter == true)
