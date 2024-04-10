@@ -1,28 +1,8 @@
 import 'package:flutter/cupertino.dart';
-
-class ColorTheme {
-  final Color primary;
-
-  ColorTheme({
-    required this.primary,
-  });
-
-  factory ColorTheme.fromJson(Map<String, dynamic> json) {
-    final rawPrimaryHexValue = json['primary'];
-
-    final parsedPrimaryColor =
-        Color(int.parse('FF${(rawPrimaryHexValue).substring(1)}', radix: 16));
-
-    return ColorTheme(
-      primary: parsedPrimaryColor,
-    );
-  }
-}
+import 'package:citizenwallet/services/config/config.dart';
 
 class ThemeColors {
-  static ColorTheme _theme = ColorTheme(
-    primary: originalSurfacePrimary,
-  );
+  static ColorTheme _theme = ColorTheme();
 
   static const originalPrimary = Color.fromARGB(255, 162, 86, 255);
   static const originalSurfacePrimary = Color.fromARGB(255, 188, 135, 255);
@@ -30,16 +10,18 @@ class ThemeColors {
   static setTheme(ColorTheme theme) {
     _theme = theme;
 
+    final primary = Color(_theme.primary);
+
     // darken the primary color
     const int colorAdjustmentAmount = 40;
 
-    int newR = _theme.primary.red - colorAdjustmentAmount;
+    int newR = primary.red - colorAdjustmentAmount;
     if (newR < 0) newR = 0;
 
-    int newG = _theme.primary.green - colorAdjustmentAmount;
+    int newG = primary.green - colorAdjustmentAmount;
     if (newG < 0) newG = 0;
 
-    int newB = _theme.primary.blue - colorAdjustmentAmount;
+    int newB = primary.blue - colorAdjustmentAmount;
     if (newB < 0) newB = 0;
 
     _primary = CupertinoDynamicColor.withBrightness(
@@ -66,11 +48,14 @@ class ThemeColors {
 
   static get primary => _primary;
 
-  static CupertinoDynamicColor get surfacePrimary =>
-      CupertinoDynamicColor.withBrightness(
-        color: _theme.primary,
-        darkColor: _theme.primary,
-      );
+  static CupertinoDynamicColor get surfacePrimary {
+    final primary = Color(_theme.primary);
+
+    return CupertinoDynamicColor.withBrightness(
+      color: primary,
+      darkColor: primary,
+    );
+  }
 
   static const secondary = CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(255, 241, 159, 5),

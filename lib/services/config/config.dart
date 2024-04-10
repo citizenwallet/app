@@ -1,4 +1,22 @@
-import 'package:citizenwallet/theme/colors.dart';
+const String defaultPrimary = '#563087';
+
+int parseHexColor(String hex) {
+  return int.parse('FF${(hex).substring(1)}', radix: 16);
+}
+
+class ColorTheme {
+  final int primary;
+
+  ColorTheme({
+    primary,
+  }) : primary = primary ?? parseHexColor(defaultPrimary);
+
+  factory ColorTheme.fromJson(Map<String, dynamic> json) {
+    return ColorTheme(
+      primary: parseHexColor(json['primary'] ?? defaultPrimary),
+    );
+  }
+}
 
 class CommunityConfig {
   final String name;
@@ -23,7 +41,7 @@ class CommunityConfig {
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
     final theme = json['theme'] == null
-        ? ColorTheme(primary: ThemeColors.originalSurfacePrimary)
+        ? ColorTheme()
         : ColorTheme.fromJson(json['theme']);
 
     return CommunityConfig(
