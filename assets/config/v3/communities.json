@@ -863,6 +863,13 @@
             "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
             "paymaster_type": "cw"
         },
+        "plugins": [
+            {
+                "name": "Wolugo",
+                "icon": "https://wallet.wolugo.be/uploads/logo.svg",
+                "url": "https://www.wolugo.be/wolu-landing"
+            }
+        ],
         "version": 1
     },
     {
