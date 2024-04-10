@@ -73,6 +73,7 @@ class CommunityConfig {
       'logo': logo,
       'custom_domain': customDomain,
       'hidden': hidden,
+      'theme': theme,
     };
   }
 
