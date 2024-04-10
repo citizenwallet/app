@@ -16,6 +16,13 @@ class ColorTheme {
       primary: parseHexColor(json['primary'] ?? defaultPrimary),
     );
   }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'primary': '#${primary.toRadixString(16).substring(2)}',
+    };
+  }
 }
 
 class CommunityConfig {
