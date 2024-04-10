@@ -1,15 +1,33 @@
 import 'package:flutter/cupertino.dart';
-import 'package:citizenwallet/services/config/config.dart';
+
+class ColorTheme {
+  final Color primary;
+
+  ColorTheme({
+    required this.primary,
+  });
+
+  factory ColorTheme.fromJson(Map<String, dynamic> json) {
+    final rawPrimaryHexValue = json['primary'];
+
+    final parsedPrimaryColor =
+        Color(int.parse('FF${(rawPrimaryHexValue).substring(1)}', radix: 16));
+
+    return ColorTheme(
+      primary: parsedPrimaryColor,
+    );
+  }
+}
 
 class ThemeColors {
-  static CommunityThemeConfig _theme = CommunityThemeConfig(
+  static ColorTheme _theme = ColorTheme(
     primary: originalSurfacePrimary,
   );
 
   static const originalPrimary = Color.fromARGB(255, 162, 86, 255);
   static const originalSurfacePrimary = Color.fromARGB(255, 188, 135, 255);
 
-  static setTheme(CommunityThemeConfig theme) {
+  static setTheme(ColorTheme theme) {
     _theme = theme;
 
     // darken the primary color
