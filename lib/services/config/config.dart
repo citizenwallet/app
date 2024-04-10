@@ -1,4 +1,4 @@
-const String defaultPrimary = '#563087';
+const String defaultPrimary = '#A256FF';
 
 int parseHexColor(String hex) {
   return int.parse('FF${(hex).substring(1)}', radix: 16);
