@@ -1,3 +1,25 @@
+import 'package:citizenwallet/theme/colors.dart';
+import 'package:flutter/cupertino.dart';
+
+class CommunityThemeConfig {
+  final Color primary;
+
+  CommunityThemeConfig({
+    required this.primary,
+  });
+
+  factory CommunityThemeConfig.fromJson(Map<String, dynamic> json) {
+    final rawPrimaryHexValue = json['primary'];
+
+    final parsedPrimaryColor =
+        Color(int.parse('FF${(rawPrimaryHexValue).substring(1)}', radix: 16));
+
+    return CommunityThemeConfig(
+      primary: parsedPrimaryColor,
+    );
+  }
+}
+
 class CommunityConfig {
   final String name;
   final String description;
@@ -6,6 +28,7 @@ class CommunityConfig {
   final String logo;
   final String? customDomain;
   final bool hidden;
+  final CommunityThemeConfig theme;
 
   CommunityConfig({
     required this.name,
@@ -15,9 +38,14 @@ class CommunityConfig {
     required this.logo,
     this.customDomain,
     this.hidden = false,
+    required this.theme,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
+    final theme = json['theme'] == null
+        ? CommunityThemeConfig(primary: ThemeColors.originalSurfacePrimary)
+        : CommunityThemeConfig.fromJson(json['theme']);
+
     return CommunityConfig(
       name: json['name'],
       description: json['description'],
@@ -26,6 +54,7 @@ class CommunityConfig {
       logo: json['logo'] ?? '',
       customDomain: json['custom_domain'],
       hidden: json['hidden'] ?? false,
+      theme: theme,
     );
   }
 

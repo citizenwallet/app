@@ -1,6 +1,35 @@
 import 'package:flutter/cupertino.dart';
+import 'package:citizenwallet/services/config/config.dart';
 
 class ThemeColors {
+  static CommunityThemeConfig _theme = CommunityThemeConfig(
+    primary: originalSurfacePrimary,
+  );
+
+  static const originalPrimary = Color.fromARGB(255, 162, 86, 255);
+  static const originalSurfacePrimary = Color.fromARGB(255, 188, 135, 255);
+
+  static setTheme(CommunityThemeConfig theme) {
+    _theme = theme;
+
+    // darken the primary color
+    const int colorAdjustmentAmount = 40;
+
+    int newR = _theme.primary.red - colorAdjustmentAmount;
+    if (newR < 0) newR = 0;
+
+    int newG = _theme.primary.green - colorAdjustmentAmount;
+    if (newG < 0) newG = 0;
+
+    int newB = _theme.primary.blue - colorAdjustmentAmount;
+    if (newB < 0) newB = 0;
+
+    _primary = CupertinoDynamicColor.withBrightness(
+      color: Color.fromARGB(255, newR, newG, newB),
+      darkColor: Color.fromARGB(255, newR, newG, newB),
+    );
+  }
+
   static const white = CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.white,
     darkColor: CupertinoColors.white,
@@ -11,10 +40,19 @@ class ThemeColors {
     darkColor: CupertinoColors.black,
   );
 
-  static const primary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromARGB(255, 162, 86, 255),
-    darkColor: Color.fromARGB(255, 162, 86, 255),
+  static CupertinoDynamicColor _primary =
+      const CupertinoDynamicColor.withBrightness(
+    color: originalPrimary,
+    darkColor: originalPrimary,
   );
+
+  static get primary => _primary;
+
+  static CupertinoDynamicColor get surfacePrimary =>
+      CupertinoDynamicColor.withBrightness(
+        color: _theme.primary,
+        darkColor: _theme.primary,
+      );
 
   static const secondary = CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(255, 241, 159, 5),
@@ -86,11 +124,6 @@ class ThemeColors {
       CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(0, 230, 230, 230),
     darkColor: Color.fromARGB(0, 30, 30, 30),
-  );
-
-  static const surfacePrimary = CupertinoDynamicColor.withBrightness(
-    color: Color.fromARGB(255, 188, 135, 255),
-    darkColor: Color.fromARGB(255, 188, 135, 255),
   );
 
   static const surfaceText = CupertinoDynamicColor.withBrightness(
