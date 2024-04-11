@@ -160,10 +160,6 @@ class ConfigService {
       final configs =
           (localConfigs as List).map((e) => Config.fromJson(e)).toList();
 
-      print('configs: $configs');
-      print('local');
-      print('alias: $alias');
-
       return configs;
     }
 

@@ -20,6 +20,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -281,6 +282,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (loadAdditionalData != null) await loadAdditionalData();
 
+      ThemeColors.setTheme(config.community.theme);
+
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
       await _preferences.setLastWalletLink(encoded);
@@ -331,6 +334,8 @@ class WalletLogic extends WidgetsBindingObserver {
         _state.loadWalletSuccess();
 
         await loadAdditionalData(false);
+
+        ThemeColors.setTheme(config.community.theme);
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
@@ -402,6 +407,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData(true);
 
+      ThemeColors.setTheme(config.community.theme);
+
       await _preferences.setLastWallet(address);
       await _preferences.setLastAlias(config.community.alias);
 
@@ -458,6 +465,8 @@ class WalletLogic extends WidgetsBindingObserver {
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -520,6 +529,8 @@ class WalletLogic extends WidgetsBindingObserver {
         name: name,
         alias: config.community.alias,
       ));
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);

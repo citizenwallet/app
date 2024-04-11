@@ -607,9 +607,10 @@ class WalletActions extends StatelessWidget {
                                       progressiveClamp(14, 20, shrink)),
                                   color: ThemeColors.background
                                       .resolveFrom(context),
-                                  child: SizedBox(
+                                  child: Container(
                                     height: buttonSize,
                                     width: buttonSize,
+                                    padding: const EdgeInsets.all(5),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -629,15 +630,21 @@ class WalletActions extends StatelessWidget {
                                                 : ThemeColors.black,
                                           ),
                                         ),
-                                        Text(
-                                          plugin.name,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: sendLoading
-                                                ? ThemeColors.subtleEmphasis
-                                                : ThemeColors.text
-                                                    .resolveFrom(context),
-                                            fontSize: buttonFontSize,
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            plugin.name,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: sendLoading
+                                                  ? ThemeColors.subtleEmphasis
+                                                  : ThemeColors.text
+                                                      .resolveFrom(context),
+                                              fontSize: buttonFontSize,
+                                            ),
                                           ),
                                         ),
                                       ],

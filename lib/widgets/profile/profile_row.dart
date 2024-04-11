@@ -1,8 +1,8 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileRow extends StatelessWidget {
   final ProfileV1? profile;
@@ -58,7 +58,7 @@ class ProfileRow extends StatelessWidget {
                   Text(
                     profile?.name != null && profile!.name.isNotEmpty
                         ? profile!.name
-                        : 'Anonymous',
+                        : AppLocalizations.of(context)!.anonymous,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
