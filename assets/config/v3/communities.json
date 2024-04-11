@@ -863,6 +863,9 @@
             "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
             "paymaster_type": "cw"
         },
+        "cards": {
+            "card_factory_address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F"
+        },
         "plugins": [
             {
                 "name": "Wolugo",
