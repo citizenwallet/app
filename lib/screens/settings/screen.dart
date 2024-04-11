@@ -32,11 +32,14 @@ class SettingsScreenState extends State<SettingsScreen> {
   late NotificationsLogic _notificationsLogic;
   late BackupLogic _backupLogic;
 
+  final List<String> _languageNames = <String>['English', 'Dutch', 'French'];
+
   final double _kItemExtent = 32.0;
 
   //int _selectedLanguage = 0;
 
   bool _protected = false;
+
 
   @override
   void initState() {
@@ -103,7 +106,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void handleLanguage(int selectedLanguage) {
+  void handlLanguage(int _selectedLanguage) {
     _showDialog(
       CupertinoPicker(
         magnification: 1.22,
@@ -112,14 +115,14 @@ class SettingsScreenState extends State<SettingsScreen> {
         itemExtent: _kItemExtent,
         // This sets the initial item.
         scrollController: FixedExtentScrollController(
-          initialItem: selectedLanguage,
+          initialItem: _selectedLanguage,
         ),
         // This is called when selected item is changed.
         onSelectedItemChanged: (int selectedItem) async {
           _appLogic.setLanguageCode(selectedItem);
         },
-        children: List<Widget>.generate(languageOptions.length, (int index) {
-          return Center(child: Text(languageOptions[index].name));
+        children: List<Widget>.generate(_languageNames.length, (int index) {
+          return Center(child: Text(_languageNames[index]));
         }),
       ),
     );
@@ -203,7 +206,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
 
-    final selectedLanguage =
+    final _selectedLanguage =
         context.select((AppState state) => state.selectedLanguage);
 
     var appText = AppLocalizations.of(context)!.settingsScrApp;
@@ -223,7 +226,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   height: 60 + safePadding,
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
                     appText,
                     style: const TextStyle(
@@ -244,11 +247,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                     label: AppLocalizations.of(context)!.language,
                     icon: 'assets/icons/language-svgrepo-com.svg',
                     iconColor: ThemeColors.text.resolveFrom(context),
-                    onTap: () => {handleLanguage(selectedLanguage)},
+                    onTap: () => {handlLanguage(_selectedLanguage)},
                     trailing: Row(
                       children: [
                         Text(
-                          languageOptions[selectedLanguage].name,
+                          _languageNames[_selectedLanguage],
                           style: TextStyle(
                             color: ThemeColors.subtleSolidEmphasis
                                 .resolveFrom(context),
@@ -268,7 +271,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   SettingsSubRow(AppLocalizations.of(context)!
                       .varsion(packageInfo.version, packageInfo.buildNumber)),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
                     AppLocalizations.of(context)!.notifications,
                     style: const TextStyle(
@@ -340,7 +343,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //     ),
                 //   ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
                     AppLocalizations.of(context)!.account,
                     style: const TextStyle(
@@ -360,7 +363,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         : null,
                   ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Text(
                     AppLocalizations.of(context)!.backup,
                     style: const TextStyle(
@@ -526,7 +529,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //   ],
                 // ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 40, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
                   child: Text(
                     AppLocalizations.of(context)!.dangerZone,
                     style: const TextStyle(

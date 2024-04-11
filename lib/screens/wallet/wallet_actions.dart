@@ -9,6 +9,7 @@ import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -38,6 +39,10 @@ class WalletActions extends StatelessWidget {
     this.handleVouchers,
   });
 
+ bool _showAdditionalButtons = false;
+ void handleOpenAbout() {
+    _showAdditionalButtons = !_showAdditionalButtons;
+  }
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -82,6 +87,15 @@ class WalletActions extends StatelessWidget {
         (1 - shrink) < 0.6 ? 30.0 : progressiveClamp(18, 40, shrink);
     final buttonFontSize =
         (1 - shrink) < 0.6 ? 12.0 : progressiveClamp(10, 14, shrink);
+
+    void handleClick(String value) {
+    switch (value) {
+      case 'Logout':
+        break;
+      case 'Settings':
+        break;
+    }
+}
 
     return Stack(
       children: [
@@ -181,7 +195,7 @@ class WalletActions extends StatelessWidget {
                         ],
                       ),
                 const SizedBox(
-                  height: 30,
+                  height: 100,
                 ),
               ],
             ),
@@ -189,7 +203,7 @@ class WalletActions extends StatelessWidget {
         ),
         Positioned(
           width: width,
-          bottom: 38,
+          bottom: 50,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -302,13 +316,74 @@ class WalletActions extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            CupertinoButton(
-                              padding: const EdgeInsets.all(5),
-                              onPressed: sendLoading ? () => () : handleReceive,
-                              borderRadius: BorderRadius.circular(100),
-                              color: ThemeColors.backgroundTransparent75
+                            // CupertinoButton(
+                            //   padding: const EdgeInsets.all(5),
+                            //   onPressed: sendLoading ? () => () : handleReceive,
+                            //   borderRadius: BorderRadius.circular(100),
+                            //   color: ThemeColors.backgroundTransparent75
+                            //       .resolveFrom(context),
+                            //   child: SizedBox(
+                            //     height: 50,
+                            //     width: 50,
+                            //     child: Column(
+                            //       mainAxisAlignment: MainAxisAlignment.center,
+                            //       crossAxisAlignment: CrossAxisAlignment.center,
+                            //       children: [
+                            //         Icon(
+                            //           CupertinoIcons.ellipsis,
+                            //           size: 40,
+                            //           color: sendLoading
+                            //               ? ThemeColors.subtleEmphasis
+                            //               : ThemeColors.surfacePrimary,
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
+                          CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            borderRadius: BorderRadius.circular(100),
+                            color: ThemeColors.white
                                   .resolveFrom(context),
-                              child: SizedBox(
+                            onPressed: () {
+                              // showCupertinoModalPopup(
+                              //   context: context,
+                              //   builder: (BuildContext context) {
+                              //     return CupertinoActionSheet(
+                              //       title: Text('Select an Option'),
+                              //       actions: [
+                              //         CupertinoActionSheetAction(
+                              //           onPressed: () {
+                              //             Navigator.pop(context, 'Option 1');
+                              //           },
+                              //           child: Text('Option 1'),
+                              //         ),
+                              //         CupertinoActionSheetAction(
+                              //           onPressed: () {
+                              //             Navigator.pop(context, 'Option 2');
+                              //           },
+                              //           child: Text('Option 2'),
+                              //         ),
+                              //         CupertinoActionSheetAction(
+                              //           onPressed: () {
+                              //             Navigator.pop(context, 'Option 3');
+                              //           },
+                              //           child: Text('Option 3'),
+                              //         ),
+                              //       ],
+                              //       cancelButton: CupertinoActionSheetAction(
+                              //         onPressed: () {
+                              //           Navigator.pop(context);
+                              //         },
+                              //         child: Text('Cancel'),
+                              //         isDefaultAction: true,
+                              //       ),
+                              //     );
+                              //   },
+                              // );
+                               _showAdditionalButtons = true;
+                            },
+                            child: SizedBox(
                                 height: 50,
                                 width: 50,
                                 child: Column(
@@ -317,7 +392,7 @@ class WalletActions extends StatelessWidget {
                                   children: [
                                     Icon(
                                       CupertinoIcons.ellipsis,
-                                      size: 30,
+                                      size: 50,
                                       color: sendLoading
                                           ? ThemeColors.subtleEmphasis
                                           : ThemeColors.surfacePrimary,
@@ -325,10 +400,11 @@ class WalletActions extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                            ),
+                          ),
+
                             const SizedBox(height: 11),
                             Text(
-                              AppLocalizations.of(context)!.receive,
+                              AppLocalizations.of(context)!.more,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: sendLoading
@@ -339,6 +415,27 @@ class WalletActions extends StatelessWidget {
                             ),
                           ],
                         ),
+                    const SizedBox(height: 20),
+                    if (_showAdditionalButtons)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CupertinoButton(
+                            onPressed: () {
+                              // Action for additional button 1
+                            },
+                            child: const Text('Additional Button 1'),
+                          ),
+                          const SizedBox(width: 10),
+                          CupertinoButton(
+                            onPressed: () {
+                              // Action for additional button 2
+                            },
+                            child: const Text('Additional Button 2'),
+                          ),
+                        ],
+                      ),
+
                         // CupertinoButton(
                         //   padding: const EdgeInsets.all(5),
                         //   onPressed: sendLoading ? () => () : handleReceive,

@@ -173,5 +173,7 @@
   "voucher": "Voucher",
   "createVoucherText": "Maak een voucher die iedereen kan claimen voor het bovenstaande bedrag.",
   "emptyBalanceText1": "Deze bon is al ingewisseld.",
-  "emptyBalanceText2": "Claim deze voucher op je account"
+  "emptyBalanceText2": "Claim deze voucher op je account",
+  "more" : "more NL",
+  "transactionsHistory" : "Transactions History NL"
 }
