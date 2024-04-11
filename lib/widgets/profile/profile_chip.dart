@@ -2,6 +2,7 @@ import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileChip extends StatelessWidget {
   final ProfileV1? selectedProfile;
@@ -42,8 +43,9 @@ class ProfileChip extends StatelessWidget {
               children: [
                 Text(
                   selectedProfile != null && selectedProfile!.name.isNotEmpty
-                      ? selectedProfile?.name ?? 'Anonymous'
-                      : 'Anonymous',
+                      ? selectedProfile?.name ??
+                          AppLocalizations.of(context)!.anonymous
+                      : AppLocalizations.of(context)!.anonymous,
                   style: TextStyle(
                     color: ThemeColors.surfaceText.resolveFrom(context),
                     fontWeight: FontWeight.bold,

@@ -42,10 +42,10 @@ class ReceiveModalState extends State<ReceiveModal> {
   void initState() {
     super.initState();
 
-    _selectedValue = AppLocalizations.of(context)!.citizenWallet;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+
+      _selectedValue = AppLocalizations.of(context)!.citizenWallet;
 
       debouncedQRCode = debounce(
         widget.logic.updateReceiveQR,

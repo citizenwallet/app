@@ -488,6 +488,8 @@ class WalletService {
 
       return profileUrl;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -1092,7 +1094,6 @@ class WalletService {
 
       // determine the appropriate nonce
       BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
-      userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && deploy) {
@@ -1110,8 +1111,13 @@ class WalletService {
             cred.address.hexEip55,
             BigInt.zero,
           );
+        } else {
+          // try again in case the account was created in the meantime
+          nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
         }
       }
+
+      userop.nonce = nonce;
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer

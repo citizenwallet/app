@@ -1,5 +1,6 @@
 {
   "@@locale": "nl",
+  "viewContract": "Contract bekijken",
   "confirm": "Bevestig",
   "aWalletForYourCommunity": "een wallet voor jouw community",
   "createNewAccount": "Creëer een nieuwe account",
@@ -75,7 +76,7 @@
   "enterEncryptionKey": "Encryptie key invoeren",
   "encryptionKey": "Encryptie key",
   "loading": "Bezig met laden",
-  "joinCommunity": "Word lid van een gemeenschap",
+  "joinCommunity": "Lid worden",
   "importText": "Importeer",
   "selectAccount": "Selecteer Account",
   "hello": "Hello",

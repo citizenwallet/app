@@ -818,11 +818,71 @@
     },
     {
         "community": {
+            "name": "Wolugo",
+            "description": "A community for the Woluwe-Saint-Pierre civic engagement platform",
+            "url": "https://wolugo.be",
+            "alias": "wallet.wolugo.be",
+            "custom_domain": "wallet.wolugo.be",
+            "logo": "https://wallet.wolugo.be/uploads/logo.svg",
+            "theme": {
+                "primary": "#81e2c1"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Wolu",
+            "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
+            "symbol": "WOLU",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0x07e7b95B35866302b3A089feF4CFA3061061a51d"
+        },
+        "indexer": {
+            "url": "https://wallet.wolugo.be/indexer",
+            "ipfs_url": "https://wallet.wolugo.be/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.wolugo.be/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.wolugo.be/indexer/rpc",
+            "entrypoint_address": "0x0F805BC1ED718FB9C7C18439cB11E1C17C6538C4",
+            "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
+            "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
+            "paymaster_type": "cw"
+        },
+        "cards": {
+            "card_factory_address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F"
+        },
+        "plugins": [
+            {
+                "name": "Wolugo",
+                "icon": "https://wallet.wolugo.be/uploads/logo.svg",
+                "url": "https://www.wolugo.be/wolu-landing"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
             "name": "Woluwe Test",
             "description": "Local currency for the Woluwe Test community.",
             "url": "https://wollet-v2.citizenwallet.net/token",
             "alias": "wtc.celo",
-            "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg"
+            "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg",
+            "hidden": true
         },
         "scan": {
             "url": "https://celoscan.io",
