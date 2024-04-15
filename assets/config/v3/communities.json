@@ -714,7 +714,8 @@
             {
                 "name": "Market",
                 "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
-                "url": "https://marketplace.citizenwallet.xyz/moos"
+                "url": "https://marketplace.citizenwallet.xyz/moos",
+                "launch_mode": "webview"
             }
         ],
         "version": 1
