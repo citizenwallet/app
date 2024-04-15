@@ -537,15 +537,6 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleTransactionSendingTap() async {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => const SendingModal(),
-    );
-  }
-
   void handleLoad(String address) async {
     _profilesLogic.loadProfile(address);
     _voucherLogic.updateVoucher(address);
@@ -603,7 +594,6 @@ class WalletScreenState extends State<WalletScreen> {
                   handleMint: handleMint,
                   handleVouchers: handleVouchers,
                   handleTransactionTap: handleTransactionTap,
-                  handleTransactionSendingTap: handleTransactionSendingTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,
