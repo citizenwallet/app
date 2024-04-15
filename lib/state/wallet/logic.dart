@@ -1182,13 +1182,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      sendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-        _wallet.account.hexEip55,
-      );
-
       final success = await _wallet.submitUserop(
         userop,
         data: message != '' ? TransferData(message) : null,
@@ -1297,13 +1290,6 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       tempId = hash;
-
-      sendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-        _wallet.account.hexEip55,
-      );
 
       final success = await _wallet.submitUserop(
         userop,
