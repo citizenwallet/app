@@ -417,6 +417,7 @@ class WalletScreenState extends State<WalletScreen> {
           context: context,
           expand: true,
           useRootNavigator: true,
+          enableDrag: false,
           builder: (_) => WebViewModal(
             url: uri,
             redirectUrl: redirect,
