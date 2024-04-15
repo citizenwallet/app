@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
+import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
@@ -71,20 +72,27 @@ class LandingScreenState extends State<LandingScreen>
     }
   }
 
-  String parseParamsFromWidget({List<String> extra = const []}) {
+  String parseParamsFromWidget({
+    List<String> extra = const [],
+    String? voucher,
+    String? voucherParams,
+    String? receiveParams,
+    String? deepLink,
+    String? deepLinkParams,
+  }) {
     String params = '';
-    if (widget.voucher != null && widget.voucherParams != null) {
-      params += '&voucher=${widget.voucher}';
-      params += '&params=${widget.voucherParams}';
+    if (voucher != null && voucherParams != null) {
+      params += '&voucher=$voucher';
+      params += '&params=$voucherParams';
     }
 
     if (widget.receiveParams != null) {
       params += '&receiveParams=${widget.receiveParams}';
     }
 
-    if (widget.deepLink != null && widget.deepLinkParams != null) {
-      params += '&dl=${widget.deepLink}';
-      params += '&${widget.deepLink}=${widget.deepLinkParams}';
+    if (deepLink != null && widget.deepLinkParams != null) {
+      params += '&dl=$deepLink';
+      params += '&$deepLink=$deepLinkParams';
     }
 
     if (extra.isNotEmpty) {
@@ -147,9 +155,16 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    String params = parseParamsFromWidget(extra: [
-      'alias=${alias ?? 'app'}',
-    ]);
+    String params = parseParamsFromWidget(
+      voucher: widget.voucher,
+      voucherParams: widget.voucherParams,
+      receiveParams: widget.receiveParams,
+      deepLink: widget.deepLink,
+      deepLinkParams: widget.deepLinkParams,
+      extra: [
+        'alias=${alias ?? 'app'}',
+      ],
+    );
 
     _appLogic.appLoaded();
 
@@ -157,6 +172,7 @@ class LandingScreenState extends State<LandingScreen>
   }
 
   Future<(String?, String?)> handleLoadFromParams(String? params) async {
+    print('params: $params');
     if (params == null) {
       return (null, null);
     }
@@ -265,7 +281,7 @@ class LandingScreenState extends State<LandingScreen>
   }
 
   // TODO: remove this
-  void handleImportWallet() async {
+  void handleQRScan() async {
     final navigator = GoRouter.of(context);
 
     final result = await showCupertinoModalPopup<String?>(
@@ -273,40 +289,63 @@ class LandingScreenState extends State<LandingScreen>
       barrierDismissible: true,
       builder: (_) => const ScannerModal(
         modalKey: 'import-qr-scanner',
-        confirm: true,
       ),
     );
+
+    print('result: $result');
 
     if (result == null) {
       return;
     }
 
-    final alias = await showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => const CommunityPickerModal(),
-    );
-
-    if (alias == null || alias.isEmpty) {
+    final (voucherParams, receiveParams, deepLinkParams) =
+        deepLinkParamsFromUri(result);
+    print('voucherParams: $voucherParams');
+    print('receiveParams: $receiveParams');
+    print('deepLinkParams: $deepLinkParams');
+    if (voucherParams == null &&
+        receiveParams == null &&
+        deepLinkParams == null) {
       return;
     }
 
-    final address = await _appLogic.importWallet(result, alias);
+    final (address, alias) = await handleLoadFromParams(
+        voucherParams ?? receiveParams ?? deepLinkParams);
+
+    print('address: $address');
+    print('alias: $alias');
 
     if (address == null) {
       return;
     }
 
-    String params = parseParamsFromWidget(extra: [
-      'alias=$alias',
-    ]);
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
+
+    final (voucher, deepLink) = deepLinkContentFromUri(result);
+    print('voucher: $voucher');
+    print('deepLink: $deepLink');
+
+    String params = parseParamsFromWidget(
+      voucher: voucher,
+      voucherParams: voucherParams,
+      receiveParams: receiveParams,
+      deepLink: deepLink,
+      deepLinkParams: deepLinkParams,
+      extra: [
+        'alias=$alias',
+      ],
+    );
 
     navigator.go('/wallet/$address$params');
   }
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final maxWidth = width > 600 ? 600.0 : width * 0.8;
+
     final walletLoading =
         context.select((AppState state) => state.walletLoading);
     final appLoading = context.select((AppState state) => state.appLoading);
@@ -332,28 +371,51 @@ class LandingScreenState extends State<LandingScreen>
                       slivers: [
                         SliverFillRemaining(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
+                              const SizedBox(height: 40),
                               SizedBox(
-                                height: 300,
-                                width: 300,
+                                height: 200,
+                                width: 200,
                                 child: Center(
                                     child: SvgPicture.asset(
-                                  'assets/citizenwallet-logo-simple.svg',
+                                  'assets/citizenwallet-only-logo.svg',
                                   semanticsLabel: 'Citizen Wallet Icon',
-                                  height: 300,
+                                  height: 200,
                                 )),
                               ),
                               const SizedBox(height: 30),
-                              Text(
-                                AppLocalizations.of(context)!
-                                    .aWalletForYourCommunity,
-                                style: TextStyle(
-                                  color: ThemeColors.text.resolveFrom(context),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.normal,
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: maxWidth,
                                 ),
-                                textAlign: TextAlign.center,
+                                child: Text(
+                                  AppLocalizations.of(context)!.welcomeCitizen,
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: maxWidth,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .aWalletForYourCommunity,
+                                  style: TextStyle(
+                                    color:
+                                        ThemeColors.text.resolveFrom(context),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                               const SizedBox(height: 30),
                               if (backupStatus != null)
@@ -367,27 +429,87 @@ class LandingScreenState extends State<LandingScreen>
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              const SizedBox(height: 60),
+                              const SizedBox(height: 160),
                             ],
                           ),
                         ),
                       ],
                     ),
                     Positioned(
-                      bottom: 40,
+                      bottom: 20,
                       child: walletLoading || appLoading || loading
                           ? CupertinoActivityIndicator(
                               color: ThemeColors.subtle.resolveFrom(context),
                             )
                           : Column(
                               children: [
-                                Button(
-                                  text: AppLocalizations.of(context)!
-                                      .createNewAccount,
-                                  onPressed: handleStart,
-                                  minWidth: 200,
-                                  maxWidth: 200,
+                                GestureDetector(
+                                  onTap: handleQRScan,
+                                  child: Container(
+                                    height: 90,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                      color: ThemeColors.background
+                                          .resolveFrom(context),
+                                      borderRadius: BorderRadius.circular(45),
+                                      border: Border.all(
+                                        color: ThemeColors.primary
+                                            .resolveFrom(context),
+                                        width: 3,
+                                      ),
+                                    ),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                    child: Center(
+                                      child: Icon(
+                                        CupertinoIcons.qrcode_viewfinder,
+                                        size: 60,
+                                        color: ThemeColors.primary
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                                const SizedBox(height: 10),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: maxWidth,
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(context)!
+                                        .scanFromCommunity,
+                                    style: TextStyle(
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: maxWidth,
+                                  ),
+                                  child: Text(
+                                    '- ${AppLocalizations.of(context)!.or} -',
+                                    style: TextStyle(
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                // Button(
+                                //   text: AppLocalizations.of(context)!
+                                //       .createNewAccount,
+                                //   onPressed: handleStart,
+                                //   minWidth: 200,
+                                //   maxWidth: 200,
+                                // ),
                                 if (isPlatformAndroid()) ...[
                                   const SizedBox(height: 30),
                                   Container(
@@ -400,7 +522,8 @@ class LandingScreenState extends State<LandingScreen>
                                   CupertinoButton(
                                     onPressed: handleRecover,
                                     child: Text(
-                                      AppLocalizations.of(context)!.recoverfrombackup,
+                                      AppLocalizations.of(context)!
+                                          .recoverfrombackup,
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),
@@ -416,21 +539,63 @@ class LandingScreenState extends State<LandingScreen>
                                   const SizedBox(height: 5),
                                   CupertinoButton(
                                     onPressed:
-                                        handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
-                                    child: Text(
-                                      AppLocalizations.of(context)!
-                                      .recoverIndividualAccountFromaPrivatekey,
-                                      style: TextStyle(
-                                        color: ThemeColors.text
-                                            .resolveFrom(context),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.underline,
+                                        handleStart, // TODO: remove when we auto-top up accounts with Gratitude Token
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: maxWidth,
                                       ),
-                                      maxLines: 2,
-                                      textAlign: TextAlign.center,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .browseCommunities,
+                                            style: TextStyle(
+                                              color: ThemeColors.primary
+                                                  .resolveFrom(context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                            height: 44,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: ThemeColors.primary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
+                                  // CupertinoButton(
+                                  //   onPressed:
+                                  //       handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
+                                  //   child: ConstrainedBox(
+                                  //     constraints: BoxConstraints(
+                                  //       maxWidth: maxWidth,
+                                  //     ),
+                                  //     child: Text(
+                                  //       AppLocalizations.of(context)!
+                                  //           .recoverIndividualAccountFromaPrivatekey,
+                                  //       style: TextStyle(
+                                  //         color: ThemeColors.primary
+                                  //             .resolveFrom(context),
+                                  //         fontSize: 18,
+                                  //         fontWeight: FontWeight.bold,
+                                  //       ),
+                                  //       maxLines: 2,
+                                  //       textAlign: TextAlign.center,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ]
                               ],
                             ),
