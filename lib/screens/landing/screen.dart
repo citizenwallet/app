@@ -86,11 +86,11 @@ class LandingScreenState extends State<LandingScreen>
       params += '&params=$voucherParams';
     }
 
-    if (widget.receiveParams != null) {
-      params += '&receiveParams=${widget.receiveParams}';
+    if (receiveParams != null) {
+      params += '&receiveParams=$receiveParams';
     }
 
-    if (deepLink != null && widget.deepLinkParams != null) {
+    if (deepLink != null && deepLinkParams != null) {
       params += '&dl=$deepLink';
       params += '&$deepLink=$deepLinkParams';
     }
@@ -133,7 +133,7 @@ class LandingScreenState extends State<LandingScreen>
       (address, alias) = await handleLoadFromParams(widget.voucherParams);
     }
 
-    // handle voucher redemption
+    // handle receive params
     // pick an appropriate wallet to load
     if (widget.receiveParams != null && address == null && alias == null) {
       (address, alias) = await handleLoadFromParams(widget.receiveParams);
@@ -171,13 +171,15 @@ class LandingScreenState extends State<LandingScreen>
     navigator.go('/wallet/$address$params');
   }
 
-  Future<(String?, String?)> handleLoadFromParams(String? params) async {
-    print('params: $params');
+  Future<(String?, String?)> handleLoadFromParams(
+    String? params, {
+    String? overrideAlias,
+  }) async {
     if (params == null) {
       return (null, null);
     }
 
-    final alias = paramsAlias(params);
+    String? alias = overrideAlias ?? paramsAlias(params);
     if (alias == null) {
       return (null, null);
     }
@@ -259,7 +261,16 @@ class LandingScreenState extends State<LandingScreen>
   void handleStart() async {
     final navigator = GoRouter.of(context);
 
-    const alias = "gratitude";
+    final alias = await showCupertinoModalBottomSheet<String?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => const CommunityPickerModal(),
+    );
+
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
 
     final address = await _appLogic.createWallet(alias);
 
@@ -280,7 +291,6 @@ class LandingScreenState extends State<LandingScreen>
     navigator.push('/recovery');
   }
 
-  // TODO: remove this
   void handleQRScan() async {
     final navigator = GoRouter.of(context);
 
@@ -292,28 +302,25 @@ class LandingScreenState extends State<LandingScreen>
       ),
     );
 
-    print('result: $result');
-
     if (result == null) {
       return;
     }
 
     final (voucherParams, receiveParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
-    print('voucherParams: $voucherParams');
-    print('receiveParams: $receiveParams');
-    print('deepLinkParams: $deepLinkParams');
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
       return;
     }
 
-    final (address, alias) = await handleLoadFromParams(
-        voucherParams ?? receiveParams ?? deepLinkParams);
+    final uriAlias = aliasFromUri(result);
+    final voucherAlias = aliasFromReceiveUri(result);
 
-    print('address: $address');
-    print('alias: $alias');
+    final (address, alias) = await handleLoadFromParams(
+      voucherParams ?? receiveParams ?? deepLinkParams,
+      overrideAlias: uriAlias ?? voucherAlias,
+    );
 
     if (address == null) {
       return;
@@ -324,8 +331,6 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     final (voucher, deepLink) = deepLinkContentFromUri(result);
-    print('voucher: $voucher');
-    print('deepLink: $deepLink');
 
     String params = parseParamsFromWidget(
       voucher: voucher,
@@ -343,6 +348,14 @@ class LandingScreenState extends State<LandingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
+    final informationContainerHeight =
+        isPlatformApple() ? 600.0 : 812.0; // based on a small device
+    final minTopPadding = (height - informationContainerHeight) > 60.0
+        ? 60.0
+        : (height - informationContainerHeight);
+
     final width = MediaQuery.of(context).size.width;
     final maxWidth = width > 600 ? 600.0 : width * 0.8;
 
@@ -373,7 +386,7 @@ class LandingScreenState extends State<LandingScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 40),
+                              SizedBox(height: minTopPadding),
                               SizedBox(
                                 height: 200,
                                 width: 200,
@@ -429,9 +442,11 @@ class LandingScreenState extends State<LandingScreen>
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              const SizedBox(height: 160),
                             ],
                           ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: minTopPadding),
                         ),
                       ],
                     ),
@@ -488,58 +503,15 @@ class LandingScreenState extends State<LandingScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: maxWidth,
-                                  ),
-                                  child: Text(
-                                    '- ${AppLocalizations.of(context)!.or} -',
-                                    style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                // Button(
-                                //   text: AppLocalizations.of(context)!
-                                //       .createNewAccount,
-                                //   onPressed: handleStart,
-                                //   minWidth: 200,
-                                //   maxWidth: 200,
-                                // ),
                                 if (isPlatformAndroid()) ...[
-                                  const SizedBox(height: 30),
                                   Container(
                                     height: 1,
                                     width: 200,
                                     color:
                                         ThemeColors.subtle.resolveFrom(context),
                                   ),
-                                  const SizedBox(height: 5),
                                   CupertinoButton(
-                                    onPressed: handleRecover,
-                                    child: Text(
-                                      AppLocalizations.of(context)!
-                                          .recoverfrombackup,
-                                      style: TextStyle(
-                                        color: ThemeColors.text
-                                            .resolveFrom(context),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.normal,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
-                                if (isPlatformApple()) ...[
-                                  const SizedBox(height: 5),
-                                  CupertinoButton(
-                                    onPressed:
-                                        handleStart, // TODO: remove when we auto-top up accounts with Gratitude Token
+                                    onPressed: handleStart,
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(
                                         maxWidth: maxWidth,
@@ -575,27 +547,93 @@ class LandingScreenState extends State<LandingScreen>
                                       ),
                                     ),
                                   ),
-                                  // CupertinoButton(
-                                  //   onPressed:
-                                  //       handleImportWallet, // TODO: remove when we auto-top up accounts with Gratitude Token
-                                  //   child: ConstrainedBox(
-                                  //     constraints: BoxConstraints(
-                                  //       maxWidth: maxWidth,
-                                  //     ),
-                                  //     child: Text(
-                                  //       AppLocalizations.of(context)!
-                                  //           .recoverIndividualAccountFromaPrivatekey,
-                                  //       style: TextStyle(
-                                  //         color: ThemeColors.primary
-                                  //             .resolveFrom(context),
-                                  //         fontSize: 18,
-                                  //         fontWeight: FontWeight.bold,
-                                  //       ),
-                                  //       maxLines: 2,
-                                  //       textAlign: TextAlign.center,
-                                  //     ),
-                                  //   ),
-                                  // ),
+                                  CupertinoButton(
+                                    onPressed: handleRecover,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: maxWidth,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: maxWidth - 40,
+                                            ),
+                                            child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .recoverfrombackup,
+                                              style: TextStyle(
+                                                color: ThemeColors.primary
+                                                    .resolveFrom(context),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                            height: 44,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: ThemeColors.primary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                if (isPlatformApple()) ...[
+                                  Container(
+                                    height: 1,
+                                    width: 200,
+                                    color:
+                                        ThemeColors.subtle.resolveFrom(context),
+                                  ),
+                                  CupertinoButton(
+                                    onPressed: handleStart,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: maxWidth,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .browseCommunities,
+                                            style: TextStyle(
+                                              color: ThemeColors.primary
+                                                  .resolveFrom(context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                            height: 44,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: ThemeColors.primary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ]
                               ],
                             ),
