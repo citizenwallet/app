@@ -50,4 +50,11 @@ class DeepLinkState with ChangeNotifier {
     error = true;
     notifyListeners();
   }
+
+  BigInt faucetAmount = BigInt.zero;
+
+  void setFaucetAmount(BigInt amount) {
+    faucetAmount = amount;
+    notifyListeners();
+  }
 }

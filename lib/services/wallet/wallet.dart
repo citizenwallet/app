@@ -881,6 +881,15 @@ class WalletService {
     return contract.redeemCallData();
   }
 
+  /// fetch simple faucet redeem amount
+  Future<BigInt> getFaucetRedeemAmount(String address) async {
+    final contract = SimpleFaucetContract(chainId, _ethClient, address);
+
+    await contract.init();
+
+    return contract.getAmount();
+  }
+
   /// Account Abstraction
 
   // get account address

@@ -35,6 +35,10 @@ class SimpleFaucetContract {
     return function.encodeCall([]);
   }
 
+  Future<BigInt> getAmount() async {
+    return contract.amount();
+  }
+
   void dispose() {
     //
   }

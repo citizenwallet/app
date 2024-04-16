@@ -41,4 +41,24 @@ class DeepLinkLogic {
     } catch (_) {}
     _state.fail();
   }
+
+  Future<void> faucetV1Metadata(String params) async {
+    try {
+      _state.request();
+
+      final uri = Uri(query: params);
+
+      final address = uri.queryParameters['address'];
+      if (address == null) {
+        throw Exception('Address is required');
+      }
+
+      final amount = await _wallet.getFaucetRedeemAmount(address);
+
+      _state.setFaucetAmount(amount);
+      _state.success();
+      return;
+    } catch (_) {}
+    _state.fail();
+  }
 }
