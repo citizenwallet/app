@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/qr.dart';
 
 (String?, String?, String?) deepLinkParamsFromUri(String uri) {
   final uriData = Uri.parse(Uri.parse(uri).fragment);
@@ -12,30 +13,6 @@ import 'package:citizenwallet/services/wallet/utils.dart';
     if (params != null) {
       deepLinkParams = encodeParams(params);
     }
-  }
-
-  String? alias;
-  if (receiveParams != null) {
-    alias = receiveParamsAlias(receiveParams);
-  } else {
-    alias = aliasFromUri(uri);
-  }
-  if (alias == null) {
-    return (null, null, null);
-  }
-
-  print('deepLinkParamsFromUri alias: $alias');
-
-  if (voucherParams != null) {
-    voucherParams = '$voucherParams&alias=$alias';
-  }
-
-  if (receiveParams != null) {
-    receiveParams = '$receiveParams&alias=$alias';
-  }
-
-  if (deepLinkParams != null) {
-    deepLinkParams = '$deepLinkParams&alias=$alias';
   }
 
   return (voucherParams, receiveParams, deepLinkParams);
@@ -53,18 +30,41 @@ String? aliasFromUri(String uri) {
   return uriData.queryParameters['alias'];
 }
 
-String? receiveParamsAlias(String compressedParams) {
-  String params;
-  try {
-    params = decodeParams(compressedParams);
-  } catch (_) {
-    // support the old format with compressed params
-    params = decompress(compressedParams);
+String? aliasFromDeepLinkUri(String uri) {
+  final uriData = Uri.parse(Uri.parse(uri).fragment);
+
+  final deepLinkName = uriData.queryParameters['dl'];
+  if (deepLinkName == null) {
+    return null;
+  }
+  final deepLinkParams = uriData.queryParameters[deepLinkName];
+  if (deepLinkParams == null) {
+    return null;
   }
 
-  print('receiveParamsAlias params: $params');
+  final decodedParams = decodeParams(deepLinkParams);
 
-  final uri = Uri(query: params);
+  final parsedUri = Uri.parse('/?$decodedParams');
 
-  return uri.queryParameters['alias'];
+  return parsedUri.queryParameters['alias'];
+}
+
+String? aliasFromReceiveUri(String uri) {
+  final format = parseQRFormat(uri);
+  if (format != QRFormat.receiveUrl) {
+    return null;
+  }
+
+  final uriData = Uri.parse(Uri.parse(uri).fragment);
+
+  final compressedParams = uriData.queryParameters['receiveParams'];
+  if (compressedParams == null) {
+    return null;
+  }
+
+  final String decodedParams = decompress(compressedParams);
+
+  final decodedUri = Uri.parse(decodedParams);
+
+  return decodedUri.queryParameters['alias'];
 }
