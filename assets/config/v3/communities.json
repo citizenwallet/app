@@ -22,8 +22,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
@@ -75,8 +75,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
@@ -128,8 +128,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -689,8 +689,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -714,7 +714,8 @@
             {
                 "name": "Market",
                 "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
-                "url": "https://marketplace.citizenwallet.xyz/moos"
+                "url": "https://marketplace.citizenwallet.xyz/moos",
+                "launch_mode": "webview"
             }
         ],
         "version": 1
@@ -741,8 +742,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -793,8 +794,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -840,8 +841,8 @@
             "name": "CELO Explorer"
         },
         "node": {
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
             "chain_id": 42220
         },
         "ipfs": {
@@ -898,8 +899,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",

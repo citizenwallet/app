@@ -327,8 +327,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Text(
-                AppLocalizations.of(context)!.transactions,
-              child:  Text(
                  AppLocalizations.of(context)!.transactionsHistory,
                 style: const TextStyle(
                   fontSize: 22,

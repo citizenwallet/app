@@ -25,6 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -488,8 +489,6 @@ class WalletService {
 
       return profileUrl;
     } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,
@@ -1056,6 +1055,57 @@ class WalletService {
     return (null, NetworkUnknownException());
   }
 
+  /// return paymaster data for constructing a user op
+  Future<(List<PaymasterData>, Exception?)> _getPaymasterOOData(
+    UserOp userop,
+    String eaddr,
+    String ptype, {
+    bool legacy = false,
+    int count = 1,
+  }) async {
+    final body = SUJSONRPCRequest(
+      method: 'pm_ooSponsorUserOperation',
+      params: [
+        userop.toJson(),
+        eaddr,
+        {'type': ptype},
+        count,
+      ],
+    );
+
+    try {
+      final response = await _requestPaymaster(body, legacy: legacy);
+
+      final List<dynamic> data = response.result;
+      if (data.isEmpty) {
+        throw Exception('empty paymaster data');
+      }
+
+      if (data.length != count) {
+        throw Exception('invalid paymaster data');
+      }
+
+      return (data.map((item) => PaymasterData.fromJson(item)).toList(), null);
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      final strerr = exception.toString();
+
+      if (strerr.contains(gasFeeErrorMessage)) {
+        return (<PaymasterData>[], NetworkCongestedException());
+      }
+
+      if (strerr.contains(invalidBalanceErrorMessage)) {
+        return (<PaymasterData>[], NetworkInvalidBalanceException());
+      }
+    }
+
+    return (<PaymasterData>[], NetworkUnknownException());
+  }
+
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
     List<String> dest,
@@ -1143,19 +1193,43 @@ class WalletService {
       userop.maxFeePerGas = fees.maxFeePerGas * BigInt.from(calldata.length);
 
       // submit the user op to the paymaster in order to receive information to complete the user op
-      final (paymasterData, paymasterErr) = await _getPaymasterData(
-        userop,
-        entryPoint.addr,
-        getPaymasterType(legacy: isLegacy),
-        legacy: isLegacy,
-      );
+      List<PaymasterData> paymasterOOData = [];
+      Exception? paymasterErr;
+      if (nonce == BigInt.zero && deploy) {
+        // if it's the first user op, we should use a normal paymaster signature
+        PaymasterData? paymasterData;
+        (paymasterData, paymasterErr) = await _getPaymasterData(
+          userop,
+          entryPoint.addr,
+          getPaymasterType(legacy: isLegacy),
+          legacy: isLegacy,
+        );
+
+        if (paymasterData != null) {
+          paymasterOOData.add(paymasterData);
+        }
+      } else {
+        // if it's not the first user op, we should use an out of order paymaster signature
+        (paymasterOOData, paymasterErr) = await _getPaymasterOOData(
+          userop,
+          entryPoint.addr,
+          getPaymasterType(legacy: isLegacy),
+          legacy: isLegacy,
+        );
+      }
 
       if (paymasterErr != null) {
         throw paymasterErr;
       }
 
-      if (paymasterData == null) {
+      if (paymasterOOData.isEmpty) {
         throw Exception('unable to get paymaster data');
+      }
+
+      final paymasterData = paymasterOOData.first;
+      if (!(nonce == BigInt.zero && deploy)) {
+        // use the nonce received from the paymaster
+        userop.nonce = paymasterData.nonce;
       }
 
       // add the received data to the user op
@@ -1214,7 +1288,7 @@ class WalletService {
       }
 
       return result != null;
-    } catch (e) {
+    } catch (_) {
       rethrow;
     }
   }
