@@ -417,6 +417,7 @@ class WalletScreenState extends State<WalletScreen> {
           context: context,
           expand: true,
           useRootNavigator: true,
+          enableDrag: false,
           builder: (_) => WebViewModal(
             url: uri,
             redirectUrl: redirect,
@@ -536,15 +537,6 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleTransactionSendingTap() async {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => const SendingModal(),
-    );
-  }
-
   void handleLoad(String address) async {
     _profilesLogic.loadProfile(address);
     _voucherLogic.updateVoucher(address);
@@ -566,82 +558,78 @@ class WalletScreenState extends State<WalletScreen> {
 
     final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
-    return CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              (firstLoad && loading) || wallet == null || cleaningUp
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.loading,
-                          style: TextStyle(
-                            color: ThemeColors.text.resolveFrom(context),
-                            fontSize: 20,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    )
-                  : WalletScrollView(
-                      controller: _scrollController,
-                      handleRefresh: handleRefresh,
-                      handleSendModal: handleSendModal,
-                      handleReceive: handleReceive,
-                      handlePlugin: handlePlugin,
-                      handleCards: handleCards,
-                      handleMint: handleMint,
-                      handleVouchers: handleVouchers,
-                      handleTransactionTap: handleTransactionTap,
-                      handleTransactionSendingTap: handleTransactionSendingTap,
-                      handleFailedTransactionTap: handleFailedTransaction,
-                      handleCopy: handleCopy,
-                      handleLoad: handleLoad,
-                      handleScrollToTop: handleScrollToTop,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          (firstLoad && loading) || wallet == null || cleaningUp
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CupertinoActivityIndicator(
+                      color: ThemeColors.subtle.resolveFrom(context),
                     ),
-              GestureDetector(
-                onTap: handleScrollToTop,
-                child: Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  child: SafeArea(
-                    bottom: false,
-                    child: Header(
-                      transparent: true,
-                      color: ThemeColors.transparent,
-                      title: walletName,
-                      actionButton: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (!blockSending)
-                            CupertinoButton(
-                              padding: const EdgeInsets.all(5),
-                              onPressed: (firstLoad || wallet == null)
-                                  ? null
-                                  : handleSendModal,
-                              child: Icon(
-                                CupertinoIcons.qrcode,
-                                color: ThemeColors.primary.resolveFrom(context),
-                              ),
-                            ),
-                        ],
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.loading,
+                      style: TextStyle(
+                        color: ThemeColors.text.resolveFrom(context),
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
+                  ],
+                )
+              : WalletScrollView(
+                  controller: _scrollController,
+                  handleRefresh: handleRefresh,
+                  handleSendModal: handleSendModal,
+                  handleReceive: handleReceive,
+                  handlePlugin: handlePlugin,
+                  handleCards: handleCards,
+                  handleMint: handleMint,
+                  handleVouchers: handleVouchers,
+                  handleTransactionTap: handleTransactionTap,
+                  handleFailedTransactionTap: handleFailedTransaction,
+                  handleCopy: handleCopy,
+                  handleLoad: handleLoad,
+                  handleScrollToTop: handleScrollToTop,
+                ),
+          GestureDetector(
+            onTap: handleScrollToTop,
+            child: Container(
+              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              child: SafeArea(
+                child: Header(
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  title: walletName,
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!blockSending)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: (firstLoad || wallet == null)
+                              ? null
+                              : handleSendModal,
+                          child: Icon(
+                            CupertinoIcons.qrcode,
+                            color: ThemeColors.primary.resolveFrom(context),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
