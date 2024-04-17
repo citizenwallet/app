@@ -490,6 +490,15 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => const SendingModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -542,6 +551,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
+                      handleTransactionSendingTap: handleTransactionSendingTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,
