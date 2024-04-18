@@ -1,5 +1,6 @@
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
+import 'package:citizenwallet/screens/wallet/wallet_actions_more.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -160,6 +161,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
               handleRefreshing(pulledExtent >= 0.39);
 
               return SafeArea(
+                bottom: false,
                 child: Container(
                   color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
@@ -182,6 +184,27 @@ class WalletScrollViewState extends State<WalletScrollView> {
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
               child: WalletActions(
+                shrink: shrink,
+                refreshing: _refreshing,
+                handleSendModal: handleSendModal,
+                handleReceive: handleReceive,
+                handlePlugin: handlePlugin,
+                handleCards: handleCards,
+                handleMint: handleMint,
+                handleVouchers: handleVouchers,
+              ),
+            ),
+          ),
+        ),
+        SliverPersistentHeader(
+          pinned: true,
+          floating: false,
+          delegate: PersistentHeaderDelegate(
+            expandedHeight: 400 + safePadding,
+            minHeight: 180 + safePadding,
+            builder: (context, shrink) => GestureDetector(
+              onTap: widget.handleScrollToTop,
+              child: WalletActionsMore(
                 shrink: shrink,
                 refreshing: _refreshing,
                 handleSendModal: handleSendModal,
@@ -327,7 +350,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Text(
-                 AppLocalizations.of(context)!.transactionsHistory,
+                AppLocalizations.of(context)!.transactionsHistory,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
