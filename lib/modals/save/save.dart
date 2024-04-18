@@ -102,7 +102,7 @@ class SaveModalState extends State<SaveModal> {
   Widget build(BuildContext context) {
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
 
-    final isAndroid = defaultTargetPlatform != TargetPlatform.android;
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
 
     final isDesktop = !isIOS && !isAndroid;
 
