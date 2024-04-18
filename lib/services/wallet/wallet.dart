@@ -791,7 +791,7 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+      const path = 'logs/v2/transfers';
 
       final url =
           '/$path/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
@@ -823,7 +823,7 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+      const path = 'logs/v2/transfers';
 
       final url =
           '/$path/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';

@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingScreen extends StatefulWidget {
+  final String uri;
   final String? voucher;
   final String? voucherParams;
   final String? webWallet;
@@ -29,6 +30,7 @@ class LandingScreen extends StatefulWidget {
 
   const LandingScreen({
     super.key,
+    required this.uri,
     this.voucher,
     this.voucherParams,
     this.webWallet,
@@ -124,25 +126,30 @@ class LandingScreenState extends State<LandingScreen>
       );
     }
 
+    alias ??= aliasFromUri(widget.uri);
+    alias ??= aliasFromReceiveUri(widget.uri);
+
     // handle voucher redemption
     // pick an appropriate wallet to load
     if (widget.voucher != null &&
         widget.voucherParams != null &&
-        address == null &&
-        alias == null) {
-      (address, alias) = await handleLoadFromParams(widget.voucherParams);
+        address == null) {
+      (address, alias) = await handleLoadFromParams(widget.voucherParams,
+          overrideAlias: alias);
     }
 
     // handle receive params
     // pick an appropriate wallet to load
-    if (widget.receiveParams != null && address == null && alias == null) {
-      (address, alias) = await handleLoadFromParams(widget.receiveParams);
+    if (widget.receiveParams != null && address == null) {
+      (address, alias) = await handleLoadFromParams(widget.receiveParams,
+          overrideAlias: alias);
     }
 
     // handle deep link
     // pick an appropriate wallet to load
     if (widget.deepLink != null && widget.deepLinkParams != null) {
-      (address, alias) = await handleLoadFromParams(widget.deepLinkParams);
+      (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
+          overrideAlias: alias);
     }
 
     // load the last wallet if there was no deeplink
@@ -315,11 +322,11 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     final uriAlias = aliasFromUri(result);
-    final voucherAlias = aliasFromReceiveUri(result);
+    final receiveAlias = aliasFromReceiveUri(result);
 
     final (address, alias) = await handleLoadFromParams(
       voucherParams ?? receiveParams ?? deepLinkParams,
-      overrideAlias: uriAlias ?? voucherAlias,
+      overrideAlias: uriAlias ?? receiveAlias,
     );
 
     if (address == null) {
