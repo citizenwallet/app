@@ -179,32 +179,11 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 400 + safePadding,
+            expandedHeight: 600 + safePadding,
             minHeight: 180 + safePadding,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
               child: WalletActions(
-                shrink: shrink,
-                refreshing: _refreshing,
-                handleSendModal: handleSendModal,
-                handleReceive: handleReceive,
-                handlePlugin: handlePlugin,
-                handleCards: handleCards,
-                handleMint: handleMint,
-                handleVouchers: handleVouchers,
-              ),
-            ),
-          ),
-        ),
-        SliverPersistentHeader(
-          pinned: true,
-          floating: false,
-          delegate: PersistentHeaderDelegate(
-            expandedHeight: 400 + safePadding,
-            minHeight: 180 + safePadding,
-            builder: (context, shrink) => GestureDetector(
-              onTap: widget.handleScrollToTop,
-              child: WalletActionsMore(
                 shrink: shrink,
                 refreshing: _refreshing,
                 handleSendModal: handleSendModal,

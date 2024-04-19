@@ -441,4 +441,9 @@ class AppLogic {
       //
     }
   }
+
+
+  void setClickedOnMore(bool clickedOnMore) {
+    _appState.setClickedOnMore(clickedOnMore);
+  }
 }
