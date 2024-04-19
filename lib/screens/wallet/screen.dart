@@ -566,6 +566,8 @@ class WalletScreenState extends State<WalletScreen> {
 
     final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
+    //final walletProfileImage = wallet?.;
+
     return CupertinoPageScaffold(
         backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         child: GestureDetector(
@@ -610,32 +612,72 @@ class WalletScreenState extends State<WalletScreen> {
                       handleLoad: handleLoad,
                       handleScrollToTop: handleScrollToTop,
                     ),
+              // GestureDetector(
+              //   onTap: handleScrollToTop,
+              //   child: Container(
+              //     color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              //     child: SafeArea(
+              //       bottom: false,
+              //       child: Header(
+              //         transparent: true,
+              //         color: ThemeColors.transparent,
+              //        title: walletName,
+              //         actionButton: Row(
+              //           mainAxisAlignment: MainAxisAlignment.end,
+              //           children: [
+              //             if (!blockSending)
+              //               CupertinoButton(
+              //                 padding: const EdgeInsets.all(5),
+              //                 onPressed: (firstLoad || wallet == null)
+              //                     ? null
+              //                     : handleSendModal,
+              //                 child: Icon(
+              //                   CupertinoIcons.qrcode,
+              //                   color: ThemeColors.primary.resolveFrom(context),
+              //                 ),
+              //               ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               GestureDetector(
                 onTap: handleScrollToTop,
                 child: Container(
                   color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   child: SafeArea(
                     bottom: false,
-                    child: Header(
-                      transparent: true,
-                      color: ThemeColors.transparent,
-                      title: walletName,
-                      actionButton: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (!blockSending)
-                            CupertinoButton(
-                              padding: const EdgeInsets.all(5),
-                              onPressed: (firstLoad || wallet == null)
-                                  ? null
-                                  : handleSendModal,
-                              child: Icon(
-                                CupertinoIcons.qrcode,
-                                color: ThemeColors.primary.resolveFrom(context),
-                              ),
-                            ),
-                        ],
-                      ),
+                    child: Stack(
+                      children: [
+                         Header(
+                          transparent: true,
+                          color: ThemeColors.transparent,
+                          //title: walletName,
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (!blockSending)
+                                CupertinoButton(
+                                  padding: const EdgeInsets.all(5),
+                                  onPressed: (firstLoad || wallet == null)
+                                      ? null
+                                      : handleSendModal,
+                                  // child: Icon(
+                                  //   CupertinoIcons.qrcode,
+                                  //   color: ThemeColors.primary.resolveFrom(context),
+                                  // ),
+                                  child: Image.asset('assets/logo.png',
+                                      width: 50, height: 50),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

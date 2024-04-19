@@ -103,7 +103,7 @@ class WalletActionsMore extends StatelessWidget {
             width: 1000,
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeInOut,
-            height: isOpened ? 50 : 200,
+            height: isOpened ? 0 : 200,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
