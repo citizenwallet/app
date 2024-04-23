@@ -145,6 +145,15 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
+    final clickedOnMore =
+        context.select((WalletState state) => state.clickedOnMore);
+    var clickedOnMoreHeight = 0;
+    if (clickedOnMore) {
+      clickedOnMoreHeight = 200;
+    } else {
+      clickedOnMoreHeight = 0;
+    }
+
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
@@ -179,7 +188,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 600 + safePadding,
+            expandedHeight: 400 + safePadding + clickedOnMoreHeight,
             minHeight: 180 + safePadding,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
