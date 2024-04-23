@@ -676,7 +676,7 @@ class WalletScreenState extends State<WalletScreen> {
                         Header(
                           transparent: true,
                           color: ThemeColors.transparent,
-                          title: "walletName",
+                          title: walletName,
                         ),
                         Positioned(
                           top: 0,
