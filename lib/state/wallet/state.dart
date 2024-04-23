@@ -609,8 +609,8 @@ class WalletState with ChangeNotifier {
 
   bool clickedOnMore = false;
 
-  void setClickedOnMore(bool clickedOnMoreValue) {
-    clickedOnMore = clickedOnMoreValue;
+  void setClickedOnMore() {
+    clickedOnMore = !clickedOnMore;
 
     notifyListeners();
   }

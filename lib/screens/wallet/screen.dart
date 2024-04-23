@@ -12,6 +12,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -566,6 +567,8 @@ class WalletScreenState extends State<WalletScreen> {
 
     final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
+    final profile = context.watch<ProfileState>();
+
     //final walletProfileImage = wallet?.;
 
     return CupertinoPageScaffold(
@@ -671,8 +674,8 @@ class WalletScreenState extends State<WalletScreen> {
                                   //   CupertinoIcons.qrcode,
                                   //   color: ThemeColors.primary.resolveFrom(context),
                                   // ),
-                                  child: Image.asset('assets/logo.png',
-                                      width: 50, height: 50),
+                                  child: Image.network(profile.image,
+                                      width: 30, height: 30),
                                 ),
                             ],
                           ),

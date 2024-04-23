@@ -334,7 +334,7 @@ class WalletActions extends StatelessWidget {
                                     onPressed: () {
                                       context
                                           .read<WalletState>()
-                                          .setClickedOnMore(true); //shanuka
+                                          .setClickedOnMore(); //shanuka
                                     },
                                     child: SizedBox(
                                       height: 50,
@@ -377,7 +377,7 @@ class WalletActions extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: clickedOnMore ? 150 : 0,
+                  height: clickedOnMore ? 200 : 0,
                   child: WalletActionsMore(shrink: shrink, refreshing: true),
                 ),
               ],
