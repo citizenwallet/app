@@ -1204,7 +1204,10 @@ class WalletService {
       // submit the user op to the paymaster in order to receive information to complete the user op
       List<PaymasterData> paymasterOOData = [];
       Exception? paymasterErr;
-      if (nonce == BigInt.zero && deploy) {
+      final useAccountNonce = (nonce == BigInt.zero ||
+              getPaymasterType(legacy: isLegacy) == 'payg') &&
+          deploy;
+      if (useAccountNonce) {
         // if it's the first user op, we should use a normal paymaster signature
         PaymasterData? paymasterData;
         (paymasterData, paymasterErr) = await _getPaymasterData(
@@ -1236,7 +1239,7 @@ class WalletService {
       }
 
       final paymasterData = paymasterOOData.first;
-      if (!(nonce == BigInt.zero && deploy)) {
+      if (!useAccountNonce) {
         // use the nonce received from the paymaster
         userop.nonce = paymasterData.nonce;
       }
