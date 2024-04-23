@@ -49,7 +49,7 @@ class HeaderState extends State<Header> {
   @override
   Widget build(BuildContext context) {
     final headerContainer = Container(
-      height: 60,
+      height: 50,
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent
