@@ -47,8 +47,9 @@ class WalletActionsMore extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeInOut,
-            height: isOpened ? 0 : 200,
+            height: isOpened ? 0 : 180,
             decoration: const BoxDecoration(
+              color: ThemeColors.black,
               gradient: LinearGradient(
                 colors: [
                   ThemeColors.uiBackgroundAlt,
@@ -59,7 +60,7 @@ class WalletActionsMore extends StatelessWidget {
               ),
               borderRadius: BorderRadius.all(Radius.circular(0.0)),
             ),
-            child: SingleChildScrollView(
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Column(
                 children: [

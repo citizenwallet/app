@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
@@ -126,7 +127,7 @@ GoRouter createRouter(
               deepLinkParams = state.uri.queryParameters[deepLink];
             }
             final extra = state.extra as Map<String, dynamic>;
-            return SendModal(
+            return PickeSenderModal(
                 walletLogic: wallet, profilesLogic: extra['profilesLogic']);
           },
         ),

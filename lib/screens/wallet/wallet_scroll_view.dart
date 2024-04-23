@@ -149,7 +149,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
         context.select((WalletState state) => state.clickedOnMore);
     var clickedOnMoreHeight = 0;
     if (clickedOnMore) {
-      clickedOnMoreHeight = 200;
+      clickedOnMoreHeight = 180;
     } else {
       clickedOnMoreHeight = 0;
     }

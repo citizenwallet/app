@@ -384,50 +384,6 @@ class WalletActions extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          width: width,
-          bottom: 10,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                height: buttonSize + 10,
-                width: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: <Color>[
-                      ThemeColors.uiBackgroundAltTransparent50
-                          .resolveFrom(context),
-                      ThemeColors.uiBackgroundAltTransparent
-                          .resolveFrom(context),
-                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                    tileMode: TileMode.mirror,
-                  ),
-                ),
-              ),
-              Container(
-                height: buttonSize + 10,
-                width: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                    colors: <Color>[
-                      ThemeColors.uiBackgroundAltTransparent50
-                          .resolveFrom(context),
-                      ThemeColors.uiBackgroundAltTransparent
-                          .resolveFrom(context),
-                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                    tileMode: TileMode.mirror,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
