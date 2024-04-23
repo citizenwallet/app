@@ -22,7 +22,7 @@ class WalletActions extends StatelessWidget {
   final double shrink;
   final bool refreshing;
 
-  final void Function()? handleSendModal;
+  final void Function()? handleSendPush;
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
@@ -33,7 +33,7 @@ class WalletActions extends StatelessWidget {
     super.key,
     this.shrink = 0,
     this.refreshing = false,
-    this.handleSendModal,
+    this.handleSendPush,
     this.handleReceive,
     this.handlePlugin,
     this.handleCards,
@@ -76,7 +76,7 @@ class WalletActions extends StatelessWidget {
         wallet?.locked == false &&
         (!loading || !firstLoad) &&
         wallet?.doubleBalance != 0.0 &&
-        handleSendModal != null;
+        handleSendPush != null;
 
     final isIncreasing = newBalance > balance;
 
@@ -118,7 +118,6 @@ class WalletActions extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                
                 if ((1 - shrink) > 0.6 && wallet != null)
                   CoinSpinner(
                     key: Key('${wallet.alias}-spinner'),
@@ -221,7 +220,7 @@ class WalletActions extends StatelessWidget {
                               ),
                               if (wallet?.locked == false &&
                                   (!loading || !firstLoad) &&
-                                  handleSendModal != null)
+                                  handleSendPush != null)
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -230,7 +229,7 @@ class WalletActions extends StatelessWidget {
                                       padding: const EdgeInsets.all(5),
                                       onPressed: blockSending
                                           ? () => ()
-                                          : handleSendModal,
+                                          : handleSendPush,
                                       borderRadius: BorderRadius.circular(100),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),

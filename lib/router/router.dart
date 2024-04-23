@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
@@ -112,6 +113,21 @@ GoRouter createRouter(
               deepLink: deepLink,
               deepLinkParams: deepLinkParams,
             );
+          },
+        ),
+        GoRoute(
+          name: 'SendModal',
+          path: '/sendModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+            final extra = state.extra as Map<String, dynamic>;
+            return SendModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
           },
         ),
         ShellRoute(

@@ -537,6 +537,26 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleSendPush() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/sendModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleTransactionSendingTap() async {
     CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
@@ -602,7 +622,7 @@ class WalletScreenState extends State<WalletScreen> {
                   : WalletScrollView(
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
-                      handleSendModal: handleSendModal,
+                      handleSendPush: handleSendPush,
                       handleReceive: handleReceive,
                       handlePlugin: handlePlugin,
                       handleCards: handleCards,
