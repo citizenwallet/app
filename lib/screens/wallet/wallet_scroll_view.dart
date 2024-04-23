@@ -184,6 +184,15 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 ),
               );
             }),
+        SliverToBoxAdapter(
+          child: Container(
+            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: const SizedBox(
+              height: 20,
+            ),
+          ),
+        ),
         SliverPersistentHeader(
           pinned: true,
           floating: false,

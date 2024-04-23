@@ -118,9 +118,7 @@ class WalletActions extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 50,
-                ),
+                
                 if ((1 - shrink) > 0.6 && wallet != null)
                   CoinSpinner(
                     key: Key('${wallet.alias}-spinner'),
@@ -378,7 +376,10 @@ class WalletActions extends StatelessWidget {
                 ),
                 SizedBox(
                   height: clickedOnMore ? 200 : 0,
-                  child: WalletActionsMore(shrink: shrink, refreshing: true),
+                  child: WalletActionsMore(
+                    shrink: shrink,
+                    refreshing: true,
+                  ),
                 ),
               ],
             ),

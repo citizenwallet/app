@@ -49,7 +49,7 @@ class HeaderState extends State<Header> {
   @override
   Widget build(BuildContext context) {
     final headerContainer = Container(
-      height: 60,
+      height: 46,
       decoration: BoxDecoration(
         color: widget.transparent
             ? ThemeColors.transparent
@@ -115,7 +115,7 @@ class HeaderState extends State<Header> {
                 Expanded(child: widget.titleWidget!),
               if (widget.actionButton != null)
                 Container(
-                  height: 60.0,
+                  height: 46.0,
                   constraints: const BoxConstraints(
                     minWidth: 60,
                   ),

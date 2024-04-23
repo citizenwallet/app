@@ -653,10 +653,10 @@ class WalletScreenState extends State<WalletScreen> {
                     bottom: false,
                     child: Stack(
                       children: [
-                         Header(
+                        Header(
                           transparent: true,
                           color: ThemeColors.transparent,
-                          //title: walletName,
+                          title: "walletName",
                         ),
                         Positioned(
                           top: 0,
