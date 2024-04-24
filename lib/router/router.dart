@@ -71,7 +71,12 @@ GoRouter createRouter(
               // parse from a receive deep link
               final receiveParams = uri.queryParameters['receiveParams'];
 
+              // uri
+              final stringUri =
+                  '${state.uri.scheme}://${state.uri.host}/#${state.uri.path}${state.uri.fragment}';
+
               return LandingScreen(
+                uri: state.uri.hasScheme ? stringUri : state.uri.toString(),
                 voucher: voucher,
                 voucherParams: voucherParams,
                 webWallet:
