@@ -3,7 +3,7 @@
         "community": {
             "name": "Gratitude Token",
             "description": "Express your gratitude towards someone by sending them a token.",
-            "url": "https://citizenwallet.xyz",
+            "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gt.celo",
             "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
             "hidden": true
@@ -57,7 +57,7 @@
         "community": {
             "name": "Gratitude Token",
             "description": "Express your gratitude towards someone by sending them a token of gratitude.",
-            "url": "https://citizenwallet.xyz",
+            "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gratitude",
             "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
         },
