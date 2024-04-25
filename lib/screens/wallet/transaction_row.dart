@@ -86,18 +86,26 @@ class TransactionRowState extends State<TransactionRow> {
         margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         height: 90,
-        decoration: BoxDecoration(
-          color: !isSending
-              ? ThemeColors.subtle.resolveFrom(context)
-              : ThemeColors.subtleEmphasis.resolveFrom(context),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            width: 2,
-            color: !isSending
-                ? ThemeColors.uiBackgroundAlt.resolveFrom(context)
-                : ThemeColors.secondary.resolveFrom(context),
-          ),
+        // decoration: BoxDecoration(
+        //   color: !isSending
+        //       ? ThemeColors.subtle.resolveFrom(context)
+        //       : ThemeColors.subtleEmphasis.resolveFrom(context),
+        //   borderRadius: BorderRadius.circular(10),
+        //   border: Border.all(
+        //     width: 2,
+        //     color: !isSending
+        //         ? ThemeColors.uiBackgroundAlt.resolveFrom(context)
+        //         : ThemeColors.secondary.resolveFrom(context),
+        //   ),
+        // ),
+        decoration: const BoxDecoration(
+          border: Border(
+              top: BorderSide(
+            color: ThemeColors.uiBackgroundAlt,
+            width: 1,
+          )),
         ),
+
         child: Stack(
           children: [
             Row(
@@ -132,13 +140,16 @@ class TransactionRowState extends State<TransactionRow> {
                                   TextSpan(
                                     text: voucher != null
                                         ? isIncoming
-                                            ? AppLocalizations.of(context)!.voucherRedeemed
-                                            : AppLocalizations.of(context)!.voucherCreated
+                                            ? AppLocalizations.of(context)!
+                                                .voucherRedeemed
+                                            : AppLocalizations.of(context)!
+                                                .voucherCreated
                                         : profile != null
                                             ? profile.profile.name
                                             : addressEmpty
                                                 ? wallet.currencyName
-                                                : AppLocalizations.of(context)!.anonymous,
+                                                : AppLocalizations.of(context)!
+                                                    .anonymous,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color:

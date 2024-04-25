@@ -548,7 +548,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                       ? AppLocalizations.of(context)!.mint
                       : AppLocalizations.of(context)!.send,
                   actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(4),
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,

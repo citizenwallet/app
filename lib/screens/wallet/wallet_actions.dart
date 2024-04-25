@@ -23,7 +23,7 @@ class WalletActions extends StatelessWidget {
   final bool refreshing;
 
   final void Function()? handleSendPush;
-  final void Function()? handleReceive;
+  final void Function()? handleReceivePush;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
   final void Function()? handleMint;
@@ -34,7 +34,7 @@ class WalletActions extends StatelessWidget {
     this.shrink = 0,
     this.refreshing = false,
     this.handleSendPush,
-    this.handleReceive,
+    this.handleReceivePush,
     this.handlePlugin,
     this.handleCards,
     this.handleMint,
@@ -105,14 +105,15 @@ class WalletActions extends StatelessWidget {
     return Stack(
       children: [
         SafeArea(
+          bottom: false,
           child: Container(
             decoration: BoxDecoration(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              border: Border(
-                bottom: BorderSide(
-                  color: ThemeColors.subtle.resolveFrom(context),
-                ),
-              ),
+              color: ThemeColors.background.resolveFrom(context),
+              // border: Border(
+              //   bottom: BorderSide(
+              //     color: ThemeColors.subtle.resolveFrom(context),
+              //   ),
+              // ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -216,7 +217,7 @@ class WalletActions extends StatelessWidget {
                             scrollDirection: Axis.horizontal,
                             children: [
                               SizedBox(
-                                width: (width / 2) - buttonOffset,
+                                width: (width / 3) - (buttonOffset/2),
                               ),
                               if (wallet?.locked == false &&
                                   (!loading || !firstLoad) &&
@@ -272,7 +273,7 @@ class WalletActions extends StatelessWidget {
                               if (wallet?.locked == false)
                                 const SizedBox(width: 40),
                               if ((!loading || !firstLoad) &&
-                                  handleReceive != null)
+                                  handleReceivePush != null)
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -281,7 +282,7 @@ class WalletActions extends StatelessWidget {
                                       padding: const EdgeInsets.all(5),
                                       onPressed: sendLoading
                                           ? () => ()
-                                          : handleReceive,
+                                          : handleReceivePush,
                                       borderRadius: BorderRadius.circular(100),
                                       color: ThemeColors.surfacePrimary
                                           .resolveFrom(context),
@@ -327,7 +328,7 @@ class WalletActions extends StatelessWidget {
                                     padding: const EdgeInsets.all(5),
                                     borderRadius: BorderRadius.circular(100),
                                     color:
-                                        ThemeColors.white.resolveFrom(context),
+                                        ThemeColors.uiBackground.resolveFrom(context),
                                     onPressed: () {
                                       context
                                           .read<WalletState>()
@@ -373,11 +374,14 @@ class WalletActions extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: clickedOnMore ? 200 : 0,
-                  child: WalletActionsMore(
-                    shrink: shrink,
-                    refreshing: true,
+                Container(
+                  color: ThemeColors.black,
+                  child: SizedBox(
+                    height: clickedOnMore ? 180 : 0,
+                    child: WalletActionsMore(
+                      shrink: shrink,
+                      refreshing: true,
+                    ),
                   ),
                 ),
               ],

@@ -238,6 +238,26 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleReceivePush() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/receiveModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   Future<void> handleLoadFromVoucher() async {
     final voucher = widget.voucher;
     final voucherParams = widget.voucherParams;
@@ -568,7 +588,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
                       handleSendPush: handleSendPush,
-                      handleReceive: handleReceive,
+                      handleReceivePush: handleReceivePush,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
                       handleTransactionSendingTap: handleTransactionSendingTap,

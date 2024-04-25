@@ -52,8 +52,8 @@ class WalletActionsMore extends StatelessWidget {
               color: ThemeColors.black,
               gradient: LinearGradient(
                 colors: [
-                  ThemeColors.uiBackgroundAlt,
-                  ThemeColors.uiBackgroundAlt,
+                  ThemeColors.background,
+                  ThemeColors.background,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

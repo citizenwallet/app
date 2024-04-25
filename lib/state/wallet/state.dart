@@ -614,4 +614,10 @@ class WalletState with ChangeNotifier {
 
     notifyListeners();
   }
+
+bool clickedOnSearching = false;
+  void setclickedOnSearching(bool searching) {
+    clickedOnSearching = searching;
+    notifyListeners();
+  }
 }

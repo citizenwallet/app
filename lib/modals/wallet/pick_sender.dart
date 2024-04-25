@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -44,6 +46,8 @@ class PickeSenderModal extends StatefulWidget {
 class PickeSenderModalState extends State<PickeSenderModal>
     with TickerProviderStateMixin {
   late WalletLogic _logic;
+  late ProfilesLogic _profilesLogic;
+  late VoucherLogic _voucherLogic;
 
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
@@ -60,7 +64,11 @@ class PickeSenderModalState extends State<PickeSenderModal>
     super.initState();
 
     _logic = widget.walletLogic;
+    _profilesLogic = ProfilesLogic(context);
+    _voucherLogic = VoucherLogic(context);
 
+    WidgetsBinding.instance.addObserver(_profilesLogic);
+    WidgetsBinding.instance.addObserver(_voucherLogic);
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -101,6 +109,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
   void handleThrottledUpdateAddress(String username) {
     debouncedAddressUpdate();
     widget.profilesLogic.searchProfile(username);
+    context.read<WalletState>().setclickedOnSearching(true);
   }
 
   void handleThrottledUpdateAmount() {
@@ -132,6 +141,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
+    
   }
 
   void handleSend(BuildContext context, String? selectedAddress) async {
@@ -228,6 +238,8 @@ class PickeSenderModalState extends State<PickeSenderModal>
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+    final clickedOnSearching =
+        context.select((WalletState state) => state.clickedOnSearching);
     final balance =
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
 
@@ -300,11 +312,6 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 60),
-                        Text(
-                          AppLocalizations.of(context)!.to,
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
                         const SizedBox(height: 10),
                         if (isValid)
                           ProfileChip(
@@ -344,7 +351,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                       color: ThemeColors.danger,
                                     ),
                                     borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                                        Radius.circular(10.0)),
                                   )
                                 : BoxDecoration(
                                     color: const CupertinoDynamicColor
@@ -354,15 +361,15 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     ),
                                     border: Border.all(
                                       color: hasAddress
-                                          ? ThemeColors.text
+                                          ? ThemeColors.surfacePrimary
                                               .resolveFrom(context)
-                                          : ThemeColors.transparent
+                                          : ThemeColors.surfacePrimary
                                               .resolveFrom(context),
                                     ),
                                     borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                                        Radius.circular(30.0)),
                                   ),
-                            prefix: Center(
+                            suffix: Center(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -376,17 +383,27 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                         ),
                                       )
                                     : Icon(
-                                        CupertinoIcons.profile_circled,
+                                        CupertinoIcons.search,
                                         color: hasAddress
-                                            ? ThemeColors.text
+                                            ? ThemeColors.surfacePrimary
                                                 .resolveFrom(context)
-                                            : ThemeColors.subtleEmphasis
+                                            : ThemeColors.surfacePrimary
                                                 .resolveFrom(context),
                                       ),
                               ),
                             ),
                             onSubmitted: handleAddressFieldSubmitted,
                           ),
+                        Container(
+                          color: ThemeColors.black,
+                          child: SizedBox(
+                            height: !clickedOnSearching ? 120 : 0,
+                            child: SendSelectionModal(
+                              walletLogic: _logic,
+                              profilesLogic: _profilesLogic,
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -437,41 +454,35 @@ class PickeSenderModalState extends State<PickeSenderModal>
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Header(
-                  titleWidget: Row(
-                    children: [
-                      Text(
-                        widget.isMinting ? AppLocalizations.of(context)!.mint : AppLocalizations.of(context)!.send,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Header(
+                    titleWidget: Row(
+                      children: [
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Icon(
+                            CupertinoIcons.arrow_left,
+                            color: ThemeColors.touchable.resolveFrom(context),
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        '${wallet?.symbol} ${widget.amount}',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              widget.isMinting
+                                  ? AppLocalizations.of(context)!.mint
+                                  : AppLocalizations.of(context)!.send,
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: ThemeColors.text.resolveFrom(context),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      ],
                     ),
-                  ),
-                ),
-              ),
+                  )),
               if (_isSending)
                 Positioned(
                   bottom: 90,
@@ -508,7 +519,9 @@ class PickeSenderModalState extends State<PickeSenderModal>
                             enabled: isValid,
                             isComplete: _isSending,
                             completionLabel: widget.isMinting
-                                ? (_isSending ? AppLocalizations.of(context)!.minting : AppLocalizations.of(context)!.mint)
+                                ? (_isSending
+                                    ? AppLocalizations.of(context)!.minting
+                                    : AppLocalizations.of(context)!.mint)
                                 : _isSending
                                     ? AppLocalizations.of(context)!.sending
                                     : AppLocalizations.of(context)!.send,
