@@ -227,6 +227,9 @@ GoRouter createWebRouter(
             final deepLink = state.uri.queryParameters['dl'];
             if (deepLink != null) {
               deepLinkParams = state.uri.queryParameters[deepLink];
+              if (deepLinkParams != null) {
+                deepLinkParams = encodeParams(deepLinkParams);
+              }
             }
 
             return WebLandingScreen(
@@ -262,6 +265,9 @@ GoRouter createWebRouter(
                 final deepLink = state.uri.queryParameters['dl'];
                 if (deepLink != null) {
                   deepLinkParams = state.uri.queryParameters[deepLink];
+                  if (deepLinkParams != null) {
+                    deepLinkParams = encodeParams(deepLinkParams);
+                  }
                 }
 
                 return NoTransitionPage(

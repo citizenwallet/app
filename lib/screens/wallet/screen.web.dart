@@ -1,7 +1,9 @@
 import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
+import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -175,6 +177,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       await handleSendModal(receiveParams: widget.receiveParams);
     }
 
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      await handleLoadDeepLink();
+    }
+
     navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
   }
 
@@ -190,7 +196,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     switch (deepLink) {
       case 'plugin':
-        // web cannot handle plugins yet
+        final pluginConfig =
+            await _logic.getPluginConfig(widget.alias!, params);
+        if (pluginConfig == null) {
+          return;
+        }
+        await handlePlugin(pluginConfig);
         break;
       default:
         _logic.pauseFetching();
@@ -216,6 +227,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         _voucherLogic.resume();
         break;
     }
+  }
+
+  Future<void> handlePlugin(PluginConfig pluginConfig) async {
+    HapticFeedback.heavyImpact();
+
+    final (uri, _, redirect) = await _logic.constructPluginUri(pluginConfig);
+    if (uri == null || redirect == null) {
+      return;
+    }
+
+    _logic.launchPluginUrl(uri);
   }
 
   Future<void> handleLoadFromVoucher() async {
