@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
+import 'package:citizenwallet/modals/wallet/send_scanner.dart';
 import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
@@ -158,7 +159,7 @@ GoRouter createRouter(
               deepLinkParams = state.uri.queryParameters[deepLink];
             }
             final extra = state.extra as Map<String, dynamic>;
-            return SendModal(
+            return SendScannerModal(
                 walletLogic: wallet, profilesLogic: extra['profilesLogic']);
           },
         ),

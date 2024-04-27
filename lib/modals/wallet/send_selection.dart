@@ -312,7 +312,7 @@ class SendSelectionModalState extends State<SendSelectionModal>
 
     return GestureDetector(
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
           bottom: false,
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 0),
@@ -385,11 +385,6 @@ class SendSelectionModalState extends State<SendSelectionModal>
                                 padding: const EdgeInsets.all(3),
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  // border: Border.all(
-                                  //   color: ThemeColors.surfacePrimary
-                                  //       .resolveFrom(context),
-                                  //   width: 2,
-                                  // ),
                                 ),
                                 child: SizedBox(
                                   height: 20,

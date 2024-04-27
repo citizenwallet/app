@@ -139,7 +139,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     if (searchedProfile != null) {
       widget.profilesLogic.selectProfile(null);
     }
-
+    context.read<WalletState>().setclickedOnSearching(false);
     FocusManager.instance.primaryFocus?.unfocus();
     
   }
@@ -297,8 +297,9 @@ class PickeSenderModalState extends State<PickeSenderModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
+          bottom: false,
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Stack(
             alignment: Alignment.topCenter,
@@ -330,8 +331,9 @@ class PickeSenderModalState extends State<PickeSenderModal>
                           ),
                         if (!isValid)
                           CupertinoTextField(
+                            padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
                             controller: _logic.addressController,
-                            placeholder: '@username or 0xaddress',
+                            placeholder: AppLocalizations.of(context)!.searchUser,
                             maxLines: 1,
                             autocorrect: false,
                             enableSuggestions: false,
@@ -342,11 +344,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     parsingQRAddressError ||
                                     transactionSendError
                                 ? BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
+                                    color: ThemeColors.background.resolveFrom(context),
                                     border: Border.all(
                                       color: ThemeColors.danger,
                                     ),
@@ -354,11 +352,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                         Radius.circular(10.0)),
                                   )
                                 : BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
+                                    color:  ThemeColors.background.resolveFrom(context),
                                     border: Border.all(
                                       color: hasAddress
                                           ? ThemeColors.surfacePrimary
@@ -394,19 +388,17 @@ class PickeSenderModalState extends State<PickeSenderModal>
                             ),
                             onSubmitted: handleAddressFieldSubmitted,
                           ),
-                        Container(
-                          color: ThemeColors.black,
-                          child: SizedBox(
-                            height: !clickedOnSearching ? 120 : 0,
-                            child: SendSelectionModal(
-                              walletLogic: _logic,
-                              profilesLogic: _profilesLogic,
-                            ),
+                        SizedBox(
+                          height: !clickedOnSearching ? 120 : 0,
+                          child: SendSelectionModal(
+                            walletLogic: _logic,
+                            profilesLogic: _profilesLogic,
                           ),
                         )
                       ],
                     ),
                   ),
+                  if(clickedOnSearching)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -456,6 +448,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
               Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: Header(
+                    color: ThemeColors.background,
                     titleWidget: Row(
                       children: [
                         CupertinoButton(
@@ -473,9 +466,9 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                   ? AppLocalizations.of(context)!.mint
                                   : AppLocalizations.of(context)!.send,
                               style: TextStyle(
-                                fontSize: 26,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Color(0xFF8F899C),
                               ),
                             ),
                           ),
