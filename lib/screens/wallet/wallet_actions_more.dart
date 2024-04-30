@@ -16,20 +16,27 @@ class WalletActionsMore extends StatelessWidget {
   final bool refreshing;
   final bool isOpened;
 
+  final void Function(PluginConfig pluginConfig)? handlePlugin;
+
+
   WalletActionsMore(
       {super.key,
       this.shrink = 0,
       this.refreshing = false,
-      this.isOpened = false});
+      this.isOpened = false,
+      this.handlePlugin,});
 
   bool _showAdditionalButtons = false;
   void handleOpenAbout() {
     _showAdditionalButtons = !_showAdditionalButtons;
   }
+  
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final wallet = context.select((WalletState state) => state.wallet);
+
     void handleClick(String value) {
       switch (value) {
         case 'Logout':
@@ -70,7 +77,7 @@ class WalletActionsMore extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CupertinoButton(
-                        onPressed: null,
+                        onPressed: () => handlePlugin!(wallet?.plugins as PluginConfig),
                         padding: EdgeInsets.zero,
                         child: Container(
                           padding: const EdgeInsets.all(3),

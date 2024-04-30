@@ -578,7 +578,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-   void handleScanQr() async {
+  void handleScanQr() async {
     HapticFeedback.lightImpact();
 
     _logic.pauseFetching();
@@ -587,6 +587,26 @@ class WalletScreenState extends State<WalletScreen> {
 
     await GoRouter.of(context).push<bool?>(
       '/scanQrModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void openAccount() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/account',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
@@ -677,7 +697,7 @@ class WalletScreenState extends State<WalletScreen> {
                       handleScrollToTop: handleScrollToTop,
                     ),
               Positioned(
-                bottom: 20.0,
+                bottom: 0,
                 child: Container(
                   width: 400,
                   decoration: BoxDecoration(
@@ -685,29 +705,31 @@ class WalletScreenState extends State<WalletScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white
-                          .withOpacity(0.0), 
-                      Colors.white.withOpacity(
-                          0.8), 
+                      Colors.white.withOpacity(0.0),
+                      Colors.white.withOpacity(0.8),
                     ],
                   )),
-                  child: CupertinoButton(
-                    onPressed: handleScanQr,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ThemeColors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    child: CupertinoButton(
+                      onPressed: handleScanQr,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: ThemeColors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            width: 4,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                          size: 50,
                           color:
                               ThemeColors.surfacePrimary.resolveFrom(context),
-                          width: 4,
                         ),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Icon(
-                        CupertinoIcons.qrcode_viewfinder,
-                        size: 50,
-                        color: ThemeColors.surfacePrimary.resolveFrom(context),
                       ),
                     ),
                   ),
@@ -721,10 +743,7 @@ class WalletScreenState extends State<WalletScreen> {
                     bottom: false,
                     child: Stack(
                       children: [
-                        const Header(
-                          transparent: true,
-                          color: ThemeColors.transparent,
-                        ),
+                        const Header(transparent: true),
                         Positioned(
                           top: 0,
                           right: 20,
@@ -736,7 +755,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   padding: const EdgeInsets.all(5),
                                   onPressed: (firstLoad || wallet == null)
                                       ? null
-                                      : handleSendModal,
+                                      : openAccount,
                                   child: Image.network(profile.image,
                                       width: 40, height: 40),
                                 ),

@@ -232,6 +232,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     HapticFeedback.heavyImpact();
 
     navigator.pop(true);
+
     return;
   }
 
@@ -294,6 +295,30 @@ class PickeSenderModalState extends State<PickeSenderModal>
 
     final width = MediaQuery.of(context).size.width;
 
+     void openSend(ProfileV1? profile) async {
+       widget.profilesLogic.selectProfile(profile);
+    _logic.updateAddress(override: profile != null);
+    FocusManager.instance.primaryFocus?.unfocus();
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/openSendModel',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+    
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -314,23 +339,23 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       children: [
                         const SizedBox(height: 60),
                         const SizedBox(height: 10),
-                        if (isValid)
-                          ProfileChip(
-                            selectedProfile: selectedProfile,
-                            selectedAddress:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? null
-                                    : formatHexAddress(
-                                        _logic.addressController.value.text),
-                            handleDeSelect:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? handleDeSelectProfile
-                                    : handleClearAddress,
-                          ),
-                        if (!isValid)
-                          CupertinoTextField(
+                        // if (isValid)
+                        //   ProfileChip(
+                        //     selectedProfile: selectedProfile,
+                        //     selectedAddress:
+                        //         _logic.addressController.value.text.isEmpty ||
+                        //                 selectedProfile != null
+                        //             ? null
+                        //             : formatHexAddress(
+                        //                 _logic.addressController.value.text),
+                        //     handleDeSelect:
+                        //         _logic.addressController.value.text.isEmpty ||
+                        //                 selectedProfile != null
+                        //             ? handleDeSelectProfile
+                        //             : handleClearAddress,
+                        //   ),
+                        //if (!isValid)
+                        CupertinoTextField(
                             padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
                             controller: _logic.addressController,
                             placeholder: AppLocalizations.of(context)!.searchUser,
@@ -398,7 +423,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       ],
                     ),
                   ),
-                  if(clickedOnSearching)
+                  //if(clickedOnSearching)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -427,7 +452,8 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     loading: false,
                                     active: searchedProfile != null &&
                                         searchedProfile == profile,
-                                    onTap: () => handleSelectProfile(profile),
+                                    onTap: () => openSend(profile),
+                                    //onTap: openSend,
                                   ),
                                 );
                               },
@@ -481,60 +507,6 @@ class PickeSenderModalState extends State<PickeSenderModal>
                   bottom: 90,
                   child: CupertinoActivityIndicator(
                     color: ThemeColors.subtle.resolveFrom(context),
-                  ),
-                ),
-              if (isValid)
-                Positioned(
-                  bottom: 0,
-                  width: width,
-                  child: BlurryChild(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
-                        ),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                      child: Column(
-                        children: [
-                          SlideToComplete(
-                            onCompleted: !_isSending
-                                ? widget.isMinting
-                                    ? () => handleMint(
-                                        context, selectedProfile?.account)
-                                    : () => handleSend(
-                                          context,
-                                          selectedProfile?.account,
-                                        )
-                                : null,
-                            enabled: isValid,
-                            isComplete: _isSending,
-                            completionLabel: widget.isMinting
-                                ? (_isSending
-                                    ? AppLocalizations.of(context)!.minting
-                                    : AppLocalizations.of(context)!.mint)
-                                : _isSending
-                                    ? AppLocalizations.of(context)!.sending
-                                    : AppLocalizations.of(context)!.send,
-                            thumbColor:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            width: width * 0.5,
-                            child: const SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.arrow_right,
-                                  color: ThemeColors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
             ],

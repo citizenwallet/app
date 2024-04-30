@@ -178,5 +178,6 @@
   "emptyBalanceText2": "Redeem this voucher to your account.",
   "more" : "more",
   "transactionsHistory": "Transactions History",
-  "searchUser": "Search user or paste address"
+  "searchUser": "Search user or paste address",
+  "sendTo": "Send to"
 }

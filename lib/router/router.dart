@@ -2,6 +2,7 @@ import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/send_scanner.dart';
+import 'package:citizenwallet/modals/wallet/send_to.dart';
 import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
@@ -153,13 +154,36 @@ GoRouter createRouter(
           path: '/scanQrModal',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
-            String? deepLinkParams;
             final deepLink = state.uri.queryParameters['dl'];
             if (deepLink != null) {
-              deepLinkParams = state.uri.queryParameters[deepLink];
             }
             final extra = state.extra as Map<String, dynamic>;
             return SendScannerModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
+        GoRoute(
+          name: 'Account',
+          path: '/account',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+            }
+            return AccountScreen(
+              address: state.pathParameters['address'],
+                  alias: state.uri.queryParameters['alias'],
+                  wallet: wallet,
+            );
+          },
+        ),
+        GoRoute(
+          name: 'OpenSendModel',
+          path: '/openSendModel',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return SendToModal(
                 walletLogic: wallet, profilesLogic: extra['profilesLogic']);
           },
         ),
@@ -228,20 +252,20 @@ GoRouter createRouter(
                 child: const ContactsScreen(),
               ),
             ),
-            GoRoute(
-              name: 'Account',
-              path: '/account/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: AccountScreen(
-                  address: state.pathParameters['address'],
-                  alias: state.uri.queryParameters['alias'],
-                  wallet: wallet,
-                ),
-              ),
-            ),
+            // GoRoute(
+            //   name: 'Account',
+            //   path: '/account/:address',
+            //   parentNavigatorKey: shellNavigatorKey,
+            //   pageBuilder: (context, state) => NoTransitionPage(
+            //     key: state.pageKey,
+            //     name: state.name,
+            //     child: AccountScreen(
+            //       address: state.pathParameters['address'],
+            //       alias: state.uri.queryParameters['alias'],
+            //       wallet: wallet,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         GoRoute(
