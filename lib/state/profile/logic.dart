@@ -230,6 +230,11 @@ class ProfileLogic {
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
+      final exists = await _wallet.createAccount();
+      if (!exists) {
+        throw Exception('Failed to create account');
+      }
+
       _state.setProfileUploading();
 
       final Uint8List newImage = image != null

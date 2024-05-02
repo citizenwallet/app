@@ -29,7 +29,12 @@ class DeepLinkLogic {
 
       final (_, userop) = await _wallet.prepareUserop([address], [calldata]);
 
-      final success = await _wallet.submitUserop(userop);
+      final txHash = await _wallet.submitUserop(userop);
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      final success = await _wallet.waitForTxSuccess(txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
