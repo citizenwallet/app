@@ -72,6 +72,12 @@ class SimpleAccount {
     ]);
   }
 
+  Uint8List transferOwnershipCallData(String newOwner) {
+    final function = rcontract.function('transferOwnership');
+
+    return function.encodeCall([EthereumAddress.fromHex(newOwner)]);
+  }
+
   Uint8List upgradeToCallData(String implementation) {
     final function = rcontract.function('upgradeTo');
 

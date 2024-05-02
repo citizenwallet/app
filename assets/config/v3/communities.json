@@ -567,6 +567,9 @@
             "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
             "paymaster_type": "cw"
         },
+        "cards": {
+            "card_factory_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB"
+        },
         "plugins": [
             {
                 "name": "Top Up",

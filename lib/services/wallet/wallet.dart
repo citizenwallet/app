@@ -20,6 +20,7 @@ import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/paymaster_data.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -367,10 +368,9 @@ class WalletService {
       final exists = await accountExists();
       if (!exists) {
         _useLegacyBundlers = false;
-        await createAccount();
+        onFinished?.call(true);
+        return;
       }
-
-      _useLegacyBundlers = await _contractAccount.isLegacy();
 
       // call the upgrade function on our API, it will return the new implementation address
       final implementation = await upgradeAccount();
@@ -386,10 +386,15 @@ class WalletService {
           deploy: false,
         );
 
-        final success = await submitUserop(
+        final txHash = await submitUserop(
           userop,
         );
 
+        if (txHash == null) {
+          return;
+        }
+
+        final success = await waitForTxSuccess(txHash);
         if (!success) {
           return;
         }
@@ -406,6 +411,37 @@ class WalletService {
     _useLegacyBundlers = true;
 
     onFinished?.call(false);
+  }
+
+  /// given a tx hash, waits for the tx to be mined
+  Future<bool> waitForTxSuccess(
+    String txHash, {
+    int retryCount = 0,
+    int maxRetries = 20,
+  }) async {
+    if (retryCount >= maxRetries) {
+      return false;
+    }
+
+    final receipt = await _ethClient.getTransactionReceipt(txHash);
+    if (receipt?.status != true) {
+      // there is either no receipt or the tx is still not confirmed
+
+      // increment the retry count
+      final nextRetryCount = retryCount + 1;
+
+      // wait for a bit before retrying
+      await delay(Duration(milliseconds: 250 * (nextRetryCount)));
+
+      // retry
+      return waitForTxSuccess(
+        txHash,
+        retryCount: nextRetryCount,
+        maxRetries: maxRetries,
+      );
+    }
+
+    return true;
   }
 
   StackupEntryPoint getEntryPointContract({bool legacy = false}) {
@@ -482,9 +518,14 @@ class WalletService {
 
       final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
-      final success = await submitUserop(userop);
-      if (!success) {
+      final txHash = await submitUserop(userop);
+      if (txHash == null) {
         throw Exception('profile update failed');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
       }
 
       return profileUrl;
@@ -529,9 +570,14 @@ class WalletService {
 
       final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
-      final success = await submitUserop(userop);
-      if (!success) {
+      final txHash = await submitUserop(userop);
+      if (txHash == null) {
         throw Exception('profile update failed');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
       }
 
       return profileUrl;
@@ -678,42 +724,39 @@ class WalletService {
     return false;
   }
 
+  // TODO: create an account using a user op
+
   /// create an account
   Future<bool> createAccount({
     EthPrivateKey? customCredentials,
   }) async {
     try {
-      final cred = customCredentials ?? _credentials;
+      final exists = await accountExists();
+      if (exists) {
+        return true;
+      }
 
-      final accountFactory = getAccounFactoryContract();
-
-      final url = '/accounts/factory/${accountFactory.addr}';
-
-      final encoded = jsonEncode(
-        {
-          'owner': cred.address.hexEip55,
-          'salt': BigInt.zero.toInt(),
-        },
+      final calldata = _contractAccount.transferOwnershipCallData(
+        _credentials.address.hexEip55,
       );
 
-      final body = SignedRequest(convertStringToUint8List(encoded));
-
-      final sig =
-          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
-
-      await _indexer.post(
-        url: url,
-        headers: {
-          'Authorization': 'Bearer $_indexerKey',
-          'X-Signature': sig,
-          'X-Address': cred.address
-              .hexEip55, // owner verification since 1271 is impossible at this point
-        },
-        body: body.toJson(),
+      final (_, userop) = await prepareUserop(
+        [_account.hexEip55],
+        [calldata],
       );
 
-      return true;
-    } on ConflictException {
+      final txHash = await submitUserop(
+        userop,
+      );
+      if (txHash == null) {
+        throw Exception('failed to submit user op');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
+      }
+
       return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -1207,6 +1250,7 @@ class WalletService {
       final useAccountNonce = (nonce == BigInt.zero ||
               getPaymasterType(legacy: isLegacy) == 'payg') &&
           deploy;
+
       if (useAccountNonce) {
         // if it's the first user op, we should use a normal paymaster signature
         PaymasterData? paymasterData;
@@ -1263,7 +1307,7 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool> submitUserop(
+  Future<String?> submitUserop(
     UserOp userop, {
     EthPrivateKey? customCredentials,
     bool legacy = false,
@@ -1289,7 +1333,7 @@ class WalletService {
       final entryPoint = getEntryPointContract(legacy: isLegacy);
 
       // send the user op
-      final (result, useropErr) = await _submitUserOp(
+      final (txHash, useropErr) = await _submitUserOp(
         userop,
         entryPoint.addr,
         legacy: isLegacy,
@@ -1299,7 +1343,7 @@ class WalletService {
         throw useropErr;
       }
 
-      return result != null;
+      return txHash;
     } catch (_) {
       rethrow;
     }
