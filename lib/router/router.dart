@@ -1,9 +1,12 @@
+import 'package:citizenwallet/modals/account/switch_account.dart';
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/send_scanner.dart';
 import 'package:citizenwallet/modals/wallet/send_to.dart';
 import 'package:citizenwallet/modals/wallet/send_selection.dart';
+import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:citizenwallet/modals/wallet/sending_to.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
@@ -146,7 +149,7 @@ GoRouter createRouter(
               deepLinkParams = state.uri.queryParameters[deepLink];
             }
             final extra = state.extra as Map<String, dynamic>;
-            return ReceiveModal(logic: extra['logic'] );
+            return ReceiveModal(logic: extra['logic']);
           },
         ),
         GoRoute(
@@ -155,8 +158,7 @@ GoRouter createRouter(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             final deepLink = state.uri.queryParameters['dl'];
-            if (deepLink != null) {
-            }
+            if (deepLink != null) {}
             final extra = state.extra as Map<String, dynamic>;
             return SendScannerModal(
                 walletLogic: wallet, profilesLogic: extra['profilesLogic']);
@@ -168,12 +170,11 @@ GoRouter createRouter(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             final deepLink = state.uri.queryParameters['dl'];
-            if (deepLink != null) {
-            }
+            if (deepLink != null) {}
             return AccountScreen(
               address: state.pathParameters['address'],
-                  alias: state.uri.queryParameters['alias'],
-                  wallet: wallet,
+              alias: state.uri.queryParameters['alias'],
+              wallet: wallet,
             );
           },
         ),
@@ -185,6 +186,22 @@ GoRouter createRouter(
             final extra = state.extra as Map<String, dynamic>;
             return SendToModal(
                 walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
+        GoRoute(
+          name: 'OpenSendingModal',
+          path: '/openSendingModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            return SendingToScreen(walletLogic: wallet);
+          },
+        ),
+        GoRoute(
+          name: 'OpenSwitchAccountModal',
+          path: '/openSwitchAccountModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            return SwitchAccountModal(logic: wallet);
           },
         ),
         ShellRoute(

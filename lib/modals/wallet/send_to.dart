@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
+import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -16,8 +19,7 @@ import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/scanner/scanner.dart';
+import 'package:citizenwallet/widgets/profile/profile_row.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +61,8 @@ class SendToModal extends StatefulWidget {
 class SendToModalState extends State<SendToModal>
     with TickerProviderStateMixin {
   late WalletLogic _logic;
+  late ProfilesLogic _profilesLogic;
+  late VoucherLogic _voucherLogic;
 
   late ScrollController _scrollController;
 
@@ -84,6 +88,8 @@ class SendToModalState extends State<SendToModal>
     super.initState();
 
     _logic = widget.walletLogic;
+    _profilesLogic = ProfilesLogic(context);
+    _voucherLogic = VoucherLogic(context);
 
     if (widget.to != null || widget.receiveParams != null) {
       _isScanning = false;
@@ -240,6 +246,28 @@ class SendToModalState extends State<SendToModal>
     if (_isSending) {
       return;
     }
+    widget.profilesLogic
+        .selectProfile(context.read<ProfilesState>().searchedProfile);
+    _logic.updateAddress(
+        override: context.read<ProfilesState>().searchedProfile != null);
+    FocusManager.instance.primaryFocus?.unfocus();
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/openSendingModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -528,11 +556,11 @@ class SendToModalState extends State<SendToModal>
             !parsingQRAddress) ||
         selectedProfile != null;
 
-    // final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    //final size = height > width ? width : height;
-    //final scannerSize = size * 0.88;
+    final size = height > width ? width : height;
+    final scannerSize = size * 0.88;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -863,6 +891,10 @@ class SendToModalState extends State<SendToModal>
                                                       selectedProfile?.account,
                                                     )
                                             : null,
+                                        // onCompleted: () => handleSend(
+                                        //   context,
+                                        //   selectedProfile?.account,
+                                        // ),
                                         enabled: isSendingValid,
                                         isComplete: _isSending,
                                         completionLabel: widget.isMinting
@@ -919,6 +951,10 @@ class SendToModalState extends State<SendToModal>
                                               selectedProfile?.account,
                                             )
                                     : null,
+                                // onCompleted: () => handleSend(
+                                //   context,
+                                //   selectedProfile?.account,
+                                // ),
                                 enabled: isValid,
                                 isComplete: _isSending,
                                 completionLabel: widget.isMinting
@@ -930,7 +966,7 @@ class SendToModalState extends State<SendToModal>
                                         : AppLocalizations.of(context)!.send,
                                 thumbColor: ThemeColors.surfacePrimary
                                     .resolveFrom(context),
-                                width: width * 0.5,
+                                width: width * 0.75,
                                 child: const SizedBox(
                                   height: 50,
                                   width: 50,

@@ -4,12 +4,13 @@ import 'package:flutter_svg/svg.dart';
 
 class SettingsRow extends StatelessWidget {
   final String label;
-  final String? icon;
+  final IconData? icon;
   final Color? iconColor;
   final String? subLabel;
   final Widget? trailing;
   final void Function()? onTap;
   final IconData? onTapIcon;
+  final String? place;
 
   const SettingsRow({
     super.key,
@@ -20,10 +21,35 @@ class SettingsRow extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.onTapIcon,
+    this.place,
   });
 
   @override
   Widget build(BuildContext context) {
+    double brTop = 10;
+    double brBottom = 10;
+    double topWidth = 2;
+    double bottomWidth = 2;
+
+    if (place != null && place == "bottom") {
+      brTop = 0;
+      brBottom = 10;
+      topWidth = 1;
+    }
+
+    if (place != null && place == "top") {
+      brTop = 10;
+      brBottom = 0;
+      bottomWidth = 1;
+    }
+
+    if (place != null && place == "middle") {
+      brTop = 0;
+      brBottom = 0;
+      topWidth = 1;
+      bottomWidth = 1;
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -32,31 +58,55 @@ class SettingsRow extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  height: 50,
-                  margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                  height: 60,
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   decoration: BoxDecoration(
                       color: ThemeColors.background.resolveFrom(context),
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(
-                          color: ThemeColors.border.resolveFrom(context))),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(brTop),
+                          topRight: Radius.circular(brTop),
+                          bottomLeft: Radius.circular(brBottom),
+                          bottomRight: Radius.circular(brBottom)),
+                      border: Border(
+                        top: BorderSide(
+                          color: ThemeColors.border.resolveFrom(context),
+                          width: topWidth,
+                        ),
+                        bottom: BorderSide(
+                          color: ThemeColors.border.resolveFrom(context),
+                          width: bottomWidth,
+                        ),
+                        left: BorderSide(
+                          color: ThemeColors.border.resolveFrom(context),
+                          width: 2,
+                        ),
+                        right: BorderSide(
+                          color: ThemeColors.border.resolveFrom(context),
+                          width: 2,
+                        ),
+                      )),
                   child: Row(
                     children: [
                       if (icon != null) ...[
                         Padding(
                           padding: const EdgeInsets.all(5),
-                          child: SvgPicture.asset(
-                            icon!,
-                            colorFilter: iconColor != null
-                                ? ColorFilter.mode(
-                                    iconColor!,
-                                    BlendMode.srcIn,
-                                  )
-                                : null,
-                            semanticsLabel: '$label icon',
-                            height: 20,
-                            width: 20,
-                          ),
+                          // child: SvgPicture.asset(
+                          //   icon!,
+                          //   colorFilter: iconColor != null
+                          //       ? ColorFilter.mode(
+                          //           iconColor!,
+                          //           BlendMode.srcIn,
+                          //         )
+                          //       : null,
+                          //   semanticsLabel: '$label icon',
+                          //   height: 20,
+                          //   width: 20,
+                          // ),
+                          child: Icon(icon,
+                              size: 25,
+                              color:
+                                  ThemeColors.subtleSolid.resolveFrom(context)),
                         ),
                         const SizedBox(width: 10),
                       ],

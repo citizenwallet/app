@@ -219,26 +219,43 @@ class ReceiveModalState extends State<ReceiveModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(
             left: 10,
             right: 10,
-            top: 20,
+            top: 10,
           ),
           bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
               Header(
-                title: AppLocalizations.of(context)!.receive,
-                actionButton: CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDismiss(context),
-                  child: Icon(
-                    CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
-                  ),
+                color: ThemeColors.background,
+                titleWidget: Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.receive,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8F899C),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -262,12 +279,22 @@ class ReceiveModalState extends State<ReceiveModal> {
                           AnimatedOpacity(
                             opacity: _opacity,
                             duration: const Duration(milliseconds: 250),
-                            child: QR(
-                              key: const Key('receive-qr-code'),
-                              data: qrData,
-                              size: qrSize - 20,
-                              padding: const EdgeInsets.all(20),
-                              logo: isExternalWallet ? null : 'assets/logo.png',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: ThemeColors.black.resolveFrom(context),
+                                  width: 2,
+                                ),
+                              ),
+                              child: QR(
+                                key: const Key('receive-qr-code'),
+                                data: qrData,
+                                size: qrSize - 20,
+                                padding: const EdgeInsets.all(10),
+                                logo:
+                                    isExternalWallet ? null : 'assets/logo.png',
+                              ),
                             ),
                           ),
                         ],

@@ -258,7 +258,8 @@ class AccountScreenState extends State<AccountScreen> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? AppLocalizations.of(context)!.createNewAccountMsg
+                                      ? AppLocalizations.of(context)!
+                                          .createNewAccountMsg
                                       : profile.description,
                                   style: TextStyle(
                                     color:
@@ -285,7 +286,8 @@ class AccountScreenState extends State<AccountScreen> {
                                     onPressed: handleEdit,
                                     child: Text(
                                       hasNoProfile
-                                          ? AppLocalizations.of(context)!.createaprofile
+                                          ? AppLocalizations.of(context)!
+                                              .createaprofile
                                           : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
                                         color: ThemeColors.text

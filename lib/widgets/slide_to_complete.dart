@@ -1,5 +1,6 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 
 class SlideToComplete extends StatefulWidget {
   final Widget child;
@@ -71,11 +72,10 @@ class SlideToCompleteState extends State<SlideToComplete>
     super.dispose();
   }
 
-  void onComplete() {
-    if (!widget.enabled) {
-      return;
-    }
+  Future<void> onComplete() async {
+    if (!widget.enabled) {}
     widget.onCompleted?.call();
+    //await GoRouter.of(context).push<bool?>('/openSendingModal');
   }
 
   @override
@@ -95,6 +95,7 @@ class SlideToCompleteState extends State<SlideToComplete>
             _offset = widget.width - widget.childWidth;
           });
           onComplete();
+          //handleScanQr;
           return;
         }
 

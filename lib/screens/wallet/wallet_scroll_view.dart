@@ -171,7 +171,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
               return SafeArea(
                 bottom: false,
                 child: Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: ThemeColors.background.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
                   child: CupertinoSliverRefreshControl.buildRefreshIndicator(
                     context,
@@ -185,7 +185,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
             }),
         SliverToBoxAdapter(
           child: Container(
-            color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            color: ThemeColors.background.resolveFrom(context),
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: const SizedBox(
               height: 20,

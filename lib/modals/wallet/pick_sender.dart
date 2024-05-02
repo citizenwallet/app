@@ -141,7 +141,6 @@ class PickeSenderModalState extends State<PickeSenderModal>
     }
     context.read<WalletState>().setclickedOnSearching(false);
     FocusManager.instance.primaryFocus?.unfocus();
-    
   }
 
   void handleSend(BuildContext context, String? selectedAddress) async {
@@ -295,29 +294,28 @@ class PickeSenderModalState extends State<PickeSenderModal>
 
     final width = MediaQuery.of(context).size.width;
 
-     void openSend(ProfileV1? profile) async {
-       widget.profilesLogic.selectProfile(profile);
-    _logic.updateAddress(override: profile != null);
-    FocusManager.instance.primaryFocus?.unfocus();
-    HapticFeedback.lightImpact();
+    void openSend(ProfileV1? profile) async {
+      widget.profilesLogic.selectProfile(profile);
+      _logic.updateAddress(override: profile != null);
+      FocusManager.instance.primaryFocus?.unfocus();
+      HapticFeedback.lightImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
+      _logic.pauseFetching();
+      _profilesLogic.pause();
+      _voucherLogic.pause();
 
-    await GoRouter.of(context).push<bool?>(
-      '/openSendModel',
-      extra: {
-        'logic': _logic,
-        'profilesLogic': _profilesLogic,
-      },
-    );
-    
+      await GoRouter.of(context).push<bool?>(
+        '/openSendModel',
+        extra: {
+          'logic': _logic,
+          'profilesLogic': _profilesLogic,
+        },
+      );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
-  }
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+    }
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -356,63 +354,64 @@ class PickeSenderModalState extends State<PickeSenderModal>
                         //   ),
                         //if (!isValid)
                         CupertinoTextField(
-                            padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
-                            controller: _logic.addressController,
-                            placeholder: AppLocalizations.of(context)!.searchUser,
-                            maxLines: 1,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            focusNode: nameFocusNode,
-                            textInputAction: TextInputAction.next,
-                            onChanged: handleThrottledUpdateAddress,
-                            decoration: invalidAddress ||
-                                    parsingQRAddressError ||
-                                    transactionSendError
-                                ? BoxDecoration(
-                                    color: ThemeColors.background.resolveFrom(context),
-                                    border: Border.all(
-                                      color: ThemeColors.danger,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10.0)),
-                                  )
-                                : BoxDecoration(
-                                    color:  ThemeColors.background.resolveFrom(context),
-                                    border: Border.all(
+                          padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
+                          controller: _logic.addressController,
+                          placeholder: AppLocalizations.of(context)!.searchUser,
+                          maxLines: 1,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          focusNode: nameFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onChanged: handleThrottledUpdateAddress,
+                          decoration: invalidAddress ||
+                                  parsingQRAddressError ||
+                                  transactionSendError
+                              ? BoxDecoration(
+                                  color: ThemeColors.background
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color: ThemeColors.danger,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10.0)),
+                                )
+                              : BoxDecoration(
+                                  color: ThemeColors.background
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color: hasAddress
+                                        ? ThemeColors.surfacePrimary
+                                            .resolveFrom(context)
+                                        : ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(30.0)),
+                                ),
+                          suffix: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: searchLoading
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 24,
+                                      child: CupertinoActivityIndicator(
+                                        color: ThemeColors.subtle
+                                            .resolveFrom(context),
+                                      ),
+                                    )
+                                  : Icon(
+                                      CupertinoIcons.search,
                                       color: hasAddress
                                           ? ThemeColors.surfacePrimary
                                               .resolveFrom(context)
                                           : ThemeColors.surfacePrimary
                                               .resolveFrom(context),
                                     ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(30.0)),
-                                  ),
-                            suffix: Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: searchLoading
-                                    ? SizedBox(
-                                        height: 20,
-                                        width: 24,
-                                        child: CupertinoActivityIndicator(
-                                          color: ThemeColors.subtle
-                                              .resolveFrom(context),
-                                        ),
-                                      )
-                                    : Icon(
-                                        CupertinoIcons.search,
-                                        color: hasAddress
-                                            ? ThemeColors.surfacePrimary
-                                                .resolveFrom(context)
-                                            : ThemeColors.surfacePrimary
-                                                .resolveFrom(context),
-                                      ),
-                              ),
                             ),
-                            onSubmitted: handleAddressFieldSubmitted,
                           ),
+                          onSubmitted: handleAddressFieldSubmitted,
+                        ),
                         SizedBox(
                           height: !clickedOnSearching ? 120 : 0,
                           child: SendSelectionModal(
@@ -491,7 +490,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                               widget.isMinting
                                   ? AppLocalizations.of(context)!.mint
                                   : AppLocalizations.of(context)!.send,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF8F899C),

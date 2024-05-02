@@ -217,7 +217,7 @@ class WalletActions extends StatelessWidget {
                             scrollDirection: Axis.horizontal,
                             children: [
                               SizedBox(
-                                width: (width / 3) - (buttonOffset/2),
+                                width: (width / 3) - (buttonOffset / 2),
                               ),
                               if (wallet?.locked == false &&
                                   (!loading || !firstLoad) &&
@@ -327,8 +327,8 @@ class WalletActions extends StatelessWidget {
                                   CupertinoButton(
                                     padding: const EdgeInsets.all(5),
                                     borderRadius: BorderRadius.circular(100),
-                                    color:
-                                        ThemeColors.uiBackground.resolveFrom(context),
+                                    color: ThemeColors.uiBackground
+                                        .resolveFrom(context),
                                     onPressed: () {
                                       context
                                           .read<WalletState>()

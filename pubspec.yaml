@@ -65,6 +65,7 @@ dependencies:
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  loading_indicator: ^3.1.1
   flutter_localizations:
     sdk: flutter
 dev_dependencies:
