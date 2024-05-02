@@ -1026,5 +1026,54 @@
             "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd"
         },
         "version": 1
+    },
+    {
+        "community": {
+            "name": "Celo Community Point",
+            "description": "This is a community for the Celo Point",
+            "url": "https://citizenwallet.xyz",
+            "alias": "celo-c.citizenwallet.xyz",
+            "custom_domain": "celo-c.citizenwallet.xyz",
+            "logo": "https://celo-c.citizenwallet.xyz/uploads/logo.svg",
+            "theme": {
+                "primary": "#95c762"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Celo Community Point",
+            "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
+            "symbol": "CeloC",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0x5978b0C06be936d5504b6B65EB7B9ae9fC959b5d"
+        },
+        "indexer": {
+            "url": "https://celo-c.citizenwallet.xyz/indexer",
+            "ipfs_url": "https://celo-c.citizenwallet.xyz/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://celo-c.citizenwallet.xyz/indexer/rpc",
+            "paymaster_rpc_url": "https://celo-c.citizenwallet.xyz/indexer/rpc",
+            "entrypoint_address": "0x66fE9c22CcA49B257dd4F00508AC90198d99Bf27",
+            "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
+            "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
+            "paymaster_type": "cw"
+        },
+        "version": 1
     }
 ]
