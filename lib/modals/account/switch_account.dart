@@ -281,12 +281,16 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     _profilesLogic.loadProfile(address);
   }
 
+  void handleGoToSettings(BuildContext context) {
+    GoRouter.of(context).push('/settings');
+  }
+
   @override
   Widget build(BuildContext context) {
     final cwWalletsLoading = context.select<WalletState, bool>(
       (state) => state.cwWalletsLoading,
     );
-
+    final width = MediaQuery.of(context).size.width;
     final cwWallets = context.select(selectSortedWalletsByAlias);
 
     final communities = context.select(selectMappedCommunityConfigs);
@@ -465,26 +469,41 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               CupertinoButton(
                                 padding:
                                     const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                                onPressed: () => handleCreate(context),
-                                borderRadius: BorderRadius.circular(25),
-                                color: ThemeColors.uiBackground
-                                    .resolveFrom(context),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "App Setttings",
-                                      style: const TextStyle(
-                                        color: ThemeColors.black,
+                                onPressed: () => handleGoToSettings(context),
+                                child: Container(
+                                  height: 40,
+                                  width: width * 0.4,
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .appSettings,
+                                        style: TextStyle(
+                                          color: ThemeColors.surfacePrimary
+                                              .resolveFrom(context),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    const Icon(
-                                      CupertinoIcons.settings,
-                                      color: ThemeColors.black,
-                                    ),
-                                  ],
+                                      const SizedBox(width: 10),
+                                      Icon(
+                                        CupertinoIcons.settings,
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        size: 15,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

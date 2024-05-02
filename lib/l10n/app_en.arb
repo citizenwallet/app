@@ -179,5 +179,6 @@
   "more": "more",
   "transactionsHistory": "Transactions History",
   "searchUser": "Search user or paste address",
-  "sendTo": "Send to"
+  "sendTo": "Send to",
+  "appSettings": "App Settings"
 }
