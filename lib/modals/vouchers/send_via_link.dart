@@ -1,14 +1,12 @@
 import 'dart:async';
 
+import 'package:citizenwallet/modals/vouchers/send_via_link_voucher.dart';
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
-import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -19,7 +17,7 @@ import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
-import 'package:citizenwallet/widgets/profile/profile_row.dart';
+import 'package:citizenwallet/widgets/scanner/scanner.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SendToModal extends StatefulWidget {
+class SendViaLinkModal extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
 
@@ -42,7 +40,7 @@ class SendToModal extends StatefulWidget {
 
   final bool isMinting;
 
-  const SendToModal({
+  const SendViaLinkModal({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
@@ -55,14 +53,12 @@ class SendToModal extends StatefulWidget {
   });
 
   @override
-  SendToModalState createState() => SendToModalState();
+  SendViaLinkModalState createState() => SendViaLinkModalState();
 }
 
-class SendToModalState extends State<SendToModal>
+class SendViaLinkModalState extends State<SendViaLinkModal>
     with TickerProviderStateMixin {
   late WalletLogic _logic;
-  late ProfilesLogic _profilesLogic;
-  late VoucherLogic _voucherLogic;
 
   late ScrollController _scrollController;
 
@@ -88,8 +84,6 @@ class SendToModalState extends State<SendToModal>
     super.initState();
 
     _logic = widget.walletLogic;
-    _profilesLogic = ProfilesLogic(context);
-    _voucherLogic = VoucherLogic(context);
 
     if (widget.to != null || widget.receiveParams != null) {
       _isScanning = false;
@@ -117,6 +111,7 @@ class SendToModalState extends State<SendToModal>
 
   @override
   void dispose() {
+    //
     _scrollController.removeListener(onScrollUpdate);
     _logic.stopListeningMessage();
     messageFocusNode.removeListener(handleMessageListenerUpdate);
@@ -245,33 +240,6 @@ class SendToModalState extends State<SendToModal>
     if (_isSending) {
       return;
     }
-    _logic.isSending = true;
-
-    widget.profilesLogic
-        .selectProfile(context.read<ProfilesState>().searchedProfile);
-    _logic.updateAddress(
-        override: context.read<ProfilesState>().searchedProfile != null);
-    FocusManager.instance.primaryFocus?.unfocus();
-    HapticFeedback.lightImpact();
-
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
-    GoRouter.of(context).push<bool?>(
-      '/openSendingModal',
-      extra: {
-        'logic': _logic,
-        'profilesLogic': _profilesLogic,
-        'id': widget.id,
-        'selectedAddress':
-            selectedAddress ?? _logic.addressController.value.text
-      },
-    );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -280,6 +248,8 @@ class SendToModalState extends State<SendToModal>
     });
 
     HapticFeedback.lightImpact();
+
+    final navigator = GoRouter.of(context);
 
     final isValid = _logic.validateSendFields(
       _logic.amountController.value.text,
@@ -294,24 +264,22 @@ class SendToModalState extends State<SendToModal>
       return;
     }
 
-    // _logic.sendTransaction(
-    //   _logic.amountController.value.text,
-    //   selectedAddress ?? _logic.addressController.value.text,
-    //   message: _logic.messageController.value.text.trim(),
-    //   id: widget.id,
-    // );
-    // await Future.delayed(const Duration(milliseconds: 3000));
-    // _logic.isSending = false;
+    _logic.sendTransaction(
+      _logic.amountController.value.text,
+      selectedAddress ?? _logic.addressController.value.text,
+      message: _logic.messageController.value.text.trim(),
+      id: widget.id,
+    );
 
-    // _logic.clearInputControllers();
-    // _logic.resetInputErrorState();
-    //widget.profilesLogic.clearSearch();
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
 
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
-    //navigator.pop(true);
+    navigator.pop(true);
     return;
   }
 
@@ -405,7 +373,7 @@ class SendToModalState extends State<SendToModal>
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
-      builder: (_) => VoucherModal(
+      builder: (_) => SendViaLinkVoucherModal(
         amount: _logic.amountController.value.text,
         symbol: wallet?.symbol,
         name: name,
@@ -576,36 +544,35 @@ class SendToModalState extends State<SendToModal>
             direction: Axis.vertical,
             children: [
               Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: Header(
-                    color: ThemeColors.background,
-                    titleWidget: Row(
-                      children: [
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Icon(
-                            CupertinoIcons.arrow_left,
-                            color: ThemeColors.touchable.resolveFrom(context),
-                          ),
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Header(
+                  color: ThemeColors.background,
+                  titleWidget: Row(
+                    children: [
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Icon(
+                          CupertinoIcons.arrow_left,
+                          color: ThemeColors.touchable.resolveFrom(context),
                         ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              widget.isMinting
-                                  ? AppLocalizations.of(context)!.mint
-                                  : AppLocalizations.of(context)!.sendTo,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF8F899C),
-                              ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.send,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF8F899C),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Expanded(
                 child: Stack(
                   alignment: Alignment.center,
@@ -618,25 +585,159 @@ class SendToModalState extends State<SendToModal>
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          if (widget.to == null && _isScanning)
-                            const SizedBox(
-                              height: 20,
-                            ),
-                          if (isValid)
-                            ProfileChip(
-                              selectedProfile: selectedProfile,
-                              selectedAddress:
-                                  _logic.addressController.value.text.isEmpty ||
-                                          selectedProfile != null
-                                      ? null
-                                      : formatHexAddress(
-                                          _logic.addressController.value.text),
-                              handleDeSelect:
-                                  widget.id != null || widget.to != null
-                                      ? null
-                                      : handleScanAgain,
-                            ),
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 20),
+                          // Text(
+                          //   AppLocalizations.of(context)!.amount,
+                          //   style: const TextStyle(
+                          //     fontSize: 24,
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
+                          const SizedBox(height: 10),
+                          // Column(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   crossAxisAlignment: CrossAxisAlignment.center,
+                          //   children: [
+                          //     Padding(
+                          //       padding:
+                          //           const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                          //       child: Stack(
+                          //         children: [
+                          //           CupertinoTextField(
+                          //             controller: _logic.amountController,
+                          //             placeholder: formatCurrency(0.00, ''),
+                          //             style: TextStyle(
+                          //               color: ThemeColors.text
+                          //                   .resolveFrom(context),
+                          //               fontSize: 28,
+                          //               fontWeight: FontWeight.bold,
+                          //               letterSpacing: 2,
+                          //             ),
+                          //             decoration: invalidAmount ||
+                          //                     transactionSendError
+                          //                 ? BoxDecoration(
+                          //                     color: const CupertinoDynamicColor
+                          //                         .withBrightness(
+                          //                       color: CupertinoColors.white,
+                          //                       darkColor:
+                          //                           CupertinoColors.black,
+                          //                     ),
+                          //                     border: Border.all(
+                          //                       color: ThemeColors.danger,
+                          //                     ),
+                          //                     borderRadius:
+                          //                         const BorderRadius.all(
+                          //                             Radius.circular(5.0)),
+                          //                   )
+                          //                 : BoxDecoration(
+                          //                     color: const CupertinoDynamicColor
+                          //                         .withBrightness(
+                          //                       color: CupertinoColors.white,
+                          //                       darkColor:
+                          //                           CupertinoColors.black,
+                          //                     ),
+                          //                     border: Border.all(
+                          //                       color: hasAmount
+                          //                           ? ThemeColors.text
+                          //                               .resolveFrom(context)
+                          //                           : ThemeColors.transparent
+                          //                               .resolveFrom(context),
+                          //                     ),
+                          //                     borderRadius:
+                          //                         const BorderRadius.all(
+                          //                             Radius.circular(5.0)),
+                          //                   ),
+                          //             maxLines: 1,
+                          //             maxLength: 25,
+                          //             focusNode: amountFocuseNode,
+                          //             autocorrect: false,
+                          //             enableSuggestions: false,
+                          //             keyboardType:
+                          //                 TextInputType.numberWithOptions(
+                          //               decimal:
+                          //                   (wallet?.decimalDigits ?? 0) > 0,
+                          //               signed: false,
+                          //             ),
+                          //             textInputAction: TextInputAction.next,
+                          //             inputFormatters: [
+                          //               (wallet?.decimalDigits ?? 0) > 0
+                          //                   ? amountFormatter
+                          //                   : integerAmountFormatter,
+                          //             ],
+                          //             onChanged: (_) =>
+                          //                 handleThrottledUpdateAmount(),
+                          //             onSubmitted: (_) {
+                          //               messageFocusNode.requestFocus();
+                          //             },
+                          //             prefix: Center(
+                          //               child: Padding(
+                          //                 padding: const EdgeInsets.fromLTRB(
+                          //                     10, 0, 10, 0),
+                          //                 child: Text(
+                          //                   wallet?.symbol ?? '',
+                          //                   style: const TextStyle(
+                          //                       fontSize: 18,
+                          //                       fontWeight: FontWeight.w500),
+                          //                   textAlign: TextAlign.center,
+                          //                 ),
+                          //               ),
+                          //             ),
+                          //             suffix: Center(
+                          //                 child: CupertinoButton(
+                          //               padding: const EdgeInsets.fromLTRB(
+                          //                 10,
+                          //                 0,
+                          //                 10,
+                          //                 0,
+                          //               ),
+                          //               onPressed: handleSetMaxAmount,
+                          //               child: Text(
+                          //                 AppLocalizations.of(context)!.max,
+                          //                 style: const TextStyle(
+                          //                   fontSize: 18,
+                          //                   fontWeight: FontWeight.w500,
+                          //                 ),
+                          //                 textAlign: TextAlign.center,
+                          //               ),
+                          //             )),
+                          //           ),
+                          //           if (_isScanning)
+                          //             GestureDetector(
+                          //               onTap: handleEnterManually,
+                          //               child: Container(
+                          //                 height: 50,
+                          //                 decoration: const BoxDecoration(
+                          //                   color: ThemeColors.transparent,
+                          //                   borderRadius: BorderRadius.all(
+                          //                       Radius.circular(5.0)),
+                          //                 ),
+                          //               ),
+                          //             ),
+                          //         ],
+                          //       ),
+                          //     ),
+                          //     if (invalidAmount &&
+                          //         (double.tryParse(_logic
+                          //                     .amountController.value.text) ??
+                          //                 0.0) >
+                          //             0)
+                          //       Row(
+                          //         mainAxisAlignment: MainAxisAlignment.start,
+                          //         children: [
+                          //           Text(
+                          //             AppLocalizations.of(context)!
+                          //                 .insufficientFunds,
+                          //             style: TextStyle(
+                          //               color: ThemeColors.danger
+                          //                   .resolveFrom(context),
+                          //               fontSize: 12,
+                          //               fontWeight: FontWeight.normal,
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //   ],
+                          // ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -776,6 +877,20 @@ class SendToModalState extends State<SendToModal>
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 10),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.start,
+                          //   crossAxisAlignment: CrossAxisAlignment.end,
+                          //   children: [
+                          //     Text(
+                          //       AppLocalizations.of(context)!.currentBalance(
+                          //           formattedBalance, wallet?.symbol ?? ''),
+                          //       style: const TextStyle(
+                          //           fontSize: 18,
+                          //           fontWeight: FontWeight.normal),
+                          //     ),
+                          //   ],
+                          // ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -820,144 +935,21 @@ class SendToModalState extends State<SendToModal>
                               )
                             ],
                           ),
-                          const SizedBox(height: 20),
-                          const SizedBox(height: 10),
-                          const SizedBox(
-                            height: 200,
-                          ),
                         ],
                       ),
                     ),
-                    if (_isSending)
-                      Positioned(
-                        bottom: 90,
-                        child: CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        ),
-                      ),
-                    if (!_isScanning &&
-                        !_isDescribing &&
-                        !_isSending &&
-                        hasAmount &&
-                        !invalidAmount)
-                      Positioned(
-                        width: width,
-                        child: BlurryChild(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                ),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Column(
-                              children: (!isSendingValid)
-                                  ? [
-                                      const SizedBox(height: 10),
-                                      Button(
-                                        text: AppLocalizations.of(context)!
-                                            .chooseRecipient,
-                                        onPressed: handleChooseRecipient,
-                                        minWidth: 200,
-                                        maxWidth: 200,
-                                      ),
-                                      if (!widget.isMinting)
-                                        const SizedBox(height: 10),
-                                      if (!widget.isMinting)
-                                        CupertinoButton(
-                                          onPressed: handleCreateVoucher,
-                                          child: Text(
-                                            AppLocalizations.of(context)!
-                                                .createVoucher,
-                                            style: TextStyle(
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.normal,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                    ]
-                                  : [
-                                      SlideToComplete(
-                                        onCompleted: !_isSending
-                                            ? widget.isMinting
-                                                ? () => handleMint(context,
-                                                    selectedProfile?.account)
-                                                : () => handleSend(
-                                                      context,
-                                                      selectedProfile?.account,
-                                                    )
-                                            : null,
-                                        // onCompleted: () => handleSend(
-                                        //   context,
-                                        //   selectedProfile?.account,
-                                        // ),
-                                        enabled: isSendingValid,
-                                        isComplete: _isSending,
-                                        completionLabel: widget.isMinting
-                                            ? (_isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .minting
-                                                : AppLocalizations.of(context)!
-                                                    .mint)
-                                            : _isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .sending
-                                                : AppLocalizations.of(context)!
-                                                    .send,
-                                        thumbColor: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        width: width * 0.5,
-                                        child: const SizedBox(
-                                          height: 50,
-                                          width: 50,
-                                          child: Center(
-                                            child: Icon(
-                                              CupertinoIcons.arrow_right,
-                                              color: ThemeColors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                            ),
-                          ),
-                        ),
-                      ),
                     Positioned(
                       width: width,
                       child: BlurryChild(
                         child: Container(
-                          decoration: BoxDecoration(),
                           padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                           child: Column(
                             children: [
                               SlideToComplete(
-                                onCompleted: !_isSending
-                                    ? widget.isMinting
-                                        ? () => handleMint(
-                                            context, selectedProfile?.account)
-                                        : () => handleSend(
-                                              context,
-                                              selectedProfile?.account,
-                                            )
-                                    : null,
-                                enabled: isValid,
+                                onCompleted: handleCreateVoucher,
+                                enabled: isSendingValid,
                                 isComplete: _isSending,
-                                completionLabel: widget.isMinting
-                                    ? (_isSending
-                                        ? AppLocalizations.of(context)!.minting
-                                        : AppLocalizations.of(context)!.mint)
-                                    : _isSending
-                                        ? AppLocalizations.of(context)!.sending
-                                        : AppLocalizations.of(context)!.send,
+                                completionLabel: "Swipe to Confirm",
                                 thumbColor: ThemeColors.surfacePrimary
                                     .resolveFrom(context),
                                 width: width * 0.75,

@@ -90,6 +90,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
   @override
   void dispose() {
     //
+    context.read<WalletState>().setclickedOnSearching(false);
     super.dispose();
   }
 
@@ -98,6 +99,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     _logic.updateAddress();
 
     nameFocusNode.requestFocus();
+    context.read<WalletState>().setclickedOnSearching(false);
   }
 
   void handleDismiss(BuildContext context) {

@@ -144,6 +144,8 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
+    - assets/icons/tick.svg
+    - assets/icons/double-arrow-down.svg
 
   uses-material-design: false
   generate: true

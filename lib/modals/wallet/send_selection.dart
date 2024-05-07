@@ -107,6 +107,26 @@ class SendSelectionModalState extends State<SendSelectionModal>
     _voucherLogic.resume();
   }
 
+  void handleSendViaLink() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/sendViaLink',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   @override
   void dispose() {
     //
@@ -332,7 +352,7 @@ class SendSelectionModalState extends State<SendSelectionModal>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             CupertinoButton(
-                              onPressed: null,
+                              onPressed: handleSendViaLink,
                               padding: EdgeInsets.zero,
                               child: Container(
                                 padding: const EdgeInsets.all(3),

@@ -1,4 +1,6 @@
 import 'package:citizenwallet/modals/account/switch_account.dart';
+import 'package:citizenwallet/modals/vouchers/screen.dart';
+import 'package:citizenwallet/modals/vouchers/send_via_link.dart';
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
@@ -193,7 +195,13 @@ GoRouter createRouter(
           path: '/openSendingModal',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
-            return SendingToScreen(walletLogic: wallet);
+            final extra = state.extra as Map<String, dynamic>;
+            return SendingToScreen(
+              walletLogic: wallet,
+              profilesLogic: extra['profilesLogic'],
+              selectedAddress: extra['selectedAddress'],
+              id: extra['id'],
+            );
           },
         ),
         GoRoute(
@@ -202,6 +210,42 @@ GoRouter createRouter(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             return SwitchAccountModal(logic: wallet);
+          },
+        ),
+        GoRoute(
+          name: 'Transaction',
+          path: '/transactions/:transactionId',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            // if (state.extra == null) {
+            //   return const SizedBox();
+            // }
+
+            final extra = state.extra as Map<String, dynamic>;
+
+            return TransactionScreen(
+              transactionId: state.pathParameters['transactionId'],
+              logic: extra['logic'],
+              profilesLogic: extra['profilesLogic'],
+            );
+          },
+        ),
+        GoRoute(
+          name: 'Voucher',
+          path: '/voucher',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            return const VouchersModal();
+          },
+        ),
+        GoRoute(
+          name: 'SendViaLink',
+          path: '/SendViaLink',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return SendViaLinkModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
           },
         ),
         ShellRoute(
@@ -238,26 +282,26 @@ GoRouter createRouter(
                   ),
                 );
               },
-              routes: [
-                GoRoute(
-                  name: 'Transaction',
-                  path: 'transactions/:transactionId',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    if (state.extra == null) {
-                      return const SizedBox();
-                    }
+              //routes: [
+              //   GoRoute(
+              //     name: 'Transaction',
+              //     path: 'transactions/:transactionId',
+              //     parentNavigatorKey: rootNavigatorKey,
+              //     builder: (context, state) {
+              //       if (state.extra == null) {
+              //         return const SizedBox();
+              //       }
 
-                    final extra = state.extra as Map<String, dynamic>;
+              //       final extra = state.extra as Map<String, dynamic>;
 
-                    return TransactionScreen(
-                      transactionId: state.pathParameters['transactionId'],
-                      logic: extra['logic'],
-                      profilesLogic: extra['profilesLogic'],
-                    );
-                  },
-                ),
-              ],
+              //       return TransactionScreen(
+              //         transactionId: state.pathParameters['transactionId'],
+              //         logic: extra['logic'],
+              //         profilesLogic: extra['profilesLogic'],
+              //       );
+              //     },
+              //   ),
+              // ],
             ),
             GoRoute(
               name: 'Contacts',

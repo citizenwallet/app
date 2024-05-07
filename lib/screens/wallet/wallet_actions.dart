@@ -207,85 +207,341 @@ class WalletActions extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: buttonSize + 38,
-                          child: ListView(
-                            controller: controller,
-                            physics: const ScrollPhysics(
-                                parent: BouncingScrollPhysics()),
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              SizedBox(
-                                width: (width / 3) - (buttonOffset / 2),
-                              ),
-                              if (wallet?.locked == false &&
-                                  (!loading || !firstLoad) &&
-                                  handleSendPush != null)
+                      if ((1 - shrink) < 0.6 && wallet != null) ...[
+                        Expanded(
+                          child: SizedBox(
+                            height: buttonSize + 38,
+                            child: ListView(
+                              controller: controller,
+                              physics: const ScrollPhysics(
+                                  parent: BouncingScrollPhysics()),
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                // SizedBox(
+                                //   width: (width / 5) - (buttonOffset / 2),
+                                // ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                if (wallet?.locked == false &&
+                                    (!loading || !firstLoad) &&
+                                    handleSendPush != null)
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.all(5),
+                                        onPressed: blockSending
+                                            ? () => ()
+                                            : handleSendPush,
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        child: SizedBox(
+                                          height: 40,
+                                          width: 100,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    sendLoading
+                                                        ? AppLocalizations.of(
+                                                                context)!
+                                                            .sending
+                                                        : AppLocalizations.of(
+                                                                context)!
+                                                            .send,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: blockSending
+                                                          ? ThemeColors
+                                                              .subtleEmphasis
+                                                          : ThemeColors.white,
+                                                      fontSize: buttonFontSize,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Icon(
+                                                    CupertinoIcons.arrow_up,
+                                                    size: 20,
+                                                    color: blockSending
+                                                        ? ThemeColors
+                                                            .subtleEmphasis
+                                                        : ThemeColors.white,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (wallet?.locked == false)
+                                  const SizedBox(width: 10),
+                                if ((!loading || !firstLoad) &&
+                                    handleReceivePush != null)
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.all(5),
+                                        onPressed: blockSending
+                                            ? () => ()
+                                            : handleSendPush,
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        child: SizedBox(
+                                          height: 40,
+                                          width: 100,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .receive,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: sendLoading
+                                                          ? ThemeColors
+                                                              .subtleEmphasis
+                                                          : ThemeColors.white,
+                                                      fontSize: buttonFontSize,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Icon(
+                                                    CupertinoIcons.arrow_down,
+                                                    size: 20,
+                                                    color: sendLoading
+                                                        ? ThemeColors
+                                                            .subtleEmphasis
+                                                        : ThemeColors.white,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(width: 10),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: blockSending
-                                          ? () => ()
-                                          : handleSendPush,
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: ThemeColors.surfacePrimary
+                                      onPressed: () {
+                                        context
+                                            .read<WalletState>()
+                                            .setClickedOnMore(); //shanuka
+                                      },
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: ThemeColors.subtleEmphasis
                                           .resolveFrom(context),
                                       child: SizedBox(
-                                        height: 50,
-                                        width: 50,
+                                        height: 40,
+                                        width: 100,
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
-                                            Icon(
-                                              CupertinoIcons.arrow_up,
-                                              size: 30,
-                                              color: blockSending
-                                                  ? ThemeColors.subtleEmphasis
-                                                  : ThemeColors.white,
-                                            )
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  AppLocalizations.of(context)!
+                                                      .more,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: ThemeColors
+                                                        .surfacePrimary
+                                                        .resolveFrom(context),
+                                                    fontSize: buttonFontSize,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Icon(
+                                                  CupertinoIcons.ellipsis,
+                                                  size: 20,
+                                                  color: ThemeColors
+                                                      .surfacePrimary
+                                                      .resolveFrom(context),
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 11),
-                                    Text(
-                                      sendLoading
-                                          ? AppLocalizations.of(context)!
-                                              .sending
-                                          : AppLocalizations.of(context)!.send,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: blockSending
-                                            ? ThemeColors.subtleEmphasis
-                                            : ThemeColors.black,
-                                        fontSize: buttonFontSize,
-                                      ),
-                                    ),
                                   ],
                                 ),
-                              if (wallet?.locked == false)
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                      if ((1 - shrink) > 0.6 && wallet != null) ...[
+                        Expanded(
+                          child: SizedBox(
+                            height: buttonSize + 38,
+                            child: ListView(
+                              controller: controller,
+                              physics: const ScrollPhysics(
+                                  parent: BouncingScrollPhysics()),
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                SizedBox(
+                                  width: (width / 3) - (buttonOffset / 2),
+                                ),
+                                if (wallet?.locked == false &&
+                                    (!loading || !firstLoad) &&
+                                    handleSendPush != null)
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.all(5),
+                                        onPressed: blockSending
+                                            ? () => ()
+                                            : handleSendPush,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        child: SizedBox(
+                                          height: 50,
+                                          width: 50,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                CupertinoIcons.arrow_up,
+                                                size: 30,
+                                                color: blockSending
+                                                    ? ThemeColors.subtleEmphasis
+                                                    : ThemeColors.white,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 11),
+                                      Text(
+                                        sendLoading
+                                            ? AppLocalizations.of(context)!
+                                                .sending
+                                            : AppLocalizations.of(context)!
+                                                .send,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: blockSending
+                                              ? ThemeColors.subtleEmphasis
+                                              : ThemeColors.black,
+                                          fontSize: buttonFontSize,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (wallet?.locked == false)
+                                  const SizedBox(width: 40),
+                                if ((!loading || !firstLoad) &&
+                                    handleReceivePush != null)
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.all(5),
+                                        onPressed: sendLoading
+                                            ? () => ()
+                                            : handleReceivePush,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                        child: SizedBox(
+                                          height: 50,
+                                          width: 50,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                CupertinoIcons.arrow_down,
+                                                size: 30,
+                                                color: sendLoading
+                                                    ? ThemeColors.subtleEmphasis
+                                                    : ThemeColors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 11),
+                                      Text(
+                                        AppLocalizations.of(context)!.receive,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: sendLoading
+                                              ? ThemeColors.subtleEmphasis
+                                              : ThemeColors.black,
+                                          fontSize: buttonFontSize,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(width: 40),
-                              if ((!loading || !firstLoad) &&
-                                  handleReceivePush != null)
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     CupertinoButton(
                                       padding: const EdgeInsets.all(5),
-                                      onPressed: sendLoading
-                                          ? () => ()
-                                          : handleReceivePush,
                                       borderRadius: BorderRadius.circular(100),
-                                      color: ThemeColors.surfacePrimary
+                                      color: ThemeColors.uiBackground
                                           .resolveFrom(context),
+                                      onPressed: () {
+                                        context
+                                            .read<WalletState>()
+                                            .setClickedOnMore(); //shanuka
+                                      },
                                       child: SizedBox(
                                         height: 50,
                                         width: 50,
@@ -296,11 +552,11 @@ class WalletActions extends StatelessWidget {
                                               CrossAxisAlignment.center,
                                           children: [
                                             Icon(
-                                              CupertinoIcons.arrow_down,
-                                              size: 30,
+                                              CupertinoIcons.ellipsis,
+                                              size: 50,
                                               color: sendLoading
                                                   ? ThemeColors.subtleEmphasis
-                                                  : ThemeColors.white,
+                                                  : ThemeColors.surfacePrimary,
                                             ),
                                           ],
                                         ),
@@ -308,7 +564,7 @@ class WalletActions extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 11),
                                     Text(
-                                      AppLocalizations.of(context)!.receive,
+                                      AppLocalizations.of(context)!.more,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: sendLoading
@@ -319,58 +575,12 @@ class WalletActions extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              const SizedBox(width: 40),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  CupertinoButton(
-                                    padding: const EdgeInsets.all(5),
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: ThemeColors.uiBackground
-                                        .resolveFrom(context),
-                                    onPressed: () {
-                                      context
-                                          .read<WalletState>()
-                                          .setClickedOnMore(); //shanuka
-                                    },
-                                    child: SizedBox(
-                                      height: 50,
-                                      width: 50,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            CupertinoIcons.ellipsis,
-                                            size: 50,
-                                            color: sendLoading
-                                                ? ThemeColors.subtleEmphasis
-                                                : ThemeColors.surfacePrimary,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 11),
-                                  Text(
-                                    AppLocalizations.of(context)!.more,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: sendLoading
-                                          ? ThemeColors.subtleEmphasis
-                                          : ThemeColors.black,
-                                      fontSize: buttonFontSize,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 11),
+                      ]
                     ],
                   ),
                 ),

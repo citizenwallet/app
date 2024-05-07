@@ -159,39 +159,43 @@ class VouchersModalState extends State<VouchersModal> {
     _logic.resume(address: address);
   }
 
+  // void handleCreateVoucher() async {
+  //   HapticFeedback.heavyImpact();
+
+  //   final wallet = context.read<WalletState>().wallet;
+  //   if (wallet == null) {
+  //     return;
+  //   }
+
+  //   final amount = await showCupertinoModalPopup<String?>(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (modalContext) => AmountInputModal(
+  //       title: AppLocalizations.of(context)!.voucherAmount,
+  //       placeholder: AppLocalizations.of(context)!.enteramount,
+  //       symbol: wallet.symbol,
+  //     ),
+  //   );
+
+  //   if (amount == null) {
+  //     return;
+  //   }
+
+  //   await showCupertinoModalBottomSheet<bool?>(
+  //     context: context,
+  //     expand: true,
+  //     topRadius: const Radius.circular(40),
+  //     builder: (_) => VoucherModal(
+  //       amount: amount,
+  //       symbol: wallet.symbol,
+  //     ),
+  //   );
+
+  //   onLoad();
+  // }
+
   void handleCreateVoucher() async {
     HapticFeedback.heavyImpact();
-
-    final wallet = context.read<WalletState>().wallet;
-    if (wallet == null) {
-      return;
-    }
-
-    final amount = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => AmountInputModal(
-        title: AppLocalizations.of(context)!.voucherAmount,
-        placeholder: AppLocalizations.of(context)!.enteramount,
-        symbol: wallet.symbol,
-      ),
-    );
-
-    if (amount == null) {
-      return;
-    }
-
-    await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      builder: (_) => VoucherModal(
-        amount: amount,
-        symbol: wallet.symbol,
-      ),
-    );
-
-    onLoad();
   }
 
   @override
@@ -213,27 +217,54 @@ class VouchersModalState extends State<VouchersModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
+              // Header(
+              //   title: AppLocalizations.of(context)!.vouchers,
+              //   actionButton: returnLoading
+              //       ? CupertinoActivityIndicator(
+              //           color: ThemeColors.subtle.resolveFrom(context),
+              //         )
+              //       : CupertinoButton(
+              //           padding: const EdgeInsets.all(5),
+              //           onPressed: handleDismiss,
+              //           child: Icon(
+              //             CupertinoIcons.xmark,
+              //             color: ThemeColors.touchable.resolveFrom(context),
+              //           ),
+              //         ),
+              // ),
               Header(
-                title: AppLocalizations.of(context)!.vouchers,
-                actionButton: returnLoading
-                    ? CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      )
-                    : CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: handleDismiss,
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          color: ThemeColors.touchable.resolveFrom(context),
+                color: ThemeColors.background,
+                titleWidget: Row(
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Icon(
+                        CupertinoIcons.arrow_left,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.send,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8F899C),
+                          ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
               ),
               Expanded(
                 child: Stack(

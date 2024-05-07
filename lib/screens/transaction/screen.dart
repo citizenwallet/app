@@ -166,7 +166,7 @@ class TransactionScreenState extends State<TransactionScreen> {
       topRadius: const Radius.circular(40),
       transitionBackgroundColor: ThemeColors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
@@ -177,7 +177,7 @@ class TransactionScreenState extends State<TransactionScreen> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -185,19 +185,19 @@ class TransactionScreenState extends State<TransactionScreen> {
                           child: ListView(
                             children: [
                               SizedBox(height: safePadding),
-                              const SizedBox(height: 40),
+                              //const SizedBox(height: 40),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   voucher != null
                                       ? CoinLogo(
-                                          size: 160,
+                                          size: 70,
                                           logo: config?.community.logo,
                                         )
                                       : ProfileBadge(
-                                          size: 160,
+                                          size: 70,
                                           fontSize: 14,
-                                          profile: profile?.profile,
+                                          //profile: profile?.profile,
                                           loading: profile?.loading ?? false,
                                           onTap: () => handleViewProfile(from),
                                         ),
@@ -209,20 +209,37 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    isIncoming
-                                        ? '+ ${transaction.formattedAmount}'
-                                        : '- ${transaction.formattedAmount}',
+                                    isIncoming ? "Received" : "Sent",
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                       color: isIncoming
-                                          ? ThemeColors.primary
+                                          ? ThemeColors.subtleSolid
                                               .resolveFrom(context)
-                                          : ThemeColors.text
+                                          : ThemeColors.subtleSolid
                                               .resolveFrom(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    transaction.formattedAmount,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
                                     ),
                                   ),
                                   const SizedBox(width: 5),
@@ -234,26 +251,41 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      color: isIncoming
-                                          ? ThemeColors.primary
-                                              .resolveFrom(context)
-                                          : ThemeColors.text
-                                              .resolveFrom(context),
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 30),
-                              Text(
-                                AppLocalizations.of(context)!.transactionDetais,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
+                              //const SizedBox(height: 30),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Sender",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: ThemeColors.subtleSolid
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                  Text(
+                                    '@${profile!.profile.name}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          ThemeColors.text.resolveFrom(context),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 20),
                               Row(
@@ -267,9 +299,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      fontWeight: FontWeight.bold,
+                                      color: ThemeColors.subtleSolid
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   const SizedBox(
@@ -277,7 +309,8 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   ),
                                   Expanded(
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
@@ -314,9 +347,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      fontWeight: FontWeight.bold,
+                                      color: ThemeColors.subtleSolid
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   Text(
@@ -335,25 +368,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              if (hasDescription)
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.description,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        color: ThemeColors.text
-                                            .resolveFrom(context),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+
                               if (hasDescription) const SizedBox(height: 10),
                               if (hasDescription)
                                 Row(
@@ -391,6 +406,108 @@ class TransactionScreenState extends State<TransactionScreen> {
                                   ],
                                 ),
                               if (hasDescription) const SizedBox(height: 200),
+                              Container(
+                                height: 1,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: ThemeColors.subtleSolid
+                                          .resolveFrom(context),
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              if (voucher == null &&
+                                  !wallet.locked &&
+                                  !loading &&
+                                  transaction.isIncoming(wallet.account))
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CupertinoButton(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          20, 10, 20, 10),
+                                      onPressed: blockSending
+                                          ? null
+                                          : () => handleReply(transaction.from),
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: ThemeColors.uiBackground
+                                          .resolveFrom(context),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!.reply,
+                                            style: TextStyle(
+                                              color: ThemeColors.surfacePrimary
+                                                  .resolveFrom(context),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Icon(
+                                            CupertinoIcons.arrow_down,
+                                            color: ThemeColors.surfacePrimary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (voucher == null &&
+                                  !wallet.locked &&
+                                  !loading &&
+                                  !transaction.isIncoming(wallet.account))
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CupertinoButton(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          15, 5, 15, 5),
+                                      onPressed: blockSending
+                                          ? null
+                                          : () => handleReplay(
+                                                transaction.to,
+                                                transaction.amount,
+                                                transaction.description,
+                                              ),
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: ThemeColors.uiBackground
+                                          .resolveFrom(context),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .sendAgain,
+                                            style: TextStyle(
+                                              color: ThemeColors.surfacePrimary
+                                                  .resolveFrom(context),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Icon(
+                                            CupertinoIcons.refresh_thick,
+                                            color: ThemeColors.surfacePrimary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                             ],
                           ),
                         ),
@@ -401,102 +518,115 @@ class TransactionScreenState extends State<TransactionScreen> {
                             padding: const EdgeInsets.all(5),
                             onPressed: () => handleDismiss(context),
                             child: Icon(
-                              CupertinoIcons.back,
-                              color: ThemeColors.primary.resolveFrom(context),
+                              CupertinoIcons.arrow_left,
+                              color: ThemeColors.black.resolveFrom(context),
                             ),
                           ),
                         ),
-                        if (voucher == null &&
-                            !wallet.locked &&
-                            !loading &&
-                            transaction.isIncoming(wallet.account))
-                          Positioned(
-                            bottom: 20,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                CupertinoButton(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                                  onPressed: blockSending
-                                      ? null
-                                      : () => handleReply(transaction.from),
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: ThemeColors.surfacePrimary
-                                      .resolveFrom(context),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        AppLocalizations.of(context)!.reply,
-                                        style: const TextStyle(
-                                          color: ThemeColors.black,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      const Icon(
-                                        CupertinoIcons.reply,
-                                        color: ThemeColors.black,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                        Positioned(
+                          top: safePadding,
+                          child: Text(
+                            AppLocalizations.of(context)!.transactionDetais,
+                            //maxLines: 1,
+                            //overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeColors.black.resolveFrom(context),
                             ),
                           ),
-                        if (voucher == null &&
-                            !wallet.locked &&
-                            !loading &&
-                            !transaction.isIncoming(wallet.account))
-                          Positioned(
-                            bottom: 20,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                CupertinoButton(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                                  onPressed: blockSending
-                                      ? null
-                                      : () => handleReplay(
-                                            transaction.to,
-                                            transaction.amount,
-                                            transaction.description,
-                                          ),
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: ThemeColors.surfacePrimary
-                                      .resolveFrom(context),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        AppLocalizations.of(context)!
-                                            .sendAgain,
-                                        style: const TextStyle(
-                                          color: ThemeColors.black,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      const Icon(
-                                        CupertinoIcons.refresh_thick,
-                                        color: ThemeColors.black,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        ),
+                        // if (voucher == null &&
+                        //     !wallet.locked &&
+                        //     !loading &&
+                        //     transaction.isIncoming(wallet.account))
+                        //   Positioned(
+                        //     bottom: 20,
+                        //     left: 0,
+                        //     right: 0,
+                        //     child: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.center,
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       children: [
+                        //         CupertinoButton(
+                        //           padding:
+                        //               const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                        //           onPressed: blockSending
+                        //               ? null
+                        //               : () => handleReply(transaction.from),
+                        //           borderRadius: BorderRadius.circular(25),
+                        //           color: ThemeColors.surfacePrimary
+                        //               .resolveFrom(context),
+                        //           child: Row(
+                        //             mainAxisAlignment: MainAxisAlignment.center,
+                        //             crossAxisAlignment:
+                        //                 CrossAxisAlignment.center,
+                        //             children: [
+                        //               Text(
+                        //                 AppLocalizations.of(context)!.reply,
+                        //                 style: const TextStyle(
+                        //                   color: ThemeColors.black,
+                        //                 ),
+                        //               ),
+                        //               SizedBox(width: 10),
+                        //               const Icon(
+                        //                 CupertinoIcons.reply,
+                        //                 color: ThemeColors.black,
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // if (voucher == null &&
+                        //     !wallet.locked &&
+                        //     !loading &&
+                        //     !transaction.isIncoming(wallet.account))
+                        //   Positioned(
+                        //     bottom: 20,
+                        //     left: 0,
+                        //     right: 0,
+                        //     child: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.center,
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       children: [
+                        //         CupertinoButton(
+                        //           padding:
+                        //               const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                        //           onPressed: blockSending
+                        //               ? null
+                        //               : () => handleReplay(
+                        //                     transaction.to,
+                        //                     transaction.amount,
+                        //                     transaction.description,
+                        //                   ),
+                        //           borderRadius: BorderRadius.circular(25),
+                        //           color: ThemeColors.surfacePrimary
+                        //               .resolveFrom(context),
+                        //           child: Row(
+                        //             mainAxisAlignment: MainAxisAlignment.center,
+                        //             crossAxisAlignment:
+                        //                 CrossAxisAlignment.center,
+                        //             children: [
+                        //               Text(
+                        //                 AppLocalizations.of(context)!.sendAgain,
+                        //                 style: const TextStyle(
+                        //                   color: ThemeColors.black,
+                        //                 ),
+                        //               ),
+                        //               SizedBox(width: 10),
+                        //               const Icon(
+                        //                 CupertinoIcons.refresh_thick,
+                        //                 color: ThemeColors.black,
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
                       ],
                     ),
                   ),

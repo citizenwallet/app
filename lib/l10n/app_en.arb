@@ -176,7 +176,7 @@
   "createVoucherText": "Create a voucher which anyone can redeem for the amount shown above.",
   "emptyBalanceText1": "This voucher has already been redeemed.",
   "emptyBalanceText2": "Redeem this voucher to your account.",
-  "more": "more",
+  "more": "More",
   "transactionsHistory": "Transactions History",
   "searchUser": "Search user or paste address",
   "sendTo": "Send to",

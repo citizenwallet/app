@@ -526,7 +526,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.pause();
 
     await GoRouter.of(context).push<bool?>(
-      '/wallet/${widget.address!}/transactions/$transactionId',
+      '/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,

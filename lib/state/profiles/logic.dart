@@ -218,6 +218,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.clearSearch();
   }
 
+  void clearSearchNotify() {
+    _state.notify();
+  }
+
   void pause() {
     debouncedLoad.cancel();
     stopLoading = true;
