@@ -25,33 +25,36 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton(
-      color: color ?? ThemeColors.surfacePrimary.resolveFrom(context),
-      onPressed: onPressed,
-      padding: const EdgeInsets.all(8),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: minWidth,
-          maxWidth: maxWidth,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (prefix != null) prefix!,
-            Expanded(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: labelColor ?? CupertinoColors.black,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: CupertinoButton(
+        color: color ?? ThemeColors.surfacePrimary.resolveFrom(context),
+        onPressed: onPressed,
+        padding: const EdgeInsets.all(8),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (prefix != null) prefix!,
+              Expanded(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: labelColor ?? CupertinoColors.white,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-            ),
-            if (suffix != null) suffix!,
-          ],
+              if (suffix != null) suffix!,
+            ],
+          ),
         ),
       ),
     );

@@ -6,13 +6,19 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
+import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+const List<Color> _kDefaultRainbowColors = [Color(0xFF9463D2)];
 
 class SendViaLinkVoucherModal extends StatefulWidget {
   final String amount;
@@ -143,6 +149,9 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
     final shareLink = context.select((VoucherState state) => state.shareLink);
     final shareReady = context.select((VoucherState state) => state.shareReady);
 
+    String formattedDateTime =
+        DateFormat('MMM d, yyyy - HH:mm').format(DateTime.now());
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -196,43 +205,134 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                         children: [
                           const SizedBox(height: 20),
                           SizedBox(
-                            height: size * 0.8,
-                            width: size * 0.8,
+                            height: size * 0.7,
+                            width: size * 0.7,
                             child: Center(
-                              child: shareReady
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                        color: ThemeColors.white
-                                            .resolveFrom(context),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: QR(
-                                        data: shareLink,
-                                        size: size * 0.8,
-                                      ),
-                                    )
-                                  : Lottie.asset(
-                                      'assets/lottie/gift-voucher.json',
-                                      controller: _controller,
-                                      height: size * 0.8,
-                                      width: size * 0.8,
-                                      animate: false,
-                                      repeat: false,
+                                child: shareReady
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                            color: ThemeColors.white
+                                                .resolveFrom(context),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            border: Border.all(
+                                                color: ThemeColors
+                                                    .surfacePrimary
+                                                    .resolveFrom(context),
+                                                width: 2)),
+                                        child: QR(
+                                          data: shareLink,
+                                          size: size * 0.7,
+                                        ),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                            color: ThemeColors.uiBackground
+                                                .resolveFrom(context),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            border: Border.all(
+                                                color: ThemeColors
+                                                    .surfacePrimary
+                                                    .resolveFrom(context),
+                                                width: 2)),
+                                        child: Transform.scale(
+                                          scale: 0.3,
+                                          child: const LoadingIndicator(
+                                            indicatorType:
+                                                Indicator.circleStrokeSpin,
+                                            colors: _kDefaultRainbowColors,
+                                            strokeWidth: 10.0,
+                                            pathBackgroundColor:
+                                                Color.fromRGBO(81, 66, 66, 0),
+                                          ),
+                                        ),
+                                      )),
+                          ),
+                          const SizedBox(height: 30),
+                          if (creationState == VoucherCreationState.created &&
+                              createdVoucher != null &&
+                              !createLoading)
+                            Text(
+                              "Voucher created",
+                              style: TextStyle(
+                                color: ThemeColors.text.resolveFrom(context),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          const SizedBox(height: 30),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // CoinSpinner(
+                                  //     key: Key('${wallet?.alias}-spinner'),
+                                  //     size: coinSize,
+                                  //     logo: wallet!.currencyLogo),
+                                  // const SizedBox(width: 16.77),
+                                  Text(
+                                    widget.amount,
+                                    style: const TextStyle(
+                                      color: Color(0xFF1E2122),
+                                      fontSize: 41.94,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w700,
+                                      height: 0.5,
+                                      letterSpacing: -0.11,
                                     ),
-                            ),
+                                  ),
+                                  const SizedBox(width: 16.77),
+                                  Text(
+                                    widget.symbol!,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 52, 52, 52),
+                                      fontSize: 17,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w700,
+                                      height: 0.08,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 20),
-                          Text(
-                            widget.symbol != null
-                                ? '${widget.symbol} ${widget.amount}'
-                                : widget.amount,
-                            style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
+                          const SizedBox(height: 16),
+                          if (creationState == VoucherCreationState.created &&
+                              createdVoucher != null &&
+                              !createLoading)
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.clock,
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      size: 20),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    formattedDateTime,
+                                    style: TextStyle(
+                                        color: ThemeColors.subtleSolid
+                                            .resolveFrom(context),
+                                        fontSize: 16,
+                                        fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
                           const SizedBox(height: 30),
                           if (creationState == VoucherCreationState.none)
                             Text(
@@ -246,24 +346,24 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                             ),
                           if (creationState != VoucherCreationState.none)
                             (creationState == VoucherCreationState.created)
-                                ? Row(
+                                ? const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Chip(
-                                        onTap: () => handleCopy(shareLink),
-                                        formatLongText(shareLink, length: 12),
-                                        color: ThemeColors.subtleEmphasis
-                                            .resolveFrom(context),
-                                        textColor: ThemeColors.touchable
-                                            .resolveFrom(context),
-                                        suffix: Icon(
-                                          CupertinoIcons.square_on_square,
-                                          size: 14,
-                                          color: ThemeColors.touchable
-                                              .resolveFrom(context),
-                                        ),
-                                        maxWidth: 300,
-                                      ),
+                                      // Chip(
+                                      //   onTap: () => handleCopy(shareLink),
+                                      //   formatLongText(shareLink, length: 12),
+                                      //   color: ThemeColors.subtleEmphasis
+                                      //       .resolveFrom(context),
+                                      //   textColor: ThemeColors.touchable
+                                      //       .resolveFrom(context),
+                                      //   suffix: Icon(
+                                      //     CupertinoIcons.square_on_square,
+                                      //     size: 14,
+                                      //     color: ThemeColors.touchable
+                                      //         .resolveFrom(context),
+                                      //   ),
+                                      //   maxWidth: 300,
+                                      // ),
                                     ],
                                   )
                                 : Text(
@@ -286,12 +386,12 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                       width: width,
                       child: BlurryChild(
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             border: Border(
-                              top: BorderSide(
-                                color: ThemeColors.subtle.resolveFrom(context),
-                              ),
-                            ),
+                                // top: BorderSide(
+                                //   color: ThemeColors.subtle.resolveFrom(context),
+                                // ),
+                                ),
                           ),
                           padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                           child: Column(
@@ -302,14 +402,13 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                                 ? [
                                     const SizedBox(height: 10),
                                     Button(
-                                      text: 'Share',
+                                      text: 'Share Link',
                                       suffix: Row(
                                         children: [
-                                          const SizedBox(width: 10),
                                           Icon(
                                             CupertinoIcons.share,
                                             size: 18,
-                                            color: ThemeColors.black
+                                            color: ThemeColors.white
                                                 .resolveFrom(context),
                                           ),
                                         ],
@@ -321,24 +420,31 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                                         widget.symbol!,
                                         shareLink,
                                       ),
-                                      minWidth: 200,
-                                      maxWidth: 200,
+                                      minWidth: 100,
+                                      maxWidth: 150,
                                     ),
                                     const SizedBox(height: 10),
                                     CupertinoButton(
                                       onPressed: handleShareLater,
                                       child: Text(
-                                        'Share later',
+                                        'Cancel & Refund',
                                         style: TextStyle(
-                                          color: ThemeColors.text
+                                          color: ThemeColors.surfacePrimary
                                               .resolveFrom(context),
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.normal,
-                                          decoration: TextDecoration.underline,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          //decoration: TextDecoration.underline,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
+                                    const SizedBox(height: 10),
+                                    Button(
+                                      text: 'Done',
+                                      onPressed: handleShareLater,
+                                      minWidth: 100,
+                                      maxWidth: width / 3 * 2,
+                                    )
                                   ]
                                 : [
                                     const SizedBox(height: 10),

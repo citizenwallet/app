@@ -115,6 +115,7 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
     _scrollController.removeListener(onScrollUpdate);
     _logic.stopListeningMessage();
     messageFocusNode.removeListener(handleMessageListenerUpdate);
+    _logic.clearInputControllers();
 
     super.dispose();
   }
@@ -751,7 +752,7 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                                       textAlign: TextAlign.center,
                                       placeholder: formatCurrency(0.00, ''),
                                       style: TextStyle(
-                                        color: ThemeColors.secondary
+                                        color: ThemeColors.success
                                             .resolveFrom(context),
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,

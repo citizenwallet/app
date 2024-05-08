@@ -290,159 +290,142 @@ class SendingToScreenState extends State<SendingToScreen>
                                           ),
                                         ),
                                   const SizedBox(height: 40),
-                                  Container(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          child: Column(
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Row(
                                             mainAxisSize: MainAxisSize.min,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              Container(
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    CoinSpinner(
-                                                        key: Key(
-                                                            '${wallet?.alias}-spinner'),
-                                                        size: coinSize,
-                                                        logo: wallet!
-                                                            .currencyLogo),
-                                                    const SizedBox(
-                                                        width: 16.77),
-                                                    Text(
-                                                      amount,
-                                                      style: const TextStyle(
-                                                        color:
-                                                            Color(0xFF1E2122),
-                                                        fontSize: 41.94,
-                                                        fontFamily: 'Inter',
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        height: 0.5,
-                                                        letterSpacing: -0.11,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                        width: 16.77),
-                                                    Text(
-                                                      wallet.symbol,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: const TextStyle(
-                                                        color: Color.fromARGB(
-                                                            255, 52, 52, 52),
-                                                        fontSize: 17,
-                                                        fontFamily: 'Inter',
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        height: 0.08,
-                                                      ),
-                                                    ),
-                                                  ],
+                                              CoinSpinner(
+                                                  key: Key(
+                                                      '${wallet?.alias}-spinner'),
+                                                  size: coinSize,
+                                                  logo: wallet!.currencyLogo),
+                                              const SizedBox(width: 16.77),
+                                              Text(
+                                                amount,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1E2122),
+                                                  fontSize: 41.94,
+                                                  fontFamily: 'Inter',
+                                                  fontWeight: FontWeight.w700,
+                                                  height: 0.5,
+                                                  letterSpacing: -0.11,
                                                 ),
                                               ),
-                                              const SizedBox(height: 16),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    'assets/icons/double-arrow-down.svg',
-                                                    height: 28,
-                                                    width: 28,
-                                                    colorFilter:
-                                                        ColorFilter.mode(
-                                                      ThemeColors.subtleSolid
-                                                          .resolveFrom(context),
-                                                      BlendMode.srcIn,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                ],
+                                              const SizedBox(width: 16.77),
+                                              Text(
+                                                wallet.symbol,
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 52, 52, 52),
+                                                  fontSize: 17,
+                                                  fontFamily: 'Inter',
+                                                  fontWeight: FontWeight.w700,
+                                                  height: 0.08,
+                                                ),
                                               ),
-                                              const SizedBox(height: 16),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  ProfileChip(
-                                                    selectedProfile:
-                                                        selectedProfile,
-                                                    selectedAddress: _logic
-                                                                .addressController
-                                                                .value
-                                                                .text
-                                                                .isEmpty ||
-                                                            selectedProfile !=
-                                                                null
-                                                        ? null
-                                                        : formatHexAddress(_logic
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/icons/double-arrow-down.svg',
+                                                height: 28,
+                                                width: 28,
+                                                colorFilter: ColorFilter.mode(
+                                                  ThemeColors.subtleSolid
+                                                      .resolveFrom(context),
+                                                  BlendMode.srcIn,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              ProfileChip(
+                                                selectedProfile:
+                                                    selectedProfile,
+                                                selectedAddress: _logic
                                                             .addressController
                                                             .value
-                                                            .text),
-                                                    handleDeSelect: null,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                ],
+                                                            .text
+                                                            .isEmpty ||
+                                                        selectedProfile != null
+                                                    ? null
+                                                    : formatHexAddress(_logic
+                                                        .addressController
+                                                        .value
+                                                        .text),
+                                                handleDeSelect: null,
                                               ),
+                                              const SizedBox(width: 8),
                                             ],
                                           ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 8),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              if (!_isSending)
-                                                Icon(CupertinoIcons.clock,
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            if (!_isSending)
+                                              Icon(CupertinoIcons.clock,
+                                                  color: ThemeColors
+                                                      .surfacePrimary
+                                                      .resolveFrom(context),
+                                                  size: 20),
+                                            const SizedBox(width: 6),
+                                            if (!_isSending)
+                                              Text(
+                                                formattedDateTime,
+                                                style: TextStyle(
                                                     color: ThemeColors
-                                                        .surfacePrimary
+                                                        .subtleSolid
                                                         .resolveFrom(context),
-                                                    size: 20),
-                                              const SizedBox(width: 6),
-                                              if (!_isSending)
-                                                Text(
-                                                  formattedDateTime,
-                                                  style: TextStyle(
-                                                      color: ThemeColors
-                                                          .subtleSolid
-                                                          .resolveFrom(context),
-                                                      fontSize: 16,
-                                                      fontFamily: 'Inter',
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                            ],
-                                          ),
+                                                    fontSize: 16,
+                                                    fontFamily: 'Inter',
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
