@@ -99,6 +99,22 @@ class NotificationsLogic {
     }
   }
 
+  Future<void> updatePushToken() async {
+    try {
+      final token = await _push.token;
+      if (token == null) {
+        return;
+      }
+
+      final updated = await _wallet.updatePushToken(token);
+      if (!updated) {
+        throw Exception('Failed to update push token');
+      }
+    } catch (e) {
+      //
+    }
+  }
+
   Future<void> togglePushNotifications() async {
     try {
       final systemEnabled = await _push.isEnabled();

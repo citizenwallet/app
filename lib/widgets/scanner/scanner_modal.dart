@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,14 +24,13 @@ class ScannerModal extends StatefulWidget {
 }
 
 class ScannerModalState extends State<ScannerModal>
-    with TickerProviderStateMixin {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   late final AnimationController _animationController;
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
     torchEnabled: false,
-    autoStart: false,
     formats: <BarcodeFormat>[BarcodeFormat.qrCode],
   );
 
@@ -38,6 +39,8 @@ class ScannerModalState extends State<ScannerModal>
   bool _hasTorch = false;
   bool _isTextEmpty = true;
   TorchState _torchState = TorchState.off;
+
+  StreamSubscription<Object?>? _subscription;
 
   @override
   void initState() {
@@ -54,6 +57,9 @@ class ScannerModalState extends State<ScannerModal>
 
     super.initState();
 
+    // Start listening to lifecycle changes.
+    WidgetsBinding.instance.addObserver(this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
 
@@ -61,30 +67,58 @@ class ScannerModalState extends State<ScannerModal>
     });
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        return;
+      case AppLifecycleState.resumed:
+        // Restart the scanner when the app is resumed.
+        // Don't forget to resume listening to the barcode events.
+        _subscription = _controller.barcodes.listen(handleDetection);
+
+        unawaited(_controller.start());
+      case AppLifecycleState.inactive:
+        // Stop the scanner when the app is paused.
+        // Also stop the barcode events subscription.
+        unawaited(_subscription?.cancel());
+        _subscription = null;
+        unawaited(_controller.stop());
+    }
+  }
+
   void onLoad() async {
     await delay(const Duration(milliseconds: 500));
 
-    _controller.start();
+    _controller.barcodes.listen(handleDetection);
 
-    _controller.torchState.addListener(() {
-      setState(() {
-        _torchState = _controller.torchState.value;
-      });
-    });
+    unawaited(_controller.start());
 
     await delay(const Duration(milliseconds: 250));
 
     setState(() {
       _opacity = 1;
-      _hasTorch = _controller.hasTorch;
+      _hasTorch = _controller.torchEnabled;
     });
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    _controller.dispose();
+
+    // Stop listening to lifecycle changes.
+    WidgetsBinding.instance.removeObserver(this);
+    // Stop listening to the barcode events.
+    unawaited(_subscription?.cancel());
+    _subscription = null;
+
     super.dispose();
+
+    _controller.dispose();
   }
 
   void handleDismiss(BuildContext context) {
@@ -95,6 +129,10 @@ class ScannerModalState extends State<ScannerModal>
   void handleToggleTorch() {
     if (_complete) return;
     _controller.toggleTorch();
+
+    setState(() {
+      _torchState = _controller.torchEnabled ? TorchState.on : TorchState.off;
+    });
   }
 
   void handleDetection(BarcodeCapture capture) async {
@@ -195,8 +233,6 @@ class ScannerModalState extends State<ScannerModal>
                           duration: const Duration(milliseconds: 1000),
                           child: MobileScanner(
                             controller: _controller,
-                            onDetect: handleDetection,
-                            startDelay: kIsWeb ? true : false,
                             fit: BoxFit.cover,
                             placeholderBuilder: (p0, p1) {
                               return Container(

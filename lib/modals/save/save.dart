@@ -153,93 +153,12 @@ class SaveModalState extends State<SaveModal> {
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
-                            const SizedBox(height: 40),
-                            if (isIOS) ...[
-                              Text(
-                                AppLocalizations.of(context)!.gettheapp,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              CupertinoButton(
-                                onPressed: handleAppStoreLink,
-                                child: SvgPicture.asset(
-                                  'assets/images/app-store-badge.svg',
-                                  semanticsLabel: AppLocalizations.of(context)!.appstorebadge,
-                                  height: 70,
-                                ),
-                              ),
-                            ],
-                            if (isAndroid) ...[
-                              Text(
-                                AppLocalizations.of(context)!.gettheapp,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              CupertinoButton(
-                                onPressed: handleGooglePlayLink,
-                                child: Image.asset(
-                                  'assets/images/google-play-badge.png',
-                                  semanticLabel: AppLocalizations.of(context)!.googleplaybadge,
-                                  height: 100,
-                                ),
-                              )
-                            ],
-                          ],
-                        ),
-                      ),
-                      if (!isDesktop)
-                        SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 40),
-                              Text(
-                                AppLocalizations.of(context)!.opentheapp,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Button(
-                                text : AppLocalizations.of(context)!.open,
-                                suffix: Row(
-                                  children: [
-                                    const SizedBox(width: 10),
-                                    Icon(
-                                      CupertinoIcons.arrowshape_turn_up_right,
-                                      size: 18,
-                                      color: ThemeColors.black
-                                          .resolveFrom(context),
-                                    ),
-                                  ],
-                                ),
-                                onPressed: handleNativeApp,
-                                minWidth: 200,
-                                maxWidth: 200,
-                              ),
-                            ],
-                          ),
-                        ),
-                      SliverToBoxAdapter(
-                        child: Column(
-                          children: [
                             const SizedBox(height: 60),
                             Button(
                               text: isCopied
                                   ? '${AppLocalizations.of(context)!.copied} !'
-                                  : AppLocalizations.of(context)!.copyyouruniquewalletURL,
+                                  : AppLocalizations.of(context)!
+                                      .copyyouruniquewalletURL,
                               suffix: Row(
                                 children: [
                                   const SizedBox(width: 10),
@@ -261,7 +180,8 @@ class SaveModalState extends State<SaveModal> {
                             CupertinoButton(
                               onPressed: handleComposeEmail,
                               child: Text(
-                                AppLocalizations.of(context)!.emailtoyourselfyourwalleturl,
+                                AppLocalizations.of(context)!
+                                    .emailtoyourselfyourwalleturl,
                                 style: TextStyle(
                                   color: ThemeColors.text.resolveFrom(context),
                                   fontSize: 18,
@@ -274,6 +194,90 @@ class SaveModalState extends State<SaveModal> {
                           ],
                         ),
                       ),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 40),
+                            if (isIOS) ...[
+                              Text(
+                                AppLocalizations.of(context)!.gettheapp,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              CupertinoButton(
+                                onPressed: handleAppStoreLink,
+                                child: SvgPicture.asset(
+                                  'assets/images/app-store-badge.svg',
+                                  semanticsLabel: AppLocalizations.of(context)!
+                                      .appstorebadge,
+                                  height: 70,
+                                ),
+                              ),
+                            ],
+                            if (isAndroid) ...[
+                              Text(
+                                AppLocalizations.of(context)!.gettheapp,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              CupertinoButton(
+                                onPressed: handleGooglePlayLink,
+                                child: Image.asset(
+                                  'assets/images/google-play-badge.png',
+                                  semanticLabel: AppLocalizations.of(context)!
+                                      .googleplaybadge,
+                                  height: 100,
+                                ),
+                              )
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (!isDesktop)
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 40),
+                              Text(
+                                AppLocalizations.of(context)!.opentheapp,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  color: ThemeColors.text.resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Button(
+                                text: AppLocalizations.of(context)!.open,
+                                suffix: Row(
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    Icon(
+                                      CupertinoIcons.arrowshape_turn_up_right,
+                                      size: 18,
+                                      color: ThemeColors.black
+                                          .resolveFrom(context),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: handleNativeApp,
+                                minWidth: 200,
+                                maxWidth: 200,
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),

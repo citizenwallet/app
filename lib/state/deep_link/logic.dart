@@ -29,13 +29,38 @@ class DeepLinkLogic {
 
       final (_, userop) = await _wallet.prepareUserop([address], [calldata]);
 
-      final success = await _wallet.submitUserop(userop);
+      final txHash = await _wallet.submitUserop(userop);
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      final success = await _wallet.waitForTxSuccess(txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
 
       _notifications.toastShow('Faucet claim request made');
 
+      _state.success();
+      return;
+    } catch (_) {}
+    _state.fail();
+  }
+
+  Future<void> faucetV1Metadata(String params) async {
+    try {
+      _state.request();
+
+      final uri = Uri(query: params);
+
+      final address = uri.queryParameters['address'];
+      if (address == null) {
+        throw Exception('Address is required');
+      }
+
+      final amount = await _wallet.getFaucetRedeemAmount(address);
+
+      _state.setFaucetAmount(amount);
       _state.success();
       return;
     } catch (_) {}

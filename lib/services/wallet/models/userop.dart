@@ -193,4 +193,8 @@ class UserOp {
 
     this.signature = signature;
   }
+
+  bool isFirst() {
+    return nonce == BigInt.zero;
+  }
 }

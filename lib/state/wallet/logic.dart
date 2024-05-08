@@ -1183,13 +1183,27 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         data: message != '' ? TransferData(message) : null,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
+      }
+
+      tempId = txHash;
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
       }
 
       clearInputControllers();
@@ -1292,13 +1306,27 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         data: message != '' ? TransferData(message) : null,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
+      }
+
+      tempId = txHash;
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
       }
 
       clearInputControllers();
@@ -1389,10 +1417,10 @@ class WalletLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
       }
