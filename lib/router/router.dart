@@ -82,7 +82,12 @@ GoRouter createRouter(
               // parse from a receive deep link
               final receiveParams = uri.queryParameters['receiveParams'];
 
+              // uri
+              final stringUri =
+                  '${state.uri.scheme}://${state.uri.host}/#${state.uri.path}${state.uri.fragment}';
+
               return LandingScreen(
+                uri: state.uri.hasScheme ? stringUri : state.uri.toString(),
                 voucher: voucher,
                 voucherParams: voucherParams,
                 webWallet:
@@ -378,6 +383,9 @@ GoRouter createWebRouter(
             final deepLink = state.uri.queryParameters['dl'];
             if (deepLink != null) {
               deepLinkParams = state.uri.queryParameters[deepLink];
+              if (deepLinkParams != null) {
+                deepLinkParams = encodeParams(deepLinkParams);
+              }
             }
 
             return WebLandingScreen(
@@ -413,6 +421,9 @@ GoRouter createWebRouter(
                 final deepLink = state.uri.queryParameters['dl'];
                 if (deepLink != null) {
                   deepLinkParams = state.uri.queryParameters[deepLink];
+                  if (deepLinkParams != null) {
+                    deepLinkParams = encodeParams(deepLinkParams);
+                  }
                 }
 
                 return NoTransitionPage(

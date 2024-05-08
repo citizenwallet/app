@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.51+155
+version: 1.0.54+165
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -10,7 +10,7 @@ dependencies:
       url: https://github.com/citizenwallet/smartcontracts.git
       ref: v0.0.99
   cupertino_icons: ^1.0.2
-  go_router: ^13.0.1
+  go_router: ^14.0.2
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
@@ -25,7 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^3.0.0
-  mobile_scanner: ^4.0.0
+  mobile_scanner: ^5.0.1
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
@@ -39,17 +39,17 @@ dependencies:
   graphql: ^5.1.2
   hive: ^2.2.3
   url_launcher: ^6.1.11
-  flutter_markdown: ^0.6.15
-  package_info_plus: ^5.0.1
+  flutter_markdown: ^0.7.1
+  package_info_plus: ^8.0.0
   rxdart: ^0.27.7
-  sentry_flutter: ^7.13.2
+  sentry_flutter: ^8.0.0
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
   username_gen: ^1.0.4
-  file_picker: ^6.0.0
+  file_picker: ^8.0.1
   universal_io: ^2.2.2
-  share_plus: ^7.2.1
+  share_plus: ^9.0.0
   sqflite_common: ^2.5.0
   image: ^4.0.17
   qr_flutter: ^4.1.0
@@ -60,7 +60,7 @@ dependencies:
   firebase_core: ^2.19.0
   flutter_inappwebview: ^6.0.0
   credential_manager: ^0.0.3
-  googleapis: ^12.0.0
+  googleapis: ^13.1.0
   path_provider: ^2.1.2
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
@@ -75,7 +75,7 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.0
   nock: ^1.2.2
-  sentry_dart_plugin: ^1.4.0
+  sentry_dart_plugin: ^2.0.0
 flutter:
   assets:
     - .env
@@ -84,7 +84,7 @@ flutter:
     - assets/logo_rounded.png
     - assets/logo.png
     - assets/logo.svg
-    - assets/citizenwallet-logo-simple.svg
+    - assets/citizenwallet-only-logo.svg
     - assets/about/about.md
     - assets/audio/tx_notification.wav
     - assets/icons/citizenwallet-qrcode.svg

@@ -40,7 +40,7 @@ String? scrubFragment(String? fragment) {
           element == '' ? previousValue : '$previousValue/$element');
 }
 
-FutureOr<SentryEvent?> beforeSend(SentryEvent event, {Hint? hint}) async {
+FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint? hint) async {
   if (event.transaction == null || !kIsWeb) {
     return event;
   }
