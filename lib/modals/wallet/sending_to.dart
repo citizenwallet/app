@@ -100,21 +100,24 @@ class SendingToScreenState extends State<SendingToScreen>
   }
 
   void handleDone() async {
-    HapticFeedback.lightImpact();
+    // HapticFeedback.lightImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
+    // _logic.pauseFetching();
+    // _profilesLogic.pause();
 
-    await GoRouter.of(context).push<bool?>(
-      '/sendModal',
-      extra: {
-        'logic': _logic,
-        'profilesLogic': _profilesLogic,
-      },
-    );
+    // await GoRouter.of(context).push<bool?>(
+    //   '/sendModal',
+    //   extra: {
+    //     'logic': _logic,
+    //     'profilesLogic': _profilesLogic,
+    //   },
+    // );
 
-    _logic.resumeFetching();
-    _profilesLogic.resume();
+    // _logic.resumeFetching();
+    // _profilesLogic.resume();
+    _logic.clearInputControllers();
+    _logic.resetInputErrorState();
+    widget.profilesLogic.clearSearch();
   }
 
   @override
@@ -466,7 +469,7 @@ class SendingToScreenState extends State<SendingToScreen>
                           children: [
                             CupertinoButton(
                               padding: const EdgeInsets.all(5),
-                              onPressed: handleDone,
+                              onPressed: () => Navigator.of(context).pop(),
                               child: Text(
                                 "Done",
                                 style: TextStyle(

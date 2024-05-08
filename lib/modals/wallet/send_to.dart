@@ -254,25 +254,6 @@ class SendToModalState extends State<SendToModal>
     FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
-    _logic.pauseFetching();
-    _profilesLogic.pause();
-    _voucherLogic.pause();
-
-    GoRouter.of(context).push<bool?>(
-      '/openSendingModal',
-      extra: {
-        'logic': _logic,
-        'profilesLogic': _profilesLogic,
-        'id': widget.id,
-        'selectedAddress':
-            selectedAddress ?? _logic.addressController.value.text
-      },
-    );
-
-    _logic.resumeFetching();
-    _profilesLogic.resume();
-    _voucherLogic.resume();
-
     FocusManager.instance.primaryFocus?.unfocus();
 
     setState(() {
@@ -294,25 +275,37 @@ class SendToModalState extends State<SendToModal>
       return;
     }
 
-    // _logic.sendTransaction(
-    //   _logic.amountController.value.text,
-    //   selectedAddress ?? _logic.addressController.value.text,
-    //   message: _logic.messageController.value.text.trim(),
-    //   id: widget.id,
-    // );
-    // await Future.delayed(const Duration(milliseconds: 3000));
-    // _logic.isSending = false;
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/openSendingModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+        'id': widget.id,
+        'selectedAddress':
+            selectedAddress ?? _logic.addressController.value.text
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+
+    setState(() {
+      _isSending = false;
+    });
 
     // _logic.clearInputControllers();
     // _logic.resetInputErrorState();
-    //widget.profilesLogic.clearSearch();
+    // widget.profilesLogic.clearSearch();
 
-    await Future.delayed(const Duration(milliseconds: 50));
+    // await Future.delayed(const Duration(milliseconds: 50));
 
-    HapticFeedback.heavyImpact();
-
-    //navigator.pop(true);
-    return;
+    // HapticFeedback.heavyImpact();
+    // return;
   }
 
   void handleMint(BuildContext context, String? selectedAddress) async {
@@ -828,109 +821,6 @@ class SendToModalState extends State<SendToModal>
                         ],
                       ),
                     ),
-                    if (_isSending)
-                      Positioned(
-                        bottom: 90,
-                        child: CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        ),
-                      ),
-                    if (!_isScanning &&
-                        !_isDescribing &&
-                        !_isSending &&
-                        hasAmount &&
-                        !invalidAmount)
-                      Positioned(
-                        width: width,
-                        child: BlurryChild(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                ),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Column(
-                              children: (!isSendingValid)
-                                  ? [
-                                      const SizedBox(height: 10),
-                                      Button(
-                                        text: AppLocalizations.of(context)!
-                                            .chooseRecipient,
-                                        onPressed: handleChooseRecipient,
-                                        minWidth: 200,
-                                        maxWidth: 200,
-                                      ),
-                                      if (!widget.isMinting)
-                                        const SizedBox(height: 10),
-                                      if (!widget.isMinting)
-                                        CupertinoButton(
-                                          onPressed: handleCreateVoucher,
-                                          child: Text(
-                                            AppLocalizations.of(context)!
-                                                .createVoucher,
-                                            style: TextStyle(
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.normal,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                    ]
-                                  : [
-                                      SlideToComplete(
-                                        onCompleted: !_isSending
-                                            ? widget.isMinting
-                                                ? () => handleMint(context,
-                                                    selectedProfile?.account)
-                                                : () => handleSend(
-                                                      context,
-                                                      selectedProfile?.account,
-                                                    )
-                                            : null,
-                                        // onCompleted: () => handleSend(
-                                        //   context,
-                                        //   selectedProfile?.account,
-                                        // ),
-                                        enabled: isSendingValid,
-                                        isComplete: _isSending,
-                                        completionLabel: widget.isMinting
-                                            ? (_isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .minting
-                                                : AppLocalizations.of(context)!
-                                                    .mint)
-                                            : _isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .sending
-                                                : AppLocalizations.of(context)!
-                                                    .send,
-                                        thumbColor: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        width: width * 0.5,
-                                        child: const SizedBox(
-                                          height: 50,
-                                          width: 50,
-                                          child: Center(
-                                            child: Icon(
-                                              CupertinoIcons.arrow_right,
-                                              color: ThemeColors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                            ),
-                          ),
-                        ),
-                      ),
                     Positioned(
                       width: width,
                       child: BlurryChild(

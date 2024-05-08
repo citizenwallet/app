@@ -18,7 +18,7 @@ class Picker extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoSlidingSegmentedControl<String>(
         backgroundColor: ThemeColors.white,
-        thumbColor: ThemeColors.surfacePrimary.resolveFrom(context),
+        thumbColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
         groupValue: selected,
         children: options.fold(
             <String, Widget>{},
