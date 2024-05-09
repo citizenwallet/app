@@ -587,158 +587,7 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                         scrollDirection: Axis.vertical,
                         children: [
                           const SizedBox(height: 20),
-                          // Text(
-                          //   AppLocalizations.of(context)!.amount,
-                          //   style: const TextStyle(
-                          //     fontSize: 24,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
                           const SizedBox(height: 10),
-                          // Column(
-                          //   mainAxisAlignment: MainAxisAlignment.center,
-                          //   crossAxisAlignment: CrossAxisAlignment.center,
-                          //   children: [
-                          //     Padding(
-                          //       padding:
-                          //           const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          //       child: Stack(
-                          //         children: [
-                          //           CupertinoTextField(
-                          //             controller: _logic.amountController,
-                          //             placeholder: formatCurrency(0.00, ''),
-                          //             style: TextStyle(
-                          //               color: ThemeColors.text
-                          //                   .resolveFrom(context),
-                          //               fontSize: 28,
-                          //               fontWeight: FontWeight.bold,
-                          //               letterSpacing: 2,
-                          //             ),
-                          //             decoration: invalidAmount ||
-                          //                     transactionSendError
-                          //                 ? BoxDecoration(
-                          //                     color: const CupertinoDynamicColor
-                          //                         .withBrightness(
-                          //                       color: CupertinoColors.white,
-                          //                       darkColor:
-                          //                           CupertinoColors.black,
-                          //                     ),
-                          //                     border: Border.all(
-                          //                       color: ThemeColors.danger,
-                          //                     ),
-                          //                     borderRadius:
-                          //                         const BorderRadius.all(
-                          //                             Radius.circular(5.0)),
-                          //                   )
-                          //                 : BoxDecoration(
-                          //                     color: const CupertinoDynamicColor
-                          //                         .withBrightness(
-                          //                       color: CupertinoColors.white,
-                          //                       darkColor:
-                          //                           CupertinoColors.black,
-                          //                     ),
-                          //                     border: Border.all(
-                          //                       color: hasAmount
-                          //                           ? ThemeColors.text
-                          //                               .resolveFrom(context)
-                          //                           : ThemeColors.transparent
-                          //                               .resolveFrom(context),
-                          //                     ),
-                          //                     borderRadius:
-                          //                         const BorderRadius.all(
-                          //                             Radius.circular(5.0)),
-                          //                   ),
-                          //             maxLines: 1,
-                          //             maxLength: 25,
-                          //             focusNode: amountFocuseNode,
-                          //             autocorrect: false,
-                          //             enableSuggestions: false,
-                          //             keyboardType:
-                          //                 TextInputType.numberWithOptions(
-                          //               decimal:
-                          //                   (wallet?.decimalDigits ?? 0) > 0,
-                          //               signed: false,
-                          //             ),
-                          //             textInputAction: TextInputAction.next,
-                          //             inputFormatters: [
-                          //               (wallet?.decimalDigits ?? 0) > 0
-                          //                   ? amountFormatter
-                          //                   : integerAmountFormatter,
-                          //             ],
-                          //             onChanged: (_) =>
-                          //                 handleThrottledUpdateAmount(),
-                          //             onSubmitted: (_) {
-                          //               messageFocusNode.requestFocus();
-                          //             },
-                          //             prefix: Center(
-                          //               child: Padding(
-                          //                 padding: const EdgeInsets.fromLTRB(
-                          //                     10, 0, 10, 0),
-                          //                 child: Text(
-                          //                   wallet?.symbol ?? '',
-                          //                   style: const TextStyle(
-                          //                       fontSize: 18,
-                          //                       fontWeight: FontWeight.w500),
-                          //                   textAlign: TextAlign.center,
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //             suffix: Center(
-                          //                 child: CupertinoButton(
-                          //               padding: const EdgeInsets.fromLTRB(
-                          //                 10,
-                          //                 0,
-                          //                 10,
-                          //                 0,
-                          //               ),
-                          //               onPressed: handleSetMaxAmount,
-                          //               child: Text(
-                          //                 AppLocalizations.of(context)!.max,
-                          //                 style: const TextStyle(
-                          //                   fontSize: 18,
-                          //                   fontWeight: FontWeight.w500,
-                          //                 ),
-                          //                 textAlign: TextAlign.center,
-                          //               ),
-                          //             )),
-                          //           ),
-                          //           if (_isScanning)
-                          //             GestureDetector(
-                          //               onTap: handleEnterManually,
-                          //               child: Container(
-                          //                 height: 50,
-                          //                 decoration: const BoxDecoration(
-                          //                   color: ThemeColors.transparent,
-                          //                   borderRadius: BorderRadius.all(
-                          //                       Radius.circular(5.0)),
-                          //                 ),
-                          //               ),
-                          //             ),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //     if (invalidAmount &&
-                          //         (double.tryParse(_logic
-                          //                     .amountController.value.text) ??
-                          //                 0.0) >
-                          //             0)
-                          //       Row(
-                          //         mainAxisAlignment: MainAxisAlignment.start,
-                          //         children: [
-                          //           Text(
-                          //             AppLocalizations.of(context)!
-                          //                 .insufficientFunds,
-                          //             style: TextStyle(
-                          //               color: ThemeColors.danger
-                          //                   .resolveFrom(context),
-                          //               fontSize: 12,
-                          //               fontWeight: FontWeight.normal,
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //   ],
-                          // ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -767,12 +616,6 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                                                 darkColor:
                                                     CupertinoColors.black,
                                               ),
-                                              // border: Border.all(
-                                              //   color: ThemeColors.danger,
-                                              // ),
-                                              // borderRadius:
-                                              //     const BorderRadius.all(
-                                              //         Radius.circular(5.0)),
                                             )
                                           : const BoxDecoration(
                                               color: CupertinoDynamicColor
@@ -781,16 +624,6 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                                                 darkColor:
                                                     CupertinoColors.black,
                                               ),
-                                              // border: Border.all(
-                                              //   color: hasAmount
-                                              //       ? ThemeColors.text
-                                              //           .resolveFrom(context)
-                                              //       : ThemeColors.transparent
-                                              //           .resolveFrom(context),
-                                              // ),
-                                              // borderRadius:
-                                              //     const BorderRadius.all(
-                                              //         Radius.circular(5.0)),
                                             ),
                                       maxLines: 1,
                                       maxLength: 25,
@@ -879,19 +712,6 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                             ],
                           ),
                           const SizedBox(height: 10),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.start,
-                          //   crossAxisAlignment: CrossAxisAlignment.end,
-                          //   children: [
-                          //     Text(
-                          //       AppLocalizations.of(context)!.currentBalance(
-                          //           formattedBalance, wallet?.symbol ?? ''),
-                          //       style: const TextStyle(
-                          //           fontSize: 18,
-                          //           fontWeight: FontWeight.normal),
-                          //     ),
-                          //   ],
-                          // ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -936,38 +756,40 @@ class SendViaLinkModalState extends State<SendViaLinkModal>
                               )
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      width: width,
-                      child: BlurryChild(
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          child: Column(
-                            children: [
-                              SlideToComplete(
-                                onCompleted: handleCreateVoucher,
-                                enabled: isSendingValid,
-                                isComplete: _isSending,
-                                completionLabel: "Swipe to Confirm",
-                                thumbColor: ThemeColors.surfacePrimary
-                                    .resolveFrom(context),
-                                width: width * 0.75,
-                                child: const SizedBox(
-                                  height: 50,
-                                  width: 50,
-                                  child: Center(
-                                    child: Icon(
-                                      CupertinoIcons.arrow_right,
-                                      color: ThemeColors.black,
+                          Positioned(
+                            width: width,
+                            child: BlurryChild(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                                child: Column(
+                                  children: [
+                                    SlideToComplete(
+                                      onCompleted: handleCreateVoucher,
+                                      enabled: isSendingValid,
+                                      isComplete: _isSending,
+                                      completionLabel: "Swipe to Confirm",
+                                      thumbColor: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      width: width * 0.70,
+                                      childWidth: 50,
+                                      child: const SizedBox(
+                                        height: 50,
+                                        width: 50,
+                                        child: Center(
+                                          child: Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: ThemeColors.white,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],

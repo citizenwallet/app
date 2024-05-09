@@ -710,7 +710,7 @@ class WalletScreenState extends State<WalletScreen> {
                     ],
                   )),
                   child: Container(
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                     child: CupertinoButton(
                       onPressed: handleScanQr,
                       child: Container(
@@ -735,38 +735,6 @@ class WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
               ),
-              // GestureDetector(
-              //   onTap: handleScrollToTop,
-              //   child: Container(
-              //     color: ThemeColors.background.resolveFrom(context),
-              //     child: SafeArea(
-              //       bottom: false,
-              //       child: Stack(
-              //         children: [
-              //           const Header(transparent: true),
-              //           Positioned(
-              //             top: 0,
-              //             right: 20,
-              //             child: Row(
-              //               mainAxisAlignment: MainAxisAlignment.end,
-              //               children: [
-              //                 if (!blockSending)
-              //                   CupertinoButton(
-              //                     padding: const EdgeInsets.all(5),
-              //                     onPressed: (firstLoad || wallet == null)
-              //                         ? null
-              //                         : openAccount,
-              //                     child: Image.network(profile.image,
-              //                         width: 40, height: 40),
-              //                   ),
-              //               ],
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
               Positioned(
                 top: 60,
                 right: 20,

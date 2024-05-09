@@ -105,17 +105,20 @@ class _NotificationBannerState extends State<NotificationBanner> {
       opacity: _opacity,
       duration: const Duration(milliseconds: 250),
       child: Container(
-        height: 30 + safeTopPadding,
+        height: 40 + safeTopPadding,
         padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 5),
         decoration: BoxDecoration(
-          color: ThemeColors.surfacePrimary.resolveFrom(context),
-          border: Border(
-            bottom: BorderSide(
-              width: 1,
-              color: ThemeColors.uiBackgroundAlt.darkColor,
-            ),
-          ),
-        ),
+            color: ThemeColors.surfacePrimary.resolveFrom(context),
+            // border: Border(
+            //   bottom: BorderSide(
+            //     width: 1,
+            //     color: ThemeColors.uiBackgroundAlt.darkColor,
+            //   ),
+            // ),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(15),
+              bottomRight: Radius.circular(15),
+            )),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -132,19 +135,20 @@ class _NotificationBannerState extends State<NotificationBanner> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: ThemeColors.text,
+                      color: ThemeColors.white,
                     ),
                   ),
                 ],
               ),
             ),
             CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               onPressed: widget.onDismiss,
-              minSize: 20,
+              minSize: 15,
               child: const Icon(
                 CupertinoIcons.clear,
-                color: ThemeColors.text,
+                color: ThemeColors.white,
+                weight: 50,
               ),
             ),
             const SizedBox(width: 10),

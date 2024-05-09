@@ -267,433 +267,433 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
+  }
 
-    Future<void> handlePlugin(PluginConfig pluginConfig) async {
-      HapticFeedback.heavyImpact();
+  Future<void> handlePlugin(PluginConfig pluginConfig) async {
+    HapticFeedback.heavyImpact();
 
-      final (uri, _, redirect) = await _logic.constructPluginUri(pluginConfig);
-      if (uri == null || redirect == null) {
-        return;
-      }
-
-      _logic.launchPluginUrl(uri);
+    final (uri, _, redirect) = await _logic.constructPluginUri(pluginConfig);
+    if (uri == null || redirect == null) {
+      return;
     }
 
-    Future<void> handleLoadFromVoucher() async {
-      final voucher = widget.voucher;
-      final voucherParams = widget.voucherParams;
+    _logic.launchPluginUrl(uri);
+  }
 
-      if (voucher == null || voucherParams == null) {
-        return;
-      }
+  Future<void> handleLoadFromVoucher() async {
+    final voucher = widget.voucher;
+    final voucherParams = widget.voucherParams;
 
-      final address = await _voucherLogic.readVoucher(voucher, voucherParams);
-      if (address == null) {
-        return;
-      }
+    if (voucher == null || voucherParams == null) {
+      return;
+    }
 
-      if (!context.mounted) {
-        return;
-      }
+    final address = await _voucherLogic.readVoucher(voucher, voucherParams);
+    if (address == null) {
+      return;
+    }
 
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
+    if (!context.mounted) {
+      return;
+    }
 
-      await showCupertinoModalBottomSheet<String?>(
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await showCupertinoModalBottomSheet<String?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => VoucherReadModal(
+        address: address,
+        logic: _logic,
+      ),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleFailedTransaction(String id, bool blockSending) async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    final option = await showCupertinoModalPopup<String?>(
         context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => VoucherReadModal(
-          address: address,
-          logic: _logic,
-        ),
-      );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
-
-    void handleFailedTransaction(String id, bool blockSending) async {
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
-
-      final option = await showCupertinoModalPopup<String?>(
-          context: context,
-          builder: (BuildContext dialogContext) {
-            return CupertinoActionSheet(
-              actions: [
-                if (!blockSending)
-                  CupertinoActionSheetAction(
-                    isDefaultAction: true,
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop('retry');
-                    },
-                    child: const Text('Retry'),
-                  ),
-                if (!blockSending)
-                  CupertinoActionSheetAction(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop('edit');
-                    },
-                    child: const Text('Edit'),
-                  ),
+        builder: (BuildContext dialogContext) {
+          return CupertinoActionSheet(
+            actions: [
+              if (!blockSending)
                 CupertinoActionSheetAction(
-                  isDestructiveAction: true,
+                  isDefaultAction: true,
                   onPressed: () {
-                    Navigator.of(dialogContext).pop('delete');
+                    Navigator.of(dialogContext).pop('retry');
                   },
-                  child: const Text('Delete'),
+                  child: const Text('Retry'),
                 ),
-              ],
-              cancelButton: CupertinoActionSheetAction(
+              if (!blockSending)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('edit');
+                  },
+                  child: const Text('Edit'),
+                ),
+              CupertinoActionSheetAction(
+                isDestructiveAction: true,
                 onPressed: () {
-                  Navigator.of(dialogContext).pop();
+                  Navigator.of(dialogContext).pop('delete');
                 },
-                child: const Text('Cancel'),
+                child: const Text('Delete'),
               ),
-            );
-          });
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          );
+        });
 
-      if (option == null) {
-        _logic.resumeFetching();
-        _profilesLogic.resume();
-        _voucherLogic.resume();
-        return;
-      }
-
-      if (option == 'retry') {
-        _logic.retryTransaction(id);
-      }
-
-      if (option == 'edit') {
-        _logic.prepareEditQueuedTransaction(id);
-
-        HapticFeedback.lightImpact();
-
-        await showCupertinoModalBottomSheet(
-          context: context,
-          expand: true,
-          useRootNavigator: true,
-          builder: (_) => SendModal(
-            walletLogic: _logic,
-            profilesLogic: _profilesLogic,
-            id: id,
-          ),
-        );
-      }
-
-      if (option == 'delete') {
-        _logic.removeQueuedTransaction(id);
-      }
-
+    if (option == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
+      return;
     }
 
-    Future<void> handleRefresh() async {
-      await _logic.loadTransactions();
-
-      HapticFeedback.heavyImpact();
+    if (option == 'retry') {
+      _logic.retryTransaction(id);
     }
 
-    Future<void> handleSendModal({String? receiveParams}) async {
-      HapticFeedback.heavyImpact();
+    if (option == 'edit') {
+      _logic.prepareEditQueuedTransaction(id);
 
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
+      HapticFeedback.lightImpact();
 
-      await showCupertinoModalBottomSheet<bool?>(
+      await showCupertinoModalBottomSheet(
         context: context,
         expand: true,
         useRootNavigator: true,
         builder: (_) => SendModal(
           walletLogic: _logic,
           profilesLogic: _profilesLogic,
-          receiveParams: receiveParams,
+          id: id,
         ),
       );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
     }
 
-    void handleReceive() async {
-      HapticFeedback.heavyImpact();
-
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
-
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => ReceiveModal(
-          logic: _logic,
-        ),
-      );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
+    if (option == 'delete') {
+      _logic.removeQueuedTransaction(id);
     }
 
-    void handleVouchers() async {
-      HapticFeedback.heavyImpact();
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
 
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
+  Future<void> handleRefresh() async {
+    await _logic.loadTransactions();
 
-      await CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => CupertinoScaffold(
-          topRadius: const Radius.circular(40),
-          transitionBackgroundColor: ThemeColors.transparent,
-          body: const VouchersModal(),
-        ),
-      );
+    HapticFeedback.heavyImpact();
+  }
 
-      await _voucherLogic.fetchVouchers();
+  Future<void> handleSendModal({String? receiveParams}) async {
+    HapticFeedback.heavyImpact();
 
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
 
-    void handleCopy(String value) {
-      Clipboard.setData(ClipboardData(text: value));
+    await showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => SendModal(
+        walletLogic: _logic,
+        profilesLogic: _profilesLogic,
+        receiveParams: receiveParams,
+      ),
+    );
 
-      HapticFeedback.heavyImpact();
-    }
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
 
-    void handleTransactionTap(String transactionId) async {
-      HapticFeedback.lightImpact();
+  void handleReceive() async {
+    HapticFeedback.heavyImpact();
 
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
 
-      await GoRouter.of(context).push<bool?>(
-        '/wallet/${widget.encoded}/transactions/$transactionId',
-        extra: {
-          'logic': _logic,
-          'profilesLogic': _profilesLogic,
-        },
-      );
+    await showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => ReceiveModal(
+        logic: _logic,
+      ),
+    );
 
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
 
-    void handleLoad(String address) async {
-      _profilesLogic.loadProfile(address);
-      _voucherLogic.updateVoucher(address);
-    }
+  void handleVouchers() async {
+    HapticFeedback.heavyImpact();
 
-    void handleSaveWallet() async {
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
 
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => const SaveModal(),
-      );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
-
-    void handleShareWallet(String walletName) async {
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
-
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => ShareModal(title: 'Share $walletName'),
-      );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
-
-    Future<void> handleOnboarding() async {
-      _logic.pauseFetching();
-      _profilesLogic.pause();
-      _voucherLogic.pause();
-
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => const OnboardingModal(),
-      );
-
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
-    }
-
-    void handleTransactionSendingTap() async {
-      CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => const SendingModal(),
-      );
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      final safePadding = MediaQuery.of(context).padding.top;
-      final wallet = context.select((WalletState state) => state.wallet);
-
-      final firstLoad = context.select((WalletState state) => state.firstLoad);
-      final loading = context.select((WalletState state) => state.loading);
-
-      final config = context.select((WalletState s) => s.config);
-
-      final walletNamePrefix = config?.token.symbol ?? 'Citizen';
-
-      final walletName = '$walletNamePrefix Wallet';
-
-      return CupertinoScaffold(
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => CupertinoScaffold(
         topRadius: const Radius.circular(40),
         transitionBackgroundColor: ThemeColors.transparent,
-        body: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-          child: GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                (firstLoad && loading) || wallet == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CupertinoActivityIndicator(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            'Loading',
-                            style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      )
-                    : WalletScrollView(
-                        controller: _scrollController,
-                        handleRefresh: handleRefresh,
-                        handleSendPush: handleSendPush,
-                        handleReceivePush: handleReceivePush,
-                        handleVouchers: handleVouchers,
-                        handleTransactionTap: handleTransactionTap,
-                        handleTransactionSendingTap:
-                            handleTransactionSendingTap,
-                        handleFailedTransactionTap: handleFailedTransaction,
-                        handleCopy: handleCopy,
-                        handleLoad: handleLoad,
-                        handleScrollToTop: handleScrollToTop,
-                      ),
-                GestureDetector(
-                  onTap: handleScrollToTop,
-                  child: Header(
-                    safePadding: safePadding,
-                    transparent: true,
-                    color: ThemeColors.transparent,
-                    titleWidget: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                walletName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    actionButton: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (!firstLoad && wallet != null)
-                          CupertinoButton(
-                            padding: const EdgeInsets.fromLTRB(5, 5, 20, 5),
-                            onPressed: () => handleShareWallet(walletName),
-                            child: SvgPicture.asset(
-                              'assets/icons/share.svg',
-                              height: 28,
-                              width: 28,
-                              colorFilter: ColorFilter.mode(
-                                ThemeColors.primary.resolveFrom(context),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        if (!firstLoad && wallet != null)
-                          CupertinoButton(
-                            padding: const EdgeInsets.all(5),
-                            onPressed: handleSaveWallet,
-                            child: SvgPicture.asset(
-                              'assets/icons/bookmark.svg',
-                              height: 30,
-                              width: 30,
-                              colorFilter: ColorFilter.mode(
-                                ThemeColors.primary.resolveFrom(context),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+        body: const VouchersModal(),
+      ),
+    );
+
+    await _voucherLogic.fetchVouchers();
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleCopy(String value) {
+    Clipboard.setData(ClipboardData(text: value));
+
+    HapticFeedback.heavyImpact();
+  }
+
+  void handleTransactionTap(String transactionId) async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/wallet/${widget.encoded}/transactions/$transactionId',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleLoad(String address) async {
+    _profilesLogic.loadProfile(address);
+    _voucherLogic.updateVoucher(address);
+  }
+
+  void handleSaveWallet() async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => const SaveModal(),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleShareWallet(String walletName) async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => ShareModal(title: 'Share $walletName'),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  Future<void> handleOnboarding() async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => const OnboardingModal(),
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => const SendingModal(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    final safePadding = MediaQuery.of(context).padding.top;
+    final wallet = context.select((WalletState state) => state.wallet);
+
+    final firstLoad = context.select((WalletState state) => state.firstLoad);
+    final loading = context.select((WalletState state) => state.loading);
+
+    final config = context.select((WalletState s) => s.config);
+
+    final walletNamePrefix = config?.token.symbol ?? 'Citizen';
+
+    final walletName = '$walletNamePrefix Wallet';
+
+    return CupertinoScaffold(
+      topRadius: const Radius.circular(40),
+      transitionBackgroundColor: ThemeColors.transparent,
+      body: CupertinoPageScaffold(
+        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              (firstLoad && loading) || wallet == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CupertinoActivityIndicator(
+                          color: ThemeColors.subtle.resolveFrom(context),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Loading',
+                          style: TextStyle(
+                            color: ThemeColors.text.resolveFrom(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    )
+                  : WalletScrollView(
+                      controller: _scrollController,
+                      handleRefresh: handleRefresh,
+                      handleSendPush: handleSendPush,
+                      handleReceivePush: handleReceivePush,
+                      handleVouchers: handleVouchers,
+                      handleTransactionTap: handleTransactionTap,
+                      handleTransactionSendingTap: handleTransactionSendingTap,
+                      handleFailedTransactionTap: handleFailedTransaction,
+                      handleCopy: handleCopy,
+                      handleLoad: handleLoad,
+                      handleScrollToTop: handleScrollToTop,
+                    ),
+              GestureDetector(
+                onTap: handleScrollToTop,
+                child: Header(
+                  safePadding: safePadding,
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  titleWidget: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              walletName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: ThemeColors.text.resolveFrom(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!firstLoad && wallet != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.fromLTRB(5, 5, 20, 5),
+                          onPressed: () => handleShareWallet(walletName),
+                          child: SvgPicture.asset(
+                            'assets/icons/share.svg',
+                            height: 28,
+                            width: 28,
+                            colorFilter: ColorFilter.mode(
+                              ThemeColors.primary.resolveFrom(context),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      if (!firstLoad && wallet != null)
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: handleSaveWallet,
+                          child: SvgPicture.asset(
+                            'assets/icons/bookmark.svg',
+                            height: 30,
+                            width: 30,
+                            colorFilter: ColorFilter.mode(
+                              ThemeColors.primary.resolveFrom(context),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   // TODO: implement build
+  //   throw UnimplementedError();
+  // }
+

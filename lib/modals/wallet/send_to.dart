@@ -643,7 +643,7 @@ class SendToModalState extends State<SendToModal>
                                       textAlign: TextAlign.center,
                                       placeholder: formatCurrency(0.00, ''),
                                       style: TextStyle(
-                                        color: ThemeColors.secondary
+                                        color: ThemeColors.success
                                             .resolveFrom(context),
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
@@ -857,7 +857,7 @@ class SendToModalState extends State<SendToModal>
                                   child: Center(
                                     child: Icon(
                                       CupertinoIcons.arrow_right,
-                                      color: ThemeColors.black,
+                                      color: ThemeColors.white,
                                     ),
                                   ),
                                 ),

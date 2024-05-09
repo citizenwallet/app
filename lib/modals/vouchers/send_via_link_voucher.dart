@@ -123,7 +123,7 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
   }
 
   void handleShareLater() {
-    GoRouter.of(context).pop(true);
+    GoRouter.of(context).push('/wallet/:address');
   }
 
   void handleCopy(String link) {
@@ -369,8 +369,8 @@ class SendViaLinkVoucherModalState extends State<SendViaLinkVoucherModal>
                                 : Text(
                                     creationState.description,
                                     style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: ThemeColors.success
+                                          .resolveFrom(context),
                                       fontSize: 18,
                                       fontWeight: FontWeight.normal,
                                     ),

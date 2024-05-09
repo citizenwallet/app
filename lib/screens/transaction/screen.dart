@@ -274,16 +274,23 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           .resolveFrom(context),
                                     ),
                                   ),
-                                  Text(
-                                    '@${profile!.profile.name}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${profile != null ? '@${profile.profile.name}' : '@${config!.community.name}'}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.end,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: ThemeColors.text
+                                              .resolveFrom(context),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 58,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -304,13 +311,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           .resolveFrom(context),
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
                                   Expanded(
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
@@ -326,10 +329,13 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           suffix: Icon(
                                             CupertinoIcons.square_on_square,
                                             size: 14,
-                                            color: ThemeColors.touchable
+                                            color: ThemeColors.surfacePrimary
                                                 .resolveFrom(context),
                                           ),
                                           maxWidth: 140,
+                                        ),
+                                        const SizedBox(
+                                          width: 6,
                                         ),
                                       ],
                                     ),

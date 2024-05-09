@@ -452,7 +452,8 @@ class SendingToScreenState extends State<SendingToScreen>
                           children: [
                             CupertinoButton(
                               padding: const EdgeInsets.all(5),
-                              onPressed: () => Navigator.of(context).pop(),
+                              onPressed: () =>
+                                  GoRouter.of(context).push('/wallet/:address'),
                               child: Text(
                                 "Done",
                                 style: TextStyle(
