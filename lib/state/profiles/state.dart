@@ -69,13 +69,16 @@ class ProfilesState with ChangeNotifier {
   }
 
   void clearSearch({bool notify = true}) {
-    searchedProfile = null;
-    searchResults = [];
-    searchLoading = false;
-    searchError = false;
-
+    //searchedProfile = null;
+    // searchResults = [];
+    // searchLoading = false;
+    // searchError = false;
     selectedProfile = null;
     if (notify) notifyListeners();
+  }
+
+  void notify() {
+    notifyListeners();
   }
 
   void clearProfiles() {

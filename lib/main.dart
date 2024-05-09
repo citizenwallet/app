@@ -132,6 +132,7 @@ class MyAppState extends State<MyApp> {
 
     final title = context.select((NotificationsState s) => s.title);
     final display = context.select((NotificationsState s) => s.display);
+    //final display = true;
 
     final toastTitle = context.select((NotificationsState s) => s.toastTitle);
     final toastDisplay =

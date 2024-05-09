@@ -190,4 +190,12 @@ class AppState with ChangeNotifier {
     selectedLanguage = languageCodeIndex;
     notifyListeners();
   }
+
+  bool clickedOnMore = false;
+
+  void setClickedOnMore(bool clickedOnMoreValue) {
+    clickedOnMore = clickedOnMoreValue;
+
+    notifyListeners();
+  }
 }

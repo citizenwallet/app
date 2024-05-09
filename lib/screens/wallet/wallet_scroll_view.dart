@@ -22,13 +22,14 @@ class WalletScrollView extends StatefulWidget {
   final ScrollController controller;
 
   final Future<void> Function() handleRefresh;
-  final void Function() handleSendModal;
-  final void Function() handleReceive;
+  final void Function() handleSendPush;
+  final void Function() handleReceivePush;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
   final void Function()? handleMint;
   final void Function() handleVouchers;
   final void Function(String) handleTransactionTap;
+  final void Function() handleTransactionSendingTap;
   final void Function(String, bool) handleFailedTransactionTap;
   final void Function(String) handleCopy;
 
@@ -39,13 +40,14 @@ class WalletScrollView extends StatefulWidget {
     super.key,
     required this.controller,
     required this.handleRefresh,
-    required this.handleSendModal,
-    required this.handleReceive,
+    required this.handleSendPush,
+    required this.handleReceivePush,
     this.handlePlugin,
     this.handleCards,
     this.handleMint,
     required this.handleVouchers,
     required this.handleTransactionTap,
+    required this.handleTransactionSendingTap,
     required this.handleFailedTransactionTap,
     required this.handleCopy,
     required this.handleLoad,
@@ -84,13 +86,14 @@ class WalletScrollViewState extends State<WalletScrollView> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final handleRefresh = widget.handleRefresh;
-    final handleSendModal = widget.handleSendModal;
-    final handleReceive = widget.handleReceive;
+    final handleSendPush = widget.handleSendPush;
+    final handleReceivePush = widget.handleReceivePush;
     final handlePlugin = widget.handlePlugin;
     final handleCards = widget.handleCards;
     final handleMint = widget.handleMint;
     final handleVouchers = widget.handleVouchers;
     final handleTransactionTap = widget.handleTransactionTap;
+    final handleTransactionSendingTap = widget.handleTransactionSendingTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
     final handleLoad = widget.handleLoad;
@@ -141,6 +144,15 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
+    final clickedOnMore =
+        context.select((WalletState state) => state.clickedOnMore);
+    var clickedOnMoreHeight = 0;
+    if (clickedOnMore) {
+      clickedOnMoreHeight = 180;
+    } else {
+      clickedOnMoreHeight = 0;
+    }
+
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
@@ -157,8 +169,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
               handleRefreshing(pulledExtent >= 0.39);
 
               return SafeArea(
+                bottom: false,
                 child: Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: ThemeColors.background.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
                   child: CupertinoSliverRefreshControl.buildRefreshIndicator(
                     context,
@@ -170,19 +183,28 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 ),
               );
             }),
+        SliverToBoxAdapter(
+          child: Container(
+            color: ThemeColors.background.resolveFrom(context),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: const SizedBox(
+              height: 20,
+            ),
+          ),
+        ),
         SliverPersistentHeader(
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 400 + safePadding,
-            minHeight: 180 + safePadding,
+            expandedHeight: 350 + safePadding + clickedOnMoreHeight,
+            minHeight: 160 + safePadding,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
               child: WalletActions(
                 shrink: shrink,
                 refreshing: _refreshing,
-                handleSendModal: handleSendModal,
-                handleReceive: handleReceive,
+                handleSendPush: handleSendPush,
+                handleReceivePush: handleReceivePush,
                 handlePlugin: handlePlugin,
                 handleCards: handleCards,
                 handleMint: handleMint,
@@ -217,7 +239,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 final transaction = queuedTransactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: ThemeColors.background.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -321,10 +343,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (transactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color: ThemeColors.background.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Text(
-                AppLocalizations.of(context)!.transactions,
+                AppLocalizations.of(context)!.transactionsHistory,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -335,7 +357,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color: ThemeColors.background.resolveFrom(context),
               child: Center(
                 child: CupertinoActivityIndicator(
                   color: ThemeColors.subtle.resolveFrom(context),
@@ -346,7 +368,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (inProgressTransaction != null && wallet != null)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color: ThemeColors.background.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: TransactionRow(
                 key: Key(inProgressTransaction.id),
@@ -373,7 +395,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 final transaction = transactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: ThemeColors.background.resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -383,6 +405,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: handleTransactionTap,
+                    onProcessingTap: handleTransactionSendingTap,
                     onLoad: handleLoad,
                   ),
                 );
@@ -392,7 +415,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (transactions.isNotEmpty && wallet != null && !loading)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color: ThemeColors.background.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
               child: null,
             ),

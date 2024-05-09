@@ -32,6 +32,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   late NotificationsLogic _notificationsLogic;
   late BackupLogic _backupLogic;
 
+  final List<String> _languageNames = <String>['English', 'Dutch', 'French'];
+
   final double _kItemExtent = 32.0;
 
   //int _selectedLanguage = 0;
@@ -103,7 +105,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void handleLanguage(int selectedLanguage) {
+  void handlLanguage(int _selectedLanguage) {
     _showDialog(
       CupertinoPicker(
         magnification: 1.22,
@@ -112,14 +114,14 @@ class SettingsScreenState extends State<SettingsScreen> {
         itemExtent: _kItemExtent,
         // This sets the initial item.
         scrollController: FixedExtentScrollController(
-          initialItem: selectedLanguage,
+          initialItem: _selectedLanguage,
         ),
         // This is called when selected item is changed.
         onSelectedItemChanged: (int selectedItem) async {
           _appLogic.setLanguageCode(selectedItem);
         },
-        children: List<Widget>.generate(languageOptions.length, (int index) {
-          return Center(child: Text(languageOptions[index].name));
+        children: List<Widget>.generate(_languageNames.length, (int index) {
+          return Center(child: Text(_languageNames[index]));
         }),
       ),
     );
@@ -203,13 +205,13 @@ class SettingsScreenState extends State<SettingsScreen> {
     final lastBackup = context.select((BackupState state) => state.lastBackup);
     final e2eEnabled = context.select((BackupState state) => state.e2eEnabled);
 
-    final selectedLanguage =
+    final _selectedLanguage =
         context.select((AppState state) => state.selectedLanguage);
 
     var appText = AppLocalizations.of(context)!.settingsScrApp;
 
     return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      backgroundColor: ThemeColors.background.resolveFrom(context),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Stack(
@@ -217,82 +219,98 @@ class SettingsScreenState extends State<SettingsScreen> {
           children: [
             ListView(
               scrollDirection: Axis.vertical,
-              padding: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               children: [
                 SizedBox(
-                  height: 60 + safePadding,
+                  height: 40 + safePadding,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Text(
-                    appText,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                //   child: Text(
+                //     appText,
+                //     style: const TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
                 SettingsRow(
                   label: AppLocalizations.of(context)!.darkMode,
-                  icon: 'assets/icons/dark-mode.svg',
+                  icon: CupertinoIcons.moon,
                   trailing: CupertinoSwitch(
+                    activeColor:
+                        ThemeColors.surfacePrimary.resolveFrom(context),
                     value: darkMode,
                     onChanged: onToggleDarkMode,
                   ),
+                  place: "top",
                 ),
-                SettingsRow(
-                    label: AppLocalizations.of(context)!.language,
-                    icon: 'assets/icons/language-svgrepo-com.svg',
-                    iconColor: ThemeColors.text.resolveFrom(context),
-                    onTap: () => {handleLanguage(selectedLanguage)},
-                    trailing: Row(
-                      children: [
-                        Text(
-                          languageOptions[selectedLanguage].name,
-                          style: TextStyle(
-                            color: ThemeColors.subtleSolidEmphasis
-                                .resolveFrom(context),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        )
-                      ],
-                    )),
-                SettingsRow(
-                  label: AppLocalizations.of(context)!.about,
-                  icon: 'assets/icons/docs.svg',
-                  onTap: handleOpenAbout,
-                ),
-                if (packageInfo != null)
-                  SettingsSubRow(AppLocalizations.of(context)!
-                      .varsion(packageInfo.version, packageInfo.buildNumber)),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Text(
-                    AppLocalizations.of(context)!.notifications,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SettingsRow(
-                  label: AppLocalizations.of(context)!.pushNotifications,
-                  icon: 'assets/icons/notification_bell.svg',
-                  trailing: CupertinoSwitch(
-                    value: push,
-                    onChanged: handleTogglePushNotifications,
-                  ),
-                ),
+                // SettingsRow(
+                //     label: AppLocalizations.of(context)!.language,
+                //     icon: 'assets/icons/language-svgrepo-com.svg',
+                //     iconColor: ThemeColors.text.resolveFrom(context),
+                //     onTap: () => {handlLanguage(_selectedLanguage)},
+                //     trailing: Row(
+                //       children: [
+                //         Text(
+                //           _languageNames[_selectedLanguage],
+                //           style: TextStyle(
+                //             color: ThemeColors.subtleSolidEmphasis
+                //                 .resolveFrom(context),
+                //           ),
+                //         ),
+                //         const SizedBox(
+                //           width: 10,
+                //         )
+                //       ],
+                //     )),
                 SettingsRow(
                   label: AppLocalizations.of(context)!.inappsounds,
-                  icon: 'assets/icons/sound.svg',
+                  icon: CupertinoIcons.speaker_2,
                   trailing: CupertinoSwitch(
+                    activeColor:
+                        ThemeColors.surfacePrimary.resolveFrom(context),
                     value: !muted,
                     onChanged: onToggleMuted,
                   ),
+                  place: "middle",
                 ),
+                SettingsRow(
+                  label: AppLocalizations.of(context)!.about,
+                  icon: CupertinoIcons.info,
+                  onTap: handleOpenAbout,
+                  place: "bottom",
+                ),
+                // if (packageInfo != null)
+                //   SettingsSubRow(AppLocalizations.of(context)!
+                //       .varsion(packageInfo.version, packageInfo.buildNumber)),
+                // Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                //   child: Text(
+                //     AppLocalizations.of(context)!.backup,
+                //     style: TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //       color: ThemeColors.subtleSolid.resolveFrom(context),
+                //     ),
+                //   ),
+                // ),
+                // SettingsRow(
+                //   label: AppLocalizations.of(context)!.pushNotifications,
+                //   icon: 'assets/icons/notification_bell.svg',
+                //   trailing: CupertinoSwitch(
+                //     value: push,
+                //     onChanged: handleTogglePushNotifications,
+                //   ),
+                // ),
+                // SettingsRow(
+                //   label: AppLocalizations.of(context)!.inappsounds,
+                //   icon: 'assets/icons/sound.svg',
+                //   trailing: CupertinoSwitch(
+                //     value: !muted,
+                //     onChanged: onToggleMuted,
+                //   ),
+                // ),
                 // const Padding(
                 //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 //   child: Text(
@@ -339,32 +357,32 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //       onChanged: onToggleDarkMode,
                 //     ),
                 //   ),
+                // Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                //   child: Text(
+                //     AppLocalizations.of(context)!.account,
+                //     style: const TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                // if (config != null)
+                //   SettingsRow(
+                //     label:
+                //         AppLocalizations.of(context)!.viewOn(config.scan.name),
+                //     icon: 'assets/icons/website.svg',
+                //     onTap: wallet != null
+                //         ? () =>
+                //             handleOpenContract(config.scan.url, wallet.account)
+                //         : null,
+                //   ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Text(
-                    AppLocalizations.of(context)!.account,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (config != null)
-                  SettingsRow(
-                    label:
-                        AppLocalizations.of(context)!.viewOn(config.scan.name),
-                    icon: 'assets/icons/website.svg',
-                    onTap: wallet != null
-                        ? () =>
-                            handleOpenContract(config.scan.url, wallet.account)
-                        : null,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
                   child: Text(
                     AppLocalizations.of(context)!.backup,
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -372,7 +390,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 if (isPlatformAndroid())
                   SettingsRow(
                     label: AppLocalizations.of(context)!.endToEndEncryption,
-                    icon: 'assets/icons/key.svg',
+                    icon: CupertinoIcons.cloud_download,
                     subLabel:
                         AppLocalizations.of(context)!.endToEndEncryptionSub,
                     trailing: CupertinoSwitch(
@@ -382,16 +400,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 SettingsRow(
                   label: AppLocalizations.of(context)!.accounts,
-                  icon: 'assets/icons/users.svg',
-                  subLabel: isPlatformApple()
-                      ? AppLocalizations.of(context)!.accountsSubLableOne
-                      : lastBackup != null
-                          ? AppLocalizations.of(context)!
-                              .accountsSubLableLastBackUp(DateFormat.yMMMd()
-                                  .add_Hm()
-                                  .format(lastBackup.toLocal()))
-                          : AppLocalizations.of(context)!
-                              .accountsSubLableLastBackUpSecond,
+                  icon: CupertinoIcons.person_2,
+                  place: "top",
+                  // subLabel: isPlatformApple()
+                  //     ? AppLocalizations.of(context)!.accountsSubLableOne
+                  //     : lastBackup != null
+                  //         ? AppLocalizations.of(context)!
+                  //             .accountsSubLableLastBackUp(DateFormat.yMMMd()
+                  //                 .add_Hm()
+                  //                 .format(lastBackup.toLocal()))
+                  //         : AppLocalizations.of(context)!
+                  //             .accountsSubLableLastBackUpSecond,
                   trailing: isPlatformApple()
                       ? Row(
                           children: [
@@ -404,11 +423,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(
                               width: 10,
-                            ),
-                            Icon(
-                              CupertinoIcons.cloud,
-                              color: ThemeColors.surfacePrimary
-                                  .resolveFrom(context),
                             ),
                           ],
                         )
@@ -452,6 +466,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                ),
+                const SettingsRow(
+                  label: "App Data",
+                  icon: CupertinoIcons.cloud_download,
+                  onTap: null,
+                  place: "bottom",
                 ),
                 // SettingsRow( // TODO: implement app data backup
                 //   label: 'App data',
@@ -525,43 +545,73 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //     ),
                 //   ],
                 // ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 40, 0, 10),
-                  child: Text(
-                    AppLocalizations.of(context)!.dangerZone,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                      child: Button(
-                        text: AppLocalizations.of(context)!.clearDataAndBackups,
-                        minWidth: 220,
-                        maxWidth: 220,
-                        color: CupertinoColors.systemRed,
-                        onPressed: handleAppReset,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 60,
-                ),
+                // Padding(
+                //   padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
+                //   child: Text(
+                //     AppLocalizations.of(context)!.dangerZone,
+                //     style: const TextStyle(
+                //       fontSize: 22,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Padding(
+                //       padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                //       child: Button(
+                //         text: AppLocalizations.of(context)!.clearDataAndBackups,
+                //         minWidth: 220,
+                //         maxWidth: 220,
+                //         color: CupertinoColors.systemRed,
+                //         onPressed: handleAppReset,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(
+                //   height: 60,
+                // ),
               ],
             ),
-            Header(
-              blur: true,
-              transparent: true,
-              showBackButton: true,
-              title: AppLocalizations.of(context)!.settings,
-              safePadding: safePadding,
-            ),
+            // Header(
+            //   blur: true,
+            //   transparent: true,
+            //   showBackButton: true,
+            //   title: AppLocalizations.of(context)!.settings,
+            //   safePadding: safePadding,
+            // ),
+            Padding(
+                padding: EdgeInsets.fromLTRB(10, safePadding.toDouble(), 10, 0),
+                child: Header(
+                  color: ThemeColors.background.resolveFrom(context),
+                  titleWidget: Row(
+                    children: [
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Icon(
+                          CupertinoIcons.arrow_left,
+                          color: ThemeColors.touchable.resolveFrom(context),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "App Settings",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  ThemeColors.subtleSolid.resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ))
           ],
         ),
       ),
