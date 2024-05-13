@@ -30,7 +30,7 @@ void main() {
 
   group('Receive URI parsing', () {
     const receiveUri =
-        'https://zinne.citizenwallet.xyz/#/?receiveParams=H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
+        'https://zinne.citizenwallet.xyz/#/?alias=zinne&receiveParams=H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
     const expectedAlias = 'zinne';
     const expectedReceiveParams =
         'H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
@@ -50,7 +50,7 @@ void main() {
 
   group('Voucher URI parsing', () {
     const voucherURI =
-        'https://zinne.citizenwallet.xyz/#/?voucher=F4sIAD4XHmYA_w3JwQ3AMAgDwIkqOSgQPA5J8Aidv73vvfZEzItl2bVDdVnz8CBbjjk2dvWZ_eWDTV5PdACSmJSf9QGxLV9mQwAAAB==&params=4sIAD4XHmOA_w3LvQ7CIBAA4Ffp1Jsj78rAQFJPXDo6uB0HxCYKCbaJ8en12z967vT23721NvModPThxQcgrlomcMYsGi9VI1aKLjK74NaMi2GXtMwzMfezHf8iqjJaAlpgg2HBlFIwCqlIEFZYxQFIaMhzo1fxt37yo4yp9jHBdL9uW_wBhXpT_IoAAAA=&alias=zinne';
+        'https://zinne.citizenwallet.xyz/#/?alias=zinne&voucher=F4sIAD4XHmYA_w3JwQ3AMAgDwIkqOSgQPA5J8Aidv73vvfZEzItl2bVDdVnz8CBbjjk2dvWZ_eWDTV5PdACSmJSf9QGxLV9mQwAAAB==&params=4sIAD4XHmOA_w3LvQ7CIBAA4Ffp1Jsj78rAQFJPXDo6uB0HxCYKCbaJ8en12z967vT23721NvModPThxQcgrlomcMYsGi9VI1aKLjK74NaMi2GXtMwzMfezHf8iqjJaAlpgg2HBlFIwCqlIEFZYxQFIaMhzo1fxt37yo4yp9jHBdL9uW_wBhXpT_IoAAAA=&alias=zinne';
     const expectedAlias = 'zinne';
     const expectedVoucher =
         'F4sIAD4XHmYA_w3JwQ3AMAgDwIkqOSgQPA5J8Aidv73vvfZEzItl2bVDdVnz8CBbjjk2dvWZ_eWDTV5PdACSmJSf9QGxLV9mQwAAAB==';
