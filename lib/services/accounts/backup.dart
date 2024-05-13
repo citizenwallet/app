@@ -1,4 +1,5 @@
 import 'package:citizenwallet/utils/uint8.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -22,7 +23,7 @@ class LegacyBackupWallet {
       : address = EthereumAddress.fromHex(json['address']).hexEip55,
         privateKey = json['privateKey'],
         name = json['name'],
-        alias = json['alias'] ?? 'app';
+        alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   Map<String, dynamic> toJson() => {
         'address': address,

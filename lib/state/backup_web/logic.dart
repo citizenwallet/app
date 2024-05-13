@@ -11,6 +11,7 @@ class BackupWebLogic {
   final ConfigService _config = ConfigService();
   final SharingService _sharing = SharingService();
   final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
   final String appUniversalURL = dotenv.get('MAIN_APP_SCHEME');
 
   late BackupWebState _state;
@@ -23,7 +24,7 @@ class BackupWebLogic {
     try {
       final config = await _config.getWebConfig(appLinkSuffix);
 
-      final link = config.community.walletUrl(appLinkSuffix);
+      final link = config.community.walletUrl(deepLinkURL);
       _state.setShareLink(link);
     } catch (e) {
       //
