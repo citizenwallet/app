@@ -1581,7 +1581,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final compressedParams = compress(params);
 
-      _state.updateReceiveQR('$url?receiveParams=$compressedParams');
+      _state.updateReceiveQR('$url&receiveParams=$compressedParams');
       return;
     } on NotFoundException {
       // HANDLE
