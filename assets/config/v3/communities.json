@@ -384,46 +384,48 @@
         "community": {
             "name": "SFLUV Community",
             "description": "A community currency for the city of San Francisco.",
-            "url": "https://sfluv.org/",
+            "url": "https://sfluv.org",
             "alias": "wallet.sfluv.org",
-            "logo": "https://wallet.sfluv.org/wallet-config/_images/sfluv.svg",
-            "custom_domain": "wallet.sfluv.org"
+            "custom_domain": "wallet.sfluv.org",
+            "logo": "https://wallet.sfluv.org/uploads/logo.svg",
+            "theme": {
+                "primary": "#eb6c6c"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "SFLUV V1.1",
+            "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
+            "symbol": "SFLUV",
+            "decimals": 6
         },
         "scan": {
             "url": "https://polygonscan.com",
             "name": "Polygon Explorer"
         },
-        "indexer": {
-            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
-            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
-            "key": "x"
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "chain_id": 137
         },
         "ipfs": {
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
-        "node": {
-            "chain_id": 137,
-            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
-        },
-        "erc4337": {
-            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
-            "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
-            "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
-            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_type": "cw",
-            "gas_extra_percentage": 50
-        },
-        "token": {
-            "standard": "erc20",
-            "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
-            "name": "SFLUV Coin",
-            "symbol": "SFLUV",
-            "decimals": 6
-        },
         "profile": {
             "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99"
+        },
+        "indexer": {
+            "url": "https://wallet.sfluv.org/indexer",
+            "ipfs_url": "https://wallet.sfluv.org/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.sfluv.org/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.sfluv.org/indexer/rpc",
+            "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
+            "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
+            "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+            "paymaster_type": "cw"
         },
         "version": 1
     },

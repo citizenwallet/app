@@ -17,9 +17,9 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.eip681Transfer;
   } else if (raw.startsWith('0x')) {
     return QRFormat.address;
-  } else if (raw.contains('/#/?receiveParams')) {
+  } else if (raw.contains('receiveParams=')) {
     return QRFormat.receiveUrl;
-  } else if (raw.contains('/#/?voucher')) {
+  } else if (raw.contains('voucher=')) {
     return QRFormat.voucher;
   } else {
     return QRFormat.unsupported;

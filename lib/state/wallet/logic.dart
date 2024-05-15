@@ -67,7 +67,8 @@ class WalletLogic extends WidgetsBindingObserver {
   final WalletState _state;
   final NotificationsLogic _notificationsLogic;
 
-  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
   final String appUniversalURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
@@ -316,7 +317,7 @@ class WalletLogic extends WidgetsBindingObserver {
   ) async {
     try {
       final String? address = paramAddress ?? _preferences.lastWallet;
-      final String alias = paramAlias ?? _preferences.lastAlias ?? 'app';
+      final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
       if (address == null) {
         throw Exception('address not found');
@@ -1551,13 +1552,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
+      final url = config.community.walletUrl(deepLinkURL);
 
       if (onlyHex != null && onlyHex) {
         final compressedParams = compress(
             '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
 
-        _state.updateReceiveQR('$url?receiveParams=$compressedParams');
+        _state.updateReceiveQR('$url&receiveParams=$compressedParams');
         return;
       }
 
@@ -1580,7 +1581,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final compressedParams = compress(params);
 
-      _state.updateReceiveQR('$url?receiveParams=$compressedParams');
+      _state.updateReceiveQR('$url&receiveParams=$compressedParams');
       return;
     } on NotFoundException {
       // HANDLE

@@ -83,9 +83,8 @@ class CommunityConfig {
     return 'CommunityConfig{name: $name, description: $description, url: $url, alias: $alias}';
   }
 
-  String walletUrl(String appLinkSuffix) => customDomain != null
-      ? 'https://$customDomain'
-      : 'https://$alias$appLinkSuffix';
+  String walletUrl(String deepLinkBaseUrl) =>
+      '$deepLinkBaseUrl/#/?alias=$alias';
 }
 
 class ScanConfig {

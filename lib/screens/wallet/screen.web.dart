@@ -5,6 +5,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -34,18 +35,18 @@ import 'package:provider/provider.dart';
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
   final WalletLogic wallet;
-  final String alias;
+  String alias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;
   final String? deepLink;
   final String? deepLinkParams;
 
-  const BurnerWalletScreen(
+  BurnerWalletScreen(
     this.encoded,
     this.wallet, {
     super.key,
-    this.alias = 'app',
+    required this.alias,
     this.voucher,
     this.voucherParams,
     this.receiveParams,

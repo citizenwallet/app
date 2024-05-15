@@ -21,7 +21,7 @@ import 'package:web3dart/web3dart.dart';
 
 class VoucherLogic extends WidgetsBindingObserver {
   final String password = dotenv.get('DB_VOUCHER_PASSWORD');
-  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
   final DBService _db = DBService();
@@ -212,7 +212,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      final appLink = config.community.walletUrl(appLinkSuffix);
+      final appLink = config.community.walletUrl(deepLinkURL);
 
       _state.openVoucherSuccess(
         voucher,
@@ -411,7 +411,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: false,
       );
 
-      final appLink = config.community.walletUrl(appLinkSuffix);
+      final appLink = config.community.walletUrl(deepLinkURL);
 
       _state.createVoucherSuccess(
         voucher,

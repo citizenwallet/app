@@ -122,10 +122,10 @@ const List<Map<String, dynamic>> communityConfigs = [
 ];
 
 const List<String> expectedVoucherUrls = [
-  'https://app.citizenwallet.xyz/#/?voucher=',
-  'https://wallet.oak.community/#/?voucher=',
-  'https://usdbc.base.citizenwallet.xyz/#/?voucher=',
-  'https://wallet.regensunite.earth/#/?voucher='
+  'https://app.citizenwallet.xyz/#/?alias=app&voucher=',
+  'https://app.citizenwallet.xyz/#/?alias=wallet.oak.community&voucher=',
+  'https://app.citizenwallet.xyz/#/?alias=usdbc.base&voucher=',
+  'https://app.citizenwallet.xyz/#/?alias=wallet.regensunite.earth&voucher='
 ];
 
 void main() {
@@ -139,7 +139,7 @@ void main() {
 
   group('vouchers', () {
     test('returns a valid voucher url for a given community', () async {
-      final appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+      final deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
       final List<Config> configs = communityConfigs
           .map((e) => Config.fromJson(e))
@@ -148,7 +148,7 @@ void main() {
       for (var i = 0; i < configs.length; i++) {
         final config = configs[i];
 
-        final walletUrl = config.community.walletUrl(appLinkSuffix);
+        final walletUrl = config.community.walletUrl(deepLinkURL);
 
         final voucher = Voucher(
           address: '0x123',

@@ -6,6 +6,7 @@ import 'package:citizenwallet/services/db/db.dart';
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -19,6 +20,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
       AndroidAccountsService._internal();
   factory AndroidAccountsService() => _instance;
   AndroidAccountsService._internal();
+
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late SharedPreferences _sharedPreferences;
@@ -253,7 +256,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
-        alias: 'app',
+        alias: defaultAlias,
       ));
     }
 

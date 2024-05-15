@@ -12,6 +12,7 @@ import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -49,6 +50,8 @@ class LandingScreenState extends State<LandingScreen>
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
   late BackupLogic _backupLogic;
+
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   @override
   void initState() {
@@ -122,7 +125,7 @@ class LandingScreenState extends State<LandingScreen>
 
       (address, alias) = await _appLogic.importWebWallet(
         widget.webWallet!,
-        widget.webWalletAlias ?? 'app',
+        widget.webWalletAlias ?? defaultAlias,
       );
     }
 
@@ -169,7 +172,7 @@ class LandingScreenState extends State<LandingScreen>
       deepLink: widget.deepLink,
       deepLinkParams: widget.deepLinkParams,
       extra: [
-        'alias=${alias ?? 'app'}',
+        'alias=${alias ?? defaultAlias}',
       ],
     );
 
