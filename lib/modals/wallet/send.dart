@@ -148,7 +148,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     if (widget.receiveParams != null) {
-      handleScan('/#/?receiveParams=${widget.receiveParams!}');
+      handleScan(
+          '/#/?alias=${widget.walletLogic.wallet.alias}&receiveParams=${widget.receiveParams!}');
     }
   }
 
@@ -936,14 +937,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       ),
                                     CupertinoButton(
                                       onPressed: handleCloseDescribe,
-                                      child:  Text(AppLocalizations.of(context)!.done),
+                                      child: Text(
+                                          AppLocalizations.of(context)!.done),
                                     ),
                                   ],
                                 ),
                                 CupertinoTextField(
                                   controller: _logic.messageController,
-                                  placeholder:
-                                     AppLocalizations.of(context)!.sendDescription,
+                                  placeholder: AppLocalizations.of(context)!
+                                      .sendDescription,
                                   minLines: 4,
                                   maxLines: 10,
                                   maxLength: 200,
@@ -984,7 +986,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                   ? [
                                       const SizedBox(height: 10),
                                       Button(
-                                        text: AppLocalizations.of(context)!.chooseRecipient,
+                                        text: AppLocalizations.of(context)!
+                                            .chooseRecipient,
                                         onPressed: handleChooseRecipient,
                                         minWidth: 200,
                                         maxWidth: 200,
@@ -995,7 +998,8 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         CupertinoButton(
                                           onPressed: handleCreateVoucher,
                                           child: Text(
-                                            AppLocalizations.of(context)!.createVoucher,
+                                            AppLocalizations.of(context)!
+                                                .createVoucher,
                                             style: TextStyle(
                                               color: ThemeColors.text
                                                   .resolveFrom(context),
@@ -1023,11 +1027,15 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         isComplete: _isSending,
                                         completionLabel: widget.isMinting
                                             ? (_isSending
-                                                ?  AppLocalizations.of(context)!.minting
-                                                : AppLocalizations.of(context)!.mint)
+                                                ? AppLocalizations.of(context)!
+                                                    .minting
+                                                : AppLocalizations.of(context)!
+                                                    .mint)
                                             : _isSending
-                                                ? AppLocalizations.of(context)!.sending
-                                                : AppLocalizations.of(context)!.send,
+                                                ? AppLocalizations.of(context)!
+                                                    .sending
+                                                : AppLocalizations.of(context)!
+                                                    .send,
                                         thumbColor: ThemeColors.surfacePrimary
                                             .resolveFrom(context),
                                         width: width * 0.5,

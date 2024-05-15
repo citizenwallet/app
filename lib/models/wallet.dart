@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CWWallet {
   String name;
@@ -67,7 +68,7 @@ class CWWallet {
   CWWallet.fromJson(Map<String, dynamic> json)
       : name = json['name'],
         address = json['address'],
-        alias = json['alias'] ?? 'app',
+        alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS'),
         account = json['account'],
         _balance = json['balance'],
         currencyName = json['currencyName'],
