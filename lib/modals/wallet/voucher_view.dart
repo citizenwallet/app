@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VoucherViewModal extends StatefulWidget {
   final String address;
@@ -140,7 +141,7 @@ class VoucherViewModalState extends State<VoucherViewModal>
                         scrollDirection: Axis.vertical,
                         children: [
                           Text(
-                            voucher?.name ?? 'Voucher',
+                            voucher?.name ?? AppLocalizations.of(context)!.voucher,
                             style: TextStyle(
                               color: ThemeColors.text.resolveFrom(context),
                               fontSize: 34,

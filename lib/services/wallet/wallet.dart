@@ -20,11 +20,13 @@ import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
 import 'package:citizenwallet/services/wallet/models/paymaster_data.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -366,10 +368,9 @@ class WalletService {
       final exists = await accountExists();
       if (!exists) {
         _useLegacyBundlers = false;
-        await createAccount();
+        onFinished?.call(true);
+        return;
       }
-
-      _useLegacyBundlers = await _contractAccount.isLegacy();
 
       // call the upgrade function on our API, it will return the new implementation address
       final implementation = await upgradeAccount();
@@ -385,10 +386,15 @@ class WalletService {
           deploy: false,
         );
 
-        final success = await submitUserop(
+        final txHash = await submitUserop(
           userop,
         );
 
+        if (txHash == null) {
+          return;
+        }
+
+        final success = await waitForTxSuccess(txHash);
         if (!success) {
           return;
         }
@@ -405,6 +411,37 @@ class WalletService {
     _useLegacyBundlers = true;
 
     onFinished?.call(false);
+  }
+
+  /// given a tx hash, waits for the tx to be mined
+  Future<bool> waitForTxSuccess(
+    String txHash, {
+    int retryCount = 0,
+    int maxRetries = 20,
+  }) async {
+    if (retryCount >= maxRetries) {
+      return false;
+    }
+
+    final receipt = await _ethClient.getTransactionReceipt(txHash);
+    if (receipt?.status != true) {
+      // there is either no receipt or the tx is still not confirmed
+
+      // increment the retry count
+      final nextRetryCount = retryCount + 1;
+
+      // wait for a bit before retrying
+      await delay(Duration(milliseconds: 250 * (nextRetryCount)));
+
+      // retry
+      return waitForTxSuccess(
+        txHash,
+        retryCount: nextRetryCount,
+        maxRetries: maxRetries,
+      );
+    }
+
+    return true;
   }
 
   StackupEntryPoint getEntryPointContract({bool legacy = false}) {
@@ -481,9 +518,14 @@ class WalletService {
 
       final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
-      final success = await submitUserop(userop);
-      if (!success) {
+      final txHash = await submitUserop(userop);
+      if (txHash == null) {
         throw Exception('profile update failed');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
       }
 
       return profileUrl;
@@ -528,9 +570,14 @@ class WalletService {
 
       final (_, userop) = await prepareUserop([profileAddress], [calldata]);
 
-      final success = await submitUserop(userop);
-      if (!success) {
+      final txHash = await submitUserop(userop);
+      if (txHash == null) {
         throw Exception('profile update failed');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
       }
 
       return profileUrl;
@@ -677,42 +724,39 @@ class WalletService {
     return false;
   }
 
+  // TODO: create an account using a user op
+
   /// create an account
   Future<bool> createAccount({
     EthPrivateKey? customCredentials,
   }) async {
     try {
-      final cred = customCredentials ?? _credentials;
+      final exists = await accountExists();
+      if (exists) {
+        return true;
+      }
 
-      final accountFactory = getAccounFactoryContract();
-
-      final url = '/accounts/factory/${accountFactory.addr}';
-
-      final encoded = jsonEncode(
-        {
-          'owner': cred.address.hexEip55,
-          'salt': BigInt.zero.toInt(),
-        },
+      final calldata = _contractAccount.transferOwnershipCallData(
+        _credentials.address.hexEip55,
       );
 
-      final body = SignedRequest(convertStringToUint8List(encoded));
-
-      final sig =
-          await compute(generateSignature, (jsonEncode(body.toJson()), cred));
-
-      await _indexer.post(
-        url: url,
-        headers: {
-          'Authorization': 'Bearer $_indexerKey',
-          'X-Signature': sig,
-          'X-Address': cred.address
-              .hexEip55, // owner verification since 1271 is impossible at this point
-        },
-        body: body.toJson(),
+      final (_, userop) = await prepareUserop(
+        [_account.hexEip55],
+        [calldata],
       );
 
-      return true;
-    } on ConflictException {
+      final txHash = await submitUserop(
+        userop,
+      );
+      if (txHash == null) {
+        throw Exception('failed to submit user op');
+      }
+
+      final success = await waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
+      }
+
       return true;
     } catch (exception, stackTrace) {
       Sentry.captureException(
@@ -790,7 +834,7 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+      const path = 'logs/v2/transfers';
 
       final url =
           '/$path/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
@@ -822,7 +866,7 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      final path = _useLegacyBundlers ? 'logs/transfers' : 'logs/v2/transfers';
+      const path = 'logs/v2/transfers';
 
       final url =
           '/$path/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
@@ -878,6 +922,15 @@ class WalletService {
     await contract.init();
 
     return contract.redeemCallData();
+  }
+
+  /// fetch simple faucet redeem amount
+  Future<BigInt> getFaucetRedeemAmount(String address) async {
+    final contract = SimpleFaucetContract(chainId, _ethClient, address);
+
+    await contract.init();
+
+    return contract.getAmount();
   }
 
   /// Account Abstraction
@@ -1054,6 +1107,57 @@ class WalletService {
     return (null, NetworkUnknownException());
   }
 
+  /// return paymaster data for constructing a user op
+  Future<(List<PaymasterData>, Exception?)> _getPaymasterOOData(
+    UserOp userop,
+    String eaddr,
+    String ptype, {
+    bool legacy = false,
+    int count = 1,
+  }) async {
+    final body = SUJSONRPCRequest(
+      method: 'pm_ooSponsorUserOperation',
+      params: [
+        userop.toJson(),
+        eaddr,
+        {'type': ptype},
+        count,
+      ],
+    );
+
+    try {
+      final response = await _requestPaymaster(body, legacy: legacy);
+
+      final List<dynamic> data = response.result;
+      if (data.isEmpty) {
+        throw Exception('empty paymaster data');
+      }
+
+      if (data.length != count) {
+        throw Exception('invalid paymaster data');
+      }
+
+      return (data.map((item) => PaymasterData.fromJson(item)).toList(), null);
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+
+      final strerr = exception.toString();
+
+      if (strerr.contains(gasFeeErrorMessage)) {
+        return (<PaymasterData>[], NetworkCongestedException());
+      }
+
+      if (strerr.contains(invalidBalanceErrorMessage)) {
+        return (<PaymasterData>[], NetworkInvalidBalanceException());
+      }
+    }
+
+    return (<PaymasterData>[], NetworkUnknownException());
+  }
+
   /// prepare a userop for with calldata
   Future<(String, UserOp)> prepareUserop(
     List<String> dest,
@@ -1092,7 +1196,6 @@ class WalletService {
 
       // determine the appropriate nonce
       BigInt nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
-      userop.nonce = nonce;
 
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && deploy) {
@@ -1110,8 +1213,13 @@ class WalletService {
             cred.address.hexEip55,
             BigInt.zero,
           );
+        } else {
+          // try again in case the account was created in the meantime
+          nonce = customNonce ?? await entryPoint.getNonce(acc.hexEip55);
         }
       }
+
+      userop.nonce = nonce;
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
@@ -1137,19 +1245,47 @@ class WalletService {
       userop.maxFeePerGas = fees.maxFeePerGas * BigInt.from(calldata.length);
 
       // submit the user op to the paymaster in order to receive information to complete the user op
-      final (paymasterData, paymasterErr) = await _getPaymasterData(
-        userop,
-        entryPoint.addr,
-        getPaymasterType(legacy: isLegacy),
-        legacy: isLegacy,
-      );
+      List<PaymasterData> paymasterOOData = [];
+      Exception? paymasterErr;
+      final useAccountNonce = (nonce == BigInt.zero ||
+              getPaymasterType(legacy: isLegacy) == 'payg') &&
+          deploy;
+
+      if (useAccountNonce) {
+        // if it's the first user op, we should use a normal paymaster signature
+        PaymasterData? paymasterData;
+        (paymasterData, paymasterErr) = await _getPaymasterData(
+          userop,
+          entryPoint.addr,
+          getPaymasterType(legacy: isLegacy),
+          legacy: isLegacy,
+        );
+
+        if (paymasterData != null) {
+          paymasterOOData.add(paymasterData);
+        }
+      } else {
+        // if it's not the first user op, we should use an out of order paymaster signature
+        (paymasterOOData, paymasterErr) = await _getPaymasterOOData(
+          userop,
+          entryPoint.addr,
+          getPaymasterType(legacy: isLegacy),
+          legacy: isLegacy,
+        );
+      }
 
       if (paymasterErr != null) {
         throw paymasterErr;
       }
 
-      if (paymasterData == null) {
+      if (paymasterOOData.isEmpty) {
         throw Exception('unable to get paymaster data');
+      }
+
+      final paymasterData = paymasterOOData.first;
+      if (!useAccountNonce) {
+        // use the nonce received from the paymaster
+        userop.nonce = paymasterData.nonce;
       }
 
       // add the received data to the user op
@@ -1171,7 +1307,7 @@ class WalletService {
   }
 
   /// submit a user op
-  Future<bool> submitUserop(
+  Future<String?> submitUserop(
     UserOp userop, {
     EthPrivateKey? customCredentials,
     bool legacy = false,
@@ -1197,7 +1333,7 @@ class WalletService {
       final entryPoint = getEntryPointContract(legacy: isLegacy);
 
       // send the user op
-      final (result, useropErr) = await _submitUserOp(
+      final (txHash, useropErr) = await _submitUserOp(
         userop,
         entryPoint.addr,
         legacy: isLegacy,
@@ -1207,8 +1343,8 @@ class WalletService {
         throw useropErr;
       }
 
-      return result != null;
-    } catch (e) {
+      return txHash;
+    } catch (_) {
       rethrow;
     }
   }

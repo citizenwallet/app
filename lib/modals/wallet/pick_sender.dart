@@ -21,6 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PickeSenderModal extends StatefulWidget {
   final WalletLogic walletLogic;
@@ -299,9 +300,9 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 60),
-                        const Text(
-                          'To',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.to,
+                          style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
@@ -441,7 +442,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                   titleWidget: Row(
                     children: [
                       Text(
-                        widget.isMinting ? 'Mint' : 'Send',
+                        widget.isMinting ? AppLocalizations.of(context)!.mint : AppLocalizations.of(context)!.send,
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -507,10 +508,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                             enabled: isValid,
                             isComplete: _isSending,
                             completionLabel: widget.isMinting
-                                ? (_isSending ? 'Minting...' : 'Mint')
+                                ? (_isSending ? AppLocalizations.of(context)!.minting : AppLocalizations.of(context)!.mint)
                                 : _isSending
-                                    ? 'Sending...'
-                                    : 'Send',
+                                    ? AppLocalizations.of(context)!.sending
+                                    : AppLocalizations.of(context)!.send,
                             thumbColor:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
                             width: width * 0.5,

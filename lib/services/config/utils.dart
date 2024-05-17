@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 const Map<String, String> correctedAliases = {
   'wallet': 'wallet.oak.community',
   'oak': 'wallet.oak.community',
@@ -9,5 +11,7 @@ String fixLegacyAliases(String alias) {
     return correctedAliases[alias]!;
   }
 
-  return alias == 'localhost' || alias == '' ? 'app' : alias;
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+
+  return alias == 'localhost' || alias == '' ? defaultAlias : alias;
 }

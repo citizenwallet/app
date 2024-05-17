@@ -20,6 +20,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -66,7 +67,8 @@ class WalletLogic extends WidgetsBindingObserver {
   final WalletState _state;
   final NotificationsLogic _notificationsLogic;
 
-  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
   final String appUniversalURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
@@ -281,6 +283,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (loadAdditionalData != null) await loadAdditionalData();
 
+      ThemeColors.setTheme(config.community.theme);
+
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
       await _preferences.setLastWalletLink(encoded);
@@ -313,7 +317,7 @@ class WalletLogic extends WidgetsBindingObserver {
   ) async {
     try {
       final String? address = paramAddress ?? _preferences.lastWallet;
-      final String alias = paramAlias ?? _preferences.lastAlias ?? 'app';
+      final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
       if (address == null) {
         throw Exception('address not found');
@@ -331,6 +335,8 @@ class WalletLogic extends WidgetsBindingObserver {
         _state.loadWalletSuccess();
 
         await loadAdditionalData(false);
+
+        ThemeColors.setTheme(config.community.theme);
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
@@ -402,6 +408,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData(true);
 
+      ThemeColors.setTheme(config.community.theme);
+
       await _preferences.setLastWallet(address);
       await _preferences.setLastAlias(config.community.alias);
 
@@ -458,6 +466,8 @@ class WalletLogic extends WidgetsBindingObserver {
         name: 'New ${config.token.symbol} Account',
         alias: config.community.alias,
       ));
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -520,6 +530,8 @@ class WalletLogic extends WidgetsBindingObserver {
         name: name,
         alias: config.community.alias,
       ));
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -1171,20 +1183,27 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      sendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-        _wallet.account.hexEip55,
-      );
-
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         data: message != '' ? TransferData(message) : null,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
+      }
+
+      tempId = txHash;
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
       }
 
       clearInputControllers();
@@ -1287,20 +1306,27 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
-      sendingTransaction(
-        parsedAmount,
-        hash,
-        to,
-        _wallet.account.hexEip55,
-      );
-
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         data: message != '' ? TransferData(message) : null,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
+      }
+
+      tempId = txHash;
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
       }
 
       clearInputControllers();
@@ -1391,10 +1417,10 @@ class WalletLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
       );
-      if (!success) {
+      if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
       }
@@ -1526,13 +1552,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
+      final url = config.community.walletUrl(deepLinkURL);
 
       if (onlyHex != null && onlyHex) {
         final compressedParams = compress(
             '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
 
-        _state.updateReceiveQR('$url?receiveParams=$compressedParams');
+        _state.updateReceiveQR('$url&receiveParams=$compressedParams');
         return;
       }
 
@@ -1555,7 +1581,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final compressedParams = compress(params);
 
-      _state.updateReceiveQR('$url?receiveParams=$compressedParams');
+      _state.updateReceiveQR('$url&receiveParams=$compressedParams');
       return;
     } on NotFoundException {
       // HANDLE

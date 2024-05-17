@@ -6,9 +6,10 @@ import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QRModal extends StatelessWidget {
-  final String title;
+  final String? title;
   final String qrCode;
   final String copyLabel;
   final String? externalLink;
@@ -16,7 +17,7 @@ class QRModal extends StatelessWidget {
 
   const QRModal({
     super.key,
-    this.title = 'Wallet',
+    this.title,
     required this.qrCode,
     this.copyLabel = '',
     this.externalLink,
@@ -51,7 +52,7 @@ class QRModal extends StatelessWidget {
             direction: Axis.vertical,
             children: [
               Header(
-                title: title,
+                title: title ?? AppLocalizations.of(context)!.wallet,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -109,7 +110,7 @@ class QRModal extends StatelessWidget {
                       ),
                     if (externalLink != null)
                       Button(
-                        text: 'View Contract ',
+                        text: '${AppLocalizations.of(context)!.viewContract} ',
                         suffix: const Icon(
                           CupertinoIcons.globe,
                         ),

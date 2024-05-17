@@ -16,6 +16,7 @@ import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletScrollView extends StatefulWidget {
   final ScrollController controller;
@@ -29,7 +30,6 @@ class WalletScrollView extends StatefulWidget {
   final void Function() handleVouchers;
   final void Function() handleConnect;
   final void Function(String) handleTransactionTap;
-  final void Function() handleTransactionSendingTap;
   final void Function(String, bool) handleFailedTransactionTap;
   final void Function(String) handleCopy;
 
@@ -48,7 +48,6 @@ class WalletScrollView extends StatefulWidget {
     required this.handleVouchers,
     required this.handleConnect,
     required this.handleTransactionTap,
-    required this.handleTransactionSendingTap,
     required this.handleFailedTransactionTap,
     required this.handleCopy,
     required this.handleLoad,
@@ -95,7 +94,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final handleVouchers = widget.handleVouchers;
     final handleConnect = widget.handleConnect;
     final handleTransactionTap = widget.handleTransactionTap;
-    final handleTransactionSendingTap = widget.handleTransactionSendingTap;
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
     final handleLoad = widget.handleLoad;
@@ -256,7 +254,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                         height: 20,
                       ),
                       Text(
-                        'Preparing wallet...',
+                        AppLocalizations.of(context)!.preparingWallet,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -309,9 +307,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
                             height: 10,
                           ),
                           Picker(
-                            options: const [
-                              'Citizen Wallet',
-                              'External Wallet'
+                            options: [
+                              AppLocalizations.of(context)!.citizenWallet,
+                              AppLocalizations.of(context)!.externalWallet
                             ],
                             selected: _selectedValue,
                             handleSelect: handleSelect,
@@ -329,9 +327,9 @@ class WalletScrollViewState extends State<WalletScrollView> {
             child: Container(
               color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: const Text(
-                'Transactions',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.transactions,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -389,7 +387,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
                     profiles: profiles,
                     vouchers: vouchers,
                     onTap: handleTransactionTap,
-                    onProcessingTap: handleTransactionSendingTap,
                     onLoad: handleLoad,
                   ),
                 );

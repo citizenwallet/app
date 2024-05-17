@@ -8,7 +8,7 @@ class SharingService {
 
   SharingService._internal();
 
-  Future<void> shareVoucher(
+  Future<ShareResult> shareVoucher(
     String amount, {
     required String link,
     required String symbol,

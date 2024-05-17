@@ -51,11 +51,37 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Update S3 bucket
+      - name: Extract version info
+        id: version_info
+        run: |
+          fullVersion=$(grep -i -e "version: " pubspec.yaml)
+          buildName=$(echo $fullVersion | cut -d " " -f 2 | cut -d "+" -f 1)
+          buildNumber=$(echo $fullVersion | cut -d "+" -f 2 )
+          echo "::set-output name=build_name::$buildName"
+          echo "::set-output name=build_number::$buildNumber"
+
+      - name: Create build output directory
+        run: mkdir -p build/outputs
+
+      - name: Compress web build
+        run: |
+          cd ./build/web
+          tar -czf '../outputs/cw_web_${{ steps.version_info.outputs.build_name }}_${{ steps.version_info.outputs.build_number }}.tar.gz' .
+
+      - name: Create version file
+        run: echo '${{ steps.version_info.outputs.build_name }}_${{ steps.version_info.outputs.build_number }}' > ./build/outputs/version
+
+      - name: Upload outputs to S3
+        run: aws s3 sync ./build/outputs s3://cw-build-artifacts/web
+
+      - name: Update live app S3 bucket
         run: aws s3 sync ./build/web s3://cw-wallet --delete
 
       - name: Update S3 Configs bucket
         run: aws s3 sync ./temp/web_configs s3://cw-wallet-configs/wallet-config/v3
+
+      - name: Invalidate Build Outputs CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id EKM5NR0TASZ5T --paths '/*'
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3HSZG6HHL54A0 --paths '/*'
@@ -77,11 +103,8 @@ jobs:
 
       - name: Notify of successful web deploy
         run: |
-          fullVersion=$(echo | grep -i -e "version: " pubspec.yaml)
-          buildName=$(echo $fullVersion | cut -d " " -f 2 | cut -d "+" -f 1)
-          buildNumber=$(echo $fullVersion | cut -d "+" -f 2 )
           curl --location '${{ secrets.DISCORD_WEBHOOK_URL }}' \
           --header 'Content-Type: application/json' \
           --data '{
-              "content": "updated to version '$buildName'+'$buildNumber'"
+              "content": "updated to version '${{ steps.version_info.outputs.build_name }}'+'${{ steps.version_info.outputs.build_number }}'"
           }'

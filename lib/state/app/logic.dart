@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
@@ -88,6 +89,10 @@ class AppLogic {
           final dbWallet = dbWallets[0];
 
           final address = dbWallet.address.hexEip55;
+
+          final config = await _config.getConfig(dbWallet.alias);
+
+          ThemeColors.setTheme(config.community.theme);
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
@@ -180,6 +185,8 @@ class AppLogic {
         name: config.token.name,
         alias: config.community.alias,
       ));
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -296,6 +303,8 @@ class AppLogic {
         ),
       );
 
+      ThemeColors.setTheme(config.community.theme);
+
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
 
@@ -354,6 +363,8 @@ class AppLogic {
           alias: config.community.alias,
         ),
       );
+
+      ThemeColors.setTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -414,5 +425,20 @@ class AppLogic {
     }
 
     return false;
+  }
+
+  void setLanguageCode(int selectedItem) {
+    try {
+      if (selectedItem < 0 || selectedItem >= languageOptions.length) {
+        return;
+      }
+
+      final language = languageOptions[selectedItem];
+
+      _preferences.setLanguageCode(language.code);
+      _appState.setSelectedLanguage(language);
+    } catch (e) {
+      //
+    }
   }
 }

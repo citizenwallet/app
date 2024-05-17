@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountRecoveryScreen extends StatefulWidget {
   const AccountRecoveryScreen({
@@ -115,24 +116,24 @@ class AccountRecoveryScreenState extends State<AccountRecoveryScreen>
         child: SafeArea(
           child: switch (backupStatus) {
             BackupStatus.nobackup => InfoActionLayout(
-                title: 'No backup found',
+                title:  AppLocalizations.of(context)!.noBackupFound,
                 icon: 'assets/icons/cloud-empty.svg',
                 loading: loading,
-                primaryActionText: 'Select another account',
+                primaryActionText:  AppLocalizations.of(context)!.selectAnotherAccount,
                 secondaryActionText:
-                    'Recover individual account from a private key',
+                    AppLocalizations.of(context)!.recoverIndividualAccount,
                 onPrimaryAction: handleConnectAccount,
                 onSecondaryAction: handleImportAccount,
               ),
             _ => InfoActionLayout(
-                title: 'Restore all accounts from Google Drive',
+                title: AppLocalizations.of(context)!.restoreAllAccountsGoogleDrive,
                 icon: 'assets/icons/drive.svg',
                 description:
-                    'You will be asked to log in to your Google account. We will only request access to this app\'s folder in your Google Drive.',
+                   AppLocalizations.of(context)!.infoActionLayoutDescription,
                 loading: loading,
-                primaryActionText: 'Connect your Google Drive Account',
+                primaryActionText: AppLocalizations.of(context)!.connectYourGoogleDriveAccount,
                 secondaryActionText:
-                    'Recover individual account from a private key',
+                     AppLocalizations.of(context)!.recoverIndividualAccountPrivateKey,
                 onPrimaryAction: handleConnectAccount,
                 onSecondaryAction: handleImportAccount,
               ),

@@ -32,7 +32,7 @@ class QR extends StatelessWidget {
           version: QrVersions.auto,
           backgroundColor: ThemeColors.white,
           padding: padding,
-          eyeStyle: const QrEyeStyle(
+          eyeStyle: QrEyeStyle(
             eyeShape: QrEyeShape.circle,
             color: ThemeColors.primary,
           ),

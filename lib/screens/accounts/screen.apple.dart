@@ -1,6 +1,7 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppleAccountsScreen extends StatelessWidget {
   const AppleAccountsScreen({Key? key}) : super(key: key);
@@ -25,7 +26,7 @@ class AppleAccountsScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 60 + safePadding),
                       Text(
-                        "Your accounts are backed up to your iPhone's Keychain and follow your backup settings automatically.",
+                        AppLocalizations.of(context)!.accountsApYouraccountsarebackedup,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -34,7 +35,7 @@ class AppleAccountsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Enabling \"Sync this iPhone\" will ensure that your iPhone's keychain gets backed up to iCloud.",
+                        AppLocalizations.of(context)!.accountsApSyncthisiPhone,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -43,7 +44,7 @@ class AppleAccountsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'You can check if syncing is enabled in your Settings app by going to: Apple ID > iCloud > Passwords and Keychain.',
+                        AppLocalizations.of(context)!.accountsApYoucancheck,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -52,7 +53,7 @@ class AppleAccountsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Your accounts and your account backups are generated and owned by you.",
+                        AppLocalizations.of(context)!.accountsApYouraccounts,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -61,7 +62,7 @@ class AppleAccountsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "They can be manually exported at any time.",
+                        AppLocalizations.of(context)!.accountsApTheycanbe,
                         style: TextStyle(
                           color: ThemeColors.text.resolveFrom(context),
                           fontSize: 20,
@@ -79,7 +80,7 @@ class AppleAccountsScreen extends StatelessWidget {
             blur: true,
             transparent: true,
             showBackButton: true,
-            title: 'Accounts',
+            title: AppLocalizations.of(context)!.accounts,
             safePadding: safePadding,
           ),
         ],

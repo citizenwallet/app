@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ReceiveModal extends StatefulWidget {
   final WalletLogic logic;
@@ -43,6 +44,8 @@ class ReceiveModalState extends State<ReceiveModal> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
+
+      _selectedValue = AppLocalizations.of(context)!.citizenWallet;
 
       debouncedQRCode = debounce(
         widget.logic.updateReceiveQR,
@@ -208,7 +211,8 @@ class ReceiveModalState extends State<ReceiveModal> {
       (WalletState state) => state.amount,
     );
 
-    final isExternalWallet = _selectedValue == 'External Wallet';
+    final isExternalWallet =
+        _selectedValue == AppLocalizations.of(context)!.externalWallet;
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : qrCode;
 
@@ -227,7 +231,7 @@ class ReceiveModalState extends State<ReceiveModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Receive',
+                title: AppLocalizations.of(context)!.receive,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -301,10 +305,13 @@ class ReceiveModalState extends State<ReceiveModal> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
+                          horizontal: 20,
                         ),
                         child: Picker(
-                          options: const ['Citizen Wallet', 'External Wallet'],
+                          options: [
+                            AppLocalizations.of(context)!.citizenWallet,
+                            AppLocalizations.of(context)!.externalWallet
+                          ],
                           selected: _selectedValue,
                           handleSelect: handleSelect,
                         ),
@@ -317,7 +324,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Button(
-                              text: 'Reset QR Code',
+                              text: AppLocalizations.of(context)!.resetQRCode,
                               onPressed: handleResetQRCode,
                               minWidth: 200,
                               maxWidth: 200,
@@ -331,9 +338,9 @@ class ReceiveModalState extends State<ReceiveModal> {
                         height: 10,
                       ),
                       if (!isExternalWallet)
-                        const Text(
-                          'Amount',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.amount,
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -391,9 +398,9 @@ class ReceiveModalState extends State<ReceiveModal> {
                         height: 10,
                       ),
                       if (!isExternalWallet)
-                        const Text(
-                          'Description',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.description,
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -422,7 +429,8 @@ class ReceiveModalState extends State<ReceiveModal> {
                                         ? '...'
                                         : message != ''
                                             ? message
-                                            : 'Add a description (optional)',
+                                            : AppLocalizations.of(context)!
+                                                .descriptionMsg,
                                     style: const TextStyle(
                                       fontSize: 14,
                                     ),
@@ -464,7 +472,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                             CupertinoButton(
                               onPressed: handleClearDescribe,
                               child: Text(
-                                'Clear',
+                                AppLocalizations.of(context)!.clear,
                                 style: TextStyle(
                                   color:
                                       ThemeColors.danger.resolveFrom(context),
@@ -473,13 +481,14 @@ class ReceiveModalState extends State<ReceiveModal> {
                             ),
                           CupertinoButton(
                             onPressed: handleCloseEditing,
-                            child: const Text('Done'),
+                            child: Text(AppLocalizations.of(context)!.done),
                           ),
                         ],
                       ),
                       CupertinoTextField(
                         controller: widget.logic.messageController,
-                        placeholder: 'Add a description (optional)\n\n\n',
+                        placeholder:
+                            '${AppLocalizations.of(context)!.descriptionMsg}\n\n\n',
                         minLines: 4,
                         maxLines: 10,
                         maxLength: 200,
@@ -495,12 +504,12 @@ class ReceiveModalState extends State<ReceiveModal> {
                   ),
                 ),
               if (_isEnteringAmount && !isExternalWallet)
-                const Row(
+                Row(
                   children: [
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: Text(
-                        'Amount',
+                        AppLocalizations.of(context)!.amount,
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),

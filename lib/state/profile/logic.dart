@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class ProfileLogic {
-  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
 
@@ -71,12 +71,12 @@ class ProfileLogic {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      final url = '${config.community.walletUrl(appLinkSuffix)}/#/';
+      final url = config.community.walletUrl(deepLinkURL);
 
       final compressedParams = compress(
           '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
 
-      _state.setProfileLinkSuccess('$url?receiveParams=$compressedParams');
+      _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;
     } catch (e) {
       //
@@ -229,6 +229,11 @@ class ProfileLogic {
       profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
+
+      final exists = await _wallet.createAccount();
+      if (!exists) {
+        throw Exception('Failed to create account');
+      }
 
       _state.setProfileUploading();
 

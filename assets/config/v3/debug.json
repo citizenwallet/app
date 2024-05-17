@@ -1,45 +1,49 @@
 {
     "community": {
-        "name": "Zinne.brussels",
-        "description": "A community currency for the city of Brussels",
-        "url": "https://zinne.brussels",
-        "alias": "zinne",
-        "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg"
+        "name": "Brussels Pay",
+        "description": "A community for the city of Brussels",
+        "url": "https://pay.brussels",
+        "alias": "wallet.pay.brussels",
+        "custom_domain": "wallet.pay.brussels",
+        "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+        "theme": {
+            "primary": "#4a90e2"
+        }
+    },
+    "token": {
+        "standard": "erc20",
+        "name": "pay.brussels",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "symbol": "EURb",
+        "decimals": 6
     },
     "scan": {
-        "url": "https://polygonscan.com",
-        "name": "Polygon Explorer"
+        "url": "https://gnosisscan.io",
+        "name": "Gnosis Explorer"
     },
-    "indexer": {
-        "url": "https://indexer-polygon.internal.citizenwallet.xyz",
-        "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
-        "key": "x"
+    "node": {
+        "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+        "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+        "chain_id": 100
     },
     "ipfs": {
         "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "node": {
-        "chain_id": 137,
-        "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-        "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+    "profile": {
+        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+    },
+    "indexer": {
+        "url": "https://wallet.pay.brussels/indexer",
+        "ipfs_url": "https://wallet.pay.brussels/indexer",
+        "key": "x"
     },
     "erc4337": {
-        "rpc_url": "https://api.stackup.sh/v1/node/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "account_factory_address": "0x47ed9087F88542fD7FB06E8D2ecffcFad12939D8",
-        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-        "paymaster_type": "payg",
-        "gas_extra_percentage": 50
-    },
-    "token": {
-        "standard": "erc20",
-        "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd",
-        "name": "Zinne.brussels Token",
-        "symbol": "ZINNE",
-        "decimals": 6
-    },
-    "profile": {
-        "address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F"
+        "rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+        "paymaster_rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "paymaster_type": "cw"
     },
     "version": 1
 }

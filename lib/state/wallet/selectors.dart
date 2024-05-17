@@ -37,9 +37,7 @@ bool selectShouldBlockSending(WalletState state) {
     return true;
   }
 
-  return state.transactions
-          .any((tx) => tx.isPending && !tx.isIncoming(state.wallet!.account)) ||
-      state.transactionSendLoading;
+  return false;
 }
 
 bool selectHasProcessingTransactions(WalletState state) =>

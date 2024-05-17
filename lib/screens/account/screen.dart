@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountScreen extends StatefulWidget {
   final String? address;
@@ -257,7 +258,7 @@ class AccountScreenState extends State<AccountScreen> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? "Create a profile to make it easier for people to send you tokens."
+                                      ? AppLocalizations.of(context)!.createNewAccountMsg
                                       : profile.description,
                                   style: TextStyle(
                                     color:
@@ -284,8 +285,8 @@ class AccountScreenState extends State<AccountScreen> {
                                     onPressed: handleEdit,
                                     child: Text(
                                       hasNoProfile
-                                          ? 'Create a profile'
-                                          : 'Edit',
+                                          ? AppLocalizations.of(context)!.createaprofile
+                                          : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
                                         color: ThemeColors.text
                                             .resolveFrom(context),

@@ -1,3 +1,30 @@
+const String defaultPrimary = '#A256FF';
+
+int parseHexColor(String hex) {
+  return int.parse('FF${(hex).substring(1)}', radix: 16);
+}
+
+class ColorTheme {
+  final int primary;
+
+  ColorTheme({
+    primary,
+  }) : primary = primary ?? parseHexColor(defaultPrimary);
+
+  factory ColorTheme.fromJson(Map<String, dynamic> json) {
+    return ColorTheme(
+      primary: parseHexColor(json['primary'] ?? defaultPrimary),
+    );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'primary': '#${primary.toRadixString(16).substring(2)}',
+    };
+  }
+}
+
 class CommunityConfig {
   final String name;
   final String description;
@@ -6,6 +33,7 @@ class CommunityConfig {
   final String logo;
   final String? customDomain;
   final bool hidden;
+  final ColorTheme theme;
 
   CommunityConfig({
     required this.name,
@@ -15,9 +43,14 @@ class CommunityConfig {
     required this.logo,
     this.customDomain,
     this.hidden = false,
+    required this.theme,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
+    final theme = json['theme'] == null
+        ? ColorTheme()
+        : ColorTheme.fromJson(json['theme']);
+
     return CommunityConfig(
       name: json['name'],
       description: json['description'],
@@ -26,6 +59,7 @@ class CommunityConfig {
       logo: json['logo'] ?? '',
       customDomain: json['custom_domain'],
       hidden: json['hidden'] ?? false,
+      theme: theme,
     );
   }
 
@@ -39,6 +73,7 @@ class CommunityConfig {
       'logo': logo,
       'custom_domain': customDomain,
       'hidden': hidden,
+      'theme': theme,
     };
   }
 
@@ -48,9 +83,8 @@ class CommunityConfig {
     return 'CommunityConfig{name: $name, description: $description, url: $url, alias: $alias}';
   }
 
-  String walletUrl(String appLinkSuffix) => customDomain != null
-      ? 'https://$customDomain'
-      : 'https://$alias$appLinkSuffix';
+  String walletUrl(String deepLinkBaseUrl) =>
+      '$deepLinkBaseUrl/#/?alias=$alias';
 }
 
 class ScanConfig {

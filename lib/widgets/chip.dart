@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Chip extends StatefulWidget {
   final Color color;
@@ -18,7 +19,7 @@ class Chip extends StatefulWidget {
   const Chip(
     this.text, {
     super.key,
-    this.color = ThemeColors.surfacePrimary,
+    this.color = ThemeColors.originalSurfacePrimary,
     this.textColor = CupertinoColors.black,
     this.suffix,
     this.maxWidth = 300,
@@ -90,7 +91,7 @@ class ChipState extends State<Chip> {
           children: [
             Expanded(
               child: Text(
-                _tapped ? 'copied!' : widget.text,
+                _tapped ? AppLocalizations.of(context)!.copied : widget.text,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

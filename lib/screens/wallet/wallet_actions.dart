@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletActions extends StatelessWidget {
   final ScrollController controller = ScrollController();
@@ -232,7 +233,9 @@ class WalletActions extends StatelessWidget {
                                       : ThemeColors.black,
                                 ),
                                 Text(
-                                  sendLoading ? 'Sending' : 'Send',
+                                  sendLoading
+                                      ? AppLocalizations.of(context)!.sending
+                                      : AppLocalizations.of(context)!.send,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: blockSending
@@ -269,7 +272,7 @@ class WalletActions extends StatelessWidget {
                                       : ThemeColors.black,
                                 ),
                                 Text(
-                                  'Receive',
+                                  AppLocalizations.of(context)!.receive,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: sendLoading
@@ -310,7 +313,7 @@ class WalletActions extends StatelessWidget {
                                       : ThemeColors.text.resolveFrom(context),
                                 ),
                                 Text(
-                                  'Mint',
+                                  AppLocalizations.of(context)!.mint,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: sendLoading
@@ -425,7 +428,7 @@ class WalletActions extends StatelessWidget {
                                       : ThemeColors.text.resolveFrom(context),
                                 ),
                                 Text(
-                                  'Vouchers',
+                                  AppLocalizations.of(context)!.vouchers,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: sendLoading
@@ -455,9 +458,10 @@ class WalletActions extends StatelessWidget {
                                       progressiveClamp(14, 20, shrink)),
                                   color: ThemeColors.background
                                       .resolveFrom(context),
-                                  child: SizedBox(
+                                  child: Container(
                                     height: buttonSize,
                                     width: buttonSize,
+                                    padding: const EdgeInsets.all(5),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -477,15 +481,21 @@ class WalletActions extends StatelessWidget {
                                                 : ThemeColors.black,
                                           ),
                                         ),
-                                        Text(
-                                          plugin.name,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: sendLoading
-                                                ? ThemeColors.subtleEmphasis
-                                                : ThemeColors.text
-                                                    .resolveFrom(context),
-                                            fontSize: buttonFontSize,
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            plugin.name,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: sendLoading
+                                                  ? ThemeColors.subtleEmphasis
+                                                  : ThemeColors.text
+                                                      .resolveFrom(context),
+                                              fontSize: buttonFontSize,
+                                            ),
                                           ),
                                         ),
                                       ],

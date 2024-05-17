@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
@@ -418,6 +419,7 @@ class WalletScreenState extends State<WalletScreen> {
           context: context,
           expand: true,
           useRootNavigator: true,
+          enableDrag: false,
           builder: (_) => WebViewModal(
             url: uri,
             redirectUrl: redirect,
@@ -567,15 +569,6 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleTransactionSendingTap() async {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => const SendingModal(),
-    );
-  }
-
   void handleLoad(String address) async {
     _profilesLogic.loadProfile(address);
     _voucherLogic.updateVoucher(address);
@@ -614,7 +607,7 @@ class WalletScreenState extends State<WalletScreen> {
                       height: 5,
                     ),
                     Text(
-                      'Loading',
+                      AppLocalizations.of(context)!.loading,
                       style: TextStyle(
                         color: ThemeColors.text.resolveFrom(context),
                         fontSize: 20,
@@ -634,7 +627,6 @@ class WalletScreenState extends State<WalletScreen> {
                   handleVouchers: handleVouchers,
                   handleConnect: handleConnect,
                   handleTransactionTap: handleTransactionTap,
-                  handleTransactionSendingTap: handleTransactionSendingTap,
                   handleFailedTransactionTap: handleFailedTransaction,
                   handleCopy: handleCopy,
                   handleLoad: handleLoad,

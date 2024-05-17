@@ -1,8 +1,11 @@
 import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
+import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
@@ -32,18 +35,18 @@ import 'package:provider/provider.dart';
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
   final WalletLogic wallet;
-  final String alias;
+  String alias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;
   final String? deepLink;
   final String? deepLinkParams;
 
-  const BurnerWalletScreen(
+  BurnerWalletScreen(
     this.encoded,
     this.wallet, {
     super.key,
-    this.alias = 'app',
+    required this.alias,
     this.voucher,
     this.voucherParams,
     this.receiveParams,
@@ -175,6 +178,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       await handleSendModal(receiveParams: widget.receiveParams);
     }
 
+    if (widget.deepLink != null && widget.deepLinkParams != null) {
+      await handleLoadDeepLink();
+    }
+
     navigator.go('/wallet/${widget.encoded}?alias=${widget.alias}');
   }
 
@@ -190,7 +197,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     switch (deepLink) {
       case 'plugin':
-        // web cannot handle plugins yet
+        final pluginConfig =
+            await _logic.getPluginConfig(widget.alias!, params);
+        if (pluginConfig == null) {
+          return;
+        }
+        await handlePlugin(pluginConfig);
         break;
       default:
         _logic.pauseFetching();
@@ -216,6 +228,17 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         _voucherLogic.resume();
         break;
     }
+  }
+
+  Future<void> handlePlugin(PluginConfig pluginConfig) async {
+    HapticFeedback.heavyImpact();
+
+    final (uri, _, redirect) = await _logic.constructPluginUri(pluginConfig);
+    if (uri == null || redirect == null) {
+      return;
+    }
+
+    _logic.launchPluginUrl(uri);
   }
 
   Future<void> handleLoadFromVoucher() async {
@@ -490,15 +513,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-  void handleTransactionSendingTap() async {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => const SendingModal(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -552,7 +566,6 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleVouchers: handleVouchers,
                       handleConnect: () => {},
                       handleTransactionTap: handleTransactionTap,
-                      handleTransactionSendingTap: handleTransactionSendingTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,

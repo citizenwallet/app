@@ -32,6 +32,7 @@ class ConfigService {
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
+  late APIService _communityServer;
 
   List<Config> _configs = [];
 
@@ -40,6 +41,42 @@ class ConfigService {
   }
 
   Future<Config> getWebConfig(String appLinkSuffix) async {
+    try {
+      if (kDebugMode) {
+        final localConfig = jsonDecode(
+            await rootBundle.loadString('assets/config/v$version/debug.json'));
+
+        _configs = [Config.fromJson(localConfig)];
+
+        return _configs.first;
+      }
+
+      if (_configs.isNotEmpty && _configs.length == 1) {
+        _communityServer.get(url: '/config/community.json').then((response) {
+          final config = Config.fromJson(response);
+
+          _configs = [config];
+        }).catchError((e, s) {
+          print('Error fetching config: $e');
+          print('Stacktrace: $s');
+        });
+
+        return _configs.first;
+      }
+
+      final response =
+          await _communityServer.get(url: '/config/community.json');
+
+      final config = Config.fromJson(response);
+
+      _configs = [config];
+
+      return config;
+    } catch (e, s) {
+      print('Error fetching config: $e');
+      print('Stacktrace: $s');
+    }
+
     String alias = Uri.base.host.endsWith(appLinkSuffix)
         ? Uri.base.host.replaceFirst(appLinkSuffix, '')
         : Uri.base.host;
@@ -74,11 +111,13 @@ class ConfigService {
   }
 
   void initWeb() {
+    final scheme = Uri.base.scheme.isNotEmpty ? Uri.base.scheme : 'http';
     final url = kDebugMode || Uri.base.host.contains('localhost')
         ? 'https://config.internal.citizenwallet.xyz'
-        : '${Uri.base.scheme}://${Uri.base.host}:${Uri.base.port}/wallet-config';
+        : '$scheme://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
+    _communityServer = APIService(baseURL: '$scheme://${Uri.base.host}');
   }
 
   void init(String endpoint) {

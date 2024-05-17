@@ -6,6 +6,7 @@ import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/credentials/native/apple.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -15,6 +16,8 @@ class AppleAccountsService extends AccountsServiceInterface {
       AppleAccountsService._internal();
   factory AppleAccountsService() => _instance;
   AppleAccountsService._internal();
+
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late AccountsDBService _accountsDB;
@@ -341,7 +344,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         address: k.replaceFirst(backupPrefix, ''),
         privateKey: parsed[1],
         name: parsed[0],
-        alias: 'app',
+        alias: defaultAlias,
       ));
     }
 

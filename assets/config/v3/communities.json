@@ -3,7 +3,7 @@
         "community": {
             "name": "Gratitude Token",
             "description": "Express your gratitude towards someone by sending them a token.",
-            "url": "https://citizenwallet.xyz",
+            "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gt.celo",
             "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
             "hidden": true
@@ -22,8 +22,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
@@ -57,7 +57,7 @@
         "community": {
             "name": "Gratitude Token",
             "description": "Express your gratitude towards someone by sending them a token of gratitude.",
-            "url": "https://citizenwallet.xyz",
+            "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gratitude",
             "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
         },
@@ -75,8 +75,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
@@ -128,8 +128,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -384,46 +384,48 @@
         "community": {
             "name": "SFLUV Community",
             "description": "A community currency for the city of San Francisco.",
-            "url": "https://sfluv.org/",
+            "url": "https://sfluv.org",
             "alias": "wallet.sfluv.org",
-            "logo": "https://wallet.sfluv.org/wallet-config/_images/sfluv.svg",
-            "custom_domain": "wallet.sfluv.org"
+            "custom_domain": "wallet.sfluv.org",
+            "logo": "https://wallet.sfluv.org/uploads/logo.svg",
+            "theme": {
+                "primary": "#eb6c6c"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "SFLUV V1.1",
+            "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
+            "symbol": "SFLUV",
+            "decimals": 6
         },
         "scan": {
             "url": "https://polygonscan.com",
             "name": "Polygon Explorer"
         },
-        "indexer": {
-            "url": "https://indexer-polygon.internal.citizenwallet.xyz",
-            "ipfs_url": "https://indexer-polygon.internal.citizenwallet.xyz",
-            "key": "x"
+        "node": {
+            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
+            "chain_id": 137
         },
         "ipfs": {
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
-        "node": {
-            "chain_id": 137,
-            "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-            "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
-        },
-        "erc4337": {
-            "rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
-            "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
-            "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
-            "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
-            "paymaster_type": "cw",
-            "gas_extra_percentage": 50
-        },
-        "token": {
-            "standard": "erc20",
-            "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
-            "name": "SFLUV Coin",
-            "symbol": "SFLUV",
-            "decimals": 6
-        },
         "profile": {
             "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99"
+        },
+        "indexer": {
+            "url": "https://wallet.sfluv.org/indexer",
+            "ipfs_url": "https://wallet.sfluv.org/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.sfluv.org/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.sfluv.org/indexer/rpc",
+            "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
+            "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
+            "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+            "paymaster_type": "cw"
         },
         "version": 1
     },
@@ -522,6 +524,65 @@
     },
     {
         "community": {
+            "name": "Brussels Pay",
+            "description": "A community for the city of Brussels",
+            "url": "https://pay.brussels",
+            "alias": "wallet.pay.brussels",
+            "custom_domain": "wallet.pay.brussels",
+            "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+            "theme": {
+                "primary": "#4a90e2"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "pay.brussels",
+            "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+            "symbol": "EURb",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://gnosisscan.io",
+            "name": "Gnosis Explorer"
+        },
+        "node": {
+            "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+            "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+            "chain_id": 100
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+        },
+        "indexer": {
+            "url": "https://wallet.pay.brussels/indexer",
+            "ipfs_url": "https://wallet.pay.brussels/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+            "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+            "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+            "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "paymaster_type": "cw"
+        },
+        "cards": {
+            "card_factory_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB"
+        },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+                "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
             "name": "Zinne.brussels",
             "description": "A community currency for the city of Brussels",
             "url": "https://zinne.brussels",
@@ -564,13 +625,6 @@
         "profile": {
             "address": "0x23DB3D3Da510e60aF40902A04850E1F3a744905c"
         },
-        "plugins": [
-            {
-                "name": "Top Up",
-                "icon": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
-                "url": "https://topup.citizenwallet.xyz/zinne"
-            }
-        ],
         "version": 1
     },
     {
@@ -579,15 +633,15 @@
             "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
             "url": "https://breadchain.xyz/",
             "alias": "bread",
-            "logo": "https://bread.citizenwallet.xyz/wallet-config/_images/bread.svg"
+            "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg"
         },
         "scan": {
             "url": "https://gnosisscan.io",
             "name": "Gnosis Explorer"
         },
         "indexer": {
-            "url": "https://indexer-bread.internal.citizenwallet.xyz",
-            "ipfs_url": "https://indexer-bread.internal.citizenwallet.xyz",
+            "url": "https://bread.citizenwallet.xyz/indexer",
+            "ipfs_url": "https://bread.citizenwallet.xyz/indexer",
             "key": "x"
         },
         "ipfs": {
@@ -595,15 +649,15 @@
         },
         "node": {
             "chain_id": 100,
-            "url": "https://nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60",
-            "ws_url": "wss://ws-nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60"
+            "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+            "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f"
         },
         "erc4337": {
-            "rpc_url": "https://indexer-bread.internal.citizenwallet.xyz/rpc",
+            "rpc_url": "https://bread.citizenwallet.xyz/indexer/rpc",
             "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
             "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
             "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-            "paymaster_rpc_url": "https://indexer-bread.internal.citizenwallet.xyz/rpc",
+            "paymaster_rpc_url": "https://bread.citizenwallet.xyz/indexer/rpc",
             "paymaster_type": "cw"
         },
         "token": {
@@ -616,6 +670,116 @@
         "profile": {
             "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986"
         },
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Regens Unite Time Bank",
+            "description": "Make time to regen",
+            "url": "https://regensunite.earth",
+            "alias": "timebank.regensunite.earth",
+            "custom_domain": "timebank.regensunite.earth",
+            "logo": "https://timebank.regensunite.earth/uploads/logo.svg",
+            "theme": {
+                "primary": "#008167"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Regen Hour",
+            "address": "0x186DaBD027e228C988777907465807FDab270894",
+            "symbol": "rHour",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0x605A827DF8C405D16Ec70AAb8d9a47D21db45c09"
+        },
+        "indexer": {
+            "url": "https://timebank.regensunite.earth/indexer",
+            "ipfs_url": "https://timebank.regensunite.earth/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://timebank.regensunite.earth/indexer/rpc",
+            "paymaster_rpc_url": "https://timebank.regensunite.earth/indexer/rpc",
+            "entrypoint_address": "0x41176F0C9b8f795Cb99e2DD5Db16017978eeFa4d",
+            "paymaster_address": "0xe45858bf63176595c2920822581917c7C705a12f",
+            "account_factory_address": "0x39b77d77f7677997871b304094a05295eb71e240",
+            "paymaster_type": "cw"
+        },
+        "plugins": [
+            {
+                "name": "Market",
+                "icon": "https://timebank.regensunite.earth/uploads/logo.svg",
+                "url": "https://marketplace.citizenwallet.xyz/timebank.regensunite.earth",
+                "launch_mode": "webview"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "MOOS Token",
+            "description": "A community currency for MOOS.",
+            "url": "https://www.moos.garden/",
+            "alias": "moos",
+            "logo": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg"
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "Celo Explorer"
+        },
+        "indexer": {
+            "url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "ipfs_url": "https://indexer-celo.internal.citizenwallet.xyz",
+            "key": "x"
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "node": {
+            "chain_id": 42220,
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+        },
+        "erc4337": {
+            "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
+            "entrypoint_address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
+            "account_factory_address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
+            "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
+            "paymaster_type": "cw"
+        },
+        "token": {
+            "standard": "erc20",
+            "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
+            "name": "MOOS Token",
+            "symbol": "MOOS",
+            "decimals": 6
+        },
+        "profile": {
+            "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341"
+        },
+        "plugins": [
+            {
+                "name": "Market",
+                "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
+                "url": "https://marketplace.citizenwallet.xyz/moos",
+                "launch_mode": "webview"
+            }
+        ],
         "version": 1
     },
     {
@@ -640,8 +804,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -692,8 +856,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -717,11 +881,71 @@
     },
     {
         "community": {
+            "name": "Wolugo",
+            "description": "A community for the Woluwe-Saint-Pierre civic engagement platform",
+            "url": "https://wolugo.be",
+            "alias": "wallet.wolugo.be",
+            "custom_domain": "wallet.wolugo.be",
+            "logo": "https://wallet.wolugo.be/uploads/logo.svg",
+            "theme": {
+                "primary": "#81e2c1"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Wolu",
+            "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
+            "symbol": "WOLU",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0x07e7b95B35866302b3A089feF4CFA3061061a51d"
+        },
+        "indexer": {
+            "url": "https://wallet.wolugo.be/indexer",
+            "ipfs_url": "https://wallet.wolugo.be/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.wolugo.be/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.wolugo.be/indexer/rpc",
+            "entrypoint_address": "0x0F805BC1ED718FB9C7C18439cB11E1C17C6538C4",
+            "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
+            "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
+            "paymaster_type": "cw"
+        },
+        "cards": {
+            "card_factory_address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F"
+        },
+        "plugins": [
+            {
+                "name": "Wolugo",
+                "icon": "https://wallet.wolugo.be/uploads/logo.svg",
+                "url": "https://www.wolugo.be/wolu-landing"
+            }
+        ],
+        "version": 1
+    },
+    {
+        "community": {
             "name": "Woluwe Test",
             "description": "Local currency for the Woluwe Test community.",
             "url": "https://wollet-v2.citizenwallet.net/token",
             "alias": "wtc.celo",
-            "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg"
+            "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg",
+            "hidden": true
         },
         "scan": {
             "url": "https://celoscan.io",
@@ -737,8 +961,8 @@
         },
         "node": {
             "chain_id": 42220,
-            "url": "https://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc",
-            "ws_url": "wss://powerful-bold-lake.celo-mainnet.discover.quiknode.pro/90b75be007c48ab0af5c36c702116f5d863e65dc"
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
         },
         "erc4337": {
             "rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
@@ -802,6 +1026,55 @@
         },
         "profile": {
             "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd"
+        },
+        "version": 1
+    },
+    {
+        "community": {
+            "name": "Celo Community Point",
+            "description": "This is a community for the Celo Point",
+            "url": "https://citizenwallet.xyz",
+            "alias": "celo-c.citizenwallet.xyz",
+            "custom_domain": "celo-c.citizenwallet.xyz",
+            "logo": "https://celo-c.citizenwallet.xyz/uploads/logo.svg",
+            "theme": {
+                "primary": "#95c762"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Celo Community Point",
+            "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
+            "symbol": "CeloC",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0x5978b0C06be936d5504b6B65EB7B9ae9fC959b5d"
+        },
+        "indexer": {
+            "url": "https://celo-c.citizenwallet.xyz/indexer",
+            "ipfs_url": "https://celo-c.citizenwallet.xyz/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://celo-c.citizenwallet.xyz/indexer/rpc",
+            "paymaster_rpc_url": "https://celo-c.citizenwallet.xyz/indexer/rpc",
+            "entrypoint_address": "0x66fE9c22CcA49B257dd4F00508AC90198d99Bf27",
+            "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
+            "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
+            "paymaster_type": "cw"
         },
         "version": 1
     }

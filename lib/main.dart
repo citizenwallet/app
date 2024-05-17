@@ -23,6 +23,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +79,6 @@ class MyAppState extends State<MyApp> {
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
-
   @override
   void initState() {
     super.initState();
@@ -138,6 +139,8 @@ class MyAppState extends State<MyApp> {
 
     final titlePrefix = config?.token.symbol ?? 'Citizen';
 
+    final language = context.select((AppState state) => state.language);
+
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Stack(
@@ -148,8 +151,20 @@ class MyAppState extends State<MyApp> {
             routerConfig: router,
             theme: theme,
             title: '$titlePrefix Wallet',
+            locale: Locale(language.code),
+            localizationsDelegates: const [
+              AppLocalizations.delegate, // Add this line
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('fr'), // fench
+              Locale('nl'), // ductch
+            ],
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child ?? const SizedBox(),
             ),
           ),

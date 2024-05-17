@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SwitchAccountModal extends StatefulWidget {
   final WalletLogic logic;
@@ -129,14 +130,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: const Text('Edit name'),
+                  child:  Text(AppLocalizations.of(context)!.editname),
                 ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('export');
                   },
-                  child: const Text('Export'),
+                  child:  Text(AppLocalizations.of(context)!.export),
                 ),
               if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
@@ -144,14 +145,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('delete');
                   },
-                  child: const Text('Delete'),
+                  child: Text(AppLocalizations.of(context)!.delete),
                 ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop(widget.currentAddress);
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           );
         });
@@ -167,8 +168,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => TextInputModal(
-          title: 'Edit Account',
-          placeholder: 'Enter account name',
+          title: AppLocalizations.of(context)!.editname,
+          placeholder: AppLocalizations.of(context)!.enteraccountname,
           initialValue: name,
         ),
       );
@@ -194,7 +195,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ExportWalletModal(
-          title: 'Export Account',
+          title: AppLocalizations.of(context)!.exportAccount,
           toCopy: '-----------',
           onCopy: () => handleExportWallet(webWalletUrl),
         ),
@@ -208,10 +209,10 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Delete account',
+          title: AppLocalizations.of(context)!.deleteaccount,
           details: [
-            'Are you sure you want to delete this account?',
-            'This action cannot be undone.',
+            AppLocalizations.of(context)!.deleteaccountMsg1,
+            AppLocalizations.of(context)!.deleteaccountMsg2,
           ],
         ),
       );
@@ -307,7 +308,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: 'Accounts',
+                title:  AppLocalizations.of(context)!.accounts,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -393,7 +394,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Import',
+                                  AppLocalizations.of(context)!.importText,
                                   style: TextStyle(
                                     color:
                                         ThemeColors.text.resolveFrom(context),
@@ -414,18 +415,18 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                             borderRadius: BorderRadius.circular(25),
                             color:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
-                            child: const Row(
+                            child:  Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Join Community',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.joinCommunity,
+                                  style: const TextStyle(
                                     color: ThemeColors.black,
                                   ),
                                 ),
-                                SizedBox(width: 5),
-                                Icon(
+                                const SizedBox(width: 5),
+                                 const Icon(
                                   CupertinoIcons.plus,
                                   color: ThemeColors.black,
                                 ),

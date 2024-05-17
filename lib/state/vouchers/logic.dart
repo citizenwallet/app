@@ -21,7 +21,7 @@ import 'package:web3dart/web3dart.dart';
 
 class VoucherLogic extends WidgetsBindingObserver {
   final String password = dotenv.get('DB_VOUCHER_PASSWORD');
-  final String appLinkSuffix = dotenv.get('APP_LINK_SUFFIX');
+  final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
   final DBService _db = DBService();
@@ -212,7 +212,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      final appLink = config.community.walletUrl(appLinkSuffix);
+      final appLink = config.community.walletUrl(deepLinkURL);
 
       _state.openVoucherSuccess(
         voucher,
@@ -309,12 +309,17 @@ class VoucherLogic extends WidgetsBindingObserver {
         vouchers.add(voucher);
       }
 
-      final (hash, userop) = await _wallet.prepareUserop(
+      final (_, userop) = await _wallet.prepareUserop(
         addresses,
         calldata,
       );
 
-      final success = await _wallet.submitUserop(userop);
+      final txHash = await _wallet.submitUserop(userop);
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      final success = await _wallet.waitForTxSuccess(txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -382,10 +387,15 @@ class VoucherLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         data: name != null ? TransferData(name) : null,
       );
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      final success = await _wallet.waitForTxSuccess(txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -401,7 +411,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: false,
       );
 
-      final appLink = config.community.walletUrl(appLinkSuffix);
+      final appLink = config.community.walletUrl(deepLinkURL);
 
       _state.createVoucherSuccess(
         voucher,
@@ -413,7 +423,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       // pre-create account of voucher
-      _wallet.createAccount(customCredentials: credentials);
+      // _wallet.createAccount(customCredentials: credentials);
       return;
     } catch (_) {
       //
@@ -517,12 +527,17 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
-      final success = await _wallet.submitUserop(
+      final txHash = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
         legacy: voucher.legacy,
         data: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
       );
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      final success = await _wallet.waitForTxSuccess(txHash);
       if (!success) {
         throw Exception('transaction failed');
       }

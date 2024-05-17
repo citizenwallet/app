@@ -51,8 +51,7 @@ class Voucher {
 
     final encodedParams = compress(params);
 
-    String link =
-        '$appLink/#/?voucher=$encoded&params=$encodedParams&alias=$alias';
+    String link = '$appLink&voucher=$encoded&params=$encodedParams';
 
     return link;
   }

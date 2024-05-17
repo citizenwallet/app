@@ -4,17 +4,18 @@ import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const List<String> emptyDetails = [];
 
 class ConfirmModal extends StatelessWidget {
-  final String title;
+  final String? title;
   final List<String> details;
   final String? confirmText;
 
   const ConfirmModal({
     super.key,
-    this.title = 'Confirm',
+    this.title,
     this.details = emptyDetails,
     this.confirmText,
   });
@@ -50,7 +51,7 @@ class ConfirmModal extends StatelessWidget {
               direction: Axis.vertical,
               children: [
                 Header(
-                  title: title,
+                  title: title ?? AppLocalizations.of(context)!.confirm,
                   color: ThemeColors.uiBackground.resolveFrom(context),
                 ),
                 Expanded(

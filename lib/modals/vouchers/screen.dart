@@ -17,9 +17,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VouchersModal extends StatefulWidget {
-  final String title = 'Vouchers';
+  //final String title = 'Vouchers';
 
   const VouchersModal({super.key});
 
@@ -83,7 +84,7 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('share');
                   },
-                  child: const Text('Share'),
+                  child: Text(AppLocalizations.of(context)!.share),
                 ),
               if (!isRedeemed)
                 CupertinoActionSheetAction(
@@ -91,7 +92,7 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('return');
                   },
-                  child: const Text('Return Funds'),
+                  child: Text(AppLocalizations.of(context)!.returnFunds),
                 ),
               if (isRedeemed)
                 CupertinoActionSheetAction(
@@ -100,14 +101,14 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('delete');
                   },
-                  child: const Text('Delete'),
+                  child: Text(AppLocalizations.of(context)!.delete),
                 ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           );
         });
@@ -128,11 +129,11 @@ class VouchersModalState extends State<VouchersModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Return Voucher',
+          title: AppLocalizations.of(context)!.returnVoucher,
           details: [
-            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} will be returned to your wallet.',
+            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} ${AppLocalizations.of(context)!.returnVoucherMsg}',
           ],
-          confirmText: 'Return',
+          confirmText: AppLocalizations.of(context)!.returnText,
         ),
       );
 
@@ -144,11 +145,11 @@ class VouchersModalState extends State<VouchersModal> {
         context: context,
         barrierDismissible: true,
         builder: (modalContext) => ConfirmModal(
-          title: 'Delete Voucher',
+          title: AppLocalizations.of(context)!.deleteVoucher,
           details: [
-            'This will remove the voucher from the list.',
+            AppLocalizations.of(context)!.deleteVoucherMsg,
           ],
-          confirmText: 'Delete',
+          confirmText: AppLocalizations.of(context)!.delete,
         ),
       );
 
@@ -170,8 +171,8 @@ class VouchersModalState extends State<VouchersModal> {
       context: context,
       barrierDismissible: true,
       builder: (modalContext) => AmountInputModal(
-        title: 'Voucher Amount',
-        placeholder: 'Enter amount',
+        title: AppLocalizations.of(context)!.voucherAmount,
+        placeholder: AppLocalizations.of(context)!.enteramount,
         symbol: wallet.symbol,
       ),
     );
@@ -220,7 +221,7 @@ class VouchersModalState extends State<VouchersModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: widget.title,
+                title: AppLocalizations.of(context)!.vouchers,
                 actionButton: returnLoading
                     ? CupertinoActivityIndicator(
                         color: ThemeColors.subtle.resolveFrom(context),
@@ -251,13 +252,14 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 SvgPicture.asset(
                                   'assets/icons/voucher.svg',
-                                  semanticsLabel: 'voucher icon',
+                                  semanticsLabel:
+                                      AppLocalizations.of(context)!.vouchericon,
                                   height: 200,
                                   width: 200,
                                 ),
                                 const SizedBox(height: 40),
                                 Text(
-                                  'Your vouchers will appear here',
+                                  AppLocalizations.of(context)!.vouchersMsg,
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
@@ -315,7 +317,8 @@ class VouchersModalState extends State<VouchersModal> {
                               children: [
                                 const SizedBox(height: 10),
                                 Button(
-                                  text: 'Create Voucher',
+                                  text: AppLocalizations.of(context)!
+                                      .createVoucher,
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,
