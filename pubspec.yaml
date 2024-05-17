@@ -40,7 +40,7 @@ dependencies:
   hive: ^2.2.3
   url_launcher: ^6.1.11
   flutter_markdown: ^0.7.1
-  package_info_plus: ^8.0.0
+  package_info_plus: ^7.0.0
   rxdart: ^0.27.7
   sentry_flutter: ^8.0.0
   simple_animations: ^5.0.2
@@ -65,7 +65,7 @@ dependencies:
   icloud_storage: ^2.2.0
   google_sign_in: ^6.2.1
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
-  walletconnect_flutter_v2: ^2.2.1
+  walletconnect_flutter_v2: ^2.2.3
   flutter_localizations:
     sdk: flutter
 dev_dependencies:
