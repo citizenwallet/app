@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
@@ -9,8 +10,11 @@ import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
+import 'package:citizenwallet/screens/vouchers/screen.dart';
+import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/screens/wallet/send.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -143,6 +147,46 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                 );
               },
+            ),
+            GoRoute(
+              name: 'Send',
+              path: 'send',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  receiveParams: extra['receiveParams'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Receive',
+              path: 'receive',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ReceiveScreen(
+                  logic: extra['logic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Vouchers',
+              path: 'vouchers',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) => const VouchersScreen(),
             ),
             GoRoute(
               name: 'Account',

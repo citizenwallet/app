@@ -373,16 +373,24 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: _logic,
-        profilesLogic: _profilesLogic,
-        receiveParams: receiveParams,
-      ),
-    );
+    final navigator = GoRouter.of(context);
+
+    navigator.push('/wallet/${widget.address}/send', extra: {
+      'walletLogic': _logic,
+      'profilesLogic': _profilesLogic,
+      'receiveParams': receiveParams,
+    });
+
+    // await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => SendModal(
+    //     walletLogic: _logic,
+    //     profilesLogic: _profilesLogic,
+    //     receiveParams: receiveParams,
+    //   ),
+    // );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -392,14 +400,11 @@ class WalletScreenState extends State<WalletScreen> {
   void handleReceive() async {
     HapticFeedback.heavyImpact();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => ReceiveModal(
-        logic: _logic,
-      ),
-    );
+    final navigator = GoRouter.of(context);
+
+    navigator.push('/wallet/${widget.address}/receive', extra: {
+      'logic': _logic,
+    });
   }
 
   Future<void> handlePlugin(PluginConfig pluginConfig) async {
@@ -497,16 +502,9 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => CupertinoScaffold(
-        topRadius: const Radius.circular(40),
-        transitionBackgroundColor: ThemeColors.transparent,
-        body: const VouchersModal(),
-      ),
-    );
+    final navigator = GoRouter.of(context);
+
+    await navigator.push('/wallet/${widget.address}/vouchers');
 
     await _voucherLogic.fetchVouchers();
 
@@ -575,12 +573,6 @@ class WalletScreenState extends State<WalletScreen> {
     final username = context.select((ProfileState state) => state.username);
 
     final hasNoProfile = imageSmall == '' && username == '';
-
-    final config = context.select((WalletState s) => s.config);
-
-    final walletNamePrefix = config?.token.symbol ?? 'Citizen';
-
-    final walletName = wallet?.name ?? '$walletNamePrefix Wallet';
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

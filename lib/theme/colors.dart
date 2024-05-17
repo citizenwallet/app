@@ -78,7 +78,7 @@ class ThemeColors {
   );
 
   static const subtleText = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.75),
+    color: Color.fromRGBO(143, 138, 157, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.75),
   );
 

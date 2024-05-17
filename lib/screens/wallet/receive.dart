@@ -17,16 +17,16 @@ import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ReceiveModal extends StatefulWidget {
+class ReceiveScreen extends StatefulWidget {
   final WalletLogic logic;
 
-  const ReceiveModal({super.key, required this.logic});
+  const ReceiveScreen({super.key, required this.logic});
 
   @override
-  ReceiveModalState createState() => ReceiveModalState();
+  ReceiveScreenState createState() => ReceiveScreenState();
 }
 
-class ReceiveModalState extends State<ReceiveModal> {
+class ReceiveScreenState extends State<ReceiveScreen> {
   final FocusNode amountFocusNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
@@ -158,14 +158,6 @@ class ReceiveModalState extends State<ReceiveModal> {
     widget.logic.updateReceiveQR(onlyHex: true);
   }
 
-  void handleDismiss(BuildContext context) {
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    widget.logic.clearInputControllers();
-
-    GoRouter.of(context).pop();
-  }
-
   void handleCopy(String qr) {
     widget.logic.copyReceiveQRToClipboard(qr);
   }
@@ -224,21 +216,16 @@ class ReceiveModalState extends State<ReceiveModal> {
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
-            top: false,
+            bottom: false,
             minimum: const EdgeInsets.only(left: 10, right: 10),
             child: Flex(
               direction: Axis.vertical,
               children: [
                 Header(
+                  showBackButton: true,
+                  transparent: true,
+                  blur: true,
                   title: AppLocalizations.of(context)!.receive,
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
-                    ),
-                  ),
                 ),
                 Expanded(
                   child: Padding(
