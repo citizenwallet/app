@@ -12,6 +12,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -19,6 +20,8 @@ import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -546,11 +549,14 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final blockSending = context.select(selectShouldBlockSending);
-
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
+
+    final imageSmall = context.select((ProfileState state) => state.imageSmall);
+    final username = context.select((ProfileState state) => state.username);
+
+    final hasNoProfile = imageSmall == '' && username == '';
 
     final config = context.select((WalletState s) => s.config);
 
@@ -601,29 +607,48 @@ class WalletScreenState extends State<WalletScreen> {
                 ),
           GestureDetector(
             onTap: handleScrollToTop,
-            child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              child: SafeArea(
-                child: Header(
-                  transparent: true,
-                  color: ThemeColors.transparent,
-                  title: walletName,
-                  actionButton: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (!blockSending)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: (firstLoad || wallet == null)
-                              ? null
-                              : handleSendModal,
-                          child: Icon(
-                            CupertinoIcons.qrcode,
-                            color: ThemeColors.primary.resolveFrom(context),
+            child: SafeArea(
+              child: Header(
+                transparent: true,
+                color: ThemeColors.transparent,
+                title: '',
+                actionButton: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    cleaningUp || wallet == null
+                        ? const PulsingContainer(
+                            height: 42,
+                            width: 42,
+                            borderRadius: 21,
+                          )
+                        : Stack(
+                            children: [
+                              ProfileCircle(
+                                size: 42,
+                                imageUrl: imageSmall,
+                                borderWidth: 2,
+                                borderColor:
+                                    ThemeColors.primary.resolveFrom(context),
+                                backgroundColor: ThemeColors.uiBackgroundAlt
+                                    .resolveFrom(context),
+                              ),
+                              if (hasNoProfile && !loading)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Container(
+                                    height: 10,
+                                    width: 10,
+                                    decoration: BoxDecoration(
+                                      color: ThemeColors.danger
+                                          .resolveFrom(context),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
