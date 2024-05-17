@@ -3,7 +3,6 @@ import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
-import 'package:citizenwallet/screens/contacts/screen.dart';
 import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
@@ -14,12 +13,14 @@ import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
@@ -97,79 +98,61 @@ GoRouter createRouter(
             builder: (context, state) {
               return const AccountConnectedScreen();
             }),
-        ShellRoute(
-          navigatorKey: shellNavigatorKey,
-          builder: (context, state, child) => RouterShell(
-            state: state,
-            child: child,
-          ),
+        GoRoute(
+          name: 'Wallet',
+          path: '/wallet/:address',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) {
+            // parse from a deep link
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+
+            return NoTransitionPage(
+              key: state.pageKey,
+              name: state.name,
+              child: WalletScreen(
+                state.pathParameters['address'],
+                state.uri.queryParameters['alias'],
+                wallet,
+                voucher: state.uri.queryParameters['voucher'],
+                voucherParams: state.uri.queryParameters['params'],
+                receiveParams: state.uri.queryParameters['receiveParams'],
+                deepLink: deepLink,
+                deepLinkParams: deepLinkParams,
+              ),
+            );
+          },
           routes: [
             GoRoute(
-              name: 'Wallet',
-              path: '/wallet/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) {
-                // parse from a deep link
-                String? deepLinkParams;
-                final deepLink = state.uri.queryParameters['dl'];
-                if (deepLink != null) {
-                  deepLinkParams = state.uri.queryParameters[deepLink];
+              name: 'Transaction',
+              path: 'transactions/:transactionId',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
                 }
 
-                return NoTransitionPage(
-                  key: state.pageKey,
-                  name: state.name,
-                  child: WalletScreen(
-                    state.pathParameters['address'],
-                    state.uri.queryParameters['alias'],
-                    wallet,
-                    voucher: state.uri.queryParameters['voucher'],
-                    voucherParams: state.uri.queryParameters['params'],
-                    receiveParams: state.uri.queryParameters['receiveParams'],
-                    deepLink: deepLink,
-                    deepLinkParams: deepLinkParams,
-                  ),
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TransactionScreen(
+                  transactionId: state.pathParameters['transactionId'],
+                  logic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
                 );
               },
-              routes: [
-                GoRoute(
-                  name: 'Transaction',
-                  path: 'transactions/:transactionId',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    if (state.extra == null) {
-                      return const SizedBox();
-                    }
-
-                    final extra = state.extra as Map<String, dynamic>;
-
-                    return TransactionScreen(
-                      transactionId: state.pathParameters['transactionId'],
-                      logic: extra['logic'],
-                      profilesLogic: extra['profilesLogic'],
-                    );
-                  },
-                ),
-              ],
-            ),
-            GoRoute(
-              name: 'Contacts',
-              path: '/contacts',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: const ContactsScreen(),
-              ),
             ),
             GoRoute(
               name: 'Account',
-              path: '/account/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: AccountScreen(
+              path: 'account',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) => CupertinoScaffold(
+                key: const Key('account-screen'),
+                topRadius: const Radius.circular(40),
+                transitionBackgroundColor: ThemeColors.transparent,
+                body: AccountScreen(
                   address: state.pathParameters['address'],
                   alias: state.uri.queryParameters['alias'],
                   wallet: wallet,

@@ -14,6 +14,7 @@ import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
 import 'package:citizenwallet/widgets/notifications/toast.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -165,7 +167,23 @@ class MyAppState extends State<MyApp> {
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: const TextScaler.linear(1.0)),
-              child: child ?? const SizedBox(),
+              child: CupertinoScaffold(
+                key: const Key('main'),
+                topRadius: const Radius.circular(40),
+                transitionBackgroundColor: ThemeColors.transparent,
+                body: CupertinoPageScaffold(
+                  key: const Key('main'),
+                  backgroundColor:
+                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: child ?? const SizedBox(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
           Toast(

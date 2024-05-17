@@ -46,77 +46,10 @@ class RouterShell extends StatelessWidget {
           CupertinoIcons.rectangle_on_rectangle_angled,
         ),
       ),
-      BottomNavigationBarItem(
-        label: AppLocalizations.of(context)!.account,
-        icon: cleaningUp || wallet == null
-            ? const PulsingContainer(
-                height: 30,
-                width: 30,
-                borderRadius: 15,
-              )
-            : Stack(
-                children: [
-                  ProfileCircle(
-                    size: 30,
-                    imageUrl: imageSmall,
-                    borderWidth: 2,
-                    borderColor: ThemeColors.transparent.resolveFrom(context),
-                    backgroundColor:
-                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ),
-                  if (hasNoProfile && !loading)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        height: 10,
-                        width: 10,
-                        decoration: BoxDecoration(
-                          color: ThemeColors.danger.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-        activeIcon: cleaningUp || wallet == null
-            ? const PulsingContainer(
-                height: 30,
-                width: 30,
-                borderRadius: 15,
-              )
-            : Stack(
-                children: [
-                  ProfileCircle(
-                    size: 30,
-                    imageUrl: imageSmall,
-                    borderWidth: 2,
-                    borderColor:
-                        ThemeColors.surfaceBackground.resolveFrom(context),
-                    backgroundColor:
-                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ),
-                  if (hasNoProfile && !loading)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        height: 10,
-                        width: 10,
-                        decoration: BoxDecoration(
-                          color: ThemeColors.danger.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-      ),
     ];
 
     final routes = {
       'wallet': 0,
-      'account': 1,
     };
 
     final app = CupertinoScaffold(
@@ -152,10 +85,6 @@ class RouterShell extends StatelessWidget {
                             case 0:
                               GoRouter.of(context).go(
                                   '/wallet/${wallet?.account}?alias=${wallet?.alias}');
-                              break;
-                            case 1:
-                              GoRouter.of(context).go(
-                                  '/account/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             default:
                             // GoRouter.of(context).go('/404');

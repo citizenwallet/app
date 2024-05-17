@@ -19,6 +19,7 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -545,6 +546,23 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.updateVoucher(address);
   }
 
+  void handleOpenAccountSwitcher() async {
+    final navigator = GoRouter.of(context);
+
+    final newRoute = await navigator.push<String>(
+        '/wallet/${widget.address!}/account?alias=${widget.alias}');
+
+    if (newRoute == null) {
+      return;
+    }
+
+    navigator.replace(newRoute);
+
+    await delay(const Duration(milliseconds: 250));
+
+    onLoad();
+  }
+
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
@@ -623,14 +641,17 @@ class WalletScreenState extends State<WalletScreen> {
                           )
                         : Stack(
                             children: [
-                              ProfileCircle(
-                                size: 42,
-                                imageUrl: imageSmall,
-                                borderWidth: 2,
-                                borderColor:
-                                    ThemeColors.primary.resolveFrom(context),
-                                backgroundColor: ThemeColors.uiBackgroundAlt
-                                    .resolveFrom(context),
+                              GestureDetector(
+                                onTap: handleOpenAccountSwitcher,
+                                child: ProfileCircle(
+                                  size: 42,
+                                  imageUrl: imageSmall,
+                                  borderWidth: 2,
+                                  borderColor:
+                                      ThemeColors.primary.resolveFrom(context),
+                                  backgroundColor: ThemeColors.uiBackgroundAlt
+                                      .resolveFrom(context),
+                                ),
                               ),
                               if (hasNoProfile && !loading)
                                 Positioned(

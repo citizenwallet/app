@@ -62,7 +62,7 @@ class AccountScreenState extends State<AccountScreen> {
     super.dispose();
   }
 
-  void onLoad() async {
+  Future<void> onLoad() async {
     if (widget.address == null || widget.alias == null) {
       return;
     }
@@ -158,11 +158,9 @@ class AccountScreenState extends State<AccountScreen> {
 
     _walletLogic.cleanupWalletState();
 
-    navigator.go('/account/$address?alias=$alias');
-
     await delay(const Duration(milliseconds: 250));
 
-    onLoad();
+    navigator.pop('/wallet/$address?alias=$alias');
   }
 
   void handleGoToSettings(BuildContext context) {
@@ -258,7 +256,8 @@ class AccountScreenState extends State<AccountScreen> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? AppLocalizations.of(context)!.createNewAccountMsg
+                                      ? AppLocalizations.of(context)!
+                                          .createNewAccountMsg
                                       : profile.description,
                                   style: TextStyle(
                                     color:
@@ -285,7 +284,8 @@ class AccountScreenState extends State<AccountScreen> {
                                     onPressed: handleEdit,
                                     child: Text(
                                       hasNoProfile
-                                          ? AppLocalizations.of(context)!.createaprofile
+                                          ? AppLocalizations.of(context)!
+                                              .createaprofile
                                           : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
                                         color: ThemeColors.text
@@ -308,6 +308,7 @@ class AccountScreenState extends State<AccountScreen> {
             ),
             SafeArea(
               child: Header(
+                showBackButton: true,
                 transparent: true,
                 blur: true,
                 color: ThemeColors.transparent,
