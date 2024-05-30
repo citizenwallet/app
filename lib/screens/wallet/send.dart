@@ -540,6 +540,7 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
                   title: widget.isMinting
                       ? AppLocalizations.of(context)!.mint
                       : AppLocalizations.of(context)!.send,
+                  showBackButton: true,
                 ),
               ),
               Expanded(

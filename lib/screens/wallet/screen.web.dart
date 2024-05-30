@@ -3,7 +3,7 @@ import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
-import 'package:citizenwallet/widgets/webview_modal.dart';
+import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;

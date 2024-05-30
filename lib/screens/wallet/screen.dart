@@ -23,7 +23,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
-import 'package:citizenwallet/widgets/webview_modal.dart';
+import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -381,17 +381,6 @@ class WalletScreenState extends State<WalletScreen> {
       'receiveParams': receiveParams,
     });
 
-    // await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
-    //   context: context,
-    //   expand: true,
-    //   useRootNavigator: true,
-    //   builder: (_) => SendModal(
-    //     walletLogic: _logic,
-    //     profilesLogic: _profilesLogic,
-    //     receiveParams: receiveParams,
-    //   ),
-    // );
-
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
@@ -422,17 +411,13 @@ class WalletScreenState extends State<WalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        await CupertinoScaffold.showCupertinoModalBottomSheet(
-          context: context,
-          expand: true,
-          useRootNavigator: true,
-          enableDrag: false,
-          builder: (_) => WebViewModal(
-            url: uri,
-            redirectUrl: redirect,
-            customScheme: customScheme,
-          ),
-        );
+        final navigator = GoRouter.of(context);
+
+        navigator.push('/wallet/${widget.address}/webview', extra: {
+          'url': uri,
+          'redirectUrl': redirect,
+          'customScheme': customScheme,
+        });
 
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -478,17 +463,13 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: _logic,
-        profilesLogic: _profilesLogic,
-        receiveParams: receiveParams,
-        isMinting: true,
-      ),
-    );
+    final navigator = GoRouter.of(context);
+
+    navigator.push('/wallet/${widget.address}/mint', extra: {
+      'walletLogic': _logic,
+      'profilesLogic': _profilesLogic,
+      'receiveParams': receiveParams,
+    });
 
     _logic.resumeFetching();
     _profilesLogic.resume();

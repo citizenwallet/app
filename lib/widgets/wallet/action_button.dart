@@ -35,6 +35,10 @@ class WalletActionButton extends StatelessWidget {
     final small = (1 - shrink) < 0.4;
     final buttonWidth = progressiveClamp(buttonSize, 120, (1 - shrink));
 
+    final color = alt
+        ? ThemeColors.surfacePrimary.resolveFrom(context)
+        : ThemeColors.white;
+
     return SizedBox(
       height: buttonSize + 40,
       width: buttonWidth,
@@ -65,12 +69,7 @@ class WalletActionButton extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: disabled
-                                ? ThemeColors.subtleEmphasis
-                                : alt
-                                    ? ThemeColors.surfacePrimary
-                                        .resolveFrom(context)
-                                    : ThemeColors.white,
+                            color: disabled ? color.withOpacity(0.8) : color,
                             fontSize: 14,
                           ),
                         ),
@@ -79,12 +78,7 @@ class WalletActionButton extends StatelessWidget {
                             Icon(
                               icon,
                               size: 18,
-                              color: disabled
-                                  ? ThemeColors.subtle
-                                  : alt
-                                      ? ThemeColors.surfacePrimary
-                                          .resolveFrom(context)
-                                      : ThemeColors.white,
+                              color: disabled ? color.withOpacity(0.8) : color,
                             ),
                       ],
                     )
@@ -93,12 +87,7 @@ class WalletActionButton extends StatelessWidget {
                           Icon(
                             icon,
                             size: buttonIconSize,
-                            color: disabled
-                                ? ThemeColors.subtle
-                                : alt
-                                    ? ThemeColors.surfacePrimary
-                                        .resolveFrom(context)
-                                    : ThemeColors.white,
+                            color: disabled ? color.withOpacity(0.8) : color,
                           ),
                     ),
             ),
@@ -113,8 +102,8 @@ class WalletActionButton extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: disabled
-                        ? ThemeColors.subtleEmphasis
-                        : ThemeColors.black,
+                        ? ThemeColors.text.resolveFrom(context).withOpacity(0.8)
+                        : ThemeColors.text.resolveFrom(context),
                     fontSize: buttonFontSize,
                   ),
                 ),
