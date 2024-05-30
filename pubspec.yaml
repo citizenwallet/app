@@ -67,6 +67,7 @@ dependencies:
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
   flutter_localizations:
     sdk: flutter
+  timeago: ^3.6.1
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^3.0.0

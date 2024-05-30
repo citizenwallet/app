@@ -27,11 +27,16 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: kIsWeb && !kDebugMode ? '.web.env' : '.env');
+
+  timeago.setLocaleMessages('en', timeago.EnMessages());
+  timeago.setLocaleMessages('fr', timeago.FrMessages());
+  timeago.setLocaleMessages('nl', timeago.NlMessages());
 
   await initSentry(
     kDebugMode,
