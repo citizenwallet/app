@@ -9,7 +9,6 @@ import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
-import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

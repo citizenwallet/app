@@ -4,6 +4,7 @@ import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
+import 'package:citizenwallet/screens/deeplink/deep_link.dart';
 import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
@@ -11,12 +12,14 @@ import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/vouchers/screen.dart';
+import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/screens/wallet/send.dart';
 import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -26,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
@@ -164,6 +168,7 @@ GoRouter createRouter(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
                   receiveParams: extra['receiveParams'],
+                  id: extra['id'],
                 );
               },
             ),
@@ -238,6 +243,44 @@ GoRouter createRouter(
                   url: extra['url'],
                   redirectUrl: extra['redirectUrl'],
                   customScheme: extra['customScheme'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Voucher',
+              path: 'voucher',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return VoucherReadScreen(
+                  address: extra['address'],
+                  logic: extra['logic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'DeepLink',
+              path: 'deeplink',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ChangeNotifierProvider(
+                  create: (_) => DeepLinkState(extra['deepLink']),
+                  child: DeepLinkScreen(
+                    wallet: extra['wallet'],
+                    deepLink: extra['deepLink'],
+                    deepLinkParams: extra['deepLinkParams'],
+                  ),
                 );
               },
             ),

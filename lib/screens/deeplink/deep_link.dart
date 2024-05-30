@@ -16,13 +16,13 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class DeepLinkModal extends StatefulWidget {
+class DeepLinkScreen extends StatefulWidget {
   final WalletService wallet;
 
   final String deepLink;
   final String deepLinkParams;
 
-  const DeepLinkModal({
+  const DeepLinkScreen({
     super.key,
     required this.wallet,
     required this.deepLink,
@@ -30,10 +30,10 @@ class DeepLinkModal extends StatefulWidget {
   });
 
   @override
-  DeepLinkModalState createState() => DeepLinkModalState();
+  DeepLinkScreenState createState() => DeepLinkScreenState();
 }
 
-class DeepLinkModalState extends State<DeepLinkModal> {
+class DeepLinkScreenState extends State<DeepLinkScreen> {
   late DeepLinkLogic _logic;
 
   String? customDeepLinkInterface;
@@ -120,16 +120,9 @@ class DeepLinkModalState extends State<DeepLinkModal> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
+                  showBackButton: true,
                   title: deepLink?.title ??
                       AppLocalizations.of(context)!.invalidlink,
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
-                    ),
-                  ),
                 ),
               ),
               Expanded(

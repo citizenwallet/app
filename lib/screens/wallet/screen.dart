@@ -1,29 +1,24 @@
+import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/modals/vouchers/screen.dart';
-import 'package:citizenwallet/modals/wallet/deep_link.dart';
-import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/modals/wallet/send.dart';
-import 'package:citizenwallet/modals/wallet/sending.dart';
-import 'package:citizenwallet/modals/wallet/voucher_read.dart';
-import 'package:citizenwallet/screens/cards/screen.dart';
+import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/state/deep_link/state.dart';
+import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
+import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
-import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -60,16 +55,34 @@ class WalletScreen extends StatefulWidget {
 class WalletScreenState extends State<WalletScreen> {
   final ScrollController _scrollController = ScrollController();
   late NotificationsLogic _notificationsLogic;
+  late AppLogic _appLogic;
   late WalletLogic _logic;
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
 
+  String? _address;
+  String? _alias;
+  String? _voucher;
+  String? _voucherParams;
+  String? _receiveParams;
+  String? _deepLink;
+  String? _deepLinkParams;
+
   @override
   void initState() {
     super.initState();
 
+    _address = widget.address;
+    _alias = widget.alias;
+    _voucher = widget.voucher;
+    _voucherParams = widget.voucherParams;
+    _receiveParams = widget.receiveParams;
+    _deepLink = widget.deepLink;
+    _deepLinkParams = widget.deepLinkParams;
+
     _notificationsLogic = NotificationsLogic(context);
+    _appLogic = AppLogic(context);
     _logic = widget.wallet;
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
@@ -107,6 +120,14 @@ class WalletScreenState extends State<WalletScreen> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.address != widget.address) {
+      _address = widget.address;
+      _alias = widget.alias;
+      _voucher = widget.voucher;
+      _voucherParams = widget.voucherParams;
+      _receiveParams = widget.receiveParams;
+      _deepLink = widget.deepLink;
+      _deepLinkParams = widget.deepLinkParams;
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
       });
@@ -137,13 +158,13 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    if (widget.address == null || widget.alias == null) {
+    if (_address == null || _alias == null) {
       return;
     }
 
     await _logic.openWallet(
-      widget.address,
-      widget.alias,
+      _address,
+      _alias,
       (bool hasChanged) async {
         if (hasChanged) _profileLogic.loadProfile();
         await _profileLogic.loadProfileLink();
@@ -154,33 +175,41 @@ class WalletScreenState extends State<WalletScreen> {
 
     _notificationsLogic.init();
 
-    if (widget.voucher != null && widget.voucherParams != null) {
+    if (_voucher != null && _voucherParams != null) {
       await handleLoadFromVoucher();
     }
 
-    if (widget.receiveParams != null) {
-      await handleSendModal(receiveParams: widget.receiveParams);
+    if (_receiveParams != null) {
+      await handleSendModal(receiveParams: _receiveParams);
     }
 
-    if (widget.deepLink != null && widget.deepLinkParams != null) {
+    if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
     }
   }
 
-  Future<void> handleLoadDeepLink() async {
-    final deepLink = widget.deepLink;
-    final deepLinkParams = widget.deepLinkParams;
+  Future<void> handleLoadDeepLink({
+    String? aliasOverride,
+    String? deepLinkOverride,
+    String? deepLinkParamsOverride,
+  }) async {
+    final alias = aliasOverride ?? _alias;
+    final deepLink = deepLinkOverride ?? _deepLink;
+    final deepLinkParams = deepLinkParamsOverride ?? _deepLinkParams;
 
-    if (deepLink == null || deepLinkParams == null || widget.alias == null) {
+    if (deepLink == null || deepLinkParams == null || _alias == null) {
       return;
     }
 
     final params = decodeParams(deepLinkParams);
 
+    if (!super.mounted) {
+      return;
+    }
+
     switch (deepLink) {
       case 'plugin':
-        final pluginConfig =
-            await _logic.getPluginConfig(widget.alias!, params);
+        final pluginConfig = await _logic.getPluginConfig(alias!, params);
         if (pluginConfig == null) {
           return;
         }
@@ -191,19 +220,13 @@ class WalletScreenState extends State<WalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
-          context: context,
-          expand: true,
-          useRootNavigator: true,
-          builder: (modalContext) => ChangeNotifierProvider(
-            create: (_) => DeepLinkState(deepLink),
-            child: DeepLinkModal(
-              wallet: _logic.wallet,
-              deepLink: deepLink,
-              deepLinkParams: params,
-            ),
-          ),
-        );
+        final navigator = GoRouter.of(context);
+
+        await navigator.push('/wallet/$_address/deeplink', extra: {
+          'wallet': _logic.wallet,
+          'deepLink': deepLink,
+          'deepLinkParams': deepLinkParams,
+        });
 
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -212,9 +235,12 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
-  Future<void> handleLoadFromVoucher() async {
-    final voucher = widget.voucher;
-    final voucherParams = widget.voucherParams;
+  Future<void> handleLoadFromVoucher({
+    String? voucherOverride,
+    String? voucherParamsOverride,
+  }) async {
+    final voucher = voucherOverride ?? _voucher;
+    final voucherParams = voucherParamsOverride ?? _voucherParams;
 
     if (voucher == null || voucherParams == null) {
       return;
@@ -227,25 +253,24 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    if (!super.mounted) {
+      return;
+    }
+
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => VoucherReadModal(
-        address: address,
-        logic: _logic,
-      ),
-    );
+    await navigator.push('/wallet/$_address/voucher', extra: {
+      'address': address,
+      'logic': _logic,
+    });
 
     _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
 
-    navigator.go('/wallet/${widget.address}');
+    navigator.go('/wallet/$_address');
   }
 
   void handleFailedTransaction(String id, bool blockSending) async {
@@ -290,6 +315,10 @@ class WalletScreenState extends State<WalletScreen> {
           );
         });
 
+    if (!super.mounted) {
+      return;
+    }
+
     if (option == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
@@ -306,16 +335,13 @@ class WalletScreenState extends State<WalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => SendModal(
-          walletLogic: _logic,
-          profilesLogic: _profilesLogic,
-          id: id,
-        ),
-      );
+      final navigator = GoRouter.of(context);
+
+      await navigator.push('/wallet/$_address/send', extra: {
+        'walletLogic': _logic,
+        'profilesLogic': _profilesLogic,
+        'id': id,
+      });
     }
 
     if (option == 'delete') {
@@ -375,7 +401,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/${widget.address}/send', extra: {
+    await navigator.push('/wallet/$_address/send', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'receiveParams': receiveParams,
@@ -391,7 +417,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/${widget.address}/receive', extra: {
+    navigator.push('/wallet/$_address/receive', extra: {
       'logic': _logic,
     });
   }
@@ -413,7 +439,7 @@ class WalletScreenState extends State<WalletScreen> {
 
         final navigator = GoRouter.of(context);
 
-        navigator.push('/wallet/${widget.address}/webview', extra: {
+        navigator.push('/wallet/$_address/webview', extra: {
           'url': uri,
           'redirectUrl': redirect,
           'customScheme': customScheme,
@@ -436,18 +462,18 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => CupertinoScaffold(
-        topRadius: const Radius.circular(40),
-        transitionBackgroundColor: ThemeColors.transparent,
-        body: CardsScreen(
-          walletLogic: _logic,
-        ),
-      ),
-    );
+    // await CupertinoScaffold.showCupertinoModalBottomSheet(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => CupertinoScaffold(
+    //     topRadius: const Radius.circular(40),
+    //     transitionBackgroundColor: ThemeColors.transparent,
+    //     body: CardsScreen(
+    //       walletLogic: _logic,
+    //     ),
+    //   ),
+    // );
 
     await _voucherLogic.fetchVouchers();
 
@@ -465,7 +491,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/${widget.address}/mint', extra: {
+    navigator.push('/wallet/$_address/mint', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'receiveParams': receiveParams,
@@ -485,7 +511,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/${widget.address}/vouchers');
+    await navigator.push('/wallet/$_address/vouchers');
 
     await _voucherLogic.fetchVouchers();
 
@@ -508,7 +534,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.pause();
 
     await GoRouter.of(context).push<bool?>(
-      '/wallet/${widget.address!}/transactions/$transactionId',
+      '/wallet/${_address!}/transactions/$transactionId',
       extra: {
         'logic': _logic,
         'profilesLogic': _profilesLogic,
@@ -528,8 +554,8 @@ class WalletScreenState extends State<WalletScreen> {
   void handleOpenAccountSwitcher() async {
     final navigator = GoRouter.of(context);
 
-    final newRoute = await navigator.push<String>(
-        '/wallet/${widget.address!}/account?alias=${widget.alias}');
+    final newRoute = await navigator
+        .push<String>('/wallet/${_address!}/account?alias=$_alias');
 
     if (newRoute == null) {
       return;
@@ -540,6 +566,187 @@ class WalletScreenState extends State<WalletScreen> {
     await delay(const Duration(milliseconds: 250));
 
     onLoad();
+  }
+
+  String? paramsAlias(String compressedParams) {
+    String params;
+    try {
+      params = decodeParams(compressedParams);
+    } catch (_) {
+      // support the old format with compressed params
+      params = decompress(compressedParams);
+    }
+
+    final uri = Uri(query: params);
+
+    return uri.queryParameters['alias'];
+  }
+
+  Future<(String?, String?)> handleLoadFromParams(
+    String? params, {
+    String? overrideAlias,
+  }) async {
+    if (params == null) {
+      return (null, null);
+    }
+
+    String? alias = overrideAlias ?? paramsAlias(params);
+    if (alias == null) {
+      return (null, null);
+    }
+
+    if (alias == _alias) {
+      return (_address, alias);
+    }
+
+    final wallets = await _appLogic.loadWalletsFromAlias(alias);
+
+    if (wallets.isEmpty) {
+      final newAddress = await _appLogic.createWallet(alias);
+
+      return (newAddress, alias);
+    }
+
+    if (wallets.length == 1) {
+      return (wallets.first.account, alias);
+    }
+
+    if (!mounted) return (null, null);
+    final selection = await showCupertinoModalBottomSheet<(String?, String?)?>(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (modalContext) => SelectAccountModal(
+        title: 'Select Account',
+        wallets: wallets,
+      ),
+    );
+
+    if (selection == null || selection.$1 == null || selection.$2 == null) {
+      return (null, null);
+    }
+
+    return (selection.$1, selection.$2);
+  }
+
+  String parseParamsFromWidget({
+    List<String> extra = const [],
+    String? voucher,
+    String? voucherParams,
+    String? receiveParams,
+    String? deepLink,
+    String? deepLinkParams,
+  }) {
+    String params = '';
+    if (voucher != null && voucherParams != null) {
+      params += '&voucher=$voucher';
+      params += '&params=$voucherParams';
+    }
+
+    if (receiveParams != null) {
+      params += '&receiveParams=$receiveParams';
+    }
+
+    if (deepLink != null && deepLinkParams != null) {
+      params += '&dl=$deepLink';
+      params += '&$deepLink=$deepLinkParams';
+    }
+
+    if (extra.isNotEmpty) {
+      params += '&${extra.join('&')}';
+    }
+
+    return params.replaceFirst('&', '?');
+  }
+
+  void handleQRScan() async {
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const ScannerModal(
+        modalKey: 'wallet-qr-scanner',
+      ),
+    );
+
+    if (result == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    final (voucherParams, receiveParams, deepLinkParams) =
+        deepLinkParamsFromUri(result);
+    if (voucherParams == null &&
+        receiveParams == null &&
+        deepLinkParams == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    final uriAlias = aliasFromUri(result);
+    final receiveAlias = aliasFromReceiveUri(result);
+
+    final (address, alias) = await handleLoadFromParams(
+      voucherParams ?? receiveParams ?? deepLinkParams,
+      overrideAlias: uriAlias ?? receiveAlias,
+    );
+
+    if (address == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    if (alias == null || alias.isEmpty) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    final (voucher, deepLink) = deepLinkContentFromUri(result);
+
+    if (alias != _alias) {
+      _address = address;
+      _alias = alias;
+      _voucher = voucher;
+      _voucherParams = voucherParams;
+      _receiveParams = receiveParams;
+      _deepLink = deepLink;
+      _deepLinkParams = deepLinkParams;
+
+      onLoad();
+      return;
+    }
+
+    if (voucher != null && voucherParams != null) {
+      await handleLoadFromVoucher(
+        voucherOverride: voucher,
+        voucherParamsOverride: voucherParams,
+      );
+    }
+
+    if (receiveParams != null) {
+      await handleSendModal(receiveParams: receiveParams);
+    }
+
+    if (deepLink != null && deepLinkParams != null) {
+      await handleLoadDeepLink(
+        aliasOverride: alias,
+        deepLinkOverride: deepLink,
+        deepLinkParamsOverride: deepLinkParams,
+      );
+    }
   }
 
   @override
@@ -614,6 +821,49 @@ class WalletScreenState extends State<WalletScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            bottom: 60,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: handleQRScan,
+                  child: Container(
+                    height: 90,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: ThemeColors.background.resolveFrom(context),
+                      borderRadius: BorderRadius.circular(45),
+                      border: Border.all(
+                        color: ThemeColors.primary.resolveFrom(context),
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ThemeColors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset:
+                              const Offset(0, 5), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: Center(
+                      child: Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                        size: 60,
+                        color: ThemeColors.primary.resolveFrom(context),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           GestureDetector(
