@@ -140,7 +140,7 @@ class ThemeColors {
   );
 
   static const surfaceBackground = CupertinoDynamicColor.withBrightness(
-    color: CupertinoColors.black,
+    color: Color.fromRGBO(241, 237, 242, 1),
     darkColor: CupertinoColors.white,
   );
 

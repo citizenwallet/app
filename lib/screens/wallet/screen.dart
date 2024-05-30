@@ -615,6 +615,26 @@ class WalletScreenState extends State<WalletScreen> {
                   handleLoad: handleLoad,
                   handleScrollToTop: handleScrollToTop,
                 ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    ThemeColors.uiBackgroundAlt
+                        .resolveFrom(context)
+                        .withOpacity(0.0),
+                    ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  ],
+                ),
+              ),
+            ),
+          ),
           GestureDetector(
             onTap: handleScrollToTop,
             child: SafeArea(
