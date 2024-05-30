@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
