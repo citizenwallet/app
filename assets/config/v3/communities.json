@@ -633,7 +633,10 @@
             "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
             "url": "https://breadchain.xyz/",
             "alias": "bread",
-            "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg"
+            "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+            "theme": {
+                "primary": "#d04ec5"
+            }
         },
         "scan": {
             "url": "https://gnosisscan.io",
@@ -670,6 +673,19 @@
         "profile": {
             "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986"
         },
+        "plugins": [
+            {
+                "name": "Top Up",
+                "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+                "url": "https://topup.citizenspring.earth/bread"
+            },
+            {
+                "name": "Market",
+                "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+                "url": "https://marketplace.citizenwallet.xyz/bread",
+                "launch_mode": "webview"
+            }
+        ],
         "version": 1
     },
     {
@@ -1061,7 +1077,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "profile": {
-            "address": "0x5978b0C06be936d5504b6B65EB7B9ae9fC959b5d"
+            "address": "0x14004E13907282cFaD05f742022E56926eE92dAd"
         },
         "indexer": {
             "url": "https://celo-c.citizenwallet.xyz/indexer",
@@ -1075,6 +1091,9 @@
             "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
             "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
             "paymaster_type": "cw"
+        },
+        "cards": {
+            "card_factory_address": "0x6c6611244547a6E9AaCfBA8744115ca1076756fc"
         },
         "version": 1
     }
