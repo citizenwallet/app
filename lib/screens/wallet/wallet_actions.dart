@@ -357,6 +357,8 @@ class WalletActions extends StatelessWidget {
                                     buttonSize: buttonSize,
                                     buttonIconSize: buttonIconSize,
                                     buttonFontSize: buttonFontSize,
+                                    margin:
+                                        EdgeInsets.only(right: buttonSeparator),
                                     shrink: shrink,
                                     text: plugin.name,
                                     alt: true,
@@ -366,7 +368,6 @@ class WalletActions extends StatelessWidget {
                                   ),
                                 )
                                 .toList()),
-                          SizedBox(width: buttonSeparator),
                         ],
                       ),
                     ),

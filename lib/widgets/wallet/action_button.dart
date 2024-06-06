@@ -9,6 +9,7 @@ class WalletActionButton extends StatelessWidget {
   final double buttonSize;
   final double buttonIconSize;
   final double buttonFontSize;
+  final EdgeInsets? margin;
   final double shrink;
   final bool alt;
   final bool loading;
@@ -23,6 +24,7 @@ class WalletActionButton extends StatelessWidget {
     this.buttonSize = 60,
     this.buttonIconSize = 40,
     this.buttonFontSize = 14,
+    this.margin,
     this.shrink = 0.0,
     this.alt = false,
     this.loading = false,
@@ -39,9 +41,10 @@ class WalletActionButton extends StatelessWidget {
         ? ThemeColors.surfacePrimary.resolveFrom(context)
         : ThemeColors.white;
 
-    return SizedBox(
+    return Container(
       height: buttonSize + 40,
       width: buttonWidth,
+      margin: margin,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
