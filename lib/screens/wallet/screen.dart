@@ -554,16 +554,28 @@ class WalletScreenState extends State<WalletScreen> {
   void handleOpenAccountSwitcher() async {
     final navigator = GoRouter.of(context);
 
-    final newRoute = await navigator
-        .push<String>('/wallet/${_address!}/account?alias=$_alias');
+    final args = await navigator
+        .push<(String, String)?>('/wallet/${_address!}/accounts?alias=$_alias');
 
-    if (newRoute == null) {
+    if (args == null) {
       return;
     }
 
-    navigator.replace(newRoute);
+    final (address, alias) = args;
 
-    await delay(const Duration(milliseconds: 250));
+    if (address == _address && alias == _alias) {
+      return;
+    }
+
+    _profileLogic.clearProfileLink();
+    _profileLogic.resetAll();
+
+    _address = address;
+    _alias = alias;
+
+    // navigator.replace(newRoute);
+
+    // await delay(const Duration(milliseconds: 250));
 
     onLoad();
   }

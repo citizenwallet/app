@@ -1,9 +1,8 @@
-import 'package:citizenwallet/modals/wallet/receive.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
-import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
+import 'package:citizenwallet/screens/accounts/screen.dart';
 import 'package:citizenwallet/screens/deeplink/deep_link.dart';
 import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
@@ -215,16 +214,15 @@ GoRouter createRouter(
             ),
             GoRoute(
               name: 'Account',
-              path: 'account',
+              path: 'accounts',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) => CupertinoScaffold(
-                key: const Key('account-screen'),
+                key: const Key('accounts-screen'),
                 topRadius: const Radius.circular(40),
                 transitionBackgroundColor: ThemeColors.transparent,
-                body: AccountScreen(
-                  address: state.pathParameters['address'],
-                  alias: state.uri.queryParameters['alias'],
-                  wallet: wallet,
+                body: AccountsScreen(
+                  logic: wallet,
+                  currentAddress: state.pathParameters['address'],
                 ),
               ),
             ),

@@ -288,6 +288,8 @@ class ProfileLogic {
 
       return true;
     } catch (exception, stackTrace) {
+      print(exception);
+      print(stackTrace);
       Sentry.captureException(
         exception,
         stackTrace: stackTrace,

@@ -1,11 +1,10 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class WalletRow extends StatefulWidget {
   final CWWallet wallet;
@@ -14,6 +13,7 @@ class WalletRow extends StatefulWidget {
   final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
+  final void Function()? onProfileEdit;
   final void Function(String)? onLoadProfile;
 
   const WalletRow(
@@ -24,6 +24,7 @@ class WalletRow extends StatefulWidget {
     this.profiles = const {},
     this.onTap,
     this.onMore,
+    this.onProfileEdit,
     this.onLoadProfile,
   });
 
@@ -50,6 +51,7 @@ class WalletRowState extends State<WalletRow> {
     final profiles = widget.profiles;
     final onTap = widget.onTap;
     final onMore = widget.onMore;
+    final onProfileEdit = widget.onProfileEdit;
 
     final community = communities[wallet.alias];
     final profile =
@@ -60,18 +62,14 @@ class WalletRowState extends State<WalletRow> {
       child: Stack(
         children: [
           Container(
-            margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             height: 84,
             decoration: BoxDecoration(
-              color: ThemeColors.subtle.resolveFrom(context),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                width: 2,
-                color: isSelected
-                    ? ThemeColors.primary.resolveFrom(context)
-                    : ThemeColors.transparent,
-              ),
+              color: isSelected
+                  ? ThemeColors.primary.resolveFrom(context).withOpacity(0.1)
+                  : ThemeColors.transparent,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -85,7 +83,10 @@ class WalletRowState extends State<WalletRow> {
                       ProfileCircle(
                         size: 50,
                         imageUrl: profile?.imageSmall,
-                        borderColor: ThemeColors.transparent,
+                        borderWidth: 2,
+                        borderColor: community != null
+                            ? Color(community.theme.primary)
+                            : ThemeColors.transparent,
                       ),
                       if (community != null && community.logo != '')
                         Positioned(
@@ -119,24 +120,17 @@ class WalletRowState extends State<WalletRow> {
                         ),
                       ),
                       const SizedBox(height: 1),
-                      wallet.account.isEmpty
-                          ? const PulsingContainer(
-                              height: 14,
-                              width: 100,
-                            )
-                          : Text(
-                              profile != null
-                                  ? '@${profile.username}'
-                                  : formatHexAddress(wallet.account),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color:
-                                    ThemeColors.subtleText.resolveFrom(context),
-                              ),
-                            ),
+                      if (profile != null)
+                        Text(
+                          '@${profile.username}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: ThemeColors.subtleText.resolveFrom(context),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -150,6 +144,36 @@ class WalletRowState extends State<WalletRow> {
                     child: Icon(
                       CupertinoIcons.ellipsis,
                       color: ThemeColors.touchable.resolveFrom(context),
+                    ),
+                  ),
+                if (onProfileEdit != null)
+                  CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: onProfileEdit,
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: ThemeColors.surfacePrimary
+                            .resolveFrom(context)
+                            .withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Profile',
+                            style: TextStyle(
+                              color: ThemeColors.primary.resolveFrom(context),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            CupertinoIcons.pencil,
+                            color: ThemeColors.primary.resolveFrom(context),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 const SizedBox(width: 10),
@@ -166,6 +190,14 @@ class WalletRowState extends State<WalletRow> {
                 color: ThemeColors.text.resolveFrom(context),
               ),
             ),
+          Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Divider(
+                color: ThemeColors.border.resolveFrom(context),
+                height: 1,
+              ))
         ],
       ),
     );

@@ -90,11 +90,6 @@ class AccountScreenState extends State<AccountScreen> {
     });
   }
 
-  void handleDismiss(BuildContext context) {
-    _logic.resetViewProfile();
-    GoRouter.of(context).pop();
-  }
-
   void handleCopy(String value) {
     Clipboard.setData(ClipboardData(text: value));
 
