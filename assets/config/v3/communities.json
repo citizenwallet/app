@@ -59,7 +59,10 @@
             "description": "Express your gratitude towards someone by sending them a token of gratitude.",
             "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gratitude",
-            "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
+            "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "theme": {
+                "primary": "#4EC19D"
+            }
         },
         "scan": {
             "url": "https://celoscan.io",
@@ -203,7 +206,10 @@
             "description": "The community of people using USDC on Polygon.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
             "alias": "app",
-            "logo": "https://app.citizenwallet.xyz/wallet-config/_images/usdc.svg"
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/usdc.svg",
+            "theme": {
+                "primary": "#0052ff"
+            }
         },
         "scan": {
             "url": "https://polygonscan.com",
@@ -249,7 +255,10 @@
             "description": "The community of people using USDC on Base.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
             "alias": "usdc.base",
-            "logo": "https://app.citizenwallet.xyz/wallet-config/_images/usdc.svg"
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/usdc.svg",
+            "theme": {
+                "primary": "#0052ff"
+            }
         },
         "scan": {
             "url": "https://basescan.org",
@@ -554,7 +563,7 @@
             "url": "https://ipfs.internal.citizenwallet.xyz"
         },
         "profile": {
-            "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+            "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
         },
         "indexer": {
             "url": "https://wallet.pay.brussels/indexer",
@@ -1006,7 +1015,8 @@
             "description": "The community of people using ETHLDN on Base.",
             "url": "https://en.wikipedia.org/wiki/USD_Coin",
             "alias": "testnet-ethldn",
-            "logo": "https://app.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg"
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg",
+            "hidden": true
         },
         "scan": {
             "url": "https://sepolia.basescan.org",
