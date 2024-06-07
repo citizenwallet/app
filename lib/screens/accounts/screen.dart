@@ -44,6 +44,8 @@ class AccountsScreenState extends State<AccountsScreen> {
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
 
+  final ScrollController _scrollController = ScrollController();
+
   late ProfilesLogic _profilesLogic;
   late CommunitiesLogic _communitiesLogic;
 
@@ -298,6 +300,14 @@ class AccountsScreenState extends State<AccountsScreen> {
     _profilesLogic.loadProfile(address);
   }
 
+  void handleScrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentWallet = context.select((WalletState state) => state.wallet);
@@ -334,6 +344,8 @@ class AccountsScreenState extends State<AccountsScreen> {
                 child: Stack(
                   children: [
                     CustomScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       scrollBehavior: const CupertinoScrollBehavior(),
                       slivers: [
                         if (currentWallet != null)
@@ -344,7 +356,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                               expandedHeight: 180,
                               minHeight: 100,
                               builder: (context, shrink) => GestureDetector(
-                                // onTap: widget.handleScrollToTop,
+                                onTap: handleScrollToTop,
                                 child: Container(
                                   color: ThemeColors.uiBackgroundAlt
                                       .resolveFrom(context),
@@ -423,10 +435,6 @@ class AccountsScreenState extends State<AccountsScreen> {
                                           profiles: profiles,
                                           isSelected: true,
                                           bottomBorder: false,
-                                          onTap: () => handleWalletTap(
-                                            currentWallet.account,
-                                            currentWallet.alias,
-                                          ),
                                           onProfileEdit: handleProfileEdit,
                                           onLoadProfile: handleLoadProfile,
                                         ),
@@ -538,6 +546,26 @@ class AccountsScreenState extends State<AccountsScreen> {
                           ),
                         ),
                       ],
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              ThemeColors.uiBackgroundAlt
+                                  .resolveFrom(context)
+                                  .withOpacity(0.0),
+                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                     Positioned(
                       bottom: 20,
