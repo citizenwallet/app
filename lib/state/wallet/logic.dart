@@ -992,7 +992,11 @@ class WalletLogic extends WidgetsBindingObserver {
         : sendTransactionFromLocked(amount, to, message: message, id: id);
   }
 
-  bool isInvalidAmount(String amount) {
+  bool isInvalidAmount(String amount, {unlimited = false}) {
+    if (unlimited) {
+      return false;
+    }
+
     final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
     final doubleAmount = double.parse(toUnit(
       amount.replaceAll(',', '.'),
@@ -1371,10 +1375,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.setInvalidAddress(true);
   }
 
-  void updateAmount() {
+  void updateAmount({bool unlimited = false}) {
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
-      isInvalidAmount(_amountController.value.text),
+      isInvalidAmount(_amountController.value.text, unlimited: unlimited),
     );
   }
 

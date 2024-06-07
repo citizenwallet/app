@@ -99,7 +99,7 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
       );
 
       debouncedAmountUpdate = debounce(
-        _logic.updateAmount,
+        () => _logic.updateAmount(unlimited: widget.isMinting),
         const Duration(milliseconds: 500),
       );
     });
@@ -734,24 +734,28 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                      suffix: Center(
-                                          child: CupertinoButton(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          10,
-                                          0,
-                                        ),
-                                        onPressed: handleSetMaxAmount,
-                                        child: Text(
-                                          AppLocalizations.of(context)!.max,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      )),
+                                      suffix: !widget.isMinting
+                                          ? Center(
+                                              child: CupertinoButton(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                10,
+                                                0,
+                                                10,
+                                                0,
+                                              ),
+                                              onPressed: handleSetMaxAmount,
+                                              child: Text(
+                                                AppLocalizations.of(context)!
+                                                    .max,
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ))
+                                          : null,
                                     ),
                                     if (_isScanning)
                                       GestureDetector(
