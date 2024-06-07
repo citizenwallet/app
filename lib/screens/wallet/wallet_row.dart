@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 class WalletRow extends StatefulWidget {
   final CWWallet wallet;
   final bool isSelected;
+  final bool bottomBorder;
   final Map<String, CommunityConfig> communities;
   final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
@@ -20,6 +21,7 @@ class WalletRow extends StatefulWidget {
     this.wallet, {
     super.key,
     this.isSelected = false,
+    this.bottomBorder = true,
     this.communities = const {},
     this.profiles = const {},
     this.onTap,
@@ -47,6 +49,7 @@ class WalletRowState extends State<WalletRow> {
   Widget build(BuildContext context) {
     final wallet = widget.wallet;
     final isSelected = widget.isSelected;
+    final bottomBorder = widget.bottomBorder;
     final communities = widget.communities;
     final profiles = widget.profiles;
     final onTap = widget.onTap;
@@ -190,14 +193,16 @@ class WalletRowState extends State<WalletRow> {
                 color: ThemeColors.text.resolveFrom(context),
               ),
             ),
-          Positioned(
+          if (bottomBorder)
+            Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: Divider(
-                color: ThemeColors.border.resolveFrom(context),
+                color: ThemeColors.subtle.resolveFrom(context),
                 height: 1,
-              ))
+              ),
+            )
         ],
       ),
     );

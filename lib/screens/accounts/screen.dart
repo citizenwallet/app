@@ -11,12 +11,15 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
+import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -331,26 +334,125 @@ class AccountsScreenState extends State<AccountsScreen> {
                 child: Stack(
                   children: [
                     CustomScrollView(
-                      controller: ModalScrollController.of(context),
                       scrollBehavior: const CupertinoScrollBehavior(),
                       slivers: [
                         if (currentWallet != null)
-                          SliverToBoxAdapter(
-                            child: WalletRow(
-                              key: Key(
-                                  '${currentWallet.account}_${currentWallet.alias}'),
-                              currentWallet,
-                              communities: communities,
-                              profiles: profiles,
-                              isSelected: true,
-                              onTap: () => handleWalletTap(
-                                currentWallet.account,
-                                currentWallet.alias,
+                          SliverPersistentHeader(
+                            pinned: true,
+                            floating: false,
+                            delegate: PersistentHeaderDelegate(
+                              expandedHeight: 180,
+                              minHeight: 100,
+                              builder: (context, shrink) => GestureDetector(
+                                // onTap: widget.handleScrollToTop,
+                                child: Container(
+                                  color: ThemeColors.uiBackgroundAlt
+                                      .resolveFrom(context),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        bottom: 24,
+                                        left: 0,
+                                        right: 0,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Opacity(
+                                              opacity: progressiveClamp(
+                                                0,
+                                                1,
+                                                shrink * 4,
+                                              ),
+                                              child: CupertinoButton(
+                                                padding:
+                                                    const EdgeInsets.all(5),
+                                                onPressed: () =>
+                                                    handleGoToSettings(context),
+                                                child: Container(
+                                                  height: 40,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    border: Border.all(
+                                                      color: ThemeColors.primary
+                                                          .resolveFrom(context),
+                                                    ),
+                                                  ),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        'App Settings',
+                                                        style: TextStyle(
+                                                          color: ThemeColors
+                                                              .primary
+                                                              .resolveFrom(
+                                                                  context),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Icon(
+                                                        CupertinoIcons.settings,
+                                                        color: ThemeColors
+                                                            .primary
+                                                            .resolveFrom(
+                                                                context),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        color: ThemeColors.uiBackgroundAlt
+                                            .resolveFrom(context),
+                                        child: WalletRow(
+                                          key: Key(
+                                              '${currentWallet.account}_${currentWallet.alias}'),
+                                          currentWallet,
+                                          communities: communities,
+                                          profiles: profiles,
+                                          isSelected: true,
+                                          bottomBorder: false,
+                                          onTap: () => handleWalletTap(
+                                            currentWallet.account,
+                                            currentWallet.alias,
+                                          ),
+                                          onProfileEdit: handleProfileEdit,
+                                          onLoadProfile: handleLoadProfile,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: Divider(
+                                          color: ThemeColors.subtle
+                                              .resolveFrom(context),
+                                          height: 1,
+                                          thickness: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              onProfileEdit: handleProfileEdit,
-                              onLoadProfile: handleLoadProfile,
                             ),
                           ),
+                        const SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 10,
+                          ),
+                        ),
                         if (cwWalletsLoading && groupedWallets.isEmpty)
                           SliverToBoxAdapter(
                             child: CupertinoActivityIndicator(
@@ -430,52 +532,6 @@ class AccountsScreenState extends State<AccountsScreen> {
                                   .values
                                   .toList())
                               .expand((list) => list)),
-                        const SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 20,
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CupertinoButton(
-                                padding: const EdgeInsets.all(5),
-                                onPressed: () => handleGoToSettings(context),
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: ThemeColors.primary
-                                          .resolveFrom(context),
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Settings',
-                                        style: TextStyle(
-                                          color: ThemeColors.primary
-                                              .resolveFrom(context),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Icon(
-                                        CupertinoIcons.settings,
-                                        color: ThemeColors.primary
-                                            .resolveFrom(context),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                         const SliverToBoxAdapter(
                           child: SizedBox(
                             height: 120,
