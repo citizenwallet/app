@@ -20,9 +20,17 @@ class QR extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageSize = size * 0.2;
 
-    return SizedBox(
+    return Container(
       height: size,
       width: size,
+      decoration: BoxDecoration(
+        color: ThemeColors.white,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: ThemeColors.primary,
+          width: 1,
+        ),
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: QrImageView(

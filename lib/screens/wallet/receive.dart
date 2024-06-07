@@ -11,7 +11,6 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
@@ -181,12 +180,12 @@ class ReceiveScreenState extends State<ReceiveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 100;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom + 120;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    const paddingSize = 40;
-    final maxSize = (width < height ? width : (height - 120)) - paddingSize;
+    const paddingSize = 60;
+    final maxSize = (width < height ? width : (height - 140)) - paddingSize;
     final remainingHeight = height - keyboardHeight - paddingSize;
     final qrSize =
         remainingHeight < maxSize ? (remainingHeight - paddingSize) : maxSize;
