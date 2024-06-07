@@ -512,6 +512,16 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                           focusNode: messageFocusNode,
                           autocorrect: true,
                           enableSuggestions: true,
+                          decoration: BoxDecoration(
+                            color: ThemeColors.transparent.resolveFrom(context),
+                            border: Border.all(
+                              color: ThemeColors.primary.resolveFrom(context),
+                              width: 1,
+                            ),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(5.0),
+                            ),
+                          ),
                           onChanged: handleThrottledUpdateQRCode,
                         ),
                       ],
