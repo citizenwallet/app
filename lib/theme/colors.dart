@@ -113,7 +113,7 @@ class ThemeColors {
   );
 
   static const uiBackgroundAlt = CupertinoDynamicColor.withBrightness(
-    color: Color.fromARGB(255, 230, 230, 230),
+    color: Color.fromARGB(255, 255, 255, 255),
     darkColor: Color.fromARGB(255, 30, 30, 30),
   );
 
