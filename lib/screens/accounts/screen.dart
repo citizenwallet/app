@@ -400,7 +400,9 @@ class AccountsScreenState extends State<AccountsScreen> {
                                                   child: Row(
                                                     children: [
                                                       Text(
-                                                        'App Settings',
+                                                        AppLocalizations.of(
+                                                                context)!
+                                                            .settings,
                                                         style: TextStyle(
                                                           color: ThemeColors
                                                               .primary
