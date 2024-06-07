@@ -776,160 +776,165 @@ class WalletScreenState extends State<WalletScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          (firstLoad && loading) || wallet == null || cleaningUp
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CupertinoActivityIndicator(
-                      color: ThemeColors.subtle.resolveFrom(context),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.loading,
-                      style: TextStyle(
-                        color: ThemeColors.text.resolveFrom(context),
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        ),
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            (firstLoad && loading) || wallet == null || cleaningUp
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
                       ),
-                    ),
-                  ],
-                )
-              : WalletScrollView(
-                  controller: _scrollController,
-                  handleRefresh: handleRefresh,
-                  handleSendModal: handleSendModal,
-                  handleReceive: handleReceive,
-                  handlePlugin: handlePlugin,
-                  handleCards: handleCards,
-                  handleMint: handleMint,
-                  handleVouchers: handleVouchers,
-                  handleTransactionTap: handleTransactionTap,
-                  handleFailedTransactionTap: handleFailedTransaction,
-                  handleCopy: handleCopy,
-                  handleLoad: handleLoad,
-                  handleScrollToTop: handleScrollToTop,
-                ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 60,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    ThemeColors.uiBackgroundAlt
-                        .resolveFrom(context)
-                        .withOpacity(0.0),
-                    ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ],
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.loading,
+                        style: TextStyle(
+                          color: ThemeColors.text.resolveFrom(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  )
+                : WalletScrollView(
+                    controller: _scrollController,
+                    handleRefresh: handleRefresh,
+                    handleSendModal: handleSendModal,
+                    handleReceive: handleReceive,
+                    handlePlugin: handlePlugin,
+                    handleCards: handleCards,
+                    handleMint: handleMint,
+                    handleVouchers: handleVouchers,
+                    handleTransactionTap: handleTransactionTap,
+                    handleFailedTransactionTap: handleFailedTransaction,
+                    handleCopy: handleCopy,
+                    handleLoad: handleLoad,
+                    handleScrollToTop: handleScrollToTop,
+                  ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      ThemeColors.uiBackgroundAlt
+                          .resolveFrom(context)
+                          .withOpacity(0.0),
+                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 60,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: handleQRScan,
-                  child: Container(
-                    height: 90,
-                    width: 90,
-                    decoration: BoxDecoration(
-                      color: ThemeColors.background.resolveFrom(context),
-                      borderRadius: BorderRadius.circular(45),
-                      border: Border.all(
-                        color: ThemeColors.primary.resolveFrom(context),
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: ThemeColors.black.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 7,
-                          offset:
-                              const Offset(0, 5), // changes position of shadow
+            Positioned(
+              bottom: 60,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: handleQRScan,
+                    child: Container(
+                      height: 90,
+                      width: 90,
+                      decoration: BoxDecoration(
+                        color: ThemeColors.background.resolveFrom(context),
+                        borderRadius: BorderRadius.circular(45),
+                        border: Border.all(
+                          color: ThemeColors.primary.resolveFrom(context),
+                          width: 3,
                         ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    child: Center(
-                      child: Icon(
-                        CupertinoIcons.qrcode_viewfinder,
-                        size: 60,
-                        color: ThemeColors.primary.resolveFrom(context),
+                        boxShadow: [
+                          BoxShadow(
+                            color: ThemeColors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 7,
+                            offset: const Offset(
+                                0, 5), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      child: Center(
+                        child: Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                          size: 60,
+                          color: ThemeColors.primary.resolveFrom(context),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          GestureDetector(
-            onTap: handleScrollToTop,
-            child: SafeArea(
-              child: Header(
-                transparent: true,
-                color: ThemeColors.transparent,
-                title: '',
-                actionButton: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    cleaningUp || wallet == null
-                        ? const PulsingContainer(
-                            height: 42,
-                            width: 42,
-                            borderRadius: 21,
-                          )
-                        : Stack(
-                            children: [
-                              GestureDetector(
-                                onTap: handleOpenAccountSwitcher,
-                                child: ProfileCircle(
-                                  size: 42,
-                                  imageUrl: imageSmall,
-                                  borderWidth: 2,
-                                  borderColor:
-                                      ThemeColors.primary.resolveFrom(context),
-                                  backgroundColor: ThemeColors.uiBackgroundAlt
-                                      .resolveFrom(context),
-                                ),
-                              ),
-                              if (hasNoProfile && !loading)
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: Container(
-                                    height: 10,
-                                    width: 10,
-                                    decoration: BoxDecoration(
-                                      color: ThemeColors.danger
-                                          .resolveFrom(context),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
+            GestureDetector(
+              onTap: handleScrollToTop,
+              child: SafeArea(
+                child: Header(
+                  transparent: true,
+                  color: ThemeColors.transparent,
+                  title: '',
+                  actionButton: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      cleaningUp || wallet == null
+                          ? const PulsingContainer(
+                              height: 42,
+                              width: 42,
+                              borderRadius: 21,
+                            )
+                          : Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap: handleOpenAccountSwitcher,
+                                  child: ProfileCircle(
+                                    size: 42,
+                                    imageUrl: imageSmall,
+                                    borderWidth: 2,
+                                    borderColor: ThemeColors.primary
+                                        .resolveFrom(context),
+                                    backgroundColor: ThemeColors.uiBackgroundAlt
+                                        .resolveFrom(context),
                                   ),
                                 ),
-                            ],
-                          ),
-                  ],
+                                if (hasNoProfile && !loading)
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: Container(
+                                      height: 10,
+                                      width: 10,
+                                      decoration: BoxDecoration(
+                                        color: ThemeColors.danger
+                                            .resolveFrom(context),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -178,8 +178,7 @@ class MyAppState extends State<MyApp> {
                 transitionBackgroundColor: ThemeColors.transparent,
                 body: CupertinoPageScaffold(
                   key: const Key('main'),
-                  backgroundColor:
-                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  backgroundColor: ThemeColors.transparent.resolveFrom(context),
                   child: Column(
                     children: [
                       Expanded(
