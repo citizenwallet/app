@@ -260,7 +260,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                           ],
                         ),
                         const SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
