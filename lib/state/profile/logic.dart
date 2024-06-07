@@ -14,7 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
@@ -100,12 +99,7 @@ class ProfileLogic {
       if (result != null) {
         _state.setEditImage(result.$1, result.$2);
       }
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<void> checkUsername(String username) async {
@@ -287,14 +281,7 @@ class ProfileLogic {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      print(exception);
-      print(stackTrace);
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.setProfileError();
     return false;
@@ -365,12 +352,7 @@ class ProfileLogic {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.setProfileError();
     return false;

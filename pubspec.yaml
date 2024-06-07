@@ -42,7 +42,6 @@ dependencies:
   flutter_markdown: ^0.7.1
   package_info_plus: ^8.0.0
   rxdart: ^0.27.7
-  sentry_flutter: ^8.0.0
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
@@ -56,10 +55,10 @@ dependencies:
   cached_network_image: ^3.2.3
   universal_html: ^2.2.4
   audio_in_app: ^2.0.0
-  firebase_messaging: ^14.7.1
-  firebase_core: ^2.19.0
+  firebase_messaging: ^15.0.0
+  firebase_core: ^3.0.0
   flutter_inappwebview: ^6.0.0
-  credential_manager: ^0.0.3
+  credential_manager: ^1.0.1
   googleapis: ^13.1.0
   path_provider: ^2.1.2
   icloud_storage: ^2.2.0
@@ -70,12 +69,11 @@ dependencies:
   timeago: ^3.6.1
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.0
   nock: ^1.2.2
-  sentry_dart_plugin: ^2.0.0
 flutter:
   assets:
     - .env

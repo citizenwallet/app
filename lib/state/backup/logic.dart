@@ -14,7 +14,6 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class BackupLogic {
   final BackupState _state;
@@ -38,12 +37,7 @@ class BackupLogic {
       await _accounts.init(AndroidAccountsOptions(
         accountsDB: AccountsDBService(),
       ));
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<void> setupApple() async {
@@ -58,12 +52,7 @@ class BackupLogic {
           accountsDB: AccountsDBService(),
         ),
       );
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<bool> hasAccounts() async {
@@ -77,12 +66,7 @@ class BackupLogic {
       _state.checkRecoverSuccess();
 
       return accounts.isNotEmpty;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.checkRecoverError();
 
@@ -116,12 +100,7 @@ class BackupLogic {
       return true;
     } on BackupNotFoundException {
       _state.setStatus(BackupStatus.nobackup);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.backupError();
 
@@ -221,12 +200,7 @@ class BackupLogic {
     } on SourceMissingException {
       _state.decryptError(status: BackupStatus.nokey);
       return (null, null);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (_) {
       if (manualKey != null) {
         _state.decryptError(status: BackupStatus.wrongkey);
       } else {
@@ -305,15 +279,10 @@ class BackupLogic {
         'Unable to recover backup: invalid decryption key.',
         type: ToastType.error,
       );
-    } catch (exception, stackTrace) {
+    } catch (_) {
       _notifications.toastShow(
         'Unable to recover backup.',
         type: ToastType.error,
-      );
-
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
       );
 
       _state.backupError();
@@ -402,14 +371,10 @@ class BackupLogic {
         }
       }
       _state.backupError();
-    } catch (exception, stackTrace) {
+    } catch (_) {
       _notifications.toastShow(
         'Unable to backup.',
         type: ToastType.error,
-      );
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
       );
 
       _state.backupError();
@@ -421,12 +386,7 @@ class BackupLogic {
       final isSetup = await _credentials.isSetup();
 
       _state.setE2E(isSetup);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (_) {
       _state.setE2E(false);
     }
   }

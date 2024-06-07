@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:web3dart/crypto.dart';
-import 'package:web3dart/web3dart.dart';
 
 /// Signer loads a wallet from a json file and signs messages
 // class Signer {
@@ -123,12 +121,7 @@ bool verifySignature(SignatureVerifier verifier) {
       Signature.fromJson(decodedsig),
       convertBytesToUint8List(verifier.publicKey),
     );
-  } catch (exception, stackTrace) {
-    Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  }
+  } catch (_) {}
 
   return false;
 }

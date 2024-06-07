@@ -6,7 +6,6 @@ import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/sentry/sentry.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -38,11 +37,12 @@ void main() async {
   timeago.setLocaleMessages('fr', timeago.FrMessages());
   timeago.setLocaleMessages('nl', timeago.NlMessages());
 
-  await initSentry(
-    kDebugMode,
-    dotenv.get('SENTRY_URL'),
-    appRunner,
-  );
+  // await initSentry(
+  //   kDebugMode,
+  //   dotenv.get('SENTRY_URL'),
+  //   appRunner,
+  // );
+  appRunner();
 }
 
 FutureOr<void> appRunner() async {

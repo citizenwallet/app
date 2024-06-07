@@ -17,7 +17,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
@@ -115,12 +114,7 @@ class AppLogic {
       final address = dbWallet.address.hexEip55;
 
       return (address, dbWallet.alias);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -156,12 +150,7 @@ class AppLogic {
           locked: false,
         );
       }).toList();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -194,12 +183,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -217,12 +201,7 @@ class AppLogic {
       await delay(const Duration(milliseconds: 1500));
 
       return lastWallet;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -257,12 +236,7 @@ class AppLogic {
       _appState.importLoadingWebSuccess(password);
 
       return 'v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingWebError();
 
@@ -311,12 +285,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -372,12 +341,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return (address.hexEip55, alias);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -398,12 +362,7 @@ class AppLogic {
       await _preferences.clear();
 
       _appState.deleteBackupLoadingSuccess();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.deleteBackupLoadingError();
   }
