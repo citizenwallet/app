@@ -487,7 +487,13 @@ class ReceiveModalState extends State<ReceiveModal> {
                               ),
                             CupertinoButton(
                               onPressed: handleCloseEditing,
-                              child: Text(AppLocalizations.of(context)!.done),
+                              child: Text(
+                                AppLocalizations.of(context)!.done,
+                                style: TextStyle(
+                                  color:
+                                      ThemeColors.primary.resolveFrom(context),
+                                ),
+                              ),
                             ),
                           ],
                         ),

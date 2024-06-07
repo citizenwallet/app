@@ -4,6 +4,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
@@ -275,8 +276,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                   ),
                             onTap: () => handleCopy(qrData),
                             fontSize: 14,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            color: ThemeColors.subtle.resolveFrom(context),
                             textColor:
                                 ThemeColors.touchable.resolveFrom(context),
                             suffix: Icon(
@@ -306,86 +306,87 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                         const SizedBox(
                           height: 10,
                         ),
-                        if (!isExternalWallet)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Button(
-                                text: AppLocalizations.of(context)!.resetQRCode,
-                                onPressed: handleResetQRCode,
-                                minWidth: 200,
-                                maxWidth: 200,
-                                color: ThemeColors.uiBackground
-                                    .resolveFrom(context),
-                                labelColor:
-                                    ThemeColors.text.resolveFrom(context),
-                              ),
-                            ],
-                          ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        if (!isExternalWallet)
-                          Text(
-                            AppLocalizations.of(context)!.amount,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        if (!isExternalWallet) const SizedBox(height: 10),
+                        if (!isExternalWallet) const SizedBox(height: 20),
                         if (!isExternalWallet)
                           GestureDetector(
                             onTap: handleAmount,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    ThemeColors.background.resolveFrom(context),
-                                border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                            child: AnimatedOpacity(
+                              opacity: _isEnteringAmount ? 0 : 1,
+                              duration: const Duration(milliseconds: 200),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.uiBackgroundAlt
+                                      .resolveFrom(context),
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: ThemeColors.subtleEmphasis
+                                          .resolveFrom(context),
+                                      width: 2,
+                                    ),
+                                  ),
                                 ),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(5.0),
-                                ),
-                              ),
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: Row(
-                                children: [
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 0, 10, 0),
-                                      child: Text(
-                                        wallet?.symbol ?? '',
-                                        style: const TextStyle(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                child: Row(
+                                  children: [
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          10,
+                                          0,
+                                          10,
+                                          0,
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(context)!.request,
+                                          style: const TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.w500),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        _isEnteringAmount
+                                            ? '...'
+                                            : amount != ''
+                                                ? amount
+                                                : formatCurrency(0.00, ''),
                                         textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: amount != ''
+                                              ? ThemeColors.primary
+                                                  .resolveFrom(context)
+                                              : ThemeColors.subtleEmphasis
+                                                  .resolveFrom(context),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      _isEnteringAmount
-                                          ? '...'
-                                          : amount != ''
-                                              ? amount
-                                              : formatCurrency(0.00, ''),
-                                      style: const TextStyle(
-                                        fontSize: 16,
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 10, 0),
+                                        child: Text(
+                                          wallet?.symbol ?? '',
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Icon(CupertinoIcons.keyboard),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         const SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
                         if (!isExternalWallet)
                           Text(
@@ -399,38 +400,53 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                         if (!isExternalWallet)
                           GestureDetector(
                             onTap: handleDescribe,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    ThemeColors.background.resolveFrom(context),
-                                border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                            child: AnimatedOpacity(
+                              opacity: _isDescribing ? 0 : 1,
+                              duration: const Duration(milliseconds: 200),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.uiBackgroundAlt
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color: ThemeColors.subtleEmphasis
+                                        .resolveFrom(context),
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(5.0),
+                                  ),
                                 ),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(5.0),
-                                ),
-                              ),
-                              padding:
-                                  const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      _isDescribing
-                                          ? '...'
-                                          : message != ''
-                                              ? message
-                                              : AppLocalizations.of(context)!
-                                                  .descriptionMsg,
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _isDescribing
+                                            ? '...'
+                                            : message != ''
+                                                ? message
+                                                : AppLocalizations.of(context)!
+                                                    .descriptionMsg,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: ThemeColors.subtleEmphasis
+                                              .resolveFrom(context),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Icon(CupertinoIcons.pencil),
-                                ],
+                                    const SizedBox(
+                                      width: 10,
+                                      height: 80,
+                                    ),
+                                    Icon(
+                                      CupertinoIcons.pencil,
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -473,7 +489,13 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                               ),
                             CupertinoButton(
                               onPressed: handleCloseEditing,
-                              child: Text(AppLocalizations.of(context)!.done),
+                              child: Text(
+                                AppLocalizations.of(context)!.done,
+                                style: TextStyle(
+                                  color:
+                                      ThemeColors.primary.resolveFrom(context),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -496,65 +518,109 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                     ),
                   ),
                 if (_isEnteringAmount && !isExternalWallet)
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        child: Text(
-                          AppLocalizations.of(context)!.amount,
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                if (_isEnteringAmount && !isExternalWallet)
                   Container(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: Center(
-                      child: CupertinoTextField(
-                        controller: widget.logic.amountController,
-                        placeholder: formatCurrency(0.00, ''),
-                        prefix: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            child: Text(
-                              wallet?.symbol ?? '',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w500),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: ThemeColors.subtle.resolveFrom(context),
                         ),
-                        decoration: BoxDecoration(
-                          color: const CupertinoDynamicColor.withBrightness(
-                            color: CupertinoColors.white,
-                            darkColor: CupertinoColors.black,
-                          ),
-                          border: Border.all(
-                            color: ThemeColors.border.resolveFrom(context),
-                          ),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5.0)),
-                        ),
-                        maxLines: 1,
-                        maxLength: 25,
-                        focusNode: amountFocusNode,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: false,
-                        ),
-                        textInputAction: TextInputAction.done,
-                        inputFormatters: [
-                          amountFormatter,
-                        ],
-                        onChanged: handleThrottledUpdateQRCode,
-                        onSubmitted: (_) {
-                          handleSubmit();
-                        },
                       ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CupertinoTextField(
+                                controller: widget.logic.amountController,
+                                placeholder: formatCurrency(0.00, ''),
+                                prefix: Center(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.request,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                suffix: Center(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                    child: Text(
+                                      wallet?.symbol ?? '',
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.transparent
+                                      .resolveFrom(context),
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: ThemeColors.primary
+                                          .resolveFrom(context),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                textAlign: TextAlign.center,
+                                placeholderStyle: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeColors.subtleEmphasis
+                                      .resolveFrom(context),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      ThemeColors.primary.resolveFrom(context),
+                                ),
+                                maxLines: 1,
+                                maxLength: 25,
+                                focusNode: amountFocusNode,
+                                autocorrect: false,
+                                enableSuggestions: false,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                  signed: false,
+                                ),
+                                textInputAction: TextInputAction.done,
+                                inputFormatters: [
+                                  amountFormatter,
+                                ],
+                                onChanged: handleThrottledUpdateQRCode,
+                                onSubmitted: (_) {
+                                  handleSubmit();
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            if (isPlatformAndroid() || isPlatformApple())
+                              CupertinoButton(
+                                onPressed: handleCloseEditing,
+                                child: Icon(
+                                  CupertinoIcons.keyboard_chevron_compact_down,
+                                  color:
+                                      ThemeColors.primary.resolveFrom(context),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
               ],

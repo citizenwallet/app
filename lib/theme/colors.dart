@@ -155,12 +155,12 @@ class ThemeColors {
   );
 
   static const subtle = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.05),
+    color: Color.fromRGBO(241, 237, 242, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.1),
   );
 
   static const subtleEmphasis = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.15),
+    color: Color.fromRGBO(231, 227, 232, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.15),
   );
 

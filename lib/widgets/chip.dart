@@ -74,8 +74,8 @@ class ChipState extends State<Chip> {
           border: widget.onTap != null
               ? Border.all(
                   color: _tapped
-                      ? ThemeColors.success.resolveFrom(context)
-                      : widget.color,
+                      ? ThemeColors.primary.resolveFrom(context)
+                      : ThemeColors.subtleEmphasis.resolveFrom(context),
                   width: 2,
                 )
               : null,
@@ -105,7 +105,13 @@ class ChipState extends State<Chip> {
             ),
             if (widget.suffix != null) ...[
               const SizedBox(width: 5),
-              widget.suffix!,
+              if (!_tapped) widget.suffix!,
+              if (_tapped)
+                Icon(
+                  CupertinoIcons.check_mark,
+                  size: 14,
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
             ],
           ],
         ),
