@@ -1368,7 +1368,13 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void updateAddress({bool override = false}) {
-    _state.setHasAddress(_addressController.text.isNotEmpty || override);
+    if (override) {
+      _state.setHasAddress(true);
+      return;
+    }
+
+    final (address, _) = parseQRCode(_addressController.text);
+    _state.setHasAddress(address.isNotEmpty);
   }
 
   void setInvalidAddress() {

@@ -29,7 +29,7 @@ class ProfileRow extends StatelessWidget {
         border: Border.all(
           width: 2,
           color: active
-              ? ThemeColors.white
+              ? ThemeColors.subtleEmphasis.resolveFrom(context)
               : ThemeColors.uiBackgroundAlt.resolveFrom(context),
         ),
         color: ThemeColors.uiBackgroundAlt.resolveFrom(context),

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 class SlideToComplete extends StatefulWidget {
   final Widget child;
+  final Widget? suffix;
   final String completionLabel;
   final double width;
   final double childWidth;
@@ -16,6 +17,7 @@ class SlideToComplete extends StatefulWidget {
   const SlideToComplete({
     super.key,
     required this.child,
+    this.suffix,
     this.completionLabel = 'Slide to complete',
     this.width = 200,
     this.childWidth = 50,
@@ -32,7 +34,7 @@ class SlideToComplete extends StatefulWidget {
 
 class SlideToCompleteState extends State<SlideToComplete>
     with SingleTickerProviderStateMixin {
-  final double radius = 10;
+  final double radius = 27;
 
   int _duration = 0;
   double _offset = 0;
@@ -80,19 +82,22 @@ class SlideToCompleteState extends State<SlideToComplete>
 
   @override
   Widget build(BuildContext context) {
-    final double offsetComplete = widget.width - widget.childWidth;
+    final width = widget.width + 4;
+    final innerWidth = widget.width - 4;
+
+    final double offsetComplete = width - widget.childWidth;
 
     return GestureDetector(
       onHorizontalDragUpdate: (details) {
         if (widget.isComplete) return;
 
         widget.onSlide
-            ?.call(((_offset + widget.childWidth) / widget.width).clamp(0, 1));
+            ?.call(((_offset + widget.childWidth) / innerWidth).clamp(0, 1));
 
-        if (_offset + widget.childWidth >= widget.width) {
+        if (_offset + widget.childWidth >= innerWidth) {
           setState(() {
             _duration = 0;
-            _offset = widget.width - widget.childWidth;
+            _offset = width - widget.childWidth;
           });
           onComplete();
           return;
@@ -102,7 +107,7 @@ class SlideToCompleteState extends State<SlideToComplete>
 
         setState(() {
           _duration = 0;
-          _offset = newOffset.clamp(0, widget.width);
+          _offset = newOffset.clamp(0, width);
         });
       },
       onHorizontalDragEnd: (details) {
@@ -116,31 +121,33 @@ class SlideToCompleteState extends State<SlideToComplete>
         });
       },
       child: SizedBox(
-        height: 50,
-        width: widget.width,
+        height: 54,
+        width: width,
         child: Stack(
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: widget.width,
-              height: 50,
+              height: 54,
               decoration: BoxDecoration(
                 color: widget.enabled
-                    ? ThemeColors.surfacePrimary.resolveFrom(context)
+                    ? ThemeColors.surfacePrimary
+                        .resolveFrom(context)
+                        .withOpacity(0.25)
                     : ThemeColors.uiBackgroundAlt.resolveFrom(context),
                 borderRadius: BorderRadius.circular(radius),
                 border: Border.all(
-                  color: widget.isComplete
+                  color: widget.enabled
                       ? ThemeColors.surfacePrimary.resolveFrom(context)
                       : ThemeColors.uiBackgroundAlt.resolveFrom(context),
                   width: 2,
                   strokeAlign: BorderSide.strokeAlignOutside,
                 ),
               ),
+              padding: const EdgeInsets.all(2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (widget.enabled) const SizedBox(width: 30),
                   Text(
                     widget.completionLabel,
                     style: TextStyle(
@@ -165,28 +172,22 @@ class SlideToCompleteState extends State<SlideToComplete>
                     child: Icon(
                       CupertinoIcons.arrow_right,
                       size: 30,
-                      color: ThemeColors.black.withOpacity(0.25),
+                      color: ThemeColors.surfacePrimary.withOpacity(0.25),
                     ),
                   ),
                 ),
               ),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: _duration),
-              curve: Curves.easeInOut,
-              left: widget.isComplete ? offsetComplete : _offset,
-              child: Container(
-                width: widget.width,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                  borderRadius: BorderRadius.circular(radius),
-                ),
+            if (widget.suffix != null)
+              Positioned(
+                top: 2,
+                right: 6,
+                child: widget.suffix!,
               ),
-            ),
             AnimatedPositioned(
               duration: Duration(milliseconds: _duration),
               curve: Curves.easeInOut,
-              left: widget.isComplete ? offsetComplete : _offset,
+              top: 2,
+              left: (widget.isComplete ? offsetComplete : _offset) + 2,
               child: AnimatedOpacity(
                 opacity: widget.enabled ? 1 : 0.5,
                 duration: const Duration(milliseconds: 250),

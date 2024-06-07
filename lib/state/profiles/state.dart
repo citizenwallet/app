@@ -108,6 +108,7 @@ class ProfilesState with ChangeNotifier {
   void isSelected(ProfileV1? profile) {
     if (profile != null) {
       selectedProfile = profile.copyWith();
+      searchedProfile = null;
       notifyListeners();
       return;
     }
