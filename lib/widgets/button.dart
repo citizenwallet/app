@@ -27,6 +27,7 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       color: color ?? ThemeColors.surfacePrimary.resolveFrom(context),
+      borderRadius: BorderRadius.circular(minWidth / 2),
       onPressed: onPressed,
       padding: const EdgeInsets.all(8),
       child: ConstrainedBox(

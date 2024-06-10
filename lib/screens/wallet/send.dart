@@ -58,8 +58,6 @@ class SendScreen extends StatefulWidget {
 class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
   late WalletLogic _logic;
 
-  final ScrollController _scrollController = ScrollController();
-
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
 
@@ -71,7 +69,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
 
   final double animationSize = 200;
 
-  bool _isAtTop = true;
   bool _isScanning = true;
   bool _scannerOn = true;
   bool _isSending = false;
@@ -108,7 +105,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     //
-    _scrollController.removeListener(onScrollUpdate);
     _logic.stopListeningMessage();
     messageFocusNode.removeListener(handleMessageListenerUpdate);
 
@@ -120,7 +116,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
   }
 
   void onLoad() async {
-    _scrollController.addListener(onScrollUpdate);
     _logic.startListeningMessage();
     messageFocusNode.addListener(handleMessageListenerUpdate);
 
@@ -159,17 +154,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
     if (!messageFocusNode.hasFocus) {
       handleDescribeDone();
     }
-  }
-
-  void onScrollUpdate() {
-    const threshold = 20;
-    final isAtTop = _scrollController.position.pixels <= threshold;
-
-    if (!isAtTop && _isAtTop) {
-      closeScanner();
-    }
-
-    _isAtTop = _scrollController.position.pixels <= threshold;
   }
 
   void handleDescribe() async {
@@ -401,12 +385,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
       _scannerOn = true;
     });
 
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-
     await delay(const Duration(milliseconds: 200));
 
     HapticFeedback.heavyImpact();
@@ -550,7 +528,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                       child: ListView(
-                        controller: _scrollController,
                         physics: const ScrollPhysics(
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
@@ -734,28 +711,6 @@ class SendScreenState extends State<SendScreen> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                      suffix: !widget.isMinting
-                                          ? Center(
-                                              child: CupertinoButton(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                10,
-                                                0,
-                                                10,
-                                                0,
-                                              ),
-                                              onPressed: handleSetMaxAmount,
-                                              child: Text(
-                                                AppLocalizations.of(context)!
-                                                    .max,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ))
-                                          : null,
                                     ),
                                     if (_isScanning)
                                       GestureDetector(

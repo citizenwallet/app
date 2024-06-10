@@ -1363,6 +1363,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _addressController.clear();
   }
 
+  void clearAmountController() {
+    _amountController.clear();
+  }
+
   void resetInputErrorState() {
     _state.resetInvalidInputs();
   }

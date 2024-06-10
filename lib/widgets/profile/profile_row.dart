@@ -26,20 +26,18 @@ class ProfileRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 2,
-          color: active
-              ? ThemeColors.subtleEmphasis.resolveFrom(context)
-              : ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        ),
-        color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        border: active
+            ? Border.all(
+                width: 2,
+                color: ThemeColors.subtleEmphasis.resolveFrom(context),
+              )
+            : null,
         borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
         ),
       ),
       child: CupertinoButton(
         onPressed: onTap,
-        color: ThemeColors.subtle.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

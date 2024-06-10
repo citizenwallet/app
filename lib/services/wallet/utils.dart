@@ -50,8 +50,10 @@ String fromUnit(BigInt amount, {int decimals = 6}) {
 
 String fromDoubleUnit(String amount, {int decimals = 6}) {
   final exponent = decimals;
-  return (double.parse(amount) / pow(10.0, exponent < 0 ? 0 : exponent))
-      .toStringAsFixed(2);
+
+  final d = (double.parse(amount) / pow(10.0, exponent < 0 ? 0 : exponent));
+
+  return exponent > 0 ? d.toStringAsFixed(2) : d.toStringAsFixed(0);
 }
 
 BigInt parseIntFromHex(String hex) {

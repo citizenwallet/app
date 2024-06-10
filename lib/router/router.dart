@@ -8,6 +8,8 @@ import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
+import 'package:citizenwallet/screens/send/send_amount.dart';
+import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/vouchers/screen.dart';
@@ -153,8 +155,8 @@ GoRouter createRouter(
               },
             ),
             GoRoute(
-              name: 'Send',
-              path: 'send',
+              name: 'Send To',
+              path: 'send/to',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
                 if (state.extra == null) {
@@ -163,7 +165,7 @@ GoRouter createRouter(
 
                 final extra = state.extra as Map<String, dynamic>;
 
-                return SendScreen(
+                return SendToScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
                   receiveParams: extra['receiveParams'],
@@ -171,6 +173,26 @@ GoRouter createRouter(
                   to: extra['to'],
                   amount: extra['amount'],
                   message: extra['message'],
+                  isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send To Specific',
+              path: 'send/:to',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendAmountScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  to: state.pathParameters['to'],
+                  isMinting: extra['isMinting'] ?? false,
                 );
               },
             ),
