@@ -1,18 +1,13 @@
 import 'package:citizenwallet/modals/wallet/deep_link.dart';
-import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
-import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
-import 'package:citizenwallet/modals/vouchers/screen.dart';
-import 'package:citizenwallet/modals/wallet/receive.dart';
-import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -175,7 +170,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     }
 
     if (widget.receiveParams != null) {
-      await handleSendModal(receiveParams: widget.receiveParams);
+      await handleSendScreen(receiveParams: widget.receiveParams);
     }
 
     if (widget.deepLink != null && widget.deepLinkParams != null) {
@@ -335,16 +330,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => SendModal(
-          walletLogic: _logic,
-          profilesLogic: _profilesLogic,
-          id: id,
-        ),
-      );
+      // await showCupertinoModalBottomSheet(
+      //   context: context,
+      //   expand: true,
+      //   useRootNavigator: true,
+      //   builder: (_) => SendModal(
+      //     walletLogic: _logic,
+      //     profilesLogic: _profilesLogic,
+      //     id: id,
+      //   ),
+      // );
     }
 
     if (option == 'delete') {
@@ -362,23 +357,23 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
-  Future<void> handleSendModal({String? receiveParams}) async {
+  Future<void> handleSendScreen({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: _logic,
-        profilesLogic: _profilesLogic,
-        receiveParams: receiveParams,
-      ),
-    );
+    // await showCupertinoModalBottomSheet<bool?>(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => SendModal(
+    //     walletLogic: _logic,
+    //     profilesLogic: _profilesLogic,
+    //     receiveParams: receiveParams,
+    //   ),
+    // );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -392,14 +387,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => ReceiveModal(
-        logic: _logic,
-      ),
-    );
+    // await showCupertinoModalBottomSheet(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => ReceiveModal(
+    //     logic: _logic,
+    //   ),
+    // );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -413,16 +408,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => CupertinoScaffold(
-        topRadius: const Radius.circular(40),
-        transitionBackgroundColor: ThemeColors.transparent,
-        body: const VouchersModal(),
-      ),
-    );
+    // await CupertinoScaffold.showCupertinoModalBottomSheet(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => CupertinoScaffold(
+    //     topRadius: const Radius.circular(40),
+    //     transitionBackgroundColor: ThemeColors.transparent,
+    //     body: const VouchersModal(),
+    //   ),
+    // );
 
     await _voucherLogic.fetchVouchers();
 
@@ -561,7 +556,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   : WalletScrollView(
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
-                      handleSendModal: handleSendModal,
+                      handleSendScreen: handleSendScreen,
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,

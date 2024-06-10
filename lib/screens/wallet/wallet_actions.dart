@@ -20,7 +20,7 @@ class WalletActions extends StatelessWidget {
   final double shrink;
   final bool refreshing;
 
-  final void Function()? handleSendModal;
+  final void Function()? handleSendScreen;
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
@@ -31,7 +31,7 @@ class WalletActions extends StatelessWidget {
     super.key,
     this.shrink = 0,
     this.refreshing = false,
-    this.handleSendModal,
+    this.handleSendScreen,
     this.handleReceive,
     this.handlePlugin,
     this.handleCards,
@@ -67,7 +67,7 @@ class WalletActions extends StatelessWidget {
         wallet?.locked == false &&
         (!loading || !firstLoad) &&
         wallet?.doubleBalance != 0.0 &&
-        handleSendModal != null;
+        handleSendScreen != null;
 
     final isIncreasing = newBalance > balance;
 
@@ -233,7 +233,7 @@ class WalletActions extends StatelessWidget {
                           ),
                           if (wallet?.locked == false &&
                               (!loading || !firstLoad) &&
-                              handleSendModal != null)
+                              handleSendScreen != null)
                             WalletActionButton(
                               icon: CupertinoIcons.arrow_up,
                               buttonSize: buttonSize,
@@ -245,7 +245,7 @@ class WalletActions extends StatelessWidget {
                                   : AppLocalizations.of(context)!.send,
                               loading: sendLoading,
                               disabled: blockSending,
-                              onPressed: handleSendModal,
+                              onPressed: handleSendScreen,
                             ),
                           if (wallet?.locked == false)
                             SizedBox(width: buttonSeparator),

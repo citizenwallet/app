@@ -1,6 +1,5 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
@@ -14,7 +13,6 @@ import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
@@ -180,7 +178,7 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (_receiveParams != null) {
-      await handleSendModal(receiveParams: _receiveParams);
+      await handleSendScreen(receiveParams: _receiveParams);
     }
 
     if (_deepLink != null && _deepLinkParams != null) {
@@ -392,7 +390,7 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  Future<void> handleSendModal({String? receiveParams}) async {
+  Future<void> handleSendScreen({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
@@ -749,7 +747,7 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (receiveParams != null) {
-      await handleSendModal(receiveParams: receiveParams);
+      await handleSendScreen(receiveParams: receiveParams);
     }
 
     if (deepLink != null && deepLinkParams != null) {
@@ -807,7 +805,7 @@ class WalletScreenState extends State<WalletScreen> {
                 : WalletScrollView(
                     controller: _scrollController,
                     handleRefresh: handleRefresh,
-                    handleSendModal: handleSendModal,
+                    handleSendScreen: handleSendScreen,
                     handleReceive: handleReceive,
                     handlePlugin: handlePlugin,
                     handleCards: handleCards,

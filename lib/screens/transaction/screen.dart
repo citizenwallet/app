@@ -1,6 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -58,17 +57,12 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: widget.logic,
-        profilesLogic: widget.profilesLogic,
-        to: address,
-      ),
-    );
+    final sent = await navigator
+        .push<bool?>('/wallet/${widget.logic.account}/send', extra: {
+      'walletLogic': widget.logic,
+      'profilesLogic': widget.profilesLogic,
+      'to': address,
+    });
 
     if (sent == true) {
       navigator.pop(sent);
@@ -93,19 +87,14 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: widget.logic,
-        profilesLogic: widget.profilesLogic,
-        to: address,
-        amount: (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
-        message: message,
-      ),
-    );
+    final sent = await navigator
+        .push<bool?>('/wallet/${widget.logic.account}/send', extra: {
+      'walletLogic': widget.logic,
+      'profilesLogic': widget.profilesLogic,
+      'to': address,
+      'amount': (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
+      'message': message,
+    });
 
     if (sent == true) {
       navigator.pop(sent);
@@ -480,8 +469,7 @@ class TransactionScreenState extends State<TransactionScreen> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        AppLocalizations.of(context)!
-                                            .sendAgain,
+                                        AppLocalizations.of(context)!.sendAgain,
                                         style: const TextStyle(
                                           color: ThemeColors.black,
                                         ),

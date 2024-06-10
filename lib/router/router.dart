@@ -168,6 +168,9 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                   receiveParams: extra['receiveParams'],
                   id: extra['id'],
+                  to: extra['to'],
+                  amount: extra['amount'],
+                  message: extra['message'],
                 );
               },
             ),
