@@ -179,8 +179,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         selectedAddress ?? walletLogic.addressController.value.text;
 
     walletLogic.sendTransaction(
-      // walletLogic.amountController.value.text,
-      '${walletLogic.amountController.value.text}0000000000',
+      walletLogic.amountController.value.text,
       selectedAddress ?? walletLogic.addressController.value.text,
       message: walletLogic.messageController.value.text.trim(),
     );
