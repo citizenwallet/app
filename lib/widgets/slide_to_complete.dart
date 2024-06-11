@@ -5,6 +5,7 @@ class SlideToComplete extends StatefulWidget {
   final Widget child;
   final Widget? suffix;
   final String completionLabel;
+  final Color? completionLabelColor;
   final double width;
   final double childWidth;
   final bool isComplete;
@@ -19,6 +20,7 @@ class SlideToComplete extends StatefulWidget {
     required this.child,
     this.suffix,
     this.completionLabel = 'Slide to complete',
+    this.completionLabelColor,
     this.width = 200,
     this.childWidth = 50,
     this.isComplete = false,
@@ -152,7 +154,7 @@ class SlideToCompleteState extends State<SlideToComplete>
                     widget.completionLabel,
                     style: TextStyle(
                       color: widget.enabled
-                          ? ThemeColors.black
+                          ? widget.completionLabelColor ?? ThemeColors.black
                           : ThemeColors.subtleText,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
