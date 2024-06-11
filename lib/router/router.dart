@@ -9,6 +9,7 @@ import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/send/send_details.dart';
+import 'package:citizenwallet/screens/send/send_link_progress.dart';
 import 'package:citizenwallet/screens/send/send_progress.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
@@ -169,12 +170,32 @@ GoRouter createRouter(
                 return SendToScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
                   receiveParams: extra['receiveParams'],
                   id: extra['id'],
                   to: extra['to'],
                   amount: extra['amount'],
                   message: extra['message'],
                   isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Details Link',
+              path: 'send/link',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendDetailsScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
+                  isLink: true,
                 );
               },
             ),
@@ -192,8 +213,25 @@ GoRouter createRouter(
                 return SendDetailsScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
                   to: state.pathParameters['to'],
                   isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Link Progress',
+              path: 'send/link/progress',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendLinkProgress(
+                  voucherLogic: extra['voucherLogic'],
                 );
               },
             ),

@@ -1,6 +1,7 @@
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -21,20 +22,24 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
+  final VoucherLogic voucherLogic;
 
   final String? to;
 
   final String? receiveParams;
 
   final bool isMinting;
+  final bool isLink;
 
   const SendDetailsScreen({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
+    required this.voucherLogic,
     this.to,
     this.receiveParams,
     this.isMinting = false,
+    this.isLink = false,
   });
 
   @override
@@ -53,7 +58,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
-  bool _isDescribing = false;
 
   @override
   void initState() {
@@ -100,6 +104,43 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final walletLogic = widget.walletLogic;
 
     walletLogic.setMaxAmount();
+  }
+
+  void handleCreateVoucher(BuildContext context, String symbol) async {
+    if (_isSending) {
+      return;
+    }
+
+    setState(() {
+      _isSending = true;
+    });
+
+    final voucherLogic = widget.voucherLogic;
+    final walletLogic = widget.walletLogic;
+
+    voucherLogic.createVoucher(
+      balance: widget.walletLogic.amountController.value.text,
+      symbol: symbol,
+    );
+
+    voucherLogic.shareReady();
+
+    HapticFeedback.heavyImpact();
+
+    final navigator = GoRouter.of(context);
+
+    final sent = await navigator.push<bool?>(
+        '/wallet/${walletLogic.account}/send/link/progress',
+        extra: {
+          'voucherLogic': voucherLogic,
+        });
+
+    if (sent == true) {
+      navigator.pop(true);
+      return;
+    }
+
+    return;
   }
 
   void handleSend(BuildContext context, String? selectedAddress) async {
@@ -258,13 +299,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       (ProfilesState state) => state.selectedProfile,
     );
 
+    final isLink = widget.isLink;
+
     final isValid = (hasAddress &&
             walletLogic.addressController.value.text.startsWith('0x') &&
             walletLogic.addressController.value.text.length == 42) ||
         selectedProfile != null;
 
-    final isSendingValid =
-        hasAddress && hasAmount && !invalidAmount && !invalidAddress;
+    final isSendingValid = (hasAddress || isLink) &&
+        hasAmount &&
+        !invalidAmount &&
+        (!invalidAddress || isLink);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -452,34 +497,36 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           ],
                         ),
                         const SizedBox(height: 30),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: Text(
-                            AppLocalizations.of(context)!.description,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                        if (!isLink)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: CupertinoTextField(
-                            controller: walletLogic.messageController,
-                            placeholder:
-                                AppLocalizations.of(context)!.sendDescription,
-                            minLines: 4,
-                            maxLines: 10,
-                            maxLength: 200,
-                            textCapitalization: TextCapitalization.sentences,
-                            textInputAction: TextInputAction.newline,
-                            textAlignVertical: TextAlignVertical.top,
-                            focusNode: messageFocusNode,
-                            autocorrect: true,
-                            enableSuggestions: true,
+                        if (!isLink) const SizedBox(height: 10),
+                        if (!isLink)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: CupertinoTextField(
+                              controller: walletLogic.messageController,
+                              placeholder:
+                                  AppLocalizations.of(context)!.sendDescription,
+                              minLines: 4,
+                              maxLines: 10,
+                              maxLength: 200,
+                              textCapitalization: TextCapitalization.sentences,
+                              textInputAction: TextInputAction.newline,
+                              textAlignVertical: TextAlignVertical.top,
+                              focusNode: messageFocusNode,
+                              autocorrect: true,
+                              enableSuggestions: true,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     if (isSendingValid)
@@ -504,22 +551,22 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                       ? widget.isMinting
                                           ? () => handleMint(
                                               context, selectedProfile?.account)
-                                          : () => handleSend(
-                                                context,
-                                                selectedProfile?.account,
-                                              )
+                                          : isLink
+                                              ? () => handleCreateVoucher(
+                                                  context, wallet?.symbol ?? '')
+                                              : () => handleSend(
+                                                    context,
+                                                    selectedProfile?.account,
+                                                  )
                                       : null,
                                   enabled: isSendingValid,
                                   isComplete: _isSending,
                                   completionLabel: widget.isMinting
-                                      ? (_isSending
+                                      ? AppLocalizations.of(context)!
+                                          .swipeToMint
+                                      : isLink
                                           ? AppLocalizations.of(context)!
-                                              .minting
-                                          : AppLocalizations.of(context)!
-                                              .swipeToMint)
-                                      : _isSending
-                                          ? AppLocalizations.of(context)!
-                                              .sending
+                                              .swipeToConfirm
                                           : AppLocalizations.of(context)!
                                               .swipeToSend,
                                   completionLabelColor:

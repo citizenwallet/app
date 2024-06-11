@@ -402,6 +402,7 @@ class WalletScreenState extends State<WalletScreen> {
     await navigator.push('/wallet/$_address/send', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
+      'voucherLogic': _voucherLogic,
       'receiveParams': receiveParams,
     });
 
@@ -492,6 +493,7 @@ class WalletScreenState extends State<WalletScreen> {
     navigator.push('/wallet/$_address/mint', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
+      'voucherLogic': _voucherLogic,
       'receiveParams': receiveParams,
     });
 

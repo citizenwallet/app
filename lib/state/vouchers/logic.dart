@@ -254,7 +254,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final config = await _config.getConfig(_wallet.alias);
 
-      _state.createVoucherFunding();
+      // _state.createVoucherFunding();
 
       final List<String> addresses = [];
       final List<Uint8List> calldata = [];
@@ -375,8 +375,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       await _db.vouchers.insert(dbvoucher);
 
-      _state.createVoucherFunding();
-
       final calldata = _wallet.erc20TransferCallData(
         account.hexEip55,
         parsedAmount,
@@ -395,11 +393,6 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      final success = await _wallet.waitForTxSuccess(txHash);
-      if (!success) {
-        throw Exception('transaction failed');
-      }
-
       final voucher = Voucher(
         address: dbvoucher.address,
         alias: dbvoucher.alias,
@@ -413,7 +406,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final appLink = config.community.walletUrl(deepLinkURL);
 
-      _state.createVoucherSuccess(
+      _state.createVoucherFunding(
         voucher,
         voucher.getLink(
           appLink,
@@ -422,8 +415,14 @@ class VoucherLogic extends WidgetsBindingObserver {
         ),
       );
 
-      // pre-create account of voucher
-      // _wallet.createAccount(customCredentials: credentials);
+      final success = await _wallet.waitForTxSuccess(txHash);
+      if (!success) {
+        throw Exception('transaction failed');
+      }
+
+      _state.createVoucherSuccess(
+        voucher,
+      );
       return;
     } catch (_) {
       //

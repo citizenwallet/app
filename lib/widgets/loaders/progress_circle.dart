@@ -32,7 +32,7 @@ class _ProgressCircleState extends State<ProgressCircle>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500), // Adjust duration as needed
+      duration: const Duration(milliseconds: 300), // Adjust duration as needed
       vsync: this,
     );
 

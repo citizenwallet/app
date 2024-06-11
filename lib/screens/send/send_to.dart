@@ -4,6 +4,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -24,6 +25,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
+  final VoucherLogic voucherLogic;
 
   final String? id;
   final String? to;
@@ -38,6 +40,7 @@ class SendToScreen extends StatefulWidget {
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
+    required this.voucherLogic,
     this.id,
     this.to,
     this.amount,
@@ -112,8 +115,27 @@ class _SendToScreenState extends State<SendToScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
-  void handleSendLink(BuildContext context) {
-    print('send link');
+  void handleSendLink(BuildContext context) async {
+    final walletLogic = widget.walletLogic;
+
+    final profilesLogic = widget.profilesLogic;
+
+    profilesLogic.clearSearch(notify: false);
+
+    final navigator = GoRouter.of(context);
+
+    final sent = await navigator
+        .push('/wallet/${walletLogic.account}/send/link', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
+      'voucherLogic': widget.voucherLogic,
+    });
+
+    if (sent == true) {
+      navigator.pop(true);
+    }
+
+    onLoad();
   }
 
   void handleScanQRCode(BuildContext context) async {
@@ -164,7 +186,10 @@ class _SendToScreenState extends State<SendToScreen> {
     handleSetAmount(context, account: profile.account);
   }
 
-  void handleSetAmount(BuildContext context, {String? account}) async {
+  void handleSetAmount(
+    BuildContext context, {
+    String? account,
+  }) async {
     final walletLogic = widget.walletLogic;
 
     final selectedProfile = context.read<ProfilesState>().selectedProfile;
@@ -185,12 +210,16 @@ class _SendToScreenState extends State<SendToScreen> {
         .push('/wallet/${walletLogic.account}/send/$toAccount', extra: {
       'walletLogic': walletLogic,
       'profilesLogic': profilesLogic,
+      'voucherLogic': widget.voucherLogic,
       'isMinting': widget.isMinting,
     });
 
     if (sent == true) {
       navigator.pop(true);
+      return;
     }
+
+    onLoad();
   }
 
   void handleDismissSelection() async {
