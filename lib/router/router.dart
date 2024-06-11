@@ -8,7 +8,7 @@ import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
-import 'package:citizenwallet/screens/send/send_amount.dart';
+import 'package:citizenwallet/screens/send/send_details.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
@@ -156,7 +156,7 @@ GoRouter createRouter(
             ),
             GoRoute(
               name: 'Send To',
-              path: 'send/to',
+              path: 'send',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
                 if (state.extra == null) {
@@ -178,7 +178,7 @@ GoRouter createRouter(
               },
             ),
             GoRoute(
-              name: 'Send To Specific',
+              name: 'Send Details',
               path: 'send/:to',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
@@ -188,7 +188,7 @@ GoRouter createRouter(
 
                 final extra = state.extra as Map<String, dynamic>;
 
-                return SendAmountScreen(
+                return SendDetailsScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
                   to: state.pathParameters['to'],

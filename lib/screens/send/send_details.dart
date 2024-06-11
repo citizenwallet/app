@@ -1,8 +1,5 @@
-import 'package:citizenwallet/router/utils.dart';
-import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -10,14 +7,9 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
-import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
-import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/profile/profile_row.dart';
-import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class SendAmountScreen extends StatefulWidget {
+class SendDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
 
@@ -36,7 +28,7 @@ class SendAmountScreen extends StatefulWidget {
 
   final bool isMinting;
 
-  const SendAmountScreen({
+  const SendDetailsScreen({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
@@ -46,11 +38,12 @@ class SendAmountScreen extends StatefulWidget {
   });
 
   @override
-  State<SendAmountScreen> createState() => _SendAmountScreenState();
+  State<SendDetailsScreen> createState() => _SendDetailsScreenState();
 }
 
-class _SendAmountScreenState extends State<SendAmountScreen> {
+class _SendDetailsScreenState extends State<SendDetailsScreen> {
   final FocusNode amountFocusNode = FocusNode();
+  final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
   final IntegerAmountFormatter integerAmountFormatter =
       IntegerAmountFormatter();
@@ -60,6 +53,7 @@ class _SendAmountScreenState extends State<SendAmountScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
+  bool _isDescribing = false;
 
   @override
   void initState() {
@@ -342,8 +336,7 @@ class _SendAmountScreenState extends State<SendAmountScreen> {
                             },
                             prefix: Center(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                                 child: Text(
                                   AppLocalizations.of(context)!.request,
                                   style: const TextStyle(
@@ -356,8 +349,7 @@ class _SendAmountScreenState extends State<SendAmountScreen> {
                             ),
                             suffix: Center(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                 child: Text(
                                   wallet?.symbol ?? '',
                                   style: const TextStyle(
@@ -438,6 +430,35 @@ class _SendAmountScreenState extends State<SendAmountScreen> {
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 30),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            AppLocalizations.of(context)!.description,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: CupertinoTextField(
+                            controller: walletLogic.messageController,
+                            placeholder:
+                                AppLocalizations.of(context)!.sendDescription,
+                            minLines: 4,
+                            maxLines: 10,
+                            maxLength: 200,
+                            textCapitalization: TextCapitalization.sentences,
+                            textInputAction: TextInputAction.newline,
+                            textAlignVertical: TextAlignVertical.top,
+                            focusNode: messageFocusNode,
+                            autocorrect: true,
+                            enableSuggestions: true,
+                          ),
                         ),
                       ],
                     ),

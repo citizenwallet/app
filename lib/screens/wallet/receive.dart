@@ -326,25 +326,17 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                 ),
                                 padding:
                                     const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                                 child: Row(
                                   children: [
                                     Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          10,
-                                          0,
+                                      child: Text(
+                                        AppLocalizations.of(context)!.request,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        child: Text(
-                                          AppLocalizations.of(context)!.request,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Expanded(
@@ -367,16 +359,12 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                       ),
                                     ),
                                     Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            10, 0, 10, 0),
-                                        child: Text(
-                                          wallet?.symbol ?? '',
-                                          style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w500),
-                                          textAlign: TextAlign.center,
-                                        ),
+                                      child: Text(
+                                        wallet?.symbol ?? '',
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ],
@@ -388,63 +376,71 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                           height: 20,
                         ),
                         if (!isExternalWallet)
-                          Text(
-                            AppLocalizations.of(context)!.description,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         if (!isExternalWallet) const SizedBox(height: 10),
                         if (!isExternalWallet)
-                          GestureDetector(
-                            onTap: handleDescribe,
-                            child: AnimatedOpacity(
-                              opacity: _isDescribing ? 0 : 1,
-                              duration: const Duration(milliseconds: 200),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: ThemeColors.uiBackgroundAlt
-                                      .resolveFrom(context),
-                                  border: Border.all(
-                                    color: ThemeColors.subtleEmphasis
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: GestureDetector(
+                              onTap: handleDescribe,
+                              child: AnimatedOpacity(
+                                opacity: _isDescribing ? 0 : 1,
+                                duration: const Duration(milliseconds: 200),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: ThemeColors.uiBackgroundAlt
                                         .resolveFrom(context),
-                                  ),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0),
-                                  ),
-                                ),
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        _isDescribing
-                                            ? '...'
-                                            : message != ''
-                                                ? message
-                                                : AppLocalizations.of(context)!
-                                                    .descriptionMsg,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: ThemeColors.subtleEmphasis
-                                              .resolveFrom(context),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                      height: 80,
-                                    ),
-                                    Icon(
-                                      CupertinoIcons.pencil,
-                                      color: ThemeColors.surfacePrimary
+                                    border: Border.all(
+                                      color: ThemeColors.subtleEmphasis
                                           .resolveFrom(context),
                                     ),
-                                  ],
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(5.0),
+                                    ),
+                                  ),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _isDescribing
+                                              ? '...'
+                                              : message != ''
+                                                  ? message
+                                                  : AppLocalizations.of(
+                                                          context)!
+                                                      .descriptionMsg,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: ThemeColors.subtleEmphasis
+                                                .resolveFrom(context),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                        height: 80,
+                                      ),
+                                      Icon(
+                                        CupertinoIcons.pencil,
+                                        color: ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
