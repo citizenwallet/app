@@ -124,12 +124,14 @@ class _SendProgressState extends State<SendProgress> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ProgressCircle(
-                                progress: switch (inProgressTransaction.state) {
-                                  TransactionState.sending => 0.5,
-                                  TransactionState.pending => 1,
-                                  TransactionState.success => 1,
-                                  _ => 0,
-                                },
+                                progress: inProgressTransactionError
+                                    ? 0
+                                    : switch (inProgressTransaction.state) {
+                                        TransactionState.sending => 0.5,
+                                        TransactionState.pending => 1,
+                                        TransactionState.success => 1,
+                                        _ => 0,
+                                      },
                                 size: 100,
                                 color: ThemeColors.primary.resolveFrom(context),
                                 trackColor: inProgressTransactionError
@@ -148,12 +150,12 @@ class _SendProgressState extends State<SendProgress> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            isSending
-                                ? AppLocalizations.of(context)!.sending
-                                : !inProgressTransactionError
-                                    ? '${AppLocalizations.of(context)!.sent}! 🎉'
-                                    : AppLocalizations.of(context)!
-                                        .failedSend(wallet.symbol),
+                            inProgressTransactionError
+                                ? AppLocalizations.of(context)!
+                                    .failedSend(wallet.symbol)
+                                : isSending
+                                    ? AppLocalizations.of(context)!.sending
+                                    : '${AppLocalizations.of(context)!.sent}! 🎉',
                             style: TextStyle(
                               color: ThemeColors.text.resolveFrom(context),
                               fontWeight: FontWeight.bold,
@@ -292,7 +294,7 @@ class _SendProgressState extends State<SendProgress> {
                     ),
                   ],
                 ),
-              if (!isSending && inProgressTransactionError)
+              if (inProgressTransactionError)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,

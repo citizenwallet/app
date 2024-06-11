@@ -138,6 +138,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       return;
     }
 
+    setState(() {
+      _isSending = false;
+    });
+
     return;
   }
 
@@ -181,10 +185,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       message: walletLogic.messageController.value.text.trim(),
     );
 
-    walletLogic.clearInputControllers();
-    walletLogic.resetInputErrorState();
-    widget.profilesLogic.clearSearch();
-
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
@@ -193,9 +193,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
 
     if (sent == true) {
+      walletLogic.clearInputControllers();
+      walletLogic.resetInputErrorState();
+      widget.profilesLogic.clearSearch();
+
       navigator.pop(true);
       return;
     }
+
+    setState(() {
+      _isSending = false;
+    });
 
     return;
   }
@@ -238,10 +246,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       toAccount,
     );
 
-    walletLogic.clearInputControllers();
-    walletLogic.resetInputErrorState();
-    widget.profilesLogic.clearSearch();
-
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
@@ -250,9 +254,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
 
     if (sent == true) {
+      walletLogic.clearInputControllers();
+      walletLogic.resetInputErrorState();
+      widget.profilesLogic.clearSearch();
+
       navigator.pop(true);
       return;
     }
+
+    setState(() {
+      _isSending = false;
+    });
 
     return;
   }
