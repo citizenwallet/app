@@ -279,8 +279,16 @@ class WalletState with ChangeNotifier {
   }
 
   CWTransaction? inProgressTransaction;
+  // CWTransaction? inProgressTransaction = CWTransaction.failed(
+  //   '5.00',
+  //   id: '0x123',
+  //   hash: '0x123',
+  //   description: 'Hello',
+  //   date: DateTime.now(),
+  // );
   bool inProgressTransactionLoading = true;
   bool inProgressTransactionError = false;
+  // bool inProgressTransactionError = true;
 
   void setInProgressTransaction(CWTransaction transaction) {
     inProgressTransaction = transaction;

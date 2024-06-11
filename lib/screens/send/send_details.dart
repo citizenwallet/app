@@ -132,6 +132,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       return;
     }
 
+    final toAccount =
+        selectedAddress ?? walletLogic.addressController.value.text;
+
     walletLogic.sendTransaction(
       walletLogic.amountController.value.text,
       selectedAddress ?? walletLogic.addressController.value.text,
@@ -147,7 +150,14 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(true);
+    final sent = await navigator
+        .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
+
+    if (sent == true) {
+      navigator.pop(true);
+      return;
+    }
+
     return;
   }
 
@@ -181,9 +191,12 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       return;
     }
 
+    final toAccount =
+        selectedAddress ?? walletLogic.addressController.value.text;
+
     walletLogic.mintTokens(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      toAccount,
     );
 
     walletLogic.clearInputControllers();
@@ -194,7 +207,14 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    navigator.pop(true);
+    final sent = await navigator
+        .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
+
+    if (sent == true) {
+      navigator.pop(true);
+      return;
+    }
+
     return;
   }
 
@@ -495,14 +515,18 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                       ? (_isSending
                                           ? AppLocalizations.of(context)!
                                               .minting
-                                          : AppLocalizations.of(context)!.mint)
+                                          : AppLocalizations.of(context)!
+                                              .swipeToMint)
                                       : _isSending
                                           ? AppLocalizations.of(context)!
                                               .sending
-                                          : AppLocalizations.of(context)!.send,
+                                          : AppLocalizations.of(context)!
+                                              .swipeToSend,
+                                  completionLabelColor:
+                                      ThemeColors.primary.resolveFrom(context),
                                   thumbColor: ThemeColors.surfacePrimary
                                       .resolveFrom(context),
-                                  width: width * 0.6,
+                                  width: width * 0.65,
                                   suffix: isValid
                                       ? ProfileCircle(
                                           size: 50,
@@ -515,7 +539,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                     child: Center(
                                       child: Icon(
                                         CupertinoIcons.arrow_right,
-                                        color: ThemeColors.black,
+                                        color: ThemeColors.white,
                                       ),
                                     ),
                                   ),

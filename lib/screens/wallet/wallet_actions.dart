@@ -41,8 +41,6 @@ class WalletActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     final loading = context.select((WalletState state) => state.loading);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);

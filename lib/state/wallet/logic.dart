@@ -1048,7 +1048,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String message = '',
   }) {
     _state.setInProgressTransaction(
-      CWTransaction.sending(
+      CWTransaction.pending(
         fromDoubleUnit(
           amount.toString(),
           decimals: _wallet.currency.decimals,
@@ -1113,6 +1113,13 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
+
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _wallet.account.hexEip55,
+      );
 
       tempId = txHash;
 
@@ -1231,6 +1238,13 @@ class WalletLogic extends WidgetsBindingObserver {
         // this is an optional operation
         throw Exception('transaction failed');
       }
+
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _wallet.account.hexEip55,
+      );
 
       tempId = txHash;
 

@@ -9,6 +9,7 @@ import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/send/send_details.dart';
+import 'package:citizenwallet/screens/send/send_progress.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
@@ -193,6 +194,16 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                   to: state.pathParameters['to'],
                   isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Progress',
+              path: 'send/:to/progress',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                return SendProgress(
+                  to: state.pathParameters['to'],
                 );
               },
             ),
