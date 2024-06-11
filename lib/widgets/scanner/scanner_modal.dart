@@ -407,7 +407,7 @@ class ScannerModalState extends State<ScannerModal>
                   if (_complete)
                     Container(
                       decoration: BoxDecoration(
-                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        color: ThemeColors.black,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.all(20),

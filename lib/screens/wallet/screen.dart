@@ -335,11 +335,21 @@ class WalletScreenState extends State<WalletScreen> {
 
       final navigator = GoRouter.of(context);
 
-      await navigator.push('/wallet/$_address/send', extra: {
+      final addr = _logic.addressController.value.text;
+      if (addr.isEmpty) {
+        return;
+      }
+
+      _logic.updateAddress(override: true);
+      _profilesLogic.getProfile(addr);
+
+      await navigator.push('/wallet/$_address/send/$addr', extra: {
         'walletLogic': _logic,
         'profilesLogic': _profilesLogic,
-        'id': id,
       });
+
+      _logic.clearInputControllers();
+      _profilesLogic.clearSearch(notify: false);
     }
 
     if (option == 'delete') {
@@ -397,13 +407,57 @@ class WalletScreenState extends State<WalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
+    if (receiveParams != null) {
+      final hex = await _logic.updateFromCapture(
+        '/#/?alias=${_logic.wallet.alias}&receiveParams=$receiveParams',
+      );
+
+      if (hex == null) {
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      if (!super.mounted) {
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      _profilesLogic.getProfile(hex);
+
+      final navigator = GoRouter.of(context);
+
+      await navigator.push('/wallet/$_address/send/$hex', extra: {
+        'walletLogic': _logic,
+        'profilesLogic': _profilesLogic,
+      });
+
+      _logic.clearInputControllers();
+      _profilesLogic.clearSearch(notify: false);
+
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+
+      return;
+    }
+
+    if (!super.mounted) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
     final navigator = GoRouter.of(context);
 
     await navigator.push('/wallet/$_address/send', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
-      'receiveParams': receiveParams,
     });
 
     _logic.resumeFetching();

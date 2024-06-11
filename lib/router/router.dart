@@ -19,7 +19,6 @@ import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
-import 'package:citizenwallet/screens/wallet/send.dart';
 import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
@@ -171,11 +170,6 @@ GoRouter createRouter(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
                   voucherLogic: extra['voucherLogic'],
-                  receiveParams: extra['receiveParams'],
-                  id: extra['id'],
-                  to: extra['to'],
-                  amount: extra['amount'],
-                  message: extra['message'],
                   isMinting: extra['isMinting'] ?? false,
                 );
               },
@@ -213,8 +207,6 @@ GoRouter createRouter(
                 return SendDetailsScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
-                  voucherLogic: extra['voucherLogic'],
-                  to: state.pathParameters['to'],
                   isMinting: extra['isMinting'] ?? false,
                 );
               },
@@ -272,10 +264,9 @@ GoRouter createRouter(
 
                 final extra = state.extra as Map<String, dynamic>;
 
-                return SendScreen(
+                return SendToScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
-                  receiveParams: extra['receiveParams'],
                   isMinting: true,
                 );
               },

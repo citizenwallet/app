@@ -57,12 +57,23 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
+    final walletLogic = widget.logic;
+    final profilesLogic = widget.profilesLogic;
+
+    walletLogic.addressController.text = address;
+
+    final profile = await profilesLogic.getProfile(address);
+
+    walletLogic.updateAddress(override: profile != null);
+
     final sent = await navigator
-        .push<bool?>('/wallet/${widget.logic.account}/send', extra: {
+        .push<bool?>('/wallet/${widget.logic.account}/send/$address', extra: {
       'walletLogic': widget.logic,
       'profilesLogic': widget.profilesLogic,
-      'to': address,
     });
+
+    walletLogic.clearInputControllers();
+    profilesLogic.clearSearch(notify: false);
 
     if (sent == true) {
       navigator.pop(sent);
@@ -87,14 +98,30 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
+    final walletLogic = widget.logic;
+    final profilesLogic = widget.profilesLogic;
+
+    final parsedAmount = (double.tryParse(amount) ?? 0.0).toStringAsFixed(2);
+
+    walletLogic.addressController.text = address;
+    walletLogic.amountController.text = parsedAmount;
+    walletLogic.messageController.text = message;
+    walletLogic.updateMessage();
+    walletLogic.updateListenerAmount();
+
+    final profile = await profilesLogic.getProfile(address);
+
+    walletLogic.updateAddress(override: profile != null);
+    walletLogic.updateAmount();
+
     final sent = await navigator
-        .push<bool?>('/wallet/${widget.logic.account}/send', extra: {
-      'walletLogic': widget.logic,
-      'profilesLogic': widget.profilesLogic,
-      'to': address,
-      'amount': (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
-      'message': message,
+        .push<bool?>('/wallet/${widget.logic.account}/send/$address', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
     });
+
+    walletLogic.clearInputControllers();
+    profilesLogic.clearSearch(notify: false);
 
     if (sent == true) {
       navigator.pop(sent);

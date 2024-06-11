@@ -22,11 +22,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
-  final VoucherLogic voucherLogic;
-
-  final String? to;
-
-  final String? receiveParams;
+  final VoucherLogic? voucherLogic;
 
   final bool isMinting;
   final bool isLink;
@@ -35,9 +31,7 @@ class SendDetailsScreen extends StatefulWidget {
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
-    required this.voucherLogic,
-    this.to,
-    this.receiveParams,
+    this.voucherLogic,
     this.isMinting = false,
     this.isLink = false,
   });
@@ -116,6 +110,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     });
 
     final voucherLogic = widget.voucherLogic;
+    if (voucherLogic == null) {
+      return;
+    }
+
     final walletLogic = widget.walletLogic;
 
     voucherLogic.createVoucher(
@@ -177,10 +175,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         selectedAddress ?? walletLogic.addressController.value.text;
 
     walletLogic.sendTransaction(
-      walletLogic.amountController.value.text,
+      // walletLogic.amountController.value.text,
+      '${walletLogic.amountController.value.text}0000000000',
       selectedAddress ?? walletLogic.addressController.value.text,
       message: walletLogic.messageController.value.text.trim(),
-      // id: widget.id,
     );
 
     walletLogic.clearInputControllers();
@@ -297,6 +295,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
+    );
+
+    final searchedProfile = context.select(
+      (ProfilesState state) => state.searchedProfile,
     );
 
     final isLink = widget.isLink;
@@ -550,13 +552,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                   onCompleted: !_isSending
                                       ? widget.isMinting
                                           ? () => handleMint(
-                                              context, selectedProfile?.account)
+                                              context,
+                                              selectedProfile?.account ??
+                                                  searchedProfile?.account)
                                           : isLink
                                               ? () => handleCreateVoucher(
                                                   context, wallet?.symbol ?? '')
                                               : () => handleSend(
                                                     context,
-                                                    selectedProfile?.account,
+                                                    selectedProfile?.account ??
+                                                        searchedProfile
+                                                            ?.account,
                                                   )
                                       : null,
                                   enabled: isSendingValid,
@@ -577,7 +583,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                   suffix: isValid
                                       ? ProfileCircle(
                                           size: 50,
-                                          imageUrl: selectedProfile?.imageSmall,
+                                          imageUrl:
+                                              selectedProfile?.imageSmall ??
+                                                  searchedProfile?.imageSmall,
                                         )
                                       : null,
                                   child: const SizedBox(

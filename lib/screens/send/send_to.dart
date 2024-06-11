@@ -1,6 +1,4 @@
-import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -25,14 +23,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
-  final VoucherLogic voucherLogic;
-
-  final String? id;
-  final String? to;
-  final String? amount;
-  final String? message;
-
-  final String? receiveParams;
+  final VoucherLogic? voucherLogic;
 
   final bool isMinting;
 
@@ -40,12 +31,7 @@ class SendToScreen extends StatefulWidget {
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
-    required this.voucherLogic,
-    this.id,
-    this.to,
-    this.amount,
-    this.message,
-    this.receiveParams,
+    this.voucherLogic,
     this.isMinting = false,
   });
 
@@ -139,8 +125,6 @@ class _SendToScreenState extends State<SendToScreen> {
   }
 
   void handleScanQRCode(BuildContext context) async {
-    final walletLogic = widget.walletLogic;
-
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
@@ -153,6 +137,19 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
+    if (!context.mounted) {
+      return;
+    }
+
+    handleParseQRCode(context, result);
+  }
+
+  void handleParseQRCode(
+    BuildContext context,
+    String result,
+  ) async {
+    final walletLogic = widget.walletLogic;
+
     final hex = await walletLogic.updateFromCapture(result);
     if (hex == null) {
       return;
@@ -164,7 +161,10 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
-    handleSetAmount(context, account: hex);
+    handleSetAmount(
+      context,
+      account: hex,
+    );
   }
 
   void handleSelectProfile(BuildContext context, ProfileV1? profile) async {
@@ -210,7 +210,6 @@ class _SendToScreenState extends State<SendToScreen> {
         .push('/wallet/${walletLogic.account}/send/$toAccount', extra: {
       'walletLogic': walletLogic,
       'profilesLogic': profilesLogic,
-      'voucherLogic': widget.voucherLogic,
       'isMinting': widget.isMinting,
     });
 
