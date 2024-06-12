@@ -71,6 +71,7 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
 
+    print('initState: setting widget values');
     _address = widget.address;
     _alias = widget.alias;
     _voucher = widget.voucher;
@@ -118,6 +119,7 @@ class WalletScreenState extends State<WalletScreen> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.address != widget.address) {
+      print('didUpdateWidget: setting widget values');
       _address = widget.address;
       _alias = widget.alias;
       _voucher = widget.voucher;
@@ -627,11 +629,9 @@ class WalletScreenState extends State<WalletScreen> {
     _address = address;
     _alias = alias;
 
-    // navigator.replace(newRoute);
+    final newRoute = '/wallet/$address?alias=$alias';
 
-    // await delay(const Duration(milliseconds: 250));
-
-    onLoad();
+    navigator.replace(newRoute);
   }
 
   String? paramsAlias(String compressedParams) {
