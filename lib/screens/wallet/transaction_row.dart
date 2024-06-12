@@ -103,15 +103,22 @@ class TransactionRowState extends State<TransactionRow> {
               children: [
                 Stack(
                   children: [
-                    voucher != null || addressEmpty
-                        ? CoinLogo(
-                            size: 50,
-                            logo: widget.logo,
-                          )
-                        : ProfileCircle(
-                            size: 50,
-                            imageUrl: profile?.profile.imageMedium,
-                          ),
+                    if (voucher != null)
+                      const ProfileCircle(
+                        size: 50,
+                        imageUrl: 'assets/icons/voucher.png',
+                        backgroundColor: ThemeColors.transparent,
+                      ),
+                    if (voucher == null && addressEmpty)
+                      CoinLogo(
+                        size: 50,
+                        logo: widget.logo,
+                      ),
+                    if (voucher == null && !addressEmpty)
+                      ProfileCircle(
+                        size: 50,
+                        imageUrl: profile?.profile.imageMedium,
+                      ),
                   ],
                 ),
                 const SizedBox(width: 10),
@@ -261,14 +268,6 @@ class TransactionRowState extends State<TransactionRow> {
                 const SizedBox(width: 10),
               ],
             ),
-            // Positioned(
-            //   bottom: 0,
-            //   right: 0,
-            //   child: TransactionStateIcon(
-            //     state: transaction.state,
-            //     isIncoming: isIncoming,
-            //   ),
-            // )
           ],
         ),
       ),
