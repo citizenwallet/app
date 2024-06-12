@@ -114,9 +114,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final loading = transactionsLoading || returnLoading;
 
-    final hasMore =
-        context.select((WalletState state) => state.transactionsHasMore);
-
     final transactions = context.watch<WalletState>().transactions;
 
     final vouchers = context.select(selectMappedVoucher);
@@ -174,7 +171,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 390 + safePadding,
+            expandedHeight: 360 + safePadding,
             minHeight: 210 + safePadding,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
