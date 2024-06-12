@@ -11,6 +11,7 @@ class VoucherRow extends StatefulWidget {
   final double size;
   final String? logo;
   final void Function(String, String, bool)? onTap;
+  final void Function(String, String, bool)? onMore;
 
   const VoucherRow({
     super.key,
@@ -19,6 +20,7 @@ class VoucherRow extends StatefulWidget {
     this.size = 60,
     this.logo = 'assets/icons/voucher.svg',
     this.onTap,
+    this.onMore,
   });
 
   @override
@@ -47,6 +49,7 @@ class VoucherRowState extends State<VoucherRow> {
     final voucher = widget.voucher;
     final size = widget.size;
     final onTap = widget.onTap;
+    final onMore = widget.onMore;
 
     final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
@@ -102,22 +105,26 @@ class VoucherRowState extends State<VoucherRow> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  child: Icon(
-                    CupertinoIcons.ellipsis,
-                    size: 18,
-                    color: ThemeColors.touchable.resolveFrom(context),
-                  ),
-                ),
+                if (onMore != null)
+                  GestureDetector(
+                    onTap: () =>
+                        onMore(voucher.address, voucher.balance, isRedeemed),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: Icon(
+                        CupertinoIcons.ellipsis,
+                        size: 18,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ),
+                  )
               ],
             ),
             Positioned(
-              bottom: 0,
-              right: 0,
+              bottom: -5,
+              right: 10,
               child: Container(
                 height: 20,
-                // width: 20,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: isRedeemed

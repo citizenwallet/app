@@ -14,6 +14,7 @@ import 'package:citizenwallet/screens/send/send_progress.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
+import 'package:citizenwallet/screens/voucher/screen.dart';
 import 'package:citizenwallet/screens/vouchers/screen.dart';
 import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
@@ -276,6 +277,16 @@ GoRouter createRouter(
               path: 'vouchers',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) => const VouchersScreen(),
+            ),
+            GoRoute(
+              name: 'View Voucher',
+              path: 'vouchers/:voucher',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                return VoucherScreen(
+                  address: state.pathParameters['voucher'] ?? '',
+                );
+              },
             ),
             GoRoute(
               name: 'Account',

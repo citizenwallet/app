@@ -1,5 +1,4 @@
 import 'package:citizenwallet/modals/wallet/voucher.dart';
-import 'package:citizenwallet/modals/wallet/voucher_view.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
@@ -64,6 +63,26 @@ class VouchersScreenState extends State<VouchersScreen> {
     GoRouter.of(context).pop();
   }
 
+  void handleOpen(
+    String address,
+    String amount,
+    bool isRedeemed,
+  ) async {
+    _logic.pause();
+
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      _logic.resume(address: address);
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    await navigator.push('/wallet/${wallet.account}/vouchers/$address');
+
+    _logic.resume(address: address);
+  }
+
   void handleMore(
     String address,
     String amount,
@@ -72,6 +91,10 @@ class VouchersScreenState extends State<VouchersScreen> {
     _logic.pause();
 
     final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      _logic.resume(address: address);
+      return;
+    }
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -123,15 +146,18 @@ class VouchersScreenState extends State<VouchersScreen> {
           );
         });
 
+    if (!super.mounted) {
+      return;
+    }
+
     if (option == 'share') {
-      await CupertinoScaffold.showCupertinoModalBottomSheet<void>(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => VoucherViewModal(
-          address: address,
-        ),
-      );
+      final navigator = GoRouter.of(context);
+
+      await navigator.push('/wallet/${wallet.account}/vouchers/$address');
+    }
+
+    if (!super.mounted) {
+      return;
     }
 
     if (option == 'return') {
@@ -141,13 +167,17 @@ class VouchersScreenState extends State<VouchersScreen> {
         builder: (modalContext) => ConfirmModal(
           title: AppLocalizations.of(context)!.returnVoucher,
           details: [
-            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} ${AppLocalizations.of(context)!.returnVoucherMsg}',
+            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet.symbol} ${AppLocalizations.of(context)!.returnVoucherMsg}',
           ],
           confirmText: AppLocalizations.of(context)!.returnText,
         ),
       );
 
       if (confirm == true) await _logic.returnVoucher(address);
+    }
+
+    if (!super.mounted) {
+      return;
     }
 
     if (option == 'delete') {
@@ -191,6 +221,10 @@ class VouchersScreenState extends State<VouchersScreen> {
       return;
     }
 
+    if (!super.mounted) {
+      return;
+    }
+
     await showCupertinoModalBottomSheet<bool?>(
       context: context,
       expand: true,
@@ -220,128 +254,124 @@ class VouchersScreenState extends State<VouchersScreen> {
     final returnLoading =
         context.select((VoucherState state) => state.returnLoading);
 
-    return CupertinoScaffold(
-      topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
-      body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: SafeArea(
-            bottom: false,
-            minimum: const EdgeInsets.only(left: 10, right: 10),
-            child: Flex(
-              direction: Axis.vertical,
-              children: [
-                Header(
-                  showBackButton: true,
-                  title: AppLocalizations.of(context)!.vouchers,
-                  actionButton: returnLoading
-                      ? CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        )
-                      : null,
-                ),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CustomScrollView(
-                        controller: ModalScrollController.of(context),
-                        scrollBehavior: const CupertinoScrollBehavior(),
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
-                          if (vouchers.isEmpty && !loading)
-                            SliverFillRemaining(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/voucher.svg',
-                                    semanticsLabel:
-                                        AppLocalizations.of(context)!
-                                            .vouchericon,
-                                    height: 200,
-                                    width: 200,
-                                  ),
-                                  const SizedBox(height: 40),
-                                  Text(
-                                    AppLocalizations.of(context)!.vouchersMsg,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (vouchers.isNotEmpty)
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                childCount: vouchers.length,
-                                (context, index) {
-                                  final voucher = vouchers[index];
-
-                                  return Padding(
-                                    key: Key(voucher.id),
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: VoucherRow(
-                                      voucher: voucher,
-                                      logic: _logic,
-                                      logo: config?.community.logo,
-                                      onTap: returnLoading ? null : handleMore,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          if (vouchers.isNotEmpty)
-                            const SliverToBoxAdapter(
-                              child: SizedBox(height: 120),
-                            ),
-                        ],
-                      ),
-                      if (ready)
-                        Positioned(
-                          bottom: 0,
-                          width: width,
-                          child: BlurryChild(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  top: BorderSide(
+    return CupertinoPageScaffold(
+      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: SafeArea(
+          bottom: false,
+          minimum: const EdgeInsets.only(left: 10, right: 10),
+          child: Flex(
+            direction: Axis.vertical,
+            children: [
+              Header(
+                showBackButton: true,
+                title: AppLocalizations.of(context)!.vouchers,
+                actionButton: returnLoading
+                    ? CupertinoActivityIndicator(
+                        color: ThemeColors.subtle.resolveFrom(context),
+                      )
+                    : null,
+              ),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomScrollView(
+                      controller: ModalScrollController.of(context),
+                      scrollBehavior: const CupertinoScrollBehavior(),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        if (vouchers.isEmpty && !loading)
+                          SliverFillRemaining(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/voucher.svg',
+                                  semanticsLabel:
+                                      AppLocalizations.of(context)!.vouchericon,
+                                  height: 200,
+                                  width: 200,
+                                ),
+                                const SizedBox(height: 40),
+                                Text(
+                                  AppLocalizations.of(context)!.vouchersMsg,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.normal,
                                     color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                        ThemeColors.text.resolveFrom(context),
                                   ),
                                 ),
-                              ),
-                              padding: EdgeInsets.fromLTRB(
-                                  0, 10, 0, safeBottomPadding),
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 10),
-                                  Button(
-                                    text: AppLocalizations.of(context)!
-                                        .createVoucher,
-                                    onPressed: handleCreateVoucher,
-                                    minWidth: 200,
-                                    maxWidth: 200,
+                              ],
+                            ),
+                          ),
+                        if (vouchers.isNotEmpty)
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              childCount: vouchers.length,
+                              (context, index) {
+                                final voucher = vouchers[index];
+
+                                return Padding(
+                                  key: Key(voucher.id),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: VoucherRow(
+                                    voucher: voucher,
+                                    logic: _logic,
+                                    logo: config?.community.logo,
+                                    onTap: returnLoading ? null : handleOpen,
+                                    onMore: returnLoading ? null : handleMore,
                                   ),
-                                  const SizedBox(height: 10),
-                                ],
+                                );
+                              },
+                            ),
+                          ),
+                        if (vouchers.isNotEmpty)
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 120),
+                          ),
+                      ],
+                    ),
+                    if (ready)
+                      Positioned(
+                        bottom: 0,
+                        width: width,
+                        child: BlurryChild(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                  color:
+                                      ThemeColors.subtle.resolveFrom(context),
+                                ),
                               ),
+                            ),
+                            padding: EdgeInsets.fromLTRB(
+                                0, 10, 0, safeBottomPadding),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 10),
+                                Button(
+                                  text: AppLocalizations.of(context)!
+                                      .createVoucher,
+                                  onPressed: handleCreateVoucher,
+                                  minWidth: 200,
+                                  maxWidth: 200,
+                                ),
+                                const SizedBox(height: 10),
+                              ],
                             ),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
