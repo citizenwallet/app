@@ -84,7 +84,12 @@ class VouchersScreenState extends State<VouchersScreen> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('share');
                   },
-                  child: Text(AppLocalizations.of(context)!.share),
+                  child: Text(
+                    AppLocalizations.of(context)!.share,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!isRedeemed)
                 CupertinoActionSheetAction(
@@ -108,7 +113,12 @@ class VouchersScreenState extends State<VouchersScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
@@ -277,8 +287,8 @@ class VouchersScreenState extends State<VouchersScreen> {
 
                                   return Padding(
                                     key: Key(voucher.id),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        10, 10, 10, 10),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                     child: VoucherRow(
                                       voucher: voucher,
                                       logic: _logic,

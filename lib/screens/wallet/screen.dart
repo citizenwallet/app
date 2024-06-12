@@ -289,28 +289,43 @@ class WalletScreenState extends State<WalletScreen> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('retry');
                   },
-                  child: const Text('Retry'),
+                  child: Text(
+                    AppLocalizations.of(context)!.retry,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!blockSending)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: const Text('Edit'),
+                  child: Text(
+                    AppLocalizations.of(context)!.edit,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
                   Navigator.of(dialogContext).pop('delete');
                 },
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });

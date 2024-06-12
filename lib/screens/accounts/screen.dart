@@ -136,14 +136,24 @@ class AccountsScreenState extends State<AccountsScreen> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: Text(AppLocalizations.of(context)!.editname),
+                  child: Text(
+                    AppLocalizations.of(context)!.editname,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('export');
                   },
-                  child: Text(AppLocalizations.of(context)!.export),
+                  child: Text(
+                    AppLocalizations.of(context)!.export,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
@@ -158,7 +168,12 @@ class AccountsScreenState extends State<AccountsScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(widget.currentAddress);
               },
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });

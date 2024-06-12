@@ -130,14 +130,24 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child:  Text(AppLocalizations.of(context)!.editname),
+                  child: Text(
+                    AppLocalizations.of(context)!.editname,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('export');
                   },
-                  child:  Text(AppLocalizations.of(context)!.export),
+                  child: Text(
+                    AppLocalizations.of(context)!.export,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
@@ -152,7 +162,12 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(widget.currentAddress);
               },
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
@@ -308,7 +323,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title:  AppLocalizations.of(context)!.accounts,
+                title: AppLocalizations.of(context)!.accounts,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
@@ -415,7 +430,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                             borderRadius: BorderRadius.circular(25),
                             color:
                                 ThemeColors.surfacePrimary.resolveFrom(context),
-                            child:  Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -426,7 +441,7 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                 const Icon(
+                                const Icon(
                                   CupertinoIcons.plus,
                                   color: ThemeColors.black,
                                 ),

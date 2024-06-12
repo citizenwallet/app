@@ -8,7 +8,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class VoucherRow extends StatefulWidget {
   final Voucher voucher;
   final VoucherLogic logic;
-  final bool active;
   final double size;
   final String? logo;
   final void Function(String, String, bool)? onTap;
@@ -17,7 +16,6 @@ class VoucherRow extends StatefulWidget {
     super.key,
     required this.voucher,
     required this.logic,
-    this.active = false,
     this.size = 60,
     this.logo = 'assets/icons/voucher.svg',
     this.onTap,
@@ -47,7 +45,6 @@ class VoucherRowState extends State<VoucherRow> {
   @override
   Widget build(BuildContext context) {
     final voucher = widget.voucher;
-    final active = widget.active;
     final size = widget.size;
     final onTap = widget.onTap;
 
@@ -55,22 +52,19 @@ class VoucherRowState extends State<VoucherRow> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 2,
-          color: active
-              ? ThemeColors.white
-              : ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        border: Border(
+          bottom: BorderSide(
+            width: 1,
+            color: ThemeColors.subtleEmphasis.resolveFrom(context),
+          ),
         ),
-        color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(8.0),
-        ),
+        color: ThemeColors.transparent.resolveFrom(context),
       ),
       child: CupertinoButton(
         onPressed: () =>
             onTap?.call(voucher.address, voucher.balance, isRedeemed),
-        color: ThemeColors.subtle.resolveFrom(context),
-        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        color: ThemeColors.transparent.resolveFrom(context),
+        padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
           children: [
             Row(

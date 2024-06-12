@@ -26,6 +26,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
@@ -249,7 +250,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    if (!context.mounted) {
+    if (!super.mounted) {
       return;
     }
 
@@ -288,28 +289,43 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('retry');
                   },
-                  child: const Text('Retry'),
+                  child: Text(
+                    AppLocalizations.of(context)!.retry,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!blockSending)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: const Text('Edit'),
+                  child: Text(
+                    AppLocalizations.of(context)!.edit,
+                    style: TextStyle(
+                      color: ThemeColors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
                   Navigator.of(dialogContext).pop('delete');
                 },
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: ThemeColors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
