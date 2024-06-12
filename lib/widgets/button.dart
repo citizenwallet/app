@@ -47,6 +47,7 @@ class Button extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: labelColor ?? CupertinoColors.black,
                 ),
               ),

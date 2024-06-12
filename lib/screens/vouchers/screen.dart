@@ -1,7 +1,8 @@
-import 'package:citizenwallet/modals/wallet/voucher.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
@@ -9,7 +10,6 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/screens/vouchers/voucher_row.dart';
-import 'package:citizenwallet/widgets/vouchers/amount_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,9 +19,14 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VouchersScreen extends StatefulWidget {
-  //final String title = 'Vouchers';
+  final WalletLogic walletLogic;
+  final ProfilesLogic profilesLogic;
 
-  const VouchersScreen({super.key});
+  const VouchersScreen({
+    super.key,
+    required this.walletLogic,
+    required this.profilesLogic,
+  });
 
   @override
   VouchersScreenState createState() => VouchersScreenState();
@@ -207,33 +212,16 @@ class VouchersScreenState extends State<VouchersScreen> {
       return;
     }
 
-    final amount = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => AmountInputModal(
-        title: AppLocalizations.of(context)!.voucherAmount,
-        placeholder: AppLocalizations.of(context)!.enteramount,
-        symbol: wallet.symbol,
-      ),
-    );
+    final walletLogic = widget.walletLogic;
+    final profilesLogic = widget.profilesLogic;
 
-    if (amount == null) {
-      return;
-    }
+    final navigator = GoRouter.of(context);
 
-    if (!super.mounted) {
-      return;
-    }
-
-    await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      builder: (_) => VoucherModal(
-        amount: amount,
-        symbol: wallet.symbol,
-      ),
-    );
+    await navigator.push('/wallet/${walletLogic.account}/send/link', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
+      'voucherLogic': _logic,
+    });
 
     onLoad();
   }
@@ -358,6 +346,8 @@ class VouchersScreenState extends State<VouchersScreen> {
                                 Button(
                                   text: AppLocalizations.of(context)!
                                       .createVoucher,
+                                  labelColor:
+                                      ThemeColors.white.resolveFrom(context),
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,

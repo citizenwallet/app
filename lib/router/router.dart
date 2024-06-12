@@ -276,7 +276,18 @@ GoRouter createRouter(
               name: 'Vouchers',
               path: 'vouchers',
               parentNavigatorKey: rootNavigatorKey,
-              builder: (context, state) => const VouchersScreen(),
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return VouchersScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                );
+              },
             ),
             GoRoute(
               name: 'View Voucher',
