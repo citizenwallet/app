@@ -15,6 +15,7 @@ import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -108,6 +109,16 @@ class _SendToScreenState extends State<SendToScreen> {
 
     profilesLogic.clearSearch(notify: false);
 
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    HapticFeedback.heavyImpact();
+
+    if (!context.mounted) {
+      return;
+    }
+
     final navigator = GoRouter.of(context);
 
     final sent = await navigator
@@ -199,6 +210,16 @@ class _SendToScreenState extends State<SendToScreen> {
         walletLogic.addressController.value.text;
 
     if (toAccount.isEmpty) {
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    HapticFeedback.heavyImpact();
+
+    if (!context.mounted) {
       return;
     }
 

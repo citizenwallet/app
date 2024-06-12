@@ -618,10 +618,13 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                             if (isPlatformAndroid() || isPlatformApple())
                               CupertinoButton(
                                 onPressed: handleCloseEditing,
-                                child: Icon(
-                                  CupertinoIcons.keyboard_chevron_compact_down,
-                                  color:
-                                      ThemeColors.primary.resolveFrom(context),
+                                child: Text(
+                                  AppLocalizations.of(context)!.done,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: ThemeColors.primary
+                                        .resolveFrom(context),
+                                  ),
                                 ),
                               ),
                           ],

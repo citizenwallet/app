@@ -123,7 +123,15 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     voucherLogic.shareReady();
 
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
     HapticFeedback.heavyImpact();
+
+    if (!context.mounted) {
+      return;
+    }
 
     final navigator = GoRouter.of(context);
 
