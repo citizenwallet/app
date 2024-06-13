@@ -87,13 +87,7 @@ class _SendProgressState extends State<SendProgress> {
 
     final isSending = inProgressTransaction.state == TransactionState.sending;
 
-    final formattedAmount = formatAmount(
-      double.parse(fromDoubleUnit(
-        inProgressTransaction.amount,
-        decimals: wallet.decimalDigits,
-      )),
-      decimalDigits: 2,
-    );
+    final formattedAmount = inProgressTransaction.amount;
 
     final selectedProfile =
         context.select((ProfilesState state) => state.selectedProfile);
@@ -150,7 +144,7 @@ class _SendProgressState extends State<SendProgress> {
                                   size: 60,
                                   color: Theme.of(context)
                                       .colors
-                                      .success
+                                      .primary
                                       .resolveFrom(context),
                                 ),
                               ),
@@ -223,7 +217,7 @@ class _SendProgressState extends State<SendProgress> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
@@ -235,12 +229,20 @@ class _SendProgressState extends State<SendProgress> {
                                       top: 0,
                                       child: Icon(
                                         CupertinoIcons.chevron_down,
+                                        color: Theme.of(context)
+                                            .colors
+                                            .subtleSolid
+                                            .resolveFrom(context),
                                       ),
                                     ),
                                     Positioned(
                                       top: 10,
                                       child: Icon(
                                         CupertinoIcons.chevron_down,
+                                        color: Theme.of(context)
+                                            .colors
+                                            .subtleSolid
+                                            .resolveFrom(context),
                                       ),
                                     ),
                                   ],

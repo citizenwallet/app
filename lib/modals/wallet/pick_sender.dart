@@ -8,7 +8,6 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -229,30 +228,13 @@ class PickeSenderModalState extends State<PickeSenderModal>
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
-    final balance =
-        double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
-
-    final formattedBalance = formatAmount(
-      double.parse(fromDoubleUnit(
-        '$balance',
-        decimals: wallet?.decimalDigits ?? 2,
-      )),
-      decimalDigits: 2,
-    );
 
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
     );
-    final invalidAmount = context.select(
-      (WalletState state) => state.invalidAmount,
-    );
 
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
-    );
-
-    final hasAmount = context.select(
-      (WalletState state) => state.hasAmount,
     );
 
     final parsingQRAddressError = context.select(
