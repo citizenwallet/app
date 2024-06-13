@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
@@ -36,7 +36,7 @@ class CommunityRow extends StatelessWidget {
           height: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: ThemeColors.white.withOpacity(0.2),
+            color: Theme.of(context).colors.white.withOpacity(0.2),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 8,
@@ -51,8 +51,8 @@ class CommunityRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: config.community.logo.isNotEmpty
-                      ? ThemeColors.white
-                      : ThemeColors.surfacePrimary,
+                      ? Theme.of(context).colors.white
+                      : Theme.of(context).colors.surfacePrimary,
                 ),
                 child: config.community.logo.isNotEmpty
                     ? kDebugMode
@@ -83,8 +83,8 @@ class CommunityRow extends StatelessWidget {
                       config.community.name,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
-                      style: const TextStyle(
-                        color: ThemeColors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.normal,
                       ),
@@ -93,8 +93,8 @@ class CommunityRow extends StatelessWidget {
                       config.community.description,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
-                      style: const TextStyle(
-                        color: ThemeColors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.normal,
                       ),
@@ -105,9 +105,9 @@ class CommunityRow extends StatelessWidget {
               CupertinoButton(
                 onPressed: handleInfoTap,
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-                child: const Icon(
+                child: Icon(
                   CupertinoIcons.info_circle,
-                  color: ThemeColors.white,
+                  color: Theme.of(context).colors.white,
                 ),
               ),
             ],

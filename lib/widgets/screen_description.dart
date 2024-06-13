@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class ScreenDescription extends StatelessWidget {
@@ -21,7 +21,7 @@ class ScreenDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-          color: ThemeColors.background.resolveFrom(context),
+          color: Theme.of(context).colors.background.resolveFrom(context),
           child: ListView(
             scrollDirection: Axis.vertical,
             padding:

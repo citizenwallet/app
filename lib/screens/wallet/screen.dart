@@ -12,7 +12,7 @@ import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
@@ -292,7 +292,8 @@ class WalletScreenState extends State<WalletScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.retry,
                     style: TextStyle(
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
                     ),
                   ),
                 ),
@@ -304,7 +305,8 @@ class WalletScreenState extends State<WalletScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.edit,
                     style: TextStyle(
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
                     ),
                   ),
                 ),
@@ -323,7 +325,7 @@ class WalletScreenState extends State<WalletScreen> {
               child: Text(
                 AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
-                  color: ThemeColors.primary.resolveFrom(context),
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
                 ),
               ),
             ),
@@ -538,7 +540,7 @@ class WalletScreenState extends State<WalletScreen> {
     //   useRootNavigator: true,
     //   builder: (_) => CupertinoScaffold(
     //     topRadius: const Radius.circular(40),
-    //     transitionBackgroundColor: ThemeColors.transparent,
+    //     transitionBackgroundColor: Theme.of(context).colors.transparent,
     //     body: CardsScreen(
     //       walletLogic: _logic,
     //     ),
@@ -846,12 +848,9 @@ class WalletScreenState extends State<WalletScreen> {
 
     final hasNoProfile = imageSmall == '' && username == '';
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        ),
+    return CupertinoPageScaffold(
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
@@ -861,7 +860,10 @@ class WalletScreenState extends State<WalletScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtle
+                            .resolveFrom(context),
                       ),
                       const SizedBox(
                         height: 5,
@@ -869,7 +871,10 @@ class WalletScreenState extends State<WalletScreen> {
                       Text(
                         AppLocalizations.of(context)!.loading,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -902,10 +907,15 @@ class WalletScreenState extends State<WalletScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      ThemeColors.uiBackgroundAlt
+                      Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
                           .resolveFrom(context)
                           .withOpacity(0.0),
-                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                      Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
+                          .resolveFrom(context),
                     ],
                   ),
                 ),
@@ -925,15 +935,19 @@ class WalletScreenState extends State<WalletScreen> {
                       height: 90,
                       width: 90,
                       decoration: BoxDecoration(
-                        color: ThemeColors.background.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .background
+                            .resolveFrom(context),
                         borderRadius: BorderRadius.circular(45),
                         border: Border.all(
-                          color: ThemeColors.primary.resolveFrom(context),
+                          color: Theme.of(context).colors.primary,
                           width: 3,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: ThemeColors.black.withOpacity(0.2),
+                            color:
+                                Theme.of(context).colors.black.withOpacity(0.2),
                             spreadRadius: 1,
                             blurRadius: 7,
                             offset: const Offset(
@@ -946,7 +960,10 @@ class WalletScreenState extends State<WalletScreen> {
                         child: Icon(
                           CupertinoIcons.qrcode_viewfinder,
                           size: 60,
-                          color: ThemeColors.primary.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .primary
+                              .resolveFrom(context),
                         ),
                       ),
                     ),
@@ -959,7 +976,7 @@ class WalletScreenState extends State<WalletScreen> {
               child: SafeArea(
                 child: Header(
                   transparent: true,
-                  color: ThemeColors.transparent,
+                  color: Theme.of(context).colors.transparent,
                   title: '',
                   actionButton: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -978,9 +995,13 @@ class WalletScreenState extends State<WalletScreen> {
                                     size: 42,
                                     imageUrl: imageSmall,
                                     borderWidth: 2,
-                                    borderColor: ThemeColors.primary
+                                    borderColor: Theme.of(context)
+                                        .colors
+                                        .primary
                                         .resolveFrom(context),
-                                    backgroundColor: ThemeColors.uiBackgroundAlt
+                                    backgroundColor: Theme.of(context)
+                                        .colors
+                                        .uiBackgroundAlt
                                         .resolveFrom(context),
                                   ),
                                 ),
@@ -992,7 +1013,9 @@ class WalletScreenState extends State<WalletScreen> {
                                       height: 10,
                                       width: 10,
                                       decoration: BoxDecoration(
-                                        color: ThemeColors.danger
+                                        color: Theme.of(context)
+                                            .colors
+                                            .danger
                                             .resolveFrom(context),
                                         borderRadius: BorderRadius.circular(5),
                                       ),

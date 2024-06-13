@@ -1,7 +1,7 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
 import 'package:flutter/cupertino.dart';
@@ -111,7 +111,10 @@ class ProfileModalState extends State<ProfileModal> {
                       onPressed: () => handleDismiss(context),
                       child: Icon(
                         CupertinoIcons.xmark,
-                        color: ThemeColors.touchable.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .touchable
+                            .resolveFrom(context),
                       ),
                     ),
                   ),
@@ -142,8 +145,10 @@ class ProfileModalState extends State<ProfileModal> {
                                 child: Text(
                                   profile.name,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -161,10 +166,14 @@ class ProfileModalState extends State<ProfileModal> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? AppLocalizations.of(context)!.profileText1 : profile.description,
+                                      ? AppLocalizations.of(context)!
+                                          .profileText1
+                                      : profile.description,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -185,15 +194,21 @@ class ProfileModalState extends State<ProfileModal> {
                           children: [
                             loading
                                 ? CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   )
                                 : CupertinoButton(
                                     onPressed: handleEdit,
                                     child: Text(
-                                      hasNoProfile ? AppLocalizations.of(context)!.create : AppLocalizations.of(context)!.edit,
+                                      hasNoProfile
+                                          ? AppLocalizations.of(context)!.create
+                                          : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
-                                        color: ThemeColors.text
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
                                             .resolveFrom(context),
                                         fontSize: 18,
                                         fontWeight: FontWeight.normal,

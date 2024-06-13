@@ -5,7 +5,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -291,7 +291,8 @@ class _SendToScreenState extends State<SendToScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           bottom: false,
@@ -337,9 +338,13 @@ class _SendToScreenState extends State<SendToScreen> {
                                           end: Alignment.bottomCenter,
                                           stops: const [0.5, 1.0],
                                           colors: [
-                                            ThemeColors.uiBackgroundAlt
+                                            Theme.of(context)
+                                                .colors
+                                                .uiBackgroundAlt
                                                 .resolveFrom(context),
-                                            ThemeColors.uiBackgroundAlt
+                                            Theme.of(context)
+                                                .colors
+                                                .uiBackgroundAlt
                                                 .resolveFrom(context)
                                                 .withOpacity(0.0),
                                           ],
@@ -374,7 +379,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                             children: [
                                               Icon(
                                                 CupertinoIcons.link,
-                                                color: ThemeColors.primary
+                                                color: Theme.of(context)
+                                                    .colors
+                                                    .primary
                                                     .resolveFrom(context),
                                               ),
                                               const SizedBox(width: 12),
@@ -382,7 +389,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                                 AppLocalizations.of(context)!
                                                     .sendViaLink,
                                                 style: TextStyle(
-                                                  color: ThemeColors.primary
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
                                                       .resolveFrom(context),
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -421,7 +430,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                               Icon(
                                                 CupertinoIcons
                                                     .qrcode_viewfinder,
-                                                color: ThemeColors.primary
+                                                color: Theme.of(context)
+                                                    .colors
+                                                    .primary
                                                     .resolveFrom(context),
                                               ),
                                               const SizedBox(width: 12),
@@ -429,7 +440,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                                 AppLocalizations.of(context)!
                                                     .scanQRCode,
                                                 style: TextStyle(
-                                                  color: ThemeColors.primary
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
                                                       .resolveFrom(context),
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -475,23 +488,33 @@ class _SendToScreenState extends State<SendToScreen> {
                                           decoration: invalidAddress ||
                                                   parsingQRAddressError
                                               ? BoxDecoration(
-                                                  color: ThemeColors.subtle
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .subtle
                                                       .resolveFrom(context),
                                                   border: Border.all(
-                                                    color: ThemeColors.danger,
+                                                    color: Theme.of(context)
+                                                        .colors
+                                                        .danger,
                                                   ),
                                                   borderRadius:
                                                       BorderRadius.circular(25),
                                                 )
                                               : BoxDecoration(
-                                                  color: ThemeColors.subtle
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .subtle
                                                       .resolveFrom(context),
                                                   border: Border.all(
                                                     color: hasAddress
-                                                        ? ThemeColors.primary
+                                                        ? Theme.of(context)
+                                                            .colors
+                                                            .primary
                                                             .resolveFrom(
                                                                 context)
-                                                        : ThemeColors.primary
+                                                        : Theme.of(context)
+                                                            .colors
+                                                            .primary
                                                             .resolveFrom(
                                                                 context),
                                                   ),
@@ -516,7 +539,8 @@ class _SendToScreenState extends State<SendToScreen> {
                                                       width: 24,
                                                       child:
                                                           CupertinoActivityIndicator(
-                                                        color: ThemeColors
+                                                        color: Theme.of(context)
+                                                            .colors
                                                             .primary
                                                             .resolveFrom(
                                                                 context),
@@ -524,7 +548,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                                     )
                                                   : Icon(
                                                       CupertinoIcons.search,
-                                                      color: ThemeColors.primary
+                                                      color: Theme.of(context)
+                                                          .colors
+                                                          .primary
                                                           .resolveFrom(context),
                                                     ),
                                             ),
@@ -577,10 +603,15 @@ class _SendToScreenState extends State<SendToScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              ThemeColors.uiBackgroundAlt
+                              Theme.of(context)
+                                  .colors
+                                  .uiBackgroundAlt
                                   .resolveFrom(context)
                                   .withOpacity(0.0),
-                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                              Theme.of(context)
+                                  .colors
+                                  .uiBackgroundAlt
+                                  .resolveFrom(context),
                             ],
                           ),
                         ),
@@ -597,8 +628,10 @@ class _SendToScreenState extends State<SendToScreen> {
                           children: [
                             Button(
                               text: AppLocalizations.of(context)!.enteramount,
-                              labelColor:
-                                  ThemeColors.white.resolveFrom(context),
+                              labelColor: Theme.of(context)
+                                  .colors
+                                  .white
+                                  .resolveFrom(context),
                               onPressed: () => handleSetAmount(context),
                               minWidth: 200,
                               maxWidth: width - 60,

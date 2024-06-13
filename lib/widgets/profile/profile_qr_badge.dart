@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -38,7 +38,7 @@ class ProfileQRBadge extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             decoration: BoxDecoration(
-              color: ThemeColors.white.resolveFrom(context),
+              color: Theme.of(context).colors.white.resolveFrom(context),
               borderRadius: BorderRadius.circular(10),
             ),
             padding: EdgeInsets.fromLTRB(
@@ -69,7 +69,7 @@ class ProfileQRBadge extends StatelessWidget {
                 : ProfileCircle(
                     size: 100,
                     imageUrl: profile?.imageMedium,
-                    borderColor: ThemeColors.subtle,
+                    borderColor: Theme.of(context).colors.subtle,
                   ),
           ),
           if (!hasNoProfile && !loading)
@@ -90,7 +90,8 @@ class ProfileQRBadge extends StatelessWidget {
                           ? '@${profile?.username ?? ''}'
                           : '',
                       style: TextStyle(
-                        color: ThemeColors.black.resolveFrom(context),
+                        color:
+                            Theme.of(context).colors.black.resolveFrom(context),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

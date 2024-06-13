@@ -3,7 +3,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
@@ -93,8 +93,11 @@ class TransactionRowState extends State<TransactionRow> {
             border: Border(
           top: BorderSide(
             width: 1,
-            color:
-                ThemeColors.subtleText.resolveFrom(context).withOpacity(0.25),
+            color: Theme.of(context)
+                .colors
+                .subtleText
+                .resolveFrom(context)
+                .withOpacity(0.25),
           ),
         )),
         child: Stack(
@@ -104,10 +107,10 @@ class TransactionRowState extends State<TransactionRow> {
                 Stack(
                   children: [
                     if (voucher != null)
-                      const ProfileCircle(
+                      ProfileCircle(
                         size: 50,
                         imageUrl: 'assets/icons/voucher.png',
-                        backgroundColor: ThemeColors.transparent,
+                        backgroundColor: Theme.of(context).colors.transparent,
                       ),
                     if (voucher == null && addressEmpty)
                       CoinLogo(
@@ -150,8 +153,10 @@ class TransactionRowState extends State<TransactionRow> {
                                                     .anonymous,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   if (voucher == null)
@@ -162,7 +167,9 @@ class TransactionRowState extends State<TransactionRow> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal,
-                                        color: ThemeColors.subtleText
+                                        color: Theme.of(context)
+                                            .colors
+                                            .subtleText
                                             .resolveFrom(context),
                                       ),
                                     ),
@@ -185,7 +192,10 @@ class TransactionRowState extends State<TransactionRow> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleText
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
@@ -201,7 +211,10 @@ class TransactionRowState extends State<TransactionRow> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
-                              color: ThemeColors.danger.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .danger
+                                  .resolveFrom(context),
                             ),
                           ),
                         ),
@@ -231,8 +244,14 @@ class TransactionRowState extends State<TransactionRow> {
                               fontSize: 16,
                               fontWeight: FontWeight.normal,
                               color: isIncoming
-                                  ? ThemeColors.primary.resolveFrom(context)
-                                  : ThemeColors.text.resolveFrom(context),
+                                  ? Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context)
+                                  : Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                             ),
                           ),
                           const SizedBox(width: 5),
@@ -245,8 +264,14 @@ class TransactionRowState extends State<TransactionRow> {
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: isIncoming
-                                  ? ThemeColors.primary.resolveFrom(context)
-                                  : ThemeColors.text.resolveFrom(context),
+                                  ? Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context)
+                                  : Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                             ),
                           ),
                         ],
@@ -259,7 +284,10 @@ class TransactionRowState extends State<TransactionRow> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.subtleText.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtleText
+                              .resolveFrom(context),
                         ),
                       ),
                     ],

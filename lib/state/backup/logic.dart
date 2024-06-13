@@ -8,7 +8,8 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:provider/provider.dart';
 
 class BackupLogic {
   final BackupState _state;
+  final ThemeLogic _theme = ThemeLogic();
   final CredentialsServiceInterface _credentials = getCredentialsService();
   final AccountsServiceInterface _accounts = getAccountsService();
   final PreferencesService _preferences = PreferencesService();
@@ -185,7 +187,7 @@ class BackupLogic {
 
       final config = await _config.getConfig(accounts.first.alias);
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
@@ -265,7 +267,7 @@ class BackupLogic {
 
       final config = await _config.getConfig(accounts.first.alias);
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);

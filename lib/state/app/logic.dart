@@ -10,7 +10,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
+  final ThemeLogic _theme = ThemeLogic();
   final PreferencesService _preferences = PreferencesService();
   final AccountsServiceInterface _accounts = getAccountsService();
   final ConfigService _config = ConfigService();
@@ -29,16 +30,6 @@ class AppLogic {
 
   AppLogic(BuildContext context) {
     _appState = context.read<AppState>();
-  }
-
-  void setDarkMode(bool darkMode) {
-    try {
-      _preferences.setDarkMode(darkMode);
-
-      _appState.darkMode = darkMode;
-    } catch (e) {
-      //
-    }
   }
 
   void setMuted(bool muted) {
@@ -91,7 +82,7 @@ class AppLogic {
 
           final config = await _config.getConfig(dbWallet.alias);
 
-          ThemeColors.setTheme(config.community.theme);
+          _theme.changeTheme(config.community.theme);
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
@@ -175,7 +166,7 @@ class AppLogic {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -277,7 +268,7 @@ class AppLogic {
         ),
       );
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -333,7 +324,7 @@ class AppLogic {
         ),
       );
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);

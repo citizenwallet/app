@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class Picker extends StatelessWidget {
@@ -31,12 +31,17 @@ class Picker extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? ThemeColors.subtle.resolveFrom(context)
-                    : ThemeColors.white.resolveFrom(context),
+                    ? Theme.of(context).colors.subtle.resolveFrom(context)
+                    : Theme.of(context).colors.white.resolveFrom(context),
                 border: Border.all(
                   color: isSelected
-                      ? ThemeColors.subtleEmphasis.resolveFrom(context)
-                      : ThemeColors.subtleEmphasis
+                      ? Theme.of(context)
+                          .colors
+                          .subtleEmphasis
+                          .resolveFrom(context)
+                      : Theme.of(context)
+                          .colors
+                          .subtleEmphasis
                           .resolveFrom(context)
                           .withOpacity(0),
                   width: 1,
@@ -50,8 +55,8 @@ class Picker extends StatelessWidget {
               child: Text(
                 option,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: ThemeColors.text,
+                style: TextStyle(
+                  color: Theme.of(context).colors.text,
                 ),
               ),
             ),
@@ -59,33 +64,5 @@ class Picker extends StatelessWidget {
         }).toList(),
       ),
     );
-
-    return CupertinoSlidingSegmentedControl<String>(
-        backgroundColor: ThemeColors.white,
-        thumbColor: ThemeColors.subtle.resolveFrom(context),
-        groupValue: selected,
-        children: options.fold(
-            <String, Widget>{},
-            (previousValue, element) => {
-                  ...previousValue,
-                  element: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      element,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: ThemeColors.text,
-                      ),
-                    ),
-                  ),
-                }),
-        onValueChanged: handleSelect);
   }
 }

@@ -24,11 +24,10 @@ import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -306,7 +305,7 @@ GoRouter createRouter(
               builder: (context, state) => CupertinoScaffold(
                 key: const Key('accounts-screen'),
                 topRadius: const Radius.circular(40),
-                transitionBackgroundColor: ThemeColors.transparent,
+                transitionBackgroundColor: Theme.of(context).colors.transparent,
                 body: AccountsScreen(
                   logic: wallet,
                   currentAddress: state.pathParameters['address'],

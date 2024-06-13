@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -24,10 +24,10 @@ class QR extends StatelessWidget {
       height: size,
       width: size,
       decoration: BoxDecoration(
-        color: ThemeColors.white,
+        color: Theme.of(context).colors.white,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: ThemeColors.primary,
+          color: Theme.of(context).colors.primary,
           width: 1,
         ),
       ),
@@ -38,15 +38,15 @@ class QR extends StatelessWidget {
           size: size,
           gapless: false,
           version: QrVersions.auto,
-          backgroundColor: ThemeColors.white,
+          backgroundColor: Theme.of(context).colors.white,
           padding: padding,
           eyeStyle: QrEyeStyle(
             eyeShape: QrEyeShape.circle,
-            color: ThemeColors.primary,
+            color: Theme.of(context).colors.primary,
           ),
-          dataModuleStyle: const QrDataModuleStyle(
+          dataModuleStyle: QrDataModuleStyle(
             dataModuleShape: QrDataModuleShape.circle,
-            color: ThemeColors.black,
+            color: Theme.of(context).colors.black,
           ),
           embeddedImage: logo != null ? AssetImage(logo!) : null,
           embeddedImageStyle: QrEmbeddedImageStyle(

@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,7 +45,7 @@ class FutureModalPopup<T> extends StatelessWidget {
         paddingTopBottom,
       ),
       decoration: BoxDecoration(
-        color: ThemeColors.uiBackground.resolveFrom(context),
+        color: Theme.of(context).colors.uiBackground.resolveFrom(context),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(topRadius),
           topRight: Radius.circular(topRadius),

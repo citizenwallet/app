@@ -1,6 +1,6 @@
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
@@ -209,9 +209,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
@@ -275,13 +276,21 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                   ),
                             onTap: () => handleCopy(qrData),
                             fontSize: 14,
-                            color: ThemeColors.subtle.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtle
+                                .resolveFrom(context),
+                            textColor: Theme.of(context)
+                                .colors
+                                .touchable
+                                .resolveFrom(context),
                             suffix: Icon(
                               CupertinoIcons.square_on_square,
                               size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .touchable
+                                  .resolveFrom(context),
                             ),
                             maxWidth: isExternalWallet ? 160 : 290,
                           ),
@@ -314,11 +323,15 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                               duration: const Duration(milliseconds: 200),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.uiBackgroundAlt
+                                  color: Theme.of(context)
+                                      .colors
+                                      .uiBackgroundAlt
                                       .resolveFrom(context),
                                   border: Border(
                                     bottom: BorderSide(
-                                      color: ThemeColors.subtleEmphasis
+                                      color: Theme.of(context)
+                                          .colors
+                                          .subtleEmphasis
                                           .resolveFrom(context),
                                       width: 2,
                                     ),
@@ -351,9 +364,13 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                           fontSize: 32,
                                           fontWeight: FontWeight.bold,
                                           color: amount != ''
-                                              ? ThemeColors.primary
+                                              ? Theme.of(context)
+                                                  .colors
+                                                  .primary
                                                   .resolveFrom(context)
-                                              : ThemeColors.subtleEmphasis
+                                              : Theme.of(context)
+                                                  .colors
+                                                  .subtleEmphasis
                                                   .resolveFrom(context),
                                         ),
                                       ),
@@ -397,10 +414,14 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                 duration: const Duration(milliseconds: 200),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: ThemeColors.uiBackgroundAlt
+                                    color: Theme.of(context)
+                                        .colors
+                                        .uiBackgroundAlt
                                         .resolveFrom(context),
                                     border: Border.all(
-                                      color: ThemeColors.subtleEmphasis
+                                      color: Theme.of(context)
+                                          .colors
+                                          .subtleEmphasis
                                           .resolveFrom(context),
                                     ),
                                     borderRadius: const BorderRadius.all(
@@ -425,7 +446,9 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                                       .descriptionMsg,
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: ThemeColors.subtleEmphasis
+                                            color: Theme.of(context)
+                                                .colors
+                                                .subtleEmphasis
                                                 .resolveFrom(context),
                                           ),
                                         ),
@@ -436,7 +459,9 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                       ),
                                       Icon(
                                         CupertinoIcons.pencil,
-                                        color: ThemeColors.surfacePrimary
+                                        color: Theme.of(context)
+                                            .colors
+                                            .surfacePrimary
                                             .resolveFrom(context),
                                       ),
                                     ],
@@ -459,7 +484,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: ThemeColors.subtle.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtle
+                              .resolveFrom(context),
                         ),
                       ),
                     ),
@@ -477,8 +505,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                 child: Text(
                                   AppLocalizations.of(context)!.clear,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.danger.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .danger
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               ),
@@ -487,8 +517,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                               child: Text(
                                 AppLocalizations.of(context)!.done,
                                 style: TextStyle(
-                                  color:
-                                      ThemeColors.primary.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -508,9 +540,15 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                           autocorrect: true,
                           enableSuggestions: true,
                           decoration: BoxDecoration(
-                            color: ThemeColors.transparent.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .transparent
+                                .resolveFrom(context),
                             border: Border.all(
-                              color: ThemeColors.primary.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
                               width: 1,
                             ),
                             borderRadius: const BorderRadius.all(
@@ -527,7 +565,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: ThemeColors.subtle.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtle
+                              .resolveFrom(context),
                         ),
                       ),
                     ),
@@ -571,11 +612,15 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                   ),
                                 ),
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.transparent
+                                  color: Theme.of(context)
+                                      .colors
+                                      .transparent
                                       .resolveFrom(context),
                                   border: Border(
                                     bottom: BorderSide(
-                                      color: ThemeColors.primary
+                                      color: Theme.of(context)
+                                          .colors
+                                          .primary
                                           .resolveFrom(context),
                                       width: 2,
                                     ),
@@ -585,14 +630,18 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                 placeholderStyle: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: ThemeColors.subtleEmphasis
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtleEmphasis
                                       .resolveFrom(context),
                                 ),
                                 style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color:
-                                      ThemeColors.primary.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context),
                                 ),
                                 maxLines: 1,
                                 maxLength: 25,
@@ -622,7 +671,9 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                   AppLocalizations.of(context)!.done,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: ThemeColors.primary
+                                    color: Theme.of(context)
+                                        .colors
+                                        .primary
                                         .resolveFrom(context),
                                   ),
                                 ),

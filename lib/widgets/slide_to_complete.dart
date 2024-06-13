@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class SlideToComplete extends StatefulWidget {
@@ -133,15 +133,26 @@ class SlideToCompleteState extends State<SlideToComplete>
               height: 54,
               decoration: BoxDecoration(
                 color: widget.enabled
-                    ? ThemeColors.surfacePrimary
+                    ? Theme.of(context)
+                        .colors
+                        .surfacePrimary
                         .resolveFrom(context)
                         .withOpacity(0.25)
-                    : ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                    : Theme.of(context)
+                        .colors
+                        .uiBackgroundAlt
+                        .resolveFrom(context),
                 borderRadius: BorderRadius.circular(radius),
                 border: Border.all(
                   color: widget.enabled
-                      ? ThemeColors.surfacePrimary.resolveFrom(context)
-                      : ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                      ? Theme.of(context)
+                          .colors
+                          .surfacePrimary
+                          .resolveFrom(context)
+                      : Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
+                          .resolveFrom(context),
                   width: 2,
                   strokeAlign: BorderSide.strokeAlignOutside,
                 ),
@@ -154,8 +165,9 @@ class SlideToCompleteState extends State<SlideToComplete>
                     widget.completionLabel,
                     style: TextStyle(
                       color: widget.enabled
-                          ? widget.completionLabelColor ?? ThemeColors.black
-                          : ThemeColors.subtleText,
+                          ? widget.completionLabelColor ??
+                              Theme.of(context).colors.black
+                          : Theme.of(context).colors.subtleText,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -174,7 +186,10 @@ class SlideToCompleteState extends State<SlideToComplete>
                     child: Icon(
                       CupertinoIcons.arrow_right,
                       size: 30,
-                      color: ThemeColors.surfacePrimary.withOpacity(0.25),
+                      color: Theme.of(context)
+                          .colors
+                          .surfacePrimary
+                          .withOpacity(0.25),
                     ),
                   ),
                 ),

@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,7 +29,10 @@ class ProfileRow extends StatelessWidget {
         border: active
             ? Border.all(
                 width: 2,
-                color: ThemeColors.subtleEmphasis.resolveFrom(context),
+                color: Theme.of(context)
+                    .colors
+                    .subtleEmphasis
+                    .resolveFrom(context),
               )
             : null,
         borderRadius: const BorderRadius.all(
@@ -44,7 +47,8 @@ class ProfileRow extends StatelessWidget {
           children: [
             ProfileCircle(
               size: size,
-              backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              backgroundColor:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               imageUrl: profile?.imageSmall,
             ),
             const SizedBox(width: 10),
@@ -61,7 +65,7 @@ class ProfileRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
+                      color: Theme.of(context).colors.text.resolveFrom(context),
                     ),
                   ),
                   SizedBox(
@@ -73,7 +77,10 @@ class ProfileRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: ThemeColors.subtleText.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtleText
+                            .resolveFrom(context),
                       ),
                     ),
                   ),

@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
@@ -335,7 +335,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -366,22 +367,30 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                             placeholder: formatCurrency(0.00, ''),
                             decoration: invalidAmount
                                 ? BoxDecoration(
-                                    color: ThemeColors.transparent
+                                    color: Theme.of(context)
+                                        .colors
+                                        .transparent
                                         .resolveFrom(context),
                                     border: Border(
                                       bottom: BorderSide(
-                                        color: ThemeColors.danger
+                                        color: Theme.of(context)
+                                            .colors
+                                            .danger
                                             .resolveFrom(context),
                                         width: 2,
                                       ),
                                     ),
                                   )
                                 : BoxDecoration(
-                                    color: ThemeColors.transparent
+                                    color: Theme.of(context)
+                                        .colors
+                                        .transparent
                                         .resolveFrom(context),
                                     border: Border(
                                       bottom: BorderSide(
-                                        color: ThemeColors.primary
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
                                             .resolveFrom(context),
                                         width: 2,
                                       ),
@@ -391,15 +400,23 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                             placeholderStyle: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.subtleEmphasis
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtleEmphasis
                                   .resolveFrom(context),
                             ),
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: invalidAmount
-                                  ? ThemeColors.danger.resolveFrom(context)
-                                  : ThemeColors.primary.resolveFrom(context),
+                                  ? Theme.of(context)
+                                      .colors
+                                      .danger
+                                      .resolveFrom(context)
+                                  : Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context),
                             ),
                             maxLines: 1,
                             maxLength: 25,
@@ -459,8 +476,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               Text(
                                 AppLocalizations.of(context)!.insufficientFunds,
                                 style: TextStyle(
-                                  color:
-                                      ThemeColors.danger.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .danger
+                                      .resolveFrom(context),
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
                                 ),
@@ -485,12 +504,16 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               child: Container(
                                 height: 18,
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.primary
+                                  color: Theme.of(context)
+                                      .colors
+                                      .primary
                                       .resolveFrom(context)
                                       .withOpacity(0.25),
                                   borderRadius: BorderRadius.circular(5),
                                   border: Border.all(
-                                    color: ThemeColors.surfacePrimary
+                                    color: Theme.of(context)
+                                        .colors
+                                        .surfacePrimary
                                         .resolveFrom(context),
                                     width: 2,
                                     strokeAlign: BorderSide.strokeAlignOutside,
@@ -508,7 +531,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: ThemeColors.primary
+                                      color: Theme.of(context)
+                                          .colors
+                                          .primary
                                           .resolveFrom(context),
                                     ),
                                   ),
@@ -559,8 +584,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -594,9 +621,13 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                               .swipeToConfirm
                                           : AppLocalizations.of(context)!
                                               .swipeToSend,
-                                  completionLabelColor:
-                                      ThemeColors.primary.resolveFrom(context),
-                                  thumbColor: ThemeColors.surfacePrimary
+                                  completionLabelColor: Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context),
+                                  thumbColor: Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
                                       .resolveFrom(context),
                                   width: width * 0.65,
                                   suffix: isValid
@@ -607,13 +638,13 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                                   searchedProfile?.imageSmall,
                                         )
                                       : null,
-                                  child: const SizedBox(
+                                  child: SizedBox(
                                     height: 50,
                                     width: 50,
                                     child: Center(
                                       child: Icon(
                                         CupertinoIcons.arrow_right,
-                                        color: ThemeColors.white,
+                                        color: Theme.of(context).colors.white,
                                       ),
                                     ),
                                   ),

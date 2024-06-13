@@ -11,9 +11,12 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/state.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
+import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
 import 'package:citizenwallet/widgets/notifications/toast.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -83,6 +86,7 @@ class MyAppState extends State<MyApp> {
   late GoRouter router;
   late WalletLogic _logic;
   late NotificationsLogic _notificationsLogic;
+  final ThemeLogic _themeLogic = ThemeLogic();
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -92,6 +96,8 @@ class MyAppState extends State<MyApp> {
 
     _notificationsLogic = NotificationsLogic(context);
     _logic = WalletLogic(context, _notificationsLogic);
+
+    _themeLogic.init(context);
 
     router = kIsWeb
         ? createWebRouter(_rootNavigatorKey, _shellNavigatorKey, [], _logic)
@@ -133,7 +139,9 @@ class MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final theme = context.select((AppState state) => state.theme);
+    final cupertinoTheme =
+        context.select((ThemeState state) => state.cupertinoTheme);
+    final colors = context.select((ThemeState state) => state.colors);
 
     final config = context.select((WalletState s) => s.config);
 
@@ -156,7 +164,7 @@ class MyAppState extends State<MyApp> {
           CupertinoApp.router(
             debugShowCheckedModeBanner: false,
             routerConfig: router,
-            theme: theme,
+            theme: cupertinoTheme,
             title: '$titlePrefix Wallet',
             locale: Locale(language.code),
             localizationsDelegates: const [
@@ -175,14 +183,22 @@ class MyAppState extends State<MyApp> {
               child: CupertinoScaffold(
                 key: const Key('main'),
                 topRadius: const Radius.circular(40),
-                transitionBackgroundColor: ThemeColors.transparent,
+                transitionBackgroundColor: colors.transparent,
                 body: CupertinoPageScaffold(
                   key: const Key('main'),
-                  backgroundColor: ThemeColors.transparent.resolveFrom(context),
+                  backgroundColor: colors.transparent.resolveFrom(context),
                   child: Column(
                     children: [
                       Expanded(
-                        child: child ?? const SizedBox(),
+                        child: child != null
+                            ? CupertinoTheme(
+                                data: cupertinoTheme,
+                                child: Theme(
+                                  colors: colors,
+                                  child: child,
+                                ),
+                              )
+                            : const SizedBox(),
                       ),
                     ],
                   ),

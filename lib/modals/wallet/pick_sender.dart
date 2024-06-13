@@ -7,7 +7,7 @@ import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
@@ -286,7 +286,8 @@ class PickeSenderModalState extends State<PickeSenderModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Stack(
@@ -327,7 +328,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                       darkColor: CupertinoColors.black,
                                     ),
                                     border: Border.all(
-                                      color: ThemeColors.danger,
+                                      color: Theme.of(context).colors.danger,
                                     ),
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(5.0)),
@@ -340,9 +341,13 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     ),
                                     border: Border.all(
                                       color: hasAddress
-                                          ? ThemeColors.text
+                                          ? Theme.of(context)
+                                              .colors
+                                              .text
                                               .resolveFrom(context)
-                                          : ThemeColors.transparent
+                                          : Theme.of(context)
+                                              .colors
+                                              .transparent
                                               .resolveFrom(context),
                                     ),
                                     borderRadius: const BorderRadius.all(
@@ -357,16 +362,22 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                         height: 20,
                                         width: 24,
                                         child: CupertinoActivityIndicator(
-                                          color: ThemeColors.subtle
+                                          color: Theme.of(context)
+                                              .colors
+                                              .subtle
                                               .resolveFrom(context),
                                         ),
                                       )
                                     : Icon(
                                         CupertinoIcons.profile_circled,
                                         color: hasAddress
-                                            ? ThemeColors.text
+                                            ? Theme.of(context)
+                                                .colors
+                                                .text
                                                 .resolveFrom(context)
-                                            : ThemeColors.subtleEmphasis
+                                            : Theme.of(context)
+                                                .colors
+                                                .subtleEmphasis
                                                 .resolveFrom(context),
                                       ),
                               ),
@@ -454,7 +465,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                       const SizedBox(
@@ -465,7 +479,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                     ],
@@ -475,7 +492,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -484,7 +504,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                 Positioned(
                   bottom: 90,
                   child: CupertinoActivityIndicator(
-                    color: ThemeColors.subtle.resolveFrom(context),
+                    color: Theme.of(context).colors.subtle.resolveFrom(context),
                   ),
                 ),
               if (isValid || searchedProfile != null)
@@ -496,7 +516,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       decoration: BoxDecoration(
                         border: Border(
                           top: BorderSide(
-                            color: ThemeColors.subtle.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtle
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
@@ -525,8 +548,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                 : _isSending
                                     ? AppLocalizations.of(context)!.sending
                                     : AppLocalizations.of(context)!.send,
-                            thumbColor:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            thumbColor: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
                             width: width * 0.6,
                             suffix: isValid || searchedProfile != null
                                 ? ProfileCircle(
@@ -535,13 +560,13 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                         searchedProfile?.imageSmall,
                                   )
                                 : null,
-                            child: const SizedBox(
+                            child: SizedBox(
                               height: 50,
                               width: 50,
                               child: Center(
                                 child: Icon(
                                   CupertinoIcons.arrow_right,
-                                  color: ThemeColors.white,
+                                  color: Theme.of(context).colors.white,
                                 ),
                               ),
                             ),

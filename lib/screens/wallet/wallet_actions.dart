@@ -2,7 +2,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
@@ -94,7 +94,8 @@ class WalletActions extends StatelessWidget {
           right: 0,
           child: Container(
             decoration: BoxDecoration(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
             ),
           ),
         ),
@@ -109,8 +110,10 @@ class WalletActions extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ThemeColors.uiBackgroundAlt
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+                  Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
                       .resolveFrom(context)
                       .withOpacity(0.0),
                 ],
@@ -140,7 +143,7 @@ class WalletActions extends StatelessWidget {
               style: TextStyle(
                 fontSize: coinNameSize,
                 fontWeight: FontWeight.bold,
-                color: ThemeColors.subtleText.resolveFrom(context),
+                color: Theme.of(context).colors.subtleText.resolveFrom(context),
               ),
             ),
           ),
@@ -149,7 +152,7 @@ class WalletActions extends StatelessWidget {
           top: progressiveClamp(90, 210, shrink * 2),
           child: loading && formattedBalance.isEmpty
               ? CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
+                  color: Theme.of(context).colors.subtle.resolveFrom(context),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -174,9 +177,18 @@ class WalletActions extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: hasPending
                             ? isIncreasing
-                                ? ThemeColors.primary.resolveFrom(context)
-                                : ThemeColors.secondary.resolveFrom(context)
-                            : ThemeColors.text.resolveFrom(context),
+                                ? Theme.of(context)
+                                    .colors
+                                    .primary
+                                    .resolveFrom(context)
+                                : Theme.of(context)
+                                    .colors
+                                    .secondary
+                                    .resolveFrom(context)
+                            : Theme.of(context)
+                                .colors
+                                .text
+                                .resolveFrom(context),
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -197,7 +209,10 @@ class WalletActions extends StatelessWidget {
                               ? 18
                               : progressiveClamp(8, 18, shrink),
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                     ),
@@ -285,10 +300,14 @@ class WalletActions extends StatelessWidget {
                           disabled: sendLoading,
                           onPressed: handleVouchers,
                         ),
-                      if (showVouchers) SizedBox(width: buttonSeparator),
                       if ((!loading || !firstLoad) &&
                           handlePlugin != null &&
                           wallet != null)
+                        SizedBox(width: buttonSeparator),
+                      if ((!loading || !firstLoad) &&
+                          handlePlugin != null &&
+                          wallet != null &&
+                          wallet.plugins.isNotEmpty)
                         ...(wallet.plugins
                             .map(
                               (plugin) => WalletActionButton(
@@ -301,8 +320,10 @@ class WalletActions extends StatelessWidget {
                                     CupertinoIcons.arrow_down,
                                     size: buttonIconSize,
                                     color: sendLoading
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.black,
+                                        ? Theme.of(context)
+                                            .colors
+                                            .subtleEmphasis
+                                        : Theme.of(context).colors.black,
                                   ),
                                 ),
                                 buttonSize: buttonSize,

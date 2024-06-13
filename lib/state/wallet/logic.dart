@@ -19,8 +19,9 @@ import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -64,6 +65,7 @@ class QRMissingAddressException implements Exception {
 class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
   final WalletState _state;
+  final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
@@ -268,7 +270,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (loadAdditionalData != null) await loadAdditionalData();
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -316,7 +318,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await loadAdditionalData(false);
 
-        ThemeColors.setTheme(config.community.theme);
+        _theme.changeTheme(config.community.theme);
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
@@ -388,7 +390,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData(true);
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address);
       await _preferences.setLastAlias(config.community.alias);
@@ -438,7 +440,7 @@ class WalletLogic extends WidgetsBindingObserver {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -497,7 +499,7 @@ class WalletLogic extends WidgetsBindingObserver {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);

@@ -3,7 +3,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -171,7 +171,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -197,13 +198,17 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                       width: size * 0.8,
                                       decoration: BoxDecoration(
                                         color: isCreating
-                                            ? ThemeColors.subtleEmphasis
+                                            ? Theme.of(context)
+                                                .colors
+                                                .subtleEmphasis
                                                 .resolveFrom(context)
-                                            : ThemeColors.white,
+                                            : Theme.of(context).colors.white,
                                         borderRadius:
                                             BorderRadius.circular(size * 0.1),
                                         border: Border.all(
-                                          color: ThemeColors.primary
+                                          color: Theme.of(context)
+                                              .colors
+                                              .primary
                                               .resolveFrom(context),
                                           width: 1,
                                         ),
@@ -216,17 +221,23 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                           _ => 0,
                                         },
                                         size: 100,
-                                        color: ThemeColors.primary
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
                                             .resolveFrom(context),
                                         trackColor: createError
-                                            ? ThemeColors.danger
+                                            ? Theme.of(context)
+                                                .colors
+                                                .danger
                                                 .resolveFrom(context)
                                                 .withOpacity(0.25)
                                             : null,
                                         successChild: Icon(
                                           CupertinoIcons.checkmark,
                                           size: 60,
-                                          color: ThemeColors.success
+                                          color: Theme.of(context)
+                                              .colors
+                                              .success
                                               .resolveFrom(context),
                                         ),
                                       ),
@@ -260,7 +271,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                     : AppLocalizations.of(context)!
                                         .voucherCreateFailed,
                             style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .text
+                                  .resolveFrom(context),
                               fontWeight: FontWeight.bold,
                               fontSize: 24,
                             ),
@@ -285,8 +299,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                   style: TextStyle(
                                     fontSize: 36,
                                     fontWeight: FontWeight.bold,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
@@ -305,8 +321,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                 ),
@@ -320,14 +338,18 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                               children: [
                                 Icon(
                                   CupertinoIcons.time,
-                                  color: ThemeColors.subtleSolid
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtleSolid
                                       .resolveFrom(context),
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   date,
                                   style: TextStyle(
-                                    color: ThemeColors.subtleSolid
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtleSolid
                                         .resolveFrom(context),
                                     fontWeight: FontWeight.normal,
                                     fontSize: 18,
@@ -344,8 +366,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                               children: [
                                 Button(
                                   text: AppLocalizations.of(context)!.share,
-                                  labelColor:
-                                      ThemeColors.white.resolveFrom(context),
+                                  labelColor: Theme.of(context)
+                                      .colors
+                                      .white
+                                      .resolveFrom(context),
                                   suffix: const Padding(
                                     padding: EdgeInsets.only(right: 10),
                                     child: Icon(
@@ -374,10 +398,14 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                 Button(
                                   text: AppLocalizations.of(context)!
                                       .cancelRefund,
-                                  color: ThemeColors.transparent
+                                  color: Theme.of(context)
+                                      .colors
+                                      .transparent
                                       .resolveFrom(context),
-                                  labelColor:
-                                      ThemeColors.primary.resolveFrom(context),
+                                  labelColor: Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context),
                                   onPressed: () => handleRefund(
                                     context,
                                     createdVoucher!.address,
@@ -402,7 +430,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                   children: [
                     Button(
                       text: AppLocalizations.of(context)!.dismiss,
-                      labelColor: ThemeColors.white.resolveFrom(context),
+                      labelColor:
+                          Theme.of(context).colors.white.resolveFrom(context),
                       onPressed: () => handleDone(context),
                       minWidth: 200,
                       maxWidth: width - 60,
@@ -416,7 +445,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                   children: [
                     Button(
                       text: AppLocalizations.of(context)!.retry,
-                      labelColor: ThemeColors.white.resolveFrom(context),
+                      labelColor:
+                          Theme.of(context).colors.white.resolveFrom(context),
                       onPressed: () => handleRetry(context),
                       minWidth: 200,
                       maxWidth: width - 60,

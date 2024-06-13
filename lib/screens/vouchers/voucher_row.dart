@@ -1,6 +1,6 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -58,15 +58,15 @@ class VoucherRowState extends State<VoucherRow> {
         border: Border(
           bottom: BorderSide(
             width: 1,
-            color: ThemeColors.subtleEmphasis.resolveFrom(context),
+            color: Theme.of(context).colors.subtleEmphasis.resolveFrom(context),
           ),
         ),
-        color: ThemeColors.transparent.resolveFrom(context),
+        color: Theme.of(context).colors.transparent.resolveFrom(context),
       ),
       child: CupertinoButton(
         onPressed: () =>
             onTap?.call(voucher.address, voucher.balance, isRedeemed),
-        color: ThemeColors.transparent.resolveFrom(context),
+        color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
           children: [
@@ -86,7 +86,10 @@ class VoucherRowState extends State<VoucherRow> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                       SizedBox(
@@ -98,7 +101,10 @@ class VoucherRowState extends State<VoucherRow> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleText
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
@@ -114,7 +120,10 @@ class VoucherRowState extends State<VoucherRow> {
                       child: Icon(
                         CupertinoIcons.ellipsis,
                         size: 18,
-                        color: ThemeColors.touchable.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .touchable
+                            .resolveFrom(context),
                       ),
                     ),
                   )
@@ -128,26 +137,26 @@ class VoucherRowState extends State<VoucherRow> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: isRedeemed
-                      ? ThemeColors.surfacePrimary
-                      : ThemeColors.white,
+                      ? Theme.of(context).colors.surfacePrimary
+                      : Theme.of(context).colors.white,
                 ),
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: Center(
                     child: isRedeemed
                         ? Text(
                             AppLocalizations.of(context)!.redeemed,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.text,
+                              color: Theme.of(context).colors.text,
                             ),
                           )
                         : Text(
                             AppLocalizations.of(context)!.issued,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.text,
+                              color: Theme.of(context).colors.text,
                             ),
                           )),
               ),

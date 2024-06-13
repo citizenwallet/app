@@ -1,5 +1,5 @@
-import 'package:citizenwallet/theme/colors.dart';
-import 'package:flutter/material.dart';
+import 'package:citizenwallet/theme/provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CoinLogo extends StatelessWidget {
@@ -19,10 +19,10 @@ class CoinLogo extends StatelessWidget {
       width: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(size / 2),
-        color: Colors.white,
+        color: Theme.of(context).colors.white,
         border: Border.all(
           width: 1,
-          color: ThemeColors.subtle.resolveFrom(context),
+          color: Theme.of(context).colors.subtle.resolveFrom(context),
         ),
       ),
       child: logo != null

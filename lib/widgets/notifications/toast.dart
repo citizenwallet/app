@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citizenwallet/state/notifications/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -103,8 +103,8 @@ class _ToastState extends State<Toast> {
     final title = widget.title;
 
     final color = _display == ToastType.error
-        ? ThemeColors.danger.resolveFrom(context)
-        : ThemeColors.success.resolveFrom(context);
+        ? Theme.of(context).colors.danger.resolveFrom(context)
+        : Theme.of(context).colors.success.resolveFrom(context);
 
     return Positioned(
       bottom: safeBottomPadding + 20,
@@ -145,7 +145,10 @@ class _ToastState extends State<Toast> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: ThemeColors.white.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .white
+                                .resolveFrom(context),
                           ),
                         ),
                       ],
@@ -158,7 +161,8 @@ class _ToastState extends State<Toast> {
                     minSize: 20,
                     child: Icon(
                       CupertinoIcons.clear,
-                      color: ThemeColors.white.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.white.resolveFrom(context),
                     ),
                   ),
                   const SizedBox(width: 10),

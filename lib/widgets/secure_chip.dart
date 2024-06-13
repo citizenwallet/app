@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class SecureChip extends StatefulWidget {
@@ -53,7 +53,7 @@ class SecureChipState extends State<SecureChip> {
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: Border.all(
             color: _revealed
-                ? ThemeColors.secondary.resolveFrom(context)
+                ? Theme.of(context).colors.secondary.resolveFrom(context)
                 : widget.color,
             width: 1,
           ),
@@ -88,7 +88,7 @@ class SecureChipState extends State<SecureChip> {
                   ? CupertinoIcons.eye_fill
                   : CupertinoIcons.eye_slash_fill,
               size: 14,
-              color: ThemeColors.touchable.resolveFrom(context),
+              color: Theme.of(context).colors.touchable.resolveFrom(context),
             ),
           ],
         ),

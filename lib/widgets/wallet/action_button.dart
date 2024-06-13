@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -38,8 +38,8 @@ class WalletActionButton extends StatelessWidget {
     final buttonWidth = small ? 120.0 : buttonSize;
 
     final color = alt
-        ? ThemeColors.surfacePrimary.resolveFrom(context)
-        : ThemeColors.white;
+        ? Theme.of(context).colors.surfacePrimary.resolveFrom(context)
+        : Theme.of(context).colors.white;
 
     return Container(
       height: buttonSize + 40,
@@ -57,8 +57,14 @@ class WalletActionButton extends StatelessWidget {
               width: buttonWidth,
               decoration: BoxDecoration(
                 color: alt
-                    ? ThemeColors.surfaceBackground.resolveFrom(context)
-                    : ThemeColors.surfacePrimary.resolveFrom(context),
+                    ? Theme.of(context)
+                        .colors
+                        .surfaceBackground
+                        .resolveFrom(context)
+                    : Theme.of(context)
+                        .colors
+                        .surfacePrimary
+                        .resolveFrom(context),
                 borderRadius: BorderRadius.circular(buttonSize / 2),
               ),
               child: small
@@ -105,8 +111,12 @@ class WalletActionButton extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: disabled
-                        ? ThemeColors.text.resolveFrom(context).withOpacity(0.8)
-                        : ThemeColors.text.resolveFrom(context),
+                        ? Theme.of(context)
+                            .colors
+                            .text
+                            .resolveFrom(context)
+                            .withOpacity(0.8)
+                        : Theme.of(context).colors.text.resolveFrom(context),
                     fontSize: buttonFontSize,
                   ),
                 ),

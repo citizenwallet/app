@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -133,7 +133,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: Flex(
           direction: Axis.vertical,
           children: [
@@ -203,7 +204,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
                       height: 50,
                       width: 50,
                       decoration: BoxDecoration(
-                        color: ThemeColors.uiBackground
+                        color: Theme.of(context)
+                            .colors
+                            .uiBackground
                             .resolveFrom(context)
                             .withOpacity(0.5),
                         borderRadius: BorderRadius.circular(25),
@@ -215,7 +218,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
                           onPressed: () => handleDismiss(context),
                           child: Icon(
                             CupertinoIcons.back,
-                            color: ThemeColors.touchable.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .touchable
+                                .resolveFrom(context),
                           ),
                         ),
                       ),

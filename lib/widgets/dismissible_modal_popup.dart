@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class DismissibleModalPopup extends StatefulWidget {
@@ -70,7 +70,7 @@ class DismissibleModalPopupState extends State<DismissibleModalPopup> {
           widget.paddingTopBottom,
         ),
         decoration: BoxDecoration(
-          color: ThemeColors.uiBackground.resolveFrom(context),
+          color: Theme.of(context).colors.uiBackground.resolveFrom(context),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(widget.topRadius),
             topRight: Radius.circular(widget.topRadius),

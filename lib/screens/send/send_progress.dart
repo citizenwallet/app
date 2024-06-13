@@ -3,7 +3,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
@@ -103,7 +103,8 @@ class _SendProgressState extends State<SendProgress> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -133,17 +134,24 @@ class _SendProgressState extends State<SendProgress> {
                                         _ => 0,
                                       },
                                 size: 100,
-                                color: ThemeColors.primary.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .primary
+                                    .resolveFrom(context),
                                 trackColor: inProgressTransactionError
-                                    ? ThemeColors.danger
+                                    ? Theme.of(context)
+                                        .colors
+                                        .danger
                                         .resolveFrom(context)
                                         .withOpacity(0.25)
                                     : null,
                                 successChild: Icon(
                                   CupertinoIcons.checkmark,
                                   size: 60,
-                                  color:
-                                      ThemeColors.success.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .success
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ],
@@ -157,7 +165,10 @@ class _SendProgressState extends State<SendProgress> {
                                     ? AppLocalizations.of(context)!.sending
                                     : '${AppLocalizations.of(context)!.sent}! 🎉',
                             style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .text
+                                  .resolveFrom(context),
                               fontWeight: FontWeight.bold,
                               fontSize: 28,
                             ),
@@ -180,7 +191,10 @@ class _SendProgressState extends State<SendProgress> {
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ),
                               const SizedBox(width: 20),
@@ -199,8 +213,10 @@ class _SendProgressState extends State<SendProgress> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               ),
@@ -244,7 +260,10 @@ class _SendProgressState extends State<SendProgress> {
                                 selectedProfile?.name ??
                                     formatHexAddress(widget.to ?? ''),
                                 style: TextStyle(
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,
                                 ),
@@ -259,14 +278,18 @@ class _SendProgressState extends State<SendProgress> {
                               children: [
                                 Icon(
                                   CupertinoIcons.time,
-                                  color: ThemeColors.subtleSolid
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtleSolid
                                       .resolveFrom(context),
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   date,
                                   style: TextStyle(
-                                    color: ThemeColors.subtleSolid
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtleSolid
                                         .resolveFrom(context),
                                     fontWeight: FontWeight.normal,
                                     fontSize: 18,
@@ -287,7 +310,8 @@ class _SendProgressState extends State<SendProgress> {
                   children: [
                     Button(
                       text: AppLocalizations.of(context)!.dismiss,
-                      labelColor: ThemeColors.white.resolveFrom(context),
+                      labelColor:
+                          Theme.of(context).colors.white.resolveFrom(context),
                       onPressed: () => handleDone(context),
                       minWidth: 200,
                       maxWidth: width - 60,
@@ -301,7 +325,8 @@ class _SendProgressState extends State<SendProgress> {
                   children: [
                     Button(
                       text: AppLocalizations.of(context)!.retry,
-                      labelColor: ThemeColors.white.resolveFrom(context),
+                      labelColor:
+                          Theme.of(context).colors.white.resolveFrom(context),
                       onPressed: () => handleRetry(context),
                       minWidth: 200,
                       maxWidth: width - 60,

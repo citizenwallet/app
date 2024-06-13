@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class ProgressCircle extends StatefulWidget {
@@ -108,7 +108,8 @@ class MyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = trackColor ?? ThemeColors.subtle.resolveFrom(context)
+      ..color =
+          trackColor ?? Theme.of(context).colors.subtle.resolveFrom(context)
       ..strokeWidth = 5.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -120,7 +121,8 @@ class MyPainter extends CustomPainter {
     canvas.drawCircle(center, radius, paint);
 
     // Change the color and draw the filled part
-    paint.color = color ?? ThemeColors.primary.resolveFrom(context);
+    paint.color =
+        color ?? Theme.of(context).colors.primary.resolveFrom(context);
     const startAngle = -math.pi / 2;
     final sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), startAngle,

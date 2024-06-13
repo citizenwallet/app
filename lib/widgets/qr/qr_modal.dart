@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -45,7 +45,8 @@ class QRModal extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
@@ -58,7 +59,8 @@ class QRModal extends StatelessWidget {
                   onPressed: () => handleDismiss(context),
                   child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
               ),
@@ -69,7 +71,8 @@ class QRModal extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: ThemeColors.white.resolveFrom(context),
+                        color:
+                            Theme.of(context).colors.white.resolveFrom(context),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.all(10),
@@ -88,14 +91,21 @@ class QRModal extends StatelessWidget {
                           Chip(
                             onTap: onCopy,
                             copyLabel,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleEmphasis
+                                .resolveFrom(context),
+                            textColor: Theme.of(context)
+                                .colors
+                                .touchable
+                                .resolveFrom(context),
                             suffix: Icon(
                               CupertinoIcons.square_on_square,
                               size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .touchable
+                                  .resolveFrom(context),
                             ),
                             maxWidth: 180,
                           ),

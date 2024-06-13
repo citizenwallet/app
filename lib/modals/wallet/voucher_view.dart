@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
@@ -108,7 +108,8 @@ class VoucherViewModalState extends State<VoucherViewModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -123,7 +124,10 @@ class VoucherViewModalState extends State<VoucherViewModal>
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -141,9 +145,13 @@ class VoucherViewModalState extends State<VoucherViewModal>
                         scrollDirection: Axis.vertical,
                         children: [
                           Text(
-                            voucher?.name ?? AppLocalizations.of(context)!.voucher,
+                            voucher?.name ??
+                                AppLocalizations.of(context)!.voucher,
                             style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .text
+                                  .resolveFrom(context),
                               fontSize: 34,
                               fontWeight: FontWeight.bold,
                             ),
@@ -160,14 +168,21 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                 width: size * 0.8,
                                 decoration: BoxDecoration(
                                   color: viewLoading || voucher == null
-                                      ? ThemeColors.uiBackgroundAlt
+                                      ? Theme.of(context)
+                                          .colors
+                                          .uiBackgroundAlt
                                           .resolveFrom(context)
-                                      : ThemeColors.white.resolveFrom(context),
+                                      : Theme.of(context)
+                                          .colors
+                                          .white
+                                          .resolveFrom(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: viewLoading || voucher == null
                                     ? CupertinoActivityIndicator(
-                                        color: ThemeColors.subtle
+                                        color: Theme.of(context)
+                                            .colors
+                                            .subtle
                                             .resolveFrom(context))
                                     : QR(
                                         data: viewingVoucherLink!,
@@ -187,14 +202,20 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                   onTap: () => handleCopy(viewingVoucherLink),
                                   formatLongText(viewingVoucherLink,
                                       length: 12),
-                                  color: ThemeColors.subtleEmphasis
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtleEmphasis
                                       .resolveFrom(context),
-                                  textColor: ThemeColors.touchable
+                                  textColor: Theme.of(context)
+                                      .colors
+                                      .touchable
                                       .resolveFrom(context),
                                   suffix: Icon(
                                     CupertinoIcons.square_on_square,
                                     size: 14,
-                                    color: ThemeColors.touchable
+                                    color: Theme.of(context)
+                                        .colors
+                                        .touchable
                                         .resolveFrom(context),
                                   ),
                                   maxWidth: 300,
@@ -218,8 +239,10 @@ class VoucherViewModalState extends State<VoucherViewModal>
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -235,7 +258,9 @@ class VoucherViewModalState extends State<VoucherViewModal>
                                       Icon(
                                         CupertinoIcons.share,
                                         size: 18,
-                                        color: ThemeColors.black
+                                        color: Theme.of(context)
+                                            .colors
+                                            .black
                                             .resolveFrom(context),
                                       ),
                                     ],

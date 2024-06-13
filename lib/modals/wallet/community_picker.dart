@@ -1,7 +1,7 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/communities/community_row.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -70,9 +70,9 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.black,
+        backgroundColor: Theme.of(context).colors.black,
         child: SafeArea(
           minimum: const EdgeInsets.only(top: 20),
           bottom: false,
@@ -85,9 +85,9 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.white,
+                    color: Theme.of(context).colors.white,
                   ),
                 ),
               ),
@@ -104,7 +104,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                         expandedHeight: height * 0.45,
                         builder: (context, shrink) {
                           return Container(
-                            color: ThemeColors.black,
+                            color: Theme.of(context).colors.black,
                             padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                             child: Stack(
                               alignment: Alignment.center,
@@ -121,17 +121,19 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                                     ),
                                   ],
                                 ),
-                                 Column(
+                                Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         Text(
-                                          AppLocalizations.of(context)!.communities,
+                                          AppLocalizations.of(context)!
+                                              .communities,
                                           textAlign: TextAlign.left,
-                                          style: const TextStyle(
-                                            color: ThemeColors.white,
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(context).colors.white,
                                             fontSize: 36,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -157,7 +159,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                       ) =>
                           SafeArea(
                         child: Container(
-                          color: ThemeColors.black,
+                          color: Theme.of(context).colors.black,
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: CupertinoSliverRefreshControl
                               .buildRefreshIndicator(

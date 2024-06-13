@@ -1,5 +1,5 @@
-import 'package:citizenwallet/state/app/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/state/theme/state.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +23,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
-    final theme = context.select((AppState state) => state.theme);
+    final theme = context.select((ThemeState state) => state.cupertinoTheme);
 
     return CupertinoPageScaffold(
       child: Stack(
@@ -45,7 +45,8 @@ class AboutScreen extends StatelessWidget {
                   )
                 : Center(
                     child: CupertinoActivityIndicator(
-                      color: ThemeColors.subtle.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.subtle.resolveFrom(context),
                     ),
                   ),
           ),

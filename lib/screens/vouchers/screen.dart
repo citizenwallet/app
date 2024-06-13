@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
@@ -115,7 +115,8 @@ class VouchersScreenState extends State<VouchersScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.share,
                     style: TextStyle(
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
                     ),
                   ),
                 ),
@@ -144,7 +145,7 @@ class VouchersScreenState extends State<VouchersScreen> {
               child: Text(
                 AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
-                  color: ThemeColors.primary.resolveFrom(context),
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
                 ),
               ),
             ),
@@ -243,7 +244,8 @@ class VouchersScreenState extends State<VouchersScreen> {
         context.select((VoucherState state) => state.returnLoading);
 
     return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      backgroundColor:
+          Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
@@ -257,7 +259,10 @@ class VouchersScreenState extends State<VouchersScreen> {
                 title: AppLocalizations.of(context)!.vouchers,
                 actionButton: returnLoading
                     ? CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtle
+                            .resolveFrom(context),
                       )
                     : null,
               ),
@@ -289,8 +294,10 @@ class VouchersScreenState extends State<VouchersScreen> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               ],
@@ -333,8 +340,10 @@ class VouchersScreenState extends State<VouchersScreen> {
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -346,8 +355,10 @@ class VouchersScreenState extends State<VouchersScreen> {
                                 Button(
                                   text: AppLocalizations.of(context)!
                                       .createVoucher,
-                                  labelColor:
-                                      ThemeColors.white.resolveFrom(context),
+                                  labelColor: Theme.of(context)
+                                      .colors
+                                      .white
+                                      .resolveFrom(context),
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,

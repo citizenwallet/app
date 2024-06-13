@@ -7,7 +7,7 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -377,9 +377,10 @@ class LandingScreenState extends State<LandingScreen>
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           child: Flex(
             direction: Axis.vertical,
@@ -414,8 +415,10 @@ class LandingScreenState extends State<LandingScreen>
                                 child: Text(
                                   AppLocalizations.of(context)!.welcomeCitizen,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -431,8 +434,10 @@ class LandingScreenState extends State<LandingScreen>
                                   AppLocalizations.of(context)!
                                       .aWalletForYourCommunity,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -444,8 +449,10 @@ class LandingScreenState extends State<LandingScreen>
                                 Text(
                                   backupStatus.message,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -463,7 +470,10 @@ class LandingScreenState extends State<LandingScreen>
                       bottom: 20,
                       child: walletLoading || appLoading || loading
                           ? CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             )
                           : Column(
                               children: [
@@ -473,11 +483,15 @@ class LandingScreenState extends State<LandingScreen>
                                     height: 90,
                                     width: 90,
                                     decoration: BoxDecoration(
-                                      color: ThemeColors.background
+                                      color: Theme.of(context)
+                                          .colors
+                                          .background
                                           .resolveFrom(context),
                                       borderRadius: BorderRadius.circular(45),
                                       border: Border.all(
-                                        color: ThemeColors.primary
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
                                             .resolveFrom(context),
                                         width: 3,
                                       ),
@@ -488,7 +502,9 @@ class LandingScreenState extends State<LandingScreen>
                                       child: Icon(
                                         CupertinoIcons.qrcode_viewfinder,
                                         size: 60,
-                                        color: ThemeColors.primary
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
                                             .resolveFrom(context),
                                       ),
                                     ),
@@ -503,8 +519,10 @@ class LandingScreenState extends State<LandingScreen>
                                     AppLocalizations.of(context)!
                                         .scanFromCommunity,
                                     style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                       fontSize: 18,
                                       fontWeight: FontWeight.normal,
                                     ),
@@ -516,8 +534,10 @@ class LandingScreenState extends State<LandingScreen>
                                   Container(
                                     height: 1,
                                     width: 200,
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   ),
                                   CupertinoButton(
                                     onPressed: handleStart,
@@ -535,7 +555,9 @@ class LandingScreenState extends State<LandingScreen>
                                             AppLocalizations.of(context)!
                                                 .browseCommunities,
                                             style: TextStyle(
-                                              color: ThemeColors.primary
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .primary
                                                   .resolveFrom(context),
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -549,7 +571,9 @@ class LandingScreenState extends State<LandingScreen>
                                           ),
                                           Icon(
                                             CupertinoIcons.arrow_right,
-                                            color: ThemeColors.primary
+                                            color: Theme.of(context)
+                                                .colors
+                                                .primary
                                                 .resolveFrom(context),
                                           ),
                                         ],
@@ -576,7 +600,9 @@ class LandingScreenState extends State<LandingScreen>
                                               AppLocalizations.of(context)!
                                                   .recoverfrombackup,
                                               style: TextStyle(
-                                                color: ThemeColors.primary
+                                                color: Theme.of(context)
+                                                    .colors
+                                                    .primary
                                                     .resolveFrom(context),
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -591,7 +617,9 @@ class LandingScreenState extends State<LandingScreen>
                                           ),
                                           Icon(
                                             CupertinoIcons.arrow_right,
-                                            color: ThemeColors.primary
+                                            color: Theme.of(context)
+                                                .colors
+                                                .primary
                                                 .resolveFrom(context),
                                           ),
                                         ],
@@ -603,8 +631,10 @@ class LandingScreenState extends State<LandingScreen>
                                   Container(
                                     height: 1,
                                     width: 200,
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   ),
                                   CupertinoButton(
                                     onPressed: handleStart,
@@ -622,7 +652,9 @@ class LandingScreenState extends State<LandingScreen>
                                             AppLocalizations.of(context)!
                                                 .browseCommunities,
                                             style: TextStyle(
-                                              color: ThemeColors.primary
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .primary
                                                   .resolveFrom(context),
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -636,7 +668,9 @@ class LandingScreenState extends State<LandingScreen>
                                           ),
                                           Icon(
                                             CupertinoIcons.arrow_right,
-                                            color: ThemeColors.primary
+                                            color: Theme.of(context)
+                                                .colors
+                                                .primary
                                                 .resolveFrom(context),
                                           ),
                                         ],

@@ -1,5 +1,5 @@
 import 'package:citizenwallet/state/backup_web/logic.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -109,7 +109,8 @@ class SaveModalState extends State<SaveModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
@@ -122,7 +123,8 @@ class SaveModalState extends State<SaveModal> {
                   onPressed: () => handleDismiss(context),
                   child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
               ),
@@ -137,7 +139,7 @@ class SaveModalState extends State<SaveModal> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
+                      color: Theme.of(context).colors.text.resolveFrom(context),
                     ),
                   ),
                 ))
@@ -165,8 +167,10 @@ class SaveModalState extends State<SaveModal> {
                                   Icon(
                                     CupertinoIcons.doc_on_clipboard,
                                     size: 18,
-                                    color:
-                                        ThemeColors.black.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .black
+                                        .resolveFrom(context),
                                   ),
                                 ],
                               ),
@@ -183,7 +187,10 @@ class SaveModalState extends State<SaveModal> {
                                 AppLocalizations.of(context)!
                                     .emailtoyourselfyourwalleturl,
                                 style: TextStyle(
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                   fontSize: 18,
                                   fontWeight: FontWeight.normal,
                                   decoration: TextDecoration.underline,
@@ -205,7 +212,10 @@ class SaveModalState extends State<SaveModal> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.normal,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -226,7 +236,10 @@ class SaveModalState extends State<SaveModal> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.normal,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -254,7 +267,10 @@ class SaveModalState extends State<SaveModal> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.normal,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -266,7 +282,9 @@ class SaveModalState extends State<SaveModal> {
                                     Icon(
                                       CupertinoIcons.arrowshape_turn_up_right,
                                       size: 18,
-                                      color: ThemeColors.black
+                                      color: Theme.of(context)
+                                          .colors
+                                          .black
                                           .resolveFrom(context),
                                     ),
                                   ],

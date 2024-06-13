@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -108,7 +108,7 @@ class _NotificationBannerState extends State<NotificationBanner> {
         height: 45 + safeTopPadding,
         padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 5),
         decoration: BoxDecoration(
-          color: ThemeColors.surfacePrimary.resolveFrom(context),
+          color: Theme.of(context).colors.surfacePrimary.resolveFrom(context),
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(20), // Adjust as needed
             bottomRight: Radius.circular(20), // Adjust as needed
@@ -128,10 +128,10 @@ class _NotificationBannerState extends State<NotificationBanner> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: ThemeColors.white,
+                      color: Theme.of(context).colors.white,
                     ),
                   ),
                 ],
@@ -142,9 +142,9 @@ class _NotificationBannerState extends State<NotificationBanner> {
               onPressed: widget.onDismiss,
               minSize: 20,
               // color: Color.fromARGB(255, 255, 0, 0),
-              child: const Icon(
+              child: Icon(
                 CupertinoIcons.clear,
-                color: ThemeColors.white,
+                color: Theme.of(context).colors.white,
               ),
             ),
             const SizedBox(width: 10),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -74,8 +75,11 @@ class ChipState extends State<Chip> {
           border: widget.onTap != null
               ? Border.all(
                   color: _tapped
-                      ? ThemeColors.primary.resolveFrom(context)
-                      : ThemeColors.subtleEmphasis.resolveFrom(context),
+                      ? Theme.of(context).colors.primary.resolveFrom(context)
+                      : Theme.of(context)
+                          .colors
+                          .subtleEmphasis
+                          .resolveFrom(context),
                   width: 2,
                 )
               : null,
@@ -110,7 +114,7 @@ class ChipState extends State<Chip> {
                 Icon(
                   CupertinoIcons.check_mark,
                   size: 14,
-                  color: ThemeColors.primary.resolveFrom(context),
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
                 ),
             ],
           ],

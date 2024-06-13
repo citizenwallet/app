@@ -6,6 +6,7 @@ import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/backup_web/state.dart';
+import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,9 @@ import 'package:provider/provider.dart';
 
 Widget provideAppState(Widget child) => MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeState(),
+        ),
         ChangeNotifierProvider(
           create: (_) => AppState(),
         ),

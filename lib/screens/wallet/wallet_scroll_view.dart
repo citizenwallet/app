@@ -7,7 +7,7 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -155,7 +155,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
               return SafeArea(
                 child: Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(0, 60, 0, 0),
                   child: CupertinoSliverRefreshControl.buildRefreshIndicator(
                     context,
@@ -191,7 +194,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (queuedTransactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: const Text(
                 'Unable to send',
@@ -214,7 +218,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 final transaction = queuedTransactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -241,7 +248,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
               children: walletLoading
                   ? [
                       CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtle
+                            .resolveFrom(context),
                       ),
                       const SizedBox(
                         height: 20,
@@ -249,7 +259,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
                       Text(
                         AppLocalizations.of(context)!.preparingWallet,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -285,14 +298,21 @@ class WalletScrollViewState extends State<WalletScrollView> {
                                   ),
                             onTap: () => handleCopy(qrData),
                             fontSize: 14,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
-                            textColor:
-                                ThemeColors.touchable.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleEmphasis
+                                .resolveFrom(context),
+                            textColor: Theme.of(context)
+                                .colors
+                                .touchable
+                                .resolveFrom(context),
                             suffix: Icon(
                               CupertinoIcons.square_on_square,
                               size: 14,
-                              color: ThemeColors.touchable.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .touchable
+                                  .resolveFrom(context),
                             ),
                             maxWidth: isExternalWallet ? 160 : 290,
                           ),
@@ -318,7 +338,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (transactions.isNotEmpty)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Text(
                 AppLocalizations.of(context)!.transactions,
@@ -332,10 +353,11 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (loading && transactions.isEmpty)
           SliverFillRemaining(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               child: Center(
                 child: CupertinoActivityIndicator(
-                  color: ThemeColors.subtle.resolveFrom(context),
+                  color: Theme.of(context).colors.subtle.resolveFrom(context),
                 ),
               ),
             ),
@@ -343,7 +365,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (inProgressTransaction != null && wallet != null)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: TransactionRow(
                 key: Key(inProgressTransaction.id),
@@ -370,7 +393,10 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 final transaction = transactions[index];
 
                 return Container(
-                  color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context),
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TransactionRow(
                     key: Key(transaction.id),
@@ -389,7 +415,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
         if (transactions.isNotEmpty && wallet != null && !loading)
           SliverToBoxAdapter(
             child: Container(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               height: (clampDouble(5.0 - transactions.length, 1, 5)) * 100,
               child: null,
             ),

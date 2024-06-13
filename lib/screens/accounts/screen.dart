@@ -8,7 +8,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/ratio.dart';
@@ -19,7 +19,6 @@ import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -139,7 +138,8 @@ class AccountsScreenState extends State<AccountsScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.editname,
                     style: TextStyle(
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
                     ),
                   ),
                 ),
@@ -151,7 +151,8 @@ class AccountsScreenState extends State<AccountsScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.export,
                     style: TextStyle(
-                      color: ThemeColors.primary.resolveFrom(context),
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
                     ),
                   ),
                 ),
@@ -171,7 +172,7 @@ class AccountsScreenState extends State<AccountsScreen> {
               child: Text(
                 AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
-                  color: ThemeColors.primary.resolveFrom(context),
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
                 ),
               ),
             ),
@@ -340,7 +341,8 @@ class AccountsScreenState extends State<AccountsScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(
             left: 10,
@@ -373,7 +375,9 @@ class AccountsScreenState extends State<AccountsScreen> {
                               builder: (context, shrink) => GestureDetector(
                                 onTap: handleScrollToTop,
                                 child: Container(
-                                  color: ThemeColors.uiBackgroundAlt
+                                  color: Theme.of(context)
+                                      .colors
+                                      .uiBackgroundAlt
                                       .resolveFrom(context),
                                   child: Stack(
                                     children: [
@@ -405,7 +409,9 @@ class AccountsScreenState extends State<AccountsScreen> {
                                                         BorderRadius.circular(
                                                             20),
                                                     border: Border.all(
-                                                      color: ThemeColors.primary
+                                                      color: Theme.of(context)
+                                                          .colors
+                                                          .primary
                                                           .resolveFrom(context),
                                                     ),
                                                   ),
@@ -419,16 +425,19 @@ class AccountsScreenState extends State<AccountsScreen> {
                                                                 context)!
                                                             .settings,
                                                         style: TextStyle(
-                                                          color: ThemeColors
-                                                              .primary
-                                                              .resolveFrom(
-                                                                  context),
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colors
+                                                                  .primary
+                                                                  .resolveFrom(
+                                                                      context),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 8),
                                                       Icon(
                                                         CupertinoIcons.settings,
-                                                        color: ThemeColors
+                                                        color: Theme.of(context)
+                                                            .colors
                                                             .primary
                                                             .resolveFrom(
                                                                 context),
@@ -442,7 +451,9 @@ class AccountsScreenState extends State<AccountsScreen> {
                                         ),
                                       ),
                                       Container(
-                                        color: ThemeColors.uiBackgroundAlt
+                                        color: Theme.of(context)
+                                            .colors
+                                            .uiBackgroundAlt
                                             .resolveFrom(context),
                                         child: WalletRow(
                                           key: Key(
@@ -460,11 +471,12 @@ class AccountsScreenState extends State<AccountsScreen> {
                                         bottom: 0,
                                         left: 0,
                                         right: 0,
-                                        child: Divider(
-                                          color: ThemeColors.subtle
+                                        child: Container(
+                                          color: Theme.of(context)
+                                              .colors
+                                              .subtle
                                               .resolveFrom(context),
                                           height: 1,
-                                          thickness: 1,
                                         ),
                                       ),
                                     ],
@@ -481,7 +493,10 @@ class AccountsScreenState extends State<AccountsScreen> {
                         if (cwWalletsLoading && groupedWallets.isEmpty)
                           SliverToBoxAdapter(
                             child: CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             ),
                           ),
                         if (groupedWallets.isNotEmpty)
@@ -506,7 +521,9 @@ class AccountsScreenState extends State<AccountsScreen> {
                                           child: Text(
                                             community.name,
                                             style: TextStyle(
-                                              color: ThemeColors.text
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .text
                                                   .resolveFrom(context),
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -575,10 +592,15 @@ class AccountsScreenState extends State<AccountsScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              ThemeColors.uiBackgroundAlt
+                              Theme.of(context)
+                                  .colors
+                                  .uiBackgroundAlt
                                   .resolveFrom(context)
                                   .withOpacity(0.0),
-                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                              Theme.of(context)
+                                  .colors
+                                  .uiBackgroundAlt
+                                  .resolveFrom(context),
                             ],
                           ),
                         ),
@@ -595,8 +617,10 @@ class AccountsScreenState extends State<AccountsScreen> {
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             onPressed: () => handleImport(context),
                             borderRadius: BorderRadius.circular(25),
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .uiBackground
+                                .resolveFrom(context),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -604,14 +628,19 @@ class AccountsScreenState extends State<AccountsScreen> {
                                 Text(
                                   AppLocalizations.of(context)!.importText,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(width: 5),
                                 Icon(
                                   CupertinoIcons.down_arrow,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ],
                             ),
@@ -621,22 +650,24 @@ class AccountsScreenState extends State<AccountsScreen> {
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             onPressed: () => handleCreate(context),
                             borderRadius: BorderRadius.circular(25),
-                            color:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
                                   AppLocalizations.of(context)!.joinCommunity,
-                                  style: const TextStyle(
-                                    color: ThemeColors.black,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colors.black,
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                const Icon(
+                                Icon(
                                   CupertinoIcons.plus,
-                                  color: ThemeColors.black,
+                                  color: Theme.of(context).colors.black,
                                 ),
                               ],
                             ),
