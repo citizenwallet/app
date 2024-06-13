@@ -158,65 +158,65 @@ class MyAppState extends State<MyApp> {
 
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          CupertinoApp.router(
-            debugShowCheckedModeBanner: false,
-            routerConfig: router,
-            theme: cupertinoTheme,
-            title: '$titlePrefix Wallet',
-            locale: Locale(language.code),
-            localizationsDelegates: const [
-              AppLocalizations.delegate, // Add this line
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en'), // English
-              Locale('fr'), // fench
-              Locale('nl'), // ductch
-            ],
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: const TextScaler.linear(1.0)),
-              child: CupertinoScaffold(
-                key: const Key('main'),
-                topRadius: const Radius.circular(40),
-                transitionBackgroundColor: colors.transparent,
-                body: CupertinoPageScaffold(
+      child: Theme(
+        colors: colors,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            CupertinoApp.router(
+              debugShowCheckedModeBanner: false,
+              routerConfig: router,
+              theme: cupertinoTheme,
+              title: '$titlePrefix Wallet',
+              locale: Locale(language.code),
+              localizationsDelegates: const [
+                AppLocalizations.delegate, // Add this line
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'), // English
+                Locale('fr'), // fench
+                Locale('nl'), // ductch
+              ],
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: CupertinoScaffold(
                   key: const Key('main'),
-                  backgroundColor: colors.transparent.resolveFrom(context),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: child != null
-                            ? CupertinoTheme(
-                                data: cupertinoTheme,
-                                child: Theme(
-                                  colors: colors,
+                  topRadius: const Radius.circular(40),
+                  transitionBackgroundColor: colors.transparent,
+                  body: CupertinoPageScaffold(
+                    key: const Key('main'),
+                    backgroundColor: colors.transparent.resolveFrom(context),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: child != null
+                              ? CupertinoTheme(
+                                  data: cupertinoTheme,
                                   child: child,
-                                ),
-                              )
-                            : const SizedBox(),
-                      ),
-                    ],
+                                )
+                              : const SizedBox(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Toast(
-            title: toastTitle,
-            display: toastDisplay,
-            onDismiss: handleDismissToast,
-          ),
-          NotificationBanner(
-            title: title,
-            display: display,
-            onDismiss: handleDismissNotification,
-          ),
-        ],
+            Toast(
+              title: toastTitle,
+              display: toastDisplay,
+              onDismiss: handleDismissToast,
+            ),
+            NotificationBanner(
+              title: title,
+              display: display,
+              onDismiss: handleDismissNotification,
+            ),
+          ],
+        ),
       ),
     );
   }
