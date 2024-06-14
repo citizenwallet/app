@@ -71,7 +71,6 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
 
-    print('initState: setting widget values');
     _address = widget.address;
     _alias = widget.alias;
     _voucher = widget.voucher;
@@ -119,7 +118,6 @@ class WalletScreenState extends State<WalletScreen> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.address != widget.address) {
-      print('didUpdateWidget: setting widget values');
       _address = widget.address;
       _alias = widget.alias;
       _voucher = widget.voucher;
