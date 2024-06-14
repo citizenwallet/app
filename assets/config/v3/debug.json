@@ -30,7 +30,7 @@
         "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "profile": {
-        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
     },
     "indexer": {
         "url": "https://wallet.pay.brussels/indexer",
@@ -45,5 +45,15 @@
         "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
         "paymaster_type": "cw"
     },
+    "cards": {
+        "card_factory_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB"
+    },
+    "plugins": [
+        {
+            "name": "Top Up",
+            "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+            "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+        }
+    ],
     "version": 1
 }
