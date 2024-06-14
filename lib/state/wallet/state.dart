@@ -108,6 +108,20 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setWalletBalance(String balance) {
+    if (wallet != null) {
+      wallet!.setBalance(balance);
+      notifyListeners();
+    }
+  }
+
+  void setWalletMinter(bool minter) {
+    if (wallet != null) {
+      wallet!.minter = minter;
+      notifyListeners();
+    }
+  }
+
   void loadWalletSuccess() {
     cleaningUp = false;
     firstLoad = false;

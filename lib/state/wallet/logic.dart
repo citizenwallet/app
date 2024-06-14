@@ -245,15 +245,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_db);
 
-      final balance = await _wallet.balance;
       final currency = _wallet.currency;
-      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
       _state.setWallet(
         CWWallet(
-          balance,
+          '0',
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
@@ -264,9 +262,12 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: false,
-          minter: minter,
+          minter: false,
         ),
       );
+
+      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       if (loadAdditionalData != null) await loadAdditionalData();
 
@@ -363,15 +364,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_db);
 
-      final balance = await _wallet.balance;
       final currency = _wallet.currency;
-      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
       _state.setWallet(
         CWWallet(
-          balance,
+          '0',
           name: dbWallet.name,
           address: _wallet.address.hexEip55,
           alias: dbWallet.alias,
@@ -382,9 +381,12 @@ class WalletLogic extends WidgetsBindingObserver {
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey == null,
           plugins: config.plugins,
-          minter: minter,
+          minter: false,
         ),
       );
+
+      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       _state.loadWalletSuccess();
 
