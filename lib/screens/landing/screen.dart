@@ -389,24 +389,34 @@ class LandingScreenState extends State<LandingScreen>
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      top: appLoading ? (height / 2) - 200 : minTopPadding,
+                      child: SizedBox(
+                        height: 200,
+                        width: 200,
+                        child: Center(
+                            child: SvgPicture.asset(
+                          'assets/citizenwallet-only-logo.svg',
+                          semanticsLabel: 'Citizen Wallet Icon',
+                          height: 200,
+                        )),
+                      ),
+                    ),
                     CustomScrollView(
                       scrollBehavior: const CupertinoScrollBehavior(),
                       slivers: [
                         SliverFillRemaining(
+                            child: AnimatedOpacity(
+                          opacity: appLoading ? 0 : 1,
+                          duration: const Duration(
+                            milliseconds: 500,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(height: minTopPadding),
-                              SizedBox(
-                                height: 200,
-                                width: 200,
-                                child: Center(
-                                    child: SvgPicture.asset(
-                                  'assets/citizenwallet-only-logo.svg',
-                                  semanticsLabel: 'Citizen Wallet Icon',
-                                  height: 200,
-                                )),
-                              ),
+                              SizedBox(height: minTopPadding + 200),
                               const SizedBox(height: 30),
                               ConstrainedBox(
                                 constraints: BoxConstraints(
@@ -460,7 +470,7 @@ class LandingScreenState extends State<LandingScreen>
                                 ),
                             ],
                           ),
-                        ),
+                        )),
                         SliverToBoxAdapter(
                           child: SizedBox(height: minTopPadding),
                         ),
