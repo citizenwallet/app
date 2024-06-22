@@ -101,8 +101,6 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final size = height > width ? width : (height * 0.3);
     final qrSize = size * 0.65;
 
-    final safePadding = MediaQuery.of(context).padding.top;
-
     final wallet = context.select((WalletState state) => state.wallet);
     final walletLoading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
@@ -174,8 +172,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: 360 + safePadding,
-            minHeight: 210 + safePadding,
+            expandedHeight: 400,
+            minHeight: 280,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
               child: WalletActions(

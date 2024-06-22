@@ -126,7 +126,8 @@ class VoucherReadModalState extends State<VoucherReadModal>
         backgroundColor:
             Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
+          minimum:
+              const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -257,16 +258,14 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                 if (!viewLoading && !returnLoading)
                                   Button(
                                     text: AppLocalizations.of(context)!.redeem,
+                                    labelColor: Theme.of(context).colors.white,
                                     suffix: Row(
                                       children: [
                                         const SizedBox(width: 10),
                                         Icon(
                                           CupertinoIcons.arrow_down_circle,
                                           size: 18,
-                                          color: Theme.of(context)
-                                              .colors
-                                              .black
-                                              .resolveFrom(context),
+                                          color: Theme.of(context).colors.white,
                                         ),
                                       ],
                                     ),

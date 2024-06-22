@@ -1,5 +1,4 @@
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/ratio.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletActionButton extends StatelessWidget {
@@ -34,7 +33,7 @@ class WalletActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final small = (1 - shrink) < 0.7;
+    final small = (1 - shrink) < 0.95;
     final buttonWidth = small ? 120.0 : buttonSize;
 
     final color = alt

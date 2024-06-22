@@ -13,6 +13,7 @@ import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
@@ -818,10 +819,12 @@ class WalletScreenState extends State<WalletScreen> {
         voucherOverride: voucher,
         voucherParamsOverride: voucherParams,
       );
+      return;
     }
 
     if (receiveParams != null) {
       await handleSendScreen(receiveParams: receiveParams);
+      return;
     }
 
     if (deepLink != null && deepLinkParams != null) {
@@ -830,7 +833,16 @@ class WalletScreenState extends State<WalletScreen> {
         deepLinkOverride: deepLink,
         deepLinkParamsOverride: deepLinkParams,
       );
+      return;
     }
+
+    final (parsedAddress, parsedValue) = parseQRCode(result);
+    if (parsedAddress.isEmpty || parsedValue == null) {
+      return;
+    }
+
+    _logic.updateFromCapture(result);
+    await handleSendScreen();
   }
 
   @override

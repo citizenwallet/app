@@ -100,7 +100,8 @@ class _SendProgressState extends State<SendProgress> {
         backgroundColor:
             Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
+          minimum:
+              const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [
