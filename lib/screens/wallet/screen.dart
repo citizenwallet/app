@@ -771,9 +771,16 @@ class WalletScreenState extends State<WalletScreen> {
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
-      _logic.resumeFetching();
-      _profilesLogic.resume();
-      _voucherLogic.resume();
+      final (parsedAddress, parsedValue) = parseQRCode(result);
+      if (parsedAddress.isEmpty && parsedValue == null) {
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      _logic.updateFromCapture(result);
+      await handleSendScreen();
       return;
     }
 
@@ -835,14 +842,6 @@ class WalletScreenState extends State<WalletScreen> {
       );
       return;
     }
-
-    final (parsedAddress, parsedValue) = parseQRCode(result);
-    if (parsedAddress.isEmpty || parsedValue == null) {
-      return;
-    }
-
-    _logic.updateFromCapture(result);
-    await handleSendScreen();
   }
 
   @override
