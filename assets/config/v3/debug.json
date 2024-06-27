@@ -1,58 +1,55 @@
 {
     "community": {
-        "name": "Brussels Pay",
-        "description": "A community for the city of Brussels",
-        "url": "https://pay.brussels",
-        "alias": "wallet.pay.brussels",
-        "custom_domain": "wallet.pay.brussels",
-        "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+        "name": "Gratitude Token",
+        "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+        "url": "https://citizenwallet.xyz/gratitude",
+        "alias": "gratitude",
+        "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
         "theme": {
-            "primary": "#4a90e2"
+            "primary": "#4EC19D"
         }
     },
-    "token": {
-        "standard": "erc20",
-        "name": "pay.brussels",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "EURb",
-        "decimals": 6
-    },
     "scan": {
-        "url": "https://gnosisscan.io",
-        "name": "Gnosis Explorer"
+        "url": "https://celoscan.io",
+        "name": "Celo Explorer"
     },
-    "node": {
-        "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
-        "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
-        "chain_id": 100
+    "indexer": {
+        "url": "https://indexer-gratitude.internal.citizenwallet.xyz",
+        "ipfs_url": "https://indexer-gratitude.internal.citizenwallet.xyz",
+        "key": "x"
     },
     "ipfs": {
         "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "profile": {
-        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
-    },
-    "indexer": {
-        "url": "https://wallet.pay.brussels/indexer",
-        "ipfs_url": "https://wallet.pay.brussels/indexer",
-        "key": "x"
+    "node": {
+        "chain_id": 42220,
+        "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+        "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
     },
     "erc4337": {
-        "rpc_url": "https://wallet.pay.brussels/indexer/rpc",
-        "paymaster_rpc_url": "https://wallet.pay.brussels/indexer/rpc",
-        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
+        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "paymaster_rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
     },
-    "cards": {
-        "card_factory_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB"
+    "token": {
+        "standard": "erc20",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "name": "Gratitude Token",
+        "symbol": "GT",
+        "decimals": 0
+    },
+    "profile": {
+        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
     },
     "plugins": [
         {
             "name": "Top Up",
-            "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-            "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+            "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "url": "https://topup.citizenwallet.xyz/gratitude",
+            "launch_mode": "webview"
         }
     ],
     "version": 1

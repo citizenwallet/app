@@ -1112,5 +1112,54 @@
             "card_factory_address": "0x6c6611244547a6E9AaCfBA8744115ca1076756fc"
         },
         "version": 1
+    },
+    {
+        "community": {
+            "name": "Commons Hub Brussels",
+            "description": "Community Token for the Commons Hub Brussels community",
+            "url": "https://commonshub.brussels",
+            "alias": "wallet.commonshub.brussels",
+            "custom_domain": "wallet.commonshub.brussels",
+            "logo": "https://wallet.commonshub.brussels/uploads/logo.svg",
+            "theme": {
+                "primary": "#ff4c02"
+            }
+        },
+        "token": {
+            "standard": "erc20",
+            "name": "Commons Hub Token",
+            "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
+            "symbol": "CHT",
+            "decimals": 6
+        },
+        "scan": {
+            "url": "https://celoscan.io",
+            "name": "CELO Explorer"
+        },
+        "node": {
+            "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+            "chain_id": 42220
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "profile": {
+            "address": "0xc197bf02F530572C3D87929d55B7D510113B8473"
+        },
+        "indexer": {
+            "url": "https://wallet.commonshub.brussels/indexer",
+            "ipfs_url": "https://wallet.commonshub.brussels/indexer",
+            "key": "x"
+        },
+        "erc4337": {
+            "rpc_url": "https://wallet.commonshub.brussels/indexer/rpc",
+            "paymaster_rpc_url": "https://wallet.commonshub.brussels/indexer/rpc",
+            "entrypoint_address": "0xb7608dDA592d319687C89c4479e320b5a7740117",
+            "paymaster_address": "0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3",
+            "account_factory_address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
+            "paymaster_type": "cw"
+        },
+        "version": 1
     }
 ]
