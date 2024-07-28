@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citizenwallet/modals/vouchers/send_via_link_voucher.dart';
 import 'package:citizenwallet/modals/wallet/pick_sender.dart';
 import 'package:citizenwallet/modals/wallet/voucher.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -26,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SendModal extends StatefulWidget {
+class SendViaLinkModal extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
 
@@ -39,7 +40,7 @@ class SendModal extends StatefulWidget {
 
   final bool isMinting;
 
-  const SendModal({
+  const SendViaLinkModal({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
@@ -52,10 +53,11 @@ class SendModal extends StatefulWidget {
   });
 
   @override
-  SendModalState createState() => SendModalState();
+  SendViaLinkModalState createState() => SendViaLinkModalState();
 }
 
-class SendModalState extends State<SendModal> with TickerProviderStateMixin {
+class SendViaLinkModalState extends State<SendViaLinkModal>
+    with TickerProviderStateMixin {
   late WalletLogic _logic;
 
   late ScrollController _scrollController;
@@ -113,6 +115,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     _scrollController.removeListener(onScrollUpdate);
     _logic.stopListeningMessage();
     messageFocusNode.removeListener(handleMessageListenerUpdate);
+    _logic.clearInputControllers();
 
     super.dispose();
   }
@@ -148,8 +151,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     }
 
     if (widget.receiveParams != null) {
-      handleScan(
-          '/#/?alias=${widget.walletLogic.wallet.alias}&receiveParams=${widget.receiveParams!}');
+      handleScan('/#/?receiveParams=${widget.receiveParams!}');
     }
   }
 
@@ -372,7 +374,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
-      builder: (_) => VoucherModal(
+      builder: (_) => SendViaLinkVoucherModal(
         amount: _logic.amountController.value.text,
         symbol: wallet?.symbol,
         name: name,
@@ -536,7 +538,7 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -545,16 +547,30 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: Header(
-                  title: widget.isMinting
-                      ? AppLocalizations.of(context)!.mint
-                      : AppLocalizations.of(context)!.send,
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(4),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
-                    ),
+                  color: ThemeColors.background,
+                  titleWidget: Row(
+                    children: [
+                      CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Icon(
+                          CupertinoIcons.arrow_left,
+                          color: ThemeColors.touchable.resolveFrom(context),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.send,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF8F899C),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -570,111 +586,22 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          const SizedBox(height: 10),
-                          if (widget.to == null)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                AnimatedContainer(
-                                  height: _isScanning ? scannerSize : 0,
-                                  width: scannerSize,
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeInOut,
-                                  child: AnimatedOpacity(
-                                    opacity: _isScanning ? 1 : 0,
-                                    duration: const Duration(milliseconds: 250),
-                                    curve: Curves.easeInOut,
-                                    child: _scannerOn
-                                        ? Scanner(
-                                            height: scannerSize,
-                                            width: scannerSize,
-                                            onScan: handleScan,
-                                          )
-                                        : null,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (widget.to == null &&
-                              _isScanning &&
-                              invalidAddress) ...[
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  invalidScanMessage ??
-                                      AppLocalizations.of(context)!
-                                          .invalidQRCode,
-                                  style: TextStyle(
-                                    color:
-                                        ThemeColors.danger.resolveFrom(context),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                          if (widget.to == null && _isScanning)
-                            const SizedBox(
-                              height: 20,
-                            ),
-                          if (widget.to == null)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Button(
-                                  text: _isScanning
-                                      ? AppLocalizations.of(context)!
-                                          .enterManually
-                                      : AppLocalizations.of(context)!.scanAgain,
-                                  color: ThemeColors.surfaceBackground
-                                      .resolveFrom(context),
-                                  labelColor: ThemeColors.surfaceText
-                                      .resolveFrom(context),
-                                  suffix: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                    child: Icon(
-                                      _isScanning
-                                          ? CupertinoIcons.arrow_down
-                                          : CupertinoIcons.qrcode,
-                                      color: ThemeColors.surfaceText
-                                          .resolveFrom(context),
-                                    ),
-                                  ),
-                                  onPressed: _isScanning
-                                      ? handleEnterManually
-                                      : handleScanAgain,
-                                  minWidth: 200,
-                                  maxWidth: 200,
-                                ),
-                              ],
-                            ),
                           const SizedBox(height: 20),
-                          Text(
-                            AppLocalizations.of(context)!.amount,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                           const SizedBox(height: 10),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                 child: Stack(
                                   children: [
                                     CupertinoTextField(
                                       controller: _logic.amountController,
+                                      textAlign: TextAlign.center,
                                       placeholder: formatCurrency(0.00, ''),
                                       style: TextStyle(
-                                        color: ThemeColors.text
+                                        color: ThemeColors.success
                                             .resolveFrom(context),
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
@@ -682,37 +609,21 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       ),
                                       decoration: invalidAmount ||
                                               transactionSendError
-                                          ? BoxDecoration(
-                                              color: const CupertinoDynamicColor
+                                          ? const BoxDecoration(
+                                              color: CupertinoDynamicColor
                                                   .withBrightness(
                                                 color: CupertinoColors.white,
                                                 darkColor:
                                                     CupertinoColors.black,
                                               ),
-                                              border: Border.all(
-                                                color: ThemeColors.danger,
-                                              ),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(5.0)),
                                             )
-                                          : BoxDecoration(
-                                              color: const CupertinoDynamicColor
+                                          : const BoxDecoration(
+                                              color: CupertinoDynamicColor
                                                   .withBrightness(
                                                 color: CupertinoColors.white,
                                                 darkColor:
                                                     CupertinoColors.black,
                                               ),
-                                              border: Border.all(
-                                                color: hasAmount
-                                                    ? ThemeColors.text
-                                                        .resolveFrom(context)
-                                                    : ThemeColors.transparent
-                                                        .resolveFrom(context),
-                                              ),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(5.0)),
                                             ),
                                       maxLines: 1,
                                       maxLength: 25,
@@ -739,9 +650,9 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                       prefix: Center(
                                         child: Padding(
                                           padding: const EdgeInsets.fromLTRB(
-                                              10, 0, 10, 0),
+                                              40, 0, 10, 0),
                                           child: Text(
-                                            wallet?.symbol ?? '',
+                                            AppLocalizations.of(context)!.send,
                                             style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w500),
@@ -750,23 +661,18 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                                         ),
                                       ),
                                       suffix: Center(
-                                          child: CupertinoButton(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          10,
-                                          0,
-                                        ),
-                                        onPressed: handleSetMaxAmount,
-                                        child: Text(
-                                          AppLocalizations.of(context)!.max,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 0, 40, 0),
+                                          child: Text(
+                                            wallet?.symbol ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w500),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          textAlign: TextAlign.center,
                                         ),
-                                      )),
+                                      ),
                                     ),
                                     if (_isScanning)
                                       GestureDetector(
@@ -807,254 +713,85 @@ class SendModalState extends State<SendModal> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 10),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 AppLocalizations.of(context)!.currentBalance(
                                     formattedBalance, wallet?.symbol ?? ''),
-                                style: const TextStyle(
-                                    fontSize: 18,
+                                style: TextStyle(
+                                    color: ThemeColors.surfacePrimary
+                                        .resolveFrom(context),
+                                    fontSize: 14,
                                     fontWeight: FontWeight.normal),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          if (selectedProfile != null)
-                            Text(
-                              AppLocalizations.of(context)!.to,
-                              style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                          const SizedBox(height: 10),
-                          if (isValid)
-                            ProfileChip(
-                              selectedProfile: selectedProfile,
-                              selectedAddress:
-                                  _logic.addressController.value.text.isEmpty ||
-                                          selectedProfile != null
-                                      ? null
-                                      : formatHexAddress(
-                                          _logic.addressController.value.text),
-                              handleDeSelect:
-                                  widget.id != null || widget.to != null
-                                      ? null
-                                      : handleScanAgain,
-                            ),
-                          if (isValid) const SizedBox(height: 20),
-                          if (!widget.isMinting && !_isDescribing)
-                            Text(
-                              AppLocalizations.of(context)!.description,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          const SizedBox(height: 10),
-                          if (!widget.isMinting)
-                            GestureDetector(
-                              onTap: handleDescribe,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: ThemeColors.background
-                                      .resolveFrom(context),
-                                  border: Border.all(
-                                    color:
-                                        ThemeColors.border.resolveFrom(context),
+                              const SizedBox(width: 5),
+                              CupertinoButton(
+                                onPressed: handleSetMaxAmount,
+                                padding: EdgeInsets.zero,
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5.0),
+                                    color: ThemeColors.surfaceSubtle
+                                        .resolveFrom(context),
                                   ),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.max,
+                                    style: TextStyle(
+                                      color: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
+                              )
+                            ],
+                          ),
+                          Positioned(
+                            width: width,
+                            child: BlurryChild(
+                              child: Container(
                                 padding:
-                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                child: Row(
+                                    const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                                child: Column(
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        _isDescribing
-                                            ? '...'
-                                            : message != ''
-                                                ? message
-                                                : AppLocalizations.of(context)!
-                                                    .descriptionMsg,
-                                        style: const TextStyle(
-                                          fontSize: 14,
+                                    SlideToComplete(
+                                      onCompleted: handleCreateVoucher,
+                                      enabled: isSendingValid,
+                                      isComplete: _isSending,
+                                      completionLabel: "Swipe to Confirm",
+                                      thumbColor: ThemeColors.surfacePrimary
+                                          .resolveFrom(context),
+                                      width: width * 0.70,
+                                      childWidth: 50,
+                                      child: const SizedBox(
+                                        height: 50,
+                                        width: 50,
+                                        child: Center(
+                                          child: Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: ThemeColors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
-                                    const Icon(CupertinoIcons.pencil),
                                   ],
                                 ),
                               ),
                             ),
-                          const SizedBox(
-                            height: 200,
                           ),
                         ],
                       ),
                     ),
-                    if (_isSending)
-                      Positioned(
-                        bottom: 90,
-                        child: CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
-                        ),
-                      ),
-                    if (!widget.isMinting && _isDescribing)
-                      Positioned(
-                        bottom: 0,
-                        width: width,
-                        child: BlurryChild(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                ),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: message.isEmpty
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    if (message.isNotEmpty)
-                                      CupertinoButton(
-                                        onPressed: handleClearDescribe,
-                                        child: Text(
-                                          AppLocalizations.of(context)!.clear,
-                                          style: TextStyle(
-                                            color: ThemeColors.danger
-                                                .resolveFrom(context),
-                                          ),
-                                        ),
-                                      ),
-                                    CupertinoButton(
-                                      onPressed: handleCloseDescribe,
-                                      child: Text(
-                                          AppLocalizations.of(context)!.done),
-                                    ),
-                                  ],
-                                ),
-                                CupertinoTextField(
-                                  controller: _logic.messageController,
-                                  placeholder: AppLocalizations.of(context)!
-                                      .sendDescription,
-                                  minLines: 4,
-                                  maxLines: 10,
-                                  maxLength: 200,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  textInputAction: TextInputAction.newline,
-                                  textAlignVertical: TextAlignVertical.top,
-                                  focusNode: messageFocusNode,
-                                  autocorrect: true,
-                                  enableSuggestions: true,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (!_isScanning &&
-                        !_isDescribing &&
-                        !_isSending &&
-                        hasAmount &&
-                        !invalidAmount)
-                      Positioned(
-                        bottom: 0,
-                        width: width,
-                        child: BlurryChild(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
-                                ),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Column(
-                              children: (!isSendingValid)
-                                  ? [
-                                      const SizedBox(height: 10),
-                                      Button(
-                                        text: AppLocalizations.of(context)!
-                                            .chooseRecipient,
-                                        onPressed: handleChooseRecipient,
-                                        minWidth: 200,
-                                        maxWidth: 200,
-                                      ),
-                                      if (!widget.isMinting)
-                                        const SizedBox(height: 10),
-                                      if (!widget.isMinting)
-                                        CupertinoButton(
-                                          onPressed: handleCreateVoucher,
-                                          child: Text(
-                                            AppLocalizations.of(context)!
-                                                .createVoucher,
-                                            style: TextStyle(
-                                              color: ThemeColors.text
-                                                  .resolveFrom(context),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.normal,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                    ]
-                                  : [
-                                      SlideToComplete(
-                                        onCompleted: !_isSending
-                                            ? widget.isMinting
-                                                ? () => handleMint(context,
-                                                    selectedProfile?.account)
-                                                : () => handleSend(
-                                                      context,
-                                                      selectedProfile?.account,
-                                                    )
-                                            : null,
-                                        enabled: isSendingValid,
-                                        isComplete: _isSending,
-                                        completionLabel: widget.isMinting
-                                            ? (_isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .minting
-                                                : AppLocalizations.of(context)!
-                                                    .mint)
-                                            : _isSending
-                                                ? AppLocalizations.of(context)!
-                                                    .sending
-                                                : AppLocalizations.of(context)!
-                                                    .send,
-                                        thumbColor: ThemeColors.surfacePrimary
-                                            .resolveFrom(context),
-                                        width: width * 0.5,
-                                        child: const SizedBox(
-                                          height: 50,
-                                          width: 50,
-                                          child: Center(
-                                            child: Icon(
-                                              CupertinoIcons.arrow_right,
-                                              color: ThemeColors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),

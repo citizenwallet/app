@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:citizenwallet/modals/wallet/send_selection.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/colors.dart';
@@ -44,6 +46,8 @@ class PickeSenderModal extends StatefulWidget {
 class PickeSenderModalState extends State<PickeSenderModal>
     with TickerProviderStateMixin {
   late WalletLogic _logic;
+  late ProfilesLogic _profilesLogic;
+  late VoucherLogic _voucherLogic;
 
   late void Function() debouncedAddressUpdate;
   late void Function() debouncedAmountUpdate;
@@ -60,7 +64,11 @@ class PickeSenderModalState extends State<PickeSenderModal>
     super.initState();
 
     _logic = widget.walletLogic;
+    _profilesLogic = ProfilesLogic(context);
+    _voucherLogic = VoucherLogic(context);
 
+    WidgetsBinding.instance.addObserver(_profilesLogic);
+    WidgetsBinding.instance.addObserver(_voucherLogic);
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -82,6 +90,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
   @override
   void dispose() {
     //
+    context.read<WalletState>().setclickedOnSearching(false);
     super.dispose();
   }
 
@@ -90,6 +99,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     _logic.updateAddress();
 
     nameFocusNode.requestFocus();
+    context.read<WalletState>().setclickedOnSearching(false);
   }
 
   void handleDismiss(BuildContext context) {
@@ -101,6 +111,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
   void handleThrottledUpdateAddress(String username) {
     debouncedAddressUpdate();
     widget.profilesLogic.searchProfile(username);
+    context.read<WalletState>().setclickedOnSearching(true);
   }
 
   void handleThrottledUpdateAmount() {
@@ -130,7 +141,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
     if (searchedProfile != null) {
       widget.profilesLogic.selectProfile(null);
     }
-
+    context.read<WalletState>().setclickedOnSearching(false);
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
@@ -222,12 +233,15 @@ class PickeSenderModalState extends State<PickeSenderModal>
     HapticFeedback.heavyImpact();
 
     navigator.pop(true);
+
     return;
   }
 
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+    final clickedOnSearching =
+        context.select((WalletState state) => state.clickedOnSearching);
     final balance =
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
 
@@ -282,11 +296,35 @@ class PickeSenderModalState extends State<PickeSenderModal>
 
     final width = MediaQuery.of(context).size.width;
 
+    void openSend(ProfileV1? profile) async {
+      widget.profilesLogic.selectProfile(profile);
+      _logic.updateAddress(override: profile != null);
+      FocusManager.instance.primaryFocus?.unfocus();
+      HapticFeedback.lightImpact();
+
+      _logic.pauseFetching();
+      _profilesLogic.pause();
+      _voucherLogic.pause();
+
+      await GoRouter.of(context).push<bool?>(
+        '/openSendModel',
+        extra: {
+          'logic': _logic,
+          'profilesLogic': _profilesLogic,
+        },
+      );
+
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+    }
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
+          bottom: false,
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Stack(
             alignment: Alignment.topCenter,
@@ -300,96 +338,93 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 60),
-                        Text(
-                          AppLocalizations.of(context)!.to,
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
                         const SizedBox(height: 10),
-                        if (isValid)
-                          ProfileChip(
-                            selectedProfile: selectedProfile,
-                            selectedAddress:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? null
-                                    : formatHexAddress(
-                                        _logic.addressController.value.text),
-                            handleDeSelect:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? handleDeSelectProfile
-                                    : handleClearAddress,
-                          ),
-                        if (!isValid)
-                          CupertinoTextField(
-                            controller: _logic.addressController,
-                            placeholder: '@username or 0xaddress',
-                            maxLines: 1,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            focusNode: nameFocusNode,
-                            textInputAction: TextInputAction.next,
-                            onChanged: handleThrottledUpdateAddress,
-                            decoration: invalidAddress ||
-                                    parsingQRAddressError ||
-                                    transactionSendError
-                                ? BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: ThemeColors.danger,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
-                                  )
-                                : BoxDecoration(
-                                    color: const CupertinoDynamicColor
-                                        .withBrightness(
-                                      color: CupertinoColors.white,
-                                      darkColor: CupertinoColors.black,
-                                    ),
-                                    border: Border.all(
-                                      color: hasAddress
-                                          ? ThemeColors.text
-                                              .resolveFrom(context)
-                                          : ThemeColors.transparent
-                                              .resolveFrom(context),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5.0)),
+                        // if (isValid)
+                        //   ProfileChip(
+                        //     selectedProfile: selectedProfile,
+                        //     selectedAddress:
+                        //         _logic.addressController.value.text.isEmpty ||
+                        //                 selectedProfile != null
+                        //             ? null
+                        //             : formatHexAddress(
+                        //                 _logic.addressController.value.text),
+                        //     handleDeSelect:
+                        //         _logic.addressController.value.text.isEmpty ||
+                        //                 selectedProfile != null
+                        //             ? handleDeSelectProfile
+                        //             : handleClearAddress,
+                        //   ),
+                        //if (!isValid)
+                        CupertinoTextField(
+                          padding: const EdgeInsets.fromLTRB(20, 15, 0, 15),
+                          controller: _logic.addressController,
+                          placeholder: AppLocalizations.of(context)!.searchUser,
+                          maxLines: 1,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          focusNode: nameFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onChanged: handleThrottledUpdateAddress,
+                          decoration: invalidAddress ||
+                                  parsingQRAddressError ||
+                                  transactionSendError
+                              ? BoxDecoration(
+                                  color: ThemeColors.background
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color: ThemeColors.danger,
                                   ),
-                            prefix: Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: searchLoading
-                                    ? SizedBox(
-                                        height: 20,
-                                        width: 24,
-                                        child: CupertinoActivityIndicator(
-                                          color: ThemeColors.subtle
-                                              .resolveFrom(context),
-                                        ),
-                                      )
-                                    : Icon(
-                                        CupertinoIcons.profile_circled,
-                                        color: hasAddress
-                                            ? ThemeColors.text
-                                                .resolveFrom(context)
-                                            : ThemeColors.subtleEmphasis
-                                                .resolveFrom(context),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10.0)),
+                                )
+                              : BoxDecoration(
+                                  color: ThemeColors.background
+                                      .resolveFrom(context),
+                                  border: Border.all(
+                                    color: hasAddress
+                                        ? ThemeColors.surfacePrimary
+                                            .resolveFrom(context)
+                                        : ThemeColors.surfacePrimary
+                                            .resolveFrom(context),
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(30.0)),
+                                ),
+                          suffix: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: searchLoading
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 24,
+                                      child: CupertinoActivityIndicator(
+                                        color: ThemeColors.subtle
+                                            .resolveFrom(context),
                                       ),
-                              ),
+                                    )
+                                  : Icon(
+                                      CupertinoIcons.search,
+                                      color: hasAddress
+                                          ? ThemeColors.surfacePrimary
+                                              .resolveFrom(context)
+                                          : ThemeColors.surfacePrimary
+                                              .resolveFrom(context),
+                                    ),
                             ),
-                            onSubmitted: handleAddressFieldSubmitted,
                           ),
+                          onSubmitted: handleAddressFieldSubmitted,
+                        ),
+                        SizedBox(
+                          height: !clickedOnSearching ? 120 : 0,
+                          child: SendSelectionModal(
+                            walletLogic: _logic,
+                            profilesLogic: _profilesLogic,
+                          ),
+                        )
                       ],
                     ),
                   ),
+                  //if(clickedOnSearching)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -418,7 +453,8 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     loading: false,
                                     active: searchedProfile != null &&
                                         searchedProfile == profile,
-                                    onTap: () => handleSelectProfile(profile),
+                                    onTap: () => openSend(profile),
+                                    //onTap: openSend,
                                   ),
                                 );
                               },
@@ -437,98 +473,41 @@ class PickeSenderModalState extends State<PickeSenderModal>
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Header(
-                  titleWidget: Row(
-                    children: [
-                      Text(
-                        widget.isMinting ? AppLocalizations.of(context)!.mint : AppLocalizations.of(context)!.send,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Header(
+                    color: ThemeColors.background,
+                    titleWidget: Row(
+                      children: [
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(5),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Icon(
+                            CupertinoIcons.arrow_left,
+                            color: ThemeColors.touchable.resolveFrom(context),
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        '${wallet?.symbol} ${widget.amount}',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              widget.isMinting
+                                  ? AppLocalizations.of(context)!.mint
+                                  : AppLocalizations.of(context)!.send,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF8F899C),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  actionButton: CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: () => handleDismiss(context),
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      ],
                     ),
-                  ),
-                ),
-              ),
+                  )),
               if (_isSending)
                 Positioned(
                   bottom: 90,
                   child: CupertinoActivityIndicator(
                     color: ThemeColors.subtle.resolveFrom(context),
-                  ),
-                ),
-              if (isValid)
-                Positioned(
-                  bottom: 0,
-                  width: width,
-                  child: BlurryChild(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: ThemeColors.subtle.resolveFrom(context),
-                          ),
-                        ),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                      child: Column(
-                        children: [
-                          SlideToComplete(
-                            onCompleted: !_isSending
-                                ? widget.isMinting
-                                    ? () => handleMint(
-                                        context, selectedProfile?.account)
-                                    : () => handleSend(
-                                          context,
-                                          selectedProfile?.account,
-                                        )
-                                : null,
-                            enabled: isValid,
-                            isComplete: _isSending,
-                            completionLabel: widget.isMinting
-                                ? (_isSending ? AppLocalizations.of(context)!.minting : AppLocalizations.of(context)!.mint)
-                                : _isSending
-                                    ? AppLocalizations.of(context)!.sending
-                                    : AppLocalizations.of(context)!.send,
-                            thumbColor:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            width: width * 0.5,
-                            child: const SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.arrow_right,
-                                  color: ThemeColors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
             ],

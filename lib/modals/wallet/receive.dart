@@ -216,29 +216,52 @@ class ReceiveModalState extends State<ReceiveModal> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : qrCode;
 
+    Color backgroundColor = ThemeColors.border.resolveFrom(context);
+
+    if (amount.isNotEmpty) {
+      backgroundColor = ThemeColors.success.resolveFrom(context);
+    }
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor: ThemeColors.background.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(
             left: 10,
             right: 10,
-            top: 20,
+            top: 10,
           ),
           bottom: false,
           child: Flex(
             direction: Axis.vertical,
             children: [
               Header(
-                title: AppLocalizations.of(context)!.receive,
-                actionButton: CupertinoButton(
-                  padding: const EdgeInsets.all(5),
-                  onPressed: () => handleDismiss(context),
-                  child: Icon(
-                    CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
-                  ),
+                color: ThemeColors.background,
+                titleWidget: Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.receive,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8F899C),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(5),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: ThemeColors.touchable.resolveFrom(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -262,12 +285,23 @@ class ReceiveModalState extends State<ReceiveModal> {
                           AnimatedOpacity(
                             opacity: _opacity,
                             duration: const Duration(milliseconds: 250),
-                            child: QR(
-                              key: const Key('receive-qr-code'),
-                              data: qrData,
-                              size: qrSize - 20,
-                              padding: const EdgeInsets.all(20),
-                              logo: isExternalWallet ? null : 'assets/logo.png',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: ThemeColors.surfacePrimary
+                                      .resolveFrom(context),
+                                  width: 2,
+                                ),
+                              ),
+                              child: QR(
+                                key: const Key('receive-qr-code'),
+                                data: qrData,
+                                size: qrSize - 80,
+                                padding: const EdgeInsets.all(10),
+                                logo:
+                                    isExternalWallet ? null : 'assets/logo.png',
+                              ),
                             ),
                           ),
                         ],
@@ -290,7 +324,7 @@ class ReceiveModalState extends State<ReceiveModal> {
                           onTap: () => handleCopy(qrData),
                           fontSize: 14,
                           color:
-                              ThemeColors.subtleEmphasis.resolveFrom(context),
+                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
                           textColor: ThemeColors.touchable.resolveFrom(context),
                           suffix: Icon(
                             CupertinoIcons.square_on_square,
@@ -319,252 +353,141 @@ class ReceiveModalState extends State<ReceiveModal> {
                       const SizedBox(
                         height: 10,
                       ),
-                      if (!isExternalWallet)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Button(
-                              text: AppLocalizations.of(context)!.resetQRCode,
-                              onPressed: handleResetQRCode,
-                              minWidth: 200,
-                              maxWidth: 200,
-                              color:
-                                  ThemeColors.uiBackground.resolveFrom(context),
-                              labelColor: ThemeColors.text.resolveFrom(context),
-                            ),
-                          ],
+                      if (!isExternalWallet && !_isEnteringAmount)
+                        const SizedBox(
+                          height: 200,
                         ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      if (!isExternalWallet)
-                        Text(
-                          AppLocalizations.of(context)!.amount,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      if (!isExternalWallet) const SizedBox(height: 10),
                       if (!isExternalWallet)
                         GestureDetector(
                           onTap: handleAmount,
                           child: Container(
-                            decoration: BoxDecoration(
-                              color:
-                                  ThemeColors.background.resolveFrom(context),
-                              border: Border.all(
-                                color: ThemeColors.border.resolveFrom(context),
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(5.0),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                             child: Row(
                               children: [
-                                Center(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                    child: Text(
-                                      wallet?.symbol ?? '',
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500),
+                                const Text(
+                                  "Request",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Expanded(
+                                  child: Center(
+                                    child: CupertinoTextField(
+                                      controller: widget.logic.amountController,
+                                      placeholder: formatCurrency(0.00, ''),
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: ThemeColors.success
+                                            .resolveFrom(context),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const CupertinoDynamicColor
+                                            .withBrightness(
+                                          color: CupertinoColors.white,
+                                          darkColor: CupertinoColors.black,
+                                        ),
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: backgroundColor,
+                                          ),
+                                        ),
+                                      ),
+                                      maxLines: 1,
+                                      maxLength: 25,
+                                      focusNode: amountFocusNode,
+                                      autocorrect: false,
+                                      enableSuggestions: false,
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: false,
+                                      ),
+                                      textInputAction: TextInputAction.done,
+                                      inputFormatters: [
+                                        amountFormatter,
+                                      ],
+                                      onChanged: handleThrottledUpdateQRCode,
+                                      onSubmitted: (_) {
+                                        handleSubmit();
+                                      },
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  child: Text(
-                                    _isEnteringAmount
-                                        ? '...'
-                                        : amount != ''
-                                            ? amount
-                                            : formatCurrency(0.00, ''),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                Text(
+                                  wallet?.symbol ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(width: 10),
-                                const Icon(CupertinoIcons.keyboard),
                               ],
                             ),
                           ),
                         ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      if (!isExternalWallet)
-                        Text(
-                          AppLocalizations.of(context)!.description,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                      const SizedBox(height: 10),
+                      if (!isExternalWallet && _isEnteringAmount)
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          child: Text(
+                            AppLocalizations.of(context)!.description,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      if (!isExternalWallet) const SizedBox(height: 10),
-                      if (!isExternalWallet)
-                        GestureDetector(
-                          onTap: handleDescribe,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color:
-                                  ThemeColors.background.resolveFrom(context),
-                              border: Border.all(
-                                color: ThemeColors.border.resolveFrom(context),
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(5.0),
-                              ),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _isDescribing
-                                        ? '...'
-                                        : message != ''
-                                            ? message
-                                            : AppLocalizations.of(context)!
-                                                .descriptionMsg,
-                                    style: const TextStyle(
-                                      fontSize: 14,
+                      if (!isExternalWallet && _isEnteringAmount)
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: message.isEmpty
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (message.isNotEmpty)
+                                    CupertinoButton(
+                                      onPressed: handleClearDescribe,
+                                      child: Text(
+                                        AppLocalizations.of(context)!.clear,
+                                        style: TextStyle(
+                                          color: ThemeColors.danger
+                                              .resolveFrom(context),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                const Icon(CupertinoIcons.pencil),
-                              ],
-                            ),
+                                ],
+                              ),
+                              CupertinoTextField(
+                                controller: widget.logic.messageController,
+                                placeholder:
+                                    '${AppLocalizations.of(context)!.descriptionMsg}\n\n\n',
+                                minLines: 4,
+                                maxLines: 10,
+                                maxLength: 200,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                textInputAction: TextInputAction.newline,
+                                textAlignVertical: TextAlignVertical.top,
+                                focusNode: messageFocusNode,
+                                autocorrect: true,
+                                enableSuggestions: true,
+                                onChanged: handleThrottledUpdateQRCode,
+                              ),
+                            ],
                           ),
                         ),
-                      const SizedBox(
-                        height: 160,
-                      ),
                     ],
                   ),
                 ),
               ),
               if ((_isEnteringAmount || _isDescribing) && !isExternalWallet)
                 const SizedBox(height: 10),
-              if (_isDescribing && !isExternalWallet)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      ),
-                    ),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: message.isEmpty
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (message.isNotEmpty)
-                            CupertinoButton(
-                              onPressed: handleClearDescribe,
-                              child: Text(
-                                AppLocalizations.of(context)!.clear,
-                                style: TextStyle(
-                                  color:
-                                      ThemeColors.danger.resolveFrom(context),
-                                ),
-                              ),
-                            ),
-                          CupertinoButton(
-                            onPressed: handleCloseEditing,
-                            child: Text(AppLocalizations.of(context)!.done),
-                          ),
-                        ],
-                      ),
-                      CupertinoTextField(
-                        controller: widget.logic.messageController,
-                        placeholder:
-                            '${AppLocalizations.of(context)!.descriptionMsg}\n\n\n',
-                        minLines: 4,
-                        maxLines: 10,
-                        maxLength: 200,
-                        textCapitalization: TextCapitalization.sentences,
-                        textInputAction: TextInputAction.newline,
-                        textAlignVertical: TextAlignVertical.top,
-                        focusNode: messageFocusNode,
-                        autocorrect: true,
-                        enableSuggestions: true,
-                        onChanged: handleThrottledUpdateQRCode,
-                      ),
-                    ],
-                  ),
-                ),
-              if (_isEnteringAmount && !isExternalWallet)
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Text(
-                        AppLocalizations.of(context)!.amount,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              if (_isEnteringAmount && !isExternalWallet)
-                Container(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: Center(
-                    child: CupertinoTextField(
-                      controller: widget.logic.amountController,
-                      placeholder: formatCurrency(0.00, ''),
-                      prefix: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Text(
-                            wallet?.symbol ?? '',
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w500),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      decoration: BoxDecoration(
-                        color: const CupertinoDynamicColor.withBrightness(
-                          color: CupertinoColors.white,
-                          darkColor: CupertinoColors.black,
-                        ),
-                        border: Border.all(
-                          color: ThemeColors.border.resolveFrom(context),
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(5.0)),
-                      ),
-                      maxLines: 1,
-                      maxLength: 25,
-                      focusNode: amountFocusNode,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                        signed: false,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        amountFormatter,
-                      ],
-                      onChanged: handleThrottledUpdateQRCode,
-                      onSubmitted: (_) {
-                        handleSubmit();
-                      },
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

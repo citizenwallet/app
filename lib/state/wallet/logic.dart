@@ -80,6 +80,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   bool cancelLoadAccounts = false;
   String? _fetchRequest;
+  bool isSending = false;
 
   WalletService get wallet => _wallet;
 
@@ -1209,7 +1210,7 @@ class WalletLogic extends WidgetsBindingObserver {
       clearInputControllers();
 
       _state.sendTransactionSuccess(null);
-
+      isSending = false;
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
@@ -1332,7 +1333,7 @@ class WalletLogic extends WidgetsBindingObserver {
       clearInputControllers();
 
       _state.sendTransactionSuccess(null);
-
+      isSending = false;
       return true;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(

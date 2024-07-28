@@ -170,13 +170,13 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       }
     }
 
-    if (widget.voucher != null && widget.voucherParams != null) {
-      await handleLoadFromVoucher();
-    }
+    // if (widget.voucher != null && widget.voucherParams != null) {
+    //   await handleLoadFromVoucher();
+    // }
 
-    if (widget.receiveParams != null) {
-      await handleSendModal(receiveParams: widget.receiveParams);
-    }
+    // if (widget.receiveParams != null) {
+    //   await handleSendModal(receiveParams: widget.receiveParams);
+    // }
 
     if (widget.deepLink != null && widget.deepLinkParams != null) {
       await handleLoadDeepLink();
@@ -228,6 +228,46 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         _voucherLogic.resume();
         break;
     }
+  }
+
+  void handleSendPush() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/sendModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
+  void handleReceivePush() async {
+    HapticFeedback.lightImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await GoRouter.of(context).push<bool?>(
+      '/receiveModal',
+      extra: {
+        'logic': _logic,
+        'profilesLogic': _profilesLogic,
+      },
+    );
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
   }
 
   Future<void> handlePlugin(PluginConfig pluginConfig) async {
@@ -513,6 +553,15 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleTransactionSendingTap() async {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (_) => const SendingModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -561,10 +610,11 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   : WalletScrollView(
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
-                      handleSendModal: handleSendModal,
-                      handleReceive: handleReceive,
+                      handleSendPush: handleSendPush,
+                      handleReceivePush: handleReceivePush,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
+                      handleTransactionSendingTap: handleTransactionSendingTap,
                       handleFailedTransactionTap: handleFailedTransaction,
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,
@@ -641,3 +691,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     );
   }
 }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   // TODO: implement build
+  //   throw UnimplementedError();
+  // }
+

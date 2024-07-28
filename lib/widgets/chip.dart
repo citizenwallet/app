@@ -13,6 +13,7 @@ class Chip extends StatefulWidget {
   final double maxWidth;
   final double borderRadius;
   final double fontSize;
+  final bool? hideBorder;
 
   final void Function()? onTap;
 
@@ -26,6 +27,7 @@ class Chip extends StatefulWidget {
     this.borderRadius = 20,
     this.onTap,
     this.fontSize = 18,
+    this.hideBorder,
   });
 
   @override
@@ -69,22 +71,22 @@ class ChipState extends State<Chip> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          border: widget.onTap != null
-              ? Border.all(
-                  color: _tapped
-                      ? ThemeColors.success.resolveFrom(context)
-                      : widget.color,
-                  width: 2,
-                )
-              : null,
-          color: widget.color,
-        ),
+        // decoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(widget.borderRadius),
+        //   border: widget.onTap != null
+        //       ? Border.all(
+        //           color: _tapped
+        //               ? ThemeColors.success.resolveFrom(context)
+        //               : widget.color,
+        //           width: 2,
+        //         )
+        //       : null,
+        //   color: widget.color,
+        // ),
         constraints: BoxConstraints(
           maxWidth: widget.maxWidth,
         ),
-        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+        // padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,

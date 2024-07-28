@@ -1,3 +1,14 @@
+import 'package:citizenwallet/modals/account/switch_account.dart';
+import 'package:citizenwallet/modals/vouchers/screen.dart';
+import 'package:citizenwallet/modals/vouchers/send_via_link.dart';
+import 'package:citizenwallet/modals/wallet/pick_sender.dart';
+import 'package:citizenwallet/modals/wallet/receive.dart';
+import 'package:citizenwallet/modals/wallet/send.dart';
+import 'package:citizenwallet/modals/wallet/send_scanner.dart';
+import 'package:citizenwallet/modals/wallet/send_to.dart';
+import 'package:citizenwallet/modals/wallet/send_selection.dart';
+import 'package:citizenwallet/modals/wallet/sending.dart';
+import 'package:citizenwallet/modals/wallet/sending_to.dart';
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
 import 'package:citizenwallet/screens/account/screen.dart';
@@ -97,6 +108,151 @@ GoRouter createRouter(
             builder: (context, state) {
               return const AccountConnectedScreen();
             }),
+        GoRoute(
+          name: 'Wallet',
+          path: '/wallet/:address',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+            return WalletScreen(
+              state.pathParameters['address'],
+              state.uri.queryParameters['alias'],
+              wallet,
+              voucher: state.uri.queryParameters['voucher'],
+              voucherParams: state.uri.queryParameters['params'],
+              receiveParams: state.uri.queryParameters['receiveParams'],
+              deepLink: deepLink,
+              deepLinkParams: deepLinkParams,
+            );
+          },
+        ),
+        GoRoute(
+          name: 'SendModal',
+          path: '/sendModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+            final extra = state.extra as Map<String, dynamic>;
+            return PickeSenderModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
+        GoRoute(
+          name: 'ReceiveModal',
+          path: '/receiveModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+            final extra = state.extra as Map<String, dynamic>;
+            return ReceiveModal(logic: extra['logic']);
+          },
+        ),
+        GoRoute(
+          name: 'ScanQrModal',
+          path: '/scanQrModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {}
+            final extra = state.extra as Map<String, dynamic>;
+            return SendScannerModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
+        GoRoute(
+          name: 'Account',
+          path: '/account',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {}
+            return AccountScreen(
+              address: state.pathParameters['address'],
+              alias: state.uri.queryParameters['alias'],
+              wallet: wallet,
+            );
+          },
+        ),
+        GoRoute(
+          name: 'OpenSendModel',
+          path: '/openSendModel',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return SendToModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
+        GoRoute(
+          name: 'OpenSendingModal',
+          path: '/openSendingModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return SendingToScreen(
+              walletLogic: wallet,
+              profilesLogic: extra['profilesLogic'],
+              selectedAddress: extra['selectedAddress'],
+              id: extra['id'],
+            );
+          },
+        ),
+        GoRoute(
+          name: 'OpenSwitchAccountModal',
+          path: '/openSwitchAccountModal',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            return SwitchAccountModal(logic: wallet);
+          },
+        ),
+        GoRoute(
+          name: 'Transaction',
+          path: '/transactions/:transactionId',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            // if (state.extra == null) {
+            //   return const SizedBox();
+            // }
+
+            final extra = state.extra as Map<String, dynamic>;
+
+            return TransactionScreen(
+              transactionId: state.pathParameters['transactionId'],
+              logic: extra['logic'],
+              profilesLogic: extra['profilesLogic'],
+            );
+          },
+        ),
+        GoRoute(
+          name: 'Voucher',
+          path: '/voucher',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            return const VouchersModal();
+          },
+        ),
+        GoRoute(
+          name: 'SendViaLink',
+          path: '/SendViaLink',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return SendViaLinkModal(
+                walletLogic: wallet, profilesLogic: extra['profilesLogic']);
+          },
+        ),
         ShellRoute(
           navigatorKey: shellNavigatorKey,
           builder: (context, state, child) => RouterShell(
@@ -105,8 +261,8 @@ GoRouter createRouter(
           ),
           routes: [
             GoRoute(
-              name: 'Wallet',
-              path: '/wallet/:address',
+              name: 'Wallets',
+              path: '/wallets/:address',
               parentNavigatorKey: shellNavigatorKey,
               pageBuilder: (context, state) {
                 // parse from a deep link
@@ -131,26 +287,26 @@ GoRouter createRouter(
                   ),
                 );
               },
-              routes: [
-                GoRoute(
-                  name: 'Transaction',
-                  path: 'transactions/:transactionId',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    if (state.extra == null) {
-                      return const SizedBox();
-                    }
+              //routes: [
+              //   GoRoute(
+              //     name: 'Transaction',
+              //     path: 'transactions/:transactionId',
+              //     parentNavigatorKey: rootNavigatorKey,
+              //     builder: (context, state) {
+              //       if (state.extra == null) {
+              //         return const SizedBox();
+              //       }
 
-                    final extra = state.extra as Map<String, dynamic>;
+              //       final extra = state.extra as Map<String, dynamic>;
 
-                    return TransactionScreen(
-                      transactionId: state.pathParameters['transactionId'],
-                      logic: extra['logic'],
-                      profilesLogic: extra['profilesLogic'],
-                    );
-                  },
-                ),
-              ],
+              //       return TransactionScreen(
+              //         transactionId: state.pathParameters['transactionId'],
+              //         logic: extra['logic'],
+              //         profilesLogic: extra['profilesLogic'],
+              //       );
+              //     },
+              //   ),
+              // ],
             ),
             GoRoute(
               name: 'Contacts',
@@ -162,20 +318,20 @@ GoRouter createRouter(
                 child: const ContactsScreen(),
               ),
             ),
-            GoRoute(
-              name: 'Account',
-              path: '/account/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: AccountScreen(
-                  address: state.pathParameters['address'],
-                  alias: state.uri.queryParameters['alias'],
-                  wallet: wallet,
-                ),
-              ),
-            ),
+            // GoRoute(
+            //   name: 'Account',
+            //   path: '/account/:address',
+            //   parentNavigatorKey: shellNavigatorKey,
+            //   pageBuilder: (context, state) => NoTransitionPage(
+            //     key: state.pageKey,
+            //     name: state.name,
+            //     child: AccountScreen(
+            //       address: state.pathParameters['address'],
+            //       alias: state.uri.queryParameters['alias'],
+            //       wallet: wallet,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         GoRoute(

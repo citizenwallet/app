@@ -1,5 +1,6 @@
 import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 
 class SlideToComplete extends StatefulWidget {
   final Widget child;
@@ -71,11 +72,10 @@ class SlideToCompleteState extends State<SlideToComplete>
     super.dispose();
   }
 
-  void onComplete() {
-    if (!widget.enabled) {
-      return;
-    }
+  Future<void> onComplete() async {
+    if (!widget.enabled) {}
     widget.onCompleted?.call();
+    //await GoRouter.of(context).push<bool?>('/openSendingModal');
   }
 
   @override
@@ -95,6 +95,7 @@ class SlideToCompleteState extends State<SlideToComplete>
             _offset = widget.width - widget.childWidth;
           });
           onComplete();
+          //handleScanQr;
           return;
         }
 
@@ -128,7 +129,7 @@ class SlideToCompleteState extends State<SlideToComplete>
                 color: widget.enabled
                     ? ThemeColors.surfacePrimary.resolveFrom(context)
                     : ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                borderRadius: BorderRadius.circular(radius),
+                borderRadius: BorderRadius.circular(50),
                 border: Border.all(
                   color: widget.isComplete
                       ? ThemeColors.surfacePrimary.resolveFrom(context)
@@ -179,7 +180,7 @@ class SlideToCompleteState extends State<SlideToComplete>
                 height: 50,
                 decoration: BoxDecoration(
                   color: ThemeColors.surfaceSubtle.resolveFrom(context),
-                  borderRadius: BorderRadius.circular(radius),
+                  borderRadius: BorderRadius.circular(100),
                 ),
               ),
             ),
@@ -195,7 +196,7 @@ class SlideToCompleteState extends State<SlideToComplete>
                   width: widget.childWidth,
                   decoration: BoxDecoration(
                     color: widget.thumbColor,
-                    borderRadius: BorderRadius.circular(radius),
+                    borderRadius: BorderRadius.circular(100),
                   ),
                   child: widget.child,
                 ),
