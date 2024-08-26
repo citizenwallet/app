@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -123,9 +123,11 @@ class VoucherReadModalState extends State<VoucherReadModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
+          minimum:
+              const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -138,7 +140,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -158,7 +163,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
                           Text(
                             voucher?.name ?? '',
                             style: TextStyle(
-                              color: ThemeColors.text.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .text
+                                  .resolveFrom(context),
                               fontSize: 28,
                               fontWeight: FontWeight.normal,
                             ),
@@ -171,7 +179,9 @@ class VoucherReadModalState extends State<VoucherReadModal>
                             child: Center(
                               child: viewLoading || voucher == null
                                   ? CupertinoActivityIndicator(
-                                      color: ThemeColors.subtle
+                                      color: Theme.of(context)
+                                          .colors
+                                          .subtle
                                           .resolveFrom(context))
                                   : CoinLogo(
                                       size: 100,
@@ -184,7 +194,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
                             Text(
                               AppLocalizations.of(context)!.createdBy,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 18,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -203,10 +216,15 @@ class VoucherReadModalState extends State<VoucherReadModal>
                               viewingVoucherLink != null)
                             Text(
                               emptyBalance
-                                  ? AppLocalizations.of(context)!.emptyBalanceText1
-                                  : AppLocalizations.of(context)!.emptyBalanceText2,
+                                  ? AppLocalizations.of(context)!
+                                      .emptyBalanceText1
+                                  : AppLocalizations.of(context)!
+                                      .emptyBalanceText2,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 18,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -226,8 +244,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -238,14 +258,14 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                 if (!viewLoading && !returnLoading)
                                   Button(
                                     text: AppLocalizations.of(context)!.redeem,
+                                    labelColor: Theme.of(context).colors.white,
                                     suffix: Row(
                                       children: [
                                         const SizedBox(width: 10),
                                         Icon(
                                           CupertinoIcons.arrow_down_circle,
                                           size: 18,
-                                          color: ThemeColors.black
-                                              .resolveFrom(context),
+                                          color: Theme.of(context).colors.white,
                                         ),
                                       ],
                                     ),
@@ -255,8 +275,10 @@ class VoucherReadModalState extends State<VoucherReadModal>
                                   ),
                                 if (viewLoading || returnLoading)
                                   CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   ),
                                 const SizedBox(height: 10),
                               ],

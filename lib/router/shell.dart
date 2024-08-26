@@ -1,6 +1,6 @@
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,86 +46,20 @@ class RouterShell extends StatelessWidget {
           CupertinoIcons.rectangle_on_rectangle_angled,
         ),
       ),
-      BottomNavigationBarItem(
-        label: AppLocalizations.of(context)!.account,
-        icon: cleaningUp || wallet == null
-            ? const PulsingContainer(
-                height: 30,
-                width: 30,
-                borderRadius: 15,
-              )
-            : Stack(
-                children: [
-                  ProfileCircle(
-                    size: 30,
-                    imageUrl: imageSmall,
-                    borderWidth: 2,
-                    borderColor: ThemeColors.transparent.resolveFrom(context),
-                    backgroundColor:
-                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ),
-                  if (hasNoProfile && !loading)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        height: 10,
-                        width: 10,
-                        decoration: BoxDecoration(
-                          color: ThemeColors.danger.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-        activeIcon: cleaningUp || wallet == null
-            ? const PulsingContainer(
-                height: 30,
-                width: 30,
-                borderRadius: 15,
-              )
-            : Stack(
-                children: [
-                  ProfileCircle(
-                    size: 30,
-                    imageUrl: imageSmall,
-                    borderWidth: 2,
-                    borderColor:
-                        ThemeColors.surfaceBackground.resolveFrom(context),
-                    backgroundColor:
-                        ThemeColors.uiBackgroundAlt.resolveFrom(context),
-                  ),
-                  if (hasNoProfile && !loading)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        height: 10,
-                        width: 10,
-                        decoration: BoxDecoration(
-                          color: ThemeColors.danger.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-      ),
     ];
 
     final routes = {
       'wallet': 0,
-      'account': 1,
     };
 
     final app = CupertinoScaffold(
       key: Key(location),
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
         key: Key(location),
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           top: false,
           child: Column(
@@ -137,13 +71,18 @@ class RouterShell extends StatelessWidget {
                 CupertinoTabBar(
                   items: items,
                   currentIndex: routes[location] ?? 0,
-                  activeColor: ThemeColors.text.resolveFrom(context),
-                  backgroundColor:
-                      ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                  activeColor:
+                      Theme.of(context).colors.text.resolveFrom(context),
+                  backgroundColor: Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context),
                   border: Border(
                       top: BorderSide(
-                          color:
-                              ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .uiBackgroundAlt
+                              .resolveFrom(context),
                           width: 0.0)),
                   onTap: transactionSendLoading || cleaningUp
                       ? null
@@ -152,10 +91,6 @@ class RouterShell extends StatelessWidget {
                             case 0:
                               GoRouter.of(context).go(
                                   '/wallet/${wallet?.account}?alias=${wallet?.alias}');
-                              break;
-                            case 1:
-                              GoRouter.of(context).go(
-                                  '/account/${wallet?.account}?alias=${wallet?.alias}');
                               break;
                             default:
                             // GoRouter.of(context).go('/404');
@@ -170,7 +105,7 @@ class RouterShell extends StatelessWidget {
 
     return kIsWeb
         ? CupertinoPageScaffold(
-            backgroundColor: ThemeColors.black,
+            backgroundColor: Theme.of(context).colors.black,
             child: app,
           )
         : app;

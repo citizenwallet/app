@@ -37,7 +37,9 @@ class AccessControlUpgradeableContract {
     bool hasRole = false;
 
     try {
-      hasRole = await contract.hasRole(role, EthereumAddress.fromHex(address));
+      hasRole = await contract
+          .hasRole(role, EthereumAddress.fromHex(address))
+          .timeout(const Duration(seconds: 2));
     } catch (_) {
       //
     }

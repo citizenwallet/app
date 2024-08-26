@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/backup_web/logic.dart';
 import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
@@ -97,9 +97,11 @@ class ShareModalState extends State<ShareModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          minimum:
+              const EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
           child: Flex(
             direction: Axis.vertical,
             children: [
@@ -110,7 +112,8 @@ class ShareModalState extends State<ShareModal> {
                   onPressed: () => handleDismiss(context),
                   child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
               ),
@@ -135,7 +138,10 @@ class ShareModalState extends State<ShareModal> {
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 250),
                               decoration: BoxDecoration(
-                                color: ThemeColors.white.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .white
+                                    .resolveFrom(context),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               padding: const EdgeInsets.fromLTRB(
@@ -160,8 +166,8 @@ class ShareModalState extends State<ShareModal> {
                                 size: 100,
                                 imageUrl: config?.community.logo ??
                                     'assets/logo_small.png',
-                                borderColor: ThemeColors.subtle,
-                                backgroundColor: ThemeColors.white,
+                                borderColor: Theme.of(context).colors.subtle,
+                                backgroundColor: Theme.of(context).colors.white,
                               ),
                             ),
                             Positioned(
@@ -183,7 +189,9 @@ class ShareModalState extends State<ShareModal> {
                                           : shareLink.replaceFirst(
                                               'https://', ''),
                                       style: TextStyle(
-                                        color: ThemeColors.black
+                                        color: Theme.of(context)
+                                            .colors
+                                            .black
                                             .resolveFrom(context),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -200,7 +208,9 @@ class ShareModalState extends State<ShareModal> {
                                     child: Icon(
                                       CupertinoIcons.square_on_square,
                                       size: 14,
-                                      color: ThemeColors.black
+                                      color: Theme.of(context)
+                                          .colors
+                                          .black
                                           .resolveFrom(context),
                                     ),
                                   ),
@@ -213,7 +223,7 @@ class ShareModalState extends State<ShareModal> {
                       const SizedBox(
                         height: 20,
                       ),
-                       Text(
+                      Text(
                         AppLocalizations.of(context)!.shareText1,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -222,7 +232,7 @@ class ShareModalState extends State<ShareModal> {
                       const SizedBox(
                         height: 20,
                       ),
-                       Text(
+                      Text(
                         AppLocalizations.of(context)!.shareText2,
                         textAlign: TextAlign.center,
                         style: const TextStyle(

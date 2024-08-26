@@ -4,17 +4,12 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/logic.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
-import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/utils/currency.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -116,7 +111,8 @@ class DeepLinkModalState extends State<DeepLinkModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Flex(
@@ -132,7 +128,10 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -166,8 +165,10 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                                 Text(
                                   '${fromUnit(faucetAmount, decimals: wallet.decimalDigits)} ${wallet.symbol}',
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -205,8 +206,10 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                                       AppLocalizations.of(context)!
                                           .unabltohandlelink,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 20,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -229,7 +232,10 @@ class DeepLinkModalState extends State<DeepLinkModal> {
                               maxWidth: 200,
                             )
                           : CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             ),
                     ),
                   ],

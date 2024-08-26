@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class Picker extends StatelessWidget {
@@ -16,25 +16,53 @@ class Picker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoSlidingSegmentedControl<String>(
-        backgroundColor: ThemeColors.white,
-        thumbColor: ThemeColors.surfacePrimary.resolveFrom(context),
-        groupValue: selected,
-        children: options.fold(
-            <String, Widget>{},
-            (previousValue, element) => {
-                  ...previousValue,
-                  element: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      element,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: ThemeColors.text,
-                      ),
-                    ),
-                  ),
-                }),
-        onValueChanged: handleSelect);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: options.map((option) {
+          final isSelected = selected == option;
+
+          return GestureDetector(
+            onTap: () => handleSelect(option),
+            child: AnimatedContainer(
+              key: Key(option),
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colors.subtle.resolveFrom(context)
+                    : Theme.of(context).colors.white.resolveFrom(context),
+                border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context)
+                          .colors
+                          .subtleEmphasis
+                          .resolveFrom(context)
+                      : Theme.of(context)
+                          .colors
+                          .subtleEmphasis
+                          .resolveFrom(context)
+                          .withOpacity(0),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              child: Text(
+                option,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colors.text,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 }

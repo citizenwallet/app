@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/cards/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +45,8 @@ class CardsScreenState extends State<CardsScreen> {
       return;
     }
 
-    print('${AppLocalizations.of(context)!.initialAddress} ${widget.walletLogic.privateKey.address.hexEip55}');
+    print(
+        '${AppLocalizations.of(context)!.initialAddress} ${widget.walletLogic.privateKey.address.hexEip55}');
 
     // _logic.configure(
     //     widget.walletLogic.privateKey, wallet.account, wallet.alias);
@@ -66,7 +67,7 @@ class CardsScreenState extends State<CardsScreen> {
               onPressed: handleAddCard,
               child: Icon(
                 CupertinoIcons.plus,
-                color: ThemeColors.primary.resolveFrom(context),
+                color: Theme.of(context).colors.primary.resolveFrom(context),
               ),
             ),
           ),

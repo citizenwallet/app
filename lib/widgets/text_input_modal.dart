@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -94,7 +94,8 @@ class TextInputModalState extends State<TextInputModal> {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+          backgroundColor:
+              Theme.of(context).colors.uiBackground.resolveFrom(context),
           child: SafeArea(
             top: false,
             child: Flex(
@@ -102,13 +103,19 @@ class TextInputModalState extends State<TextInputModal> {
               children: [
                 Header(
                   title: widget.title,
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .uiBackground
+                      .resolveFrom(context),
                   actionButton: CupertinoButton(
                     padding: const EdgeInsets.all(5),
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -143,12 +150,16 @@ class TextInputModalState extends State<TextInputModal> {
                           ),
                           border: _invalid || widget.retry == true
                               ? Border.all(
-                                  color:
-                                      ThemeColors.danger.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .danger
+                                      .resolveFrom(context),
                                 )
                               : Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .border
+                                      .resolveFrom(context),
                                 ),
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5.0)),
@@ -194,12 +205,16 @@ class TextInputModalState extends State<TextInputModal> {
                             ),
                             border: _invalid
                                 ? Border.all(
-                                    color:
-                                        ThemeColors.danger.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .danger
+                                        .resolveFrom(context),
                                   )
                                 : Border.all(
-                                    color:
-                                        ThemeColors.border.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .border
+                                        .resolveFrom(context),
                                   ),
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(5.0)),
@@ -216,15 +231,17 @@ class TextInputModalState extends State<TextInputModal> {
                         children: [
                           Button(
                             text: AppLocalizations.of(context)!.confirm,
-                            color:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            labelColor: ThemeColors.black,
-                            suffix: const Padding(
-                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            color: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
+                            labelColor: Theme.of(context).colors.black,
+                            suffix: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                               child: Icon(
                                 CupertinoIcons.square_on_square,
                                 size: 14,
-                                color: ThemeColors.black,
+                                color: Theme.of(context).colors.black,
                               ),
                             ),
                             onPressed: widget.confirm

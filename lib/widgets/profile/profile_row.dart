@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -26,27 +26,29 @@ class ProfileRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 2,
-          color: active
-              ? ThemeColors.white
-              : ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        ),
-        color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        border: active
+            ? Border.all(
+                width: 2,
+                color: Theme.of(context)
+                    .colors
+                    .subtleEmphasis
+                    .resolveFrom(context),
+              )
+            : null,
         borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
         ),
       ),
       child: CupertinoButton(
         onPressed: onTap,
-        color: ThemeColors.subtle.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ProfileCircle(
               size: size,
-              backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+              backgroundColor:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
               imageUrl: profile?.imageSmall,
             ),
             const SizedBox(width: 10),
@@ -63,7 +65,7 @@ class ProfileRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
+                      color: Theme.of(context).colors.text.resolveFrom(context),
                     ),
                   ),
                   SizedBox(
@@ -75,7 +77,10 @@ class ProfileRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: ThemeColors.subtleText.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtleText
+                            .resolveFrom(context),
                       ),
                     ),
                   ),

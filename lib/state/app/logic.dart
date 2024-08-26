@@ -10,17 +10,17 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
+  final ThemeLogic _theme = ThemeLogic();
   final PreferencesService _preferences = PreferencesService();
   final AccountsServiceInterface _accounts = getAccountsService();
   final ConfigService _config = ConfigService();
@@ -30,16 +30,6 @@ class AppLogic {
 
   AppLogic(BuildContext context) {
     _appState = context.read<AppState>();
-  }
-
-  void setDarkMode(bool darkMode) {
-    try {
-      _preferences.setDarkMode(darkMode);
-
-      _appState.darkMode = darkMode;
-    } catch (e) {
-      //
-    }
   }
 
   void setMuted(bool muted) {
@@ -92,7 +82,7 @@ class AppLogic {
 
           final config = await _config.getConfig(dbWallet.alias);
 
-          ThemeColors.setTheme(config.community.theme);
+          _theme.changeTheme(config.community.theme);
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
@@ -115,12 +105,7 @@ class AppLogic {
       final address = dbWallet.address.hexEip55;
 
       return (address, dbWallet.alias);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -156,12 +141,7 @@ class AppLogic {
           locked: false,
         );
       }).toList();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -186,7 +166,7 @@ class AppLogic {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -194,12 +174,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -217,12 +192,7 @@ class AppLogic {
       await delay(const Duration(milliseconds: 1500));
 
       return lastWallet;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -257,12 +227,7 @@ class AppLogic {
       _appState.importLoadingWebSuccess(password);
 
       return 'v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingWebError();
 
@@ -303,7 +268,7 @@ class AppLogic {
         ),
       );
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -311,12 +276,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -364,7 +324,7 @@ class AppLogic {
         ),
       );
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -372,12 +332,7 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return (address.hexEip55, alias);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.importLoadingError();
 
@@ -398,12 +353,7 @@ class AppLogic {
       await _preferences.clear();
 
       _appState.deleteBackupLoadingSuccess();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _appState.deleteBackupLoadingError();
   }

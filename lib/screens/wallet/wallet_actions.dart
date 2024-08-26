@@ -2,10 +2,11 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
+import 'package:citizenwallet/widgets/wallet/action_button.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -19,7 +20,7 @@ class WalletActions extends StatelessWidget {
   final double shrink;
   final bool refreshing;
 
-  final void Function()? handleSendModal;
+  final void Function()? handleSendScreen;
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
@@ -30,7 +31,7 @@ class WalletActions extends StatelessWidget {
     super.key,
     this.shrink = 0,
     this.refreshing = false,
-    this.handleSendModal,
+    this.handleSendScreen,
     this.handleReceive,
     this.handlePlugin,
     this.handleCards,
@@ -40,8 +41,6 @@ class WalletActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     final loading = context.select((WalletState state) => state.loading);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
@@ -66,137 +65,171 @@ class WalletActions extends StatelessWidget {
         wallet?.locked == false &&
         (!loading || !firstLoad) &&
         wallet?.doubleBalance != 0.0 &&
-        handleSendModal != null;
+        handleSendScreen != null;
 
     final isIncreasing = newBalance > balance;
 
-    final coinSize = progressiveClamp(2, 80, shrink);
-    final coinNameSize = progressiveClamp(10, 22, shrink);
+    final coinSize = progressiveClamp(2, 70, shrink);
+    const coinNameSize = 20.0;
 
     final buttonOffset =
-        (1 - shrink) < 0.6 ? 90.0 : progressiveClamp(90, 110, shrink);
+        (1 - shrink) < 0.7 ? 20.0 : progressiveClamp(20, 80, shrink);
+    final buttonSeparator =
+        (1 - shrink) < 0.7 ? 10.0 : progressiveClamp(10, 40, shrink);
 
-    final buttonSize =
-        (1 - shrink) < 0.6 ? 60.0 : progressiveClamp(50, 80, shrink);
-    final buttonIconSize =
-        (1 - shrink) < 0.6 ? 30.0 : progressiveClamp(18, 40, shrink);
+    final buttonBarHeight =
+        (1 - shrink) < 0.7 ? 60.0 : progressiveClamp(40, 120, shrink);
+    final buttonSize = (1 - shrink) < 0.7 ? 60.0 : 80.0;
+    final buttonIconSize = (1 - shrink) < 0.7 ? 30.0 : 40.0;
     final buttonFontSize =
-        (1 - shrink) < 0.6 ? 12.0 : progressiveClamp(10, 14, shrink);
+        (1 - shrink) < 0.7 ? 12.0 : progressiveClamp(10, 14, shrink);
 
     return Stack(
+      alignment: Alignment.topCenter,
       children: [
-        SafeArea(
+        Positioned(
+          top: 0,
+          bottom: 60,
+          left: 0,
+          right: 0,
           child: Container(
             decoration: BoxDecoration(
-              color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-              border: Border(
-                bottom: BorderSide(
-                  color: ThemeColors.subtle.resolveFrom(context),
-                ),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if ((1 - shrink) > 0.6 && wallet != null)
-                  CoinSpinner(
-                    key: Key('${wallet.alias}-spinner'),
-                    size: coinSize,
-                    logo: wallet.currencyLogo,
-                    spin: refreshing || hasPending,
-                  ),
-                if ((1 - shrink) > 0.75)
-                  const SizedBox(
-                    height: 10,
-                  ),
-                if ((1 - shrink) > 0.75)
-                  Text(
-                    wallet?.currencyName ?? 'Token',
-                    style: TextStyle(
-                      fontSize: coinNameSize,
-                      fontWeight: FontWeight.normal,
-                      color: ThemeColors.text.resolveFrom(context),
-                    ),
-                  ),
-                if ((1 - shrink) == 1)
-                  const SizedBox(
-                    height: 5,
-                  ),
-                loading && formattedBalance.isEmpty
-                    ? CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          if ((1 - shrink) < 0.6 && wallet != null) ...[
-                            CoinLogo(
-                              size: 40,
-                              logo: wallet.currencyLogo,
-                            ),
-                            const SizedBox(width: 5),
-                          ],
-                          Text(
-                            formattedBalance,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontSize: (1 - shrink) < 0.6
-                                  ? 32
-                                  : progressiveClamp(12, 40, shrink),
-                              fontWeight: FontWeight.normal,
-                              color: hasPending
-                                  ? isIncreasing
-                                      ? ThemeColors.primary.resolveFrom(context)
-                                      : ThemeColors.secondary
-                                          .resolveFrom(context)
-                                  : ThemeColors.text.resolveFrom(context),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              0,
-                              0,
-                              0,
-                              3,
-                            ),
-                            child: Text(
-                              wallet?.symbol ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                fontSize: (1 - shrink) < 0.6
-                                    ? 22
-                                    : progressiveClamp(8, 22, shrink),
-                                fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                const SizedBox(
-                  height: 30,
-                ),
-              ],
+              color:
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
             ),
           ),
         ),
         Positioned(
-          width: width,
-          bottom: 10,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+                  Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context)
+                      .withOpacity(0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (wallet != null)
+          Positioned(
+            top: 90,
+            child: Opacity(
+              opacity: progressiveClamp(0, 1, shrink * 2.5),
+              child: CoinSpinner(
+                key: Key('${wallet.alias}-spinner'),
+                size: coinSize,
+                logo: wallet.currencyLogo,
+                spin: refreshing || hasPending,
+              ),
+            ),
+          ),
+        Positioned(
+          top: progressiveClamp(90, 170, shrink),
+          child: Opacity(
+            opacity: progressiveClamp(0, 1, shrink * 2.5),
+            child: Text(
+              wallet?.currencyName ?? 'Token',
+              style: TextStyle(
+                fontSize: coinNameSize,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colors.subtleText.resolveFrom(context),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: progressiveClamp(90, 210, shrink * 2),
+          child: loading && formattedBalance.isEmpty
+              ? CupertinoActivityIndicator(
+                  color: Theme.of(context).colors.subtle.resolveFrom(context),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if ((1 - shrink) < 0.7 && wallet != null) ...[
+                      CoinLogo(
+                        size: 40,
+                        logo: wallet.currencyLogo,
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                    Text(
+                      formattedBalance,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        fontSize: (1 - shrink) < 0.6
+                            ? 32
+                            : progressiveClamp(12, 48, shrink),
+                        fontWeight: FontWeight.bold,
+                        color: hasPending
+                            ? isIncreasing
+                                ? Theme.of(context)
+                                    .colors
+                                    .primary
+                                    .resolveFrom(context)
+                                : Theme.of(context)
+                                    .colors
+                                    .secondary
+                                    .resolveFrom(context)
+                            : Theme.of(context)
+                                .colors
+                                .text
+                                .resolveFrom(context),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        0,
+                        0,
+                        0,
+                        0,
+                      ),
+                      child: Text(
+                        wallet?.symbol ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontSize: (1 - shrink) < 0.6
+                              ? 18
+                              : progressiveClamp(8, 18, shrink),
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        Positioned(
+          top: progressiveClamp(140, 280, shrink * 2),
+          left: 0,
+          right: 0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: SizedBox(
-                  height: buttonSize + 10,
+                  height: buttonBarHeight,
                   child: ListView(
                     controller: controller,
                     physics:
@@ -204,313 +237,109 @@ class WalletActions extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     children: [
                       SizedBox(
-                        width: (width / 2) - buttonOffset,
+                        width: buttonOffset,
                       ),
                       if (wallet?.locked == false &&
                           (!loading || !firstLoad) &&
-                          handleSendModal != null)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: blockSending ? () => () : handleSendModal,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color:
-                              ThemeColors.surfacePrimary.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.arrow_up,
-                                  size: buttonIconSize,
-                                  color: blockSending
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.black,
-                                ),
-                                Text(
-                                  sendLoading
-                                      ? AppLocalizations.of(context)!.sending
-                                      : AppLocalizations.of(context)!.send,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: blockSending
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.black,
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          handleSendScreen != null)
+                        WalletActionButton(
+                          icon: CupertinoIcons.arrow_up,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: sendLoading
+                              ? AppLocalizations.of(context)!.sending
+                              : AppLocalizations.of(context)!.send,
+                          loading: sendLoading,
+                          disabled: blockSending,
+                          onPressed: handleSendScreen,
                         ),
-                      if (wallet?.locked == false) const SizedBox(width: 40),
+                      if (wallet?.locked == false)
+                        SizedBox(width: buttonSeparator),
                       if ((!loading || !firstLoad) && handleReceive != null)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: sendLoading ? () => () : handleReceive,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color:
-                              ThemeColors.surfacePrimary.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.arrow_down,
-                                  size: buttonIconSize,
-                                  color: sendLoading
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.black,
-                                ),
-                                Text(
-                                  AppLocalizations.of(context)!.receive,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: sendLoading
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.black,
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.arrow_down,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.receive,
+                          loading: sendLoading,
+                          disabled: sendLoading,
+                          onPressed: handleReceive,
                         ),
                       if (!kIsWeb &&
                           wallet?.locked == false &&
                           wallet?.minter == true)
-                        const SizedBox(width: 40),
+                        SizedBox(width: buttonSeparator),
                       if (!kIsWeb &&
                           wallet?.locked == false &&
                           wallet?.minter == true)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: sendLoading ? () => () : handleMint,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color: ThemeColors.background.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.hammer,
-                                  size: buttonIconSize,
-                                  color: sendLoading
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.text.resolveFrom(context),
-                                ),
-                                Text(
-                                  AppLocalizations.of(context)!.mint,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: sendLoading
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.text.resolveFrom(context),
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.hammer,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.mint,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: handleMint,
                         ),
-                      if (!kIsWeb && wallet?.locked == false)
-                        const SizedBox(width: 40),
-                      // if (!kIsWeb &&
-                      //     wallet?.locked == false &&
-                      //     (!loading || !firstLoad) &&
-                      //     handleSendModal != null &&
-                      //     handleCards != null)
-                      //   CupertinoButton(
-                      //     padding: const EdgeInsets.all(5),
-                      //     onPressed: sendLoading ? () => () : handleCards,
-                      //     borderRadius: BorderRadius.circular(
-                      //         progressiveClamp(14, 20, shrink)),
-                      //     color: ThemeColors.background.resolveFrom(context),
-                      //     child: SizedBox(
-                      //       height: buttonSize,
-                      //       width: buttonSize,
-                      //       child: Column(
-                      //         mainAxisAlignment: MainAxisAlignment.center,
-                      //         crossAxisAlignment: CrossAxisAlignment.center,
-                      //         children: [
-                      //           Icon(
-                      //             CupertinoIcons.creditcard,
-                      //             size: buttonIconSize,
-                      //             color: sendLoading
-                      //                 ? ThemeColors.subtleEmphasis
-                      //                 : ThemeColors.text.resolveFrom(context),
-                      //           ),
-                      //           const SizedBox(width: 10),
-                      //           Text(
-                      //             'Cards',
-                      //             style: TextStyle(
-                      //               fontWeight: FontWeight.bold,
-                      //               color: sendLoading
-                      //                   ? ThemeColors.subtleEmphasis
-                      //                   : ThemeColors.text.resolveFrom(context),
-                      //               fontSize: buttonFontSize,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // if (wallet?.locked == false) const SizedBox(width: 40),
+                      if (showVouchers) SizedBox(width: buttonSeparator),
                       if (showVouchers)
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: sendLoading ? () => () : handleVouchers,
-                          borderRadius: BorderRadius.circular(
-                              progressiveClamp(14, 20, shrink)),
-                          color: ThemeColors.background.resolveFrom(context),
-                          child: SizedBox(
-                            height: buttonSize,
-                            width: buttonSize,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.ticket,
-                                  size: buttonIconSize,
-                                  color: sendLoading
-                                      ? ThemeColors.subtleEmphasis
-                                      : ThemeColors.text.resolveFrom(context),
-                                ),
-                                Text(
-                                  AppLocalizations.of(context)!.vouchers,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: sendLoading
-                                        ? ThemeColors.subtleEmphasis
-                                        : ThemeColors.text.resolveFrom(context),
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.ticket,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.vouchers,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: handleVouchers,
                         ),
-                      if (showVouchers) const SizedBox(width: 40),
                       if ((!loading || !firstLoad) &&
                           handlePlugin != null &&
                           wallet != null)
+                        SizedBox(width: buttonSeparator),
+                      if ((!loading || !firstLoad) &&
+                          handlePlugin != null &&
+                          wallet != null &&
+                          wallet.plugins.isNotEmpty)
                         ...(wallet.plugins
                             .map(
-                              (plugin) => Container(
-                                margin: const EdgeInsets.only(right: 40),
-                                child: CupertinoButton(
-                                  padding: const EdgeInsets.all(5),
-                                  onPressed: sendLoading
-                                      ? () => ()
-                                      : () => handlePlugin!(plugin),
-                                  borderRadius: BorderRadius.circular(
-                                      progressiveClamp(14, 20, shrink)),
-                                  color: ThemeColors.background
-                                      .resolveFrom(context),
-                                  child: Container(
-                                    height: buttonSize,
-                                    width: buttonSize,
-                                    padding: const EdgeInsets.all(5),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.network(
-                                          plugin.icon,
-                                          semanticsLabel: '${plugin.name} icon',
-                                          height: buttonIconSize,
-                                          width: buttonIconSize,
-                                          placeholderBuilder: (_) => Icon(
-                                            CupertinoIcons.arrow_down,
-                                            size: buttonIconSize,
-                                            color: sendLoading
-                                                ? ThemeColors.subtleEmphasis
-                                                : ThemeColors.black,
-                                          ),
-                                        ),
-                                        FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Text(
-                                            plugin.name,
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: sendLoading
-                                                  ? ThemeColors.subtleEmphasis
-                                                  : ThemeColors.text
-                                                      .resolveFrom(context),
-                                              fontSize: buttonFontSize,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                              (plugin) => WalletActionButton(
+                                customIcon: SvgPicture.network(
+                                  plugin.icon,
+                                  semanticsLabel: '${plugin.name} icon',
+                                  height: buttonIconSize,
+                                  width: buttonIconSize,
+                                  placeholderBuilder: (_) => Icon(
+                                    CupertinoIcons.arrow_down,
+                                    size: buttonIconSize,
+                                    color: sendLoading
+                                        ? Theme.of(context)
+                                            .colors
+                                            .subtleEmphasis
+                                        : Theme.of(context).colors.black,
                                   ),
                                 ),
+                                buttonSize: buttonSize,
+                                buttonIconSize: buttonIconSize,
+                                buttonFontSize: buttonFontSize,
+                                margin: EdgeInsets.only(right: buttonSeparator),
+                                shrink: shrink,
+                                text: plugin.name,
+                                alt: true,
+                                loading: sendLoading,
+                                disabled: sendLoading,
+                                onPressed: () => handlePlugin!(plugin),
                               ),
                             )
                             .toList()),
                     ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          width: width,
-          bottom: 10,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                height: buttonSize + 10,
-                width: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: <Color>[
-                      ThemeColors.uiBackgroundAltTransparent50
-                          .resolveFrom(context),
-                      ThemeColors.uiBackgroundAltTransparent
-                          .resolveFrom(context),
-                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                    tileMode: TileMode.mirror,
-                  ),
-                ),
-              ),
-              Container(
-                height: buttonSize + 10,
-                width: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                    colors: <Color>[
-                      ThemeColors.uiBackgroundAltTransparent50
-                          .resolveFrom(context),
-                      ThemeColors.uiBackgroundAltTransparent
-                          .resolveFrom(context),
-                    ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                    tileMode: TileMode.mirror,
                   ),
                 ),
               ),

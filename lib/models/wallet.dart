@@ -12,7 +12,7 @@ class CWWallet {
   final String currencyLogo;
   final int decimalDigits;
   final bool locked;
-  final bool minter;
+  bool minter;
   final List<PluginConfig> plugins;
 
   CWWallet(
@@ -101,5 +101,9 @@ class CWWallet {
 
   void setBalance(String balance) {
     _balance = balance;
+  }
+
+  void setMinter(bool isMinter) {
+    minter = isMinter;
   }
 }

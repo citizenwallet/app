@@ -6,7 +6,7 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
@@ -62,7 +62,7 @@ class AccountScreenState extends State<AccountScreen> {
     super.dispose();
   }
 
-  void onLoad() async {
+  Future<void> onLoad() async {
     if (widget.address == null || widget.alias == null) {
       return;
     }
@@ -88,11 +88,6 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _showQRCode = true;
     });
-  }
-
-  void handleDismiss(BuildContext context) {
-    _logic.resetViewProfile();
-    GoRouter.of(context).pop();
   }
 
   void handleCopy(String value) {
@@ -128,7 +123,7 @@ class AccountScreenState extends State<AccountScreen> {
       useRootNavigator: true,
       builder: (modalContext) => CupertinoScaffold(
         topRadius: const Radius.circular(40),
-        transitionBackgroundColor: ThemeColors.transparent,
+        transitionBackgroundColor: Theme.of(context).colors.transparent,
         body: SwitchAccountModal(
           logic: _walletLogic,
           currentAddress: widget.address,
@@ -158,11 +153,9 @@ class AccountScreenState extends State<AccountScreen> {
 
     _walletLogic.cleanupWalletState();
 
-    navigator.go('/account/$address?alias=$alias');
-
     await delay(const Duration(milliseconds: 250));
 
-    onLoad();
+    navigator.pop('/wallet/$address?alias=$alias');
   }
 
   void handleGoToSettings(BuildContext context) {
@@ -239,8 +232,10 @@ class AccountScreenState extends State<AccountScreen> {
                                 child: Text(
                                   profile.name,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -258,11 +253,14 @@ class AccountScreenState extends State<AccountScreen> {
                               Expanded(
                                 child: Text(
                                   hasNoProfile
-                                      ? AppLocalizations.of(context)!.createNewAccountMsg
+                                      ? AppLocalizations.of(context)!
+                                          .createNewAccountMsg
                                       : profile.description,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -278,17 +276,22 @@ class AccountScreenState extends State<AccountScreen> {
                           children: [
                             profileLoading
                                 ? CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   )
                                 : CupertinoButton(
                                     onPressed: handleEdit,
                                     child: Text(
                                       hasNoProfile
-                                          ? AppLocalizations.of(context)!.createaprofile
+                                          ? AppLocalizations.of(context)!
+                                              .createaprofile
                                           : AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
-                                        color: ThemeColors.text
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
                                             .resolveFrom(context),
                                         fontSize: 18,
                                         fontWeight: FontWeight.normal,
@@ -308,9 +311,10 @@ class AccountScreenState extends State<AccountScreen> {
             ),
             SafeArea(
               child: Header(
+                showBackButton: true,
                 transparent: true,
                 blur: true,
-                color: ThemeColors.transparent,
+                color: Theme.of(context).colors.transparent,
                 titleWidget: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: transactionSendLoading ||
@@ -327,8 +331,10 @@ class AccountScreenState extends State<AccountScreen> {
                       : Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color:
-                                ThemeColors.surfaceSubtle.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .surfaceSubtle
+                                .resolveFrom(context),
                           ),
                           padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                           child: Row(
@@ -353,9 +359,13 @@ class AccountScreenState extends State<AccountScreen> {
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color: !readyLoading
-                                                  ? ThemeColors.text
+                                                  ? Theme.of(context)
+                                                      .colors
+                                                      .text
                                                       .resolveFrom(context)
-                                                  : ThemeColors.text
+                                                  : Theme.of(context)
+                                                      .colors
+                                                      .text
                                                       .resolveFrom(context)
                                                       .withOpacity(0.5),
                                             ),
@@ -375,8 +385,14 @@ class AccountScreenState extends State<AccountScreen> {
                                         cleaningUp ||
                                         profileLoading ||
                                         readyLoading
-                                    ? ThemeColors.subtle.resolveFrom(context)
-                                    : ThemeColors.primary.resolveFrom(context),
+                                    ? Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context)
+                                    : Theme.of(context)
+                                        .colors
+                                        .primary
+                                        .resolveFrom(context),
                               ),
                             ],
                           ),
@@ -390,7 +406,10 @@ class AccountScreenState extends State<AccountScreen> {
                       onPressed: () => handleGoToSettings(context),
                       child: Icon(
                         CupertinoIcons.settings,
-                        color: ThemeColors.primary.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .primary
+                            .resolveFrom(context),
                       ),
                     ),
                   ],

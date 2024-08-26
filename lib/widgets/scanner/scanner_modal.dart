@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -208,7 +207,8 @@ class ScannerModalState extends State<ScannerModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackground.resolveFrom(context),
         resizeToAvoidBottomInset: false,
         child: Flex(
           direction: Axis.vertical,
@@ -224,7 +224,10 @@ class ScannerModalState extends State<ScannerModal>
                       height: height,
                       width: width,
                       decoration: BoxDecoration(
-                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .uiBackground
+                            .resolveFrom(context),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
@@ -239,14 +242,18 @@ class ScannerModalState extends State<ScannerModal>
                                 height: height,
                                 width: width,
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.uiBackground
+                                  color: Theme.of(context)
+                                      .colors
+                                      .uiBackground
                                       .resolveFrom(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Center(
                                   child: CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               );
@@ -263,7 +270,7 @@ class ScannerModalState extends State<ScannerModal>
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         width: 2,
-                        color: ThemeColors.white,
+                        color: Theme.of(context).colors.white,
                       ),
                     ),
                   ),
@@ -279,7 +286,9 @@ class ScannerModalState extends State<ScannerModal>
                               height: 50,
                               width: 50,
                               decoration: BoxDecoration(
-                                color: ThemeColors.uiBackground
+                                color: Theme.of(context)
+                                    .colors
+                                    .uiBackground
                                     .resolveFrom(context),
                                 borderRadius: BorderRadius.circular(25),
                               ),
@@ -290,7 +299,9 @@ class ScannerModalState extends State<ScannerModal>
                                   onPressed: () => handleDismiss(context),
                                   child: Icon(
                                     CupertinoIcons.xmark,
-                                    color: ThemeColors.touchable
+                                    color: Theme.of(context)
+                                        .colors
+                                        .touchable
                                         .resolveFrom(context),
                                   ),
                                 ),
@@ -308,7 +319,9 @@ class ScannerModalState extends State<ScannerModal>
                                   height: 50,
                                   width: 50,
                                   decoration: BoxDecoration(
-                                    color: ThemeColors.uiBackground
+                                    color: Theme.of(context)
+                                        .colors
+                                        .uiBackground
                                         .resolveFrom(context),
                                     borderRadius: BorderRadius.circular(25),
                                   ),
@@ -322,7 +335,9 @@ class ScannerModalState extends State<ScannerModal>
                                         _torchState == TorchState.off
                                             ? CupertinoIcons.lightbulb
                                             : CupertinoIcons.lightbulb_fill,
-                                        color: ThemeColors.touchable
+                                        color: Theme.of(context)
+                                            .colors
+                                            .touchable
                                             .resolveFrom(context),
                                       ),
                                     ),
@@ -341,7 +356,10 @@ class ScannerModalState extends State<ScannerModal>
                         height: 50,
                         width: width - 40,
                         decoration: BoxDecoration(
-                          color: ThemeColors.uiBackground.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .uiBackground
+                              .resolveFrom(context),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
@@ -361,7 +379,9 @@ class ScannerModalState extends State<ScannerModal>
                                 darkColor: CupertinoColors.black,
                               ),
                               border: Border.all(
-                                color: ThemeColors.transparent
+                                color: Theme.of(context)
+                                    .colors
+                                    .transparent
                                     .resolveFrom(context),
                               ),
                               borderRadius:
@@ -378,8 +398,13 @@ class ScannerModalState extends State<ScannerModal>
                               width: 35,
                               decoration: BoxDecoration(
                                 color: _isTextEmpty
-                                    ? ThemeColors.subtle.resolveFrom(context)
-                                    : ThemeColors.surfacePrimary
+                                    ? Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context)
+                                    : Theme.of(context)
+                                        .colors
+                                        .surfacePrimary
                                         .resolveFrom(context),
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -394,9 +419,11 @@ class ScannerModalState extends State<ScannerModal>
                                   child: Icon(
                                     CupertinoIcons.arrow_right,
                                     color: _isTextEmpty
-                                        ? ThemeColors.subtleText
+                                        ? Theme.of(context)
+                                            .colors
+                                            .subtleText
                                             .resolveFrom(context)
-                                        : ThemeColors.black,
+                                        : Theme.of(context).colors.black,
                                   ),
                                 ),
                               ),
@@ -408,7 +435,7 @@ class ScannerModalState extends State<ScannerModal>
                   if (_complete)
                     Container(
                       decoration: BoxDecoration(
-                        color: ThemeColors.uiBackground.resolveFrom(context),
+                        color: Theme.of(context).colors.black,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.all(20),

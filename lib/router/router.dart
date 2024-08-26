@@ -1,25 +1,37 @@
 import 'package:citizenwallet/router/shell.dart';
 import 'package:citizenwallet/screens/about/screen.dart';
-import 'package:citizenwallet/screens/account/screen.dart';
 import 'package:citizenwallet/screens/accounts/screen.android.dart';
 import 'package:citizenwallet/screens/accounts/screen.apple.dart';
-import 'package:citizenwallet/screens/contacts/screen.dart';
+import 'package:citizenwallet/screens/accounts/screen.dart';
+import 'package:citizenwallet/screens/deeplink/deep_link.dart';
 import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
+import 'package:citizenwallet/screens/send/send_details.dart';
+import 'package:citizenwallet/screens/send/send_link_progress.dart';
+import 'package:citizenwallet/screens/send/send_progress.dart';
+import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
+import 'package:citizenwallet/screens/voucher/screen.dart';
+import 'package:citizenwallet/screens/vouchers/screen.dart';
+import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
+import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 GoRouter createRouter(
   GlobalKey<NavigatorState> rootNavigatorKey,
@@ -97,84 +109,264 @@ GoRouter createRouter(
             builder: (context, state) {
               return const AccountConnectedScreen();
             }),
-        ShellRoute(
-          navigatorKey: shellNavigatorKey,
-          builder: (context, state, child) => RouterShell(
-            state: state,
-            child: child,
-          ),
+        GoRoute(
+          name: 'Wallet',
+          path: '/wallet/:address',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) {
+            // parse from a deep link
+            String? deepLinkParams;
+            final deepLink = state.uri.queryParameters['dl'];
+            if (deepLink != null) {
+              deepLinkParams = state.uri.queryParameters[deepLink];
+            }
+
+            return NoTransitionPage(
+              key: state.pageKey,
+              name: state.name,
+              child: WalletScreen(
+                state.pathParameters['address'],
+                state.uri.queryParameters['alias'],
+                wallet,
+                voucher: state.uri.queryParameters['voucher'],
+                voucherParams: state.uri.queryParameters['params'],
+                receiveParams: state.uri.queryParameters['receiveParams'],
+                deepLink: deepLink,
+                deepLinkParams: deepLinkParams,
+              ),
+            );
+          },
           routes: [
             GoRoute(
-              name: 'Wallet',
-              path: '/wallet/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) {
-                // parse from a deep link
-                String? deepLinkParams;
-                final deepLink = state.uri.queryParameters['dl'];
-                if (deepLink != null) {
-                  deepLinkParams = state.uri.queryParameters[deepLink];
+              name: 'Transaction',
+              path: 'transactions/:transactionId',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
                 }
 
-                return NoTransitionPage(
-                  key: state.pageKey,
-                  name: state.name,
-                  child: WalletScreen(
-                    state.pathParameters['address'],
-                    state.uri.queryParameters['alias'],
-                    wallet,
-                    voucher: state.uri.queryParameters['voucher'],
-                    voucherParams: state.uri.queryParameters['params'],
-                    receiveParams: state.uri.queryParameters['receiveParams'],
-                    deepLink: deepLink,
-                    deepLinkParams: deepLinkParams,
-                  ),
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TransactionScreen(
+                  transactionId: state.pathParameters['transactionId'],
+                  logic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
                 );
               },
-              routes: [
-                GoRoute(
-                  name: 'Transaction',
-                  path: 'transactions/:transactionId',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    if (state.extra == null) {
-                      return const SizedBox();
-                    }
-
-                    final extra = state.extra as Map<String, dynamic>;
-
-                    return TransactionScreen(
-                      transactionId: state.pathParameters['transactionId'],
-                      logic: extra['logic'],
-                      profilesLogic: extra['profilesLogic'],
-                    );
-                  },
-                ),
-              ],
             ),
             GoRoute(
-              name: 'Contacts',
-              path: '/contacts',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: const ContactsScreen(),
-              ),
+              name: 'Send To',
+              path: 'send',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendToScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
+                  isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Details Link',
+              path: 'send/link',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendDetailsScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
+                  isLink: true,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Details',
+              path: 'send/:to',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendDetailsScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  isMinting: extra['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Link Progress',
+              path: 'send/link/progress',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendLinkProgress(
+                  voucherLogic: extra['voucherLogic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Send Progress',
+              path: 'send/:to/progress',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                return SendProgress(
+                  to: state.pathParameters['to'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Receive',
+              path: 'receive',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ReceiveScreen(
+                  logic: extra['logic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Mint',
+              path: 'mint',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return SendToScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  isMinting: true,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Vouchers',
+              path: 'vouchers',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return VouchersScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'View Voucher',
+              path: 'vouchers/:voucher',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                return VoucherScreen(
+                  address: state.pathParameters['voucher'] ?? '',
+                );
+              },
             ),
             GoRoute(
               name: 'Account',
-              path: '/account/:address',
-              parentNavigatorKey: shellNavigatorKey,
-              pageBuilder: (context, state) => NoTransitionPage(
-                key: state.pageKey,
-                name: state.name,
-                child: AccountScreen(
-                  address: state.pathParameters['address'],
-                  alias: state.uri.queryParameters['alias'],
-                  wallet: wallet,
+              path: 'accounts',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) => CupertinoScaffold(
+                key: const Key('accounts-screen'),
+                topRadius: const Radius.circular(40),
+                transitionBackgroundColor: Theme.of(context).colors.transparent,
+                body: AccountsScreen(
+                  logic: wallet,
+                  currentAddress: state.pathParameters['address'],
                 ),
               ),
+            ),
+            GoRoute(
+              name: 'Webview',
+              path: 'webview',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return WebViewScreen(
+                  url: extra['url'],
+                  redirectUrl: extra['redirectUrl'],
+                  customScheme: extra['customScheme'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Voucher',
+              path: 'voucher',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return VoucherReadScreen(
+                  address: extra['address'],
+                  logic: extra['logic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'DeepLink',
+              path: 'deeplink',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ChangeNotifierProvider(
+                  create: (_) => DeepLinkState(extra['deepLink']),
+                  child: DeepLinkScreen(
+                    wallet: extra['wallet'],
+                    deepLink: extra['deepLink'],
+                    deepLinkParams: extra['deepLinkParams'],
+                  ),
+                );
+              },
             ),
           ],
         ),

@@ -1,29 +1,31 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
 class WalletRow extends StatefulWidget {
   final CWWallet wallet;
   final bool isSelected;
+  final bool bottomBorder;
   final Map<String, CommunityConfig> communities;
   final Map<String, ProfileItem> profiles;
   final void Function()? onTap;
   final void Function()? onMore;
+  final void Function()? onProfileEdit;
   final void Function(String)? onLoadProfile;
 
   const WalletRow(
     this.wallet, {
     super.key,
     this.isSelected = false,
+    this.bottomBorder = true,
     this.communities = const {},
     this.profiles = const {},
     this.onTap,
     this.onMore,
+    this.onProfileEdit,
     this.onLoadProfile,
   });
 
@@ -46,128 +48,185 @@ class WalletRowState extends State<WalletRow> {
   Widget build(BuildContext context) {
     final wallet = widget.wallet;
     final isSelected = widget.isSelected;
+    final bottomBorder = widget.bottomBorder;
     final communities = widget.communities;
     final profiles = widget.profiles;
     final onTap = widget.onTap;
     final onMore = widget.onMore;
+    final onProfileEdit = widget.onProfileEdit;
 
     final community = communities[wallet.alias];
     final profile =
         wallet.account.isEmpty ? null : profiles[wallet.account]?.profile;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            height: 84,
-            decoration: BoxDecoration(
-              color: ThemeColors.subtle.resolveFrom(context),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                width: 2,
-                color: isSelected
-                    ? ThemeColors.primary.resolveFrom(context)
-                    : ThemeColors.transparent,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 54,
-                  width: 54,
-                  child: Stack(
-                    children: [
-                      ProfileCircle(
-                        size: 50,
-                        imageUrl: profile?.imageSmall,
-                        borderColor: ThemeColors.transparent,
-                      ),
-                      if (community != null && community.logo != '')
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: ProfileCircle(
-                            size: 30,
-                            imageUrl: community.logo,
-                            borderColor: ThemeColors.transparent,
-                            backgroundColor: ThemeColors.white,
-                          ),
+    final Widget child = Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          height: 84,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context)
+                    .colors
+                    .primary
+                    .resolveFrom(context)
+                    .withOpacity(0.1)
+                : Theme.of(context).colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 54,
+                width: 54,
+                child: Stack(
+                  children: [
+                    ProfileCircle(
+                      size: 50,
+                      imageUrl: profile?.imageSmall,
+                      borderWidth: 2,
+                      borderColor: community != null
+                          ? Color(community.theme.primary)
+                          : Theme.of(context).colors.transparent,
+                    ),
+                    if (community != null && community.logo != '')
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: ProfileCircle(
+                          size: 30,
+                          imageUrl: community.logo,
+                          borderColor: Theme.of(context).colors.transparent,
+                          backgroundColor: Theme.of(context).colors.white,
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile?.name != null && profile!.name.isNotEmpty
+                          ? profile.name
+                          : wallet.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color:
+                            Theme.of(context).colors.text.resolveFrom(context),
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    if (profile != null)
                       Text(
-                        profile?.name != null && profile!.name.isNotEmpty
-                            ? profile.name
-                            : wallet.name,
+                        '@${profile.username}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtleText
+                              .resolveFrom(context),
                         ),
                       ),
-                      const SizedBox(height: 1),
-                      wallet.account.isEmpty
-                          ? const PulsingContainer(
-                              height: 14,
-                              width: 100,
-                            )
-                          : Text(
-                              profile != null
-                                  ? '@${profile.username}'
-                                  : formatHexAddress(wallet.account),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color:
-                                    ThemeColors.subtleText.resolveFrom(context),
-                              ),
-                            ),
-                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              if (onMore != null)
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: onMore,
+                  child: Icon(
+                    CupertinoIcons.ellipsis,
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                if (onMore != null)
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(5),
-                    onPressed: onMore,
-                    child: Icon(
-                      CupertinoIcons.ellipsis,
-                      color: ThemeColors.touchable.resolveFrom(context),
+              if (onProfileEdit != null)
+                CupertinoButton(
+                  padding: const EdgeInsets.all(5),
+                  onPressed: onProfileEdit,
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colors
+                          .surfacePrimary
+                          .resolveFrom(context)
+                          .withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Profile',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colors
+                                .primary
+                                .resolveFrom(context),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          CupertinoIcons.pencil,
+                          color: Theme.of(context)
+                              .colors
+                              .primary
+                              .resolveFrom(context),
+                        ),
+                      ],
                     ),
                   ),
-                const SizedBox(width: 10),
-              ],
+                ),
+              const SizedBox(width: 10),
+            ],
+          ),
+        ),
+        if (wallet.locked)
+          Positioned(
+            top: 18,
+            right: 4,
+            child: Icon(
+              CupertinoIcons.lock,
+              size: 18,
+              color: Theme.of(context).colors.text.resolveFrom(context),
             ),
           ),
-          if (wallet.locked)
-            Positioned(
-              top: 18,
-              right: 4,
-              child: Icon(
-                CupertinoIcons.lock,
-                size: 18,
-                color: ThemeColors.text.resolveFrom(context),
-              ),
+        if (bottomBorder)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Theme.of(context).colors.subtle.resolveFrom(context),
+              height: 1,
             ),
-        ],
-      ),
+          )
+      ],
+    );
+
+    if (onTap == null) {
+      return child;
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: child,
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
@@ -130,14 +130,26 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child:  Text(AppLocalizations.of(context)!.editname),
+                  child: Text(
+                    AppLocalizations.of(context)!.editname,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!locked)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('export');
                   },
-                  child:  Text(AppLocalizations.of(context)!.export),
+                  child: Text(
+                    AppLocalizations.of(context)!.export,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (wallet != null && wallet.account != address)
                 CupertinoActionSheetAction(
@@ -152,7 +164,12 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(widget.currentAddress);
               },
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
@@ -296,7 +313,8 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(
             left: 10,
@@ -308,13 +326,14 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title:  AppLocalizations.of(context)!.accounts,
+                title: AppLocalizations.of(context)!.accounts,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
                   child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
               ),
@@ -331,8 +350,10 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                               childCount: 1,
                               (context, index) {
                                 return CupertinoActivityIndicator(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 );
                               },
                             ),
@@ -387,8 +408,10 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             onPressed: () => handleImport(context),
                             borderRadius: BorderRadius.circular(25),
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .uiBackground
+                                .resolveFrom(context),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -396,14 +419,19 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                                 Text(
                                   AppLocalizations.of(context)!.importText,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                                 const SizedBox(width: 5),
                                 Icon(
                                   CupertinoIcons.down_arrow,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ],
                             ),
@@ -413,22 +441,24 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                             onPressed: () => handleCreate(context),
                             borderRadius: BorderRadius.circular(25),
-                            color:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            child:  Row(
+                            color: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
                                   AppLocalizations.of(context)!.joinCommunity,
-                                  style: const TextStyle(
-                                    color: ThemeColors.black,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colors.black,
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                 const Icon(
+                                Icon(
                                   CupertinoIcons.plus,
-                                  color: ThemeColors.black,
+                                  color: Theme.of(context).colors.black,
                                 ),
                               ],
                             ),

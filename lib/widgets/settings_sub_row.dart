@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class SettingsSubRow extends StatelessWidget {
@@ -21,7 +21,7 @@ class SettingsSubRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w300,
-                color: ThemeColors.subtleText.resolveFrom(context),
+                color: Theme.of(context).colors.subtleText.resolveFrom(context),
               ),
             ),
           ),

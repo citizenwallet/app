@@ -3,14 +3,14 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
-import 'package:citizenwallet/widgets/wallet/transaction_state_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class TransactionRow extends StatefulWidget {
   final CWTransaction transaction;
@@ -71,6 +71,15 @@ class TransactionRowState extends State<TransactionRow> {
     final profile = widget.profiles[address];
     final voucher = widget.vouchers[address];
 
+    final date = transaction.date.toLocal();
+    final isLessThanWeek = date.isAfter(
+      DateTime.now().subtract(const Duration(days: 7)),
+    );
+
+    final formattedDate = isLessThanWeek
+        ? timeago.format(date, locale: AppLocalizations.of(context)!.localeName)
+        : DateFormat.yMMMd().format(date);
+
     return GestureDetector(
       onTap:
           transaction.isProcessing ? null : () => onTap?.call(transaction.id),
@@ -78,35 +87,41 @@ class TransactionRowState extends State<TransactionRow> {
         key: widget.key,
         duration: const Duration(milliseconds: 500),
         margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        height: 90,
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+        height: 80,
         decoration: BoxDecoration(
-          color: !isSending
-              ? ThemeColors.subtle.resolveFrom(context)
-              : ThemeColors.subtleEmphasis.resolveFrom(context),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            width: 2,
-            color: !isSending
-                ? ThemeColors.uiBackgroundAlt.resolveFrom(context)
-                : ThemeColors.secondary.resolveFrom(context),
+            border: Border(
+          top: BorderSide(
+            width: 1,
+            color: Theme.of(context)
+                .colors
+                .subtleText
+                .resolveFrom(context)
+                .withOpacity(0.25),
           ),
-        ),
+        )),
         child: Stack(
           children: [
             Row(
               children: [
                 Stack(
                   children: [
-                    voucher != null || addressEmpty
-                        ? CoinLogo(
-                            size: 50,
-                            logo: widget.logo,
-                          )
-                        : ProfileCircle(
-                            size: 50,
-                            imageUrl: profile?.profile.imageMedium,
-                          ),
+                    if (voucher != null)
+                      ProfileCircle(
+                        size: 50,
+                        imageUrl: 'assets/icons/voucher.png',
+                        backgroundColor: Theme.of(context).colors.transparent,
+                      ),
+                    if (voucher == null && addressEmpty)
+                      CoinLogo(
+                        size: 50,
+                        logo: widget.logo,
+                      ),
+                    if (voucher == null && !addressEmpty)
+                      ProfileCircle(
+                        size: 50,
+                        imageUrl: profile?.profile.imageMedium,
+                      ),
                   ],
                 ),
                 const SizedBox(width: 10),
@@ -138,8 +153,10 @@ class TransactionRowState extends State<TransactionRow> {
                                                     .anonymous,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   if (voucher == null)
@@ -150,7 +167,9 @@ class TransactionRowState extends State<TransactionRow> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal,
-                                        color: ThemeColors.subtleText
+                                        color: Theme.of(context)
+                                            .colors
+                                            .subtleText
                                             .resolveFrom(context),
                                       ),
                                     ),
@@ -173,33 +192,15 @@ class TransactionRowState extends State<TransactionRow> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleText
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
                       if (voucher != null && profile != null && profile.loading)
                         const SizedBox(height: 2),
-                      voucher != null && profile != null && profile.loading
-                          ? const PulsingContainer(
-                              height: 16,
-                              width: 80,
-                            )
-                          : SizedBox(
-                              height: 16,
-                              child: Text(
-                                DateFormat.yMMMd()
-                                    .add_Hm()
-                                    .format(transaction.date.toLocal()),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.normal,
-                                  color: ThemeColors.subtleText
-                                      .resolveFrom(context),
-                                ),
-                              ),
-                            ),
                       if (transaction.isFailed && transaction.error != '')
                         SizedBox(
                           height: 20,
@@ -210,7 +211,10 @@ class TransactionRowState extends State<TransactionRow> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
-                              color: ThemeColors.danger.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .danger
+                                  .resolveFrom(context),
                             ),
                           ),
                         ),
@@ -219,38 +223,71 @@ class TransactionRowState extends State<TransactionRow> {
                 ),
                 const SizedBox(width: 10),
                 SizedBox(
+                  height: 80,
                   width: 120,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        isIncoming
-                            ? '+ ${transaction.formattedAmount}'
-                            : '- ${transaction.formattedAmount}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: isIncoming
-                              ? ThemeColors.primary.resolveFrom(context)
-                              : ThemeColors.text.resolveFrom(context),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            isIncoming
+                                ? '+ ${transaction.formattedAmount}'
+                                : '- ${transaction.formattedAmount}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: isIncoming
+                                  ? Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context)
+                                  : Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            wallet.symbol,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isIncoming
+                                  ? Theme.of(context)
+                                      .colors
+                                      .primary
+                                      .resolveFrom(context)
+                                  : Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 5),
+                      const SizedBox(height: 4),
                       Text(
-                        wallet.symbol,
+                        isSending ? 'Pending' : formattedDate,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: isIncoming
-                              ? ThemeColors.primary.resolveFrom(context)
-                              : ThemeColors.text.resolveFrom(context),
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context)
+                              .colors
+                              .subtleText
+                              .resolveFrom(context),
                         ),
                       ),
                     ],
@@ -259,14 +296,6 @@ class TransactionRowState extends State<TransactionRow> {
                 const SizedBox(width: 10),
               ],
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: TransactionStateIcon(
-                state: transaction.state,
-                isIncoming: isIncoming,
-              ),
-            )
           ],
         ),
       ),

@@ -125,13 +125,15 @@ class VoucherState with ChangeNotifier {
     notifyListeners();
   }
 
-  void createVoucherFunding() {
+  void createVoucherFunding(Voucher voucher, String link) {
     creationState = VoucherCreationState.funding;
+    createdVoucher = voucher;
+    shareLink = link;
 
     notifyListeners();
   }
 
-  void createVoucherSuccess(Voucher voucher, String link) {
+  void createVoucherSuccess(Voucher voucher) {
     creationState = VoucherCreationState.created;
 
     final index = vouchers.indexWhere((v) => v.address == voucher.address);
@@ -142,7 +144,6 @@ class VoucherState with ChangeNotifier {
     }
 
     createdVoucher = voucher;
-    shareLink = link;
     createLoading = false;
     createError = false;
     notifyListeners();

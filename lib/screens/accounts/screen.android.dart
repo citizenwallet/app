@@ -1,8 +1,7 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 
 class AndroidAccountsScreen extends StatelessWidget {
   const AndroidAccountsScreen({Key? key}) : super(key: key);
@@ -27,36 +26,52 @@ class AndroidAccountsScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 60 + safePadding),
                       Text(
-                        AppLocalizations.of(context)!.accountsAndroidBackupsuseAndroid,
+                        AppLocalizations.of(context)!
+                            .accountsAndroidBackupsuseAndroid,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        AppLocalizations.of(context)!.accountsAndroidIfYouInstalltheAppAgain,
+                        AppLocalizations.of(context)!
+                            .accountsAndroidIfYouInstalltheAppAgain,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        AppLocalizations.of(context)!.accountsAndroidYouraccounts,
+                        AppLocalizations.of(context)!
+                            .accountsAndroidYouraccounts,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        AppLocalizations.of(context)!.accountsAndroidManuallyExported,
+                        AppLocalizations.of(context)!
+                            .accountsAndroidManuallyExported,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),

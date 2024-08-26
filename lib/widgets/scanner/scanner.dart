@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/borders/border_painter.dart';
 import 'package:flutter/cupertino.dart';
@@ -162,10 +162,10 @@ class ScannerState extends State<Scanner>
       height: height,
       width: width,
       decoration: BoxDecoration(
-        color: ThemeColors.uiBackground.resolveFrom(context),
+        color: Theme.of(context).colors.uiBackground.resolveFrom(context),
         border: Border.all(
           width: 0,
-          color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+          color: Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         ),
         borderRadius: BorderRadius.circular(40),
       ),
@@ -193,17 +193,23 @@ class ScannerState extends State<Scanner>
                           height: height,
                           width: width,
                           decoration: BoxDecoration(
-                            color: ThemeColors.transparent.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .transparent
+                                .resolveFrom(context),
                             border: Border.all(
                               width: 3,
-                              color: ThemeColors.white,
+                              color: Theme.of(context).colors.white,
                               strokeAlign: BorderSide.strokeAlignInside,
                             ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Center(
                             child: CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             ),
                           ),
                         );
@@ -218,10 +224,10 @@ class ScannerState extends State<Scanner>
             height: height,
             width: width,
             decoration: BoxDecoration(
-              color: ThemeColors.transparent.resolveFrom(context),
+              color: Theme.of(context).colors.transparent.resolveFrom(context),
               border: Border.all(
                 width: 2,
-                color: ThemeColors.white,
+                color: Theme.of(context).colors.white,
                 strokeAlign: BorderSide.strokeAlignInside,
               ),
               borderRadius: BorderRadius.circular(40),
@@ -230,7 +236,7 @@ class ScannerState extends State<Scanner>
               margin: const EdgeInsets.all(20),
               child: CustomPaint(
                 foregroundPainter: BorderPainter(
-                  color: ThemeColors.danger.resolveFrom(context),
+                  color: Theme.of(context).colors.danger.resolveFrom(context),
                 ),
               ),
             ),
@@ -249,8 +255,10 @@ class ScannerState extends State<Scanner>
                           height: 50,
                           width: 50,
                           decoration: BoxDecoration(
-                            color:
-                                ThemeColors.uiBackground.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .uiBackground
+                                .resolveFrom(context),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -262,8 +270,10 @@ class ScannerState extends State<Scanner>
                                 _torchState == TorchState.off
                                     ? CupertinoIcons.lightbulb
                                     : CupertinoIcons.lightbulb_fill,
-                                color:
-                                    ThemeColors.touchable.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .touchable
+                                    .resolveFrom(context),
                               ),
                             ),
                           ),
@@ -277,7 +287,7 @@ class ScannerState extends State<Scanner>
           if (_complete)
             Container(
               decoration: BoxDecoration(
-                color: ThemeColors.uiBackground.darkColor,
+                color: Theme.of(context).colors.uiBackground.darkColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               padding: const EdgeInsets.all(20),

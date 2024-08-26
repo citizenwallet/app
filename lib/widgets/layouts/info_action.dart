@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,7 +61,7 @@ class InfoActionLayout extends StatelessWidget {
                         children: [
                           Header(
                             transparent: true,
-                            color: ThemeColors.transparent,
+                            color: Theme.of(context).colors.transparent,
                             title: headerTitle,
                             showBackButton: showBackButton,
                           ),
@@ -70,7 +70,10 @@ class InfoActionLayout extends StatelessWidget {
                             Text(
                               title!,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -95,7 +98,10 @@ class InfoActionLayout extends StatelessWidget {
                             Text(
                               description!,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 18,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -118,10 +124,16 @@ class InfoActionLayout extends StatelessWidget {
                 width: width,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+                    color: Theme.of(context)
+                        .colors
+                        .uiBackgroundAlt
+                        .resolveFrom(context),
                     border: Border(
                       top: BorderSide(
-                        color: ThemeColors.subtle.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtle
+                            .resolveFrom(context),
                         width: 1,
                       ),
                     ),
@@ -132,7 +144,10 @@ class InfoActionLayout extends StatelessWidget {
                   ),
                   child: loading
                       ? CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtle
+                              .resolveFrom(context),
                         )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -145,8 +160,10 @@ class InfoActionLayout extends StatelessWidget {
                                 child: Text(
                                   primaryActionErrorText!,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.danger.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .danger
+                                        .resolveFrom(context),
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -177,7 +194,10 @@ class InfoActionLayout extends StatelessWidget {
                               Container(
                                 height: 1,
                                 width: 200,
-                                color: ThemeColors.subtle.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .subtle
+                                    .resolveFrom(context),
                               ),
                               const SizedBox(height: 5),
                             ],
@@ -189,8 +209,10 @@ class InfoActionLayout extends StatelessWidget {
                                 child: Text(
                                   secondaryActionErrorText!,
                                   style: TextStyle(
-                                    color:
-                                        ThemeColors.danger.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .danger
+                                        .resolveFrom(context),
                                     fontSize: 18,
                                     fontWeight: FontWeight.normal,
                                   ),
@@ -212,8 +234,10 @@ class InfoActionLayout extends StatelessWidget {
                                   child: Text(
                                     secondaryActionText ?? 'Secondary Action',
                                     style: TextStyle(
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                       fontSize: 18,
                                       fontWeight: FontWeight.normal,
                                       decoration: TextDecoration.underline,

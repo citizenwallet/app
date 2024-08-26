@@ -1,5 +1,6 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:collection/collection.dart';
 
 double selectWalletBalance(WalletState state) {
   if (state.wallet == null) {
@@ -46,3 +47,18 @@ bool selectHasProcessingTransactions(WalletState state) =>
 List<CWWallet> selectSortedWalletsByAlias(WalletState state) =>
     state.wallets.toList()
       ..sort((a, b) => a.alias.toLowerCase().compareTo(b.alias.toLowerCase()));
+
+Map<String, List<CWWallet>> selectSortedGroupedWalletsByAlias(
+        WalletState state) =>
+    state.wallets
+        .where((w) {
+          final wallet = state.wallet;
+          if (wallet == null) {
+            return true;
+          }
+
+          return '${w.alias}:${w.account}' !=
+              '${wallet.alias}:${wallet.account}';
+        })
+        .sortedBy((w) => w.alias.toLowerCase())
+        .groupListsBy((w) => w.alias.toLowerCase());

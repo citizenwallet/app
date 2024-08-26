@@ -1,6 +1,5 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -8,7 +7,7 @@ import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
@@ -58,17 +57,23 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: widget.logic,
-        profilesLogic: widget.profilesLogic,
-        to: address,
-      ),
-    );
+    final walletLogic = widget.logic;
+    final profilesLogic = widget.profilesLogic;
+
+    walletLogic.addressController.text = address;
+
+    final profile = await profilesLogic.getProfile(address);
+
+    walletLogic.updateAddress(override: profile != null);
+
+    final sent = await navigator
+        .push<bool?>('/wallet/${widget.logic.account}/send/$address', extra: {
+      'walletLogic': widget.logic,
+      'profilesLogic': widget.profilesLogic,
+    });
+
+    walletLogic.clearInputControllers();
+    profilesLogic.clearSearch(notify: false);
 
     if (sent == true) {
       navigator.pop(sent);
@@ -93,19 +98,30 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: widget.logic,
-        profilesLogic: widget.profilesLogic,
-        to: address,
-        amount: (double.tryParse(amount) ?? 0.0).toStringAsFixed(2),
-        message: message,
-      ),
-    );
+    final walletLogic = widget.logic;
+    final profilesLogic = widget.profilesLogic;
+
+    final parsedAmount = (double.tryParse(amount) ?? 0.0).toStringAsFixed(2);
+
+    walletLogic.addressController.text = address;
+    walletLogic.amountController.text = parsedAmount;
+    walletLogic.messageController.text = message;
+    walletLogic.updateMessage();
+    walletLogic.updateListenerAmount();
+
+    final profile = await profilesLogic.getProfile(address);
+
+    walletLogic.updateAddress(override: profile != null);
+    walletLogic.updateAmount();
+
+    final sent = await navigator
+        .push<bool?>('/wallet/${widget.logic.account}/send/$address', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
+    });
+
+    walletLogic.clearInputControllers();
+    profilesLogic.clearSearch(notify: false);
 
     if (sent == true) {
       navigator.pop(sent);
@@ -164,9 +180,10 @@ class TransactionScreenState extends State<TransactionScreen> {
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SafeArea(
@@ -219,9 +236,13 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       fontSize: 20,
                                       fontWeight: FontWeight.normal,
                                       color: isIncoming
-                                          ? ThemeColors.primary
+                                          ? Theme.of(context)
+                                              .colors
+                                              .primary
                                               .resolveFrom(context)
-                                          : ThemeColors.text
+                                          : Theme.of(context)
+                                              .colors
+                                              .text
                                               .resolveFrom(context),
                                     ),
                                   ),
@@ -235,9 +256,13 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: isIncoming
-                                          ? ThemeColors.primary
+                                          ? Theme.of(context)
+                                              .colors
+                                              .primary
                                               .resolveFrom(context)
-                                          : ThemeColors.text
+                                          : Theme.of(context)
+                                              .colors
+                                              .text
                                               .resolveFrom(context),
                                     ),
                                   ),
@@ -252,7 +277,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: ThemeColors.text.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -268,8 +296,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
                                       fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   const SizedBox(
@@ -286,14 +316,20 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           onTap: () =>
                                               handleCopy(transaction.hash),
                                           fontSize: 16,
-                                          color: ThemeColors.subtleEmphasis
+                                          color: Theme.of(context)
+                                              .colors
+                                              .subtleEmphasis
                                               .resolveFrom(context),
-                                          textColor: ThemeColors.touchable
+                                          textColor: Theme.of(context)
+                                              .colors
+                                              .touchable
                                               .resolveFrom(context),
                                           suffix: Icon(
                                             CupertinoIcons.square_on_square,
                                             size: 14,
-                                            color: ThemeColors.touchable
+                                            color: Theme.of(context)
+                                                .colors
+                                                .touchable
                                                 .resolveFrom(context),
                                           ),
                                           maxWidth: 140,
@@ -315,8 +351,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
                                       fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                   Text(
@@ -328,8 +366,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
                                       fontWeight: FontWeight.normal,
-                                      color:
-                                          ThemeColors.text.resolveFrom(context),
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
                                     ),
                                   ),
                                 ],
@@ -348,7 +388,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       textAlign: TextAlign.start,
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
-                                        color: ThemeColors.text
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
                                             .resolveFrom(context),
                                       ),
                                     ),
@@ -364,10 +406,14 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     Expanded(
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: ThemeColors.background
+                                          color: Theme.of(context)
+                                              .colors
+                                              .background
                                               .resolveFrom(context),
                                           border: Border.all(
-                                            color: ThemeColors.border
+                                            color: Theme.of(context)
+                                                .colors
+                                                .border
                                                 .resolveFrom(context),
                                           ),
                                           borderRadius: const BorderRadius.all(
@@ -382,7 +428,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                           textAlign: TextAlign.start,
                                           style: TextStyle(
                                             fontWeight: FontWeight.normal,
-                                            color: ThemeColors.text
+                                            color: Theme.of(context)
+                                                .colors
+                                                .text
                                                 .resolveFrom(context),
                                           ),
                                         ),
@@ -402,7 +450,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                             onPressed: () => handleDismiss(context),
                             child: Icon(
                               CupertinoIcons.back,
-                              color: ThemeColors.primary.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
                             ),
                           ),
                         ),
@@ -425,7 +476,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                       ? null
                                       : () => handleReply(transaction.from),
                                   borderRadius: BorderRadius.circular(25),
-                                  color: ThemeColors.surfacePrimary
+                                  color: Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
                                       .resolveFrom(context),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -434,14 +487,14 @@ class TransactionScreenState extends State<TransactionScreen> {
                                     children: [
                                       Text(
                                         AppLocalizations.of(context)!.reply,
-                                        style: const TextStyle(
-                                          color: ThemeColors.black,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colors.black,
                                         ),
                                       ),
-                                      SizedBox(width: 10),
-                                      const Icon(
+                                      const SizedBox(width: 10),
+                                      Icon(
                                         CupertinoIcons.reply,
-                                        color: ThemeColors.black,
+                                        color: Theme.of(context).colors.black,
                                       ),
                                     ],
                                   ),
@@ -472,7 +525,9 @@ class TransactionScreenState extends State<TransactionScreen> {
                                             transaction.description,
                                           ),
                                   borderRadius: BorderRadius.circular(25),
-                                  color: ThemeColors.surfacePrimary
+                                  color: Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
                                       .resolveFrom(context),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -480,16 +535,15 @@ class TransactionScreenState extends State<TransactionScreen> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        AppLocalizations.of(context)!
-                                            .sendAgain,
-                                        style: const TextStyle(
-                                          color: ThemeColors.black,
+                                        AppLocalizations.of(context)!.sendAgain,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colors.black,
                                         ),
                                       ),
-                                      SizedBox(width: 10),
-                                      const Icon(
+                                      const SizedBox(width: 10),
+                                      Icon(
                                         CupertinoIcons.refresh_thick,
-                                        color: ThemeColors.black,
+                                        color: Theme.of(context).colors.black,
                                       ),
                                     ],
                                   ),

@@ -1,181 +1,164 @@
 import 'package:flutter/cupertino.dart';
-import 'package:citizenwallet/services/config/config.dart';
 
 class ThemeColors {
-  static ColorTheme _theme = ColorTheme();
+  ThemeColors({
+    Color primary = originalPrimary,
+    Color surfacePrimary = originalSurfacePrimary,
+  })  : primary = CupertinoDynamicColor.withBrightness(
+          color: primary,
+          darkColor: primary,
+        ),
+        surfacePrimary = CupertinoDynamicColor.withBrightness(
+          color: surfacePrimary,
+          darkColor: surfacePrimary,
+        );
 
   static const originalPrimary = Color.fromARGB(255, 162, 86, 255);
   static const originalSurfacePrimary = Color.fromARGB(255, 188, 135, 255);
 
-  static setTheme(ColorTheme theme) {
-    _theme = theme;
-
-    final primary = Color(_theme.primary);
-
-    // darken the primary color
-    const int colorAdjustmentAmount = 40;
-
-    int newR = primary.red - colorAdjustmentAmount;
-    if (newR < 0) newR = 0;
-
-    int newG = primary.green - colorAdjustmentAmount;
-    if (newG < 0) newG = 0;
-
-    int newB = primary.blue - colorAdjustmentAmount;
-    if (newB < 0) newB = 0;
-
-    _primary = CupertinoDynamicColor.withBrightness(
-      color: Color.fromARGB(255, newR, newG, newB),
-      darkColor: Color.fromARGB(255, newR, newG, newB),
-    );
-  }
-
-  static const white = CupertinoDynamicColor.withBrightness(
+  final white = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.white,
     darkColor: CupertinoColors.white,
   );
 
-  static const black = CupertinoDynamicColor.withBrightness(
+  final black = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.black,
     darkColor: CupertinoColors.black,
   );
 
-  static CupertinoDynamicColor _primary =
-      const CupertinoDynamicColor.withBrightness(
-    color: originalPrimary,
-    darkColor: originalPrimary,
-  );
+  CupertinoDynamicColor primary;
+  CupertinoDynamicColor surfacePrimary;
 
-  static get primary => _primary;
-
-  static CupertinoDynamicColor get surfacePrimary {
-    final primary = Color(_theme.primary);
-
-    return CupertinoDynamicColor.withBrightness(
-      color: primary,
-      darkColor: primary,
-    );
-  }
-
-  static const secondary = CupertinoDynamicColor.withBrightness(
+  final secondary = const CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(255, 241, 159, 5),
     darkColor: Color.fromRGBO(244, 188, 81, 1),
   );
 
-  static const success = CupertinoDynamicColor.withBrightness(
+  final success = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(7, 153, 98, 1),
     darkColor: Color.fromRGBO(7, 153, 98, 1),
   );
 
-  static const danger = CupertinoDynamicColor.withBrightness(
+  final danger = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.systemRed,
     darkColor: CupertinoColors.systemRed,
   );
 
-  static const text = CupertinoDynamicColor.withBrightness(
+  final text = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.black,
     darkColor: CupertinoColors.white,
   );
 
-  static const subtleText = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.75),
+  final subtleText = const CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(143, 138, 157, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.75),
   );
 
-  static const background = CupertinoDynamicColor.withBrightness(
+  final background = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.white,
     darkColor: CupertinoColors.black,
   );
 
-  static const backgroundTransparent = CupertinoDynamicColor.withBrightness(
+  final backgroundTransparent = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(255, 255, 255, 0.25),
     darkColor: Color.fromRGBO(0, 0, 0, 0.25),
   );
 
-  static const backgroundTransparent50 = CupertinoDynamicColor.withBrightness(
+  final backgroundTransparent50 = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(255, 255, 255, 0.5),
     darkColor: Color.fromRGBO(0, 0, 0, 0.5),
   );
 
-  static const backgroundTransparent75 = CupertinoDynamicColor.withBrightness(
+  final backgroundTransparent75 = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(255, 255, 255, 0.75),
     darkColor: Color.fromRGBO(0, 0, 0, 0.75),
   );
 
-  static const touchable = CupertinoDynamicColor.withBrightness(
+  final touchable = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(50, 50, 50, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.8),
   );
 
-  static const uiBackground = CupertinoDynamicColor.withBrightness(
+  final uiBackground = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.extraLightBackgroundGray,
     darkColor: CupertinoColors.black,
   );
 
-  static const uiBackgroundAlt = CupertinoDynamicColor.withBrightness(
-    color: Color.fromARGB(255, 230, 230, 230),
+  final uiBackgroundAlt = const CupertinoDynamicColor.withBrightness(
+    color: Color.fromARGB(255, 255, 255, 255),
     darkColor: Color.fromARGB(255, 30, 30, 30),
   );
 
-  static const uiBackgroundAltTransparent50 =
-      CupertinoDynamicColor.withBrightness(
+  final uiBackgroundAltTransparent50 =
+      const CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(150, 230, 230, 230),
     darkColor: Color.fromARGB(150, 30, 30, 30),
   );
 
-  static const uiBackgroundAltTransparent =
-      CupertinoDynamicColor.withBrightness(
+  final uiBackgroundAltTransparent = const CupertinoDynamicColor.withBrightness(
     color: Color.fromARGB(0, 230, 230, 230),
     darkColor: Color.fromARGB(0, 30, 30, 30),
   );
 
-  static const surfaceText = CupertinoDynamicColor.withBrightness(
+  final surfaceText = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.white,
     darkColor: CupertinoColors.black,
   );
 
-  static const surfaceSubtle = CupertinoDynamicColor.withBrightness(
+  final surfaceSubtle = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(255, 255, 255, 0.5),
     darkColor: Color.fromRGBO(50, 50, 50, 0.5),
   );
 
-  static const surfaceBackground = CupertinoDynamicColor.withBrightness(
-    color: CupertinoColors.black,
+  final surfaceBackground = const CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(241, 237, 242, 1),
     darkColor: CupertinoColors.white,
   );
 
-  static const surfaceBackgroundSubtle = CupertinoDynamicColor.withBrightness(
+  final surfaceBackgroundSubtle = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(0, 0, 0, 0.75),
     darkColor: Color.fromRGBO(255, 255, 255, 0.75),
   );
 
-  static const border = CupertinoDynamicColor.withBrightness(
+  final border = const CupertinoDynamicColor.withBrightness(
     color: CupertinoColors.systemGrey5,
     darkColor: Color.fromRGBO(50, 50, 50, 1),
   );
 
-  static const subtle = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.05),
+  final subtle = const CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(241, 237, 242, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.1),
   );
 
-  static const subtleEmphasis = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(0, 0, 0, 0.15),
+  final subtleEmphasis = const CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(231, 227, 232, 1),
     darkColor: Color.fromRGBO(255, 255, 255, 0.15),
   );
 
-  static const subtleSolid = CupertinoDynamicColor.withBrightness(
+  final subtleSolid = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(100, 100, 100, 1),
     darkColor: Color.fromRGBO(150, 150, 150, 1),
   );
 
-  static const subtleSolidEmphasis = CupertinoDynamicColor.withBrightness(
+  final subtleSolidEmphasis = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(150, 150, 150, 1),
     darkColor: Color.fromRGBO(100, 100, 100, 1),
   );
 
-  static const transparent = CupertinoDynamicColor.withBrightness(
+  final transparent = const CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(0, 0, 0, 0),
     darkColor: Color.fromRGBO(255, 255, 255, 0),
   );
+
+  @override
+  int get hashCode => primary.hashCode ^ surfacePrimary.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ThemeColors &&
+        other.primary == primary &&
+        other.surfacePrimary == surfacePrimary;
+  }
 }

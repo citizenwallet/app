@@ -19,8 +19,9 @@ import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -31,7 +32,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -65,6 +65,7 @@ class QRMissingAddressException implements Exception {
 class WalletLogic extends WidgetsBindingObserver {
   bool get isWalletLoaded => _state.wallet != null;
   final WalletState _state;
+  final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
@@ -133,12 +134,7 @@ class WalletLogic extends WidgetsBindingObserver {
       await _preferences.clear();
 
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<void> fetchWalletConfig() async {
@@ -148,12 +144,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.setWalletConfig(config);
 
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<(bool, bool)> openWalletFromURL(
@@ -173,13 +164,9 @@ class WalletLogic extends WidgetsBindingObserver {
         // old format, convert
         throw Exception('old format');
       }
-    } catch (exception, stackTrace) {
+    } catch (_) {
       if (!encoded.startsWith('v2-')) {
         // something is wrong with the encoding
-        await Sentry.captureException(
-          exception,
-          stackTrace: stackTrace,
-        );
 
         // try and reset preferences so we don't end up in a loop
         await resetWalletPreferences();
@@ -258,15 +245,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_db);
 
-      final balance = await _wallet.balance;
       final currency = _wallet.currency;
-      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
       _state.setWallet(
         CWWallet(
-          balance,
+          '0',
           name:
               'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
@@ -277,13 +262,16 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: config.community.logo,
           decimalDigits: currency.decimals,
           locked: false,
-          minter: minter,
+          minter: false,
         ),
       );
 
+      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.minter.then((v) => _state.setWalletMinter(v));
+
       if (loadAdditionalData != null) await loadAdditionalData();
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -294,12 +282,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.setWalletReadyLoading(false);
 
       return (true, false);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.loadWalletError();
     _state.setWalletReady(false);
@@ -336,7 +319,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await loadAdditionalData(false);
 
-        ThemeColors.setTheme(config.community.theme);
+        _theme.changeTheme(config.community.theme);
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
@@ -381,15 +364,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_db);
 
-      final balance = await _wallet.balance;
       final currency = _wallet.currency;
-      final minter = await _wallet.minter;
 
       _state.setWalletConfig(config);
 
       _state.setWallet(
         CWWallet(
-          balance,
+          '0',
           name: dbWallet.name,
           address: _wallet.address.hexEip55,
           alias: dbWallet.alias,
@@ -400,15 +381,18 @@ class WalletLogic extends WidgetsBindingObserver {
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey == null,
           plugins: config.plugins,
-          minter: minter,
+          minter: false,
         ),
       );
+
+      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       _state.loadWalletSuccess();
 
       await loadAdditionalData(true);
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address);
       await _preferences.setLastAlias(config.community.alias);
@@ -417,17 +401,8 @@ class WalletLogic extends WidgetsBindingObserver {
     } on NotFoundException {
       _state.loadWalletError(exception: NotFoundException());
 
-      Sentry.captureException(
-        NotFoundException(),
-      );
-
       return null;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.loadWalletError();
     _state.setWalletReady(false);
@@ -467,7 +442,7 @@ class WalletLogic extends WidgetsBindingObserver {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -477,12 +452,7 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.createWalletError();
 
@@ -531,7 +501,7 @@ class WalletLogic extends WidgetsBindingObserver {
         alias: config.community.alias,
       ));
 
-      ThemeColors.setTheme(config.community.theme);
+      _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(config.community.alias);
@@ -539,12 +509,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.createWalletSuccess(cwwallet);
 
       return address.hexEip55;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.createWalletError();
 
@@ -575,15 +540,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     } on NotFoundException {
       // HANDLE
-      Sentry.captureException(
-        NotFoundException(),
-      );
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.createWalletError();
   }
@@ -595,12 +552,7 @@ class WalletLogic extends WidgetsBindingObserver {
       fetchNewTransfers(_fetchRequest);
 
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   void transferEventUnsubscribe() {
@@ -699,12 +651,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       fetchNewTransfers(id);
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.incomingTransactionsRequestError();
     await delay(txFetchInterval);
@@ -769,12 +716,7 @@ class WalletLogic extends WidgetsBindingObserver {
       //     '${config.community.alias}.citizenwallet.xyz';
 
       // return 'https://$domainPrefix/wallet/v3-${base64Encode('$address|${wallet.toJson()}'.codeUnits)}';
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -787,12 +729,7 @@ class WalletLogic extends WidgetsBindingObserver {
       loadDBWallets();
 
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.createWalletError();
   }
@@ -907,12 +844,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.updateWalletBalanceSuccess(balance);
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.loadTransactionsError();
   }
@@ -1013,12 +945,7 @@ class WalletLogic extends WidgetsBindingObserver {
         hasMore: txs.length >= limit,
       );
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.loadAdditionalTransactionsError();
   }
@@ -1039,12 +966,7 @@ class WalletLogic extends WidgetsBindingObserver {
         clearInProgressTransaction();
       }
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.updateWalletBalanceError();
   }
@@ -1074,7 +996,11 @@ class WalletLogic extends WidgetsBindingObserver {
         : sendTransactionFromLocked(amount, to, message: message, id: id);
   }
 
-  bool isInvalidAmount(String amount) {
+  bool isInvalidAmount(String amount, {unlimited = false}) {
+    if (unlimited) {
+      return false;
+    }
+
     final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
     final doubleAmount = double.parse(toUnit(
       amount.replaceAll(',', '.'),
@@ -1126,7 +1052,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String message = '',
   }) {
     _state.setInProgressTransaction(
-      CWTransaction.sending(
+      CWTransaction.pending(
         fromDoubleUnit(
           amount.toString(),
           decimals: _wallet.currency.decimals,
@@ -1192,6 +1118,13 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _wallet.account.hexEip55,
+      );
+
       tempId = txHash;
 
       if (userop.isFirst()) {
@@ -1239,12 +1172,7 @@ class WalletLogic extends WidgetsBindingObserver {
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (_) {
       _state.sendQueueAddTransaction(
         CWTransaction.failed(
             fromDoubleUnit(
@@ -1315,6 +1243,13 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _wallet.account.hexEip55,
+      );
+
       tempId = txHash;
 
       if (userop.isFirst()) {
@@ -1362,12 +1297,7 @@ class WalletLogic extends WidgetsBindingObserver {
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (_) {
       _state.sendQueueAddTransaction(
         CWTransaction.failed(
             fromDoubleUnit(
@@ -1434,12 +1364,7 @@ class WalletLogic extends WidgetsBindingObserver {
       //
     } on NetworkInvalidBalanceException {
       //
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.sendTransactionError();
 
@@ -1456,22 +1381,32 @@ class WalletLogic extends WidgetsBindingObserver {
     _addressController.clear();
   }
 
+  void clearAmountController() {
+    _amountController.clear();
+  }
+
   void resetInputErrorState() {
     _state.resetInvalidInputs();
   }
 
   void updateAddress({bool override = false}) {
-    _state.setHasAddress(_addressController.text.isNotEmpty || override);
+    if (override) {
+      _state.setHasAddress(true);
+      return;
+    }
+
+    final (address, _) = parseQRCode(_addressController.text);
+    _state.setHasAddress(address.isNotEmpty);
   }
 
   void setInvalidAddress() {
     _state.setInvalidAddress(true);
   }
 
-  void updateAmount() {
+  void updateAmount({bool unlimited = false}) {
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
-      isInvalidAmount(_amountController.value.text),
+      isInvalidAmount(_amountController.value.text, unlimited: unlimited),
     );
   }
 
@@ -1492,12 +1427,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.parseQRAddressSuccess();
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _addressController.text = '';
     _state.parseQRAddressError();
@@ -1539,7 +1469,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.setInvalidScanMessage(e.message);
     } on QRMissingAddressException catch (e) {
       _state.setInvalidScanMessage(e.message);
-    } catch (exception, stackTrace) {
+    } catch (_) {
       //
     }
 
@@ -1585,12 +1515,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     } on NotFoundException {
       // HANDLE
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.clearReceiveQR();
   }
@@ -1603,12 +1528,7 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _state.updateWalletQR(_wallet.account.hexEip55);
       return;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.clearWalletQR();
   }
@@ -1620,12 +1540,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void copyWalletAccount() {
     try {
       Clipboard.setData(ClipboardData(text: _wallet.account.hexEip55));
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
 // TODO: remove this
@@ -1642,12 +1557,7 @@ class WalletLogic extends WidgetsBindingObserver {
       // Wallet.fromJson(strwallet, password);
 
       return '';
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -1676,12 +1586,7 @@ class WalletLogic extends WidgetsBindingObserver {
       }, wallets);
 
       _state.loadWalletsSuccess(cwwallets);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     _state.loadWalletsError();
   }
@@ -1690,12 +1595,7 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       _addressController.text = address;
       _state.setHasAddress(address.isNotEmpty);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   void prepareEditQueuedTransaction(String id) {
@@ -1726,12 +1626,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.resetTransactionSendProperties();
       _state.resetInvalidInputs(notify: true);
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
   }
 
   Future<(String?, String?, String?)> constructPluginUri(
@@ -1794,12 +1689,7 @@ class WalletLogic extends WidgetsBindingObserver {
   void cleanupWalletService() {
     try {
       _wallet.dispose();
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
     transferEventUnsubscribe();
   }
 

@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -26,9 +26,13 @@ class AppleAccountsScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 60 + safePadding),
                       Text(
-                        AppLocalizations.of(context)!.accountsApYouraccountsarebackedup,
+                        AppLocalizations.of(context)!
+                            .accountsApYouraccountsarebackedup,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -37,7 +41,10 @@ class AppleAccountsScreen extends StatelessWidget {
                       Text(
                         AppLocalizations.of(context)!.accountsApSyncthisiPhone,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -46,7 +53,10 @@ class AppleAccountsScreen extends StatelessWidget {
                       Text(
                         AppLocalizations.of(context)!.accountsApYoucancheck,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -55,7 +65,10 @@ class AppleAccountsScreen extends StatelessWidget {
                       Text(
                         AppLocalizations.of(context)!.accountsApYouraccounts,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -64,7 +77,10 @@ class AppleAccountsScreen extends StatelessWidget {
                       Text(
                         AppLocalizations.of(context)!.accountsApTheycanbe,
                         style: TextStyle(
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),

@@ -1,18 +1,13 @@
 import 'package:citizenwallet/modals/wallet/deep_link.dart';
-import 'package:citizenwallet/modals/wallet/sending.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
-import 'package:citizenwallet/widgets/webview_modal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:citizenwallet/modals/save/save.dart';
 import 'package:citizenwallet/modals/onboarding/onboarding.dart';
-import 'package:citizenwallet/modals/vouchers/screen.dart';
-import 'package:citizenwallet/modals/wallet/receive.dart';
-import 'package:citizenwallet/modals/wallet/send.dart';
 import 'package:citizenwallet/modals/wallet/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -21,7 +16,7 @@ import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/modals/save/share.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -31,6 +26,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
@@ -175,7 +171,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     }
 
     if (widget.receiveParams != null) {
-      await handleSendModal(receiveParams: widget.receiveParams);
+      await handleSendScreen(receiveParams: widget.receiveParams);
     }
 
     if (widget.deepLink != null && widget.deepLinkParams != null) {
@@ -254,7 +250,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       return;
     }
 
-    if (!context.mounted) {
+    if (!super.mounted) {
       return;
     }
 
@@ -293,28 +289,45 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('retry');
                   },
-                  child: const Text('Retry'),
+                  child: Text(
+                    AppLocalizations.of(context)!.retry,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!blockSending)
                 CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(dialogContext).pop('edit');
                   },
-                  child: const Text('Edit'),
+                  child: Text(
+                    AppLocalizations.of(context)!.edit,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () {
                   Navigator.of(dialogContext).pop('delete');
                 },
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
@@ -335,16 +348,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
       HapticFeedback.lightImpact();
 
-      await showCupertinoModalBottomSheet(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (_) => SendModal(
-          walletLogic: _logic,
-          profilesLogic: _profilesLogic,
-          id: id,
-        ),
-      );
+      // await showCupertinoModalBottomSheet(
+      //   context: context,
+      //   expand: true,
+      //   useRootNavigator: true,
+      //   builder: (_) => SendModal(
+      //     walletLogic: _logic,
+      //     profilesLogic: _profilesLogic,
+      //     id: id,
+      //   ),
+      // );
     }
 
     if (option == 'delete') {
@@ -362,23 +375,23 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     HapticFeedback.heavyImpact();
   }
 
-  Future<void> handleSendModal({String? receiveParams}) async {
+  Future<void> handleSendScreen({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => SendModal(
-        walletLogic: _logic,
-        profilesLogic: _profilesLogic,
-        receiveParams: receiveParams,
-      ),
-    );
+    // await showCupertinoModalBottomSheet<bool?>(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => SendModal(
+    //     walletLogic: _logic,
+    //     profilesLogic: _profilesLogic,
+    //     receiveParams: receiveParams,
+    //   ),
+    // );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -392,14 +405,14 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => ReceiveModal(
-        logic: _logic,
-      ),
-    );
+    // await showCupertinoModalBottomSheet(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => ReceiveModal(
+    //     logic: _logic,
+    //   ),
+    // );
 
     _logic.resumeFetching();
     _profilesLogic.resume();
@@ -413,16 +426,16 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _profilesLogic.pause();
     _voucherLogic.pause();
 
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (_) => CupertinoScaffold(
-        topRadius: const Radius.circular(40),
-        transitionBackgroundColor: ThemeColors.transparent,
-        body: const VouchersModal(),
-      ),
-    );
+    // await CupertinoScaffold.showCupertinoModalBottomSheet(
+    //   context: context,
+    //   expand: true,
+    //   useRootNavigator: true,
+    //   builder: (_) => CupertinoScaffold(
+    //     topRadius: const Radius.circular(40),
+    //     transitionBackgroundColor: Theme.of(context).colors.transparent,
+    //     body: const VouchersModal(),
+    //   ),
+    // );
 
     await _voucherLogic.fetchVouchers();
 
@@ -529,9 +542,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Stack(
@@ -543,7 +557,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         CupertinoActivityIndicator(
-                          color: ThemeColors.subtle.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .subtle
+                              .resolveFrom(context),
                         ),
                         const SizedBox(
                           height: 5,
@@ -551,7 +568,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                         Text(
                           'Loading',
                           style: TextStyle(
-                            color: ThemeColors.text.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .text
+                                .resolveFrom(context),
                             fontSize: 20,
                             fontWeight: FontWeight.normal,
                           ),
@@ -561,7 +581,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   : WalletScrollView(
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
-                      handleSendModal: handleSendModal,
+                      handleSendScreen: handleSendScreen,
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,
                       handleTransactionTap: handleTransactionTap,
@@ -575,7 +595,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                 child: Header(
                   safePadding: safePadding,
                   transparent: true,
-                  color: ThemeColors.transparent,
+                  color: Theme.of(context).colors.transparent,
                   titleWidget: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -591,7 +611,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                               ),
                             ),
                           ],
@@ -611,7 +634,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             height: 28,
                             width: 28,
                             colorFilter: ColorFilter.mode(
-                              ThemeColors.primary.resolveFrom(context),
+                              Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
                               BlendMode.srcIn,
                             ),
                           ),
@@ -625,7 +651,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                             height: 30,
                             width: 30,
                             colorFilter: ColorFilter.mode(
-                              ThemeColors.primary.resolveFrom(context),
+                              Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
                               BlendMode.srcIn,
                             ),
                           ),

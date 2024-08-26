@@ -25,8 +25,6 @@ import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -529,12 +527,7 @@ class WalletService {
       }
 
       return profileUrl;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -581,12 +574,7 @@ class WalletService {
       }
 
       return profileUrl;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -619,12 +607,7 @@ class WalletService {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return false;
   }
@@ -714,12 +697,7 @@ class WalletService {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return false;
   }
@@ -758,12 +736,7 @@ class WalletService {
       }
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return false;
   }
@@ -807,12 +780,7 @@ class WalletService {
     } on ConflictException {
       // account is already up to date
       return null;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -849,12 +817,7 @@ class WalletService {
       }
 
       return (tx, Pagination.fromJson(response['meta']));
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return (<TransferEvent>[], Pagination.empty());
   }
@@ -881,12 +844,7 @@ class WalletService {
       }
 
       return tx;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -1007,12 +965,7 @@ class WalletService {
       final response = await _requestBundler(body, legacy: legacy);
 
       return (response.result as String, null);
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (exception) {
       final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {
@@ -1087,12 +1040,7 @@ class WalletService {
       final response = await _requestPaymaster(body, legacy: legacy);
 
       return (PaymasterData.fromJson(response.result), null);
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (exception) {
       final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {
@@ -1138,12 +1086,7 @@ class WalletService {
       }
 
       return (data.map((item) => PaymasterData.fromJson(item)).toList(), null);
-    } catch (exception, stackTrace) {
-      await Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-
+    } catch (exception) {
       final strerr = exception.toString();
 
       if (strerr.contains(gasFeeErrorMessage)) {
@@ -1389,12 +1332,7 @@ class WalletService {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return false;
   }
@@ -1442,12 +1380,7 @@ class WalletService {
       );
 
       return true;
-    } catch (exception, stackTrace) {
-      Sentry.captureException(
-        exception,
-        stackTrace: stackTrace,
-      );
-    }
+    } catch (_) {}
 
     return false;
   }

@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,7 +21,10 @@ class ProfileChip extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        color: ThemeColors.surfaceBackgroundSubtle.resolveFrom(context),
+        color: Theme.of(context)
+            .colors
+            .surfaceBackgroundSubtle
+            .resolveFrom(context),
         borderRadius: const BorderRadius.all(
           Radius.circular(30),
         ),
@@ -47,7 +50,10 @@ class ProfileChip extends StatelessWidget {
                           AppLocalizations.of(context)!.anonymous
                       : AppLocalizations.of(context)!.anonymous,
                   style: TextStyle(
-                    color: ThemeColors.surfaceText.resolveFrom(context),
+                    color: Theme.of(context)
+                        .colors
+                        .surfaceText
+                        .resolveFrom(context),
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
@@ -60,7 +66,10 @@ class ProfileChip extends StatelessWidget {
                           ? '@${selectedProfile!.username}'
                           : ''),
                   style: TextStyle(
-                    color: ThemeColors.surfaceText.resolveFrom(context),
+                    color: Theme.of(context)
+                        .colors
+                        .surfaceText
+                        .resolveFrom(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -74,7 +83,8 @@ class ProfileChip extends StatelessWidget {
               onPressed: handleDeSelect,
               child: Icon(
                 CupertinoIcons.xmark_circle_fill,
-                color: ThemeColors.surfaceSubtle.resolveFrom(context),
+                color:
+                    Theme.of(context).colors.surfaceSubtle.resolveFrom(context),
               ),
             ),
         ],

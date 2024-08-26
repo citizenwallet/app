@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
@@ -52,12 +52,14 @@ class HeaderState extends State<Header> {
       height: 60 + widget.safePadding,
       decoration: BoxDecoration(
         color: widget.transparent
-            ? ThemeColors.transparent
-            : widget.color ?? ThemeColors.uiBackgroundAlt.resolveFrom(context),
+            ? Theme.of(context).colors.transparent
+            : widget.color ??
+                Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         border: widget.showBorder
             ? Border(
-                bottom:
-                    BorderSide(color: ThemeColors.border.resolveFrom(context)),
+                bottom: BorderSide(
+                    color:
+                        Theme.of(context).colors.border.resolveFrom(context)),
               )
             : null,
       ),
@@ -143,7 +145,10 @@ class HeaderState extends State<Header> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.normal,
-                    color: ThemeColors.subtleText.resolveFrom(context),
+                    color: Theme.of(context)
+                        .colors
+                        .subtleText
+                        .resolveFrom(context),
                   ),
                 ),
               ),

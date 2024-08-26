@@ -7,12 +7,12 @@ import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
-import 'package:citizenwallet/utils/currency.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
@@ -228,30 +228,13 @@ class PickeSenderModalState extends State<PickeSenderModal>
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
-    final balance =
-        double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
-
-    final formattedBalance = formatAmount(
-      double.parse(fromDoubleUnit(
-        '$balance',
-        decimals: wallet?.decimalDigits ?? 2,
-      )),
-      decimalDigits: 2,
-    );
 
     final invalidAddress = context.select(
       (WalletState state) => state.invalidAddress,
     );
-    final invalidAmount = context.select(
-      (WalletState state) => state.invalidAmount,
-    );
 
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
-    );
-
-    final hasAmount = context.select(
-      (WalletState state) => state.hasAmount,
     );
 
     final parsingQRAddressError = context.select(
@@ -285,7 +268,8 @@ class PickeSenderModalState extends State<PickeSenderModal>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Stack(
@@ -306,21 +290,6 @@ class PickeSenderModalState extends State<PickeSenderModal>
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
-                        if (isValid)
-                          ProfileChip(
-                            selectedProfile: selectedProfile,
-                            selectedAddress:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? null
-                                    : formatHexAddress(
-                                        _logic.addressController.value.text),
-                            handleDeSelect:
-                                _logic.addressController.value.text.isEmpty ||
-                                        selectedProfile != null
-                                    ? handleDeSelectProfile
-                                    : handleClearAddress,
-                          ),
                         if (!isValid)
                           CupertinoTextField(
                             controller: _logic.addressController,
@@ -341,7 +310,7 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                       darkColor: CupertinoColors.black,
                                     ),
                                     border: Border.all(
-                                      color: ThemeColors.danger,
+                                      color: Theme.of(context).colors.danger,
                                     ),
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(5.0)),
@@ -354,9 +323,13 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     ),
                                     border: Border.all(
                                       color: hasAddress
-                                          ? ThemeColors.text
+                                          ? Theme.of(context)
+                                              .colors
+                                              .text
                                               .resolveFrom(context)
-                                          : ThemeColors.transparent
+                                          : Theme.of(context)
+                                              .colors
+                                              .transparent
                                               .resolveFrom(context),
                                     ),
                                     borderRadius: const BorderRadius.all(
@@ -371,21 +344,46 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                         height: 20,
                                         width: 24,
                                         child: CupertinoActivityIndicator(
-                                          color: ThemeColors.subtle
+                                          color: Theme.of(context)
+                                              .colors
+                                              .subtle
                                               .resolveFrom(context),
                                         ),
                                       )
                                     : Icon(
                                         CupertinoIcons.profile_circled,
                                         color: hasAddress
-                                            ? ThemeColors.text
+                                            ? Theme.of(context)
+                                                .colors
+                                                .text
                                                 .resolveFrom(context)
-                                            : ThemeColors.subtleEmphasis
+                                            : Theme.of(context)
+                                                .colors
+                                                .subtleEmphasis
                                                 .resolveFrom(context),
                                       ),
                               ),
                             ),
                             onSubmitted: handleAddressFieldSubmitted,
+                          ),
+                        const SizedBox(height: 10),
+                        if (isValid || searchedProfile != null)
+                          ProfileChip(
+                            selectedProfile: selectedProfile ?? searchedProfile,
+                            selectedAddress:
+                                _logic.addressController.value.text.isEmpty ||
+                                        selectedProfile != null ||
+                                        searchedProfile != null
+                                    ? null
+                                    : formatHexAddress(
+                                        _logic.addressController.value.text),
+                            handleDeSelect: searchedProfile != null
+                                ? null
+                                : _logic.addressController.value.text.isEmpty ||
+                                        selectedProfile != null ||
+                                        searchedProfile != null
+                                    ? handleDeSelectProfile
+                                    : handleClearAddress,
                           ),
                       ],
                     ),
@@ -417,14 +415,15 @@ class PickeSenderModalState extends State<PickeSenderModal>
                                     profile: profile,
                                     loading: false,
                                     active: searchedProfile != null &&
-                                        searchedProfile == profile,
+                                        searchedProfile.account ==
+                                            profile.account,
                                     onTap: () => handleSelectProfile(profile),
                                   ),
                                 );
                               },
                             ),
                           ),
-                          if (isValid)
+                          if (isValid || searchedProfile != null)
                             const SliverToBoxAdapter(
                               child: SizedBox(
                                 height: 90,
@@ -442,11 +441,16 @@ class PickeSenderModalState extends State<PickeSenderModal>
                   titleWidget: Row(
                     children: [
                       Text(
-                        widget.isMinting ? AppLocalizations.of(context)!.mint : AppLocalizations.of(context)!.send,
+                        widget.isMinting
+                            ? AppLocalizations.of(context)!.mint
+                            : AppLocalizations.of(context)!.send,
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                       const SizedBox(
@@ -457,7 +461,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                     ],
@@ -467,7 +474,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                     onPressed: () => handleDismiss(context),
                     child: Icon(
                       CupertinoIcons.xmark,
-                      color: ThemeColors.touchable.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
                     ),
                   ),
                 ),
@@ -476,10 +486,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                 Positioned(
                   bottom: 90,
                   child: CupertinoActivityIndicator(
-                    color: ThemeColors.subtle.resolveFrom(context),
+                    color: Theme.of(context).colors.subtle.resolveFrom(context),
                   ),
                 ),
-              if (isValid)
+              if (isValid || searchedProfile != null)
                 Positioned(
                   bottom: 0,
                   width: width,
@@ -488,7 +498,10 @@ class PickeSenderModalState extends State<PickeSenderModal>
                       decoration: BoxDecoration(
                         border: Border(
                           top: BorderSide(
-                            color: ThemeColors.subtle.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtle
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
@@ -499,29 +512,43 @@ class PickeSenderModalState extends State<PickeSenderModal>
                             onCompleted: !_isSending
                                 ? widget.isMinting
                                     ? () => handleMint(
-                                        context, selectedProfile?.account)
+                                        context,
+                                        selectedProfile?.account ??
+                                            searchedProfile?.account)
                                     : () => handleSend(
                                           context,
-                                          selectedProfile?.account,
+                                          selectedProfile?.account ??
+                                              searchedProfile?.account,
                                         )
                                 : null,
-                            enabled: isValid,
+                            enabled: isValid || searchedProfile != null,
                             isComplete: _isSending,
                             completionLabel: widget.isMinting
-                                ? (_isSending ? AppLocalizations.of(context)!.minting : AppLocalizations.of(context)!.mint)
+                                ? (_isSending
+                                    ? AppLocalizations.of(context)!.minting
+                                    : AppLocalizations.of(context)!.mint)
                                 : _isSending
                                     ? AppLocalizations.of(context)!.sending
                                     : AppLocalizations.of(context)!.send,
-                            thumbColor:
-                                ThemeColors.surfacePrimary.resolveFrom(context),
-                            width: width * 0.5,
-                            child: const SizedBox(
+                            thumbColor: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
+                            width: width * 0.6,
+                            suffix: isValid || searchedProfile != null
+                                ? ProfileCircle(
+                                    size: 50,
+                                    imageUrl: selectedProfile?.imageSmall ??
+                                        searchedProfile?.imageSmall,
+                                  )
+                                : null,
+                            child: SizedBox(
                               height: 50,
                               width: 50,
                               child: Center(
                                 child: Icon(
                                   CupertinoIcons.arrow_right,
-                                  color: ThemeColors.black,
+                                  color: Theme.of(context).colors.white,
                                 ),
                               ),
                             ),

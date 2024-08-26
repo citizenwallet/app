@@ -1,5 +1,5 @@
 import 'package:citizenwallet/state/app/logic.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
@@ -92,7 +92,8 @@ class WebLandingScreenState extends State<WebLandingScreen>
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      backgroundColor:
+          Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
       child: SafeArea(
         child: Flex(
           direction: Axis.vertical,
@@ -123,9 +124,12 @@ class WebLandingScreenState extends State<WebLandingScreen>
                               ),
                             ),
                             Text(
-                               AppLocalizations.of(context)!.citizenWallet,
+                              AppLocalizations.of(context)!.citizenWallet,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 34,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -133,9 +137,13 @@ class WebLandingScreenState extends State<WebLandingScreen>
                             ),
                             const SizedBox(height: 30),
                             Text(
-                              AppLocalizations.of(context)!.aWalletForYourCommunity,
+                              AppLocalizations.of(context)!
+                                  .aWalletForYourCommunity,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -143,13 +151,19 @@ class WebLandingScreenState extends State<WebLandingScreen>
                             ),
                             const SizedBox(height: 60),
                             CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             ),
                             const SizedBox(height: 30),
                             Text(
-                               AppLocalizations.of(context)!.openingYourWallet,
+                              AppLocalizations.of(context)!.openingYourWallet,
                               style: TextStyle(
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),

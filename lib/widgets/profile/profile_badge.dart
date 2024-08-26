@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,13 +60,15 @@ class ProfileBadge extends StatelessWidget {
               bottom: 2,
               child: Container(
                 decoration: BoxDecoration(
-                  color:
-                      ThemeColors.backgroundTransparent75.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .backgroundTransparent75
+                      .resolveFrom(context),
                   borderRadius: const BorderRadius.all(
                     Radius.circular(12),
                   ),
                   border: Border.all(
-                    color: ThemeColors.subtle.resolveFrom(context),
+                    color: Theme.of(context).colors.subtle.resolveFrom(context),
                   ),
                 ),
                 constraints: BoxConstraints(
@@ -81,7 +83,8 @@ class ProfileBadge extends StatelessWidget {
                           : AppLocalizations.of(context)!.anonymous,
                   style: TextStyle(
                       fontSize: fontSize,
-                      color: ThemeColors.text.resolveFrom(context)),
+                      color:
+                          Theme.of(context).colors.text.resolveFrom(context)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

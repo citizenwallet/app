@@ -1,7 +1,7 @@
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/layouts/info_action.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -88,9 +88,10 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           child: InfoActionLayout(
             title: AppLocalizations.of(context)!.decryptBackup,
@@ -100,7 +101,7 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
                 Text(
                   AppLocalizations.of(context)!.googleDriveAccount,
                   style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
+                    color: Theme.of(context).colors.text.resolveFrom(context),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -112,7 +113,7 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
                 Text(
                   accountName ?? '',
                   style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
+                    color: Theme.of(context).colors.text.resolveFrom(context),
                     fontSize: 18,
                     fontWeight: FontWeight.normal,
                   ),
@@ -124,7 +125,7 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
                 Text(
                   AppLocalizations.of(context)!.backupDate,
                   style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
+                    color: Theme.of(context).colors.text.resolveFrom(context),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -138,7 +139,7 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
                       .add_Hm()
                       .format(lastBackup ?? DateTime.now()),
                   style: TextStyle(
-                    color: ThemeColors.text.resolveFrom(context),
+                    color: Theme.of(context).colors.text.resolveFrom(context),
                     fontSize: 18,
                     fontWeight: FontWeight.normal,
                   ),
@@ -148,13 +149,15 @@ class AccountConnectedScreenState extends State<AccountConnectedScreen>
             ),
             loading: loading,
             primaryActionErrorText: error && status == BackupStatus.nokey
-                ?  AppLocalizations.of(context)!.noKeysFoundTryManually
+                ? AppLocalizations.of(context)!.noKeysFoundTryManually
                 : null,
-            primaryActionText: AppLocalizations.of(context)!.getEncryptionKeyFromYourPasswordManager,
+            primaryActionText: AppLocalizations.of(context)!
+                .getEncryptionKeyFromYourPasswordManager,
             secondaryActionErrorText: error && status == BackupStatus.wrongkey
                 ? AppLocalizations.of(context)!.invalidKeyEncryptionKey
                 : null,
-            secondaryActionText: AppLocalizations.of(context)!.enterEncryptionKeyManually,
+            secondaryActionText:
+                AppLocalizations.of(context)!.enterEncryptionKeyManually,
             onPrimaryAction: handleGetFromPasswordManager,
             onSecondaryAction: handleManualEntry,
           ),

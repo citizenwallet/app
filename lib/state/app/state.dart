@@ -1,7 +1,5 @@
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class Language {
@@ -32,33 +30,9 @@ class AppState with ChangeNotifier {
   Language language = languageOptions[0];
   int selectedLanguage = 0;
 
-  CupertinoThemeData get theme {
-    return CupertinoThemeData(
-      brightness: _darkMode ? Brightness.dark : Brightness.light,
-      scaffoldBackgroundColor: _darkMode
-          ? ThemeColors.uiBackgroundAlt.darkColor
-          : ThemeColors.uiBackgroundAlt.color,
-      textTheme: CupertinoTextThemeData(
-        textStyle: TextStyle(
-          color:
-              _darkMode ? ThemeColors.text.darkColor : ThemeColors.text.color,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
-
-  bool _darkMode = false;
-  bool get darkMode => _darkMode;
-  set darkMode(bool darkMode) {
-    _darkMode = darkMode;
-    notifyListeners();
-  }
-
   bool muted = false;
 
   AppState() {
-    _darkMode = PreferencesService().darkMode;
     muted = PreferencesService().muted;
 
     // get the system locale

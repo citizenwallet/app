@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -44,7 +44,8 @@ class ConfirmModal extends StatelessWidget {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: CupertinoPageScaffold(
-          backgroundColor: ThemeColors.uiBackground.resolveFrom(context),
+          backgroundColor:
+              Theme.of(context).colors.uiBackground.resolveFrom(context),
           child: SafeArea(
             top: false,
             child: Flex(
@@ -52,7 +53,10 @@ class ConfirmModal extends StatelessWidget {
               children: [
                 Header(
                   title: title ?? AppLocalizations.of(context)!.confirm,
-                  color: ThemeColors.uiBackground.resolveFrom(context),
+                  color: Theme.of(context)
+                      .colors
+                      .uiBackground
+                      .resolveFrom(context),
                 ),
                 Expanded(
                   child: Column(
@@ -85,8 +89,10 @@ class ConfirmModal extends StatelessWidget {
                             text: 'Cancel',
                             minWidth: 140,
                             maxWidth: 140,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleEmphasis
+                                .resolveFrom(context),
                             onPressed: () => handleDismiss(context),
                           ),
                           const SizedBox(
@@ -96,7 +102,10 @@ class ConfirmModal extends StatelessWidget {
                             text: confirmText ?? 'Delete account',
                             minWidth: 140,
                             maxWidth: 140,
-                            color: ThemeColors.danger.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .danger
+                                .resolveFrom(context),
                             onPressed: () => handleConfirm(context),
                           ),
                         ],

@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +25,8 @@ class OnboardingModal extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: Flex(
@@ -35,7 +36,7 @@ class OnboardingModal extends StatelessWidget {
                 titleWidget: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     Text(
+                    Text(
                       AppLocalizations.of(context)!.hello,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
@@ -82,14 +83,18 @@ class OnboardingModal extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
-                                color: ThemeColors.text.resolveFrom(context),
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
                               ),
                             ),
                             const SizedBox(
                               height: 20,
                             ),
-                             Text(
-                               AppLocalizations.of(context)!.itLivesInTheLinkOfThisPage,
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .itLivesInTheLinkOfThisPage,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 20,
@@ -99,8 +104,9 @@ class OnboardingModal extends StatelessWidget {
                             const SizedBox(
                               height: 20,
                             ),
-                             Text(
-                               AppLocalizations.of(context)!.itIsUniqueToYouAndYourCommunity,
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .itIsUniqueToYouAndYourCommunity,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 20,
@@ -110,7 +116,7 @@ class OnboardingModal extends StatelessWidget {
                             const SizedBox(
                               height: 60,
                             ),
-                             Text(
+                            Text(
                               AppLocalizations.of(context)!.keepYourLink,
                               textAlign: TextAlign.center,
                               style: const TextStyle(

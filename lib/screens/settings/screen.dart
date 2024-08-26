@@ -4,8 +4,10 @@ import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
+import 'package:citizenwallet/state/theme/logic.dart';
+import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
@@ -28,6 +30,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
+  final ThemeLogic _themeLogic = ThemeLogic();
   late AppLogic _appLogic;
   late NotificationsLogic _notificationsLogic;
   late BackupLogic _backupLogic;
@@ -59,7 +62,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   void onToggleDarkMode(bool enabled) {
-    _appLogic.setDarkMode(enabled);
+    _themeLogic.setDarkMode(enabled);
     HapticFeedback.mediumImpact();
   }
 
@@ -186,7 +189,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
-    final darkMode = context.select((AppState state) => state.darkMode);
+    final darkMode = context.select((ThemeState state) => state.darkMode);
     final muted = context.select((AppState state) => state.muted);
 
     final push = context.select((NotificationsState state) => state.push);
@@ -209,7 +212,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     var appText = AppLocalizations.of(context)!.settingsScrApp;
 
     return CupertinoPageScaffold(
-      backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+      backgroundColor:
+          Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Stack(
@@ -243,14 +247,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                 SettingsRow(
                     label: AppLocalizations.of(context)!.language,
                     icon: 'assets/icons/language-svgrepo-com.svg',
-                    iconColor: ThemeColors.text.resolveFrom(context),
+                    iconColor:
+                        Theme.of(context).colors.text.resolveFrom(context),
                     onTap: () => {handleLanguage(selectedLanguage)},
                     trailing: Row(
                       children: [
                         Text(
                           languageOptions[selectedLanguage].name,
                           style: TextStyle(
-                            color: ThemeColors.subtleSolidEmphasis
+                            color: Theme.of(context)
+                                .colors
+                                .subtleSolidEmphasis
                                 .resolveFrom(context),
                           ),
                         ),
@@ -311,7 +318,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //     children: [
                 //       if (!protected)
                 //         const Icon(CupertinoIcons.exclamationmark_triangle,
-                //             color: ThemeColors.secondary),
+                //             color: Theme.of(context).colors.secondary),
                 //       if (!protected) const SizedBox(width: 5),
                 //       CupertinoSwitch(
                 //         value: protected,
@@ -398,7 +405,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                             Text(
                               AppLocalizations.of(context)!.auto,
                               style: TextStyle(
-                                color: ThemeColors.subtleSolidEmphasis
+                                color: Theme.of(context)
+                                    .colors
+                                    .subtleSolidEmphasis
                                     .resolveFrom(context),
                               ),
                             ),
@@ -407,7 +416,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                             ),
                             Icon(
                               CupertinoIcons.cloud,
-                              color: ThemeColors.surfacePrimary
+                              color: Theme.of(context)
+                                  .colors
+                                  .surfacePrimary
                                   .resolveFrom(context),
                             ),
                           ],
@@ -417,9 +428,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: !loading
-                                  ? ThemeColors.surfacePrimary
+                                  ? Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
                                       .resolveFrom(context)
-                                  : ThemeColors.surfacePrimary
+                                  : Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
                                       .resolveFrom(context)
                                       .withOpacity(0.7),
                               borderRadius: BorderRadius.circular(5),
@@ -431,22 +446,24 @@ class SettingsScreenState extends State<SettingsScreen> {
                               children: [
                                 Text(
                                   AppLocalizations.of(context)!.backup,
-                                  style: const TextStyle(
-                                    color: ThemeColors.white,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colors.white,
                                   ),
                                 ),
                                 const SizedBox(
                                   width: 10,
                                 ),
                                 if (!loading)
-                                  const Icon(
+                                  Icon(
                                     CupertinoIcons.cloud_upload,
-                                    color: ThemeColors.white,
+                                    color: Theme.of(context).colors.white,
                                   ),
                                 if (loading)
                                   CupertinoActivityIndicator(
-                                    color:
-                                        ThemeColors.subtle.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtle
+                                        .resolveFrom(context),
                                   ),
                               ],
                             ),
@@ -470,8 +487,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //     child: Container(
                 //       decoration: BoxDecoration(
                 //         color: !loading
-                //             ? ThemeColors.surfacePrimary.resolveFrom(context)
-                //             : ThemeColors.surfacePrimary
+                //             ? Theme.of(context).colors.surfacePrimary.resolveFrom(context)
+                //             : Theme.of(context).colors.surfacePrimary
                 //                 .resolveFrom(context)
                 //                 .withOpacity(0.7),
                 //         borderRadius: BorderRadius.circular(5),
@@ -484,7 +501,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //           const Text(
                 //             'Backup',
                 //             style: TextStyle(
-                //               color: ThemeColors.white,
+                //               color: Theme.of(context).colors.white,
                 //             ),
                 //           ),
                 //           const SizedBox(
@@ -493,11 +510,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //           if (!loading)
                 //             const Icon(
                 //               CupertinoIcons.cloud_upload,
-                //               color: ThemeColors.white,
+                //               color: Theme.of(context).colors.white,
                 //             ),
                 //           if (loading)
                 //             CupertinoActivityIndicator(
-                //               color: ThemeColors.subtle.resolveFrom(context),
+                //               color: Theme.of(context).colors.subtle.resolveFrom(context),
                 //             ),
                 //         ],
                 //       ),
@@ -515,7 +532,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 //           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                 //           child: Icon(
                 //             CupertinoIcons.lock,
-                //             color: ThemeColors.black,
+                //             color: Theme.of(context).colors.black,
                 //           ),
                 //         ),
                 //         minWidth: 160,

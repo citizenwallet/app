@@ -214,8 +214,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isDeSelected();
   }
 
-  void clearSearch() {
-    _state.clearSearch();
+  void clearSearch({bool notify = true}) {
+    _state.clearSearch(notify: notify);
   }
 
   void pause() {

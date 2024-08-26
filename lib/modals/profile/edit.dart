@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
@@ -230,13 +230,16 @@ class EditProfileModalState extends State<EditProfileModal> {
             direction: Axis.vertical,
             children: [
               Header(
-                title: hasProfile ? AppLocalizations.of(context)!.edit : AppLocalizations.of(context)!.create,
+                title: hasProfile
+                    ? AppLocalizations.of(context)!.edit
+                    : AppLocalizations.of(context)!.create,
                 actionButton: CupertinoButton(
                   padding: const EdgeInsets.all(5),
                   onPressed: () => handleDismiss(context),
                   child: Icon(
                     CupertinoIcons.xmark,
-                    color: ThemeColors.touchable.resolveFrom(context),
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
                   ),
                 ),
               ),
@@ -259,19 +262,23 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     ? ProfileCircle(
                                         size: 160,
                                         imageBytes: editingImage,
-                                        borderColor: ThemeColors.subtle,
+                                        borderColor:
+                                            Theme.of(context).colors.subtle,
                                       )
                                     : ProfileCircle(
                                         size: 160,
                                         imageUrl: image,
-                                        borderColor: ThemeColors.subtle,
+                                        borderColor:
+                                            Theme.of(context).colors.subtle,
                                       ),
                                 CupertinoButton(
                                   onPressed: handleSelectPhoto,
                                   padding: const EdgeInsets.all(0),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: ThemeColors.backgroundTransparent
+                                      color: Theme.of(context)
+                                          .colors
+                                          .backgroundTransparent
                                           .resolveFrom(context),
                                       borderRadius: BorderRadius.circular(80),
                                     ),
@@ -281,7 +288,9 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     child: Center(
                                       child: Icon(
                                         CupertinoIcons.photo,
-                                        color: ThemeColors.text
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
                                             .resolveFrom(context),
                                         size: 40,
                                       ),
@@ -291,7 +300,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                             Text(
+                            Text(
                               AppLocalizations.of(context)!.username,
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
@@ -299,7 +308,8 @@ class EditProfileModalState extends State<EditProfileModal> {
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: usernameController,
-                              placeholder: AppLocalizations.of(context)!.enterAUsername,
+                              placeholder:
+                                  AppLocalizations.of(context)!.enterAUsername,
                               maxLines: 1,
                               maxLength: 30,
                               autocorrect: false,
@@ -317,7 +327,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                         darkColor: CupertinoColors.black,
                                       ),
                                       border: Border.all(
-                                        color: ThemeColors.danger,
+                                        color: Theme.of(context).colors.danger,
                                       ),
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(5.0)),
@@ -329,7 +339,9 @@ class EditProfileModalState extends State<EditProfileModal> {
                                         darkColor: CupertinoColors.black,
                                       ),
                                       border: Border.all(
-                                        color: ThemeColors.border
+                                        color: Theme.of(context)
+                                            .colors
+                                            .border
                                             .resolveFrom(context),
                                       ),
                                       borderRadius: const BorderRadius.all(
@@ -344,13 +356,17 @@ class EditProfileModalState extends State<EditProfileModal> {
                                         const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                     child: usernameLoading
                                         ? CupertinoActivityIndicator(
-                                            color: ThemeColors.subtle
+                                            color: Theme.of(context)
+                                                .colors
+                                                .subtle
                                                 .resolveFrom(context),
                                           )
                                         : Icon(
                                             CupertinoIcons.at,
                                             size: 16,
-                                            color: ThemeColors.text
+                                            color: Theme.of(context)
+                                                .colors
+                                                .text
                                                 .resolveFrom(context),
                                           ),
                                   ),
@@ -367,10 +383,14 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 children: [
                                   Text(
                                     usernameController.value.text == ''
-                                        ? AppLocalizations.of(context)!.pleasePickAUsername
-                                        : AppLocalizations.of(context)!.thisUsernameIsAlreadyTaken,
+                                        ? AppLocalizations.of(context)!
+                                            .pleasePickAUsername
+                                        : AppLocalizations.of(context)!
+                                            .thisUsernameIsAlreadyTaken,
                                     style: TextStyle(
-                                      color: ThemeColors.danger
+                                      color: Theme.of(context)
+                                          .colors
+                                          .danger
                                           .resolveFrom(context),
                                       fontSize: 14,
                                       fontWeight: FontWeight.normal,
@@ -379,7 +399,7 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 ],
                               ),
                             const SizedBox(height: 20),
-                             Text(
+                            Text(
                               AppLocalizations.of(context)!.name,
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
@@ -387,7 +407,8 @@ class EditProfileModalState extends State<EditProfileModal> {
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: nameController,
-                              placeholder:  AppLocalizations.of(context)!.enterAName,
+                              placeholder:
+                                  AppLocalizations.of(context)!.enterAName,
                               maxLines: 1,
                               maxLength: 50,
                               autocorrect: false,
@@ -405,8 +426,10 @@ class EditProfileModalState extends State<EditProfileModal> {
                                   darkColor: CupertinoColors.black,
                                 ),
                                 border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .border
+                                      .resolveFrom(context),
                                 ),
                                 borderRadius: const BorderRadius.all(
                                     Radius.circular(5.0)),
@@ -416,16 +439,16 @@ class EditProfileModalState extends State<EditProfileModal> {
                               },
                             ),
                             const SizedBox(height: 20),
-                             Text(
-                               AppLocalizations.of(context)!.description,
+                            Text(
+                              AppLocalizations.of(context)!.description,
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             CupertinoTextField(
                               controller: descriptionController,
-                              placeholder:
-                                  AppLocalizations.of(context)!.enterDescription, // hack to align to top
+                              placeholder: AppLocalizations.of(context)!
+                                  .enterDescription, // hack to align to top
                               minLines: 4,
                               maxLines: 8,
                               maxLength: 200,
@@ -443,8 +466,10 @@ class EditProfileModalState extends State<EditProfileModal> {
                                   darkColor: CupertinoColors.black,
                                 ),
                                 border: Border.all(
-                                  color:
-                                      ThemeColors.border.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .border
+                                      .resolveFrom(context),
                                 ),
                                 borderRadius: const BorderRadius.all(
                                     Radius.circular(5.0)),
@@ -457,7 +482,9 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 Text(
                                   '${descriptionEditText.length} / 200',
                                   style: TextStyle(
-                                    color: ThemeColors.subtleEmphasis
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtleEmphasis
                                         .resolveFrom(context),
                                     fontSize: 14,
                                     fontWeight: FontWeight.normal,
@@ -472,9 +499,12 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context)!.failedSaveProfile,
+                                    AppLocalizations.of(context)!
+                                        .failedSaveProfile,
                                     style: TextStyle(
-                                      color: ThemeColors.danger
+                                      color: Theme.of(context)
+                                          .colors
+                                          .danger
                                           .resolveFrom(context),
                                       fontSize: 12,
                                       fontWeight: FontWeight.normal,
@@ -493,8 +523,10 @@ class EditProfileModalState extends State<EditProfileModal> {
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -516,26 +548,33 @@ class EditProfileModalState extends State<EditProfileModal> {
                                   Text(
                                     switch (updateState) {
                                       ProfileUpdateState.existing =>
-                                         AppLocalizations.of(context)!.fetchingExistingProfile,
+                                        AppLocalizations.of(context)!
+                                            .fetchingExistingProfile,
                                       ProfileUpdateState.uploading =>
-                                        AppLocalizations.of(context)!.uploadingNewProfile,
+                                        AppLocalizations.of(context)!
+                                            .uploadingNewProfile,
                                       ProfileUpdateState.fetching =>
-                                         AppLocalizations.of(context)!.almostDone,
+                                        AppLocalizations.of(context)!
+                                            .almostDone,
                                       _ => AppLocalizations.of(context)!.saving,
                                     },
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: ThemeColors.subtleText
+                                      color: Theme.of(context)
+                                          .colors
+                                          .subtleText
                                           .resolveFrom(context),
                                     ),
                                   )
                                 ],
                                 if (!loading && !readyLoading && ready)
                                   Button(
-                                    text:  AppLocalizations.of(context)!.save,
-                                    color: ThemeColors.surfacePrimary
+                                    text: AppLocalizations.of(context)!.save,
+                                    color: Theme.of(context)
+                                        .colors
+                                        .surfacePrimary
                                         .resolveFrom(context),
-                                    labelColor: ThemeColors.black,
+                                    labelColor: Theme.of(context).colors.black,
                                     onPressed: isInvalid
                                         ? null
                                         : hasProfile && editingImage == null

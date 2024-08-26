@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -36,10 +36,16 @@ class SettingsRow extends StatelessWidget {
                   margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   decoration: BoxDecoration(
-                      color: ThemeColors.background.resolveFrom(context),
+                      color: Theme.of(context)
+                          .colors
+                          .background
+                          .resolveFrom(context),
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                       border: Border.all(
-                          color: ThemeColors.border.resolveFrom(context))),
+                          color: Theme.of(context)
+                              .colors
+                              .border
+                              .resolveFrom(context))),
                   child: Row(
                     children: [
                       if (icon != null) ...[
@@ -75,8 +81,10 @@ class SettingsRow extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                           child: Icon(
                             onTapIcon ?? CupertinoIcons.forward,
-                            color:
-                                ThemeColors.subtleEmphasis.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleEmphasis
+                                .resolveFrom(context),
                           ),
                         ),
                     ],
@@ -94,8 +102,10 @@ class SettingsRow extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w300,
-                              color:
-                                  ThemeColors.subtleText.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtleText
+                                  .resolveFrom(context),
                             ),
                           ),
                         ),

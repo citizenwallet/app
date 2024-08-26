@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 // remove the sensitive part of the fragment
 String? scrubFragment(String? fragment) {
@@ -40,36 +39,36 @@ String? scrubFragment(String? fragment) {
           element == '' ? previousValue : '$previousValue/$element');
 }
 
-FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint? hint) async {
-  if (event.transaction == null || !kIsWeb) {
-    return event;
-  }
+// FutureOr<SentryEvent?> beforeSend(SentryEvent event, Hint? hint) async {
+//   if (event.transaction == null || !kIsWeb) {
+//     return event;
+//   }
 
-  // scrub the fragment from the URL
-  event = event.copyWith(
-    transaction: scrubFragment(event.transaction),
-    request: event.request?.copyWith(
-      url: scrubFragment(event.request?.url),
-      fragment: scrubFragment(event.request?.fragment),
-    ),
-  ); // Don't send server names.
-  return event;
-}
+//   // scrub the fragment from the URL
+//   event = event.copyWith(
+//     transaction: scrubFragment(event.transaction),
+//     request: event.request?.copyWith(
+//       url: scrubFragment(event.request?.url),
+//       fragment: scrubFragment(event.request?.fragment),
+//     ),
+//   ); // Don't send server names.
+//   return event;
+// }
 
-Future<void> initSentry(
-  bool debug,
-  String url,
-  FutureOr<void> Function()? appRunner,
-) async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = debug ? '' : url;
-      options.debug = debug;
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-      options.beforeSend = beforeSend;
-    },
-    appRunner: appRunner,
-  );
-}
+// Future<void> initSentry(
+//   bool debug,
+//   String url,
+//   FutureOr<void> Function()? appRunner,
+// ) async {
+//   await SentryFlutter.init(
+//     (options) {
+//       options.dsn = debug ? '' : url;
+//       options.debug = debug;
+//       // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+//       // We recommend adjusting this value in production.
+//       options.tracesSampleRate = 1.0;
+//       options.beforeSend = beforeSend;
+//     },
+//     appRunner: appRunner,
+//   );
+// }

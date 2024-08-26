@@ -2,7 +2,7 @@ import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/layouts/info_action.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
@@ -110,30 +110,34 @@ class AccountRecoveryScreenState extends State<AccountRecoveryScreen>
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
-      transitionBackgroundColor: ThemeColors.transparent,
+      transitionBackgroundColor: Theme.of(context).colors.transparent,
       body: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           child: switch (backupStatus) {
             BackupStatus.nobackup => InfoActionLayout(
-                title:  AppLocalizations.of(context)!.noBackupFound,
+                title: AppLocalizations.of(context)!.noBackupFound,
                 icon: 'assets/icons/cloud-empty.svg',
                 loading: loading,
-                primaryActionText:  AppLocalizations.of(context)!.selectAnotherAccount,
+                primaryActionText:
+                    AppLocalizations.of(context)!.selectAnotherAccount,
                 secondaryActionText:
                     AppLocalizations.of(context)!.recoverIndividualAccount,
                 onPrimaryAction: handleConnectAccount,
                 onSecondaryAction: handleImportAccount,
               ),
             _ => InfoActionLayout(
-                title: AppLocalizations.of(context)!.restoreAllAccountsGoogleDrive,
+                title:
+                    AppLocalizations.of(context)!.restoreAllAccountsGoogleDrive,
                 icon: 'assets/icons/drive.svg',
                 description:
-                   AppLocalizations.of(context)!.infoActionLayoutDescription,
+                    AppLocalizations.of(context)!.infoActionLayoutDescription,
                 loading: loading,
-                primaryActionText: AppLocalizations.of(context)!.connectYourGoogleDriveAccount,
-                secondaryActionText:
-                     AppLocalizations.of(context)!.recoverIndividualAccountPrivateKey,
+                primaryActionText:
+                    AppLocalizations.of(context)!.connectYourGoogleDriveAccount,
+                secondaryActionText: AppLocalizations.of(context)!
+                    .recoverIndividualAccountPrivateKey,
                 onPrimaryAction: handleConnectAccount,
                 onSecondaryAction: handleImportAccount,
               ),

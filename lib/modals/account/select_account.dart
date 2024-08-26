@@ -1,6 +1,6 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
@@ -53,7 +53,8 @@ class SelectAccountModalState extends State<SelectAccountModal> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        backgroundColor:
+            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         child: SafeArea(
           minimum: const EdgeInsets.only(
             left: 10,
@@ -78,7 +79,10 @@ class SelectAccountModalState extends State<SelectAccountModal> {
                           childCount: 1,
                           (context, index) {
                             return CupertinoActivityIndicator(
-                              color: ThemeColors.subtle.resolveFrom(context),
+                              color: Theme.of(context)
+                                  .colors
+                                  .subtle
+                                  .resolveFrom(context),
                             );
                           },
                         ),

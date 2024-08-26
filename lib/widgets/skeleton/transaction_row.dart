@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -15,11 +15,11 @@ class SkeletonTransactionRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       height: 90,
       decoration: BoxDecoration(
-        color: ThemeColors.subtle.resolveFrom(context),
+        color: Theme.of(context).colors.subtle.resolveFrom(context),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           width: 2,
-          color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+          color: Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
         ),
       ),
       child: const Row(

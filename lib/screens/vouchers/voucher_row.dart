@@ -1,6 +1,6 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,19 +8,19 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class VoucherRow extends StatefulWidget {
   final Voucher voucher;
   final VoucherLogic logic;
-  final bool active;
   final double size;
   final String? logo;
   final void Function(String, String, bool)? onTap;
+  final void Function(String, String, bool)? onMore;
 
   const VoucherRow({
     super.key,
     required this.voucher,
     required this.logic,
-    this.active = false,
     this.size = 60,
     this.logo = 'assets/icons/voucher.svg',
     this.onTap,
+    this.onMore,
   });
 
   @override
@@ -47,30 +47,27 @@ class VoucherRowState extends State<VoucherRow> {
   @override
   Widget build(BuildContext context) {
     final voucher = widget.voucher;
-    final active = widget.active;
     final size = widget.size;
     final onTap = widget.onTap;
+    final onMore = widget.onMore;
 
     final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 2,
-          color: active
-              ? ThemeColors.white
-              : ThemeColors.uiBackgroundAlt.resolveFrom(context),
+        border: Border(
+          bottom: BorderSide(
+            width: 1,
+            color: Theme.of(context).colors.subtleEmphasis.resolveFrom(context),
+          ),
         ),
-        color: ThemeColors.uiBackgroundAlt.resolveFrom(context),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(8.0),
-        ),
+        color: Theme.of(context).colors.transparent.resolveFrom(context),
       ),
       child: CupertinoButton(
         onPressed: () =>
             onTap?.call(voucher.address, voucher.balance, isRedeemed),
-        color: ThemeColors.subtle.resolveFrom(context),
-        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        color: Theme.of(context).colors.transparent.resolveFrom(context),
+        padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
           children: [
             Row(
@@ -89,7 +86,10 @@ class VoucherRowState extends State<VoucherRow> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
-                          color: ThemeColors.text.resolveFrom(context),
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
                       SizedBox(
@@ -101,52 +101,62 @@ class VoucherRowState extends State<VoucherRow> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: ThemeColors.subtleText.resolveFrom(context),
+                            color: Theme.of(context)
+                                .colors
+                                .subtleText
+                                .resolveFrom(context),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  child: Icon(
-                    CupertinoIcons.ellipsis,
-                    size: 18,
-                    color: ThemeColors.touchable.resolveFrom(context),
-                  ),
-                ),
+                if (onMore != null)
+                  GestureDetector(
+                    onTap: () =>
+                        onMore(voucher.address, voucher.balance, isRedeemed),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: Icon(
+                        CupertinoIcons.ellipsis,
+                        size: 18,
+                        color: Theme.of(context)
+                            .colors
+                            .touchable
+                            .resolveFrom(context),
+                      ),
+                    ),
+                  )
               ],
             ),
             Positioned(
-              bottom: 0,
-              right: 0,
+              bottom: -5,
+              right: 10,
               child: Container(
                 height: 20,
-                // width: 20,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: isRedeemed
-                      ? ThemeColors.surfacePrimary
-                      : ThemeColors.white,
+                      ? Theme.of(context).colors.surfacePrimary
+                      : Theme.of(context).colors.white,
                 ),
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: Center(
                     child: isRedeemed
                         ? Text(
                             AppLocalizations.of(context)!.redeemed,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.text,
+                              color: Theme.of(context).colors.text,
                             ),
                           )
                         : Text(
                             AppLocalizations.of(context)!.issued,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.text,
+                              color: Theme.of(context).colors.text,
                             ),
                           )),
               ),

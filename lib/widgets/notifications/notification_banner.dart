@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -105,18 +105,17 @@ class _NotificationBannerState extends State<NotificationBanner> {
       opacity: _opacity,
       duration: const Duration(milliseconds: 250),
       child: Container(
-        height: 30 + safeTopPadding,
+        height: 45 + safeTopPadding,
         padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 5),
         decoration: BoxDecoration(
-          color: ThemeColors.surfacePrimary.resolveFrom(context),
-          border: Border(
-            bottom: BorderSide(
-              width: 1,
-              color: ThemeColors.uiBackgroundAlt.darkColor,
-            ),
+          color: Theme.of(context).colors.surfacePrimary.resolveFrom(context),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20), // Adjust as needed
+            bottomRight: Radius.circular(20), // Adjust as needed
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             const SizedBox(width: 20),
@@ -129,22 +128,23 @@ class _NotificationBannerState extends State<NotificationBanner> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: ThemeColors.text,
+                      color: Theme.of(context).colors.white,
                     ),
                   ),
                 ],
               ),
             ),
             CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               onPressed: widget.onDismiss,
               minSize: 20,
-              child: const Icon(
+              // color: Color.fromARGB(255, 255, 0, 0),
+              child: Icon(
                 CupertinoIcons.clear,
-                color: ThemeColors.text,
+                color: Theme.of(context).colors.white,
               ),
             ),
             const SizedBox(width: 10),

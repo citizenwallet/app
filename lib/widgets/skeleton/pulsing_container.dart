@@ -1,4 +1,4 @@
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:simple_animations/simple_animations.dart';
 
@@ -32,8 +32,9 @@ class PulsingContainer extends StatelessWidget {
         child: child,
       ),
       tween: ColorTween(
-        begin: ThemeColors.subtleSolidEmphasis.resolveFrom(context),
-        end: ThemeColors.subtleSolid.resolveFrom(context),
+        begin:
+            Theme.of(context).colors.subtleSolidEmphasis.resolveFrom(context),
+        end: Theme.of(context).colors.subtleSolid.resolveFrom(context),
       ),
       duration: const Duration(milliseconds: 500),
       child: child,

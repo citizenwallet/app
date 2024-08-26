@@ -1,16 +1,15 @@
-import 'package:citizenwallet/modals/wallet/voucher.dart';
-import 'package:citizenwallet/modals/wallet/voucher_view.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/modals/vouchers/voucher_row.dart';
-import 'package:citizenwallet/widgets/vouchers/amount_input_modal.dart';
+import 'package:citizenwallet/screens/vouchers/voucher_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,16 +18,21 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class VouchersModal extends StatefulWidget {
-  //final String title = 'Vouchers';
+class VouchersScreen extends StatefulWidget {
+  final WalletLogic walletLogic;
+  final ProfilesLogic profilesLogic;
 
-  const VouchersModal({super.key});
+  const VouchersScreen({
+    super.key,
+    required this.walletLogic,
+    required this.profilesLogic,
+  });
 
   @override
-  VouchersModalState createState() => VouchersModalState();
+  VouchersScreenState createState() => VouchersScreenState();
 }
 
-class VouchersModalState extends State<VouchersModal> {
+class VouchersScreenState extends State<VouchersScreen> {
   late VoucherLogic _logic;
 
   @override
@@ -64,6 +68,26 @@ class VouchersModalState extends State<VouchersModal> {
     GoRouter.of(context).pop();
   }
 
+  void handleOpen(
+    String address,
+    String amount,
+    bool isRedeemed,
+  ) async {
+    _logic.pause();
+
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      _logic.resume(address: address);
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    await navigator.push('/wallet/${wallet.account}/vouchers/$address');
+
+    _logic.resume(address: address);
+  }
+
   void handleMore(
     String address,
     String amount,
@@ -72,6 +96,10 @@ class VouchersModalState extends State<VouchersModal> {
     _logic.pause();
 
     final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      _logic.resume(address: address);
+      return;
+    }
 
     final option = await showCupertinoModalPopup<String?>(
         context: context,
@@ -84,7 +112,13 @@ class VouchersModalState extends State<VouchersModal> {
                   onPressed: () {
                     Navigator.of(dialogContext).pop('share');
                   },
-                  child: Text(AppLocalizations.of(context)!.share),
+                  child: Text(
+                    AppLocalizations.of(context)!.share,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
                 ),
               if (!isRedeemed)
                 CupertinoActionSheetAction(
@@ -108,20 +142,28 @@ class VouchersModalState extends State<VouchersModal> {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: TextStyle(
+                  color: Theme.of(context).colors.primary.resolveFrom(context),
+                ),
+              ),
             ),
           );
         });
 
+    if (!super.mounted) {
+      return;
+    }
+
     if (option == 'share') {
-      await CupertinoScaffold.showCupertinoModalBottomSheet<void>(
-        context: context,
-        expand: true,
-        useRootNavigator: true,
-        builder: (modalContext) => VoucherViewModal(
-          address: address,
-        ),
-      );
+      final navigator = GoRouter.of(context);
+
+      await navigator.push('/wallet/${wallet.account}/vouchers/$address');
+    }
+
+    if (!super.mounted) {
+      return;
     }
 
     if (option == 'return') {
@@ -131,13 +173,17 @@ class VouchersModalState extends State<VouchersModal> {
         builder: (modalContext) => ConfirmModal(
           title: AppLocalizations.of(context)!.returnVoucher,
           details: [
-            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet?.symbol ?? ''} ${AppLocalizations.of(context)!.returnVoucherMsg}',
+            '${(double.tryParse(amount) ?? 0.0).toStringAsFixed(2)} ${wallet.symbol} ${AppLocalizations.of(context)!.returnVoucherMsg}',
           ],
           confirmText: AppLocalizations.of(context)!.returnText,
         ),
       );
 
       if (confirm == true) await _logic.returnVoucher(address);
+    }
+
+    if (!super.mounted) {
+      return;
     }
 
     if (option == 'delete') {
@@ -167,29 +213,16 @@ class VouchersModalState extends State<VouchersModal> {
       return;
     }
 
-    final amount = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (modalContext) => AmountInputModal(
-        title: AppLocalizations.of(context)!.voucherAmount,
-        placeholder: AppLocalizations.of(context)!.enteramount,
-        symbol: wallet.symbol,
-      ),
-    );
+    final walletLogic = widget.walletLogic;
+    final profilesLogic = widget.profilesLogic;
 
-    if (amount == null) {
-      return;
-    }
+    final navigator = GoRouter.of(context);
 
-    await showCupertinoModalBottomSheet<bool?>(
-      context: context,
-      expand: true,
-      topRadius: const Radius.circular(40),
-      builder: (_) => VoucherModal(
-        amount: amount,
-        symbol: wallet.symbol,
-      ),
-    );
+    await navigator.push('/wallet/${walletLogic.account}/send/link', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
+      'voucherLogic': _logic,
+    });
 
     onLoad();
   }
@@ -210,30 +243,28 @@ class VouchersModalState extends State<VouchersModal> {
     final returnLoading =
         context.select((VoucherState state) => state.returnLoading);
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: CupertinoPageScaffold(
-        backgroundColor: ThemeColors.uiBackgroundAlt.resolveFrom(context),
+    return CupertinoPageScaffold(
+      backgroundColor:
+          Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
-          minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           bottom: false,
+          minimum: const EdgeInsets.only(left: 10, right: 10),
           child: Flex(
             direction: Axis.vertical,
             children: [
               Header(
+                showBackButton: true,
                 title: AppLocalizations.of(context)!.vouchers,
                 actionButton: returnLoading
                     ? CupertinoActivityIndicator(
-                        color: ThemeColors.subtle.resolveFrom(context),
+                        color: Theme.of(context)
+                            .colors
+                            .subtle
+                            .resolveFrom(context),
                       )
-                    : CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: handleDismiss,
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          color: ThemeColors.touchable.resolveFrom(context),
-                        ),
-                      ),
+                    : null,
               ),
               Expanded(
                 child: Stack(
@@ -263,8 +294,10 @@ class VouchersModalState extends State<VouchersModal> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.normal,
-                                    color:
-                                        ThemeColors.text.resolveFrom(context),
+                                    color: Theme.of(context)
+                                        .colors
+                                        .text
+                                        .resolveFrom(context),
                                   ),
                                 ),
                               ],
@@ -280,12 +313,13 @@ class VouchersModalState extends State<VouchersModal> {
                                 return Padding(
                                   key: Key(voucher.id),
                                   padding:
-                                      const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                   child: VoucherRow(
                                     voucher: voucher,
                                     logic: _logic,
                                     logo: config?.community.logo,
-                                    onTap: returnLoading ? null : handleMore,
+                                    onTap: returnLoading ? null : handleOpen,
+                                    onMore: returnLoading ? null : handleMore,
                                   ),
                                 );
                               },
@@ -306,8 +340,10 @@ class VouchersModalState extends State<VouchersModal> {
                             decoration: BoxDecoration(
                               border: Border(
                                 top: BorderSide(
-                                  color:
-                                      ThemeColors.subtle.resolveFrom(context),
+                                  color: Theme.of(context)
+                                      .colors
+                                      .subtle
+                                      .resolveFrom(context),
                                 ),
                               ),
                             ),
@@ -319,6 +355,10 @@ class VouchersModalState extends State<VouchersModal> {
                                 Button(
                                   text: AppLocalizations.of(context)!
                                       .createVoucher,
+                                  labelColor: Theme.of(context)
+                                      .colors
+                                      .white
+                                      .resolveFrom(context),
                                   onPressed: handleCreateVoucher,
                                   minWidth: 200,
                                   maxWidth: 200,

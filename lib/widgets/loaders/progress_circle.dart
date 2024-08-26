@@ -1,25 +1,92 @@
 import 'dart:math' as math;
-import 'package:citizenwallet/theme/colors.dart';
+import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
-class ProgressCircle extends StatelessWidget {
-  final double progress;
+class ProgressCircle extends StatefulWidget {
   final double size;
+  final double progress;
+  final Color? color;
+  final Color? trackColor;
+  final Widget? successChild;
 
   const ProgressCircle({
     super.key,
-    required this.progress,
     this.size = 50,
+    required this.progress,
+    this.color,
+    this.trackColor,
+    this.successChild,
   });
 
   @override
+  State<ProgressCircle> createState() => _ProgressCircleState();
+}
+
+class _ProgressCircleState extends State<ProgressCircle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300), // Adjust duration as needed
+      vsync: this,
+    );
+
+    _animation =
+        Tween<double>(begin: 0, end: widget.progress).animate(_controller)
+          ..addListener(() {
+            setState(() {});
+          });
+
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProgressCircle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.progress != oldWidget.progress) {
+      _animation = Tween<double>(begin: _animation.value, end: widget.progress)
+          .animate(_controller);
+      _controller
+        ..value = 0
+        ..forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: MyPainter(
-        context,
-        progress: progress,
-      ),
-      size: Size(size, size),
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        CustomPaint(
+          painter: MyPainter(
+            context,
+            progress: _animation.value,
+            color: widget.color,
+            trackColor: widget.trackColor,
+          ),
+          size: Size(
+            widget.size,
+            widget.size,
+          ),
+        ),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 500),
+          opacity: _animation.value == 1 ? 1 : 0,
+          child: widget.successChild ?? const SizedBox(),
+        ),
+      ],
     );
   }
 }
@@ -28,26 +95,42 @@ class ProgressCircle extends StatelessWidget {
 class MyPainter extends CustomPainter {
   final BuildContext context;
   final double progress;
+  final Color? color;
+  final Color? trackColor;
 
-  MyPainter(this.context, {this.progress = 0});
+  MyPainter(
+    this.context, {
+    this.progress = 0,
+    this.color,
+    this.trackColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color = ThemeColors.surfaceSubtle.resolveFrom(context);
-    canvas.drawArc(
-      Rect.fromCenter(
-        center: Offset(size.height / 2, size.width / 2),
-        height: size.height,
-        width: size.width,
-      ),
-      math.pi * 1.5,
-      (math.pi / 180) * (360 * progress),
-      true,
-      paint,
-    );
+    final paint = Paint()
+      ..color =
+          trackColor ?? Theme.of(context).colors.subtle.resolveFrom(context)
+      ..strokeWidth = 5.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = math.min(size.width, size.height) / 2;
+
+    // Draw the grey outline
+    canvas.drawCircle(center, radius, paint);
+
+    // Change the color and draw the filled part
+    paint.color =
+        color ?? Theme.of(context).colors.primary.resolveFrom(context);
+    const startAngle = -math.pi / 2;
+    final sweepAngle = 2 * math.pi * progress;
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), startAngle,
+        sweepAngle, false, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant MyPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
 }
