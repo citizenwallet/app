@@ -67,6 +67,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   timeago: ^3.6.1
+  nfc_manager: ^3.5.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^4.0.0
@@ -142,6 +143,7 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
+    - packages/smartcontracts/contracts/external/CardFactory.abi.json
 
   uses-material-design: false
   generate: true
