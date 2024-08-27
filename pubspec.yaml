@@ -121,6 +121,7 @@ flutter:
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
     - assets/icons/language-svgrepo-com.svg
+    - assets/icons/contactless-svgrepo-com.svg
     - assets/config/v3/communities.json
     - assets/config/v3/communities.test.json
     - assets/config/v3/legacy_4337_bundlers.json
@@ -143,7 +144,7 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
-    - packages/smartcontracts/contracts/external/CardFactory.abi.json
+    # - packages/smartcontracts/contracts/external/CardFactory.abi.json  TODO: temporary disabled
 
   uses-material-design: false
   generate: true
