@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Search user or paste address",
   "sendViaLink": "Send via link",
   "scanQRCode": "Scan QR Code",
+  "sendToNFCTag": "Send to a NFC tag",
   "mint": "Mint",
   "vouchers": "Vouchers",
   "noBackupFound": "No backup found",

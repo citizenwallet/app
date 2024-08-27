@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Zoek gebruiker of plak adres",
   "sendViaLink": "Verstuur via link",
   "scanQRCode": "Scan QR Code",
+  "sendToNFCTag": "Versturen naar een NFC-tag",
   "mint": "Mint",
   "vouchers": "Vouchers",
   "noBackupFound": "Geen backup gevonden",

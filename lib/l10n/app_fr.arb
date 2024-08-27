@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Rechercher un utilisateur ou coller une adresse",
   "sendViaLink": "Envoyer via un lien",
   "scanQRCode": "Scanner un code QR",
+  "sendToNFCTag": "Envoyer à une étiquette NFC",
   "mint": "Émettre",
   "vouchers": "Bons",
   "noBackupFound": "Aucune sauvegarde trouvée",
