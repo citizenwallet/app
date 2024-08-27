@@ -275,6 +275,10 @@ class _SendToScreenState extends State<SendToScreen> {
       (WalletState state) => state.invalidAddress,
     );
 
+    final config = context.select(
+      (WalletState state) => state.config,
+    );
+
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
     );
@@ -325,7 +329,8 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight: 220,
+                            expandedHeight:
+                                config != null && config.hasCards() ? 220 : 180,
                             minHeight: 110,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
@@ -358,7 +363,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 100,
+                                    bottom: config != null && config.hasCards()
+                                        ? 100
+                                        : 50,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -408,7 +415,9 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 50,
+                                    bottom: config != null && config.hasCards()
+                                        ? 50
+                                        : 0,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -458,59 +467,61 @@ class _SendToScreenState extends State<SendToScreen> {
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 20,
-                                    right: 20,
-                                    child: Opacity(
-                                      opacity: progressiveClamp(
-                                        0,
-                                        1,
-                                        shrink * 2,
-                                      ),
-                                      child: CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: () => handleScanNFC(context),
-                                        child: Container(
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              SvgPicture.asset(
-                                                'assets/icons/contactless-svgrepo-com.svg',
-                                                semanticsLabel:
-                                                    'contactless icon',
-                                                height: 24,
-                                                width: 24,
-                                                color: Theme.of(context)
-                                                    .colors
-                                                    .primary
-                                                    .resolveFrom(context),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                AppLocalizations.of(context)!
-                                                    .sendToNFCTag,
-                                                style: TextStyle(
+                                  if (config != null && config.hasCards())
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 20,
+                                      right: 20,
+                                      child: Opacity(
+                                        opacity: progressiveClamp(
+                                          0,
+                                          1,
+                                          shrink * 2,
+                                        ),
+                                        child: CupertinoButton(
+                                          padding: const EdgeInsets.all(5),
+                                          onPressed: () =>
+                                              handleScanNFC(context),
+                                          child: Container(
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  'assets/icons/contactless-svgrepo-com.svg',
+                                                  semanticsLabel:
+                                                      'contactless icon',
+                                                  height: 24,
+                                                  width: 24,
                                                   color: Theme.of(context)
                                                       .colors
                                                       .primary
                                                       .resolveFrom(context),
-                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 12),
+                                                Text(
+                                                  AppLocalizations.of(context)!
+                                                      .sendToNFCTag,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colors
+                                                        .primary
+                                                        .resolveFrom(context),
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
                                   if (selectedProfile != null)
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
