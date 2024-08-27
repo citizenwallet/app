@@ -20,6 +20,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
@@ -153,6 +154,10 @@ class _SendToScreenState extends State<SendToScreen> {
     }
 
     handleParseQRCode(context, result);
+  }
+
+  void handleScanNFC(BuildContext context) async {
+    debugPrint('handleScanNFC');
   }
 
   void handleParseQRCode(
@@ -320,7 +325,7 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight: 180,
+                            expandedHeight: 220,
                             minHeight: 110,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
@@ -353,7 +358,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 50,
+                                    bottom: 100,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -403,7 +408,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 0,
+                                    bottom: 50,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -439,6 +444,59 @@ class _SendToScreenState extends State<SendToScreen> {
                                               Text(
                                                 AppLocalizations.of(context)!
                                                     .scanQRCode,
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
+                                                      .resolveFrom(context),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 20,
+                                    right: 20,
+                                    child: Opacity(
+                                      opacity: progressiveClamp(
+                                        0,
+                                        1,
+                                        shrink * 2,
+                                      ),
+                                      child: CupertinoButton(
+                                        padding: const EdgeInsets.all(5),
+                                        onPressed: () => handleScanNFC(context),
+                                        child: Container(
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/icons/contactless-svgrepo-com.svg',
+                                                semanticsLabel:
+                                                    'contactless icon',
+                                                height: 24,
+                                                width: 24,
+                                                color: Theme.of(context)
+                                                    .colors
+                                                    .primary
+                                                    .resolveFrom(context),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                    .sendToNFCTag,
                                                 style: TextStyle(
                                                   color: Theme.of(context)
                                                       .colors
