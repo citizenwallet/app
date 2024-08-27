@@ -37,6 +37,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
 	<key>FLTEnableImpeller</key>
 	<true/>
 	<key>FlutterDeepLinkingEnabled</key>
@@ -49,6 +51,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NFCReaderUsageDescription</key>
+	<string>Citizen Wallet needs NFC scanner access in order to scan NFC tags. Scanning is done on device.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -75,7 +79,5 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
-	<false/>
 </dict>
 </plist>
