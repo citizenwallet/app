@@ -280,6 +280,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
+    const double profileCircleSize = 48;
+
     final walletLogic = widget.walletLogic;
 
     final wallet = context.select(
@@ -359,6 +361,31 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
+                        if (selectedProfile != null) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ProfileCircle(
+                                size: profileCircleSize,
+                                backgroundColor: Theme.of(context)
+                                    .colors
+                                    .uiBackgroundAlt
+                                    .resolveFrom(context),
+                                imageUrl: selectedProfile.imageSmall,
+                              ),
+                               const SizedBox(width: 8), 
+                              Text(
+                                selectedProfile.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 40),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 40),
