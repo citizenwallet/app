@@ -1,3 +1,5 @@
+import 'package:citizenwallet/services/nfc/default.dart';
+import 'package:citizenwallet/services/nfc/service.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
@@ -5,6 +7,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/state/scan/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/ratio.dart';
@@ -13,7 +16,9 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
+import 'package:citizenwallet/widgets/scanner/nfc_modal.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
+import 'package:citizenwallet/widgets/nfc_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -43,6 +48,8 @@ class SendToScreen extends StatefulWidget {
 
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
+  final ScanLogic _scanLogic = ScanLogic();
+  bool isNfcAvailable = false;
 
   final _scrollController = ScrollController();
 
@@ -77,14 +84,22 @@ class _SendToScreenState extends State<SendToScreen> {
     walletLogic.clearAddressController();
     profilesLogic.clearSearch(notify: false);
 
+    _scanLogic.cancelScan();
+
     super.dispose();
   }
 
   void onLoad() async {
+    _scanLogic.init(context);
+    _scanLogic.load();
+
     await delay(const Duration(milliseconds: 250));
 
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
+    final NFCService nfc = DefaultNFCService();
+
+    isNfcAvailable = await nfc.isAvailable();
 
     profilesLogic.allProfiles();
     walletLogic.updateAddress();
@@ -156,8 +171,25 @@ class _SendToScreenState extends State<SendToScreen> {
     handleParseQRCode(context, result);
   }
 
-  void handleScanNFC(BuildContext context) async {
-    debugPrint('handleScanNFC');
+  void handleReadNFC(BuildContext context) async {
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const NFCModal(
+        modalKey: 'send-nfc-scanner',
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    handleParseQRCode(context, result);
+
   }
 
   void handleParseQRCode(
@@ -265,6 +297,10 @@ class _SendToScreenState extends State<SendToScreen> {
     );
   }
 
+  void handleCancelScan() {
+    _scanLogic.cancelScan();
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -329,8 +365,9 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight:
-                                config != null && config.hasCards() ? 220 : 180,
+                            expandedHeight: config != null && config.hasCards() && isNfcAvailable
+                                ? 220
+                                : 180,
                             minHeight: 110,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
@@ -363,7 +400,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: config != null && config.hasCards()
+                                    bottom: config != null && config.hasCards() && isNfcAvailable
                                         ? 100
                                         : 50,
                                     left: 20,
@@ -415,7 +452,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: config != null && config.hasCards()
+                                    bottom: config != null && config.hasCards() && isNfcAvailable
                                         ? 50
                                         : 0,
                                     left: 20,
@@ -467,7 +504,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                       ),
                                     ),
                                   ),
-                                  if (config != null && config.hasCards())
+                                  if (config != null && config.hasCards() && isNfcAvailable)
                                     Positioned(
                                       bottom: 0,
                                       left: 20,
@@ -481,7 +518,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                         child: CupertinoButton(
                                           padding: const EdgeInsets.all(5),
                                           onPressed: () =>
-                                              handleScanNFC(context),
+                                              handleReadNFC(context),
                                           child: Container(
                                             height: 50,
                                             decoration: BoxDecoration(
@@ -494,7 +531,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                             child: Row(
                                               children: [
                                                 SvgPicture.asset(
-                                                  'assets/icons/contactless-svgrepo-com.svg',
+                                                  'assets/icons/contactless.svg',
                                                   semanticsLabel:
                                                       'contactless icon',
                                                   height: 24,
@@ -708,6 +745,9 @@ class _SendToScreenState extends State<SendToScreen> {
                           ],
                         ),
                       ),
+                    NfcOverlay(
+                      onCancel: handleCancelScan,
+                    )
                   ],
                 ),
               ),
