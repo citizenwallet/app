@@ -452,14 +452,17 @@ class CardsConfig {
 
 class SafeCardsConfig {
   final String cardManagerAddress;
+  final String instanceId;
 
   SafeCardsConfig({
     required this.cardManagerAddress,
+    required this.instanceId,
   });
 
   factory SafeCardsConfig.fromJson(Map<String, dynamic> json) {
     return SafeCardsConfig(
       cardManagerAddress: json['card_manager_address'],
+      instanceId: json['instance_id'],
     );
   }
 
