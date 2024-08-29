@@ -192,5 +192,6 @@
   "voucher": "Bon",
   "createVoucherText": "Créer un bon que n'importe qui peut échanger contre le montant indiqué ci-dessus.",
   "emptyBalanceText1": "Ce bon a déjà été échangé.",
-  "emptyBalanceText2": "Échangez ce bon sur votre compte."
+  "emptyBalanceText2": "Échangez ce bon sur votre compte.",
+  "tapToScan": "Appuyez pour scanner"
 }
