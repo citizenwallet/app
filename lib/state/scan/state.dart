@@ -68,11 +68,12 @@ class ScanState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setNfcAddressSuccess(String? address) {
+  void setNfcAddressSuccess(String? address, {bool notify = true}) {
     nfcAddress = address;
     nfcAddressLoading = false;
     nfcAddressError = false;
-    notifyListeners();
+
+    if (notify) notifyListeners();
   }
 
   void setAddressBalance(String? balance) {

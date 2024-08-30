@@ -50,7 +50,7 @@ class ScanLogic extends WidgetsBindingObserver {
     try {
       _state.setNfcAddressRequest();
 
-      _state.setNfcReading(true); 
+      _state.setNfcReading(true);
 
       final serialNumber = await _nfc.readSerialNumber(
         message: message,
@@ -76,9 +76,10 @@ class ScanLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  void cancelScan() {
+  void cancelScan({bool notify = true}) {
     _nfc.stop();
-    _state.setNfcReading(false, notify: false);
+    _state.setNfcReading(false, notify: notify);
+    _state.setNfcAddressSuccess(null, notify: notify);
   }
 
   bool wasRunning = false;
