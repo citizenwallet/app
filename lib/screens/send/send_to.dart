@@ -5,10 +5,8 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-
 import 'package:citizenwallet/state/scan/logic.dart';
 import 'package:citizenwallet/state/scan/state.dart';
-
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/ratio.dart';
@@ -19,7 +17,6 @@ import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
 import 'package:citizenwallet/widgets/scanner/nfc_modal.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
-import 'package:citizenwallet/widgets/nfc_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -84,7 +81,7 @@ class _SendToScreenState extends State<SendToScreen> {
     walletLogic.clearAddressController();
     profilesLogic.clearSearch(notify: false);
 
-    _scanLogic.cancelScan();
+    _scanLogic.cancelScan(notify: false);
 
     super.dispose();
   }
@@ -291,10 +288,6 @@ class _SendToScreenState extends State<SendToScreen> {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
-  }
-
-  void handleCancelScan() {
-    _scanLogic.cancelScan();
   }
 
   @override
@@ -744,9 +737,6 @@ class _SendToScreenState extends State<SendToScreen> {
                           ],
                         ),
                       ),
-                    NfcOverlay(
-                      onCancel: handleCancelScan,
-                    )
                   ],
                 ),
               ),
