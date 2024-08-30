@@ -20,7 +20,7 @@ class NFCModal extends StatefulWidget {
 
 class NFCModalState extends State<NFCModal>
     with WidgetsBindingObserver, TickerProviderStateMixin {
-  final TextEditingController _textController = TextEditingController();
+  String? nfcAddress;
   final ScanLogic _scanLogic = ScanLogic();
 
   @override
@@ -33,7 +33,7 @@ class NFCModalState extends State<NFCModal>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
 
-      onLoad();
+      onLoad(context);
     });
   }
 
@@ -56,12 +56,14 @@ class NFCModalState extends State<NFCModal>
     }
   }
 
-  void onLoad() async {
-    final address = await _scanLogic.read();
+  void onLoad(BuildContext context) async {
+    nfcAddress = await _scanLogic.read();
 
-    _textController.text = address ?? '';
+    if (!context.mounted) {
+      return;
+    }
 
-    goToSubmit();
+    handleSubmit(context);
   }
 
   @override
@@ -86,9 +88,8 @@ class NFCModalState extends State<NFCModal>
 
     await delay(const Duration(milliseconds: 1000));
 
-    if (_textController.value.text.isNotEmpty) {
-      navigator.pop(_textController.value.text);
-    }
+    
+    navigator.pop(nfcAddress);
   }
 
   @override
