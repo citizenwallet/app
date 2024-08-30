@@ -1,5 +1,3 @@
-import 'package:citizenwallet/services/nfc/default.dart';
-import 'package:citizenwallet/services/nfc/service.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
@@ -7,7 +5,10 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+
 import 'package:citizenwallet/state/scan/logic.dart';
+import 'package:citizenwallet/state/scan/state.dart';
+
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/ratio.dart';
@@ -49,7 +50,6 @@ class SendToScreen extends StatefulWidget {
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
   final ScanLogic _scanLogic = ScanLogic();
-  bool isNfcAvailable = false;
 
   final _scrollController = ScrollController();
 
@@ -97,9 +97,6 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
-    final NFCService nfc = DefaultNFCService();
-
-    isNfcAvailable = await nfc.isAvailable();
 
     profilesLogic.allProfiles();
     walletLogic.updateAddress();
@@ -189,7 +186,6 @@ class _SendToScreenState extends State<SendToScreen> {
     }
 
     handleParseQRCode(context, result);
-
   }
 
   void handleParseQRCode(
@@ -333,6 +329,15 @@ class _SendToScreenState extends State<SendToScreen> {
       (ProfilesState state) => state.selectedProfile,
     );
 
+    final scanStatus = context.select(
+      (ScanState state) => state,
+    );
+
+    final bool displayScanNfc = config != null &&
+        config.hasCards() &&
+        scanStatus.status != ScanStateType.notAvailable &&
+        scanStatus.status != ScanStateType.notReady;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -365,9 +370,7 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight: config != null && config.hasCards() && isNfcAvailable
-                                ? 220
-                                : 180,
+                            expandedHeight: displayScanNfc ? 220 : 180,
                             minHeight: 110,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
@@ -400,9 +403,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: config != null && config.hasCards() && isNfcAvailable
-                                        ? 100
-                                        : 50,
+                                    bottom: displayScanNfc ? 100 : 50,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -452,9 +453,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: config != null && config.hasCards() && isNfcAvailable
-                                        ? 50
-                                        : 0,
+                                    bottom: displayScanNfc ? 50 : 0,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -504,7 +503,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                       ),
                                     ),
                                   ),
-                                  if (config != null && config.hasCards() && isNfcAvailable)
+                                  if (displayScanNfc)
                                     Positioned(
                                       bottom: 0,
                                       left: 20,

@@ -32,7 +32,7 @@ class ScanLogic extends WidgetsBindingObserver {
       final isAvailable = await _nfc.isAvailable();
 
       if (!isAvailable) {
-        _state.scannerNotReady();
+        _state.scannerNotAvailable();
         return;
       }
 

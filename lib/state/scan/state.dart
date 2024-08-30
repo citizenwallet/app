@@ -7,6 +7,7 @@ enum ScanStateType {
   notReady,
   readingNFC,
   error,
+  notAvailable,
 }
 
 class ScanState with ChangeNotifier {
@@ -36,6 +37,11 @@ class ScanState with ChangeNotifier {
 
   void scannerNotReady() {
     status = ScanStateType.notReady;
+    notifyListeners();
+  }
+
+  void scannerNotAvailable() {
+    status = ScanStateType.notAvailable;
     notifyListeners();
   }
 
