@@ -36,16 +36,17 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
   bool _isReadyUpdating = false;
   bool _isReady = false;
 
-  void handleDone(BuildContext context) {
+  void handleDone(BuildContext context, {String? address}) {
     if (!context.mounted) {
       return;
     }
 
     final navigator = GoRouter.of(context);
 
-    navigator.pop(true);
-
-    // TODO: return address of created voucher here
+    navigator.pop((
+      sent: true,
+      address: address,
+    ));
   }
 
   void handleRetry(BuildContext context) {
@@ -459,7 +460,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                       text: AppLocalizations.of(context)!.dismiss,
                       labelColor:
                           Theme.of(context).colors.white.resolveFrom(context),
-                      onPressed: () => handleDone(context),
+                      onPressed: () =>
+                          handleDone(context, address: createdVoucher!.address),
                       minWidth: 200,
                       maxWidth: width - 60,
                     ),

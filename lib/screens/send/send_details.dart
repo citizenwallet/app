@@ -135,14 +135,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await navigator.push<bool?>(
+    final result = await navigator.push<({String? address, bool sent})>(
         '/wallet/${walletLogic.account}/send/link/progress',
         extra: {
           'voucherLogic': voucherLogic,
         });
 
-    if (sent == true) {
-      navigator.pop(true);
+    if (result != null && result.sent == true) {
+      navigator.pop((
+        sent: true,
+        address: result.address,
+      ));
       return;
     }
 
