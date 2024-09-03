@@ -130,8 +130,8 @@ class VoucherRowState extends State<VoucherRow> {
               ],
             ),
             Positioned(
-              bottom: -5,
-              right: 10,
+              bottom: 0,
+              right: 50,
               child: Container(
                 height: 20,
                 decoration: BoxDecoration(
