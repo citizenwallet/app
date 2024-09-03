@@ -217,14 +217,17 @@ class VouchersScreenState extends State<VouchersScreen> {
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/${walletLogic.account}/send/link', extra: {
-      'walletLogic': walletLogic,
-      'profilesLogic': profilesLogic,
-      'voucherLogic': _logic,
-    });
+    final result = await navigator.push<({String? address, bool sent})>(
+        '/wallet/${walletLogic.account}/send/link',
+        extra: {
+          'walletLogic': walletLogic,
+          'profilesLogic': profilesLogic,
+          'voucherLogic': _logic,
+        });
 
-    //TODO: capture the address of the voucher here
-    
+    if (result != null && result.address != null) {
+      _logic.resume(address: result.address);
+    }
 
     onLoad();
   }
