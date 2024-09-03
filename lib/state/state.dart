@@ -13,7 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
-Widget provideAppState(Widget child) => MultiProvider(
+Widget provideAppState(Widget? child, {Widget Function(BuildContext, Widget?)? builder}) => MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => ThemeState(),
@@ -51,5 +51,6 @@ Widget provideAppState(Widget child) => MultiProvider(
             create: (_) => BackupWebState(),
           ),
       ],
+      builder: builder,
       child: child,
     );
