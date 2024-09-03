@@ -84,7 +84,6 @@ class VouchersScreenState extends State<VouchersScreen> {
     final navigator = GoRouter.of(context);
 
     await navigator.push('/wallet/${wallet.account}/vouchers/$address');
-
     _logic.resume(address: address);
   }
 
@@ -223,6 +222,9 @@ class VouchersScreenState extends State<VouchersScreen> {
       'profilesLogic': profilesLogic,
       'voucherLogic': _logic,
     });
+
+    //TODO: capture the address of the voucher here
+    
 
     onLoad();
   }

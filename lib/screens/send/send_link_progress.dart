@@ -44,6 +44,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
     final navigator = GoRouter.of(context);
 
     navigator.pop(true);
+
+    // TODO: return address of created voucher here
   }
 
   void handleRetry(BuildContext context) {
