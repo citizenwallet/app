@@ -31,6 +31,12 @@
                 <data android:scheme="vnd.android.nfc" android:host="ext" android:pathPrefix="/com.example:externaltype"/>
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+            </intent-filter>
+
+            <meta-data android:name="android.nfc.action.TECH_DISCOVERED" android:resource="@xml/nfc_tech_filter" />
+
             <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
 
             <intent-filter android:autoVerify="true">
