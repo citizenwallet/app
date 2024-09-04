@@ -423,6 +423,63 @@ class Legacy4337Bundlers {
   }
 }
 
+class CardsConfig {
+  final String cardFactoryAddress;
+
+  CardsConfig({
+    required this.cardFactoryAddress,
+  });
+
+  factory CardsConfig.fromJson(Map<String, dynamic> json) {
+    return CardsConfig(
+      cardFactoryAddress: json['card_factory_address'],
+    );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'card_factory_address': cardFactoryAddress,
+    };
+  }
+
+  // to string
+  @override
+  String toString() {
+    return 'CardsConfig{card_factory_address: $cardFactoryAddress}';
+  }
+}
+
+class SafeCardsConfig {
+  final String cardManagerAddress;
+  final String instanceId;
+
+  SafeCardsConfig({
+    required this.cardManagerAddress,
+    required this.instanceId,
+  });
+
+  factory SafeCardsConfig.fromJson(Map<String, dynamic> json) {
+    return SafeCardsConfig(
+      cardManagerAddress: json['card_manager_address'],
+      instanceId: json['instance_id'],
+    );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'card_manager_address': cardManagerAddress,
+    };
+  }
+
+  // to string
+  @override
+  String toString() {
+    return 'SafeCardsConfig{card_manager_address: $cardManagerAddress}';
+  }
+}
+
 class Config {
   final CommunityConfig community;
   final ScanConfig scan;
@@ -432,6 +489,8 @@ class Config {
   final ERC4337Config erc4337;
   final TokenConfig token;
   final ProfileConfig profile;
+  final CardsConfig? cards;
+  final SafeCardsConfig? safeCards;
   final List<PluginConfig> plugins;
   final int version;
 
@@ -444,6 +503,8 @@ class Config {
     required this.erc4337,
     required this.token,
     required this.profile,
+    this.cards,
+    this.safeCards,
     required this.plugins,
     this.version = 0,
   });
@@ -458,6 +519,10 @@ class Config {
       erc4337: ERC4337Config.fromJson(json['erc4337']),
       token: TokenConfig.fromJson(json['token']),
       profile: ProfileConfig.fromJson(json['profile']),
+      cards: json['cards'] != null ? CardsConfig.fromJson(json['cards']) : null,
+      safeCards: json['safe_cards'] != null
+          ? SafeCardsConfig.fromJson(json['safe_cards'])
+          : null,
       plugins: json['plugins'] != null
           ? (json['plugins'] as List)
               .map((e) => PluginConfig.fromJson(e))
@@ -478,6 +543,7 @@ class Config {
       'erc4337': erc4337,
       'token': token,
       'profile': profile,
+      if (cards != null) 'cards': cards,
       'plugins': plugins,
       'version': version,
     };
@@ -487,5 +553,9 @@ class Config {
   @override
   String toString() {
     return 'Config{community: $community, scan: $scan, indexer: $indexer, ipfs: $ipfs, node: $node, erc4337: $erc4337, token: $token, profile: $profile}';
+  }
+
+  bool hasCards() {
+    return cards != null || safeCards != null;
   }
 }

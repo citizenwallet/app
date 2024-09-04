@@ -8,12 +8,15 @@ import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
+import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
+import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
+import 'package:citizenwallet/services/wallet/contracts/cards/interface.dart';
 import 'package:citizenwallet/services/wallet/gas.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -87,6 +90,7 @@ class WalletService {
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
+  AbstractCardManagerContract? _cardManager;
 
   // legacy contracts
   late StackupEntryPoint _contractLegacyEntryPoint;
@@ -192,6 +196,26 @@ class WalletService {
 
     _legacy4337Bundlers = await getLegacy4337Bundlers();
 
+    if (config.cards?.cardFactoryAddress != null) {
+      _cardManager = CardManagerContract(
+        _chainId!.toInt(),
+        _ethClient,
+        config.cards!.cardFactoryAddress,
+      );
+    }
+
+    if (config.safeCards?.cardManagerAddress != null) {
+      final instanceId = config.safeCards!.instanceId;
+      _cardManager = SafeCardManagerContract(
+        keccak256(convertStringToUint8List(instanceId)),
+        _chainId!.toInt(),
+        _ethClient,
+        config.safeCards!.cardManagerAddress,
+      );
+    }
+
+    await _cardManager?.init();
+
     await _initContracts(
       account,
       config.community.alias,
@@ -205,6 +229,21 @@ class WalletService {
     await _initLegacyRPCs();
 
     _initAccount(onNotify, onFinished);
+  }
+
+  Future<Uint8List> getCardHash(String serial, {bool local = true}) async {
+    if (_cardManager == null) {
+      throw Exception('Card manager not initialized');
+    }
+
+    return _cardManager!.getCardHash(serial, local: local);
+  }
+
+  Future<EthereumAddress> getCardAddress(Uint8List hash) async {
+    if (_cardManager == null) {
+      throw Exception('Card manager not initialized');
+    }
+    return _cardManager!.getCardAddress(hash);
   }
 
   Future<void> initWeb(
