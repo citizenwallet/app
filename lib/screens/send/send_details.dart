@@ -135,14 +135,14 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await navigator.push<bool?>(
+    final address = await navigator.push<String?>(
         '/wallet/${walletLogic.account}/send/link/progress',
         extra: {
           'voucherLogic': voucherLogic,
         });
 
-    if (sent == true) {
-      navigator.pop(true);
+    if (address != null) {
+      navigator.pop(address);
       return;
     }
 
@@ -280,6 +280,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
+    const double profileCircleSize = 48;
+
     final walletLogic = widget.walletLogic;
 
     final wallet = context.select(
@@ -327,6 +329,12 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
             walletLogic.addressController.value.text.length == 42) ||
         selectedProfile != null;
 
+    final formattedAddress =
+        formatHexAddress(walletLogic.addressController.value.text);
+
+    debugPrint('formattedAddress: $formattedAddress');
+    debugPrint('isValid: $isValid');
+
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
         !invalidAmount &&
@@ -359,6 +367,50 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
+                        if (selectedProfile != null ||
+                            formattedAddress.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ProfileCircle(
+                                size: profileCircleSize,
+                                backgroundColor: Theme.of(context)
+                                    .colors
+                                    .uiBackgroundAlt
+                                    .resolveFrom(context),
+                                imageUrl: selectedProfile?.imageSmall,
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                children: [
+                                  Text(
+                                    selectedProfile != null &&
+                                            selectedProfile.name.isNotEmpty
+                                        ? selectedProfile.name
+                                        : AppLocalizations.of(context)!
+                                            .anonymous,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    selectedProfile == null
+                                        ? formattedAddress
+                                        : (selectedProfile.username.isNotEmpty
+                                            ? '@${selectedProfile.username}'
+                                            : ''),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 40),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 40),

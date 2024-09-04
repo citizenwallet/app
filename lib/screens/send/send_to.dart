@@ -131,14 +131,15 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await navigator
-        .push('/wallet/${walletLogic.account}/send/link', extra: {
-      'walletLogic': walletLogic,
-      'profilesLogic': profilesLogic,
-      'voucherLogic': widget.voucherLogic,
-    });
+    final address = await navigator.push<String?>(
+        '/wallet/${walletLogic.account}/send/link',
+        extra: {
+          'walletLogic': walletLogic,
+          'profilesLogic': profilesLogic,
+          'voucherLogic': widget.voucherLogic,
+        });
 
-    if (sent == true) {
+    if (address != null) {
       navigator.pop(true);
     }
 
@@ -162,6 +163,8 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
+    handleDismissSelection();
+
     handleParseQRCode(context, result);
   }
 
@@ -181,6 +184,8 @@ class _SendToScreenState extends State<SendToScreen> {
     if (!context.mounted) {
       return;
     }
+
+    handleDismissSelection();
 
     handleParseQRCode(context, result);
   }
