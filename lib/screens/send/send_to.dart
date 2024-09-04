@@ -146,6 +146,8 @@ class _SendToScreenState extends State<SendToScreen> {
   }
 
   void handleScanQRCode(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
@@ -168,6 +170,8 @@ class _SendToScreenState extends State<SendToScreen> {
   }
 
   void handleReadNFC(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
