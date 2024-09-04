@@ -121,7 +121,7 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final result = await navigator.push<({String? address, bool sent})>(
+    final address = await navigator.push<String?>(
         '/wallet/${walletLogic.account}/send/link',
         extra: {
           'walletLogic': walletLogic,
@@ -129,7 +129,7 @@ class _SendToScreenState extends State<SendToScreen> {
           'voucherLogic': widget.voucherLogic,
         });
 
-    if (result != null && result.sent == true) {
+    if (address != null) {
       navigator.pop(true);
     }
 
