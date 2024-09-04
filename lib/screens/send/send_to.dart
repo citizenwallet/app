@@ -131,13 +131,12 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final address = await navigator.push<String?>(
-        '/wallet/${walletLogic.account}/send/link',
-        extra: {
-          'walletLogic': walletLogic,
-          'profilesLogic': profilesLogic,
-          'voucherLogic': widget.voucherLogic,
-        });
+    final address = await navigator
+        .push<String?>('/wallet/${walletLogic.account}/send/link', extra: {
+      'walletLogic': walletLogic,
+      'profilesLogic': profilesLogic,
+      'voucherLogic': widget.voucherLogic,
+    });
 
     if (address != null) {
       navigator.pop(true);
@@ -201,7 +200,7 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
-    await widget.profilesLogic.getProfile(hex);
+    widget.profilesLogic.getProfile(hex);
 
     if (!context.mounted) {
       return;

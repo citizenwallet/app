@@ -68,7 +68,7 @@ class ProfileV1 {
       : account = json['account'],
         username = json['username'],
         name = json['name'],
-        description = json['description'],
+        description = json['description'] ?? '',
         image = json['image'],
         imageMedium = json['image_medium'],
         imageSmall = json['image_small'];
@@ -78,7 +78,7 @@ class ProfileV1 {
       : account = json['account'],
         username = json['username'],
         name = json['name'],
-        description = json['description'],
+        description = json['description'] ?? '',
         image = json['image'],
         imageMedium = json['imageMedium'],
         imageSmall = json['imageSmall'];
