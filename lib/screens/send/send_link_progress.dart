@@ -43,10 +43,7 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.pop((
-      sent: true,
-      address: address,
-    ));
+    navigator.pop(address);
   }
 
   void handleRetry(BuildContext context) {
@@ -122,7 +119,7 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
       final navigator = GoRouter.of(context);
 
-      navigator.pop(true);
+      navigator.pop('');
     }
   }
 
@@ -144,14 +141,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final createdVoucher = context.watch<VoucherState>().createdVoucher;
 
-    final formattedAmount = createdVoucher != null
-        ? formatAmount(
-            double.parse(fromDoubleUnit(
-              createdVoucher.balance,
-              decimals: wallet.decimalDigits,
-            )),
-            decimalDigits: 2,
-          )
+      final formattedAmount = createdVoucher != null
+        ? createdVoucher.balance
         : '';
 
     final creationState =
