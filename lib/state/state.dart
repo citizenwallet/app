@@ -9,6 +9,7 @@ import 'package:citizenwallet/state/backup_web/state.dart';
 import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/state/scan/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,9 @@ Widget provideAppState(Widget child) => MultiProvider(
         ),
         ChangeNotifierProvider(
           create: (_) => CommunitiesState(),
+        ),
+         ChangeNotifierProvider(
+          create: (_) => ScanState(),
         ),
         ChangeNotifierProvider(
           create: (_) => NotificationsState(),

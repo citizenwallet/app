@@ -8,7 +8,11 @@ dependencies:
   smartcontracts:
     git:
       url: https://github.com/citizenwallet/smartcontracts.git
-      ref: v0.0.99
+      ref: v0.0.106
+  contract_forge:
+    git:
+      url: https://github.com/citizenwallet/contract-forge.git
+      ref: v0.0.2 # You can also specify a specific commit or branch if needed
   cupertino_icons: ^1.0.2
   go_router: ^14.0.2
   provider: ^6.0.5
@@ -67,6 +71,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   timeago: ^3.6.1
+  nfc_manager: ^3.5.0
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_lints: ^4.0.0
@@ -120,6 +125,7 @@ flutter:
     - assets/icons/bar_icon.svg
     - assets/icons/citizenbank.svg
     - assets/icons/language-svgrepo-com.svg
+    - assets/icons/contactless.svg
     - assets/config/v3/communities.json
     - assets/config/v3/communities.test.json
     - assets/config/v3/legacy_4337_bundlers.json
@@ -142,6 +148,8 @@ flutter:
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
+    - packages/smartcontracts/contracts/external/CardFactory.abi.json
+    - packages/contract_forge/abi/CardManagerModule.json      
 
   uses-material-design: false
   generate: true
