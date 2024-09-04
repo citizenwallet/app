@@ -20,8 +20,8 @@ extension PumpApp on WidgetTester {
           ],
           supportedLocales: const [
             Locale('en'), // English
-            Locale('fr'), // fench
-            Locale('nl'), // ductch
+            Locale('fr'), // French
+            Locale('nl'), // Dutch
           ],
           routerConfig: GoRouter(
             initialLocation: '/',
