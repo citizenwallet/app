@@ -329,6 +329,12 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
             walletLogic.addressController.value.text.length == 42) ||
         selectedProfile != null;
 
+    final formattedAddress =
+        formatHexAddress(walletLogic.addressController.value.text);
+
+    debugPrint('formattedAddress: $formattedAddress');
+    debugPrint('isValid: $isValid');
+
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
         !invalidAmount &&
@@ -361,7 +367,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
-                        if (selectedProfile != null) ...[
+                        if (selectedProfile != null ||
+                            formattedAddress.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -373,17 +380,33 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                     .colors
                                     .uiBackgroundAlt
                                     .resolveFrom(context),
-                                imageUrl: selectedProfile.imageSmall,
+                                imageUrl: selectedProfile?.imageSmall,
                               ),
-                               const SizedBox(width: 8), 
-                              Text(
-                                selectedProfile.name.isNotEmpty
-                                    ? selectedProfile.name
-                                    : AppLocalizations.of(context)!.anonymous,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              const SizedBox(width: 10),
+                              Column(
+                                children: [
+                                  Text(
+                                    selectedProfile != null &&
+                                            selectedProfile.name.isNotEmpty
+                                        ? selectedProfile.name
+                                        : AppLocalizations.of(context)!
+                                            .anonymous,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    selectedProfile == null
+                                        ? formattedAddress
+                                        : (selectedProfile.username.isNotEmpty
+                                            ? '@${selectedProfile.username}'
+                                            : ''),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
