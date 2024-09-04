@@ -377,7 +377,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               ),
                                const SizedBox(width: 8), 
                               Text(
-                                selectedProfile.name,
+                                selectedProfile.name.isNotEmpty
+                                    ? selectedProfile.name
+                                    : AppLocalizations.of(context)!.anonymous,
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
