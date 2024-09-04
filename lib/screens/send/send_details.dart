@@ -332,9 +332,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final formattedAddress =
         formatHexAddress(walletLogic.addressController.value.text);
 
-    debugPrint('formattedAddress: $formattedAddress');
-    debugPrint('isValid: $isValid');
-
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
         !invalidAmount &&
