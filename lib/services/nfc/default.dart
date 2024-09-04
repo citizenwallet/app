@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:citizenwallet/services/nfc/service.dart';
 
@@ -54,13 +56,17 @@ class DefaultNFCService implements NFCService {
             .join();
 
         if (completer.isCompleted) return;
-        completer.complete(uid);
 
         await NfcManager.instance
             .stopSession(alertMessage: successMessage ?? 'Confirmed');
+
+        if (isPlatformApple()) {
+          await delay(const Duration(milliseconds: 2000));
+        }
+
+        completer.complete(uid);
       },
       onError: (error) async {
-        print(error);
         if (completer.isCompleted) return;
         completer.completeError(error); // Complete the Future with the error
       },
