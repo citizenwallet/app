@@ -21,8 +21,8 @@ class SafeCardManagerContract implements AbstractCardManagerContract {
 
   @override
   Future<void> init() async {
-    final rawAbi =
-        await rootBundle.loadString('packages/contract_forge/abi/CardManagerModule.json');
+    final rawAbi = await rootBundle
+        .loadString('packages/contractforge/abi/CardManagerModule.json');
 
     final cabi = ContractAbi.fromJson(rawAbi, 'CardManagerModule');
 
