@@ -162,6 +162,8 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
+    handleDismissSelection();
+
     handleParseQRCode(context, result);
   }
 
@@ -181,6 +183,8 @@ class _SendToScreenState extends State<SendToScreen> {
     if (!context.mounted) {
       return;
     }
+
+    handleDismissSelection();
 
     handleParseQRCode(context, result);
   }
