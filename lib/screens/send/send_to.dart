@@ -9,6 +9,7 @@ import 'package:citizenwallet/state/scan/logic.dart';
 import 'package:citizenwallet/state/scan/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
@@ -179,6 +180,18 @@ class _SendToScreenState extends State<SendToScreen> {
         modalKey: 'send-nfc-scanner',
       ),
     );
+
+    // the iOS NFC Modal sets the app to inactive and then resumes it
+    // this causes transactions to start being requested again
+    // this is a workaround to wait for the app to resume before pausing the fetching
+    if (isPlatformApple()) {
+      // iOS needs an extra delay which is the time it takes to close the NFC modal
+      delay(const Duration(seconds: 1)).then((_) {
+        widget.walletLogic.pauseFetching();
+      });
+    }
+
+    widget.walletLogic.pauseFetching();
 
     if (result == null) {
       return;
