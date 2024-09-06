@@ -273,6 +273,8 @@ class _SendToScreenState extends State<SendToScreen> {
     });
 
     if (sent == true) {
+      await Future.delayed(const Duration(milliseconds: 50));
+
       navigator.pop(true);
       return;
     }

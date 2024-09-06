@@ -204,6 +204,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
+      await Future.delayed(const Duration(milliseconds: 50));
+
       navigator.pop(true);
       return;
     }

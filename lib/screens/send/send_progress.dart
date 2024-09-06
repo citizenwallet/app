@@ -52,6 +52,10 @@ class _SendProgressState extends State<SendProgress> {
     _isClosing = true;
 
     Future.delayed(const Duration(seconds: 5), () {
+      if (!context.mounted) {
+        return;
+      }
+
       handleDone(context);
     });
   }
