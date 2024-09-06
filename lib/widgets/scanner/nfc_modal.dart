@@ -72,6 +72,8 @@ class NFCModalState extends State<NFCModal>
   }
 
   void onLoad(BuildContext context) async {
+    await delay(const Duration(milliseconds: 50));
+
     nfcAddress = await _scanLogic.read();
 
     if (!context.mounted) {

@@ -60,6 +60,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
     _isClosing = true;
 
     Future.delayed(const Duration(seconds: 5), () {
+      if (!context.mounted) {
+        return;
+      }
+
       handleDone(context);
     });
   }
@@ -141,9 +145,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final createdVoucher = context.watch<VoucherState>().createdVoucher;
 
-      final formattedAmount = createdVoucher != null
-        ? createdVoucher.balance
-        : '';
+    final formattedAmount =
+        createdVoucher != null ? createdVoucher.balance : '';
 
     final creationState =
         context.select((VoucherState state) => state.creationState);
