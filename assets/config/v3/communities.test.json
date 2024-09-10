@@ -1,6 +1,66 @@
 [
   {
     "community": {
+      "name": "Brussels Pay [SAFE]",
+      "description": "A community for the city of Brussels",
+      "url": "https://pay.brussels",
+      "alias": "wallet.pay.brussels.safe",
+      "custom_domain": "wallet.pay.brussels",
+      "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+      "theme": {
+        "primary": "#4a90e2"
+      }
+    },
+    "token": {
+      "standard": "erc20",
+      "name": "pay.brussels",
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "symbol": "EURb",
+      "decimals": 6
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "node": {
+      "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+      "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+      "chain_id": 100
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "profile": {
+      "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
+    },
+    "indexer": {
+      "url": "https://wallet.pay.brussels/indexer",
+      "ipfs_url": "https://wallet.pay.brussels/indexer",
+      "key": "x"
+    },
+    "erc4337": {
+      "rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+      "paymaster_rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+      "entrypoint_address": "0x061fdFcb266401cB9E9407fAbb64559751684f80",
+      "paymaster_address": "0xc3530b6feb4EF647D10DCa343B045E09efA6aB20",
+      "account_factory_address": "0xE66e6896dA710fC0E36135C2768ce46f6D451263",
+      "paymaster_type": "cw-safe"
+    },
+    "safe_cards": {
+      "instance_id": "test",
+      "card_manager_address": "0x37e40A8c3061Bd2cCa824E751768ed0Acd3C88fa"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+        "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+      }
+    ],
+    "version": 1
+  },
+  {
+    "community": {
       "name": "Gratitude Token",
       "description": "Express your gratitude towards someone by sending them a token.",
       "url": "https://citizenwallet.xyz/gratitude",

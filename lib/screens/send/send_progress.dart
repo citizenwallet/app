@@ -1,10 +1,8 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/loaders/progress_circle.dart';
@@ -52,6 +50,10 @@ class _SendProgressState extends State<SendProgress> {
     _isClosing = true;
 
     Future.delayed(const Duration(seconds: 5), () {
+      if (!context.mounted) {
+        return;
+      }
+
       handleDone(context);
     });
   }

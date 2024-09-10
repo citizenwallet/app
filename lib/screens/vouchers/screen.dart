@@ -84,7 +84,6 @@ class VouchersScreenState extends State<VouchersScreen> {
     final navigator = GoRouter.of(context);
 
     await navigator.push('/wallet/${wallet.account}/vouchers/$address');
-
     _logic.resume(address: address);
   }
 
@@ -218,11 +217,17 @@ class VouchersScreenState extends State<VouchersScreen> {
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/${walletLogic.account}/send/link', extra: {
-      'walletLogic': walletLogic,
-      'profilesLogic': profilesLogic,
-      'voucherLogic': _logic,
-    });
+    final address = await navigator.push<String?>(
+        '/wallet/${walletLogic.account}/send/link',
+        extra: {
+          'walletLogic': walletLogic,
+          'profilesLogic': profilesLogic,
+          'voucherLogic': _logic,
+        });
+
+    if (address != null) {
+      _logic.resume(address: address);
+    }
 
     onLoad();
   }

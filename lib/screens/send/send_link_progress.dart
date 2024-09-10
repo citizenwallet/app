@@ -36,14 +36,14 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
   bool _isReadyUpdating = false;
   bool _isReady = false;
 
-  void handleDone(BuildContext context) {
+  void handleDone(BuildContext context, {String? address}) {
     if (!context.mounted) {
       return;
     }
 
     final navigator = GoRouter.of(context);
 
-    navigator.pop(true);
+    navigator.pop(address);
   }
 
   void handleRetry(BuildContext context) {
@@ -60,6 +60,10 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
     _isClosing = true;
 
     Future.delayed(const Duration(seconds: 5), () {
+      if (!context.mounted) {
+        return;
+      }
+
       handleDone(context);
     });
   }
@@ -119,7 +123,7 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
       final navigator = GoRouter.of(context);
 
-      navigator.pop(true);
+      navigator.pop('');
     }
   }
 
@@ -141,15 +145,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final createdVoucher = context.watch<VoucherState>().createdVoucher;
 
-    final formattedAmount = createdVoucher != null
-        ? formatAmount(
-            double.parse(fromDoubleUnit(
-              createdVoucher.balance,
-              decimals: wallet.decimalDigits,
-            )),
-            decimalDigits: 2,
-          )
-        : '';
+    final formattedAmount =
+        createdVoucher != null ? createdVoucher.balance : '';
 
     final creationState =
         context.select((VoucherState state) => state.creationState);
@@ -457,7 +454,8 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                       text: AppLocalizations.of(context)!.dismiss,
                       labelColor:
                           Theme.of(context).colors.white.resolveFrom(context),
-                      onPressed: () => handleDone(context),
+                      onPressed: () =>
+                          handleDone(context, address: createdVoucher!.address),
                       minWidth: 200,
                       maxWidth: width - 60,
                     ),
