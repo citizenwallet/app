@@ -14,7 +14,18 @@ class CommunitiesLogic {
     try {
       final communities = await config.getConfigs();
 
-      _state.fetchCommunitiesSuccess(communities);
+      _state.upsertCommunities(communities);
+
+      for (final community in communities) {
+        if (community.community.hidden) {
+          continue;
+        }
+
+        final isOnline = await config.isCommunityOnline(community.indexer.url);
+
+        _state.setCommunityOnline(community.community.alias, isOnline);
+      }
+
       return;
     } catch (e) {
       //
