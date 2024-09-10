@@ -434,6 +434,7 @@ class Config {
   final ProfileConfig profile;
   final List<PluginConfig> plugins;
   final int version;
+  bool online;
 
   Config({
     required this.community,
@@ -446,6 +447,7 @@ class Config {
     required this.profile,
     required this.plugins,
     this.version = 0,
+    this.online = true,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -464,6 +466,7 @@ class Config {
               .toList()
           : [],
       version: json['version'] ?? 0,
+      online: true,
     );
   }
 
