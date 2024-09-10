@@ -37,10 +37,10 @@ class DBService {
 
   DBService._internal();
 
-  Database? _db;
+  Database? _db; // TODO: move to absract
 
-  late String name;
-  String get path {
+  late String name; // TODO: move to absract
+  String get path { 
     return _db!.path;
   }
 
@@ -92,6 +92,8 @@ class DBService {
     return db;
   }
 
+
+  // TODO: move to absract
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
@@ -122,6 +124,7 @@ class DBService {
   }
 
   // reset db
+  // TODO: move to absract
   Future<void> resetDB() async {
     if (_db == null) {
       return;
@@ -134,6 +137,7 @@ class DBService {
   }
 
   // delete db
+  // TODO: move to absract
   Future<void> deleteDB() async {
     if (_db == null) {
       return;
@@ -145,6 +149,7 @@ class DBService {
   }
 
   // get db size in bytes
+  // TODO: move to absract
   Future<int> getDBSize() async {
     if (_db == null) {
       return 0;
@@ -208,6 +213,7 @@ class AccountsDBService {
     return db;
   }
 
+  // TODO: move to absract
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
