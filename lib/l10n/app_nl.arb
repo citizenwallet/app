@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Zoek gebruiker of plak adres",
   "sendViaLink": "Verstuur via link",
   "scanQRCode": "Scan QR Code",
+  "sendToNFCTag": "Verstuur naar een NFC-tag",
   "mint": "Mint",
   "vouchers": "Vouchers",
   "noBackupFound": "Geen backup gevonden",
@@ -190,5 +191,6 @@
   "voucher": "Voucher",
   "createVoucherText": "Maak een voucher die iedereen kan claimen voor het bovenstaande bedrag.",
   "emptyBalanceText1": "Deze bon is al ingewisseld.",
-  "emptyBalanceText2": "Claim deze voucher op je account"
+  "emptyBalanceText2": "Claim deze voucher op je account",
+  "tapToScan": "Tik om te scannen"
 }

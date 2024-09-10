@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Search user or paste address",
   "sendViaLink": "Send via link",
   "scanQRCode": "Scan QR Code",
+  "sendToNFCTag": "Send to an NFC tag",
   "mint": "Mint",
   "vouchers": "Vouchers",
   "noBackupFound": "No backup found",
@@ -191,5 +192,6 @@
   "voucher": "Voucher",
   "createVoucherText": "Create a voucher which anyone can redeem for the amount shown above.",
   "emptyBalanceText1": "This voucher has already been redeemed.",
-  "emptyBalanceText2": "Redeem this voucher to your account."
+  "emptyBalanceText2": "Redeem this voucher to your account.",
+  "tapToScan": "Tap to scan"
 }

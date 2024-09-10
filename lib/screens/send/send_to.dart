@@ -5,14 +5,18 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/state/scan/logic.dart';
+import 'package:citizenwallet/state/scan/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
+import 'package:citizenwallet/widgets/scanner/nfc_modal.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +24,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
@@ -42,6 +47,7 @@ class SendToScreen extends StatefulWidget {
 
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
+  final ScanLogic _scanLogic = ScanLogic();
 
   final _scrollController = ScrollController();
 
@@ -76,10 +82,15 @@ class _SendToScreenState extends State<SendToScreen> {
     walletLogic.clearAddressController();
     profilesLogic.clearSearch(notify: false);
 
+    _scanLogic.cancelScan(notify: false);
+
     super.dispose();
   }
 
   void onLoad() async {
+    _scanLogic.init(context);
+    _scanLogic.load();
+
     await delay(const Duration(milliseconds: 250));
 
     final walletLogic = widget.walletLogic;
@@ -121,14 +132,14 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await navigator
-        .push('/wallet/${walletLogic.account}/send/link', extra: {
+    final address = await navigator
+        .push<String?>('/wallet/${walletLogic.account}/send/link', extra: {
       'walletLogic': walletLogic,
       'profilesLogic': profilesLogic,
       'voucherLogic': widget.voucherLogic,
     });
 
-    if (sent == true) {
+    if (address != null) {
       navigator.pop(true);
     }
 
@@ -136,6 +147,8 @@ class _SendToScreenState extends State<SendToScreen> {
   }
 
   void handleScanQRCode(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final result = await showCupertinoModalPopup<String?>(
       context: context,
       barrierDismissible: true,
@@ -152,6 +165,44 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
+    handleDismissSelection();
+
+    handleParseQRCode(context, result);
+  }
+
+  void handleReadNFC(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => const NFCModal(
+        modalKey: 'send-nfc-scanner',
+      ),
+    );
+
+    // the iOS NFC Modal sets the app to inactive and then resumes it
+    // this causes transactions to start being requested again
+    // this is a workaround to wait for the app to resume before pausing the fetching
+    if (isPlatformApple()) {
+      // iOS needs an extra delay which is the time it takes to close the NFC modal
+      delay(const Duration(seconds: 1)).then((_) {
+        widget.walletLogic.pauseFetching();
+      });
+    }
+
+    widget.walletLogic.pauseFetching();
+
+    if (result == null) {
+      return;
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    handleDismissSelection();
+
     handleParseQRCode(context, result);
   }
 
@@ -166,7 +217,7 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
-    await widget.profilesLogic.getProfile(hex);
+    widget.profilesLogic.getProfile(hex);
 
     if (!context.mounted) {
       return;
@@ -235,6 +286,8 @@ class _SendToScreenState extends State<SendToScreen> {
     });
 
     if (sent == true) {
+      await Future.delayed(const Duration(milliseconds: 50));
+
       navigator.pop(true);
       return;
     }
@@ -270,6 +323,10 @@ class _SendToScreenState extends State<SendToScreen> {
       (WalletState state) => state.invalidAddress,
     );
 
+    final config = context.select(
+      (WalletState state) => state.config,
+    );
+
     final hasAddress = context.select(
       (WalletState state) => state.hasAddress,
     );
@@ -287,6 +344,15 @@ class _SendToScreenState extends State<SendToScreen> {
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
     );
+
+    final scanStatus = context.select(
+      (ScanState state) => state,
+    );
+
+    final bool displayScanNfc = config != null &&
+        config.hasCards() &&
+        scanStatus.status != ScanStateType.notAvailable &&
+        scanStatus.status != ScanStateType.notReady;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -320,7 +386,7 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight: 180,
+                            expandedHeight: displayScanNfc ? 220 : 180,
                             minHeight: 110,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
@@ -353,7 +419,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 50,
+                                    bottom: displayScanNfc ? 100 : 50,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -403,7 +469,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                     ),
                                   ),
                                   Positioned(
-                                    bottom: 0,
+                                    bottom: displayScanNfc ? 50 : 0,
                                     left: 20,
                                     right: 20,
                                     child: Opacity(
@@ -453,6 +519,61 @@ class _SendToScreenState extends State<SendToScreen> {
                                       ),
                                     ),
                                   ),
+                                  if (displayScanNfc)
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 20,
+                                      right: 20,
+                                      child: Opacity(
+                                        opacity: progressiveClamp(
+                                          0,
+                                          1,
+                                          shrink * 2,
+                                        ),
+                                        child: CupertinoButton(
+                                          padding: const EdgeInsets.all(5),
+                                          onPressed: () =>
+                                              handleReadNFC(context),
+                                          child: Container(
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  'assets/icons/contactless.svg',
+                                                  semanticsLabel:
+                                                      'contactless icon',
+                                                  height: 24,
+                                                  width: 24,
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
+                                                      .resolveFrom(context),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Text(
+                                                  AppLocalizations.of(context)!
+                                                      .sendToNFCTag,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colors
+                                                        .primary
+                                                        .resolveFrom(context),
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   if (selectedProfile != null)
                                     Padding(
                                       padding: const EdgeInsets.symmetric(

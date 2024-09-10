@@ -102,6 +102,7 @@
   "searchUserAndAddress": "Rechercher un utilisateur ou coller une adresse",
   "sendViaLink": "Envoyer via un lien",
   "scanQRCode": "Scanner un code QR",
+  "sendToNFCTag": "Envoyer vers une étiquette NFC",
   "mint": "Émettre",
   "vouchers": "Bons",
   "noBackupFound": "Aucune sauvegarde trouvée",
@@ -191,5 +192,6 @@
   "voucher": "Bon",
   "createVoucherText": "Créer un bon que n'importe qui peut échanger contre le montant indiqué ci-dessus.",
   "emptyBalanceText1": "Ce bon a déjà été échangé.",
-  "emptyBalanceText2": "Échangez ce bon sur votre compte."
+  "emptyBalanceText2": "Échangez ce bon sur votre compte.",
+  "tapToScan": "Appuyez pour scanner"
 }

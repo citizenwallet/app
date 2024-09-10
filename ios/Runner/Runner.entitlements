@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>aps-environment</key>
-	<string>development</string>
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:*.citizenwallet.xyz</string>
-		<string>applinks:*.*.citizenwallet.xyz</string>
-		<string>applinks:*.polygon.citizenwallet.xyz</string>
-		<string>applinks:*.base.citizenwallet.xyz</string>
-		<string>applinks:*.optimism.citizenwallet.xyz</string>
-		<string>applinks:*.arbitrum.citizenwallet.xyz</string>
-		<string>applinks:*.celo.citizenwallet.xyz</string>
-		<string>applinks:global.citizenwallet.xyz</string>
-		<string>applinks:app.citizenwallet.xyz</string>
-		<string>applinks:wallet.oak.community</string>
-		<string>applinks:wallet.regensunite.earth</string>
-		<string>applinks:wallet.sfluv.org</string>
-		<string>applinks:middlebit.xyz</string>
-	</array>
-	<key>keychain-access-groups</key>
-	<array>
-		<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys</string>
-		<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys-dev</string>
-	</array>
-</dict>
+	<dict>
+		<key>aps-environment</key>
+		<string>development</string>
+		<key>com.apple.developer.associated-domains</key>
+		<array>
+			<string>applinks:*.citizenwallet.xyz</string>
+			<string>applinks:*.*.citizenwallet.xyz</string>
+			<string>applinks:*.polygon.citizenwallet.xyz</string>
+			<string>applinks:*.base.citizenwallet.xyz</string>
+			<string>applinks:*.optimism.citizenwallet.xyz</string>
+			<string>applinks:*.arbitrum.citizenwallet.xyz</string>
+			<string>applinks:*.celo.citizenwallet.xyz</string>
+			<string>applinks:global.citizenwallet.xyz</string>
+			<string>applinks:app.citizenwallet.xyz</string>
+			<string>applinks:wallet.oak.community</string>
+			<string>applinks:wallet.regensunite.earth</string>
+			<string>applinks:wallet.sfluv.org</string>
+			<string>applinks:middlebit.xyz</string>
+		</array>
+		<key>com.apple.developer.nfc.readersession.formats</key>
+		<array>
+			<string>TAG</string>
+		</array>
+		<key>keychain-access-groups</key>
+		<array>
+			<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys</string>
+			<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys-dev</string>
+		</array>
+	</dict>
 </plist>
