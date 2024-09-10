@@ -182,4 +182,19 @@ class ConfigService {
 
     return configs;
   }
+
+  Future<bool> isCommunityOnline(String indexerUrl) async {
+    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 5);
+
+    try {
+      await indexer.get(url: '/health');
+      return true;
+    } catch (e, s) {
+      debugPrint('indexerUrl: $indexerUrl');
+      debugPrint('Error checking if community is online: $e, $indexerUrl');
+      debugPrint('Stacktrace: $s, $indexerUrl');
+
+      return false;
+    }
+  }
 }
