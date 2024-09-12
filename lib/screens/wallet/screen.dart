@@ -1005,8 +1005,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   width: 42,
                                   borderRadius: 21,
                                 )
-                              : Stack(
-                                  alignment: Alignment.topCenter,
+                              : Stack( 
                                   children: [
                                     GestureDetector(
                                       onTap: handleOpenAccountSwitcher,
@@ -1036,8 +1035,7 @@ class WalletScreenState extends State<WalletScreen> {
                                                 .colors
                                                 .danger
                                                 .resolveFrom(context),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
+                                            borderRadius: BorderRadius.circular(5),
                                           ),
                                         ),
                                       ),
