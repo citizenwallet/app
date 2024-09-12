@@ -68,7 +68,11 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final config = await _config.getConfig(_wallet.alias!);
 
       final url = config.community.walletUrl(deepLinkURL);
 

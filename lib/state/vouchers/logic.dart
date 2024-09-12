@@ -90,7 +90,11 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.vouchersRequest();
 
-      final vouchers = await _db.vouchers.getAllByAlias(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final vouchers = await _db.vouchers.getAllByAlias(_wallet.alias!);
 
       _state.vouchersSuccess(vouchers
           .map(
@@ -210,7 +214,11 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: dbvoucher.legacy,
       );
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final config = await _config.getConfig(_wallet.alias!);
 
       final appLink = config.community.walletUrl(deepLinkURL);
 
@@ -252,7 +260,11 @@ class VoucherLogic extends WidgetsBindingObserver {
         decimals: _wallet.currency.decimals,
       );
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final config = await _config.getConfig(_wallet.alias!);
 
       // _state.createVoucherFunding();
 
@@ -360,7 +372,11 @@ class VoucherLogic extends WidgetsBindingObserver {
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
 
-      final config = await _config.getConfig(_wallet.alias);
+      if(_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final config = await _config.getConfig(_wallet.alias!);
 
       final dbvoucher = DBVoucher(
         address: account.hexEip55,
