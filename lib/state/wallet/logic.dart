@@ -1109,9 +1109,16 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
+      final data = _wallet.erc20TransferEventData(
+        _wallet.account.hexEip55,
+        to,
+        parsedAmount,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: message != '' ? TransferData(message) : null,
+        data: data,
+        extraData: message != '' ? TransferData(message) : null,
       );
       if (txHash == null) {
         // this is an optional operation
@@ -1234,9 +1241,16 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
+      final data = _wallet.erc20TransferEventData(
+        _wallet.account.hexEip55,
+        to,
+        parsedAmount,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: message != '' ? TransferData(message) : null,
+        data: data,
+        extraData: message != '' ? TransferData(message) : null,
       );
       if (txHash == null) {
         // this is an optional operation

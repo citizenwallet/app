@@ -385,9 +385,16 @@ class VoucherLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
+      final data = _wallet.erc20TransferEventData(
+        _wallet.account.hexEip55,
+        account.hexEip55,
+        parsedAmount,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: name != null ? TransferData(name) : null,
+        data: data,
+        extraData: name != null ? TransferData(name) : null,
       );
       if (txHash == null) {
         throw Exception('transaction failed');
@@ -526,11 +533,18 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
+      final data = _wallet.erc20TransferEventData(
+        voucher.address,
+        _wallet.account.hexEip55,
+        amount,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
         legacy: voucher.legacy,
-        data: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
+        data: data,
+        extraData: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
       );
       if (txHash == null) {
         throw Exception('transaction failed');

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class TransferData {
@@ -103,8 +104,20 @@ class ERC20Contract {
 
   Uint8List transferCallData(String to, BigInt amount) {
     final function = rcontract.function('transfer');
+    rcontract.event('Transfer').components;
 
     return function.encodeCall([EthereumAddress.fromHex(to), amount]);
+  }
+
+  Map<String, dynamic> getTransferEventData(
+      String from, String to, BigInt amount) {
+    final event = rcontract.event('Transfer');
+    return {
+      "from": from,
+      "to": to,
+      "topic": bytesToHex(event.signature, include0x: true),
+      "value": amount.toString(),
+    };
   }
 
   Uint8List mintCallData(String to, BigInt amount) {

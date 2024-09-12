@@ -899,6 +899,18 @@ class WalletService {
     );
   }
 
+  Map<String, dynamic> erc20TransferEventData(
+    String from,
+    String to,
+    BigInt amount,
+  ) {
+    return _contractToken.getTransferEventData(
+      from,
+      to,
+      amount,
+    );
+  }
+
   /// construct erc20 transfer call data
   Uint8List erc20MintCallData(
     String to,
@@ -988,11 +1000,12 @@ class WalletService {
     UserOp userop,
     String eaddr, {
     bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic> data = const {},
+    TransferData? extraData,
   }) async {
-    final params = [userop.toJson(), eaddr];
-    if (!legacy && data != null) {
-      params.add(data.toJson());
+    final params = [userop.toJson(), eaddr, data];
+    if (extraData != null) {
+      params.add(extraData.toJson());
     }
 
     final body = SUJSONRPCRequest(
@@ -1293,7 +1306,8 @@ class WalletService {
     UserOp userop, {
     EthPrivateKey? customCredentials,
     bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic> data = const {},
+    TransferData? extraData,
   }) async {
     try {
       bool isLegacy = legacy;
@@ -1320,6 +1334,7 @@ class WalletService {
         entryPoint.addr,
         legacy: isLegacy,
         data: data,
+        extraData: extraData,
       );
       if (useropErr != null) {
         throw useropErr;
