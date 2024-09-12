@@ -38,6 +38,10 @@ bool selectShouldBlockSending(WalletState state) {
     return true;
   }
 
+  if (state.config?.online == false) {
+    return true;
+  }
+
   return false;
 }
 
