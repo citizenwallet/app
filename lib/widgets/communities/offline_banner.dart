@@ -5,12 +5,15 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OfflineBanner extends StatefulWidget {
   final bool display;
+  final String communityUrl;
 
   const OfflineBanner({
     super.key,
+    required this.communityUrl,
     this.display = false,
   });
 
@@ -79,6 +82,12 @@ class _OfflineBannerState extends State<OfflineBanner> {
     });
   }
 
+  void handleCommunityInfo() {
+    final Uri uri = Uri.parse(widget.communityUrl);
+
+    launchUrl(uri, mode: LaunchMode.inAppWebView);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_display) {
@@ -92,7 +101,7 @@ class _OfflineBannerState extends State<OfflineBanner> {
       duration: const Duration(milliseconds: 250),
       child: Container(
         height: 45 + safeTopPadding,
-        padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 5),
+        padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
         decoration: BoxDecoration(
           color: Theme.of(context).colors.danger.resolveFrom(context),
           borderRadius: const BorderRadius.only(
@@ -115,7 +124,7 @@ class _OfflineBannerState extends State<OfflineBanner> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                         AppLocalizations.of(context)!.communityCurrentlyOffline,
+                        AppLocalizations.of(context)!.communityCurrentlyOffline,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -125,11 +134,15 @@ class _OfflineBannerState extends State<OfflineBanner> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(
-                        CupertinoIcons.info,
-                        color:
-                            Theme.of(context).colors.white.resolveFrom(context),
-                        size: 18,
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        onPressed: handleCommunityInfo,
+                        minSize: 20,
+                        child: Icon(
+                          CupertinoIcons.info,
+                          color: Theme.of(context).colors.white,
+                        ),
                       )
                     ],
                   )

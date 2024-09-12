@@ -1047,6 +1047,7 @@ class WalletScreenState extends State<WalletScreen> {
               ),
             ),
             OfflineBanner(
+              communityUrl: config?.community.url ?? '',
               display: config?.online == false,
             ),
           ],
