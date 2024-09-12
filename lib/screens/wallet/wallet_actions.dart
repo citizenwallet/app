@@ -44,6 +44,9 @@ class WalletActions extends StatelessWidget {
     final loading = context.select((WalletState state) => state.loading);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
+    final config = context.select((WalletState state) => state.config);
+
+    final withOfflineBanner = config!.online == false;
 
     final blockSending = context.select(selectShouldBlockSending);
     final sendLoading = context.read<WalletState>().transactionSendLoading;
@@ -89,7 +92,7 @@ class WalletActions extends StatelessWidget {
       children: [
         Positioned(
           top: 0,
-          bottom: 60,
+          bottom: withOfflineBanner ? 60 - 20 : 60,
           left: 0,
           right: 0,
           child: Container(
@@ -104,7 +107,7 @@ class WalletActions extends StatelessWidget {
           left: 0,
           right: 0,
           child: Container(
-            height: 60,
+            height: withOfflineBanner ? 60 - 20 : 60,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -123,7 +126,7 @@ class WalletActions extends StatelessWidget {
         ),
         if (wallet != null)
           Positioned(
-            top: 90,
+            top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
               opacity: progressiveClamp(0, 1, shrink * 2.5),
               child: CoinSpinner(
@@ -135,7 +138,9 @@ class WalletActions extends StatelessWidget {
             ),
           ),
         Positioned(
-          top: progressiveClamp(90, 170, shrink),
+          top: withOfflineBanner
+              ? progressiveClamp(90 + 20, 170 + 20, shrink)
+              : progressiveClamp(90, 170, shrink),
           child: Opacity(
             opacity: progressiveClamp(0, 1, shrink * 2.5),
             child: Text(
@@ -149,7 +154,9 @@ class WalletActions extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: progressiveClamp(90, 210, shrink * 2),
+          top: withOfflineBanner
+              ? progressiveClamp(90 + 20, 210 + 20, shrink * 2)
+              : progressiveClamp(90, 210, shrink * 2),
           child: loading && formattedBalance.isEmpty
               ? CupertinoActivityIndicator(
                   color: Theme.of(context).colors.subtle.resolveFrom(context),
@@ -220,7 +227,9 @@ class WalletActions extends StatelessWidget {
                 ),
         ),
         Positioned(
-          top: progressiveClamp(140, 280, shrink * 2),
+          top: withOfflineBanner
+              ? progressiveClamp(140 + 20, 280 + 20, shrink * 2)
+              : progressiveClamp(140, 280, shrink * 2),
           left: 0,
           right: 0,
           child: Row(
