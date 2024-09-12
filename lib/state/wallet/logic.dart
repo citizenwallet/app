@@ -366,6 +366,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final currency = _wallet.currency;
 
+      config.online = await _config.isCommunityOnline(config.indexer.url);
+
       _state.setWalletConfig(config);
 
       _state.setWallet(
@@ -1480,7 +1482,11 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       updateListenerAmount();
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final config = await _config.getConfig(_wallet.alias!);
 
       final url = config.community.walletUrl(deepLinkURL);
 
@@ -1706,10 +1712,17 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
         transferEventSubscribe();
+
+        if (_wallet.alias != null) {
+          final config = await _config.getConfig(_wallet.alias!);
+          config.online = await _config.isCommunityOnline(config.indexer.url);
+          _state.setWalletConfig(config);
+        }
+
         break;
       default:
         transferEventUnsubscribe();
