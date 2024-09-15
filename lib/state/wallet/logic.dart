@@ -75,7 +75,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
-  final AccountDBService _db = AccountDBService();
+  final AccountDBService _accountDBService = AccountDBService();
   final AppDBService _appDBService = AppDBService();
 
   final PreferencesService _preferences = PreferencesService();
@@ -242,10 +242,10 @@ class WalletLogic extends WidgetsBindingObserver {
         config,
       );
 
-      await _db.init(
+      await _accountDBService.init(
           'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
-      ContactsCache().init(_db);
+      ContactsCache().init(_accountDBService);
 
       final currency = _wallet.currency;
 
@@ -367,10 +367,10 @@ class WalletLogic extends WidgetsBindingObserver {
         },
       );
 
-      await _db.init(
+      await _accountDBService.init(
           'wallet_${_wallet.address.hexEip55}'); // TODO: migrate to account address instead
 
-      ContactsCache().init(_db);
+      ContactsCache().init(_accountDBService);
 
       final currency = _wallet.currency;
 
@@ -430,36 +430,44 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
 
-      final accFactory = await accountFactoryServiceFromConfig(config);
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      _state.setWalletConfig(config);
+      _state.setWalletConfig(communityConfig);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
-        name: 'New ${config.token.symbol} Account',
+        name: 'New ${communityConfig.token.symbol} Account',
         address: credentials.address.hexEip55,
-        alias: config.community.alias,
+        alias: communityConfig.community.alias,
         account: address.hexEip55,
-        currencyName: config.token.name,
-        symbol: config.token.symbol,
-        currencyLogo: config.community.logo,
+        currencyName: communityConfig.token.name,
+        symbol: communityConfig.token.symbol,
+        currencyLogo: communityConfig.community.logo,
         locked: false,
       );
 
       await _encPrefs.setAccount(DBAccount(
         address: address,
         privateKey: credentials,
-        name: 'New ${config.token.symbol} Account',
-        alias: config.community.alias,
+        name: 'New ${communityConfig.token.symbol} Account',
+        alias: communityConfig.community.alias,
       ));
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       _state.createWalletSuccess(
         cwwallet,
@@ -487,24 +495,32 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('Invalid private key');
       }
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
 
-      final accFactory = await accountFactoryServiceFromConfig(config);
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
-      final name = 'Imported ${config.token.symbol} Account';
+      final name = 'Imported ${communityConfig.token.symbol} Account';
 
-      _state.setWalletConfig(config);
+      _state.setWalletConfig(communityConfig);
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
         name: name,
         address: credentials.address.hexEip55,
-        alias: config.community.alias,
+        alias: communityConfig.community.alias,
         account: address.hexEip55,
-        currencyName: config.token.name,
-        symbol: config.token.symbol,
-        currencyLogo: config.community.logo,
+        currencyName: communityConfig.token.name,
+        symbol: communityConfig.token.symbol,
+        currencyLogo: communityConfig.community.logo,
         locked: false,
       );
 
@@ -512,13 +528,13 @@ class WalletLogic extends WidgetsBindingObserver {
         address: address,
         privateKey: credentials,
         name: name,
-        alias: config.community.alias,
+        alias: communityConfig.community.alias,
       ));
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       _state.createWalletSuccess(cwwallet);
 
@@ -643,7 +659,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      await _db.transactions.insertAll(
+      await _accountDBService.transactions.insertAll(
         iterableRemoteTxs.toList(),
       );
 
@@ -754,7 +770,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // with network errors or bugs there can be a build up of invalid transactions that will never return
       // clear the old ones out when the user pulls to refresh
-      await _db.transactions.clearOldTransactions();
+      await _accountDBService.transactions.clearOldTransactions();
 
       transferEventUnsubscribe();
 
@@ -763,7 +779,7 @@ class WalletLogic extends WidgetsBindingObserver {
       const limit = 10;
 
       final List<CWTransaction> txs =
-          (await _db.transactions.getPreviousTransactions(
+          (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
         _wallet.erc20Address,
         0, // TODO: remove tokenId hardcode
@@ -818,7 +834,7 @@ class WalletLogic extends WidgetsBindingObserver {
             ),
           );
 
-          await _db.transactions.insertAll(
+          await _accountDBService.transactions.insertAll(
             iterableRemoteTxs.toList(),
           );
 
@@ -871,7 +887,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final offset = _state.transactionsOffset + limit;
 
       final List<CWTransaction> txs =
-          (await _db.transactions.getPreviousTransactions(
+          (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
         _wallet.erc20Address,
         0, // TODO: remove tokenId hardcode
@@ -926,7 +942,7 @@ class WalletLogic extends WidgetsBindingObserver {
             ),
           );
 
-          await _db.transactions.insertAll(
+          await _accountDBService.transactions.insertAll(
             iterableRemoteTxs.toList(),
           );
 
@@ -1498,20 +1514,28 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('alias not found');
       }
 
-      final config = await _config.getConfig(_wallet.alias!);
+      // final config = await _config.getConfig(_wallet.alias!);
 
-      final url = config.community.walletUrl(deepLinkURL);
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final url = communityConfig.community.walletUrl(deepLinkURL);
 
       if (onlyHex != null && onlyHex) {
         final compressedParams = compress(
-            '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
+            '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
 
         _state.updateReceiveQR('$url&receiveParams=$compressedParams');
         return;
       }
 
       String params =
-          '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}';
+          '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}';
 
       if (_amountController.value.text.isNotEmpty) {
         final double amount = _amountController.value.text.isEmpty
@@ -1679,13 +1703,22 @@ class WalletLogic extends WidgetsBindingObserver {
 
       url = Uri.decodeComponent(url);
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
 
-      if (config.plugins.isEmpty) {
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      if (communityConfig.plugins.isEmpty) {
         return null;
       }
 
-      final plugin = config.plugins.firstWhereOrNull((p) => p.url == url);
+      final plugin =
+          communityConfig.plugins.firstWhereOrNull((p) => p.url == url);
       if (plugin == null) {
         return null;
       }

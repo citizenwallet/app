@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
@@ -24,6 +26,7 @@ class AppLogic {
   final PreferencesService _preferences = PreferencesService();
   final AccountsServiceInterface _accounts = getAccountsService();
   final ConfigService _config = ConfigService();
+  final AppDBService _appDBService = AppDBService();
   final AudioService _audio = AudioService();
 
   late AppState _appState;
@@ -80,9 +83,17 @@ class AppLogic {
 
           final address = dbWallet.address.hexEip55;
 
-          final config = await _config.getConfig(dbWallet.alias);
+          // final config = await _config.getConfig(dbWallet.alias);
 
-          _theme.changeTheme(config.community.theme);
+          final community = await _appDBService.communities.get(dbWallet.alias);
+
+          if (community == null) {
+            throw Exception('community not found');
+          }
+
+          Config communityConfig = Config.fromJson(community.config);
+
+          _theme.changeTheme(communityConfig.community.theme);
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
@@ -121,7 +132,15 @@ class AppLogic {
       await delay(
           const Duration(milliseconds: 500)); // smoother launch experience
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
+
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
 
       _appState.importLoadingSuccess();
 
@@ -132,12 +151,12 @@ class AppLogic {
           '0.0',
           name: e.name,
           address: credentials?.address.hexEip55 ?? '',
-          alias: config.community.alias,
+          alias: communityConfig.community.alias,
           account: e.address.hexEip55,
-          currencyName: config.token.name,
-          symbol: config.token.symbol,
-          currencyLogo: config.community.logo,
-          decimalDigits: config.token.decimals,
+          currencyName: communityConfig.token.name,
+          symbol: communityConfig.token.symbol,
+          currencyLogo: communityConfig.community.logo,
+          decimalDigits: communityConfig.token.decimals,
           locked: false,
         );
       }).toList();
@@ -154,22 +173,30 @@ class AppLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
 
-      final accFactory = await accountFactoryServiceFromConfig(config);
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       await _accounts.setAccount(DBAccount(
         address: address,
         privateKey: credentials,
-        name: config.token.name,
-        alias: config.community.alias,
+        name: communityConfig.token.name,
+        alias: communityConfig.community.alias,
       ));
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       _appState.importLoadingSuccess();
 
@@ -252,11 +279,19 @@ class AppLogic {
         throw Exception('Invalid private key');
       }
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
 
-      final name = 'Imported ${config.token.symbol} Account';
+      final community = await _appDBService.communities.get(alias);
 
-      final accFactory = await accountFactoryServiceFromConfig(config);
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final name = 'Imported ${communityConfig.token.symbol} Account';
+
+      final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       await _accounts.setAccount(
@@ -264,14 +299,14 @@ class AppLogic {
           address: address,
           privateKey: credentials,
           name: name,
-          alias: config.community.alias,
+          alias: communityConfig.community.alias,
         ),
       );
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       _appState.importLoadingSuccess();
 
@@ -305,12 +340,20 @@ class AppLogic {
 
       final credentials = wallet.privateKey;
 
-      final config = await _config.getConfig(alias);
+      // final config = await _config.getConfig(alias);
+
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
 
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 
-      final existing =
-          await _accounts.getAccount(address.hexEip55, config.community.alias);
+      final existing = await _accounts.getAccount(
+          address.hexEip55, communityConfig.community.alias);
       if (existing != null) {
         return (existing.address.hexEip55, alias);
       }
@@ -319,15 +362,15 @@ class AppLogic {
         DBAccount(
           address: address,
           privateKey: credentials,
-          name: '${config.token.symbol} Web Account',
-          alias: config.community.alias,
+          name: '${communityConfig.token.symbol} Web Account',
+          alias: communityConfig.community.alias,
         ),
       );
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       _appState.importLoadingSuccess();
 

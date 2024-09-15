@@ -1,6 +1,8 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -19,6 +21,7 @@ class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
+  final AppDBService _appDBService = AppDBService();
 
   late ProfileState _state;
   late ProfilesState _profiles;
@@ -72,12 +75,21 @@ class ProfileLogic {
         throw Exception('alias not found');
       }
 
-      final config = await _config.getConfig(_wallet.alias!);
+      // final config = await _config.getConfig(_wallet.alias!);
 
-      final url = config.community.walletUrl(deepLinkURL);
+       final community =
+          await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final url = communityConfig.community.walletUrl(deepLinkURL);
 
       final compressedParams = compress(
-          '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
+          '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
 
       _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;
