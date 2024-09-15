@@ -28,6 +28,68 @@ abstract class DBTable {
   Future<void> migrate(Database db, int oldVersion, int newVersion);
 }
 
+// FIXME: rename to DBService later
+abstract class AbsDBService {
+  Database? _db;
+  late String name;
+
+  String get path => _db!.path;
+
+  // open a database, create tables and migrate data
+  Future<Database> openDB(String path);
+
+  Future<void> init(String name) async {
+    if (kIsWeb) {
+      final swOptions = SqfliteFfiWebOptions(
+        sqlite3WasmUri: Uri.parse('sqlite3.wasm'),
+        sharedWorkerUri: Uri.parse('sqflite_sw.js'),
+        indexedDbName: '$name.db',
+      );
+
+      final webContext = defaultTargetPlatform == TargetPlatform.android
+          ? await sqfliteFfiWebLoadSqlite3Wasm(swOptions)
+          : await sqfliteFfiWebStartSharedWorker(swOptions);
+
+      databaseFactory =
+          createDatabaseFactoryFfiWeb(options: webContext.options);
+    }
+
+    if (_db != null && _db!.isOpen) {
+      await _db!.close();
+    }
+
+    this.name = '$name.db';
+    final dbPath =
+        kIsWeb ? this.name : join(await getDatabasesPath(), this.name);
+    _db = await openDB(dbPath);
+  }
+
+  Future<void> resetDB() async {
+    if (_db == null) return;
+
+    final dbPath = _db!.path;
+    await _db!.close();
+    await deleteDatabase(dbPath);
+    _db = await openDB(dbPath);
+  }
+
+  Future<void> deleteDB() async {
+    if (_db == null) return;
+
+    final dbPath = _db!.path;
+    await _db!.close();
+    await deleteDatabase(dbPath);
+  }
+
+  Future<int> getDBSize() async {
+    if (_db == null) return 0;
+
+    final dbPath = _db!.path;
+    final file = File(dbPath);
+    return file.length();
+  }
+}
+
 class DBService {
   static final DBService _instance = DBService._internal();
 
@@ -37,10 +99,10 @@ class DBService {
 
   DBService._internal();
 
-  Database? _db; // TODO: move to absract
+  Database? _db;
 
-  late String name; // TODO: move to absract
-  String get path { 
+  late String name;
+  String get path {
     return _db!.path;
   }
 
@@ -92,8 +154,6 @@ class DBService {
     return db;
   }
 
-
-  // TODO: move to absract
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
@@ -120,11 +180,11 @@ class DBService {
     this.name = '$name.db';
     final dbPath =
         kIsWeb ? this.name : join(await getDatabasesPath(), this.name);
+
     _db = await openDB(dbPath);
   }
 
   // reset db
-  // TODO: move to absract
   Future<void> resetDB() async {
     if (_db == null) {
       return;
@@ -137,7 +197,6 @@ class DBService {
   }
 
   // delete db
-  // TODO: move to absract
   Future<void> deleteDB() async {
     if (_db == null) {
       return;
@@ -149,7 +208,6 @@ class DBService {
   }
 
   // get db size in bytes
-  // TODO: move to absract
   Future<int> getDBSize() async {
     if (_db == null) {
       return 0;
@@ -213,7 +271,6 @@ class AccountsDBService {
     return db;
   }
 
-  // TODO: move to absract
   Future<void> init(String name) async {
     if (kIsWeb) {
       // Change default factory on the web
