@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/db/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
@@ -75,6 +76,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
   final DBService _db = DBService();
+  final AppDBService _appDBService = AppDBService();
 
   final PreferencesService _preferences = PreferencesService();
   final AccountsServiceInterface _encPrefs = getAccountsService();
@@ -306,7 +308,13 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('address not found');
       }
 
-      final config = await _config.getConfig(alias);
+      final community = await _appDBService.communities.get(alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
 
       if (isWalletLoaded &&
           address == _wallet.account.hexEip55 &&
@@ -319,7 +327,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await loadAdditionalData(false);
 
-        _theme.changeTheme(config.community.theme);
+        _theme.changeTheme(communityConfig.community.theme);
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
@@ -345,11 +353,11 @@ class WalletLogic extends WidgetsBindingObserver {
         dbWallet.address,
         dbWallet.privateKey!,
         NativeCurrency(
-          name: config.token.name,
-          symbol: config.token.symbol,
-          decimals: config.token.decimals,
+          name: communityConfig.token.name,
+          symbol: communityConfig.token.symbol,
+          decimals: communityConfig.token.decimals,
         ),
-        config,
+        communityConfig,
         onNotify: (String message) {
           _notificationsLogic.show(message);
         },
@@ -366,9 +374,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final currency = _wallet.currency;
 
-      config.online = await _config.isCommunityOnline(config.indexer.url);
+      communityConfig.online =
+          await _config.isCommunityOnline(communityConfig.indexer.url);
 
-      _state.setWalletConfig(config);
+      _appDBService.communities.updateOnlineStatus(
+          communityConfig.community.alias, communityConfig.online);
+
+      _state.setWalletConfig(communityConfig);
 
       _state.setWallet(
         CWWallet(
@@ -377,12 +389,12 @@ class WalletLogic extends WidgetsBindingObserver {
           address: _wallet.address.hexEip55,
           alias: dbWallet.alias,
           account: _wallet.account.hexEip55,
-          currencyName: config.token.name,
-          symbol: config.token.symbol,
-          currencyLogo: config.community.logo,
+          currencyName: communityConfig.token.name,
+          symbol: communityConfig.token.symbol,
+          currencyLogo: communityConfig.community.logo,
           decimalDigits: currency.decimals,
           locked: dbWallet.privateKey == null,
-          plugins: config.plugins,
+          plugins: communityConfig.plugins,
           minter: false,
         ),
       );
@@ -394,10 +406,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await loadAdditionalData(true);
 
-      _theme.changeTheme(config.community.theme);
+      _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address);
-      await _preferences.setLastAlias(config.community.alias);
+      await _preferences.setLastAlias(communityConfig.community.alias);
 
       return address;
     } on NotFoundException {
@@ -1717,11 +1729,25 @@ class WalletLogic extends WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         transferEventSubscribe();
 
-        if (_wallet.alias != null) {
-          final config = await _config.getConfig(_wallet.alias!);
-          config.online = await _config.isCommunityOnline(config.indexer.url);
-          _state.setWalletConfig(config);
+        if (_wallet.alias == null) {
+          return;
         }
+
+        final community = await _appDBService.communities.get(_wallet.alias!);
+
+        if (community == null) {
+          return;
+        }
+
+        Config communityConfig = Config.fromJson(community.config);
+
+        communityConfig.online =
+            await _config.isCommunityOnline(communityConfig.indexer.url);
+
+        await _appDBService.communities.updateOnlineStatus(
+            communityConfig.community.alias, communityConfig.online);
+
+        _state.setWalletConfig(communityConfig);
 
         break;
       default:
