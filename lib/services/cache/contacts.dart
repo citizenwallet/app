@@ -1,10 +1,10 @@
 import 'package:citizenwallet/services/cache/cache.dart';
-import 'package:citizenwallet/services/db/contacts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/contacts.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 
 class ContactsCache extends Cache {
   static final ContactsCache _instance = ContactsCache._internal(
-    DBService(),
+    AccountDBService(),
     const Duration(seconds: 60),
   );
 
@@ -18,7 +18,7 @@ class ContactsCache extends Cache {
 
   late ContactTable _table;
 
-  void init(DBService db) {
+  void init(AccountDBService db) {
     _table = db.contacts;
   }
 

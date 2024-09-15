@@ -4,8 +4,8 @@ import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/accounts/utils.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/credentials/native/apple.dart';
-import 'package:citizenwallet/services/db/accounts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
@@ -20,7 +20,7 @@ class AppleAccountsService extends AccountsServiceInterface {
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
-  late AccountsDBService _accountsDB;
+  late AccountBackupDBService _accountsDB;
 
   @override
   Future init(AccountsOptionsInterface options) async {

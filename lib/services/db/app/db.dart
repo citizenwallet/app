@@ -1,8 +1,8 @@
-import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:sqflite/sqflite.dart';
 
-class AppDBService extends AbsDBService {
+class AppDBService extends DBService {
   static final AppDBService _instance = AppDBService._internal();
 
   factory AppDBService() {

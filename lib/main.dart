@@ -4,8 +4,8 @@ import 'package:citizenwallet/firebase_options.dart';
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
-import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
@@ -52,7 +52,7 @@ void main() async {
 FutureOr<void> appRunner() async {
   await PreferencesService().init(await SharedPreferences.getInstance());
 
-  DBService();
+  AccountDBService();
 
   WalletService();
 

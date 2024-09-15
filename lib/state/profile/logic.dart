@@ -1,6 +1,6 @@
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/contacts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/contacts.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -24,7 +24,7 @@ class ProfileLogic {
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
 
-  final DBService _db = DBService();
+  final AccountDBService _db = AccountDBService();
   final WalletService _wallet = WalletService();
 
   ProfileLogic(BuildContext context) {

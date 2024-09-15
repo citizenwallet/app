@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/services/db/vouchers.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/account/vouchers.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -24,7 +24,7 @@ class VoucherLogic extends WidgetsBindingObserver {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
-  final DBService _db = DBService();
+  final AccountDBService _db = AccountDBService();
   final WalletService _wallet = WalletService();
   final SharingService _sharing = SharingService();
 

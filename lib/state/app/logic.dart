@@ -5,7 +5,7 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';

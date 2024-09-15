@@ -3,7 +3,7 @@ import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -25,7 +25,7 @@ class BackupLogic {
   final NotificationsLogic _notifications;
   final ConfigService _config = ConfigService();
 
-  final AccountsDBService _accountsDB = AccountsDBService();
+  final AccountBackupDBService _accountsDB = AccountBackupDBService();
 
   BackupLogic(
     BuildContext context,
@@ -37,7 +37,7 @@ class BackupLogic {
       await _accountsDB.init('accounts');
 
       await _accounts.init(AndroidAccountsOptions(
-        accountsDB: AccountsDBService(),
+        accountsDB: AccountBackupDBService(),
       ));
     } catch (_) {}
   }
@@ -51,7 +51,7 @@ class BackupLogic {
       await getAccountsService().init(
         AppleAccountsOptions(
           groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID'),
-          accountsDB: AccountsDBService(),
+          accountsDB: AccountBackupDBService(),
         ),
       );
     } catch (_) {}
@@ -316,7 +316,7 @@ class BackupLogic {
           '${_accountsDB.path}.remote.db',
         );
 
-        final remoteDB = AccountsDBService.newInstance();
+        final remoteDB = AccountBackupDBService.newInstance();
 
         await remoteDB.init(remoteDBName);
 

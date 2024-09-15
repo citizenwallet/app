@@ -1,10 +1,10 @@
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 
 abstract class Cache {
-  final DBService _db;
+  final AccountDBService _db;
   final Duration _ttl;
 
-  DBService get db => _db;
+  AccountDBService get db => _db;
   Duration get ttl => _ttl;
 
   Cache(this._db, this._ttl);

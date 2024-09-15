@@ -7,10 +7,10 @@ import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
-import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/services/db/transactions.dart';
+import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
@@ -75,7 +75,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
-  final DBService _db = DBService();
+  final AccountDBService _db = AccountDBService();
   final AppDBService _appDBService = AppDBService();
 
   final PreferencesService _preferences = PreferencesService();

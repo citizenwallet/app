@@ -1,4 +1,4 @@
-import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 
 export 'native/native.dart' if (dart.library.html) 'web.dart';
 
