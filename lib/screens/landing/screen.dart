@@ -159,29 +159,31 @@ class LandingScreenState extends State<LandingScreen>
           overrideAlias: alias);
     }
 
-    bool communityExists = await _appDBService.communities.exists(alias!);
+    if (alias != null) {
+      bool communityExists = await _appDBService.communities.exists(alias);
 
-    for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
-      final List<Map<String, dynamic>> communities =
-          await _configService.getCommunitiesFromS3();
+      for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
+        final List<Map<String, dynamic>> communities =
+            await _configService.getCommunitiesFromS3();
 
-      for (final community in communities) {
-        Config communityConfig = Config.fromJson(community);
+        for (final community in communities) {
+          Config communityConfig = Config.fromJson(community);
 
-        final isOnline =
-            await _configService.isCommunityOnline(communityConfig.indexer.url);
+          final isOnline = await _configService
+              .isCommunityOnline(communityConfig.indexer.url);
 
-        await _appDBService.communities.upsert([community]);
-        await _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+          await _appDBService.communities.upsert([community]);
+          await _appDBService.communities
+              .updateOnlineStatus(communityConfig.community.alias, isOnline);
+        }
+
+        // Check again if the community exists after the update
+        communityExists = await _appDBService.communities.exists(alias);
       }
 
-      // Check again if the community exists after the update
-      communityExists = await _appDBService.communities.exists(alias);
-    }
-
-    if (!communityExists) {
-      alias = null;
+      if (!communityExists) {
+        alias = null;
+      }
     }
 
     // load the last wallet if there was no deeplink
