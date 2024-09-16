@@ -1,6 +1,9 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/router/utils.dart';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/service.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
@@ -49,6 +52,8 @@ class LandingScreenState extends State<LandingScreen>
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
   late BackupLogic _backupLogic;
+  final AppDBService _appDBService = AppDBService();
+  final ConfigService _configService = ConfigService();
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
@@ -152,6 +157,31 @@ class LandingScreenState extends State<LandingScreen>
     if (widget.deepLink != null && widget.deepLinkParams != null) {
       (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
           overrideAlias: alias);
+    }
+
+    bool communityExists = await _appDBService.communities.exists(alias!);
+
+    for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
+      final List<Map<String, dynamic>> communities =
+          await _configService.getCommunitiesFromS3();
+
+      for (final community in communities) {
+        Config communityConfig = Config.fromJson(community);
+
+        final isOnline =
+            await _configService.isCommunityOnline(communityConfig.indexer.url);
+
+        await _appDBService.communities.upsert([community]);
+        await _appDBService.communities
+            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+      }
+
+      // Check again if the community exists after the update
+      communityExists = await _appDBService.communities.exists(alias);
+    }
+
+    if (!communityExists) {
+      alias = null;
     }
 
     // load the last wallet if there was no deeplink
