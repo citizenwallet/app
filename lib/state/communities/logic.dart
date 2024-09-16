@@ -15,13 +15,23 @@ class CommunitiesLogic {
 
   Future<void> silentFetchCommunities() async {
     try {
-      _db.communities.refresh();
-
       final communities = await _db.communities.getAll();
       List<Config> communityConfigs =
           communities.map((c) => Config.fromJson(c.config)).toList();
+      _state.fetchCommunitiesSuccess(communityConfigs);
 
-      _state.upsertCommunities(communityConfigs);
+      // Grouped operations for fetching and upserting communities
+      (() async {
+        final List<Map<String, dynamic>> communities =
+            await config.getCommunitiesFromS3();
+
+        List<Config> communityConfigs =
+            communities.map((c) => Config.fromJson(c)).toList();
+
+        _state.upsertCommunities(communityConfigs);
+
+        _db.communities.upsert(communities);
+      })();
 
       for (final communityConfig in communityConfigs) {
         if (communityConfig.community.hidden) {
@@ -58,4 +68,6 @@ class CommunitiesLogic {
 
     _state.fetchCommunitiesFailure();
   }
+
+  // TODO: fetch configs from S3 here
 }
