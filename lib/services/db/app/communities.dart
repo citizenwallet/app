@@ -1,11 +1,7 @@
 import 'dart:convert';
-import 'package:citizenwallet/services/api/api.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/utils/date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBCommunity {
@@ -54,8 +50,6 @@ class CommunityTable extends DBTable {
   static const String communityConfigListS3FileName = 'communities';
 
   static const int version = 3;
-
-  final ConfigService _configService = ConfigService();
 
   // The name of the table
   @override
@@ -135,11 +129,7 @@ class CommunityTable extends DBTable {
       final hidden = isHidden ? 1 : 0;
 
       final version = data['version'] ?? 0;
-
-      final indexer = data['indexer'];
-      final indexerUrl = indexer['url'];
-      final isOnline = await _configService.isCommunityOnline(indexerUrl);
-      final online = isOnline ? 1 : 0;
+      const online = 1;
 
       batch.insert(name, {
         'alias': alias,
@@ -153,20 +143,11 @@ class CommunityTable extends DBTable {
     await batch.commit(noResult: true);
   }
 
-  void refresh() async {
-    final APIService api = APIService(baseURL: dotenv.get('WALLET_CONFIG_URL'));
-
-    final List<dynamic> response = await api.get(
-        url:
-            '/v$version/$communityConfigListS3FileName.json?cachebuster=${generateCacheBusterValue()}');
-
-    final List<Map<String, dynamic>> apiConfigs =
-        response.map((item) => Map<String, dynamic>.from(item)).toList();
-
+  void upsert(List<Map<String, dynamic>> communities) async {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
-    for (final data in apiConfigs) {
+    for (final data in communities) {
       final community = data['community'];
 
       final alias = community['alias'];
@@ -176,10 +157,7 @@ class CommunityTable extends DBTable {
 
       final version = data['version'] ?? 0;
 
-      final indexer = data['indexer'];
-      final indexerUrl = indexer['url'];
-      final isOnline = await _configService.isCommunityOnline(indexerUrl);
-      final online = isOnline ? 1 : 0;
+      const online = 1;
 
       batch.rawInsert('''
         INSERT INTO $name (alias, hidden, config, version, online)
