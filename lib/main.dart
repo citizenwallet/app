@@ -71,13 +71,13 @@ FutureOr<void> appRunner() async {
 
   await AudioService().init(muted: PreferencesService().muted);
 
-  runApp(provideAppState(const MyApp()));
+  runApp(provideAppState(MyApp(config: config)));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({
-    super.key,
-  });
+  final ConfigService config;
+
+  const MyApp({super.key, required this.config});
 
   @override
   MyAppState createState() => MyAppState();
@@ -125,8 +125,15 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    await _appDBService.init('app'); // including seed of communities from local asset file
-    _appDBService.communities.refresh();
+    await _appDBService
+        .init('app'); // including seed of communities from local asset file
+
+    // Grouped operations for fetching and upserting communities
+    (() async {
+      final List<Map<String, dynamic>> communities =
+          await widget.config.getCommunitiesFromS3();
+      _appDBService.communities.upsert(communities);
+    })();
 
     _notificationsLogic.checkPushPermissions();
     await _logic.fetchWalletConfig();
