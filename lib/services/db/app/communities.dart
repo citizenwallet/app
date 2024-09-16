@@ -188,12 +188,15 @@ class CommunityTable extends DBTable {
   }
 
   Future<bool> exists(String alias) async {
-    final result = await db.rawQuery(
-      'SELECT EXISTS(SELECT 1 FROM $name WHERE alias = ?) AS exists',
-      [alias],
+    final result = await db.query(
+      name,
+      columns: ['alias'],
+      where: 'alias = ?',
+      whereArgs: [alias],
+      limit: 1,
     );
 
-    return result.first['exists'] == 1;
+    return result.isNotEmpty;
   }
 
   Future<List<DBCommunity>> getAll() async {
