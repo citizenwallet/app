@@ -377,7 +377,7 @@ class WalletLogic extends WidgetsBindingObserver {
       communityConfig.online =
           await _config.isCommunityOnline(communityConfig.indexer.url);
 
-      _appDBService.communities.updateOnlineStatus(
+      await _appDBService.communities.updateOnlineStatus(
           communityConfig.community.alias, communityConfig.online);
 
       _state.setWalletConfig(communityConfig);
