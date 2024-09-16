@@ -143,7 +143,7 @@ class CommunityTable extends DBTable {
     await batch.commit(noResult: true);
   }
 
-  void upsert(List<Map<String, dynamic>> communities) async {
+  Future<void> upsert(List<Map<String, dynamic>> communities) async {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
@@ -185,6 +185,15 @@ class CommunityTable extends DBTable {
     }
 
     return DBCommunity.fromMap(maps.first);
+  }
+
+  Future<bool> exists(String alias) async {
+    final result = await db.rawQuery(
+      'SELECT EXISTS(SELECT 1 FROM $name WHERE alias = ?) AS exists',
+      [alias],
+    );
+
+    return result.first['exists'] == 1;
   }
 
   Future<List<DBCommunity>> getAll() async {

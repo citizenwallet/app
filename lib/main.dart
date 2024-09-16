@@ -132,7 +132,7 @@ class MyAppState extends State<MyApp> {
     (() async {
       final List<Map<String, dynamic>> communities =
           await widget.config.getCommunitiesFromS3();
-      _appDBService.communities.upsert(communities);
+      await _appDBService.communities.upsert(communities);
     })();
 
     _notificationsLogic.checkPushPermissions();

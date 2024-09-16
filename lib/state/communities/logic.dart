@@ -30,7 +30,7 @@ class CommunitiesLogic {
 
         _state.upsertCommunities(communityConfigs);
 
-        _db.communities.upsert(communities);
+        await _db.communities.upsert(communities);
       })();
 
       for (final communityConfig in communityConfigs) {
