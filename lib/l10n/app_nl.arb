@@ -192,5 +192,6 @@
   "createVoucherText": "Maak een voucher die iedereen kan claimen voor het bovenstaande bedrag.",
   "emptyBalanceText1": "Deze bon is al ingewisseld.",
   "emptyBalanceText2": "Claim deze voucher op je account",
-  "tapToScan": "Tik om te scannen"
+  "tapToScan": "Tik om te scannen",
+  "topup": "Opwaarderen"
 }
