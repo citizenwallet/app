@@ -4,10 +4,11 @@ import 'package:citizenwallet/firebase_options.dart';
 import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/state.dart';
@@ -51,7 +52,7 @@ void main() async {
 FutureOr<void> appRunner() async {
   await PreferencesService().init(await SharedPreferences.getInstance());
 
-  DBService();
+  AccountDBService();
 
   WalletService();
 
@@ -74,9 +75,7 @@ FutureOr<void> appRunner() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({
-    super.key,
-  });
+  const MyApp({super.key});
 
   @override
   MyAppState createState() => MyAppState();
@@ -86,6 +85,7 @@ class MyAppState extends State<MyApp> {
   late GoRouter router;
   late WalletLogic _logic;
   late NotificationsLogic _notificationsLogic;
+  late CommunitiesLogic _communitiesLogic;
   final ThemeLogic _themeLogic = ThemeLogic();
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -96,6 +96,7 @@ class MyAppState extends State<MyApp> {
 
     _notificationsLogic = NotificationsLogic(context);
     _logic = WalletLogic(context, _notificationsLogic);
+    _communitiesLogic = CommunitiesLogic(context);
 
     _themeLogic.init(context);
 
@@ -123,8 +124,11 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    _notificationsLogic.checkPushPermissions();
+    await _communitiesLogic.initializeAppDB();
 
+    _communitiesLogic.fetchCommunitiesFromS3();
+
+    _notificationsLogic.checkPushPermissions();
     await _logic.fetchWalletConfig();
   }
 

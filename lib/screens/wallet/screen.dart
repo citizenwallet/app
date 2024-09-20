@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/widgets/communities/offline_banner.dart';
 
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
@@ -851,11 +852,15 @@ class WalletScreenState extends State<WalletScreen> {
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
+    final config = context.select((WalletState state) => state.config);
 
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
     final username = context.select((ProfileState state) => state.username);
 
     final hasNoProfile = imageSmall == '' && username == '';
+
+    final scanQrDisabledColor =
+        Theme.of(context).colors.primary.withOpacity(0.5);
 
     return CupertinoPageScaffold(
       child: GestureDetector(
@@ -939,7 +944,7 @@ class WalletScreenState extends State<WalletScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: handleQRScan,
+                    onTap: config?.online == false ? () => () : handleQRScan,
                     child: Container(
                       height: 90,
                       width: 90,
@@ -950,7 +955,9 @@ class WalletScreenState extends State<WalletScreen> {
                             .resolveFrom(context),
                         borderRadius: BorderRadius.circular(45),
                         border: Border.all(
-                          color: Theme.of(context).colors.primary,
+                          color: config?.online == false
+                              ? scanQrDisabledColor
+                              : Theme.of(context).colors.primary,
                           width: 3,
                         ),
                         boxShadow: [
@@ -969,10 +976,9 @@ class WalletScreenState extends State<WalletScreen> {
                         child: Icon(
                           CupertinoIcons.qrcode_viewfinder,
                           size: 60,
-                          color: Theme.of(context)
-                              .colors
-                              .primary
-                              .resolveFrom(context),
+                          color: config?.online == false
+                              ? scanQrDisabledColor
+                              : Theme.of(context).colors.primary,
                         ),
                       ),
                     ),
@@ -983,59 +989,66 @@ class WalletScreenState extends State<WalletScreen> {
             GestureDetector(
               onTap: handleScrollToTop,
               child: SafeArea(
-                child: Header(
-                  transparent: true,
-                  color: Theme.of(context).colors.transparent,
-                  title: '',
-                  actionButton: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      cleaningUp || wallet == null
-                          ? const PulsingContainer(
-                              height: 42,
-                              width: 42,
-                              borderRadius: 21,
-                            )
-                          : Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: handleOpenAccountSwitcher,
-                                  child: ProfileCircle(
-                                    size: 42,
-                                    imageUrl: imageSmall,
-                                    borderWidth: 2,
-                                    borderColor: Theme.of(context)
-                                        .colors
-                                        .primary
-                                        .resolveFrom(context),
-                                    backgroundColor: Theme.of(context)
-                                        .colors
-                                        .uiBackgroundAlt
-                                        .resolveFrom(context),
-                                  ),
-                                ),
-                                if (hasNoProfile && !loading)
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                      height: 10,
-                                      width: 10,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
+                child: Padding(
+                    padding:
+                        EdgeInsets.only(top: config?.online == false ? 40 : 0),
+                    child: Header(
+                      transparent: true,
+                      color: Theme.of(context).colors.transparent,
+                      title: '',
+                      actionButton: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          cleaningUp || wallet == null
+                              ? const PulsingContainer(
+                                  height: 42,
+                                  width: 42,
+                                  borderRadius: 21,
+                                )
+                              : Stack( 
+                                  children: [
+                                    GestureDetector(
+                                      onTap: handleOpenAccountSwitcher,
+                                      child: ProfileCircle(
+                                        size: 42,
+                                        imageUrl: imageSmall,
+                                        borderWidth: 2,
+                                        borderColor: Theme.of(context)
                                             .colors
-                                            .danger
+                                            .primary
                                             .resolveFrom(context),
-                                        borderRadius: BorderRadius.circular(5),
+                                        backgroundColor: Theme.of(context)
+                                            .colors
+                                            .uiBackgroundAlt
+                                            .resolveFrom(context),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                    ],
-                  ),
-                ),
+                                    if (hasNoProfile && !loading)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Container(
+                                          height: 10,
+                                          width: 10,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colors
+                                                .danger
+                                                .resolveFrom(context),
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                        ],
+                      ),
+                    )),
               ),
+            ),
+            OfflineBanner(
+              communityUrl: config?.community.url ?? '',
+              display: config?.online == false,
             ),
           ],
         ),

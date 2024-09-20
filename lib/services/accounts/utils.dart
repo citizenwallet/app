@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/accounts/backup.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -13,7 +15,14 @@ import 'package:web3dart/web3dart.dart';
 Future<EthereumAddress?> getLegacyAccountAddress(
     LegacyBackupWallet backup) async {
   try {
-    final config = await ConfigService().getConfig(backup.alias);
+    // final config = await ConfigService().getConfig(backup.alias);
+    final community = await AppDBService().communities.get(backup.alias);
+
+    if (community == null) {
+      throw Exception('no community found');
+    }
+
+    Config communityConfig = Config.fromJson(community.config);
 
     final legacy4337 = await getLegacy4337Bundlers();
 
@@ -23,17 +32,17 @@ Future<EthereumAddress?> getLegacyAccountAddress(
     }
 
     final legacyAccountFactory = await accountFactoryServiceFromConfig(
-      config,
+      communityConfig,
       customAccountFactory: legacyConfig.accountFactoryAddress,
     );
 
     final account = await legacyAccountFactory.getAddress(backup.address);
 
-    final indexer = APIService(baseURL: config.indexer.url);
+    final indexer = APIService(baseURL: communityConfig.indexer.url);
 
     final exists = await accountExists(
       indexer,
-      config.indexer.key,
+      communityConfig.indexer.key,
       account.hexEip55,
     );
 
@@ -41,7 +50,7 @@ Future<EthereumAddress?> getLegacyAccountAddress(
       // deploy account
       await createAccount(
         indexer,
-        config.indexer.key,
+        communityConfig.indexer.key,
         legacyAccountFactory,
         EthPrivateKey.fromHex(backup.privateKey),
       );

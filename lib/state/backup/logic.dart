@@ -1,9 +1,11 @@
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/backup/backup.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -24,8 +26,9 @@ class BackupLogic {
   final PreferencesService _preferences = PreferencesService();
   final NotificationsLogic _notifications;
   final ConfigService _config = ConfigService();
+  final AppDBService _appDBService = AppDBService();
 
-  final AccountsDBService _accountsDB = AccountsDBService();
+  final AccountBackupDBService _accountsDB = AccountBackupDBService();
 
   BackupLogic(
     BuildContext context,
@@ -37,7 +40,7 @@ class BackupLogic {
       await _accountsDB.init('accounts');
 
       await _accounts.init(AndroidAccountsOptions(
-        accountsDB: AccountsDBService(),
+        accountsDB: AccountBackupDBService(),
       ));
     } catch (_) {}
   }
@@ -51,7 +54,7 @@ class BackupLogic {
       await getAccountsService().init(
         AppleAccountsOptions(
           groupId: dotenv.get('ENCRYPTED_STORAGE_GROUP_ID'),
-          accountsDB: AccountsDBService(),
+          accountsDB: AccountBackupDBService(),
         ),
       );
     } catch (_) {}
@@ -185,9 +188,17 @@ class BackupLogic {
 
       assert(accounts.isNotEmpty);
 
-      final config = await _config.getConfig(accounts.first.alias);
+      // final config = await _config.getConfig(accounts.first.alias);
 
-      _theme.changeTheme(config.community.theme);
+      final community = await _appDBService.communities.get(accounts.first.alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      _theme.changeTheme(communityConfig.community.theme);
 
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
@@ -265,9 +276,18 @@ class BackupLogic {
         return;
       }
 
-      final config = await _config.getConfig(accounts.first.alias);
+      // final config = await _config.getConfig(accounts.first.alias);
 
-      _theme.changeTheme(config.community.theme);
+       final community =
+          await _appDBService.communities.get(accounts.first.alias);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      _theme.changeTheme(communityConfig.community.theme);
 
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
@@ -316,7 +336,7 @@ class BackupLogic {
           '${_accountsDB.path}.remote.db',
         );
 
-        final remoteDB = AccountsDBService.newInstance();
+        final remoteDB = AccountBackupDBService.newInstance();
 
         await remoteDB.init(remoteDBName);
 
