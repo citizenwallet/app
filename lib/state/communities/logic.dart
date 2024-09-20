@@ -79,4 +79,29 @@ class CommunitiesLogic {
       //
     }
   }
+
+  Future<bool> isAliasFromDeeplinkExist(String alias) async {
+    bool communityExists = await _db.communities.exists(alias);
+
+    for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
+      final List<Map<String, dynamic>> communities =
+          await config.getCommunitiesFromS3();
+
+      for (final community in communities) {
+        Config communityConfig = Config.fromJson(community);
+
+        final isOnline =
+            await config.isCommunityOnline(communityConfig.indexer.url);
+
+        await _db.communities.upsert([community]);
+        await _db.communities
+            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+      }
+
+      // Check again if the community exists after the update
+      communityExists = await _db.communities.exists(alias);
+    }
+
+    return communityExists;
+  }
 }

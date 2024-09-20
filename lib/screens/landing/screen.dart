@@ -1,14 +1,12 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/router/utils.dart';
-import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -52,8 +50,7 @@ class LandingScreenState extends State<LandingScreen>
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
   late BackupLogic _backupLogic;
-  final AppDBService _appDBService = AppDBService();
-  final ConfigService _configService = ConfigService();
+  late CommunitiesLogic _communitiesLogic;
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
@@ -64,6 +61,7 @@ class LandingScreenState extends State<LandingScreen>
     _appLogic = AppLogic(context);
     _voucherLogic = VoucherLogic(context);
     _backupLogic = BackupLogic(context);
+    _communitiesLogic = CommunitiesLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -160,28 +158,9 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     if (alias != null) {
-      bool communityExists = await _appDBService.communities.exists(alias);
-
-      for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
-        final List<Map<String, dynamic>> communities =
-            await _configService.getCommunitiesFromS3();
-
-        for (final community in communities) {
-          Config communityConfig = Config.fromJson(community);
-
-          final isOnline = await _configService
-              .isCommunityOnline(communityConfig.indexer.url);
-
-          await _appDBService.communities.upsert([community]);
-          await _appDBService.communities
-              .updateOnlineStatus(communityConfig.community.alias, isOnline);
-        }
-
-        // Check again if the community exists after the update
-        communityExists = await _appDBService.communities.exists(alias);
-      }
-
-      if (!communityExists) {
+      final isCommunityExists =
+          await _communitiesLogic.isAliasFromDeeplinkExist(alias);
+      if (!isCommunityExists) {
         alias = null;
       }
     }
