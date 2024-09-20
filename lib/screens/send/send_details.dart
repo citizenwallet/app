@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -9,6 +10,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
+import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
@@ -151,6 +153,35 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     });
 
     return;
+  }
+
+  Future<void> handleTopUpPlugin(
+      PluginConfig topUpPlugin, String address) async {
+    HapticFeedback.heavyImpact();
+
+    final (uri, customScheme, redirect) =
+        await widget.walletLogic.constructPluginUri(topUpPlugin);
+    if (uri == null || redirect == null) {
+      return;
+    }
+
+    switch (topUpPlugin.launchMode) {
+      case PluginLaunchMode.webview:
+        final navigator = GoRouter.of(context);
+
+        await navigator.push('/wallet/$address/webview', extra: {
+          'url': uri,
+          'redirectUrl': redirect,
+          'customScheme': customScheme,
+        });
+
+        await widget.walletLogic.updateBalance();
+
+        break;
+      default:
+        widget.walletLogic.launchPluginUrl(uri);
+        break;
+    }
   }
 
   void handleSend(BuildContext context, String? selectedAddress) async {
@@ -316,6 +347,15 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       (WalletState state) => state.invalidAmount,
     );
 
+    final enteredAmount =
+        (double.tryParse(walletLogic.amountController.value.text) ?? 0.0);
+    final requiresTopup = balance <= 0 || (invalidAmount && enteredAmount > 0);
+    final topUpPlugin = context.select(
+      (WalletState state) => state.config!.getTopUpPlugin(),
+    );
+
+    debugPrint('requiredTop $requiresTopup');
+
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
     );
@@ -337,7 +377,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
         !invalidAmount &&
-        (!invalidAddress || isLink);
+        (!invalidAddress || isLink) &&
+        !(balance <= 0 && topUpPlugin == null);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -516,11 +557,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        if (invalidAmount &&
-                            (double.tryParse(walletLogic
-                                        .amountController.value.text) ??
-                                    0.0) >
-                                0)
+                        if ((invalidAmount && enteredAmount > 0) ||
+                            (balance <= 0 && topUpPlugin == null))
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -550,50 +588,72 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
-                            CupertinoButton(
-                              onPressed: handleSetMaxAmount,
-                              child: Container(
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colors
-                                      .primary
-                                      .resolveFrom(context)
-                                      .withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(
+                            if (balance > 0)
+                              CupertinoButton(
+                                onPressed: handleSetMaxAmount,
+                                child: Container(
+                                  height: 18,
+                                  decoration: BoxDecoration(
                                     color: Theme.of(context)
                                         .colors
-                                        .surfacePrimary
-                                        .resolveFrom(context),
-                                    width: 2,
-                                    strokeAlign: BorderSide.strokeAlignOutside,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 0,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    AppLocalizations.of(context)!
-                                        .max
-                                        .toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                                        .primary
+                                        .resolveFrom(context)
+                                        .withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(
                                       color: Theme.of(context)
                                           .colors
-                                          .primary
+                                          .surfacePrimary
                                           .resolveFrom(context),
+                                      width: 2,
+                                      strokeAlign:
+                                          BorderSide.strokeAlignOutside,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 0,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      AppLocalizations.of(context)!
+                                          .max
+                                          .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
+                                            .resolveFrom(context),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 30),
+                        if (topUpPlugin != null && requiresTopup)
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Button(
+                                  text: AppLocalizations.of(context)!.topup,
+                                  color: Theme.of(context)
+                                      .colors
+                                      .surfacePrimary
+                                      .resolveFrom(context),
+                                  labelColor: Theme.of(context).colors.white,
+                                  onPressed: () => {
+                                        handleTopUpPlugin(
+                                            topUpPlugin, wallet!.address)
+                                      }),
+                              const SizedBox(
+                                height: 30,
+                              )
+                            ],
+                          ),
                         if (!isLink)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 40),

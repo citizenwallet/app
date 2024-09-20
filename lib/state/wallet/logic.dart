@@ -980,6 +980,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> updateBalance() async {
     try {
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
       final balance = await _wallet.balance;
 
       final currentDoubleBalance =
@@ -1759,6 +1763,8 @@ class WalletLogic extends WidgetsBindingObserver {
         if (_wallet.alias == null) {
           return;
         }
+
+        await updateBalance();
 
         final community = await _appDBService.communities.get(_wallet.alias!);
 
