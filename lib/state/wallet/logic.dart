@@ -952,6 +952,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> updateBalance() async {
     try {
+      // TODO: check null on config
       final balance = await _wallet.balance;
 
       final currentDoubleBalance =
@@ -1710,6 +1711,11 @@ class WalletLogic extends WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         transferEventSubscribe();
+
+
+        // TODO: call function updateBalance
+
+
         break;
       default:
         transferEventUnsubscribe();

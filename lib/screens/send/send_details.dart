@@ -169,6 +169,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       case PluginLaunchMode.webview:
         final navigator = GoRouter.of(context);
 
+        // TODO: await navigator
+        // TODO: call updateBalance after
         navigator.push('/wallet/$address/webview', extra: {
           'url': uri,
           'redirectUrl': redirect,
