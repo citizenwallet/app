@@ -48,7 +48,8 @@
                 "name": "Top Up",
                 "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
                 "url": "https://topup.citizenwallet.xyz/gt.celo",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "action": "topup"
             }
         ],
         "version": 1
@@ -104,7 +105,8 @@
                 "name": "Top Up",
                 "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
                 "url": "https://topup.citizenwallet.xyz/gratitude",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "action": "topup"
             }
         ],
         "version": 1
@@ -589,7 +591,8 @@
             {
                 "name": "Top Up",
                 "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-                "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+                "url": "https://topup.citizenspring.earth/wallet.pay.brussels",
+                "action": "topup"
             }
         ],
         "version": 1
@@ -691,7 +694,8 @@
             {
                 "name": "Top Up",
                 "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-                "url": "https://topup.citizenspring.earth/bread"
+                "url": "https://topup.citizenspring.earth/bread",
+                "action": "topup"
             },
             {
                 "name": "Market",
