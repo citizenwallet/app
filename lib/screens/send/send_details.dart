@@ -377,7 +377,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
         !invalidAmount &&
-        (!invalidAddress || isLink);
+        (!invalidAddress || isLink) &&
+        !(balance <= 0 && topUpPlugin == null);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
