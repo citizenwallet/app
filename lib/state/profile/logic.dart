@@ -75,8 +75,6 @@ class ProfileLogic {
         throw Exception('alias not found');
       }
 
-      // final config = await _config.getConfig(_wallet.alias!);
-
        final community =
           await _appDBService.communities.get(_wallet.alias!);
 

@@ -495,8 +495,6 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('Invalid private key');
       }
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -1514,8 +1512,6 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('alias not found');
       }
 
-      // final config = await _config.getConfig(_wallet.alias!);
-
       final community = await _appDBService.communities.get(_wallet.alias!);
 
       if (community == null) {
@@ -1702,8 +1698,6 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       url = Uri.decodeComponent(url);
-
-      // final config = await _config.getConfig(alias);
 
       final community = await _appDBService.communities.get(alias);
 

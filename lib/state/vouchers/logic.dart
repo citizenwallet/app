@@ -222,8 +222,6 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('alias not found');
       }
 
-      // final config = await _config.getConfig(_wallet.alias!);
-
       final community = await _appDBService.communities.get(_wallet.alias!);
 
       if (community == null) {
@@ -275,8 +273,6 @@ class VoucherLogic extends WidgetsBindingObserver {
       if (_wallet.alias == null) {
         throw Exception('alias not found');
       }
-
-      // final config = await _config.getConfig(_wallet.alias!);
 
       final community = await _appDBService.communities.get(_wallet.alias!);
 
@@ -395,8 +391,6 @@ class VoucherLogic extends WidgetsBindingObserver {
       if (_wallet.alias == null) {
         throw Exception('alias not found');
       }
-
-      // final config = await _config.getConfig(_wallet.alias!);
 
       final community = await _appDBService.communities.get(_wallet.alias!);
 
