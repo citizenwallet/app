@@ -5,7 +5,6 @@ import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
-import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
@@ -88,7 +87,6 @@ class MyAppState extends State<MyApp> {
   late NotificationsLogic _notificationsLogic;
   late CommunitiesLogic _communitiesLogic;
   final ThemeLogic _themeLogic = ThemeLogic();
-  final AppDBService _appDBService = AppDBService();
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -126,8 +124,7 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    await _appDBService
-        .init('app'); // including seed of communities from local asset file
+    await _communitiesLogic.initializeAppDB();
 
     _communitiesLogic.fetchCommunitiesFromS3();
 

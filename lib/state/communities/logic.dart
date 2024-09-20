@@ -104,4 +104,12 @@ class CommunitiesLogic {
 
     return communityExists;
   }
+
+  Future<void> initializeAppDB() async {
+    try {
+      await _db.init('app');
+    } catch (e) {
+      //
+    }
+  }
 }
