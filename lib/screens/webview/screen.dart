@@ -1,7 +1,7 @@
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 
 class WebViewScreen extends StatefulWidget {
