@@ -40,88 +40,85 @@ class WalletActionButton extends StatelessWidget {
         ? Theme.of(context).colors.surfacePrimary.resolveFrom(context)
         : Theme.of(context).colors.white;
 
-    return Container(
-      height: buttonSize + 40,
-      width: buttonWidth,
-      margin: margin,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: disabled ? () => () : onPressed,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: buttonSize,
-              width: buttonWidth,
-              decoration: BoxDecoration(
-                color: alt
-                    ? Theme.of(context)
-                        .colors
-                        .surfaceBackground
-                        .resolveFrom(context)
-                    : Theme.of(context)
-                        .colors
-                        .surfacePrimary
-                        .resolveFrom(context),
-                borderRadius: BorderRadius.circular(buttonSize / 2),
-              ),
-              child: small
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          text,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: disabled ? color.withOpacity(0.8) : color,
-                            fontSize: 14,
+    return Opacity(
+      opacity: disabled ? 0.5 : 1,
+      child: Container(
+        height: buttonSize + 40,
+        width: buttonWidth,
+        margin: margin,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: disabled ? () => () : onPressed,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: buttonSize,
+                width: buttonWidth,
+                decoration: BoxDecoration(
+                  color: alt
+                      ? Theme.of(context)
+                          .colors
+                          .surfaceBackground
+                          .resolveFrom(context)
+                      : Theme.of(context)
+                          .colors
+                          .surfacePrimary
+                          .resolveFrom(context),
+                  borderRadius: BorderRadius.circular(buttonSize / 2),
+                ),
+                child: small
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            text,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: color,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        customIcon ??
+                          const SizedBox(width: 10),
+                          customIcon ??
+                              Icon(
+                                icon,
+                                size: 18,
+                                color: color,
+                              ),
+                        ],
+                      )
+                    : Center(
+                        child: customIcon ??
                             Icon(
                               icon,
-                              size: 18,
-                              color: disabled ? color.withOpacity(0.8) : color,
+                              size: buttonIconSize,
+                              color: color,
                             ),
-                      ],
-                    )
-                  : Center(
-                      child: customIcon ??
-                          Icon(
-                            icon,
-                            size: buttonIconSize,
-                            color: disabled ? color.withOpacity(0.8) : color,
-                          ),
-                    ),
+                      ),
+              ),
             ),
-          ),
-          if (!small)
-            Expanded(
-              child: Center(
-                child: Text(
-                  text,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: disabled
-                        ? Theme.of(context)
-                            .colors
-                            .text
-                            .resolveFrom(context)
-                            .withOpacity(0.8)
-                        : Theme.of(context).colors.text.resolveFrom(context),
-                    fontSize: buttonFontSize,
+            if (!small)
+              Expanded(
+                child: Center(
+                  child: Text(
+                    text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colors.text.resolveFrom(context),
+                      fontSize: buttonFontSize,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

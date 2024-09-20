@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/db.dart';
-import 'package:citizenwallet/services/db/vouchers.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/account/vouchers.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -24,7 +26,8 @@ class VoucherLogic extends WidgetsBindingObserver {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
-  final DBService _db = DBService();
+  final AppDBService _appDBService = AppDBService();
+  final AccountDBService _accountDBService = AccountDBService();
   final WalletService _wallet = WalletService();
   final SharingService _sharing = SharingService();
 
@@ -63,7 +66,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       try {
         final balance = await _wallet.getBalance(addr);
 
-        await _db.vouchers.updateBalance(addr, balance);
+        await _accountDBService.vouchers.updateBalance(addr, balance);
 
         _state.updateVoucherBalance(addr, balance);
         continue;
@@ -90,7 +93,12 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.vouchersRequest();
 
-      final vouchers = await _db.vouchers.getAllByAlias(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final vouchers =
+          await _accountDBService.vouchers.getAllByAlias(_wallet.alias!);
 
       _state.vouchersSuccess(vouchers
           .map(
@@ -174,7 +182,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: voucher.legacy,
       );
 
-      await _db.vouchers.insert(dbvoucher);
+      await _accountDBService.vouchers.insert(dbvoucher);
 
       _state.readVoucherSuccess(voucher);
       return voucher.address;
@@ -190,14 +198,14 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.openVoucherRequest();
 
-      final dbvoucher = await _db.vouchers.get(address);
+      final dbvoucher = await _accountDBService.vouchers.get(address);
       if (dbvoucher == null) {
         throw Exception('voucher not found');
       }
 
       final balance = await _wallet.getBalance(address);
 
-      await _db.vouchers.updateBalance(address, balance);
+      await _accountDBService.vouchers.updateBalance(address, balance);
 
       final voucher = Voucher(
         address: dbvoucher.address,
@@ -210,9 +218,19 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: dbvoucher.legacy,
       );
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
 
-      final appLink = config.community.walletUrl(deepLinkURL);
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final appLink = communityConfig.community.walletUrl(deepLinkURL);
 
       _state.openVoucherSuccess(
         voucher,
@@ -252,7 +270,17 @@ class VoucherLogic extends WidgetsBindingObserver {
         decimals: _wallet.currency.decimals,
       );
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
 
       // _state.createVoucherFunding();
 
@@ -279,7 +307,7 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         final dbvoucher = DBVoucher(
           address: account.hexEip55,
-          alias: config.community.alias,
+          alias: communityConfig.community.alias,
           name: name ?? 'Voucher for $balance $symbol',
           balance: parsedAmount.toString(),
           voucher: wallet.toJson(),
@@ -325,7 +353,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       for (final dbvoucher in dbvouchers) {
-        await _db.vouchers.insert(dbvoucher);
+        await _accountDBService.vouchers.insert(dbvoucher);
       }
 
       _state.createVoucherMultiSuccess(
@@ -360,11 +388,21 @@ class VoucherLogic extends WidgetsBindingObserver {
       final account =
           await _wallet.getAccountAddress(credentials.address.hexEip55);
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
+
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
 
       final dbvoucher = DBVoucher(
         address: account.hexEip55,
-        alias: config.community.alias,
+        alias: communityConfig.community.alias,
         name: name ?? 'Voucher for $balance $symbol',
         balance: parsedAmount.toString(),
         voucher: 'v2-${bytesToHex(credentials.privateKey)}',
@@ -373,7 +411,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: false,
       );
 
-      await _db.vouchers.insert(dbvoucher);
+      await _accountDBService.vouchers.insert(dbvoucher);
 
       final calldata = _wallet.erc20TransferCallData(
         account.hexEip55,
@@ -404,7 +442,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: false,
       );
 
-      final appLink = config.community.walletUrl(deepLinkURL);
+      final appLink = communityConfig.community.walletUrl(deepLinkURL);
 
       _state.createVoucherFunding(
         voucher,
@@ -477,7 +515,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.returnVoucherRequest();
 
-      final voucher = await _db.vouchers.get(address);
+      final voucher = await _accountDBService.vouchers.get(address);
       if (voucher == null) {
         throw Exception('voucher not found');
       }
@@ -541,7 +579,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      await _db.vouchers.archive(address);
+      await _accountDBService.vouchers.archive(address);
 
       _state.returnVoucherSuccess(address);
       return;
@@ -556,7 +594,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     try {
       _state.deleteVoucherRequest();
 
-      await _db.vouchers.archive(address);
+      await _accountDBService.vouchers.archive(address);
 
       _state.deleteVoucherSuccess(address);
       return;

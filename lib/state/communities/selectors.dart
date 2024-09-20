@@ -6,6 +6,11 @@ List<Config> selectVisibleCommunities(CommunitiesState state) =>
         .where((Config config) => !config.community.hidden)
         .toList();
 
+List<Config> selectVisibleAndOnlineCommunities(CommunitiesState state) =>
+    state.communities
+        .where((Config config) => !config.community.hidden && config.online)
+        .toList();
+
 Map<String, CommunityConfig> selectMappedCommunityConfigs(
         CommunitiesState state) =>
     state.communities.fold({},

@@ -1,5 +1,5 @@
 import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:citizenwallet/services/db/accounts.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 
 /// WebAccountsOptions
 class WebAccountsOptions implements AccountsOptionsInterface {

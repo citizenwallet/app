@@ -194,5 +194,6 @@
   "emptyBalanceText1": "This voucher has already been redeemed.",
   "emptyBalanceText2": "Redeem this voucher to your account.",
   "tapToScan": "Tap to scan",
+  "communityCurrentlyOffline": "Community currently offline",
   "topup": "Top Up"
 }

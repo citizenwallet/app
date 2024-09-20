@@ -196,6 +196,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     final readyLoading =
         context.select((WalletState state) => state.readyLoading);
 
+    final config = context.select((WalletState state) => state.config);
+
     final updateState =
         context.select((ProfileState state) => state.updateState);
 
@@ -220,6 +222,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     final hasProfile = username.isNotEmpty;
 
     final isInvalid = usernameError || usernameController.value.text == '';
+
+    final disableSave = config?.online == false || isInvalid;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -572,10 +576,10 @@ class EditProfileModalState extends State<EditProfileModal> {
                                     text: AppLocalizations.of(context)!.save,
                                     color: Theme.of(context)
                                         .colors
-                                        .surfacePrimary
+                                        .primary
                                         .resolveFrom(context),
                                     labelColor: Theme.of(context).colors.black,
-                                    onPressed: isInvalid
+                                    onPressed: disableSave
                                         ? null
                                         : hasProfile && editingImage == null
                                             ? () => handleUpdate()

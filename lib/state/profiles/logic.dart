@@ -1,5 +1,5 @@
-import 'package:citizenwallet/services/db/contacts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/contacts.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -10,7 +10,7 @@ import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
-  final DBService _db = DBService();
+  final AccountDBService _db = AccountDBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
 
