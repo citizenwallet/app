@@ -557,7 +557,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        if (invalidAmount && enteredAmount > 0)
+                        if ((invalidAmount && enteredAmount > 0) ||
+                            (balance <= 0 && topUpPlugin == null))
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
