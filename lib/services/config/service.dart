@@ -124,13 +124,6 @@ class ConfigService {
 
   void init(String endpoint) {
     _api = APIService(baseURL: endpoint);
-
-    // if (kDebugMode) {
-    //   _loadFromLocal();
-    //   return;
-    // }
-
-    // _loadFromCache();
   }
 
   void _loadFromCache() {
