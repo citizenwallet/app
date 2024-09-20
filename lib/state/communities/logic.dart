@@ -69,5 +69,14 @@ class CommunitiesLogic {
     _state.fetchCommunitiesFailure();
   }
 
-  // TODO: fetch configs from S3 here
+  void fetchCommunitiesFromS3() async {
+    try {
+      final List<Map<String, dynamic>> communities =
+          await config.getCommunitiesFromS3();
+      await _db.communities.upsert(communities);
+      return;
+    } catch (e) {
+      //
+    }
+  }
 }

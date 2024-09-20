@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/state.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/state.dart';
@@ -71,13 +72,11 @@ FutureOr<void> appRunner() async {
 
   await AudioService().init(muted: PreferencesService().muted);
 
-  runApp(provideAppState(MyApp(config: config)));
+  runApp(provideAppState(const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
-  final ConfigService config;
-
-  const MyApp({super.key, required this.config});
+  const MyApp({super.key});
 
   @override
   MyAppState createState() => MyAppState();
@@ -87,6 +86,7 @@ class MyAppState extends State<MyApp> {
   late GoRouter router;
   late WalletLogic _logic;
   late NotificationsLogic _notificationsLogic;
+  late CommunitiesLogic _communitiesLogic;
   final ThemeLogic _themeLogic = ThemeLogic();
   final AppDBService _appDBService = AppDBService();
 
@@ -98,6 +98,7 @@ class MyAppState extends State<MyApp> {
 
     _notificationsLogic = NotificationsLogic(context);
     _logic = WalletLogic(context, _notificationsLogic);
+    _communitiesLogic = CommunitiesLogic(context);
 
     _themeLogic.init(context);
 
@@ -128,12 +129,7 @@ class MyAppState extends State<MyApp> {
     await _appDBService
         .init('app'); // including seed of communities from local asset file
 
-    // Grouped operations for fetching and upserting communities
-    (() async {
-      final List<Map<String, dynamic>> communities =
-          await widget.config.getCommunitiesFromS3();
-      await _appDBService.communities.upsert(communities);
-    })();
+    _communitiesLogic.fetchCommunitiesFromS3();
 
     _notificationsLogic.checkPushPermissions();
     await _logic.fetchWalletConfig();
