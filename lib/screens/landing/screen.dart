@@ -147,19 +147,12 @@ class LandingScreenState extends State<LandingScreen>
           overrideAlias: alias);
     }
 
-    debugPrint('widget.deepLink ${widget.deepLink}');
-    debugPrint('widget.deepLinkParams ${widget.deepLinkParams}');
-
     // handle deep link
     // pick an appropriate wallet to load
-    // TODO: remove deepLinkParams null check
-    if (widget.deepLink != null && widget.deepLinkParams != null) {
+    if (widget.deepLink != null) {
       (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
           overrideAlias: alias);
     }
-
-    debugPrint('alias $alias');
-    debugPrint('address $address');
 
     // load the last wallet if there was no deeplink
     if (address == null || alias == null) {
@@ -191,12 +184,11 @@ class LandingScreenState extends State<LandingScreen>
     String? params, {
     String? overrideAlias,
   }) async {
-    // TODO: if params is null AND override alias is null
-    if (params == null) {
+    if (params == null && overrideAlias == null) {
       return (null, null); // address, alias
     }
 
-    String? alias = overrideAlias ?? paramsAlias(params);
+    String? alias = overrideAlias ?? paramsAlias(params!);
     if (alias == null) {
       return (null, null);
     }
