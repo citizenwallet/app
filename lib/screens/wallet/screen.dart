@@ -215,6 +215,8 @@ class WalletScreenState extends State<WalletScreen> {
         }
         await handlePlugin(pluginConfig);
         break;
+      case 'onboarding':
+        break;
       default:
         _logic.pauseFetching();
         _profilesLogic.pause();
