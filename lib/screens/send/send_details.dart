@@ -354,8 +354,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       (WalletState state) => state.config!.getTopUpPlugin(),
     );
 
-    debugPrint('requiredTop $requiresTopup');
-
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
     );
