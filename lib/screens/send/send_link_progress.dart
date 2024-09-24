@@ -145,8 +145,19 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final createdVoucher = context.watch<VoucherState>().createdVoucher;
 
-    final formattedAmount =
-        createdVoucher != null ? createdVoucher.balance : '';
+    final amount = double.tryParse(
+            createdVoucher != null ? createdVoucher.balance : '0.0') ??
+        0.0;
+
+    final formattedAmount = createdVoucher != null
+        ? formatAmount(
+            double.parse(fromDoubleUnit(
+              '$amount',
+              decimals: wallet?.decimalDigits ?? 2,
+            )),
+            decimalDigits: 2,
+          )
+        : '';
 
     final creationState =
         context.select((VoucherState state) => state.creationState);
@@ -394,7 +405,7 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                         onPressed: () => handleShareVoucher(
                                           context,
                                           createdVoucher!.address,
-                                          createdVoucher.balance,
+                                          formattedAmount,
                                           wallet.symbol,
                                           shareLink,
                                         ),
@@ -425,7 +436,7 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
                                         onPressed: () => handleRefund(
                                           context,
                                           createdVoucher!.address,
-                                          createdVoucher.balance,
+                                          formattedAmount,
                                           wallet.symbol,
                                         ),
                                         minWidth: 160,
