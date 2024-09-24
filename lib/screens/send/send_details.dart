@@ -77,6 +77,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   void dispose() {
     amountFocusNode.dispose();
     _scrollController.dispose();
+    messageFocusNode.removeListener(_onMessageFocusChange);
 
     final walletLogic = widget.walletLogic;
 
@@ -90,6 +91,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     await delay(const Duration(milliseconds: 250));
 
     amountFocusNode.requestFocus();
+    messageFocusNode.addListener(_onMessageFocusChange);
   }
 
   void handleThrottledUpdateAmount() {
@@ -309,9 +311,23 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     return;
   }
 
+  void _onMessageFocusChange() {
+    const double heightDescription = 90;
+
+    if (messageFocusNode.hasFocus) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + heightDescription * 1.5,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+
+    const double heightDescription = 90;
 
     const double profileCircleSize = 48;
 
@@ -403,6 +419,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                 child: Stack(
                   children: [
                     ListView(
+                      controller: _scrollController,
                       physics:
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
@@ -684,6 +701,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               enableSuggestions: true,
                             ),
                           ),
+                        Container(
+                          height: heightDescription,
+                        )
                       ],
                     ),
                     if (isSendingValid)
