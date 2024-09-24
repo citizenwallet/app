@@ -20,9 +20,34 @@ class CommunitiesState with ChangeNotifier {
     notifyListeners();
   }
 
+  void upsertCommunities(List<Config> incomingCommunities) {
+    for (final incomingCommunity in incomingCommunities) {
+      final existingIndex = communities.indexWhere((community) =>
+          community.community.alias == incomingCommunity.community.alias);
+
+      if (existingIndex != -1) {
+        // Update existing community
+        incomingCommunity.online = communities[existingIndex].online;
+        communities[existingIndex] = incomingCommunity;
+      } else {
+        // Add new community
+        communities.add(incomingCommunity);
+      }
+    }
+
+    notifyListeners();
+  }
+
   void fetchCommunitiesFailure() {
     loading = false;
     error = true;
+    notifyListeners();
+  }
+
+  void setCommunityOnline(String alias, bool online) {
+    final community =
+        communities.firstWhere((element) => element.community.alias == alias);
+    community.online = online;
     notifyListeners();
   }
 }

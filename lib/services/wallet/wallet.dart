@@ -126,7 +126,13 @@ class WalletService {
 
   /// retrieve chain id
   int get chainId => _chainId != null ? _chainId!.toInt() : 0;
-  String get alias => _alias;
+  String? get alias {
+    try {
+      return _alias;
+    } catch (_) {}
+
+    return null;
+  }
 
   String get erc20Address => _contractToken.addr;
   String get profileAddress => _contractProfile.addr;

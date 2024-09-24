@@ -1,8 +1,9 @@
 import 'package:citizenwallet/services/credentials/credentials.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
-import 'package:citizenwallet/services/db/accounts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
+
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
@@ -25,7 +26,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late SharedPreferences _sharedPreferences;
-  late AccountsDBService _accountsDB;
+  late AccountBackupDBService _accountsDB;
 
   @override
   Future init(AccountsOptionsInterface options) async {

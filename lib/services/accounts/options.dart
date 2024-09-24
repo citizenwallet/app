@@ -1,8 +1,8 @@
 import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 
 class AndroidAccountsOptions implements AccountsOptionsInterface {
-  final AccountsDBService accountsDB;
+  final AccountBackupDBService accountsDB;
 
   AndroidAccountsOptions({
     required this.accountsDB,
@@ -12,7 +12,7 @@ class AndroidAccountsOptions implements AccountsOptionsInterface {
 /// AccountsOptions
 class AppleAccountsOptions implements AccountsOptionsInterface {
   final String groupId;
-  final AccountsDBService accountsDB;
+  final AccountBackupDBService accountsDB;
 
   AppleAccountsOptions({
     required this.groupId,

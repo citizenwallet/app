@@ -27,6 +27,8 @@ class ConfigService {
 
   static const String communityConfigListFileName =
       kDebugMode ? 'communities.test' : 'communities';
+  static const String communityConfigListS3FileName = 'communities';
+
   static const String communityDebugFileName = 'debug';
   static const int version = 3;
 
@@ -122,13 +124,6 @@ class ConfigService {
 
   void init(String endpoint) {
     _api = APIService(baseURL: endpoint);
-
-    if (kDebugMode) {
-      _loadFromLocal();
-      return;
-    }
-
-    _loadFromCache();
   }
 
   void _loadFromCache() {
@@ -181,5 +176,31 @@ class ConfigService {
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 
     return configs;
+  }
+
+  Future<List<Map<String, dynamic>>> getCommunitiesFromS3() async {
+    final List<dynamic> response = await _api.get(
+        url:
+            '/v$version/$communityConfigListS3FileName.json?cachebuster=${generateCacheBusterValue()}');
+
+    final List<Map<String, dynamic>> communities =
+        response.map((item) => Map<String, dynamic>.from(item)).toList();
+
+    return communities;
+  }
+
+  Future<bool> isCommunityOnline(String indexerUrl) async {
+    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 5);
+
+    try {
+      await indexer.get(url: '/health');
+      return true;
+    } catch (e, s) {
+      debugPrint('indexerUrl: $indexerUrl');
+      debugPrint('Error checking if community is online: $e, $indexerUrl');
+      debugPrint('Stacktrace: $s, $indexerUrl');
+
+      return false;
+    }
   }
 }

@@ -1,6 +1,8 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/db/contacts.dart';
-import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/account/contacts.dart';
+import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -19,12 +21,13 @@ class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
+  final AppDBService _appDBService = AppDBService();
 
   late ProfileState _state;
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
 
-  final DBService _db = DBService();
+  final AccountDBService _db = AccountDBService();
   final WalletService _wallet = WalletService();
 
   ProfileLogic(BuildContext context) {
@@ -68,12 +71,23 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      final config = await _config.getConfig(_wallet.alias);
+      if (_wallet.alias == null) {
+        throw Exception('alias not found');
+      }
 
-      final url = config.community.walletUrl(deepLinkURL);
+       final community =
+          await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        throw Exception('community not found');
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final url = communityConfig.community.walletUrl(deepLinkURL);
 
       final compressedParams = compress(
-          '?address=${_wallet.account.hexEip55}&alias=${config.community.alias}');
+          '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
 
       _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;

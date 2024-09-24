@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 const String defaultPrimary = '#A256FF';
 
 int parseHexColor(String hex) {
@@ -346,12 +348,14 @@ class PluginConfig {
   final String icon;
   final String url;
   final PluginLaunchMode launchMode;
+  final String? action;
 
   PluginConfig({
     required this.name,
     required this.icon,
     required this.url,
     this.launchMode = PluginLaunchMode.external,
+    this.action,
   });
 
   factory PluginConfig.fromJson(Map<String, dynamic> json) {
@@ -362,6 +366,7 @@ class PluginConfig {
       launchMode: json['launch_mode'] == 'webview'
           ? PluginLaunchMode.webview
           : PluginLaunchMode.external,
+      action: json['action'],
     );
   }
 
@@ -372,13 +377,14 @@ class PluginConfig {
       'icon': icon,
       'url': url,
       'launch_mode': launchMode.name,
+      if (action != null) 'action': action,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'IndexerConfig{name: $name, icon: $icon, url: $url}';
+    return 'PluginConfig{name: $name, icon: $icon, url: $url}';
   }
 }
 
@@ -493,6 +499,7 @@ class Config {
   final SafeCardsConfig? safeCards;
   final List<PluginConfig> plugins;
   final int version;
+  bool online;
 
   Config({
     required this.community,
@@ -507,6 +514,7 @@ class Config {
     this.safeCards,
     required this.plugins,
     this.version = 0,
+    this.online = true,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -529,6 +537,7 @@ class Config {
               .toList()
           : [],
       version: json['version'] ?? 0,
+      online: true,
     );
   }
 
@@ -557,5 +566,9 @@ class Config {
 
   bool hasCards() {
     return cards != null || safeCards != null;
+  }
+
+  PluginConfig? getTopUpPlugin() {
+    return plugins.firstWhereOrNull((plugin) => plugin.action == 'topup');
   }
 }

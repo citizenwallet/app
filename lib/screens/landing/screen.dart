@@ -6,6 +6,7 @@ import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/backup/logic.dart';
 import 'package:citizenwallet/state/backup/state.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -49,6 +50,7 @@ class LandingScreenState extends State<LandingScreen>
   late AppLogic _appLogic;
   late VoucherLogic _voucherLogic;
   late BackupLogic _backupLogic;
+  late CommunitiesLogic _communitiesLogic;
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
@@ -59,6 +61,7 @@ class LandingScreenState extends State<LandingScreen>
     _appLogic = AppLogic(context);
     _voucherLogic = VoucherLogic(context);
     _backupLogic = BackupLogic(context);
+    _communitiesLogic = CommunitiesLogic(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // make initial requests here
@@ -149,9 +152,17 @@ class LandingScreenState extends State<LandingScreen>
 
     // handle deep link
     // pick an appropriate wallet to load
-    if (widget.deepLink != null && widget.deepLinkParams != null) {
+    if (widget.deepLink != null) {
       (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
           overrideAlias: alias);
+    }
+
+    if (alias != null) {
+      final isCommunityExists =
+          await _communitiesLogic.isAliasFromDeeplinkExist(alias);
+      if (!isCommunityExists) {
+        alias = null;
+      }
     }
 
     // load the last wallet if there was no deeplink
@@ -184,11 +195,11 @@ class LandingScreenState extends State<LandingScreen>
     String? params, {
     String? overrideAlias,
   }) async {
-    if (params == null) {
-      return (null, null);
+    if (params == null && overrideAlias == null) {
+      return (null, null); // address, alias
     }
 
-    String? alias = overrideAlias ?? paramsAlias(params);
+    String? alias = overrideAlias ?? paramsAlias(params!);
     if (alias == null) {
       return (null, null);
     }

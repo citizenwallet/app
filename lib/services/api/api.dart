@@ -26,7 +26,9 @@ class ConflictException implements Exception {
 class APIService {
   final String baseURL;
 
-  APIService({required this.baseURL});
+  final int netTimeoutSeconds;
+
+  APIService({required this.baseURL, this.netTimeoutSeconds = 60});
 
   Future<dynamic> get({String? url, Map<String, String>? headers}) async {
     final mergedHeaders = <String, String>{
@@ -41,7 +43,7 @@ class APIService {
           Uri.parse('$baseURL${url ?? ''}'),
           headers: mergedHeaders,
         )
-        .timeout(const Duration(seconds: netTimeoutSeconds));
+        .timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -53,6 +55,10 @@ class APIService {
           throw ConflictException();
       }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
+    }
+
+    if (response.body.isEmpty) {
+      return null;
     }
 
     return jsonDecode(utf8.decode(response.bodyBytes));
@@ -77,7 +83,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: netTimeoutSeconds));
+        .timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -113,7 +119,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: netTimeoutSeconds));
+        .timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -149,7 +155,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: netTimeoutSeconds));
+        .timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -185,7 +191,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: netTimeoutSeconds));
+        .timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -235,7 +241,7 @@ class APIService {
 
     final response = await http.Response.fromStream(
       await request.send(),
-    ).timeout(const Duration(seconds: netTimeoutSeconds));
+    ).timeout( Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {

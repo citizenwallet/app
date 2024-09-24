@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 1.0.58+186
+version: 1.0.59+193
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -45,7 +45,7 @@ dependencies:
   url_launcher: ^6.1.11
   flutter_markdown: ^0.7.1
   package_info_plus: ^8.0.0
-  rxdart: ^0.27.7
+  rxdart: ^0.28.0
   simple_animations: ^5.0.2
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
@@ -61,7 +61,7 @@ dependencies:
   audio_in_app: ^2.0.0
   firebase_messaging: ^14.9.4
   firebase_core: ^2.32.0
-  flutter_inappwebview: ^6.0.0
+  zikzak_inappwebview: ^1.0.3
   credential_manager: ^1.0.1
   googleapis: ^13.1.0
   path_provider: ^2.1.2
@@ -79,6 +79,8 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.0
   nock: ^1.2.2
+dependency_overrides:
+  js: ^0.7.1
 flutter:
   assets:
     - .env

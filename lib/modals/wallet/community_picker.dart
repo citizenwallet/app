@@ -66,7 +66,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
-    final communities = context.select(selectVisibleCommunities);
+    final communities = context.select(selectVisibleAndOnlineCommunities);
 
     return CupertinoScaffold(
       topRadius: const Radius.circular(40),
@@ -181,6 +181,7 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
                       delegate: SliverChildBuilderDelegate(
                         childCount: communities.length,
                         (context, index) => CommunityRow(
+                          key: Key(communities[index].community.alias),
                           config: communities[index],
                           onTap: handleCommunitySelect,
                           onInfoTap: handleCommunityInfo,
