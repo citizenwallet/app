@@ -342,6 +342,7 @@ GoRouter createRouter(
                       child: child,
                     );
                   },
+                  transitionDuration: const Duration(milliseconds: 750)
                 );
               },
              
