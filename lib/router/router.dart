@@ -316,19 +316,35 @@ GoRouter createRouter(
               name: 'Webview',
               path: 'webview',
               parentNavigatorKey: rootNavigatorKey,
-              builder: (context, state) {
-                if (state.extra == null) {
-                  return const SizedBox();
-                }
+              pageBuilder: (context, state) {
 
                 final extra = state.extra as Map<String, dynamic>;
 
-                return WebViewScreen(
-                  url: extra['url'],
-                  redirectUrl: extra['redirectUrl'],
-                  customScheme: extra['customScheme'],
+                return CustomTransitionPage(
+                  key: state.pageKey,
+                  child: WebViewScreen(
+                    url: extra['url'],
+                    redirectUrl: extra['redirectUrl'],
+                    customScheme: extra['customScheme'],
+                  ),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(0.0, 1.0);
+                    const end = Offset.zero;
+                    const curve = Curves.ease;
+
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
                 );
               },
+             
             ),
             GoRoute(
               name: 'Voucher',
