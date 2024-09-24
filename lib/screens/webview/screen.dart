@@ -217,7 +217,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                           padding: const EdgeInsets.all(5),
                           onPressed: () => handleDismiss(context),
                           child: Icon(
-                            CupertinoIcons.back,
+                            CupertinoIcons.xmark,
                             color: Theme.of(context)
                                 .colors
                                 .touchable
