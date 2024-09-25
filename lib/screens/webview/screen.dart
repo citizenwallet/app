@@ -138,96 +138,103 @@ class _WebViewScreenState extends State<WebViewScreen> {
         child: Flex(
           direction: Axis.vertical,
           children: [
-            Expanded(
-              child: Stack(
+            Container(
+              height: 90 + safeTopPadding,
+              padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colors
+                    .uiBackgroundAlt
+                    .resolveFrom(context),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  AnimatedOpacity(
-                    opacity: _show ? 1 : 0,
-                    duration: const Duration(milliseconds: 750),
-                    child: _show
-                        ? InAppWebView(
-                            key: webViewKey,
-                            headlessWebView: headlessWebView,
-                            initialUrlRequest:
-                                URLRequest(url: WebUri(widget.url)),
-                            initialSettings: settings,
-                            onWebViewCreated: (controller) {
-                              headlessWebView = null;
-                              webViewController = controller;
-                            },
-                            onLoadStart: (controller, url) {
-                              if (url == null) {
-                                return;
-                              }
-
-                              final uri = Uri.parse(url.toString());
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onUpdateVisitedHistory:
-                                (controller, url, androidIsReload) {
-                              if (url == null) {
-                                return;
-                              }
-
-                              final uri = Uri.parse(url.toString());
-
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResource: (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
-
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResourceWithCustomScheme:
-                                (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                              return null;
-                            },
-                          )
-                        : const SizedBox(),
-                  ),
-                  Positioned(
-                    top: safeTopPadding,
-                    left: 0,
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colors
-                            .uiBackground
-                            .resolveFrom(context)
-                            .withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: Center(
-                        child: CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: () => handleDismiss(context),
-                          child: Icon(
-                            CupertinoIcons.xmark,
-                            color: Theme.of(context)
-                                .colors
-                                .touchable
-                                .resolveFrom(context),
-                          ),
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colors
+                          .uiBackground
+                          .resolveFrom(context)
+                          .withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    child: Center(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.all(5),
+                        onPressed: () => handleDismiss(context),
+                        child: Icon(
+                          CupertinoIcons.xmark,
+                          color: Theme.of(context)
+                              .colors
+                              .touchable
+                              .resolveFrom(context),
                         ),
                       ),
                     ),
                   ),
                 ],
+              ),
+            ),
+            Expanded(
+              child: AnimatedOpacity(
+                opacity: _show ? 1 : 0,
+                duration: const Duration(milliseconds: 750),
+                child: _show
+                    ? InAppWebView(
+                        key: webViewKey,
+                        headlessWebView: headlessWebView,
+                        initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+                        initialSettings: settings,
+                        onWebViewCreated: (controller) {
+                          headlessWebView = null;
+                          webViewController = controller;
+                        },
+                        onLoadStart: (controller, url) {
+                          if (url == null) {
+                            return;
+                          }
+
+                          final uri = Uri.parse(url.toString());
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onUpdateVisitedHistory:
+                            (controller, url, androidIsReload) {
+                          if (url == null) {
+                            return;
+                          }
+
+                          final uri = Uri.parse(url.toString());
+
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResource: (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
+
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResourceWithCustomScheme:
+                            (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
+                          handleDismiss(context,
+                              path: uri.queryParameters['response']);
+                          return null;
+                        },
+                      )
+                    : const SizedBox(),
               ),
             ),
           ],
