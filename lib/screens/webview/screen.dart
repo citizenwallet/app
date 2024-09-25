@@ -3,6 +3,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
 import 'package:go_router/go_router.dart';
+import 'package:citizenwallet/screens/webview/webview_navigation.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -110,6 +111,26 @@ class _WebViewScreenState extends State<WebViewScreen> {
     navigator.pop(path);
   }
 
+  void handleBack() async {
+    bool canGoBack = await webViewController?.canGoBack() ?? false;
+
+    if (canGoBack) {
+      await webViewController?.goBack();
+    }
+  }
+
+  void handleForward() async {
+    bool canGoForward = await webViewController?.canGoForward() ?? false;
+
+    if (canGoForward) {
+      await webViewController?.goForward();
+    }
+  }
+
+  void handleRefresh() async {
+    await webViewController?.reload();
+  }
+
   void handleRunWebView() async {
     if (headlessWebView == null || headlessWebView!.isRunning()) {
       return;
@@ -147,37 +168,11 @@ class _WebViewScreenState extends State<WebViewScreen> {
                     .uiBackgroundAlt
                     .resolveFrom(context),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colors
-                          .uiBackground
-                          .resolveFrom(context)
-                          .withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                    child: Center(
-                      child: CupertinoButton(
-                        padding: const EdgeInsets.all(5),
-                        onPressed: () => handleDismiss(context),
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          color: Theme.of(context)
-                              .colors
-                              .touchable
-                              .resolveFrom(context),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              child: WebViewNavigation(
+                onDismiss: () => handleDismiss(context),
+                onBack: handleBack,
+                onForward: handleForward,
+                onRefresh: handleRefresh,
               ),
             ),
             Expanded(
