@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebViewNavigation extends StatelessWidget {
   final VoidCallback onDismiss;
@@ -57,9 +58,8 @@ class WebViewNavigation extends StatelessWidget {
         ),
         Row(
           children: [
-            _buildNavButton(
+            _buildCloseButton(
               context: context,
-              icon: CupertinoIcons.xmark,
               onPressed: onDismiss,
             ),
             const SizedBox(
@@ -101,6 +101,37 @@ class WebViewNavigation extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCloseButton({
+    required BuildContext context,
+    required VoidCallback onPressed,
+  }) {
+    return CupertinoButton(
+      onPressed: onPressed,
+      child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(context)
+                  .colors
+                  .uiBackground
+                  .resolveFrom(context)
+                  .withOpacity(0.5),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Center(
+            child: Text(
+              AppLocalizations.of(context)!.close,
+              style: TextStyle(
+                  color:
+                      Theme.of(context).colors.touchable.resolveFrom(context),
+                  fontSize: 12),
+            ),
+          )),
     );
   }
 }
