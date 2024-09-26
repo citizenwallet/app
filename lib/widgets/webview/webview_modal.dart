@@ -3,14 +3,17 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
 import 'package:go_router/go_router.dart';
+import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 
 class WebViewModal extends StatefulWidget {
+  final String? modalKey;
   final String url;
   final String redirectUrl;
   final String? customScheme;
 
   const WebViewModal({
     super.key,
+    this.modalKey,
     required this.url,
     required this.redirectUrl,
     this.customScheme,
@@ -29,6 +32,8 @@ class _WebViewModalState extends State<WebViewModal> {
 
   bool _show = false;
   bool _isDismissing = false;
+  bool _canGoBack = false;
+  bool _canGoForward = false;
 
   @override
   void initState() {
@@ -57,6 +62,8 @@ class _WebViewModalState extends State<WebViewModal> {
         }
       },
       onUpdateVisitedHistory: (controller, url, androidIsReload) {
+        updateNavigationState();
+
         if (url == null) {
           return;
         }
@@ -110,24 +117,48 @@ class _WebViewModalState extends State<WebViewModal> {
     navigator.pop(path);
   }
 
+  void handleBack() async {
+    await webViewController?.goBack();
+  }
+
+  void handleForward() async {
+    await webViewController?.goForward();
+  }
+
+  void handleRefresh() async {
+    await webViewController?.reload();
+  }
+
   void handleRunWebView() async {
     if (headlessWebView == null || headlessWebView!.isRunning()) {
       return;
     }
 
-    await delay(const Duration(milliseconds: 250));
+    // await delay(const Duration(milliseconds: 250));
 
     headlessWebView!.run();
 
-    await delay(const Duration(milliseconds: 250));
+    // await delay(const Duration(milliseconds: 250));
 
     setState(() {
       _show = true;
     });
   }
 
+  void updateNavigationState() async {
+    final canGoBack = await webViewController?.canGoBack() ?? false;
+    final canGoForward = await webViewController?.canGoForward() ?? false;
+
+    setState(() {
+      _canGoBack = canGoBack;
+      _canGoForward = canGoForward;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final safeTopPadding = MediaQuery.of(context).padding.top;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -136,96 +167,81 @@ class _WebViewModalState extends State<WebViewModal> {
         child: Flex(
           direction: Axis.vertical,
           children: [
+            Container(
+              height: 90 + safeTopPadding,
+              padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colors
+                    .uiBackgroundAlt
+                    .resolveFrom(context),
+              ),
+              child: WebViewNavigation(
+                onDismiss: () => handleDismiss(context),
+                onBack: handleBack,
+                onForward: handleForward,
+                onRefresh: handleRefresh,
+                canGoBack: _canGoBack,
+                canGoForward: _canGoForward,
+              ),
+            ),
             Expanded(
-              child: Stack(
-                children: [
-                  AnimatedOpacity(
-                    opacity: _show ? 1 : 0,
-                    duration: const Duration(milliseconds: 750),
-                    child: _show
-                        ? InAppWebView(
-                            key: webViewKey,
-                            headlessWebView: headlessWebView,
-                            initialUrlRequest:
-                                URLRequest(url: WebUri(widget.url)),
-                            initialSettings: settings,
-                            onWebViewCreated: (controller) {
-                              headlessWebView = null;
-                              webViewController = controller;
-                            },
-                            onLoadStart: (controller, url) {
-                              if (url == null) {
-                                return;
-                              }
+              child: AnimatedOpacity(
+                opacity: _show ? 1 : 0,
+                duration: const Duration(milliseconds: 750),
+                child: _show
+                    ? InAppWebView(
+                        key: webViewKey,
+                        headlessWebView: headlessWebView,
+                        initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+                        initialSettings: settings,
+                        onWebViewCreated: (controller) {
+                          headlessWebView = null;
+                          webViewController = controller;
+                        },
+                        onLoadStart: (controller, url) {
+                          if (url == null) {
+                            return;
+                          }
 
-                              final uri = Uri.parse(url.toString());
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onUpdateVisitedHistory:
-                                (controller, url, androidIsReload) {
-                              if (url == null) {
-                                return;
-                              }
+                          final uri = Uri.parse(url.toString());
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onUpdateVisitedHistory:
+                            (controller, url, androidIsReload) {
+                          updateNavigationState();
 
-                              final uri = Uri.parse(url.toString());
+                          if (url == null) {
+                            return;
+                          }
 
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResource: (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
+                          final uri = Uri.parse(url.toString());
 
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResourceWithCustomScheme:
-                                (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                              return null;
-                            },
-                          )
-                        : const SizedBox(),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colors
-                            .uiBackground
-                            .resolveFrom(context)
-                            .withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: Center(
-                        child: CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: () => handleDismiss(context),
-                          child: Icon(
-                            CupertinoIcons.xmark,
-                            color: Theme.of(context)
-                                .colors
-                                .touchable
-                                .resolveFrom(context),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResource: (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
+
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResourceWithCustomScheme:
+                            (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
+                          handleDismiss(context,
+                              path: uri.queryParameters['response']);
+                          return null;
+                        },
+                      )
+                    : const SizedBox(),
               ),
             ),
           ],
