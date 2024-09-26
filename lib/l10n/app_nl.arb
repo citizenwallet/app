@@ -194,5 +194,6 @@
   "emptyBalanceText2": "Claim deze voucher op je account",
   "tapToScan": "Tik om te scannen",
   "communityCurrentlyOffline": "Gemeenschap momenteel offline",
-  "topup": "Opwaarderen"
+  "topup": "Opwaarderen",
+  "close": "Sluiten"
 }
