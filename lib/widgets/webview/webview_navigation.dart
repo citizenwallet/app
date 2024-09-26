@@ -6,6 +6,8 @@ class WebViewNavigation extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onForward;
   final VoidCallback onRefresh;
+  final bool canGoForward;
+  final bool canGoBack;
 
   const WebViewNavigation({
     super.key,
@@ -13,6 +15,8 @@ class WebViewNavigation extends StatelessWidget {
     required this.onBack,
     required this.onForward,
     required this.onRefresh,
+    this.canGoBack = false,
+    this.canGoForward = false,
   });
 
   @override
@@ -30,6 +34,7 @@ class WebViewNavigation extends StatelessWidget {
               context: context,
               icon: CupertinoIcons.arrow_left,
               onPressed: onBack,
+              disabled: !canGoBack,
             ),
             const SizedBox(
               width: 20,
@@ -38,6 +43,7 @@ class WebViewNavigation extends StatelessWidget {
               context: context,
               icon: CupertinoIcons.arrow_right,
               onPressed: onForward,
+              disabled: !canGoForward,
             ),
             const SizedBox(
               width: 20,
@@ -69,25 +75,29 @@ class WebViewNavigation extends StatelessWidget {
     required BuildContext context,
     required IconData icon,
     required VoidCallback onPressed,
+    bool disabled = false,
   }) {
-    return Container(
-      height: 50,
-      width: 50,
-      decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colors
-            .uiBackground
-            .resolveFrom(context)
-            .withOpacity(0.5),
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Center(
-        child: CupertinoButton(
-          padding: const EdgeInsets.all(5),
-          onPressed: onPressed,
-          child: Icon(
-            icon,
-            color: Theme.of(context).colors.touchable.resolveFrom(context),
+    return Opacity(
+      opacity: disabled ? 0.5 : 1,
+      child: Container(
+        height: 50,
+        width: 50,
+        decoration: BoxDecoration(
+          color: Theme.of(context)
+              .colors
+              .uiBackground
+              .resolveFrom(context)
+              .withOpacity(0.5),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Center(
+          child: CupertinoButton(
+            padding: const EdgeInsets.all(5),
+            onPressed: disabled ? () => {} : onPressed,
+            child: Icon(
+              icon,
+              color: Theme.of(context).colors.touchable.resolveFrom(context),
+            ),
           ),
         ),
       ),

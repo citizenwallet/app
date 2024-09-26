@@ -3,7 +3,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
 import 'package:go_router/go_router.dart';
-import 'package:citizenwallet/screens/webview/webview_navigation.dart';
+import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -114,6 +114,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
   void handleBack() async {
     bool canGoBack = await webViewController?.canGoBack() ?? false;
 
+    print('can go back $canGoBack');
+
     if (canGoBack) {
       await webViewController?.goBack();
     }
@@ -173,6 +175,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 onBack: handleBack,
                 onForward: handleForward,
                 onRefresh: handleRefresh,
+                canGoBack: true,
+                canGoForward: true,
               ),
             ),
             Expanded(
