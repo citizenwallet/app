@@ -52,6 +52,10 @@ class _WebViewModalState extends State<WebViewModal> {
         webViewController = controller;
       },
       onLoadStart: (controller, url) {
+        setState(() {
+          _show = false;
+        });
+
         if (url == null) {
           return;
         }
@@ -83,6 +87,11 @@ class _WebViewModalState extends State<WebViewModal> {
         final uri = Uri.parse(request.url.toString());
         handleDismiss(context, path: uri.queryParameters['response']);
         return null;
+      },
+      onLoadStop: (controller, url) {
+        setState(() {
+          _show = true;
+        });
       },
     );
 
@@ -134,15 +143,7 @@ class _WebViewModalState extends State<WebViewModal> {
       return;
     }
 
-    // await delay(const Duration(milliseconds: 250));
-
     headlessWebView!.run();
-
-    // await delay(const Duration(milliseconds: 250));
-
-    setState(() {
-      _show = true;
-    });
   }
 
   void updateNavigationState() async {
@@ -186,64 +187,81 @@ class _WebViewModalState extends State<WebViewModal> {
               ),
             ),
             Expanded(
-              child: AnimatedOpacity(
-                opacity: _show ? 1 : 0,
-                duration: const Duration(milliseconds: 750),
-                child: _show
-                    ? InAppWebView(
-                        key: webViewKey,
-                        headlessWebView: headlessWebView,
-                        initialUrlRequest: URLRequest(url: WebUri(widget.url)),
-                        initialSettings: settings,
-                        onWebViewCreated: (controller) {
-                          headlessWebView = null;
-                          webViewController = controller;
-                        },
-                        onLoadStart: (controller, url) {
-                          if (url == null) {
-                            return;
-                          }
+                child: Stack(
+              children: [
+                AnimatedOpacity(
+                  opacity: _show ? 1 : 0,
+                  duration: const Duration(milliseconds: 750),
+                  child: _show
+                      ? InAppWebView(
+                          key: webViewKey,
+                          headlessWebView: headlessWebView,
+                          initialUrlRequest:
+                              URLRequest(url: WebUri(widget.url)),
+                          initialSettings: settings,
+                          onWebViewCreated: (controller) {
+                            headlessWebView = null;
+                            webViewController = controller;
+                          },
+                          onLoadStart: (controller, url) {
+                            if (url == null) {
+                              return;
+                            }
 
-                          final uri = Uri.parse(url.toString());
-                          if (uri.toString() == widget.redirectUrl) {
+                            final uri = Uri.parse(url.toString());
+                            if (uri.toString() == widget.redirectUrl) {
+                              handleDismiss(context,
+                                  path: uri.queryParameters['response']);
+                            }
+                          },
+                          onUpdateVisitedHistory:
+                              (controller, url, androidIsReload) {
+                            updateNavigationState();
+
+                            if (url == null) {
+                              return;
+                            }
+
+                            final uri = Uri.parse(url.toString());
+
+                            if (uri.toString() == widget.redirectUrl) {
+                              handleDismiss(context,
+                                  path: uri.queryParameters['response']);
+                            }
+                          },
+                          onLoadResource: (controller, request) async {
+                            final uri = Uri.parse(request.url.toString());
+
+                            if (uri.toString() == widget.redirectUrl) {
+                              handleDismiss(context,
+                                  path: uri.queryParameters['response']);
+                            }
+                          },
+                          onLoadResourceWithCustomScheme:
+                              (controller, request) async {
+                            final uri = Uri.parse(request.url.toString());
                             handleDismiss(context,
                                 path: uri.queryParameters['response']);
-                          }
-                        },
-                        onUpdateVisitedHistory:
-                            (controller, url, androidIsReload) {
-                          updateNavigationState();
-
-                          if (url == null) {
-                            return;
-                          }
-
-                          final uri = Uri.parse(url.toString());
-
-                          if (uri.toString() == widget.redirectUrl) {
-                            handleDismiss(context,
-                                path: uri.queryParameters['response']);
-                          }
-                        },
-                        onLoadResource: (controller, request) async {
-                          final uri = Uri.parse(request.url.toString());
-
-                          if (uri.toString() == widget.redirectUrl) {
-                            handleDismiss(context,
-                                path: uri.queryParameters['response']);
-                          }
-                        },
-                        onLoadResourceWithCustomScheme:
-                            (controller, request) async {
-                          final uri = Uri.parse(request.url.toString());
-                          handleDismiss(context,
-                              path: uri.queryParameters['response']);
-                          return null;
-                        },
-                      )
-                    : const SizedBox(),
-              ),
-            ),
+                            return null;
+                          },
+                          onLoadStop: (controller, url) {
+                            setState(() {
+                              _show = true;
+                            });
+                          },
+                        )
+                      : const SizedBox(),
+                ),
+                if (!_show)
+                  Center(
+                    child: CupertinoActivityIndicator(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                      radius: 15,
+                    ),
+                  ),
+              ],
+            )),
           ],
         ),
       ),
