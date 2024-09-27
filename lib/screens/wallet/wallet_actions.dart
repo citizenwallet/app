@@ -22,22 +22,23 @@ class WalletActions extends StatelessWidget {
 
   final void Function()? handleSendScreen;
   final void Function()? handleReceive;
-  final void Function(PluginConfig pluginConfig)? handlePlugin;
+  final void Function(PluginConfig pluginConfig)? handlePlugin; // move
   final void Function()? handleCards;
   final void Function()? handleMint;
-  final void Function()? handleVouchers;
+  final void Function()? handleVouchers; // move
+  final void Function()? handleShowMore;
 
-  WalletActions({
-    super.key,
-    this.shrink = 0,
-    this.refreshing = false,
-    this.handleSendScreen,
-    this.handleReceive,
-    this.handlePlugin,
-    this.handleCards,
-    this.handleMint,
-    this.handleVouchers,
-  });
+  WalletActions(
+      {super.key,
+      this.shrink = 0,
+      this.refreshing = false,
+      this.handleSendScreen,
+      this.handleReceive,
+      this.handlePlugin,
+      this.handleCards,
+      this.handleMint,
+      this.handleVouchers,
+      this.handleShowMore});
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +70,12 @@ class WalletActions extends StatelessWidget {
         (!loading || !firstLoad) &&
         wallet?.doubleBalance != 0.0 &&
         handleSendScreen != null;
+
+    bool areActionItemsAvaiable = true; // FIXME: vouchers + plugin list
+
+    int actionItemsCount = 1; // <= 0
+    // = 1
+    // > 1
 
     final isIncreasing = newBalance > balance;
 
@@ -238,119 +245,53 @@ class WalletActions extends StatelessWidget {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: buttonBarHeight,
-                  child: ListView(
-                    controller: controller,
-                    physics:
-                        const ScrollPhysics(parent: BouncingScrollPhysics()),
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      SizedBox(
-                        width: buttonOffset,
-                      ),
-                      if (wallet?.locked == false &&
-                          (!loading || !firstLoad) &&
-                          handleSendScreen != null)
-                        WalletActionButton(
-                          icon: CupertinoIcons.arrow_up,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: sendLoading
-                              ? AppLocalizations.of(context)!.sending
-                              : AppLocalizations.of(context)!.send,
-                          loading: sendLoading,
-                          disabled: blockSending,
-                          onPressed: handleSendScreen,
-                        ),
-                      if (wallet?.locked == false)
-                        SizedBox(width: buttonSeparator),
-                      if ((!loading || !firstLoad) && handleReceive != null)
-                        WalletActionButton(
-                          icon: CupertinoIcons.arrow_down,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: AppLocalizations.of(context)!.receive,
-                          loading: sendLoading,
-                          disabled: sendLoading,
-                          onPressed: handleReceive,
-                        ),
-                      if (!kIsWeb &&
-                          wallet?.locked == false &&
-                          wallet?.minter == true)
-                        SizedBox(width: buttonSeparator),
-                      if (!kIsWeb &&
-                          wallet?.locked == false &&
-                          wallet?.minter == true)
-                        WalletActionButton(
-                          icon: CupertinoIcons.hammer,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: AppLocalizations.of(context)!.mint,
-                          alt: true,
-                          disabled: sendLoading,
-                          onPressed: handleMint,
-                        ),
-                      if (showVouchers) SizedBox(width: buttonSeparator),
-                      if (showVouchers)
-                        WalletActionButton(
-                          icon: CupertinoIcons.ticket,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: AppLocalizations.of(context)!.vouchers,
-                          alt: true,
-                          disabled: sendLoading,
-                          onPressed: handleVouchers,
-                        ),
-                      if ((!loading || !firstLoad) &&
-                          handlePlugin != null &&
-                          wallet != null)
-                        SizedBox(width: buttonSeparator),
-                      if ((!loading || !firstLoad) &&
-                          handlePlugin != null &&
-                          wallet != null &&
-                          wallet.plugins.isNotEmpty)
-                        ...(wallet.plugins
-                            .map(
-                              (plugin) => WalletActionButton(
-                                customIcon: SvgPicture.network(
-                                  plugin.icon,
-                                  semanticsLabel: '${plugin.name} icon',
-                                  height: buttonIconSize,
-                                  width: buttonIconSize,
-                                  placeholderBuilder: (_) => Icon(
-                                    CupertinoIcons.arrow_down,
-                                    size: buttonIconSize,
-                                    color: sendLoading
-                                        ? Theme.of(context)
-                                            .colors
-                                            .subtleEmphasis
-                                        : Theme.of(context).colors.black,
-                                  ),
-                                ),
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                margin: EdgeInsets.only(right: buttonSeparator),
-                                shrink: shrink,
-                                text: plugin.name,
-                                alt: true,
-                                loading: sendLoading,
-                                disabled: sendLoading,
-                                onPressed: () => handlePlugin!(plugin),
-                              ),
-                            )
-                            .toList()),
-                    ],
-                  ),
-                ),
+                    height: buttonBarHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (wallet?.locked == false &&
+                            (!loading || !firstLoad) &&
+                            handleSendScreen != null)
+                          WalletActionButton(
+                            icon: CupertinoIcons.arrow_up,
+                            buttonSize: buttonSize,
+                            buttonIconSize: buttonIconSize,
+                            buttonFontSize: buttonFontSize,
+                            shrink: shrink,
+                            text: sendLoading
+                                ? AppLocalizations.of(context)!.sending
+                                : AppLocalizations.of(context)!.send,
+                            loading: sendLoading,
+                            disabled: blockSending,
+                            onPressed: handleSendScreen,
+                          ),
+                        if ((!loading || !firstLoad) && handleReceive != null)
+                          WalletActionButton(
+                            icon: CupertinoIcons.arrow_down,
+                            buttonSize: buttonSize,
+                            buttonIconSize: buttonIconSize,
+                            buttonFontSize: buttonFontSize,
+                            shrink: shrink,
+                            text: AppLocalizations.of(context)!.receive,
+                            loading: sendLoading,
+                            disabled: sendLoading,
+                            onPressed: handleReceive,
+                          ),
+                        if (areActionItemsAvaiable)
+                          WalletActionButton(
+                            icon: CupertinoIcons.ellipsis,
+                            buttonSize: buttonSize,
+                            buttonIconSize: buttonIconSize,
+                            buttonFontSize: buttonFontSize,
+                            shrink: shrink,
+                            text: AppLocalizations.of(context)!.more,
+                            loading: sendLoading,
+                            disabled: sendLoading,
+                            onPressed: handleShowMore,
+                          ),
+                      ],
+                    )),
               ),
             ],
           ),
