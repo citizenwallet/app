@@ -26,7 +26,9 @@ class MoreActionsSheet extends StatelessWidget {
         wallet?.doubleBalance != 0.0 &&
         isHandleSendDefined;
 
-    debugPrint('isHandleSendDefined $isHandleSendDefined');
+    // TODO: minting
+
+    // TODO: config plugins
 
     return Column(
       mainAxisSize: MainAxisSize.min,
