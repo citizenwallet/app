@@ -28,17 +28,18 @@ class WalletActions extends StatelessWidget {
   final void Function()? handleVouchers; // move
   final void Function()? handleShowMore;
 
-  WalletActions(
-      {super.key,
-      this.shrink = 0,
-      this.refreshing = false,
-      this.handleSendScreen,
-      this.handleReceive,
-      this.handlePlugin,
-      this.handleCards,
-      this.handleMint,
-      this.handleVouchers,
-      this.handleShowMore});
+  WalletActions({
+    super.key,
+    this.shrink = 0,
+    this.refreshing = false,
+    this.handleSendScreen,
+    this.handleReceive,
+    this.handlePlugin,
+    this.handleCards,
+    this.handleMint,
+    this.handleVouchers,
+    this.handleShowMore,
+  });
 
   @override
   Widget build(BuildContext context) {
