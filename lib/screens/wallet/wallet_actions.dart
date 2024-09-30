@@ -71,28 +71,35 @@ class WalletActions extends StatelessWidget {
         wallet?.doubleBalance != 0.0 &&
         handleSendScreen != null;
 
-    bool areActionItemsAvaiable = true; // FIXME: vouchers + plugin list
+    final showMinter =
+        !kIsWeb && wallet?.locked == false && wallet?.minter == true;
 
-    int actionItemsCount = 1; // <= 0
-    // = 1
-    // > 1
+    final showPlugins = (!loading || !firstLoad) &&
+        handlePlugin != null &&
+        wallet != null &&
+        wallet.plugins.isNotEmpty;
+
+    int pluginsCount = wallet!.plugins.length;
+
+    int actionItemsCount =
+        (showVouchers ? 1 : 0) + (showMinter ? 1 : 0) + pluginsCount;
 
     final isIncreasing = newBalance > balance;
 
     final coinSize = progressiveClamp(2, 70, shrink);
     const coinNameSize = 20.0;
 
-    final buttonOffset =
-        (1 - shrink) < 0.7 ? 20.0 : progressiveClamp(20, 80, shrink);
     final buttonSeparator =
         (1 - shrink) < 0.7 ? 10.0 : progressiveClamp(10, 40, shrink);
 
     final buttonBarHeight =
         (1 - shrink) < 0.7 ? 60.0 : progressiveClamp(40, 120, shrink);
     final buttonSize = (1 - shrink) < 0.7 ? 60.0 : 80.0;
-    final buttonIconSize = (1 - shrink) < 0.7 ? 30.0 : 40.0;
+    final buttonIconSize = (1 - shrink) < 0.7 ? 20.0 : 40.0;
     final buttonFontSize =
         (1 - shrink) < 0.7 ? 12.0 : progressiveClamp(10, 14, shrink);
+
+    // TODO: animate showing and removing buttons
 
     return Stack(
       alignment: Alignment.topCenter,
@@ -245,53 +252,130 @@ class WalletActions extends StatelessWidget {
             children: [
               Expanded(
                 child: SizedBox(
-                    height: buttonBarHeight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (wallet?.locked == false &&
-                            (!loading || !firstLoad) &&
-                            handleSendScreen != null)
-                          WalletActionButton(
-                            icon: CupertinoIcons.arrow_up,
-                            buttonSize: buttonSize,
-                            buttonIconSize: buttonIconSize,
-                            buttonFontSize: buttonFontSize,
-                            shrink: shrink,
-                            text: sendLoading
-                                ? AppLocalizations.of(context)!.sending
-                                : AppLocalizations.of(context)!.send,
-                            loading: sendLoading,
-                            disabled: blockSending,
-                            onPressed: handleSendScreen,
-                          ),
-                        if ((!loading || !firstLoad) && handleReceive != null)
-                          WalletActionButton(
-                            icon: CupertinoIcons.arrow_down,
-                            buttonSize: buttonSize,
-                            buttonIconSize: buttonIconSize,
-                            buttonFontSize: buttonFontSize,
-                            shrink: shrink,
-                            text: AppLocalizations.of(context)!.receive,
-                            loading: sendLoading,
-                            disabled: sendLoading,
-                            onPressed: handleReceive,
-                          ),
-                        if (areActionItemsAvaiable)
-                          WalletActionButton(
-                            icon: CupertinoIcons.ellipsis,
-                            buttonSize: buttonSize,
-                            buttonIconSize: buttonIconSize,
-                            buttonFontSize: buttonFontSize,
-                            shrink: shrink,
-                            text: AppLocalizations.of(context)!.more,
-                            loading: sendLoading,
-                            disabled: sendLoading,
-                            onPressed: handleShowMore,
-                          ),
+                  height: buttonBarHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (wallet!.locked == false &&
+                          (!loading || !firstLoad) &&
+                          handleSendScreen != null)
+                        WalletActionButton(
+                          icon: CupertinoIcons.arrow_up,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: sendLoading
+                              ? AppLocalizations.of(context)!.sending
+                              : AppLocalizations.of(context)!.send,
+                          loading: sendLoading,
+                          disabled: blockSending,
+                          onPressed: handleSendScreen,
+                        ),
+                      if ((!loading || !firstLoad) &&
+                          handleReceive != null) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.arrow_down,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.receive,
+                          loading: sendLoading,
+                          disabled: sendLoading,
+                          onPressed: handleReceive,
+                        ),
                       ],
-                    )),
+                      if (actionItemsCount > 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.ellipsis,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.more,
+                          loading: sendLoading,
+                          disabled: sendLoading,
+                          onPressed: handleShowMore,
+                        ),
+                      ],
+                      if (showVouchers && actionItemsCount == 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.ticket,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.vouchers,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: handleVouchers,
+                        ),
+                      ],
+                      if (showMinter && actionItemsCount == 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        WalletActionButton(
+                          icon: CupertinoIcons.hammer,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: shrink,
+                          text: AppLocalizations.of(context)!.mint,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: handleMint,
+                        ),
+                      ],
+                      if (showPlugins &&
+                          pluginsCount == 1 &&
+                          actionItemsCount == 1) ...[
+                        ...(wallet.plugins
+                            .map(
+                              (plugin) => WalletActionButton(
+                                customIcon: SvgPicture.network(
+                                  plugin.icon,
+                                  semanticsLabel: '${plugin.name} icon',
+                                  height: buttonIconSize,
+                                  width: buttonIconSize,
+                                  placeholderBuilder: (_) => Icon(
+                                    CupertinoIcons.arrow_down,
+                                    size: buttonIconSize,
+                                    color: sendLoading
+                                        ? Theme.of(context)
+                                            .colors
+                                            .subtleEmphasis
+                                        : Theme.of(context).colors.black,
+                                  ),
+                                ),
+                                buttonSize: buttonSize,
+                                buttonIconSize: buttonIconSize,
+                                buttonFontSize: buttonFontSize,
+                                margin: EdgeInsets.only(left: buttonSeparator),
+                                shrink: shrink,
+                                text: plugin.name,
+                                alt: true,
+                                loading: sendLoading,
+                                disabled: sendLoading,
+                                onPressed: () => handlePlugin!(plugin),
+                              ),
+                            )
+                            .toList()),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
