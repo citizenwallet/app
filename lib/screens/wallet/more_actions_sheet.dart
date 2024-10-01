@@ -4,6 +4,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -33,6 +34,8 @@ class MoreActionsSheet extends StatelessWidget {
     final showPlugins =
         context.select(selectShowPlugins) && handlePlugin != null;
 
+    final navigator = GoRouter.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -50,7 +53,7 @@ class MoreActionsSheet extends StatelessWidget {
             minHeight: 100,
             maxHeight: MediaQuery.of(context).size.height * 0.5,
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
           decoration: BoxDecoration(
             color:
                 Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
@@ -61,28 +64,35 @@ class MoreActionsSheet extends StatelessWidget {
             children: [
               if (showVouchers)
                 _buildSheetItem(context, AppLocalizations.of(context)!.vouchers,
-                    icon: CupertinoIcons.ticket, onPressed: handleVouchers),
+                    icon: CupertinoIcons.ticket,
+                    onPressed: () => navigator
+                        .pop({'action': 'voucher', 'pluginConfig': null})),
               if (showMinter)
                 _buildSheetItem(context, AppLocalizations.of(context)!.mint,
-                    icon: CupertinoIcons.hammer, onPressed: handleMint),
+                    icon: CupertinoIcons.hammer,
+                    onPressed: () => navigator
+                        .pop({'action': 'minter', 'pluginConfig': null})),
               if (showPlugins)
-                ...(wallet?.plugins)!.map(
-                  (plugin) => _buildSheetItem(
-                    context,
-                    plugin.name,
-                    customIcon: SvgPicture.network(
-                      plugin.icon,
-                      semanticsLabel: '${plugin.name} icon',
-                      height: 30,
-                      width: 30,
-                      placeholderBuilder: (_) => Icon(
-                        CupertinoIcons.arrow_down,
-                        size: 30,
-                        color: Theme.of(context).colors.primary,
+                ...(wallet?.plugins ?? []).map(
+                  (plugin) {
+                    return _buildSheetItem(
+                      context,
+                      plugin.name,
+                      customIcon: SvgPicture.network(
+                        plugin.icon,
+                        semanticsLabel: '${plugin.name} icon',
+                        height: 30,
+                        width: 30,
+                        placeholderBuilder: (_) => Icon(
+                          CupertinoIcons.arrow_down,
+                          size: 30,
+                          color: Theme.of(context).colors.primary,
+                        ),
                       ),
-                    ),
-                    onPressed: () => handlePlugin!(plugin),
-                  ),
+                      onPressed: () => navigator
+                          .pop({'action': 'plugin', 'pluginConfig': plugin}),
+                    );
+                  },
                 )
             ],
           ),
@@ -107,14 +117,14 @@ Widget _buildSheetItem(
       child: Row(
         children: [
           customIcon ??
-              Icon(icon, color: Theme.of(context).colors.primary, size: 24),
+              Icon(icon, color: Theme.of(context).colors.primary, size: 26),
           const SizedBox(width: 16),
           Text(
             label,
             style: TextStyle(
               color: Theme.of(context).colors.primary,
               fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
