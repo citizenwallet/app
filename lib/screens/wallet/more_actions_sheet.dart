@@ -1,34 +1,37 @@
-import 'package:citizenwallet/modals/profile/profile.dart';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MoreActionsSheet extends StatelessWidget {
-  final bool isHandleSendDefined;
+  final void Function()? handleSendScreen;
+  final void Function(PluginConfig pluginConfig)? handlePlugin;
+  final void Function()? handleMint;
+  final void Function()? handleVouchers;
 
   const MoreActionsSheet({
     super.key,
-    this.isHandleSendDefined = false,
+    this.handleSendScreen,
+    this.handlePlugin,
+    this.handleMint,
+    this.handleVouchers,
   });
 
   @override
   Widget build(BuildContext context) {
-    final loading = context.select((WalletState state) => state.loading);
-    final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
-    final config = context.select((WalletState state) => state.config);
 
-    final showVouchers = !kIsWeb &&
-        wallet?.locked == false &&
-        (!loading || !firstLoad) &&
-        wallet?.doubleBalance != 0.0 &&
-        isHandleSendDefined;
+    final showVouchers =
+        context.select(selectShowVouchers) && handleSendScreen != null;
 
-    // TODO: minting
+    final showMinter = context.select(selectShowMinter);
 
-    // TODO: config plugins
+    final showPlugins =
+        context.select(selectShowPlugins) && handlePlugin != null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -44,7 +47,7 @@ class MoreActionsSheet extends StatelessWidget {
         ),
         Container(
           constraints: BoxConstraints(
-            minHeight: 200,
+            minHeight: 100,
             maxHeight: MediaQuery.of(context).size.height * 0.5,
           ),
           padding: const EdgeInsets.all(16),
@@ -56,19 +59,31 @@ class MoreActionsSheet extends StatelessWidget {
           child: ListView(
             shrinkWrap: true,
             children: [
-              _buildSheetItem(context, CupertinoIcons.square_arrow_up, 'Share'),
-              _buildSheetItem(context, CupertinoIcons.doc_on_doc, 'Copy'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              _buildSheetItem(context, CupertinoIcons.trash, 'Delete'),
-              // ... other items ...
+              if (showVouchers)
+                _buildSheetItem(context, AppLocalizations.of(context)!.vouchers,
+                    icon: CupertinoIcons.ticket, onPressed: handleVouchers),
+              if (showMinter)
+                _buildSheetItem(context, AppLocalizations.of(context)!.mint,
+                    icon: CupertinoIcons.hammer, onPressed: handleMint),
+              if (showPlugins)
+                ...(wallet?.plugins)!.map(
+                  (plugin) => _buildSheetItem(
+                    context,
+                    plugin.name,
+                    customIcon: SvgPicture.network(
+                      plugin.icon,
+                      semanticsLabel: '${plugin.name} icon',
+                      height: 30,
+                      width: 30,
+                      placeholderBuilder: (_) => Icon(
+                        CupertinoIcons.arrow_down,
+                        size: 30,
+                        color: Theme.of(context).colors.primary,
+                      ),
+                    ),
+                    onPressed: () => handlePlugin!(plugin),
+                  ),
+                )
             ],
           ),
         ),
@@ -77,22 +92,33 @@ class MoreActionsSheet extends StatelessWidget {
   }
 }
 
-Widget _buildSheetItem(BuildContext context, IconData icon, String label) {
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Row(
-      children: [
-        Icon(icon, color: Theme.of(context).colors.primary, size: 24),
-        const SizedBox(width: 16),
-        Text(
-          label,
-          style: TextStyle(
-            color: Theme.of(context).colors.primary,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+Widget _buildSheetItem(
+  BuildContext context,
+  String label, {
+  IconData? icon,
+  Widget? customIcon,
+  VoidCallback? onPressed,
+}) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          customIcon ??
+              Icon(icon, color: Theme.of(context).colors.primary, size: 24),
+          const SizedBox(width: 16),
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colors.primary,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
