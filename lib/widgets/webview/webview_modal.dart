@@ -182,8 +182,8 @@ class _WebViewModalState extends State<WebViewModal> {
                 onBack: handleBack,
                 onForward: handleForward,
                 onRefresh: handleRefresh,
-                canGoBack: _canGoBack,
-                canGoForward: _canGoForward,
+                canGoBack: true,
+                canGoForward: true,
               ),
             ),
             Expanded(
