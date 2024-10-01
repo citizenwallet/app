@@ -848,8 +848,9 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
-  Future handleShowMore() async {
-    await showCupertinoModalBottomSheet(
+  void handleShowMore() async {
+    final selection =
+        await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       topRadius: const Radius.circular(40),
       builder: (context) => MoreActionsSheet(
@@ -859,6 +860,25 @@ class WalletScreenState extends State<WalletScreen> {
         handleVouchers: handleVouchers,
       ),
     );
+
+    if (selection == null) {
+      return;
+    }
+
+    final action = selection['action'];
+    final pluginConfig = selection['pluginConfig'];
+
+    switch (action) {
+      case 'voucher':
+        handleVouchers();
+        break;
+      case 'minter':
+        handleMint();
+        break;
+      case 'plugin':
+        handlePlugin(pluginConfig);
+        break;
+    }
   }
 
   @override
