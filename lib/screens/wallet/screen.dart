@@ -850,10 +850,13 @@ class WalletScreenState extends State<WalletScreen> {
 
   Future handleShowMore() async {
     await showCupertinoModalBottomSheet(
-      context: context, 
+      context: context,
       topRadius: const Radius.circular(40),
-      builder: (context) =>  MoreActionsSheet(
-        isHandleSendDefined: handleSendScreen != null,
+      builder: (context) => MoreActionsSheet(
+        handleSendScreen: handleSendScreen,
+        handlePlugin: handlePlugin,
+        handleMint: handleMint,
+        handleVouchers: handleVouchers,
       ),
     );
   }
