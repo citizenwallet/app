@@ -255,6 +255,7 @@ class WalletActions extends StatelessWidget {
                           (!loading || !firstLoad) &&
                           handleSendScreen != null)
                         WalletActionButton(
+                          key: const Key('send_action_button'),
                           icon: CupertinoIcons.arrow_up,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
@@ -272,7 +273,8 @@ class WalletActions extends StatelessWidget {
                         SizedBox(
                           width: buttonSeparator,
                         ),
-                        WalletActionButton(
+                        WalletActionButton(   
+                          key: const Key('receive_action_button'),                   
                           icon: CupertinoIcons.arrow_down,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
@@ -289,6 +291,7 @@ class WalletActions extends StatelessWidget {
                           width: buttonSeparator,
                         ),
                         WalletActionButton(
+                          key: const Key('more_action_button'),
                           icon: CupertinoIcons.ellipsis,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
@@ -305,6 +308,7 @@ class WalletActions extends StatelessWidget {
                           width: buttonSeparator,
                         ),
                         WalletActionButton(
+                          key: const Key('vouchers_action_button'),
                           icon: CupertinoIcons.ticket,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
@@ -321,6 +325,7 @@ class WalletActions extends StatelessWidget {
                           width: buttonSeparator,
                         ),
                         WalletActionButton(
+                          key: const Key('minter_action_button'),
                           icon: CupertinoIcons.hammer,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
@@ -338,6 +343,7 @@ class WalletActions extends StatelessWidget {
                         ...(wallet.plugins
                             .map(
                               (plugin) => WalletActionButton(
+                                key: const Key('plugin_action_button'),
                                 customIcon: SvgPicture.network(
                                   plugin.icon,
                                   semanticsLabel: '${plugin.name} icon',
