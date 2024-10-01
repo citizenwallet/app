@@ -9,7 +9,6 @@ import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/wallet/action_button.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -66,24 +65,18 @@ class WalletActions extends StatelessWidget {
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
 
-    final showVouchers = !kIsWeb &&
-        wallet?.locked == false &&
-        (!loading || !firstLoad) &&
-        wallet?.doubleBalance != 0.0 &&
-        handleSendScreen != null;
+    final showVouchers =
+        context.select(selectShowVouchers) && handleSendScreen != null;
 
-    final showMinter =
-        !kIsWeb && wallet?.locked == false && wallet?.minter == true;
+    final showMinter = context.select(selectShowMinter);
 
-    final showPlugins = (!loading || !firstLoad) &&
-        handlePlugin != null &&
-        wallet != null &&
-        wallet.plugins.isNotEmpty;
+    final showPlugins =
+        context.select(selectShowPlugins) && handlePlugin != null;
 
     int pluginsCount = wallet!.plugins.length;
 
     int actionItemsCount =
-        (showVouchers ? 1 : 0) + (showMinter ? 1 : 0) + pluginsCount;
+        (showVouchers ? 1 : 0) + (showMinter ? 1 : 0) + (showPlugins ? pluginsCount: 0);
 
     final isIncreasing = newBalance > balance;
 
