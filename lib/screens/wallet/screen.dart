@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/router/utils.dart';
+import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -860,6 +861,39 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  void handleShowMore() async {
+    final selection =
+        await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
+      context: context,
+      topRadius: const Radius.circular(40),
+      builder: (context) => MoreActionsSheet(
+        handleSendScreen: handleSendScreen,
+        handlePlugin: handlePlugin,
+        handleMint: handleMint,
+        handleVouchers: handleVouchers,
+      ),
+    );
+
+    if (selection == null) {
+      return;
+    }
+
+    final action = selection['action'];
+    final pluginConfig = selection['pluginConfig'];
+
+    switch (action) {
+      case 'voucher':
+        handleVouchers();
+        break;
+      case 'minter':
+        handleMint();
+        break;
+      case 'plugin':
+        handlePlugin(pluginConfig);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
@@ -924,6 +958,7 @@ class WalletScreenState extends State<WalletScreen> {
                     handleCopy: handleCopy,
                     handleLoad: handleLoad,
                     handleScrollToTop: handleScrollToTop,
+                    handleShowMore: handleShowMore,
                   ),
             Positioned(
               bottom: 0,

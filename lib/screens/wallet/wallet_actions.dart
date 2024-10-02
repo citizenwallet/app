@@ -9,25 +9,24 @@ import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/wallet/action_button.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/animation.dart';
 
-class WalletActions extends StatelessWidget {
-  final ScrollController controller = ScrollController();
-
+class WalletActions extends StatefulWidget {
   final double shrink;
   final bool refreshing;
 
   final void Function()? handleSendScreen;
   final void Function()? handleReceive;
-  final void Function(PluginConfig pluginConfig)? handlePlugin;
+  final void Function(PluginConfig pluginConfig)? handlePlugin; // move
   final void Function()? handleCards;
   final void Function()? handleMint;
-  final void Function()? handleVouchers;
+  final void Function()? handleVouchers; // move
+  final void Function()? handleShowMore;
 
-  WalletActions({
+  const WalletActions({
     super.key,
     this.shrink = 0,
     this.refreshing = false,
@@ -37,7 +36,37 @@ class WalletActions extends StatelessWidget {
     this.handleCards,
     this.handleMint,
     this.handleVouchers,
+    this.handleShowMore,
   });
+
+  @override
+  State<WalletActions> createState() => _WalletActionsState();
+}
+
+class _WalletActionsState extends State<WalletActions>
+    with SingleTickerProviderStateMixin {
+  final ScrollController controller = ScrollController();
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 5000),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,28 +93,46 @@ class WalletActions extends StatelessWidget {
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
 
-    final showVouchers = !kIsWeb &&
-        wallet?.locked == false &&
-        (!loading || !firstLoad) &&
-        wallet?.doubleBalance != 0.0 &&
-        handleSendScreen != null;
+    final showVouchers =
+        context.select(selectShowVouchers) && widget.handleSendScreen != null;
+
+    final showMinter = context.select(selectShowMinter);
+
+    final showPlugins =
+        context.select(selectShowPlugins) && widget.handlePlugin != null;
+
+    int pluginsCount = wallet!.plugins.length;
+
+    int actionItemsCount = (showVouchers ? 1 : 0) +
+        (showMinter ? 1 : 0) +
+        (showPlugins ? pluginsCount : 0);
+
+    // Trigger animation when the visibility of buttons changes
+    if (showVouchers || showMinter || showPlugins) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
 
     final isIncreasing = newBalance > balance;
 
-    final coinSize = progressiveClamp(2, 70, shrink);
+    final coinSize = progressiveClamp(2, 70, widget.shrink);
     const coinNameSize = 20.0;
 
-    final buttonOffset =
-        (1 - shrink) < 0.7 ? 20.0 : progressiveClamp(20, 80, shrink);
-    final buttonSeparator =
-        (1 - shrink) < 0.7 ? 10.0 : progressiveClamp(10, 40, shrink);
+    final buttonSeparator = (1 - widget.shrink) < 0.7
+        ? 10.0
+        : progressiveClamp(10, 40, widget.shrink);
 
-    final buttonBarHeight =
-        (1 - shrink) < 0.7 ? 60.0 : progressiveClamp(40, 120, shrink);
-    final buttonSize = (1 - shrink) < 0.7 ? 60.0 : 80.0;
-    final buttonIconSize = (1 - shrink) < 0.7 ? 30.0 : 40.0;
-    final buttonFontSize =
-        (1 - shrink) < 0.7 ? 12.0 : progressiveClamp(10, 14, shrink);
+    final buttonBarHeight = (1 - widget.shrink) < 0.7
+        ? 60.0
+        : progressiveClamp(40, 120, widget.shrink);
+    final buttonSize = (1 - widget.shrink) < 0.7 ? 60.0 : 80.0;
+    final buttonIconSize = (1 - widget.shrink) < 0.7 ? 20.0 : 40.0;
+    final buttonFontSize = (1 - widget.shrink) < 0.7
+        ? 12.0
+        : progressiveClamp(10, 14, widget.shrink);
+
+    // TODO: animate showing and removing buttons
 
     return Stack(
       alignment: Alignment.topCenter,
@@ -128,21 +175,21 @@ class WalletActions extends StatelessWidget {
           Positioned(
             top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
-              opacity: progressiveClamp(0, 1, shrink * 2.5),
+              opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
               child: CoinSpinner(
                 key: Key('${wallet.alias}-spinner'),
                 size: coinSize,
                 logo: wallet.currencyLogo,
-                spin: refreshing || hasPending,
+                spin: widget.refreshing || hasPending,
               ),
             ),
           ),
         Positioned(
           top: withOfflineBanner
-              ? progressiveClamp(90 + 20, 170 + 20, shrink)
-              : progressiveClamp(90, 170, shrink),
+              ? progressiveClamp(90 + 20, 170 + 20, widget.shrink)
+              : progressiveClamp(90, 170, widget.shrink),
           child: Opacity(
-            opacity: progressiveClamp(0, 1, shrink * 2.5),
+            opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
             child: Text(
               wallet?.currencyName ?? 'Token',
               style: TextStyle(
@@ -155,8 +202,8 @@ class WalletActions extends StatelessWidget {
         ),
         Positioned(
           top: withOfflineBanner
-              ? progressiveClamp(90 + 20, 210 + 20, shrink * 2)
-              : progressiveClamp(90, 210, shrink * 2),
+              ? progressiveClamp(90 + 20, 210 + 20, widget.shrink * 2)
+              : progressiveClamp(90, 210, widget.shrink * 2),
           child: loading && formattedBalance.isEmpty
               ? CupertinoActivityIndicator(
                   color: Theme.of(context).colors.subtle.resolveFrom(context),
@@ -165,7 +212,7 @@ class WalletActions extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if ((1 - shrink) < 0.7 && wallet != null) ...[
+                    if ((1 - widget.shrink) < 0.7 && wallet != null) ...[
                       CoinLogo(
                         size: 40,
                         logo: wallet.currencyLogo,
@@ -178,9 +225,9 @@ class WalletActions extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                        fontSize: (1 - shrink) < 0.6
+                        fontSize: (1 - widget.shrink) < 0.6
                             ? 32
-                            : progressiveClamp(12, 48, shrink),
+                            : progressiveClamp(12, 48, widget.shrink),
                         fontWeight: FontWeight.bold,
                         color: hasPending
                             ? isIncreasing
@@ -212,9 +259,9 @@ class WalletActions extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.start,
                         style: TextStyle(
-                          fontSize: (1 - shrink) < 0.6
+                          fontSize: (1 - widget.shrink) < 0.6
                               ? 18
-                              : progressiveClamp(8, 18, shrink),
+                              : progressiveClamp(8, 18, widget.shrink),
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context)
                               .colors
@@ -228,8 +275,8 @@ class WalletActions extends StatelessWidget {
         ),
         Positioned(
           top: withOfflineBanner
-              ? progressiveClamp(140 + 20, 280 + 20, shrink * 2)
-              : progressiveClamp(140, 280, shrink * 2),
+              ? progressiveClamp(140 + 20, 280 + 20, widget.shrink * 2)
+              : progressiveClamp(140, 280, widget.shrink * 2),
           left: 0,
           right: 0,
           child: Row(
@@ -239,115 +286,162 @@ class WalletActions extends StatelessWidget {
               Expanded(
                 child: SizedBox(
                   height: buttonBarHeight,
-                  child: ListView(
-                    controller: controller,
-                    physics:
-                        const ScrollPhysics(parent: BouncingScrollPhysics()),
-                    scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: buttonOffset,
-                      ),
-                      if (wallet?.locked == false &&
+                      if (wallet!.locked == false &&
                           (!loading || !firstLoad) &&
-                          handleSendScreen != null)
+                          widget.handleSendScreen != null)
                         WalletActionButton(
+                          key: const Key('send_action_button'),
                           icon: CupertinoIcons.arrow_up,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
                           buttonFontSize: buttonFontSize,
-                          shrink: shrink,
+                          shrink: widget.shrink,
                           text: sendLoading
                               ? AppLocalizations.of(context)!.sending
                               : AppLocalizations.of(context)!.send,
                           loading: sendLoading,
                           disabled: blockSending,
-                          onPressed: handleSendScreen,
+                          onPressed: widget.handleSendScreen,
                         ),
-                      if (wallet?.locked == false)
-                        SizedBox(width: buttonSeparator),
-                      if ((!loading || !firstLoad) && handleReceive != null)
+                      if ((!loading || !firstLoad) &&
+                          widget.handleReceive != null) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
                         WalletActionButton(
+                          key: const Key('receive_action_button'),
                           icon: CupertinoIcons.arrow_down,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
                           buttonFontSize: buttonFontSize,
-                          shrink: shrink,
+                          shrink: widget.shrink,
                           text: AppLocalizations.of(context)!.receive,
                           loading: sendLoading,
                           disabled: sendLoading,
-                          onPressed: handleReceive,
+                          onPressed: widget.handleReceive,
                         ),
-                      if (!kIsWeb &&
-                          wallet?.locked == false &&
-                          wallet?.minter == true)
-                        SizedBox(width: buttonSeparator),
-                      if (!kIsWeb &&
-                          wallet?.locked == false &&
-                          wallet?.minter == true)
-                        WalletActionButton(
-                          icon: CupertinoIcons.hammer,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: AppLocalizations.of(context)!.mint,
-                          alt: true,
-                          disabled: sendLoading,
-                          onPressed: handleMint,
+                      ],
+                      if (actionItemsCount > 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
                         ),
-                      if (showVouchers) SizedBox(width: buttonSeparator),
-                      if (showVouchers)
-                        WalletActionButton(
-                          icon: CupertinoIcons.ticket,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: shrink,
-                          text: AppLocalizations.of(context)!.vouchers,
-                          alt: true,
-                          disabled: sendLoading,
-                          onPressed: handleVouchers,
+                        FadeTransition(
+                          opacity: _animation,
+                          child: SizeTransition(
+                            sizeFactor: _animation,
+                            axis: Axis.horizontal,
+                            child: WalletActionButton(
+                              key: const Key('more_action_button'),
+                              icon: CupertinoIcons.ellipsis,
+                              buttonSize: buttonSize,
+                              buttonIconSize: buttonIconSize,
+                              buttonFontSize: buttonFontSize,
+                              shrink: widget.shrink,
+                              text: AppLocalizations.of(context)!.more,
+                              loading: sendLoading,
+                              disabled: sendLoading,
+                              onPressed: widget.handleShowMore,
+                            ),
+                          ),
                         ),
-                      if ((!loading || !firstLoad) &&
-                          handlePlugin != null &&
-                          wallet != null)
-                        SizedBox(width: buttonSeparator),
-                      if ((!loading || !firstLoad) &&
-                          handlePlugin != null &&
-                          wallet != null &&
-                          wallet.plugins.isNotEmpty)
+                      ],
+                      if (showVouchers && actionItemsCount == 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        FadeTransition(
+                          opacity: _animation,
+                          child: SizeTransition(
+                            sizeFactor: _animation,
+                            axis: Axis.horizontal,
+                            child: WalletActionButton(
+                              key: const Key('vouchers_action_button'),
+                              icon: CupertinoIcons.ticket,
+                              buttonSize: buttonSize,
+                              buttonIconSize: buttonIconSize,
+                              buttonFontSize: buttonFontSize,
+                              shrink: widget.shrink,
+                              text: AppLocalizations.of(context)!.vouchers,
+                              alt: true,
+                              disabled: sendLoading,
+                              onPressed: widget.handleVouchers,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (showMinter && actionItemsCount == 1) ...[
+                        SizedBox(
+                          width: buttonSeparator,
+                        ),
+                        FadeTransition(
+                          opacity: _animation,
+                          child: SizeTransition(
+                            sizeFactor: _animation,
+                            axis: Axis.horizontal,
+                            child: WalletActionButton(
+                              key: const Key('minter_action_button'),
+                              icon: CupertinoIcons.hammer,
+                              buttonSize: buttonSize,
+                              buttonIconSize: buttonIconSize,
+                              buttonFontSize: buttonFontSize,
+                              shrink: widget.shrink,
+                              text: AppLocalizations.of(context)!.mint,
+                              alt: true,
+                              disabled: sendLoading,
+                              onPressed: widget.handleMint,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (showPlugins &&
+                          pluginsCount == 1 &&
+                          actionItemsCount == 1) ...[
                         ...(wallet.plugins
                             .map(
-                              (plugin) => WalletActionButton(
-                                customIcon: SvgPicture.network(
-                                  plugin.icon,
-                                  semanticsLabel: '${plugin.name} icon',
-                                  height: buttonIconSize,
-                                  width: buttonIconSize,
-                                  placeholderBuilder: (_) => Icon(
-                                    CupertinoIcons.arrow_down,
-                                    size: buttonIconSize,
-                                    color: sendLoading
-                                        ? Theme.of(context)
-                                            .colors
-                                            .subtleEmphasis
-                                        : Theme.of(context).colors.black,
+                              (plugin) => FadeTransition(
+                                opacity: _animation,
+                                child: SizeTransition(
+                                  sizeFactor: _animation,
+                                  axis: Axis.horizontal,
+                                  child: WalletActionButton(
+                                    key: const Key('plugin_action_button'),
+                                    customIcon: SvgPicture.network(
+                                      plugin.icon,
+                                      semanticsLabel: '${plugin.name} icon',
+                                      height: buttonIconSize,
+                                      width: buttonIconSize,
+                                      placeholderBuilder: (_) => Icon(
+                                        CupertinoIcons.arrow_down,
+                                        size: buttonIconSize,
+                                        color: sendLoading
+                                            ? Theme.of(context)
+                                                .colors
+                                                .subtleEmphasis
+                                            : Theme.of(context).colors.black,
+                                      ),
+                                    ),
+                                    buttonSize: buttonSize,
+                                    buttonIconSize: buttonIconSize,
+                                    buttonFontSize: buttonFontSize,
+                                    margin:
+                                        EdgeInsets.only(left: buttonSeparator),
+                                    shrink: widget.shrink,
+                                    text: plugin.name,
+                                    alt: true,
+                                    loading: sendLoading,
+                                    disabled: sendLoading,
+                                    onPressed: () =>
+                                        widget.handlePlugin!(plugin),
                                   ),
                                 ),
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                margin: EdgeInsets.only(right: buttonSeparator),
-                                shrink: shrink,
-                                text: plugin.name,
-                                alt: true,
-                                loading: sendLoading,
-                                disabled: sendLoading,
-                                onPressed: () => handlePlugin!(plugin),
                               ),
                             )
                             .toList()),
+                      ],
                     ],
                   ),
                 ),
