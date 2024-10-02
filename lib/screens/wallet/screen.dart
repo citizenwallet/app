@@ -18,6 +18,7 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
+import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -513,11 +514,23 @@ class WalletScreenState extends State<WalletScreen> {
 
         final navigator = GoRouter.of(context);
 
-        navigator.push('/wallet/$_address/webview', extra: {
-          'url': uri,
-          'redirectUrl': redirect,
-          'customScheme': customScheme,
-        });
+        // TODO: try to use cupertno modal here
+        await showCupertinoModalPopup<String?>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => WebViewModal(
+            modalKey: 'plugin-webview',
+            url: uri,
+            redirectUrl: redirect,
+            customScheme: customScheme,
+          ),
+        );
+
+        // navigator.push('/wallet/$_address/webview', extra: {
+        //   'url': uri,
+        //   'redirectUrl': redirect,
+        //   'customScheme': customScheme,
+        // });
 
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -1007,7 +1020,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   width: 42,
                                   borderRadius: 21,
                                 )
-                              : Stack( 
+                              : Stack(
                                   children: [
                                     GestureDetector(
                                       onTap: handleOpenAccountSwitcher,
@@ -1037,7 +1050,8 @@ class WalletScreenState extends State<WalletScreen> {
                                                 .colors
                                                 .danger
                                                 .resolveFrom(context),
-                                            borderRadius: BorderRadius.circular(5),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
                                           ),
                                         ),
                                       ),
