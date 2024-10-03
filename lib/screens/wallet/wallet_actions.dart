@@ -94,8 +94,6 @@ class WalletActions extends StatelessWidget {
     final buttonFontSize =
         (1 - shrink) < 0.7 ? 12.0 : progressiveClamp(10, 14, shrink);
 
-    // TODO: animate showing and removing buttons
-
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -302,6 +300,7 @@ class WalletActions extends StatelessWidget {
                           loading: sendLoading,
                           disabled: sendLoading,
                           onPressed: handleShowMore,
+                          alt: true,
                         ),
                       ],
                       if (showVouchers && actionItemsCount == 1) ...[
