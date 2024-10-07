@@ -293,10 +293,11 @@ class _WalletActionsState extends State<WalletActions> {
                           disabled: sendLoading,
                           onPressed: widget.handleReceive,
                         ),
+                      ],
+                      if (actionItemsCount > 0)
                         SizedBox(
                           width: buttonSeparator,
                         ),
-                      ],
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeIn,
