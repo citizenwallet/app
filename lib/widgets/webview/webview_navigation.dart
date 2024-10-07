@@ -114,22 +114,13 @@ class WebViewNavigation extends StatelessWidget {
           height: 40,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(context)
-                  .colors
-                  .uiBackground
-                  .resolveFrom(context)
-                  .withOpacity(0.5),
-            ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Center(
             child: Text(
               AppLocalizations.of(context)!.close,
               style: TextStyle(
-                  color:
-                      Theme.of(context).colors.touchable.resolveFrom(context),
-                  fontSize: 12),
+                  color: Theme.of(context).colors.primary, fontSize: 12),
             ),
           )),
     );
