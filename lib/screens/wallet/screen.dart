@@ -168,10 +168,13 @@ class WalletScreenState extends State<WalletScreen> {
       _address,
       _alias,
       (bool hasChanged) async {
+        _logic.setWalletActionsLoading(true);
         if (hasChanged) _profileLogic.loadProfile();
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
+        await _logic.evaluateWalletActions();
+        _logic.setWalletActionsLoading(false);
       },
     );
 
@@ -515,7 +518,6 @@ class WalletScreenState extends State<WalletScreen> {
 
         final navigator = GoRouter.of(context);
 
-        // TODO: try to use cupertno modal here
         await showCupertinoModalPopup<String?>(
           context: context,
           barrierDismissible: true,
@@ -526,12 +528,6 @@ class WalletScreenState extends State<WalletScreen> {
             customScheme: customScheme,
           ),
         );
-
-        // navigator.push('/wallet/$_address/webview', extra: {
-        //   'url': uri,
-        //   'redirectUrl': redirect,
-        //   'customScheme': customScheme,
-        // });
 
         _logic.resumeFetching();
         _profilesLogic.resume();
