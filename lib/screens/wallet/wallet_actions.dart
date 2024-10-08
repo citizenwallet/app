@@ -16,13 +16,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class WalletActions extends StatefulWidget {
   final double shrink;
   final bool refreshing;
-
   final void Function()? handleSendScreen;
   final void Function()? handleReceive;
-  final void Function(PluginConfig pluginConfig)? handlePlugin; // move
+  final void Function(PluginConfig pluginConfig)? handlePlugin;
   final void Function()? handleCards;
   final void Function()? handleMint;
-  final void Function()? handleVouchers; // move
+  final void Function()? handleVouchers;
   final void Function()? handleShowMore;
 
   const WalletActions({
@@ -51,6 +50,12 @@ class _WalletActionsState extends State<WalletActions> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
     final config = context.select((WalletState state) => state.config);
+    final walletActionsLoading =
+        context.select((WalletState state) => state.walletActionsLoading);
+
+    final isWalletReady = context.select((WalletState state) => state.ready);
+
+    final showActionButton = !walletActionsLoading && isWalletReady;
 
     final withOfflineBanner = config!.online == false;
 
@@ -69,21 +74,10 @@ class _WalletActionsState extends State<WalletActions> {
     );
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
-
-    final showVouchers =
-        context.select(selectShowVouchers) && widget.handleSendScreen != null;
-
-    final showMinter = context.select(selectShowMinter);
-
-    final showPlugins =
-        context.select(selectShowPlugins) && widget.handlePlugin != null;
+    final actionButton = context.select(selectActionButtonToShow);
 
     int pluginsCount = wallet!.plugins.length;
     PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet.plugins[0];
-
-    int actionItemsCount = (showVouchers ? 1 : 0) +
-        (showMinter ? 1 : 0) +
-        (showPlugins ? pluginsCount : 0);
 
     final isIncreasing = newBalance > balance;
 
@@ -293,114 +287,102 @@ class _WalletActionsState extends State<WalletActions> {
                           disabled: sendLoading,
                           onPressed: widget.handleReceive,
                         ),
-                      ],
-                      if (actionItemsCount > 0)
                         SizedBox(
                           width: buttonSeparator,
                         ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                        width: actionItemsCount > 1 ? buttonSize : 0,
-                        child: actionItemsCount > 1
-                            ? WalletActionButton(
-                                key: const Key('more_action_button'),
-                                icon: CupertinoIcons.ellipsis,
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                shrink: widget.shrink,
-                                text: AppLocalizations.of(context)!.more,
-                                loading: sendLoading,
-                                disabled: sendLoading,
-                                onPressed: widget.handleShowMore,
-                                alt: true,
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                        width: showVouchers && actionItemsCount == 1
-                            ? buttonSize
-                            : 0,
-                        child: showVouchers && actionItemsCount == 1
-                            ? WalletActionButton(
-                                key: const Key('vouchers_action_button'),
-                                icon: CupertinoIcons.ticket,
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                shrink: widget.shrink,
-                                text: AppLocalizations.of(context)!.vouchers,
-                                alt: true,
-                                disabled: sendLoading,
-                                onPressed: widget.handleVouchers,
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                        width: showMinter && actionItemsCount == 1
-                            ? buttonSize
-                            : 0,
-                        child: showMinter && actionItemsCount == 1
-                            ? WalletActionButton(
-                                key: const Key('minter_action_button'),
-                                icon: CupertinoIcons.hammer,
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                shrink: widget.shrink,
-                                text: AppLocalizations.of(context)!.mint,
-                                alt: true,
-                                disabled: sendLoading,
-                                onPressed: widget.handleMint,
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                        width: showPlugins &&
-                                pluginsCount == 1 &&
-                                actionItemsCount == 1
-                            ? buttonSize
-                            : 0,
-                        child: showPlugins &&
-                                pluginsCount == 1 &&
-                                actionItemsCount == 1
-                            ? WalletActionButton(
-                                key: const Key('plugin_action_button'),
-                                customIcon: SvgPicture.network(
-                                  onePlugin!.icon,
-                                  semanticsLabel: '${onePlugin.name} icon',
-                                  height: buttonIconSize,
-                                  width: buttonIconSize,
-                                  placeholderBuilder: (_) => Icon(
-                                    CupertinoIcons.arrow_down,
-                                    size: buttonIconSize,
-                                    color: sendLoading
-                                        ? Theme.of(context)
-                                            .colors
-                                            .subtleEmphasis
-                                        : Theme.of(context).colors.black,
-                                  ),
-                                ),
-                                buttonSize: buttonSize,
-                                buttonIconSize: buttonIconSize,
-                                buttonFontSize: buttonFontSize,
-                                shrink: widget.shrink,
-                                text: onePlugin.name,
-                                alt: true,
-                                loading: sendLoading,
-                                disabled: sendLoading,
-                                onPressed: () =>
-                                    widget.handlePlugin!(onePlugin),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
+                      ],
+                      if (!showActionButton || actionButton == null) ...[
+                        WalletActionButton(
+                          icon: null,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: widget.shrink,
+                          text: '',
+                          loading: false,
+                          disabled: true,
+                          onPressed: () => {},
+                          alt: true,
+                        ),
+                      ],
+                      if (showActionButton &&
+                          actionButton?.buttonType ==
+                              ActionButtonType.more) ...[
+                        WalletActionButton(
+                          key: const Key('more_action_button'),
+                          icon: CupertinoIcons.ellipsis,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: widget.shrink,
+                          text: AppLocalizations.of(context)!.more,
+                          loading: false,
+                          disabled: false,
+                          onPressed: widget.handleShowMore,
+                          alt: true,
+                        ),
+                      ],
+                      if (showActionButton &&
+                          actionButton?.buttonType ==
+                              ActionButtonType.vouchers) ...[
+                        WalletActionButton(
+                          key: const Key('vouchers_action_button'),
+                          icon: CupertinoIcons.ticket,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: widget.shrink,
+                          text: AppLocalizations.of(context)!.vouchers,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: widget.handleVouchers,
+                        ),
+                      ],
+                      if (showActionButton &&
+                          actionButton?.buttonType ==
+                              ActionButtonType.minter) ...[
+                        WalletActionButton(
+                          key: const Key('minter_action_button'),
+                          icon: CupertinoIcons.hammer,
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: widget.shrink,
+                          text: AppLocalizations.of(context)!.mint,
+                          alt: true,
+                          disabled: sendLoading,
+                          onPressed: widget.handleMint,
+                        ),
+                      ],
+                      if (showActionButton &&
+                          actionButton?.buttonType ==
+                              ActionButtonType.plugins) ...[
+                        WalletActionButton(
+                          key: const Key('plugin_action_button'),
+                          customIcon: SvgPicture.network(
+                            onePlugin!.icon,
+                            semanticsLabel: '${onePlugin.name} icon',
+                            height: buttonIconSize,
+                            width: buttonIconSize,
+                            placeholderBuilder: (_) => Icon(
+                              CupertinoIcons.arrow_down,
+                              size: buttonIconSize,
+                              color: sendLoading
+                                  ? Theme.of(context).colors.subtleEmphasis
+                                  : Theme.of(context).colors.black,
+                            ),
+                          ),
+                          buttonSize: buttonSize,
+                          buttonIconSize: buttonIconSize,
+                          buttonFontSize: buttonFontSize,
+                          shrink: widget.shrink,
+                          text: onePlugin.name,
+                          alt: true,
+                          loading: sendLoading,
+                          disabled: sendLoading,
+                          onPressed: () => widget.handlePlugin!(onePlugin),
+                        )
+                      ],
                     ],
                   ),
                 ),
