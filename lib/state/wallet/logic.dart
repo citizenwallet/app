@@ -21,6 +21,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -1792,5 +1793,55 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       launchUrl(Uri.parse(uri), mode: LaunchMode.externalApplication);
     } catch (_) {}
+  }
+
+  void setWalletActionsLoading(bool loading) {
+    _state.setWalletActionsLoading(loading);
+  }
+
+  Future<void> evaluateWalletActions() async {
+    _state.setWalletActionsLoading(true);
+
+    _state.walletActions = [];
+
+    List<ActionButton> actionsToAdd = [];
+
+    final showVouchers = selectShowVouchers(_state);
+    final showMinter = selectShowMinter(_state);
+    final showPlugins = selectShowPlugins(_state);
+
+    if (showVouchers) {
+      actionsToAdd.add(ActionButton(
+        label: 'Vouchers',
+        buttonType: ActionButtonType.vouchers,
+      ));
+    }
+
+    if (showMinter) {
+      actionsToAdd.add(ActionButton(
+        label: 'Minter',
+        buttonType: ActionButtonType.minter,
+      ));
+    }
+
+    if (showPlugins) {
+      actionsToAdd.add(ActionButton(
+        label: 'Plugins',
+        buttonType: ActionButtonType.plugins,
+      ));
+    }
+
+    if (actionsToAdd.length > 1) {
+      actionsToAdd.add(ActionButton(
+        label: 'More',
+        buttonType: ActionButtonType.more,
+      ));
+    }
+
+    _state.walletActions = actionsToAdd;
+
+    await delay(const Duration(milliseconds: 500));
+
+    _state.setWalletActionsLoading(false);
   }
 }
