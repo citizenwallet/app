@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/state/communities/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,15 +23,13 @@ class CommunitiesLogic {
 
       // Grouped operations for fetching and upserting communities
       (() async {
-        final List<Map<String, dynamic>> communities =
-            await config.getCommunitiesFromS3();
-
-        List<Config> communityConfigs =
-            communities.map((c) => Config.fromJson(c)).toList();
+        final List<Config> communities =
+            await config.getCommunitiesFromRemote();
 
         _state.upsertCommunities(communityConfigs);
 
-        await _db.communities.upsert(communities);
+        await _db.communities
+            .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
       })();
 
       for (final communityConfig in communityConfigs) {
@@ -69,11 +68,11 @@ class CommunitiesLogic {
     _state.fetchCommunitiesFailure();
   }
 
-  void fetchCommunitiesFromS3() async {
+  void fetchCommunitiesFromRemote() async {
     try {
-      final List<Map<String, dynamic>> communities =
-          await config.getCommunitiesFromS3();
-      await _db.communities.upsert(communities);
+      final List<Config> communities = await config.getCommunitiesFromRemote();
+      await _db.communities
+          .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
       return;
     } catch (e) {
       //
@@ -84,18 +83,14 @@ class CommunitiesLogic {
     bool communityExists = await _db.communities.exists(alias);
 
     for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
-      final List<Map<String, dynamic>> communities =
-          await config.getCommunitiesFromS3();
+      final List<Config> communities = await config.getCommunitiesFromRemote();
 
       for (final community in communities) {
-        Config communityConfig = Config.fromJson(community);
+        final isOnline = await config.isCommunityOnline(community.indexer.url);
 
-        final isOnline =
-            await config.isCommunityOnline(communityConfig.indexer.url);
-
-        await _db.communities.upsert([community]);
+        await _db.communities.upsert([DBCommunity.fromConfig(community)]);
         await _db.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+            .updateOnlineStatus(community.community.alias, isOnline);
       }
 
       // Check again if the community exists after the update

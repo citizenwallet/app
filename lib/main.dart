@@ -126,7 +126,7 @@ class MyAppState extends State<MyApp> {
   void onLoad() async {
     await _communitiesLogic.initializeAppDB();
 
-    _communitiesLogic.fetchCommunitiesFromS3();
+    _communitiesLogic.fetchCommunitiesFromRemote();
 
     _notificationsLogic.checkPushPermissions();
     await _logic.fetchWalletConfig();

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,17 @@ class DBCommunity {
     this.version = 0,
     this.online = true,
   });
+
+  // from Config
+  factory DBCommunity.fromConfig(Config config) {
+    return DBCommunity(
+      alias: config.community.alias,
+      config: config.toJson(),
+      hidden: config.community.hidden,
+      version: config.version,
+      online: config.online,
+    );
+  }
 
   // process after reading from table
   factory DBCommunity.fromMap(Map<String, dynamic> map) {
@@ -143,19 +155,17 @@ class CommunityTable extends DBTable {
     await batch.commit(noResult: true);
   }
 
-  Future<void> upsert(List<Map<String, dynamic>> communities) async {
+  Future<void> upsert(List<DBCommunity> communities) async {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
-    for (final data in communities) {
-      final community = data['community'];
+    for (final community in communities) {
+      final alias = community.alias;
 
-      final alias = community['alias'];
-
-      final isHidden = community['hidden'] ?? false;
+      final isHidden = community.hidden;
       final hidden = isHidden ? 1 : 0;
 
-      final version = data['version'] ?? 0;
+      final version = community.version;
 
       const online = 1;
 
@@ -167,7 +177,7 @@ class CommunityTable extends DBTable {
           config = excluded.config,
           version = excluded.version,
           online = excluded.online
-      ''', [alias, hidden, jsonEncode(data), version, online]);
+      ''', [alias, hidden, jsonEncode(community.config), version, online]);
     }
     await batch.commit(noResult: true);
   }
