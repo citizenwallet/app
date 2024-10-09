@@ -50,12 +50,14 @@ class _WalletActionsState extends State<WalletActions> {
     final firstLoad = context.select((WalletState state) => state.firstLoad);
     final wallet = context.select((WalletState state) => state.wallet);
     final config = context.select((WalletState state) => state.config);
+
     final walletActionsLoading =
         context.select((WalletState state) => state.walletActionsLoading);
-
     final isWalletReady = context.select((WalletState state) => state.ready);
-
     final showActionButton = !walletActionsLoading && isWalletReady;
+    final actionButton = context.select(selectActionButtonToShow);
+    int pluginsCount = wallet!.plugins.length;
+    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet.plugins[0];
 
     final withOfflineBanner = config!.online == false;
 
@@ -74,10 +76,6 @@ class _WalletActionsState extends State<WalletActions> {
     );
 
     final balance = wallet != null ? double.parse(wallet.balance) : 0.0;
-    final actionButton = context.select(selectActionButtonToShow);
-
-    int pluginsCount = wallet!.plugins.length;
-    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet.plugins[0];
 
     final isIncreasing = newBalance > balance;
 
