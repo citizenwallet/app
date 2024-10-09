@@ -641,8 +641,15 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setWalletActionsLoading(bool loading) {
-    walletActionsLoading = loading;
+  void walletActionsRequest() {
+    walletActionsLoading = true;
+
+    notifyListeners();
+  }
+
+  void walletActionsSuccess(List<ActionButton> walletActions) {
+    this.walletActions = walletActions;
+    walletActionsLoading = false;
 
     notifyListeners();
   }
