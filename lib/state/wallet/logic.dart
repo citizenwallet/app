@@ -575,16 +575,16 @@ class WalletLogic extends WidgetsBindingObserver {
 
   void transferEventSubscribe() async {
     try {
-      _fetchRequest = generateRandomId();
+      // _fetchRequest = generateRandomId();
 
-      fetchNewTransfers(_fetchRequest);
+      // fetchNewTransfers(_fetchRequest);
 
       return;
     } catch (_) {}
   }
 
   void transferEventUnsubscribe() {
-    _fetchRequest = null;
+    // _fetchRequest = null;
   }
 
   void fetchNewTransfers(String? id) async {
@@ -807,7 +807,7 @@ class WalletLogic extends WidgetsBindingObserver {
                   ))
               .toList();
 
-      if (txs.isEmpty || txs.length < limit) {
+      if (txs.isEmpty || txs.isNotEmpty && txs.first.date.isBefore(maxDate)) {
         // nothing in the db or slightly less than there could be, check remote
         final (remoteTxs, _) = await _wallet.fetchErc20Transfers(
           offset: 0,
@@ -1758,7 +1758,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
-        transferEventSubscribe();
+        resumeFetching();
 
         if (_wallet.alias == null) {
           return;
@@ -1784,7 +1784,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         break;
       default:
-        transferEventUnsubscribe();
+        pauseFetching();
     }
   }
 

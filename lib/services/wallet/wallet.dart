@@ -17,6 +17,7 @@ import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/interface.dart';
+import 'package:citizenwallet/services/wallet/engine.dart';
 import 'package:citizenwallet/services/wallet/gas.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -847,18 +848,32 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      const path = 'logs/v2/transfers';
+      const path = '/v1/logs';
+
+      final erc20EventSignature = _contractToken.transferEventSignature;
+
+      final dataQueryParams = buildQueryParams([
+        {
+          'key': 'from',
+          'value': _account.hexEip55,
+        },
+      ], or: [
+        {
+          'key': 'to',
+          'value': _account.hexEip55,
+        },
+      ]);
 
       final url =
-          '/$path/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+          '$path/${_contractToken.addr}/$erc20EventSignature?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}&$dataQueryParams';
 
-      final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer $_indexerKey',
-      });
+      final response = await _indexer.get(url: url);
 
       // convert response array into TransferEvent list
       for (final item in response['array']) {
-        tx.add(TransferEvent.fromJson(item));
+        final log = Log.fromJson(item);
+
+        tx.add(TransferEvent.fromLog(log));
       }
 
       return (tx, Pagination.fromJson(response['meta']));

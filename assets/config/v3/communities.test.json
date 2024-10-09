@@ -619,8 +619,8 @@
       "name": "Gnosis Explorer"
     },
     "node": {
-      "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
-      "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
+      "url": "https://engine.citizenwallet.xyz/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+      "ws_url": "wss://engine.citizenwallet.xyz/v1/ws/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
       "chain_id": 100
     },
     "ipfs": {
@@ -630,13 +630,13 @@
       "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
     },
     "indexer": {
-      "url": "https://wallet.pay.brussels/indexer",
-      "ipfs_url": "https://wallet.pay.brussels/indexer",
+      "url": "http://engine.citizenwallet.xyz",
+      "ipfs_url": "https://engine.citizenwallet.xyz",
       "key": "x"
     },
     "erc4337": {
-      "rpc_url": "https://wallet.pay.brussels/indexer/rpc",
-      "paymaster_rpc_url": "https://wallet.pay.brussels/indexer/rpc",
+      "rpc_url": "https://engine.citizenwallet.xyz/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+      "paymaster_rpc_url": "https://engine.citizenwallet.xyz/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
       "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
       "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
       "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
