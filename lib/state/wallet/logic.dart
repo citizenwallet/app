@@ -21,7 +21,6 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
-import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -401,7 +400,6 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       _wallet.balance.then((v) => _state.setWalletBalance(v));
-      _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       _state.loadWalletSuccess();
 
@@ -1795,36 +1793,36 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  void setWalletActionsLoading(bool loading) {
-    _state.setWalletActionsLoading(loading);
+  void requestWalletActions() {
+    _state.walletActionsRequest();
   }
 
   Future<void> evaluateWalletActions() async {
-    _state.setWalletActionsLoading(true);
+    _state.walletActionsRequest();
 
     _state.walletActions = [];
 
     List<ActionButton> actionsToAdd = [];
 
-    final showVouchers = selectShowVouchers(_state);
-    final showMinter = selectShowMinter(_state);
-    final showPlugins = selectShowPlugins(_state);
+    actionsToAdd.add(ActionButton(
+      label: 'Vouchers',
+      buttonType: ActionButtonType.vouchers,
+    ));
 
-    if (showVouchers) {
-      actionsToAdd.add(ActionButton(
-        label: 'Vouchers',
-        buttonType: ActionButtonType.vouchers,
-      ));
-    }
+    try {
+      final isMinter = await _wallet.minter;
+      _state.setWalletMinter(isMinter);
 
-    if (showMinter) {
-      actionsToAdd.add(ActionButton(
-        label: 'Minter',
-        buttonType: ActionButtonType.minter,
-      ));
-    }
+      if (isMinter) {
+        actionsToAdd.add(ActionButton(
+          label: 'Minter',
+          buttonType: ActionButtonType.minter,
+        ));
+      }
+    } catch (_) {}
 
-    if (showPlugins) {
+    List<PluginConfig> plugins = _state.config!.plugins;
+    if (plugins.isNotEmpty) {
       actionsToAdd.add(ActionButton(
         label: 'Plugins',
         buttonType: ActionButtonType.plugins,
@@ -1838,10 +1836,6 @@ class WalletLogic extends WidgetsBindingObserver {
       ));
     }
 
-    _state.walletActions = actionsToAdd;
-
-    await delay(const Duration(milliseconds: 500));
-
-    _state.setWalletActionsLoading(false);
+    _state.walletActionsSuccess(actionsToAdd);
   }
 }
