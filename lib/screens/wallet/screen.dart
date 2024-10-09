@@ -168,13 +168,12 @@ class WalletScreenState extends State<WalletScreen> {
       _address,
       _alias,
       (bool hasChanged) async {
-        _logic.setWalletActionsLoading(true);
+        _logic.requestWalletActions();
         if (hasChanged) _profileLogic.loadProfile();
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
         await _logic.evaluateWalletActions();
-        _logic.setWalletActionsLoading(false);
       },
     );
 
@@ -876,13 +875,13 @@ class WalletScreenState extends State<WalletScreen> {
     final pluginConfig = selection['pluginConfig'];
 
     switch (action) {
-      case 'voucher':
+      case ActionButtonType.vouchers:
         handleVouchers();
         break;
-      case 'minter':
+      case ActionButtonType.minter:
         handleMint();
         break;
-      case 'plugin':
+      case ActionButtonType.plugins:
         handlePlugin(pluginConfig);
         break;
     }
