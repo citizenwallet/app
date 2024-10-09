@@ -32,6 +32,14 @@ class ProfileCircle extends StatelessWidget {
 
     final network = asset.startsWith('http');
 
+    if (kDebugMode && asset.endsWith('.svg') && network) {
+      return SvgPicture.asset(
+        'assets/logo.svg',
+        height: size,
+        width: size,
+      );
+    }
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       width: size,
@@ -59,7 +67,7 @@ class ProfileCircle extends StatelessWidget {
           : ClipRRect(
               borderRadius: BorderRadius.circular(size / 2),
               child: asset.endsWith('.svg')
-                  ? network
+                  ? network && !kDebugMode
                       ? SvgPicture.network(
                           asset,
                           semanticsLabel: 'profile icon',
