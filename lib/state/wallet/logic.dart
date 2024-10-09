@@ -1822,7 +1822,7 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
 
     try {
-      final alias = _state.wallet!.alias;
+      final alias = _wallet.alias ?? "";
       final community = await _appDBService.communities.get(alias);
 
       if (community != null) {
