@@ -1,7 +1,6 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 
 double selectWalletBalance(WalletState state) {
   if (state.wallet == null) {
@@ -72,58 +71,6 @@ Map<String, List<CWWallet>> selectSortedGroupedWalletsByAlias(
         })
         .sortedBy((w) => w.alias.toLowerCase())
         .groupListsBy((w) => w.alias.toLowerCase());
-
-bool selectShowVouchers(WalletState state) {
-  if (kIsWeb == true) {
-    return false;
-  }
-
-  if (state.wallet?.locked == true) {
-    return false;
-  }
-
-  if (state.loading || state.firstLoad) {
-    return false;
-  }
-
-  if (state.wallet!.doubleBalance <= 0.0) {
-    return false;
-  }
-
-  return true;
-}
-
-bool selectShowMinter(WalletState state) {
-  if (kIsWeb == true) {
-    return false;
-  }
-
-  if (state.wallet?.locked == true) {
-    return false;
-  }
-
-  if (state.wallet?.minter == false) {
-    return false;
-  }
-
-  return true;
-}
-
-bool selectShowPlugins(WalletState state) {
-  if (state.loading || state.firstLoad) {
-    return false;
-  }
-
-  if (state.wallet == null) {
-    return false;
-  }
-
-  if (state.wallet!.plugins.isEmpty) {
-    return false;
-  }
-
-  return true;
-}
 
 ActionButton? selectActionButtonToShow(WalletState state) {
   if (state.walletActions.isEmpty) {
