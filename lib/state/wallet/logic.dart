@@ -632,10 +632,6 @@ class WalletLogic extends WidgetsBindingObserver {
   }
 
   void handleTransferEvent(WebSocketEvent event) {
-    print('Handling transfer event: $event');
-
-    print(event.type);
-
     switch (event.type) {
       case 'remove':
         break;
