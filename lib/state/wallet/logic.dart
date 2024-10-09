@@ -1821,13 +1821,22 @@ class WalletLogic extends WidgetsBindingObserver {
       }
     } catch (_) {}
 
-    List<PluginConfig> plugins = _state.config!.plugins;
-    if (plugins.isNotEmpty) {
-      actionsToAdd.add(ActionButton(
-        label: 'Plugins',
-        buttonType: ActionButtonType.plugins,
-      ));
-    }
+    try {
+      final alias = _state.config?.community.alias ?? '';
+      final community = await _appDBService.communities.get(alias);
+
+      if (community != null) {
+        Config communityConfig = Config.fromJson(community.config);
+        final plugins = communityConfig.plugins;
+
+        if (plugins.isNotEmpty) {
+          actionsToAdd.add(ActionButton(
+            label: 'Plugins',
+            buttonType: ActionButtonType.plugins,
+          ));
+        }
+      }
+    } catch (_) {}
 
     if (actionsToAdd.length > 1) {
       actionsToAdd.add(ActionButton(
