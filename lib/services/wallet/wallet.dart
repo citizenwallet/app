@@ -521,6 +521,14 @@ class WalletService {
     );
   }
 
+  String get transferEventStringSignature {
+    return _contractToken.transferEventStringSignature;
+  }
+
+  String get transferEventSignature {
+    return _contractToken.transferEventSignature;
+  }
+
   Future<bool> isMinter(String addr) async {
     return _contractAccessControl.isMinter(addr);
   }
@@ -1008,12 +1016,15 @@ class WalletService {
   Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr, {
-    bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic>? data,
+    TransferData? extraData,
   }) async {
     final params = [userop.toJson(), eaddr];
-    if (!legacy && data != null) {
-      params.add(data.toJson());
+    if (data != null) {
+      params.add(data);
+    }
+    if (data != null && extraData != null) {
+      params.add(extraData.toJson());
     }
 
     final body = SUJSONRPCRequest(
@@ -1022,7 +1033,7 @@ class WalletService {
     );
 
     try {
-      final response = await _requestBundler(body, legacy: legacy);
+      final response = await _requestBundler(body);
 
       return (response.result as String, null);
     } catch (exception) {
@@ -1062,11 +1073,8 @@ class WalletService {
   }
 
   /// makes a jsonrpc request from this wallet
-  Future<SUJSONRPCResponse> _requestBundler(
-    SUJSONRPCRequest body, {
-    bool legacy = false,
-  }) async {
-    final rawResponse = await getBundlerRPC(legacy: legacy).post(
+  Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
+    final rawResponse = await getBundlerRPC().post(
       body: body,
       headers: erc4337Headers,
     );
@@ -1167,29 +1175,18 @@ class WalletService {
     List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
-    bool legacy = false,
     bool deploy = true,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
-      bool isLegacy = legacy;
 
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
           customCredentials.address.hexEip55,
         );
-
-        final exists = await accountExists(account: acc.hexEip55);
-
-        if (exists) {
-          // check if this account does not support a token entrypoint
-          isLegacy =
-              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
-        }
       }
-      final StackupEntryPoint entryPoint =
-          getEntryPointContract(legacy: isLegacy);
+      final StackupEntryPoint entryPoint = getEntryPointContract();
 
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -1203,13 +1200,13 @@ class WalletService {
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && deploy) {
         bool exists = false;
-        if (getPaymasterType(legacy: isLegacy) == 'payg') {
+        if (getPaymasterType() == 'payg') {
           // solves edge case with legacy account migration
           exists = await accountExists(account: acc.hexEip55);
         }
 
         if (!exists) {
-          final accountFactory = getAccounFactoryContract(legacy: isLegacy);
+          final accountFactory = getAccounFactoryContract();
 
           // construct the init code to deploy the account
           userop.initCode = await accountFactory.createAccountInitCode(
@@ -1250,9 +1247,8 @@ class WalletService {
       // submit the user op to the paymaster in order to receive information to complete the user op
       List<PaymasterData> paymasterOOData = [];
       Exception? paymasterErr;
-      final useAccountNonce = (nonce == BigInt.zero ||
-              getPaymasterType(legacy: isLegacy) == 'payg') &&
-          deploy;
+      final useAccountNonce =
+          (nonce == BigInt.zero || getPaymasterType() == 'payg') && deploy;
 
       if (useAccountNonce) {
         // if it's the first user op, we should use a normal paymaster signature
@@ -1260,8 +1256,7 @@ class WalletService {
         (paymasterData, paymasterErr) = await _getPaymasterData(
           userop,
           entryPoint.addr,
-          getPaymasterType(legacy: isLegacy),
-          legacy: isLegacy,
+          getPaymasterType(),
         );
 
         if (paymasterData != null) {
@@ -1272,8 +1267,7 @@ class WalletService {
         (paymasterOOData, paymasterErr) = await _getPaymasterOOData(
           userop,
           entryPoint.addr,
-          getPaymasterType(legacy: isLegacy),
-          legacy: isLegacy,
+          getPaymasterType(),
         );
       }
 
@@ -1313,34 +1307,18 @@ class WalletService {
   Future<String?> submitUserop(
     UserOp userop, {
     EthPrivateKey? customCredentials,
-    bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic>? data,
+    TransferData? extraData,
   }) async {
     try {
-      bool isLegacy = legacy;
-
-      EthereumAddress acc = _account;
-      if (customCredentials != null) {
-        acc = await getAccountAddress(
-          customCredentials.address.hexEip55,
-        );
-
-        final exists = await accountExists(account: acc.hexEip55);
-
-        if (exists) {
-          // check if this account does not support a token entrypoint
-          isLegacy =
-              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
-        }
-      }
-      final entryPoint = getEntryPointContract(legacy: isLegacy);
+      final entryPoint = getEntryPointContract();
 
       // send the user op
       final (txHash, useropErr) = await _submitUserOp(
         userop,
         entryPoint.addr,
-        legacy: isLegacy,
         data: data,
+        extraData: extraData,
       );
       if (useropErr != null) {
         throw useropErr;

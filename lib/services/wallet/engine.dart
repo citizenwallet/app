@@ -87,3 +87,17 @@ String buildQueryParams(List<Map<String, String>> data,
 
   return queryParams.join('&');
 }
+
+Map<String, dynamic> createEventData({
+  required String stringSignature,
+  required String topic,
+  required Map<String, String> args,
+}) {
+  // Create the output map
+  Map<String, dynamic> output = {
+    'topic': topic,
+    ...args,
+  };
+
+  return output;
+}

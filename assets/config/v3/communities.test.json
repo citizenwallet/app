@@ -635,8 +635,8 @@
       "key": "x"
     },
     "erc4337": {
-      "rpc_url": "https://engine.citizenwallet.xyz/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-      "paymaster_rpc_url": "https://engine.citizenwallet.xyz/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+      "rpc_url": "https://engine.citizenwallet.xyz/v1/rpc",
+      "paymaster_rpc_url": "https://engine.citizenwallet.xyz/v1/rpc",
       "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
       "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
       "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",

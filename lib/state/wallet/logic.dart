@@ -15,6 +15,7 @@ import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/engine.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -22,7 +23,6 @@ import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -1141,9 +1141,20 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: {
+          'from': _wallet.account.hexEip55,
+          'to': to,
+          'value': parsedAmount.toString(),
+        },
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: message != '' ? TransferData(message) : null,
+        data: eventData,
+        extraData: message != '' ? TransferData(message) : null,
       );
       if (txHash == null) {
         // this is an optional operation
@@ -1266,9 +1277,20 @@ class WalletLogic extends WidgetsBindingObserver {
 
       tempId = hash;
 
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: {
+          'from': _wallet.account.hexEip55,
+          'to': to,
+          'value': parsedAmount.toString(),
+        },
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: message != '' ? TransferData(message) : null,
+        data: eventData,
+        extraData: message != '' ? TransferData(message) : null,
       );
       if (txHash == null) {
         // this is an optional operation

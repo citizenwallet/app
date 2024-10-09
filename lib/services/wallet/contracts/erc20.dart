@@ -53,7 +53,7 @@ class TransferEvent {
         createdAt = log.createdAt,
         from = EthereumAddress.fromHex(log.data?['from'] ?? ''),
         to = EthereumAddress.fromHex(log.data?['to'] ?? ''),
-        value = log.value,
+        value = BigInt.parse(log.data?['value'] ?? '0'),
         data = log.extraData != null
             ? TransferData.fromJson(log.extraData!)
             : null,
@@ -127,6 +127,12 @@ class ERC20Contract {
     final function = rcontract.function('mint');
 
     return function.encodeCall([EthereumAddress.fromHex(to), amount]);
+  }
+
+  String get transferEventStringSignature {
+    final event = rcontract.event('Transfer');
+
+    return event.stringSignature;
   }
 
   String get transferEventSignature {

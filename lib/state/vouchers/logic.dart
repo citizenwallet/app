@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/account/vouchers.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/engine.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
@@ -25,7 +25,6 @@ class VoucherLogic extends WidgetsBindingObserver {
   final String password = dotenv.get('DB_VOUCHER_PASSWORD');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-  final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
   final AccountDBService _accountDBService = AccountDBService();
   final WalletService _wallet = WalletService();
@@ -423,9 +422,20 @@ class VoucherLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: {
+          'from': _wallet.account.hexEip55,
+          'to': account.hexEip55,
+          'value': parsedAmount.toString(),
+        },
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
-        data: name != null ? TransferData(name) : null,
+        data: eventData,
+        extraData: TransferData(dbvoucher.name),
       );
       if (txHash == null) {
         throw Exception('transaction failed');
@@ -556,7 +566,6 @@ class VoucherLogic extends WidgetsBindingObserver {
         [_wallet.erc20Address],
         [calldata],
         customCredentials: credentials,
-        legacy: voucher.legacy,
       );
 
       if (sendingTransaction != null) {
@@ -564,11 +573,21 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: {
+          'from': voucher.address,
+          'to': _wallet.account.hexEip55,
+          'value': amount.toString(),
+        },
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
-        legacy: voucher.legacy,
-        data: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
+        data: eventData,
+        extraData: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
       );
       if (txHash == null) {
         throw Exception('transaction failed');
