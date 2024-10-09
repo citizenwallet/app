@@ -7,7 +7,7 @@ import 'package:citizenwallet/services/db/account/vouchers.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
-import 'package:citizenwallet/services/wallet/engine.dart';
+import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';

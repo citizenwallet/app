@@ -159,9 +159,11 @@ void main() {
           archived: false,
         );
 
+        final token = config.tokens.first;
+
         final voucherLink = voucher.getLink(
           walletUrl,
-          config.token.symbol,
+          token.symbol,
           '123',
         );
 

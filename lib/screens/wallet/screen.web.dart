@@ -536,7 +536,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     final config = context.select((WalletState s) => s.config);
 
-    final walletNamePrefix = config?.token.symbol ?? 'Citizen';
+    final walletNamePrefix = config?.tokens.first.symbol ?? 'Citizen';
 
     final walletName = '$walletNamePrefix Wallet';
 

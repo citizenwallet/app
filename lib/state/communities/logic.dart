@@ -37,8 +37,10 @@ class CommunitiesLogic {
           continue;
         }
 
-        final isOnline =
-            await config.isCommunityOnline(communityConfig.indexer.url);
+        final token = communityConfig.tokens.first;
+        final chain = communityConfig.chains[token.chainId.toString()];
+
+        final isOnline = await config.isCommunityOnline(chain!.node.url);
         await _db.communities
             .updateOnlineStatus(communityConfig.community.alias, isOnline);
 
@@ -86,7 +88,10 @@ class CommunitiesLogic {
       final List<Config> communities = await config.getCommunitiesFromRemote();
 
       for (final community in communities) {
-        final isOnline = await config.isCommunityOnline(community.indexer.url);
+        final token = community.tokens.first;
+        final chain = community.chains[token.chainId.toString()];
+
+        final isOnline = await config.isCommunityOnline(chain!.node.url);
 
         await _db.communities.upsert([DBCommunity.fromConfig(community)]);
         await _db.communities

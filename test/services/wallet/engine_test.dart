@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:citizenwallet/services/wallet/engine.dart';
+import 'package:citizenwallet/services/engine/utils.dart';
 
 void main() {
   group('buildQueryParams', () {

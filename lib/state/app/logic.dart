@@ -142,6 +142,8 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
+      final token = communityConfig.tokens.first;
+
       _appState.importLoadingSuccess();
 
       return dbWallets.map((e) {
@@ -153,10 +155,10 @@ class AppLogic {
           address: credentials?.address.hexEip55 ?? '',
           alias: communityConfig.community.alias,
           account: e.address.hexEip55,
-          currencyName: communityConfig.token.name,
-          symbol: communityConfig.token.symbol,
+          currencyName: token.name,
+          symbol: token.symbol,
           currencyLogo: communityConfig.community.logo,
-          decimalDigits: communityConfig.token.decimals,
+          decimalDigits: token.decimals,
           locked: false,
         );
       }).toList();
@@ -183,13 +185,15 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
+      final token = communityConfig.tokens.first;
+
       final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
 
       await _accounts.setAccount(DBAccount(
         address: address,
         privateKey: credentials,
-        name: communityConfig.token.name,
+        name: token.name,
         alias: communityConfig.community.alias,
       ));
 
@@ -289,7 +293,9 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final name = 'Imported ${communityConfig.token.symbol} Account';
+      final token = communityConfig.tokens.first;
+
+      final name = 'Imported ${token.symbol} Account';
 
       final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -350,6 +356,8 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
+      final token = communityConfig.tokens.first;
+
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 
       final existing = await _accounts.getAccount(
@@ -362,7 +370,7 @@ class AppLogic {
         DBAccount(
           address: address,
           privateKey: credentials,
-          name: '${communityConfig.token.symbol} Web Account',
+          name: '${token.symbol} Web Account',
           alias: communityConfig.community.alias,
         ),
       );

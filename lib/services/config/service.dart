@@ -30,7 +30,7 @@ class ConfigService {
   static const String communityConfigListS3FileName = 'communities';
 
   static const String communityDebugFileName = 'debug';
-  static const int version = 3;
+  static const int version = 4;
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:citizenwallet/services/wallet/engine.dart';
+import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';

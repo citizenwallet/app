@@ -12,8 +12,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
     {String? customAccountFactory}) async {
-  final url = config.node.url;
-  final wsurl = config.node.wsUrl;
+  final token = config.tokens.first;
+
+  final url = config.chains[token.chainId.toString()]!.node.url;
+  final wsurl = config.chains[token.chainId.toString()]!.node.wsUrl;
 
   final client = Client();
 
@@ -26,8 +28,11 @@ Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
 
   final chainId = await ethClient.getChainId();
 
-  return AccountFactoryService(chainId.toInt(), ethClient,
-      customAccountFactory ?? config.erc4337.accountFactoryAddress);
+  return AccountFactoryService(
+      chainId.toInt(),
+      ethClient,
+      customAccountFactory ??
+          config.chains[chainId.toString()]!.account.accountFactoryAddress);
 }
 
 class AccountFactoryService {

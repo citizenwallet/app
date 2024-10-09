@@ -127,6 +127,9 @@ flutter:
     - assets/icons/citizenbank.svg
     - assets/icons/language-svgrepo-com.svg
     - assets/icons/contactless.svg
+    - assets/config/v4/communities.json
+    - assets/config/v4/communities.test.json
+    - assets/config/v4/debug.json
     - assets/config/v3/communities.json
     - assets/config/v3/communities.test.json
     - assets/config/v3/legacy_4337_bundlers.json

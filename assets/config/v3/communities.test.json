@@ -630,7 +630,8 @@
       "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
     },
     "indexer": {
-      "url": "http://engine.citizenwallet.xyz",
+      "url": "https://engine.citizenwallet.xyz",
+      "ws_url": "wss://engine.citizenwallet.xyz",
       "ipfs_url": "https://engine.citizenwallet.xyz",
       "key": "x"
     },
