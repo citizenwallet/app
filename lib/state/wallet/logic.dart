@@ -83,7 +83,6 @@ class WalletLogic extends WidgetsBindingObserver {
   final AccountsServiceInterface _encPrefs = getAccountsService();
 
   bool cancelLoadAccounts = false;
-  String? _fetchRequest;
 
   WalletService get wallet => _wallet;
   EventService? _eventService;
@@ -615,16 +614,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _eventService!.setMessageHandler(handleTransferEvent);
 
-      // _fetchRequest = generateRandomId();
-
-      // fetchNewTransfers(_fetchRequest);
-
       return;
     } catch (_) {}
   }
 
   void transferEventUnsubscribe() {
-    // _fetchRequest = null;
     if (_eventService != null) {
       _eventService!.disconnect();
       _eventService = null;
