@@ -1,5 +1,4 @@
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,15 +23,9 @@ class MoreActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = context.select((WalletState state) => state.wallet);
-
-    final showVouchers =
-        context.select(selectShowVouchers) && handleSendScreen != null;
-
-    final showMinter = context.select(selectShowMinter);
-
-    final showPlugins =
-        context.select(selectShowPlugins) && handlePlugin != null;
+    final plugins =
+        context.select((WalletState state) => state.wallet!.plugins);
+    final actions = context.select((WalletState state) => state.walletActions);
 
     final navigator = GoRouter.of(context);
 
@@ -61,20 +54,30 @@ class MoreActionsSheet extends StatelessWidget {
           ),
           child: ListView(
             shrinkWrap: true,
-            children: [
-              if (showVouchers)
-                _buildSheetItem(context, AppLocalizations.of(context)!.vouchers,
-                    icon: CupertinoIcons.ticket,
-                    onPressed: () => navigator
-                        .pop({'action': 'voucher', 'pluginConfig': null})),
-              if (showMinter)
-                _buildSheetItem(context, AppLocalizations.of(context)!.mint,
-                    icon: CupertinoIcons.hammer,
-                    onPressed: () => navigator
-                        .pop({'action': 'minter', 'pluginConfig': null})),
-              if (showPlugins)
-                ...(wallet?.plugins ?? []).map(
-                  (plugin) {
+            children: actions.expand((action) {
+              switch (action.buttonType) {
+                case ActionButtonType.vouchers:
+                  return [
+                    _buildSheetItem(
+                      context,
+                      AppLocalizations.of(context)!.vouchers,
+                      icon: CupertinoIcons.ticket,
+                      onPressed: () => navigator
+                          .pop({'action': ActionButtonType.vouchers, 'pluginConfig': null}),
+                    )
+                  ];
+                case ActionButtonType.minter:
+                  return [
+                    _buildSheetItem(
+                      context,
+                      AppLocalizations.of(context)!.mint,
+                      icon: CupertinoIcons.hammer,
+                      onPressed: () => navigator
+                          .pop({'action': ActionButtonType.minter, 'pluginConfig': null}),
+                    )
+                  ];
+                case ActionButtonType.plugins:
+                  return plugins.map((plugin) {
                     return _buildSheetItem(
                       context,
                       plugin.name,
@@ -90,11 +93,15 @@ class MoreActionsSheet extends StatelessWidget {
                         ),
                       ),
                       onPressed: () => navigator
-                          .pop({'action': 'plugin', 'pluginConfig': plugin}),
+                          .pop({'action': ActionButtonType.plugins, 'pluginConfig': plugin}),
                     );
-                  },
-                )
-            ],
+                  }).toList();
+                default:
+                  return [
+                    Container()
+                  ]; // Return an empty container for unsupported action types
+              }
+            }).toList(),
           ),
         ),
       ],
