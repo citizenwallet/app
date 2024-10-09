@@ -178,13 +178,23 @@ class ConfigService {
     return configs;
   }
 
-  Future<List<Map<String, dynamic>>> getCommunitiesFromS3() async {
+  Future<List<Config>> getCommunitiesFromRemote() async {
+    if (kDebugMode) {
+      final localConfigs = jsonDecode(await rootBundle.loadString(
+          'assets/config/v$version/$communityConfigListFileName.json'));
+
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+
+      return configs;
+    }
+
     final List<dynamic> response = await _api.get(
         url:
             '/v$version/$communityConfigListS3FileName.json?cachebuster=${generateCacheBusterValue()}');
 
-    final List<Map<String, dynamic>> communities =
-        response.map((item) => Map<String, dynamic>.from(item)).toList();
+    final List<Config> communities =
+        response.map((item) => Config.fromJson(item)).toList();
 
     return communities;
   }
