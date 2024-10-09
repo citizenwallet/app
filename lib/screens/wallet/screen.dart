@@ -516,8 +516,6 @@ class WalletScreenState extends State<WalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        final navigator = GoRouter.of(context);
-
         await showCupertinoModalPopup<String?>(
           context: context,
           barrierDismissible: true,

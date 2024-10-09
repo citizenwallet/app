@@ -20,7 +20,6 @@ import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
-import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -311,41 +310,6 @@ GoRouter createRouter(
                   currentAddress: state.pathParameters['address'],
                 ),
               ),
-            ),
-            GoRoute(
-              name: 'Webview',
-              path: 'webview',
-              parentNavigatorKey: rootNavigatorKey,
-              pageBuilder: (context, state) {
-
-                final extra = state.extra as Map<String, dynamic>;
-
-                return CustomTransitionPage(
-                  key: state.pageKey,
-                  child: WebViewScreen(
-                    url: extra['url'],
-                    redirectUrl: extra['redirectUrl'],
-                    customScheme: extra['customScheme'],
-                  ),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(0.0, 1.0);
-                    const end = Offset.zero;
-                    const curve = Curves.ease;
-
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    var offsetAnimation = animation.drive(tween);
-
-                    return SlideTransition(
-                      position: offsetAnimation,
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 750)
-                );
-              },
-             
             ),
             GoRoute(
               name: 'Voucher',
