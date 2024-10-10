@@ -589,8 +589,10 @@ class AccountsScreenState extends State<AccountsScreen> {
                                       childCount: 1,
                                       (context, index) {
                                         return CupertinoExpansionPanel(
-                                            title: panelTitle,
-                                            child: panelChildren);
+                                          title: panelTitle,
+                                          dontCollapse: cwWallets.length < 2,
+                                          child: panelChildren,
+                                        );
                                       },
                                     ),
                                   );

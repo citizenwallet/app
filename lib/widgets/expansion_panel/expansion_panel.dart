@@ -1,16 +1,16 @@
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 
-// TODO: pass in dontCollapse boolean. True if only one item exists in child
-
 class CupertinoExpansionPanel extends StatefulWidget {
   final Widget title;
   final Widget child;
+  final bool dontCollapse;
 
   const CupertinoExpansionPanel({
     super.key,
     required this.title,
     required this.child,
+    this.dontCollapse = false,
   });
 
   @override
@@ -26,6 +26,7 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
   @override
   void initState() {
     super.initState();
+    _isExpanded = widget.dontCollapse;
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -35,6 +36,11 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+
+    if (_isExpanded) {
+      _animationController.value =
+          1.0; // Start expanded if dontCollapse is true
+    }
   }
 
   @override
@@ -44,6 +50,8 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
   }
 
   void _toggleExpansion() {
+    if (widget.dontCollapse) return; // Disable toggle if dontCollapse is true
+
     setState(() {
       _isExpanded = !_isExpanded;
       _isExpanded
@@ -62,24 +70,23 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
             decoration: BoxDecoration(
               color: Theme.of(context).colors.transparent,
             ),
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 widget.title,
-                RotationTransition(
-                  turns: Tween<double>(
-                    begin: 0.0,
-                    end: 0.5, // Rotate 180 degrees to point up
-                  ).animate(_animationController),
-                  child: Icon(
-                    CupertinoIcons.chevron_down,
-                    size: 20.0,
-                    color:
-                        Theme.of(context).colors.primary.resolveFrom(context),
+                if (!widget.dontCollapse) // Conditionally show chevron
+                  RotationTransition(
+                    turns: Tween<double>(
+                      begin: 0.0,
+                      end: 0.5, // Rotate 180 degrees to point up
+                    ).animate(_animationController),
+                    child: Icon(
+                      CupertinoIcons.chevron_down,
+                      size: 20.0,
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
