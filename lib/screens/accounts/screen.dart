@@ -17,6 +17,7 @@ import 'package:citizenwallet/widgets/expansion_panel/expansion_panel.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -466,6 +467,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                                           bottomBorder: false,
                                           onProfileEdit: handleProfileEdit,
                                           onLoadProfile: handleLoadProfile,
+                                          onTap: () => handleDismiss(context),
                                         ),
                                       ),
                                       Positioned(
@@ -515,22 +517,39 @@ class AccountsScreenState extends State<AccountsScreen> {
                                   }
 
                                   Widget panelTitle = Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 20,
-                                      bottom: 10,
-                                    ),
-                                    child: Text(
-                                      community.name,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colors
-                                            .text
-                                            .resolveFrom(context),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                      padding: const EdgeInsets.only(
+                                        top: 20,
+                                        bottom: 10,
                                       ),
-                                    ),
-                                  );
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          ProfileCircle(
+                                            size: 30,
+                                            imageUrl: community.logo,
+                                            borderColor: Theme.of(context)
+                                                .colors
+                                                .transparent,
+                                            backgroundColor:
+                                                Theme.of(context).colors.white,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            community.name,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .text
+                                                  .resolveFrom(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ));
 
                                   Widget panelChildren = ListView.builder(
                                     shrinkWrap: true,
