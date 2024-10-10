@@ -13,6 +13,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/confirm_modal.dart';
+import 'package:citizenwallet/widgets/expansion_panel/expansion_panel.dart';
 import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -501,79 +502,88 @@ class AccountsScreenState extends State<AccountsScreen> {
                           ),
                         if (groupedWallets.isNotEmpty)
                           ...((groupedWallets
-                                  .map<String, List<Widget>>((key, cwWallets) {
-                                    final community = communities[key];
-                                    if (community == null) {
-                                      return MapEntry(key, [
-                                        const SliverToBoxAdapter(
-                                          child: SizedBox.shrink(),
-                                        ),
-                                      ]);
-                                    }
-
-                                    List<Widget> children = [
-                                      SliverToBoxAdapter(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 20,
-                                            bottom: 10,
-                                          ),
-                                          child: Text(
-                                            community.name,
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colors
-                                                  .text
-                                                  .resolveFrom(context),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SliverList(
-                                        delegate: SliverChildBuilderDelegate(
-                                          childCount: cwWallets.length,
-                                          (context, index) {
-                                            final wallet = cwWallets[index];
-
-                                            return WalletRow(
-                                              key: Key(
-                                                  '${wallet.account}_${wallet.alias}'),
-                                              wallet,
-                                              communities: communities,
-                                              profiles: profiles,
-                                              isSelected:
-                                                  widget.currentAddress ==
-                                                      wallet.account,
-                                              onTap: () => handleWalletTap(
-                                                wallet.account,
-                                                wallet.alias,
-                                              ),
-                                              onMore: () => handleMore(
-                                                context,
-                                                wallet.account,
-                                                wallet.alias,
-                                                wallet.name,
-                                                wallet.locked,
-                                                profiles.containsKey(
-                                                    wallet.account),
-                                              ),
-                                              onLoadProfile: handleLoadProfile,
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ];
-
+                              .map<String, Widget>(
+                                (key, cwWallets) {
+                                  final community = communities[key];
+                                  if (community == null) {
                                     return MapEntry(
                                       key,
-                                      children,
+                                      const SliverToBoxAdapter(
+                                        child: SizedBox.shrink(),
+                                      ),
                                     );
-                                  })
-                                  .values
-                                  .toList())
-                              .expand((list) => list)),
+                                  }
+
+                                  Widget panelTitle = Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 20,
+                                      bottom: 10,
+                                    ),
+                                    child: Text(
+                                      community.name,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
+                                            .resolveFrom(context),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  );
+
+                                  Widget panelChildren = ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: cwWallets.length,
+                                    itemBuilder: (context, index) {
+                                      final wallet = cwWallets[index];
+
+                                      return WalletRow(
+                                        key: Key(
+                                            '${wallet.account}_${wallet.alias}'),
+                                        wallet,
+                                        communities: communities,
+                                        profiles: profiles,
+                                        isSelected: widget.currentAddress ==
+                                            wallet.account,
+                                        onTap: () => handleWalletTap(
+                                          wallet.account,
+                                          wallet.alias,
+                                        ),
+                                        onMore: () => handleMore(
+                                          context,
+                                          wallet.account,
+                                          wallet.alias,
+                                          wallet.name,
+                                          wallet.locked,
+                                          profiles.containsKey(wallet.account),
+                                        ),
+                                        onLoadProfile: handleLoadProfile,
+                                      );
+                                    },
+                                  );
+
+                                  Widget expansion = SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      childCount: 1,
+                                      (context, index) {
+                                        return CupertinoExpansionPanel(
+                                            title: panelTitle,
+                                            child: panelChildren);
+                                      },
+                                    ),
+                                  );
+
+                                  return MapEntry(
+                                    key,
+                                    expansion,
+                                  );
+                                },
+                              )
+                              .values
+                              .toList())),
                         const SliverToBoxAdapter(
                           child: SizedBox(
                             height: 120,
