@@ -32,19 +32,8 @@ class DefaultNFCService implements NFCService {
 
     NfcManager.instance.startSession(
       alertMessage: message ?? 'Scan to confirm',
-      pollingOptions: {
-        NfcPollingOption.iso14443,
-        NfcPollingOption.iso15693,
-        NfcPollingOption.iso18092,
-      },
       onDiscovered: (NfcTag tag) async {
-        final nfcMetaData = tag.data['mifare'] ?? tag.data['nfca'];
-        if (nfcMetaData == null) {
-          if (completer.isCompleted) return;
-          completer.completeError('Invalid tag');
-          return;
-        }
-        final List<int>? identifier = nfcMetaData['identifier'];
+        final List<int>? identifier = _findIdentifier(tag.data);
         if (identifier == null) {
           if (completer.isCompleted) return;
           completer.completeError('Invalid tag');
@@ -83,5 +72,24 @@ class DefaultNFCService implements NFCService {
   @override
   Future<bool> isAvailable() async {
     return await NfcManager.instance.isAvailable();
+  }
+
+  List<int>? _findIdentifier(Map<String, dynamic> data) {
+    if (data.containsKey('identifier') && data['identifier'] is List<int>) {
+      return data['identifier'] as List<int>;
+    }
+    for (final value in data.values) {
+      if (value is Map) {
+        // Check if it's specifically a Map<String, dynamic>
+        if (value.keys.every((k) => k is String)) {
+          final nestedIdentifier =
+              _findIdentifier(value.cast<String, dynamic>());
+          if (nestedIdentifier != null) {
+            return nestedIdentifier;
+          }
+        }
+      }
+    }
+    return null;
   }
 }

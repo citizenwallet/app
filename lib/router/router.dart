@@ -20,7 +20,6 @@ import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
-import 'package:citizenwallet/screens/webview/screen.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -311,24 +310,6 @@ GoRouter createRouter(
                   currentAddress: state.pathParameters['address'],
                 ),
               ),
-            ),
-            GoRoute(
-              name: 'Webview',
-              path: 'webview',
-              parentNavigatorKey: rootNavigatorKey,
-              builder: (context, state) {
-                if (state.extra == null) {
-                  return const SizedBox();
-                }
-
-                final extra = state.extra as Map<String, dynamic>;
-
-                return WebViewScreen(
-                  url: extra['url'],
-                  redirectUrl: extra['redirectUrl'],
-                  customScheme: extra['customScheme'],
-                );
-              },
             ),
             GoRoute(
               name: 'Voucher',

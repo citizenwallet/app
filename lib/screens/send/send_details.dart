@@ -14,6 +14,7 @@ import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
+import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -169,13 +170,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     switch (topUpPlugin.launchMode) {
       case PluginLaunchMode.webview:
-        final navigator = GoRouter.of(context);
-
-        await navigator.push('/wallet/$address/webview', extra: {
-          'url': uri,
-          'redirectUrl': redirect,
-          'customScheme': customScheme,
-        });
+        
+        await showCupertinoModalPopup<String?>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => WebViewModal(
+            modalKey: 'plugin-webview',
+            url: uri,
+            redirectUrl: redirect,
+            customScheme: customScheme,
+          ),
+        );
 
         await widget.walletLogic.updateBalance();
 

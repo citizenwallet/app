@@ -31,6 +31,7 @@ class WalletScrollView extends StatefulWidget {
   final void Function(String) handleTransactionTap;
   final void Function(String, bool) handleFailedTransactionTap;
   final void Function(String) handleCopy;
+  final void Function() handleShowMore;
 
   final void Function(String) handleLoad;
   final void Function() handleScrollToTop;
@@ -50,6 +51,7 @@ class WalletScrollView extends StatefulWidget {
     required this.handleCopy,
     required this.handleLoad,
     required this.handleScrollToTop,
+    required this.handleShowMore,
   });
 
   @override
@@ -94,6 +96,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     final handleFailedTransactionTap = widget.handleFailedTransactionTap;
     final handleCopy = widget.handleCopy;
     final handleLoad = widget.handleLoad;
+    final handleShowMore = widget.handleShowMore;
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -172,7 +175,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: config!.online ? 400 : 400 + 20, 
+            expandedHeight: config!.online ? 400 : 400 + 20,
             minHeight: 280,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
@@ -185,6 +188,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                 handleCards: handleCards,
                 handleMint: handleMint,
                 handleVouchers: handleVouchers,
+                handleShowMore: handleShowMore,
               ),
             ),
           ),

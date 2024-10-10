@@ -1,85 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>Citizen Wallet</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>citizenwallet</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>xyz.citizenwallet.wallet</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>citizenwallet</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
-	<false/>
-	<key>FLTEnableImpeller</key>
-	<true/>
-	<key>FlutterDeepLinkingEnabled</key>
-	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>https</string>
-	</array>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NFCReaderUsageDescription</key>
-	<string>Citizen Wallet needs NFC scanner access in order to scan NFC tags. Scanning is done on device.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Citizen Wallet needs photo library access in order to pick a profile photo.</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
-	<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
+	<dict>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<true/>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Citizen Wallet</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>citizenwallet</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>xyz.citizenwallet.wallet</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>citizenwallet</string>
+				</array>
+			</dict>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+		<false/>
+		<key>FLTEnableImpeller</key>
+		<true/>
+		<key>FlutterDeepLinkingEnabled</key>
+		<true/>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>https</string>
+		</array>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>NFCReaderUsageDescription</key>
+		<string>Citizen Wallet needs NFC scanner access in order to scan NFC tags. Scanning is done on device.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Citizen Wallet needs photo library access in order to pick a profile photo.</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>fetch</string>
+			<string>remote-notification</string>
+		</array>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		</array>
+		<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
 		<array>
 			<string>0003</string>
 			<string>04D1</string>
@@ -91,16 +91,14 @@
 			<string>8FC1</string>
 			<string>FE00</string>
 		</array>
-	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+		<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 		<array>
-			<string>A0000002310100000000000000000000</string>
-			<string>A0000002310200000000000000000000</string>
-			<string>A0000002480300000000000000000000</string>
-			<string>A00000006510</string>
-			<string>A0000000651010</string>
+			<string>D2760000850101h</string>
 			<string>315041592E5359532E4444463031</string>
+			<string>D4100000030001</string>
 			<string>325041592E5359532E4444463031</string>
 			<string>44464D46412E44466172653234313031</string>
+			<string>00000000000000</string>
 			<string>A00000000101</string>
 			<string>A000000003000000</string>
 			<string>A00000000300037561</string>
@@ -198,6 +196,7 @@
 			<string>A0000000980840</string>
 			<string>A0000000980848</string>
 			<string>A0000001110101</string>
+			<string>A0000001110201</string>
 			<string>A0000001160300</string>
 			<string>A0000001166010</string>
 			<string>A0000001166030</string>
@@ -307,6 +306,8 @@
 			<string>A0000005591010FFFFFFFF8900001000</string>
 			<string>A00000061700</string>
 			<string>A0000006200620</string>
+			<string>A0000006260101010001</string>
+			<string>A0000006351010</string>
 			<string>A0000006581010</string>
 			<string>A0000006581011</string>
 			<string>A0000006582010</string>
@@ -349,6 +350,8 @@
 			<string>D27600002545500100</string>
 			<string>D27600002547410100</string>
 			<string>D276000060</string>
+			<string>D2760000850100</string>
+			<string>D2760000850101</string>
 			<string>D276000118</string>
 			<string>D2760001180101</string>
 			<string>D27600012401</string>
@@ -361,10 +364,11 @@
 			<string>D5780000021010</string>
 			<string>D7560000010101</string>
 			<string>D7560000300101</string>
+			<string>D8040000013010</string>
 			<string>E80704007F00070302</string>
 			<string>E82881C11702</string>
 			<string>E828BD080F</string>
 			<string>F0000000030001</string>
 		</array>
-</dict>
+	</dict>
 </plist>
