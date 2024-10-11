@@ -72,6 +72,7 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 widget.title,
                 if (!widget.dontCollapse) // Conditionally show chevron
