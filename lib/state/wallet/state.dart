@@ -6,6 +6,23 @@ import 'package:citizenwallet/state/wallet/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
+enum ActionButtonType {
+  vouchers,
+  plugins,
+  minter,
+  more,
+}
+
+class ActionButton {
+  final String label;
+  final ActionButtonType buttonType;
+
+  ActionButton({
+    required this.label,
+    required this.buttonType,
+  });
+}
+
 class WalletState with ChangeNotifier {
   bool cleaningUp = false;
   bool firstLoad = true;
@@ -25,6 +42,9 @@ class WalletState with ChangeNotifier {
   DateTime transactionsMaxDate = DateTime.now().toUtc();
   DateTime transactionsFromDate = DateTime.now().toUtc();
   List<CWTransaction> transactions = [];
+
+  bool walletActionsLoading = false;
+  List<ActionButton> walletActions = [];
 
   bool transactionSendLoading = false;
   bool transactionSendError = false;
@@ -617,6 +637,19 @@ class WalletState with ChangeNotifier {
   void setWalletReady(bool ready) {
     this.ready = ready;
     loading = false;
+
+    notifyListeners();
+  }
+
+  void walletActionsRequest() {
+    walletActionsLoading = true;
+
+    notifyListeners();
+  }
+
+  void walletActionsSuccess(List<ActionButton> walletActions) {
+    this.walletActions = walletActions;
+    walletActionsLoading = false;
 
     notifyListeners();
   }
