@@ -195,5 +195,7 @@
   "emptyBalanceText2": "Échangez ce bon sur votre compte.",
   "tapToScan": "Scannez votre carte",
   "communityCurrentlyOffline": "Communauté actuellement hors ligne",
-  "topup": "Recharger"
+  "topup": "Recharger",
+  "more": "Plus",
+  "close": "Fermer"
 }

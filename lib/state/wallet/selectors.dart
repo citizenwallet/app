@@ -71,3 +71,19 @@ Map<String, List<CWWallet>> selectSortedGroupedWalletsByAlias(
         })
         .sortedBy((w) => w.alias.toLowerCase())
         .groupListsBy((w) => w.alias.toLowerCase());
+
+ActionButton? selectActionButtonToShow(WalletState state) {
+  if (state.walletActions.isEmpty) {
+    return null;
+  }
+
+  final moreButton = state.walletActions.firstWhereOrNull(
+    (action) => action.buttonType == ActionButtonType.more,
+  );
+
+  if (moreButton != null) {
+    return moreButton;
+  }
+
+  return state.walletActions.last;
+}

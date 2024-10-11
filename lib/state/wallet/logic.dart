@@ -405,7 +405,6 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       _wallet.balance.then((v) => _state.setWalletBalance(v));
-      _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       _state.loadWalletSuccess();
 
@@ -1810,5 +1809,60 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       launchUrl(Uri.parse(uri), mode: LaunchMode.externalApplication);
     } catch (_) {}
+  }
+
+  void requestWalletActions() {
+    _state.walletActionsRequest();
+  }
+
+  Future<void> evaluateWalletActions() async {
+    _state.walletActionsRequest();
+
+    _state.walletActions = [];
+
+    List<ActionButton> actionsToAdd = [];
+
+    actionsToAdd.add(ActionButton(
+      label: 'Vouchers',
+      buttonType: ActionButtonType.vouchers,
+    ));
+
+    try {
+      final isMinter = await _wallet.minter;
+      _state.setWalletMinter(isMinter);
+
+      if (isMinter) {
+        actionsToAdd.add(ActionButton(
+          label: 'Minter',
+          buttonType: ActionButtonType.minter,
+        ));
+      }
+    } catch (_) {}
+
+    try {
+      final alias = _wallet.alias ?? "";
+      final community = await _appDBService.communities.get(alias);
+
+      if (community != null) {
+        Config communityConfig = Config.fromJson(community.config);
+        final plugins = communityConfig.plugins;
+
+        if (plugins.isNotEmpty) {
+          actionsToAdd.add(ActionButton(
+            label: 'Plugins',
+            buttonType: ActionButtonType.plugins,
+          ));
+        }
+      }
+    } catch (_) {}
+
+    if (actionsToAdd.length > 1) {
+      actionsToAdd.add(ActionButton(
+        label: 'More',
+        buttonType: ActionButtonType.more,
+      ));
+    }
+
+    _state.walletActionsSuccess(actionsToAdd);
   }
 }

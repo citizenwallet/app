@@ -526,6 +526,10 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+    void handleShowMore() {
+    debugPrint("show more");
+  }
+
   @override
   Widget build(BuildContext context) {
     final safePadding = MediaQuery.of(context).padding.top;
@@ -589,6 +593,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                       handleCopy: handleCopy,
                       handleLoad: handleLoad,
                       handleScrollToTop: handleScrollToTop,
+                      handleShowMore: handleShowMore,
                     ),
               GestureDetector(
                 onTap: handleScrollToTop,
