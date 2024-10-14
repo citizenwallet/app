@@ -3,6 +3,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
 import 'package:go_router/go_router.dart';
+import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -110,6 +111,28 @@ class _WebViewScreenState extends State<WebViewScreen> {
     navigator.pop(path);
   }
 
+  void handleBack() async {
+    bool canGoBack = await webViewController?.canGoBack() ?? false;
+
+    print('can go back $canGoBack');
+
+    if (canGoBack) {
+      await webViewController?.goBack();
+    }
+  }
+
+  void handleForward() async {
+    bool canGoForward = await webViewController?.canGoForward() ?? false;
+
+    if (canGoForward) {
+      await webViewController?.goForward();
+    }
+  }
+
+  void handleRefresh() async {
+    await webViewController?.reload();
+  }
+
   void handleRunWebView() async {
     if (headlessWebView == null || headlessWebView!.isRunning()) {
       return;
@@ -138,96 +161,79 @@ class _WebViewScreenState extends State<WebViewScreen> {
         child: Flex(
           direction: Axis.vertical,
           children: [
+            Container(
+              height: 90 + safeTopPadding,
+              padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colors
+                    .uiBackgroundAlt
+                    .resolveFrom(context),
+              ),
+              child: WebViewNavigation(
+                onDismiss: () => handleDismiss(context),
+                onBack: handleBack,
+                onForward: handleForward,
+                onRefresh: handleRefresh,
+                canGoBack: true,
+                canGoForward: true,
+              ),
+            ),
             Expanded(
-              child: Stack(
-                children: [
-                  AnimatedOpacity(
-                    opacity: _show ? 1 : 0,
-                    duration: const Duration(milliseconds: 750),
-                    child: _show
-                        ? InAppWebView(
-                            key: webViewKey,
-                            headlessWebView: headlessWebView,
-                            initialUrlRequest:
-                                URLRequest(url: WebUri(widget.url)),
-                            initialSettings: settings,
-                            onWebViewCreated: (controller) {
-                              headlessWebView = null;
-                              webViewController = controller;
-                            },
-                            onLoadStart: (controller, url) {
-                              if (url == null) {
-                                return;
-                              }
+              child: AnimatedOpacity(
+                opacity: _show ? 1 : 0,
+                duration: const Duration(milliseconds: 750),
+                child: _show
+                    ? InAppWebView(
+                        key: webViewKey,
+                        headlessWebView: headlessWebView,
+                        initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+                        initialSettings: settings,
+                        onWebViewCreated: (controller) {
+                          headlessWebView = null;
+                          webViewController = controller;
+                        },
+                        onLoadStart: (controller, url) {
+                          if (url == null) {
+                            return;
+                          }
 
-                              final uri = Uri.parse(url.toString());
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onUpdateVisitedHistory:
-                                (controller, url, androidIsReload) {
-                              if (url == null) {
-                                return;
-                              }
+                          final uri = Uri.parse(url.toString());
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onUpdateVisitedHistory:
+                            (controller, url, androidIsReload) {
+                          if (url == null) {
+                            return;
+                          }
 
-                              final uri = Uri.parse(url.toString());
+                          final uri = Uri.parse(url.toString());
 
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResource: (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResource: (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
 
-                              if (uri.toString() == widget.redirectUrl) {
-                                handleDismiss(context,
-                                    path: uri.queryParameters['response']);
-                              }
-                            },
-                            onLoadResourceWithCustomScheme:
-                                (controller, request) async {
-                              final uri = Uri.parse(request.url.toString());
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                              return null;
-                            },
-                          )
-                        : const SizedBox(),
-                  ),
-                  Positioned(
-                    top: safeTopPadding,
-                    left: 0,
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colors
-                            .uiBackground
-                            .resolveFrom(context)
-                            .withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: Center(
-                        child: CupertinoButton(
-                          padding: const EdgeInsets.all(5),
-                          onPressed: () => handleDismiss(context),
-                          child: Icon(
-                            CupertinoIcons.back,
-                            color: Theme.of(context)
-                                .colors
-                                .touchable
-                                .resolveFrom(context),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                          if (uri.toString() == widget.redirectUrl) {
+                            handleDismiss(context,
+                                path: uri.queryParameters['response']);
+                          }
+                        },
+                        onLoadResourceWithCustomScheme:
+                            (controller, request) async {
+                          final uri = Uri.parse(request.url.toString());
+                          handleDismiss(context,
+                              path: uri.queryParameters['response']);
+                          return null;
+                        },
+                      )
+                    : const SizedBox(),
               ),
             ),
           ],

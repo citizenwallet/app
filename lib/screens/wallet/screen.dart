@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/router/utils.dart';
+import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -18,6 +19,7 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
+import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -166,10 +168,12 @@ class WalletScreenState extends State<WalletScreen> {
       _address,
       _alias,
       (bool hasChanged) async {
+        _logic.requestWalletActions();
         if (hasChanged) _profileLogic.loadProfile();
         await _profileLogic.loadProfileLink();
         await _logic.loadTransactions();
         await _voucherLogic.fetchVouchers();
+        await _logic.evaluateWalletActions();
       },
     );
 
@@ -511,13 +515,16 @@ class WalletScreenState extends State<WalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        final navigator = GoRouter.of(context);
-
-        navigator.push('/wallet/$_address/webview', extra: {
-          'url': uri,
-          'redirectUrl': redirect,
-          'customScheme': customScheme,
-        });
+        await showCupertinoModalPopup<String?>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => WebViewModal(
+            modalKey: 'plugin-webview',
+            url: uri,
+            redirectUrl: redirect,
+            customScheme: customScheme,
+          ),
+        );
 
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -847,6 +854,39 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  void handleShowMore() async {
+    final selection =
+        await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
+      context: context,
+      topRadius: const Radius.circular(40),
+      builder: (context) => MoreActionsSheet(
+        handleSendScreen: handleSendScreen,
+        handlePlugin: handlePlugin,
+        handleMint: handleMint,
+        handleVouchers: handleVouchers,
+      ),
+    );
+
+    if (selection == null) {
+      return;
+    }
+
+    final action = selection['action'];
+    final pluginConfig = selection['pluginConfig'];
+
+    switch (action) {
+      case ActionButtonType.vouchers:
+        handleVouchers();
+        break;
+      case ActionButtonType.minter:
+        handleMint();
+        break;
+      case ActionButtonType.plugins:
+        handlePlugin(pluginConfig);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
@@ -911,6 +951,7 @@ class WalletScreenState extends State<WalletScreen> {
                     handleCopy: handleCopy,
                     handleLoad: handleLoad,
                     handleScrollToTop: handleScrollToTop,
+                    handleShowMore: handleShowMore,
                   ),
             Positioned(
               bottom: 0,
@@ -1007,7 +1048,7 @@ class WalletScreenState extends State<WalletScreen> {
                                   width: 42,
                                   borderRadius: 21,
                                 )
-                              : Stack( 
+                              : Stack(
                                   children: [
                                     GestureDetector(
                                       onTap: handleOpenAccountSwitcher,
@@ -1037,7 +1078,8 @@ class WalletScreenState extends State<WalletScreen> {
                                                 .colors
                                                 .danger
                                                 .resolveFrom(context),
-                                            borderRadius: BorderRadius.circular(5),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
                                           ),
                                         ),
                                       ),
