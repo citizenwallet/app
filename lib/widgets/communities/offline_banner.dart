@@ -105,8 +105,8 @@ class _OfflineBannerState extends State<OfflineBanner> {
         decoration: BoxDecoration(
           color: Theme.of(context).colors.danger.resolveFrom(context),
           borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(20), // Adjust as needed
-            bottomRight: Radius.circular(20), // Adjust as needed
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20), 
           ),
         ),
         child: Row(
