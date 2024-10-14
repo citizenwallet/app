@@ -584,7 +584,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                                       (context, index) {
                                         return CupertinoExpansionPanel(
                                           title: panelTitle,
-                                          dontCollapse: false,
+                                          dontCollapse: cwWallets.length < 2,
                                           child: panelChildren,
                                         );
                                       },
