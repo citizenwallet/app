@@ -301,7 +301,7 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
-      final String? address = paramAddress ?? _preferences.lastWallet;
+      final String? address = paramAddress ?? _preferences.lastWallet; // TODO: rename to account address
       final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
       if (address == null) {
@@ -386,9 +386,9 @@ class WalletLogic extends WidgetsBindingObserver {
         CWWallet(
           '0',
           name: dbWallet.name,
-          address: _wallet.address.hexEip55,
+          address: _wallet.address.hexEip55, // TODO: dbWallet.address
           alias: dbWallet.alias,
-          account: _wallet.account.hexEip55,
+          account: _wallet.account.hexEip55, //TODO: 
           currencyName: communityConfig.token.name,
           symbol: communityConfig.token.symbol,
           currencyLogo: communityConfig.community.logo,
