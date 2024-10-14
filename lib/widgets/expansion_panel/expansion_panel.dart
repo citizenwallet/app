@@ -70,6 +70,7 @@ class CupertinoExpansionPanelState extends State<CupertinoExpansionPanel>
             decoration: BoxDecoration(
               color: Theme.of(context).colors.transparent,
             ),
+            padding: const EdgeInsets.only(top: 10, bottom: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,

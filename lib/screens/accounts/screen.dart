@@ -516,40 +516,34 @@ class AccountsScreenState extends State<AccountsScreen> {
                                     );
                                   }
 
-                                  Widget panelTitle = Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 20,
-                                        bottom: 10,
+                                  Widget panelTitle = Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      ProfileCircle(
+                                        size: 30,
+                                        imageUrl: community.logo,
+                                        borderColor: Theme.of(context)
+                                            .colors
+                                            .transparent,
+                                        backgroundColor:
+                                            Theme.of(context).colors.white,
                                       ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          ProfileCircle(
-                                            size: 30,
-                                            imageUrl: community.logo,
-                                            borderColor: Theme.of(context)
-                                                .colors
-                                                .transparent,
-                                            backgroundColor:
-                                                Theme.of(context).colors.white,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            community.name,
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colors
-                                                  .text
-                                                  .resolveFrom(context),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ));
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        community.name,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colors
+                                              .text
+                                              .resolveFrom(context),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  );
 
                                   Widget panelChildren = ListView.builder(
                                     shrinkWrap: true,
@@ -590,7 +584,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                                       (context, index) {
                                         return CupertinoExpansionPanel(
                                           title: panelTitle,
-                                          dontCollapse: cwWallets.length < 2,
+                                          dontCollapse: false,
                                           child: panelChildren,
                                         );
                                       },
