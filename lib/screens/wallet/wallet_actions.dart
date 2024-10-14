@@ -56,8 +56,8 @@ class _WalletActionsState extends State<WalletActions> {
     final isWalletReady = context.select((WalletState state) => state.ready);
     final showActionButton = !walletActionsLoading && isWalletReady;
     final actionButton = context.select(selectActionButtonToShow);
-    int pluginsCount = wallet!.plugins.length;
-    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet.plugins[0];
+    int pluginsCount = wallet?.plugins.length ?? 0;
+    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet!.plugins[0];
 
     final withOfflineBanner = config!.online == false;
 
@@ -251,7 +251,7 @@ class _WalletActionsState extends State<WalletActions> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (wallet!.locked == false &&
+                      if (wallet?.locked == false &&
                           (!loading || !firstLoad) &&
                           widget.handleSendScreen != null)
                         WalletActionButton(
