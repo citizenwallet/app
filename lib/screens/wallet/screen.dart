@@ -855,6 +855,7 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleShowMore() async {
+    HapticFeedback.heavyImpact();
     final selection =
         await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
