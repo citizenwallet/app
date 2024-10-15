@@ -301,11 +301,11 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
-      final String? address = paramAddress ??
+      final String? accAddress = paramAddress ??
           _preferences.lastWallet; // TODO: rename to account address
       final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
-      if (address == null) {
+      if (accAddress == null) {
         throw Exception('address not found');
       }
 
@@ -324,14 +324,14 @@ class WalletLogic extends WidgetsBindingObserver {
         decimals: communityConfig.token.decimals,
       );
 
-      final dbWallet = await _encPrefs.getAccount(address, alias);
+      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
 
       if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }
 
       if (isWalletLoaded &&
-          address == _wallet.account.hexEip55 &&
+          accAddress == _wallet.account.hexEip55 &&
           alias == _wallet.alias) {
         final balance = await _wallet.balance;
 
@@ -407,10 +407,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.loadWalletSuccess();
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
 
-      return address;
+      return accAddress;
     } on NotFoundException {
       _state.loadWalletError(exception: NotFoundException());
 
