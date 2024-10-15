@@ -892,7 +892,6 @@ class WalletScreenState extends State<WalletScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final firstLoad = context.select((WalletState state) => state.firstLoad);
     final loading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
 
@@ -910,49 +909,22 @@ class WalletScreenState extends State<WalletScreen> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            (firstLoad && loading) || wallet == null || cleaningUp
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CupertinoActivityIndicator(
-                        color: Theme.of(context)
-                            .colors
-                            .subtle
-                            .resolveFrom(context),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.loading,
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .colors
-                              .text
-                              .resolveFrom(context),
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  )
-                : WalletScrollView(
-                    controller: _scrollController,
-                    handleRefresh: handleRefresh,
-                    handleSendScreen: handleSendScreen,
-                    handleReceive: handleReceive,
-                    handlePlugin: handlePlugin,
-                    handleCards: handleCards,
-                    handleMint: handleMint,
-                    handleVouchers: handleVouchers,
-                    handleTransactionTap: handleTransactionTap,
-                    handleFailedTransactionTap: handleFailedTransaction,
-                    handleCopy: handleCopy,
-                    handleLoad: handleLoad,
-                    handleScrollToTop: handleScrollToTop,
-                    handleShowMore: handleShowMore,
-                  ),
+            WalletScrollView(
+              controller: _scrollController,
+              handleRefresh: handleRefresh,
+              handleSendScreen: handleSendScreen,
+              handleReceive: handleReceive,
+              handlePlugin: handlePlugin,
+              handleCards: handleCards,
+              handleMint: handleMint,
+              handleVouchers: handleVouchers,
+              handleTransactionTap: handleTransactionTap,
+              handleFailedTransactionTap: handleFailedTransaction,
+              handleCopy: handleCopy,
+              handleLoad: handleLoad,
+              handleScrollToTop: handleScrollToTop,
+              handleShowMore: handleShowMore,
+            ),
             Positioned(
               bottom: 0,
               left: 0,
