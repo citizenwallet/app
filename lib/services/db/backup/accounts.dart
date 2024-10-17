@@ -29,7 +29,7 @@ class DBAccount {
       'alias': alias,
       'address': address.hexEip55,
       'name': name,
-      if (privateKey != null) 'privateKey': bytesToHex(privateKey!.privateKey),
+      'privateKey': privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
   }
