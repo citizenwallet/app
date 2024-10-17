@@ -351,12 +351,16 @@ class BackupLogic {
         await remoteDB.deleteDB();
       }
 
+      await _accounts.populatePrivateKeysFromEncryptedStorage();
+      
       // this will upload, encrypt and replace any current backup in place
       await backupService.upload(
         _accountsDB.path,
         _accountsDB.name,
       );
 
+      await _accounts.purgePrivateKeysAndAddToEncryptedStorage();
+      
       // TODO: upload app data as well
       // final accounts = await _accountsDB.accounts.all();
 
