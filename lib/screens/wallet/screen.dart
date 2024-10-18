@@ -572,7 +572,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/$_address/mint', extra: {
+    await navigator.push('/wallet/$_address/mint', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
