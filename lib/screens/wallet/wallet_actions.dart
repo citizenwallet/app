@@ -56,8 +56,8 @@ class _WalletActionsState extends State<WalletActions> {
     final isWalletReady = context.select((WalletState state) => state.ready);
     final showActionButton = !walletActionsLoading && isWalletReady;
     final actionButton = context.select(selectActionButtonToShow);
-    int pluginsCount = wallet?.plugins.length ?? 0;
-    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet!.plugins[0];
+    final plugins = wallet?.plugins ?? [];
+    final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
     final withOfflineBanner = config!.online == false;
 
