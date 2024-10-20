@@ -318,7 +318,7 @@ class WalletLogic extends WidgetsBindingObserver {
       Config communityConfig = Config.fromJson(community.config);
       _theme.changeTheme(communityConfig.community.theme);
 
-      final naviteCurrency = NativeCurrency(
+      final nativeCurrency = NativeCurrency(
         name: communityConfig.token.name,
         symbol: communityConfig.token.symbol,
         decimals: communityConfig.token.decimals,
@@ -360,7 +360,7 @@ class WalletLogic extends WidgetsBindingObserver {
       await _wallet.init(
         dbWallet.address,
         dbWallet.privateKey!,
-        naviteCurrency,
+        nativeCurrency,
         communityConfig,
         onNotify: (String message) {
           _notificationsLogic.show(message);
@@ -394,7 +394,7 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyName: communityConfig.token.name,
           symbol: communityConfig.token.symbol,
           currencyLogo: communityConfig.community.logo,
-          decimalDigits: naviteCurrency.decimals,
+          decimalDigits: nativeCurrency.decimals,
           locked: dbWallet.privateKey == null,
           plugins: communityConfig.plugins,
           minter: false,
