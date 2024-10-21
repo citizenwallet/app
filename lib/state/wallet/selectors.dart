@@ -38,6 +38,10 @@ bool selectShouldBlockSending(WalletState state) {
     return true;
   }
 
+  if (state.wallet?.locked == true) {
+    return true;
+  }
+
   if (state.wallet?.doubleBalance == 0.0 &&
       state.config!.getTopUpPlugin() == null) {
     return true;

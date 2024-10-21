@@ -33,6 +33,7 @@ class WalletState with ChangeNotifier {
 
   int chainId = PreferencesService().chainId;
   CWWallet? wallet;
+  bool isBalanceReady = false;
 
   bool transactionsLoading = false;
   bool transactionsError = false;
@@ -163,6 +164,7 @@ class WalletState with ChangeNotifier {
     firstLoad = true;
 
     transactions = [];
+    isBalanceReady = false;
 
     loading = true;
     error = false;
@@ -201,6 +203,7 @@ class WalletState with ChangeNotifier {
   void updateWalletBalance() {
     loading = true;
     error = false;
+    isBalanceReady = false;
     notifyListeners();
   }
 
@@ -224,7 +227,7 @@ class WalletState with ChangeNotifier {
 
     loading = false;
     error = false;
-
+    isBalanceReady = true;
     if (notify) {
       notifyListeners();
     }
@@ -233,6 +236,7 @@ class WalletState with ChangeNotifier {
   void updateWalletBalanceError() {
     loading = false;
     error = true;
+    isBalanceReady = true;
     notifyListeners();
   }
 

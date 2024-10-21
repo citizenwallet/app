@@ -56,13 +56,19 @@ class _WalletActionsState extends State<WalletActions> {
     final isWalletReady = context.select((WalletState state) => state.ready);
     final showActionButton = !walletActionsLoading && isWalletReady;
     final actionButton = context.select(selectActionButtonToShow);
-    int pluginsCount = wallet!.plugins.length;
-    PluginConfig? onePlugin = pluginsCount < 1 ? null : wallet.plugins[0];
+    final plugins = wallet?.plugins ?? [];
+    final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
     final withOfflineBanner = config!.online == false;
 
-    final blockSending = context.select(selectShouldBlockSending);
+    final blockSending = context.select(selectShouldBlockSending) ||
+        loading ||
+        firstLoad ||
+        widget.handleSendScreen == null;
     final sendLoading = context.read<WalletState>().transactionSendLoading;
+
+    final blockReceive =
+        loading || firstLoad || widget.handleReceive == null || sendLoading;
 
     final hasPending = context.select(selectHasProcessingTransactions);
     final newBalance = context.select(selectWalletBalance);
@@ -251,44 +257,38 @@ class _WalletActionsState extends State<WalletActions> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (wallet!.locked == false &&
-                          (!loading || !firstLoad) &&
-                          widget.handleSendScreen != null)
-                        WalletActionButton(
-                          key: const Key('send_action_button'),
-                          icon: CupertinoIcons.arrow_up,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: widget.shrink,
-                          text: sendLoading
-                              ? AppLocalizations.of(context)!.sending
-                              : AppLocalizations.of(context)!.send,
-                          loading: sendLoading,
-                          disabled: blockSending,
-                          onPressed: widget.handleSendScreen,
-                        ),
-                      if ((!loading || !firstLoad) &&
-                          widget.handleReceive != null) ...[
-                        SizedBox(
-                          width: buttonSeparator,
-                        ),
-                        WalletActionButton(
-                          key: const Key('receive_action_button'),
-                          icon: CupertinoIcons.arrow_down,
-                          buttonSize: buttonSize,
-                          buttonIconSize: buttonIconSize,
-                          buttonFontSize: buttonFontSize,
-                          shrink: widget.shrink,
-                          text: AppLocalizations.of(context)!.receive,
-                          loading: sendLoading,
-                          disabled: sendLoading,
-                          onPressed: widget.handleReceive,
-                        ),
-                        SizedBox(
-                          width: buttonSeparator,
-                        ),
-                      ],
+                      WalletActionButton(
+                        key: const Key('send_action_button'),
+                        icon: CupertinoIcons.arrow_up,
+                        buttonSize: buttonSize,
+                        buttonIconSize: buttonIconSize,
+                        buttonFontSize: buttonFontSize,
+                        shrink: widget.shrink,
+                        text: sendLoading
+                            ? AppLocalizations.of(context)!.sending
+                            : AppLocalizations.of(context)!.send,
+                        loading: sendLoading,
+                        disabled: blockSending,
+                        onPressed: widget.handleSendScreen,
+                      ),
+                      SizedBox(
+                        width: buttonSeparator,
+                      ),
+                      WalletActionButton(
+                        key: const Key('receive_action_button'),
+                        icon: CupertinoIcons.arrow_down,
+                        buttonSize: buttonSize,
+                        buttonIconSize: buttonIconSize,
+                        buttonFontSize: buttonFontSize,
+                        shrink: widget.shrink,
+                        text: AppLocalizations.of(context)!.receive,
+                        loading: sendLoading,
+                        disabled: blockReceive,
+                        onPressed: widget.handleReceive,
+                      ),
+                      SizedBox(
+                        width: buttonSeparator,
+                      ),
                       if (!showActionButton || actionButton == null) ...[
                         WalletActionButton(
                           icon: null,

@@ -75,8 +75,7 @@ class ProfileLogic {
         throw Exception('alias not found');
       }
 
-       final community =
-          await _appDBService.communities.get(_wallet.alias!);
+      final community = await _appDBService.communities.get(_wallet.alias!);
 
       if (community == null) {
         throw Exception('community not found');
@@ -119,6 +118,10 @@ class ProfileLogic {
   Future<void> checkUsername(String username) async {
     if (username == '') {
       _state.setUsernameError();
+    }
+
+    if (username == _state.username) {
+      return;
     }
 
     try {
