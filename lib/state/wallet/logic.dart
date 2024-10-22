@@ -304,10 +304,11 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
-      final String? address = paramAddress ?? _preferences.lastWallet;
+      final String? accAddress = paramAddress ??
+          _preferences.lastWallet; // TODO: rename to account address
       final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
-      if (address == null) {
+      if (accAddress == null) {
         throw Exception('address not found');
       }
 
@@ -318,11 +319,24 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       Config communityConfig = Config.fromJson(community.config);
+      _theme.changeTheme(communityConfig.community.theme);
+
+      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
+
+      if (dbWallet == null || dbWallet.privateKey == null) {
+        throw NotFoundException();
+      }
 
       final token = communityConfig.tokens.first;
 
+      final nativeCurrency = NativeCurrency(
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+      );
+
       if (isWalletLoaded &&
-          address == _wallet.account.hexEip55 &&
+          accAddress == _wallet.account.hexEip55 &&
           alias == _wallet.alias) {
         final balance = await _wallet.balance;
 
@@ -348,20 +362,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      final dbWallet = await _encPrefs.getAccount(address, alias);
-
-      if (dbWallet == null || dbWallet.privateKey == null) {
-        throw NotFoundException();
-      }
-
       await _wallet.init(
         dbWallet.address,
         dbWallet.privateKey!,
-        NativeCurrency(
-          name: token.name,
-          symbol: token.symbol,
-          decimals: token.decimals,
-        ),
+        nativeCurrency,
         communityConfig,
         onNotify: (String message) {
           _notificationsLogic.show(message);
@@ -382,22 +386,22 @@ class WalletLogic extends WidgetsBindingObserver {
       communityConfig.online = await _config.isCommunityOnline(
           communityConfig.chains[token.chainId.toString()]!.node.url);
 
+      _state.setWalletConfig(communityConfig);
+
       await _appDBService.communities.updateOnlineStatus(
           communityConfig.community.alias, communityConfig.online);
-
-      _state.setWalletConfig(communityConfig);
 
       _state.setWallet(
         CWWallet(
           '0',
           name: dbWallet.name,
-          address: _wallet.address.hexEip55,
+          address: dbWallet.address.hexEip55,
           alias: dbWallet.alias,
           account: _wallet.account.hexEip55,
           currencyName: token.name,
           symbol: token.symbol,
           currencyLogo: communityConfig.community.logo,
-          decimalDigits: currency.decimals,
+          decimalDigits: nativeCurrency.decimals,
           locked: dbWallet.privateKey == null,
           plugins: communityConfig.plugins,
           minter: false,
@@ -406,16 +410,14 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _wallet.balance.then((v) => _state.setWalletBalance(v));
 
-      _state.loadWalletSuccess();
-
       await loadAdditionalData(true);
 
-      _theme.changeTheme(communityConfig.community.theme);
+      _state.loadWalletSuccess();
 
-      await _preferences.setLastWallet(address);
+      await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
 
-      return address;
+      return accAddress;
     } on NotFoundException {
       _state.loadWalletError(exception: NotFoundException());
 
