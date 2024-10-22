@@ -18,6 +18,10 @@ const List<String> cases = [
   'DA9e31F176F5B499b3B208a20Fe169b3aA01BA26',
   'ethereum:0x845598Da418890a674cbaBA26b70807aF0c61dFE@8453/transfer?address=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
   'ethereum:0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@8453',
+  'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%40wallet.pay.brussels%3Famount=10.50%26description=test',
+  'http://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%3Famount=10.50',
+  'https://example.com/?sendto=xavier@wallet.pay.brussels?amount=10.50',
+  'https://example.com/?eip681=ethereum:0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@8453?value=10.50',
 ];
 
 const List<QRFormat> expected = [
@@ -34,22 +38,30 @@ const List<QRFormat> expected = [
   QRFormat.unsupported,
   QRFormat.eip681Transfer,
   QRFormat.eip681,
+  QRFormat.sendtoUrl,
+  QRFormat.sendtoUrl,
+  QRFormat.sendtoUrl,
+  QRFormat.sendtoUrlWithEIP681,
 ];
 
-const List<(String, String?)> expectedParse = [
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1.00'),
-  ('', null),
-  ('', null),
-  ('', null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '0.1'),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1'),
-  ('', null),
-  ('', null),
-  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null),
-  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null),
+const List<(String, String?, String?)> expectedParse = [
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1.00', null),
+  ('', null, null),
+  ('', null, null),
+  ('', null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '0.1', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1', null),
+  ('', null, null),
+  ('', null, null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', 'test'),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null),
+  ('xavier', '10.50', null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null),
 ];
 
 void main() {
@@ -66,9 +78,9 @@ void main() {
       for (int i = 0; i < cases.length; i++) {
         final raw = cases[i];
 
-        final (address, amount) = parseQRCode(raw);
+        final (address, amount, description) = parseQRCode(raw);
 
-        expect((address, amount), expectedParse[i]);
+        expect((address, amount, description), expectedParse[i]);
       }
     });
   });
