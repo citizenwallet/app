@@ -1,67 +1,67 @@
 {
     "community": {
-        "name": "Brussels Pay",
-        "description": "A community for the city of Brussels",
-        "url": "https://pay.brussels",
-        "alias": "wallet.pay.brussels",
-        "custom_domain": "wallet.pay.brussels",
-        "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+        "name": "Gratitude Token",
+        "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+        "url": "https://citizenwallet.xyz/gratitude",
+        "alias": "gratitude",
+        "custom_domain": "gratitude.citizenwallet.xyz",
+        "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
         "theme": {
-            "primary": "#4a90e2"
+            "primary": "#4EC19D"
         },
         "profile": {
-            "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
-            "chain_id": 100
+            "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
+            "chain_id": 42220
         },
         "primary_token": {
             "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-            "chain_id": 100
+            "chain_id": 42220
         },
         "primary_account_factory": {
-            "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-            "chain_id": 100
+            "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+            "chain_id": 42220
         },
         "primary_card_manager": {
             "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-            "chain_id": 100
+            "chain_id": 42220
         }
     },
     "tokens": {
-        "100@0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+        "42220@0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
             "standard": "erc20",
-            "name": "pay.brussels",
+            "name": "Gratitude Token",
             "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-            "symbol": "EURb",
-            "decimals": 6,
-            "chain_id": 100
+            "symbol": "GT",
+            "decimals": 0,
+            "chain_id": 42220
         }
     },
     "scan": {
-        "url": "https://gnosisscan.io",
-        "name": "Gnosis Explorer"
+        "url": "https://celoscan.io",
+        "name": "Celo Explorer"
     },
     "accounts": {
-        "100@0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
-            "chain_id": 100,
-            "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-            "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-            "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "42220@0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+            "chain_id": 42220,
+            "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+            "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+            "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
             "paymaster_type": "cw"
         }
     },
     "cards": {
-        "100@0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-            "chain_id": 100,
+        "42220@0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+            "chain_id": 42220,
             "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
             "type": "classic"
         }
     },
     "chains": {
-        "100": {
-            "id": 100,
+        "42220": {
+            "id": 42220,
             "node": {
-                "url": "https://100.engine.citizenwallet.xyz",
-                "ws_url": "wss://100.engine.citizenwallet.xyz"
+                "url": "https://42220.engine.citizenwallet.xyz",
+                "ws_url": "wss://42220.engine.citizenwallet.xyz"
             }
         }
     },
@@ -71,10 +71,11 @@
     "plugins": [
         {
             "name": "Top Up",
-            "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-            "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+            "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "url": "https://topup.citizenwallet.xyz/gratitude",
+            "launch_mode": "webview"
         }
     ],
-    "config_location": "https://wallet.pay.brussels/config/community.json",
+    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
     "version": 4
 }
