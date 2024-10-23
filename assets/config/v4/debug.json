@@ -8,10 +8,26 @@
         "logo": "https://wallet.pay.brussels/uploads/logo.svg",
         "theme": {
             "primary": "#4a90e2"
+        },
+        "profile": {
+            "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
+            "chain_id": 100
+        },
+        "primary_token": {
+            "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+            "chain_id": 100
+        },
+        "primary_account_factory": {
+            "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "chain_id": 100
+        },
+        "primary_card_manager": {
+            "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+            "chain_id": 100
         }
     },
-    "tokens": [
-        {
+    "tokens": {
+        "100@0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
             "standard": "erc20",
             "name": "pay.brussels",
             "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
@@ -19,27 +35,33 @@
             "decimals": 6,
             "chain_id": 100
         }
-    ],
+    },
     "scan": {
         "url": "https://gnosisscan.io",
         "name": "Gnosis Explorer"
     },
+    "accounts": {
+        "100@0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
+            "chain_id": 100,
+            "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+            "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+            "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+            "paymaster_type": "cw"
+        }
+    },
+    "cards": {
+        "100@0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+            "chain_id": 100,
+            "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+            "type": "classic"
+        }
+    },
     "chains": {
         "100": {
+            "id": 100,
             "node": {
-                "url": "https://engine.citizenwallet.xyz",
-                "ws_url": "wss://engine.citizenwallet.xyz",
-                "chain_id": 100
-            },
-            "account": {
-                "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-                "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-                "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-                "paymaster_type": "cw",
-                "profile_address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229"
-            },
-            "cards": {
-                "card_factory_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB"
+                "url": "https://100.engine.citizenwallet.xyz",
+                "ws_url": "wss://100.engine.citizenwallet.xyz"
             }
         }
     },
@@ -53,5 +75,6 @@
             "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
         }
     ],
-    "version": 1
+    "config_location": "https://wallet.pay.brussels/config/community.json",
+    "version": 4
 }
