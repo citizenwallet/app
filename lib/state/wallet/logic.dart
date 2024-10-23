@@ -1426,7 +1426,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    final (address, _) = parseQRCode(_addressController.text);
+    final (address, _, _) = parseQRCode(_addressController.text);
     _state.setHasAddress(address.isNotEmpty);
   }
 
