@@ -1476,7 +1476,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
-      final (address, amount) = parseQRCode(raw);
+      final (address, amount, description) = parseQRCode(raw);
       if (address == '') {
         throw QRInvalidException();
       }
@@ -1489,7 +1489,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       updateAddressFromHexCapture(address);
 
-      _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      if (description != null) {
+        _messageController.text = description;
+      } else {
+        _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      }
 
       return address;
     } on QREmptyException catch (e) {
