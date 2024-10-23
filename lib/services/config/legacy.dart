@@ -6,15 +6,15 @@ int parseHexColor(String hex) {
   return int.parse('FF${(hex).substring(1)}', radix: 16);
 }
 
-class ColorTheme {
+class LegacyColorTheme {
   final int primary;
 
-  ColorTheme({
+  LegacyColorTheme({
     primary,
   }) : primary = primary ?? parseHexColor(defaultPrimary);
 
-  factory ColorTheme.fromJson(Map<String, dynamic> json) {
-    return ColorTheme(
+  factory LegacyColorTheme.fromJson(Map<String, dynamic> json) {
+    return LegacyColorTheme(
       primary: parseHexColor(json['primary'] ?? defaultPrimary),
     );
   }
@@ -35,7 +35,7 @@ class CommunityConfig {
   final String logo;
   final String? customDomain;
   final bool hidden;
-  final ColorTheme theme;
+  final LegacyColorTheme theme;
 
   CommunityConfig({
     required this.name,
@@ -50,8 +50,8 @@ class CommunityConfig {
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
     final theme = json['theme'] == null
-        ? ColorTheme()
-        : ColorTheme.fromJson(json['theme']);
+        ? LegacyColorTheme()
+        : LegacyColorTheme.fromJson(json['theme']);
 
     return CommunityConfig(
       name: json['name'],
@@ -89,17 +89,17 @@ class CommunityConfig {
       '$deepLinkBaseUrl/#/?alias=$alias';
 }
 
-class ScanConfig {
+class LegacyScanConfig {
   final String url;
   final String name;
 
-  ScanConfig({
+  LegacyScanConfig({
     required this.url,
     required this.name,
   });
 
-  factory ScanConfig.fromJson(Map<String, dynamic> json) {
-    return ScanConfig(
+  factory LegacyScanConfig.fromJson(Map<String, dynamic> json) {
+    return LegacyScanConfig(
       url: json['url'],
       name: json['name'],
     );
@@ -116,7 +116,7 @@ class ScanConfig {
   // to string
   @override
   String toString() {
-    return 'ScanConfig{url: $url, name: $name}';
+    return 'LegacyScanConfig{url: $url, name: $name}';
   }
 }
 
@@ -155,15 +155,15 @@ class IndexerConfig {
   }
 }
 
-class IPFSConfig {
+class LegacyIPFSConfig {
   final String url;
 
-  IPFSConfig({
+  LegacyIPFSConfig({
     required this.url,
   });
 
-  factory IPFSConfig.fromJson(Map<String, dynamic> json) {
-    return IPFSConfig(
+  factory LegacyIPFSConfig.fromJson(Map<String, dynamic> json) {
+    return LegacyIPFSConfig(
       url: json['url'],
     );
   }
@@ -178,7 +178,7 @@ class IPFSConfig {
   // to string
   @override
   String toString() {
-    return 'IPFSConfig{url: $url}';
+    return 'LegacyIPFSConfig{url: $url}';
   }
 }
 
@@ -343,14 +343,14 @@ enum PluginLaunchMode {
   external;
 }
 
-class PluginConfig {
+class LegacyPluginConfig {
   final String name;
   final String icon;
   final String url;
   final PluginLaunchMode launchMode;
   final String? action;
 
-  PluginConfig({
+  LegacyPluginConfig({
     required this.name,
     required this.icon,
     required this.url,
@@ -358,8 +358,8 @@ class PluginConfig {
     this.action,
   });
 
-  factory PluginConfig.fromJson(Map<String, dynamic> json) {
-    return PluginConfig(
+  factory LegacyPluginConfig.fromJson(Map<String, dynamic> json) {
+    return LegacyPluginConfig(
       name: json['name'],
       icon: json['icon'],
       url: json['url'],
@@ -384,7 +384,7 @@ class PluginConfig {
   // to string
   @override
   String toString() {
-    return 'PluginConfig{name: $name, icon: $icon, url: $url}';
+    return 'LegacyPluginConfig{name: $name, icon: $icon, url: $url}';
   }
 }
 
@@ -488,16 +488,16 @@ class SafeCardsConfig {
 
 class LegacyConfig {
   final CommunityConfig community;
-  final ScanConfig scan;
+  final LegacyScanConfig scan;
   final IndexerConfig indexer;
-  final IPFSConfig ipfs;
+  final LegacyIPFSConfig ipfs;
   final NodeConfig node;
   final ERC4337Config erc4337;
   final TokenConfig token;
   final ProfileConfig profile;
   final CardsConfig? cards;
   final SafeCardsConfig? safeCards;
-  final List<PluginConfig> plugins;
+  final List<LegacyPluginConfig> plugins;
   final int version;
   bool online;
 
@@ -520,9 +520,9 @@ class LegacyConfig {
   factory LegacyConfig.fromJson(Map<String, dynamic> json) {
     return LegacyConfig(
       community: CommunityConfig.fromJson(json['community']),
-      scan: ScanConfig.fromJson(json['scan']),
+      scan: LegacyScanConfig.fromJson(json['scan']),
       indexer: IndexerConfig.fromJson(json['indexer']),
-      ipfs: IPFSConfig.fromJson(json['ipfs']),
+      ipfs: LegacyIPFSConfig.fromJson(json['ipfs']),
       node: NodeConfig.fromJson(json['node']),
       erc4337: ERC4337Config.fromJson(json['erc4337']),
       token: TokenConfig.fromJson(json['token']),
@@ -533,7 +533,7 @@ class LegacyConfig {
           : null,
       plugins: json['plugins'] != null
           ? (json['plugins'] as List)
-              .map((e) => PluginConfig.fromJson(e))
+              .map((e) => LegacyPluginConfig.fromJson(e))
               .toList()
           : [],
       version: json['version'] ?? 0,
@@ -568,7 +568,7 @@ class LegacyConfig {
     return cards != null || safeCards != null;
   }
 
-  PluginConfig? getTopUpPlugin() {
+  LegacyPluginConfig? getTopUpPlugin() {
     return plugins.firstWhereOrNull((plugin) => plugin.action == 'topup');
   }
 }

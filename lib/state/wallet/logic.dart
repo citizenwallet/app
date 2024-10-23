@@ -231,7 +231,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
 
-      final token = config.tokens.first;
+      final token = config.getPrimaryToken();
 
       await _wallet.initWeb(
         EthereumAddress.fromHex(decodedSplit[0]),
@@ -327,7 +327,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw NotFoundException();
       }
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final nativeCurrency = NativeCurrency(
         name: token.name,
@@ -451,7 +451,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setWalletConfig(communityConfig);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final CWWallet cwwallet = CWWallet(
         '0.0',
@@ -511,7 +511,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -598,7 +598,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       if (_eventService != null) {
         _eventService!.disconnect();
@@ -1791,7 +1791,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
         Config communityConfig = Config.fromJson(community.config);
 
-        final token = communityConfig.tokens.first;
+        final token = communityConfig.getPrimaryToken();
 
         communityConfig.online = await _config.isCommunityOnline(
             communityConfig.chains[token.chainId.toString()]!.node.url);

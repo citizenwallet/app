@@ -142,7 +142,7 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       _appState.importLoadingSuccess();
 
@@ -185,7 +185,7 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final accFactory = await accountFactoryServiceFromConfig(communityConfig);
       final address = await accFactory.getAddress(credentials.address.hexEip55);
@@ -293,7 +293,7 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final name = 'Imported ${token.symbol} Account';
 
@@ -356,7 +356,7 @@ class AppLogic {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      final token = communityConfig.tokens.first;
+      final token = communityConfig.getPrimaryToken();
 
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 

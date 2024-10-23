@@ -604,7 +604,7 @@
       "custom_domain": "wallet.pay.brussels",
       "logo": "https://wallet.pay.brussels/uploads/logo.svg",
       "theme": {
-        "primary": "#4a90e2"
+        "primary": "#3431c4"
       }
     },
     "token": {

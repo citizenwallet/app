@@ -526,7 +526,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
-    void handleShowMore() {
+  void handleShowMore() {
     debugPrint("show more");
   }
 
@@ -540,7 +540,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     final config = context.select((WalletState s) => s.config);
 
-    final walletNamePrefix = config?.tokens.first.symbol ?? 'Citizen';
+    final walletNamePrefix = config?.getPrimaryToken().symbol ?? 'Citizen';
 
     final walletName = '$walletNamePrefix Wallet';
 

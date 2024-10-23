@@ -137,13 +137,15 @@ class WalletService {
   }) async {
     _alias = config.community.alias;
 
-    final token = config.tokens.first;
+    final token = config.getPrimaryToken();
+    final accountAbstractionConfig =
+        config.getPrimaryAccountAbstractionConfig();
     final chain = config.chains[token.chainId.toString()];
 
     _url = chain!.node.url;
     _wsurl = chain.node.wsUrl;
 
-    final rpcUrl = '$_url/v1/rpc/${chain.account.paymasterAddress}';
+    final rpcUrl = '$_url/v1/rpc/${accountAbstractionConfig.paymasterAddress}';
 
     print('url: $_url');
     print('rpcUrl: $rpcUrl');
@@ -164,12 +166,12 @@ class WalletService {
 
     _bundlerRPC = APIService(baseURL: rpcUrl);
     _paymasterRPC = APIService(baseURL: rpcUrl);
-    _paymasterType = chain.account.paymasterType;
+    _paymasterType = accountAbstractionConfig.paymasterType;
 
     _gasPriceEstimator = EIP1559GasPriceEstimator(
       _rpc,
       _ethClient,
-      gasExtraPercentage: chain.account.gasExtraPercentage,
+      gasExtraPercentage: accountAbstractionConfig.gasExtraPercentage,
     );
 
     erc4337Headers = {};
@@ -189,21 +191,24 @@ class WalletService {
 
     this.currency = currency;
 
-    if (chain.cards?.cardFactoryAddress != null) {
+    final primaryCardManager = config.getPrimaryCardManager();
+
+    if (primaryCardManager.type == CardManagerType.classic) {
       _cardManager = CardManagerContract(
         _chainId!.toInt(),
         _ethClient,
-        chain.cards!.cardFactoryAddress,
+        primaryCardManager.address,
       );
     }
 
-    if (chain.safeCards?.cardManagerAddress != null) {
-      final instanceId = chain.safeCards!.instanceId;
+    if (primaryCardManager.type == CardManagerType.safe &&
+        primaryCardManager.instanceId != null) {
+      final instanceId = primaryCardManager.instanceId!;
       _cardManager = SafeCardManagerContract(
         keccak256(convertStringToUint8List(instanceId)),
         _chainId!.toInt(),
         _ethClient,
-        chain.safeCards!.cardManagerAddress,
+        primaryCardManager.address,
       );
     }
 
@@ -212,10 +217,10 @@ class WalletService {
     await _initContracts(
       account,
       config.community.alias,
-      chain.account.entrypointAddress,
-      chain.account.accountFactoryAddress,
+      accountAbstractionConfig.entrypointAddress,
+      accountAbstractionConfig.accountFactoryAddress,
       token.address,
-      chain.account.profileAddress,
+      config.community.profile.address,
     );
 
     onFinished?.call(true);

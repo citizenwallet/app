@@ -159,7 +159,7 @@ void main() {
           archived: false,
         );
 
-        final token = config.tokens.first;
+        final token = config.getPrimaryToken();
 
         final voucherLink = voucher.getLink(
           walletUrl,

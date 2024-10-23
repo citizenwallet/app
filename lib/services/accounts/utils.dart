@@ -35,12 +35,14 @@ Future<EthereumAddress?> getLegacyAccountAddress(
       communityConfig,
       customAccountFactory: legacyConfig.accountFactoryAddress,
     );
+    final primaryAccountFactory =
+        communityConfig.community.primaryAccountFactory;
 
     final account = await legacyAccountFactory.getAddress(backup.address);
 
     final indexer = APIService(
         baseURL: communityConfig
-            .chains[communityConfig.tokens.first.chainId.toString()]!.node.url);
+            .chains[primaryAccountFactory.chainId.toString()]!.node.url);
 
     final exists = await accountExists(indexer, account.hexEip55);
 

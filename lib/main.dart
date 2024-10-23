@@ -156,7 +156,7 @@ class MyAppState extends State<MyApp> {
     final toastDisplay =
         context.select((NotificationsState s) => s.toastDisplay);
 
-    final token = config?.tokens.first;
+    final token = config?.getPrimaryToken();
 
     final titlePrefix = token?.symbol ?? 'Citizen';
 

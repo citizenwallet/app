@@ -37,7 +37,7 @@ class CommunitiesLogic {
           continue;
         }
 
-        final token = communityConfig.tokens.first;
+        final token = communityConfig.getPrimaryToken();
         final chain = communityConfig.chains[token.chainId.toString()];
 
         final isOnline = await config.isCommunityOnline(chain!.node.url);
@@ -88,7 +88,7 @@ class CommunitiesLogic {
       final List<Config> communities = await config.getCommunitiesFromRemote();
 
       for (final community in communities) {
-        final token = community.tokens.first;
+        final token = community.getPrimaryToken();
         final chain = community.chains[token.chainId.toString()];
 
         final isOnline = await config.isCommunityOnline(chain!.node.url);
