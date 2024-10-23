@@ -1125,6 +1125,7 @@ class WalletLogic extends WidgetsBindingObserver {
         tempId,
         to,
         _wallet.account.hexEip55,
+        message: message,
       );
 
       final calldata = _wallet.erc20TransferCallData(
@@ -1164,6 +1165,7 @@ class WalletLogic extends WidgetsBindingObserver {
         tempId,
         to,
         _wallet.account.hexEip55,
+        message: message,
       );
 
       tempId = txHash;
