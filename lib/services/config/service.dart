@@ -38,11 +38,11 @@ class ConfigService {
 
   List<Config> _configs = [];
 
-  Future<Config> getConfig(String alias) async {
-    return _getConfig(fixLegacyAliases(alias));
+  Future<Config> getConfig(String alias, String location) async {
+    return _getConfig(fixLegacyAliases(alias), location);
   }
 
-  Future<Config> getWebConfig(String appLinkSuffix) async {
+  Future<Config> getWebConfig(String appLinkSuffix, String? location) async {
     try {
       if (kDebugMode) {
         final localConfig = jsonDecode(
@@ -85,10 +85,10 @@ class ConfigService {
 
     alias = alias == 'localhost' || alias == '' ? 'gratitude' : alias;
 
-    return _getConfig(alias);
+    return _getConfig(alias, location);
   }
 
-  Future<Config> _getConfig(String alias) async {
+  Future<Config> _getConfig(String alias, String? location) async {
     if (_configs.isNotEmpty) {
       final Config? config = _configs.firstWhereOrNull(
         (element) => element.community.alias == alias,
@@ -96,7 +96,7 @@ class ConfigService {
 
       if (config != null) {
         // still fetch and update the local cache in the background
-        getConfigs(alias: kIsWeb ? alias : null).then((value) {
+        getConfigs(location: config.configLocation).then((value) {
           _configs = value;
         }).catchError((_) {});
 
@@ -106,7 +106,7 @@ class ConfigService {
 
     try {
       // fetch the config and await
-      _configs = await getConfigs(alias: kIsWeb ? alias : null);
+      _configs = await getConfigs(location: location);
     } catch (_) {}
 
     return _configs.firstWhere((element) => element.community.alias == alias);
@@ -147,7 +147,7 @@ class ConfigService {
     _configs = (localFile as List).map((e) => Config.fromJson(e)).toList();
   }
 
-  Future<List<Config>> getConfigs({String? alias}) async {
+  Future<List<Config>> getConfigs({String? location}) async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(
           'assets/config/v$version/$communityConfigListFileName.json'));
@@ -158,11 +158,9 @@ class ConfigService {
       return configs;
     }
 
-    if (alias != null) {
+    if (location != null) {
       // we only need a single file for the web
-      final response = await _api.get(
-          url:
-              '/v$version/$alias.json?cachebuster=${generateCacheBusterValue()}');
+      final response = await _api.get(url: location);
 
       return [Config.fromJson(response)];
     }

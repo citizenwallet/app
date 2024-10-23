@@ -518,6 +518,7 @@ class Config {
   final Map<String, ChainConfig> chains;
   final IPFSConfig ipfs;
   final List<PluginConfig> plugins;
+  final String configLocation;
   final int version;
   bool online;
 
@@ -530,6 +531,7 @@ class Config {
     required this.chains,
     required this.ipfs,
     required this.plugins,
+    required this.configLocation,
     this.version = 0,
     this.online = true,
   });
@@ -624,6 +626,9 @@ class Config {
       plugins: legacy.plugins
           .map((e) => PluginConfig(name: e.name, icon: e.icon, url: e.url))
           .toList(),
+      configLocation: legacy.community.customDomain != null
+          ? 'https://${legacy.community.customDomain}/config/community.json'
+          : 'https://${legacy.community.alias}.citizenwallet.xyz/config/community.json',
       version: 4,
       online: true,
     );
@@ -645,6 +650,7 @@ class Config {
       plugins: (json['plugins'] as List)
           .map((e) => PluginConfig.fromJson(e))
           .toList(),
+      configLocation: json['config_location'],
       version: json['version'] ?? 0,
       online: true,
     );
@@ -660,6 +666,7 @@ class Config {
       'chains': chains.map((key, value) => MapEntry(key, value.toJson())),
       'ipfs': ipfs.toJson(),
       'plugins': plugins.map((e) => e.toJson()).toList(),
+      'config_location': configLocation,
       'version': version,
     };
   }

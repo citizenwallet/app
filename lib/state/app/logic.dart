@@ -250,7 +250,8 @@ class AppLogic {
 
       await delay(const Duration(milliseconds: 0));
 
-      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+      final config =
+          await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
 
       final accFactory = await accountFactoryServiceFromConfig(config);
       final address = await accFactory.getAddress(credentials.address.hexEip55);

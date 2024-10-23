@@ -142,7 +142,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> fetchWalletConfig() async {
     try {
-      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+      final config =
+          await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
 
       _state.setWalletConfig(config);
 
@@ -190,7 +191,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       Wallet cred = Wallet.fromJson(decoded, password);
 
-      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+      final config =
+          await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
 
       // load the legacy account factory
       final accFactory = await accountFactoryServiceFromConfig(config,
@@ -229,7 +231,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await delay(const Duration(milliseconds: 0));
 
-      final config = await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'));
+      final config =
+          await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
 
       final token = config.getPrimaryToken();
 
