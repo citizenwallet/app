@@ -28,7 +28,7 @@
       }
     },
     "tokens": {
-      "100@0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+      "100:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
         "standard": "erc20",
         "name": "pay.brussels",
         "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
@@ -42,7 +42,7 @@
       "name": "Gnosis Explorer"
     },
     "accounts": {
-      "100@0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
+      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
         "chain_id": 100,
         "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
         "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
@@ -51,7 +51,7 @@
       }
     },
     "cards": {
-      "100@0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+      "100:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
         "chain_id": 100,
         "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
         "type": "classic"
@@ -108,7 +108,7 @@
       }
     },
     "tokens": {
-      "42220@0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
         "standard": "erc20",
         "name": "Gratitude Token",
         "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
@@ -122,7 +122,7 @@
       "name": "Celo Explorer"
     },
     "accounts": {
-      "42220@0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
         "chain_id": 42220,
         "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
         "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
@@ -131,7 +131,7 @@
       }
     },
     "cards": {
-      "42220@0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
         "chain_id": 42220,
         "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
         "type": "classic"

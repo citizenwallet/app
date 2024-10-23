@@ -51,7 +51,7 @@ class ContractLocation {
     };
   }
 
-  String get fullAddress => '$chainId@$address';
+  String get fullAddress => '$chainId:$address';
 }
 
 class CommunityConfig {
@@ -567,7 +567,7 @@ class Config {
     );
 
     final tokens = {
-      '${legacy.node.chainId}@${legacy.token.address}': TokenConfig(
+      '${legacy.node.chainId}:${legacy.token.address}': TokenConfig(
         standard: legacy.token.standard,
         address: legacy.token.address,
         name: legacy.token.name,
@@ -578,7 +578,7 @@ class Config {
     };
 
     final accounts = {
-      '${legacy.node.chainId}@${legacy.erc4337.accountFactoryAddress}':
+      '${legacy.node.chainId}:${legacy.erc4337.accountFactoryAddress}':
           ERC4337Config(
         chainId: legacy.node.chainId,
         entrypointAddress: legacy.erc4337.entrypointAddress,
@@ -591,7 +591,7 @@ class Config {
 
     final cards = legacy.safeCards != null || legacy.cards != null
         ? {
-            '${legacy.node.chainId}@${legacy.safeCards?.cardManagerAddress ?? legacy.cards!.cardFactoryAddress}':
+            '${legacy.node.chainId}:${legacy.safeCards?.cardManagerAddress ?? legacy.cards!.cardFactoryAddress}':
                 CardsConfig(
               chainId: legacy.node.chainId,
               address: legacy.safeCards?.cardManagerAddress ??
