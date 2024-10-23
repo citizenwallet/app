@@ -126,27 +126,6 @@ class ConfigService {
     _api = APIService(baseURL: endpoint);
   }
 
-  void _loadFromCache() {
-    final cachedConfig = _pref.getConfigs();
-    if (cachedConfig != null) {
-      try {
-        _configs =
-            (cachedConfig as List).map((e) => Config.fromJson(e)).toList();
-
-        return;
-      } catch (_) {}
-    }
-
-    _loadFromLocal();
-  }
-
-  void _loadFromLocal() async {
-    final localFile = jsonDecode(await rootBundle.loadString(
-        'assets/config/v$version/$communityConfigListFileName.json'));
-
-    _configs = (localFile as List).map((e) => Config.fromJson(e)).toList();
-  }
-
   Future<List<Config>> getConfigs({String? location}) async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(
