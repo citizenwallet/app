@@ -59,7 +59,7 @@ class _WalletActionsState extends State<WalletActions> {
     final plugins = wallet?.plugins ?? [];
     final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
-    final withOfflineBanner = config!.online == false;
+    final withOfflineBanner = config?.online == false;
 
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||
