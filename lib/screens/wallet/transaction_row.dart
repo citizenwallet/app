@@ -255,24 +255,9 @@ class TransactionRowState extends State<TransactionRow> {
                             ),
                           ),
                           const SizedBox(width: 5),
-                          Text(
-                            wallet.symbol,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isIncoming
-                                  ? Theme.of(context)
-                                      .colors
-                                      .primary
-                                      .resolveFrom(context)
-                                  : Theme.of(context)
-                                      .colors
-                                      .text
-                                      .resolveFrom(context),
-                            ),
+                          CoinLogo(
+                            size: 16,
+                            logo: wallet.currencyLogo,
                           ),
                         ],
                       ),

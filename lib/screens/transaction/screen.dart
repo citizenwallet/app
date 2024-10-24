@@ -246,25 +246,10 @@ class TransactionScreenState extends State<TransactionScreen> {
                                               .resolveFrom(context),
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    wallet.symbol,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: isIncoming
-                                          ? Theme.of(context)
-                                              .colors
-                                              .primary
-                                              .resolveFrom(context)
-                                          : Theme.of(context)
-                                              .colors
-                                              .text
-                                              .resolveFrom(context),
-                                    ),
+                                  const SizedBox(width: 10),
+                                  CoinLogo(
+                                    size: 32,
+                                    logo: wallet.currencyLogo,
                                   ),
                                 ],
                               ),

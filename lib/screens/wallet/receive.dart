@@ -7,6 +7,7 @@ import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/strings.dart';
 import 'package:citizenwallet/widgets/chip.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/picker.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
@@ -376,14 +377,10 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                       ),
                                     ),
                                     Center(
-                                      child: Text(
-                                        wallet?.symbol ?? '',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
+                                        child: CoinLogo(
+                                      size: 32,
+                                      logo: wallet?.currencyLogo,
+                                    )),
                                   ],
                                 ),
                               ),
@@ -601,13 +598,9 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                                   child: Padding(
                                     padding:
                                         const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: Text(
-                                      wallet?.symbol ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                    child: CoinLogo(
+                                      size: 32,
+                                      logo: wallet?.currencyLogo,
                                     ),
                                   ),
                                 ),
