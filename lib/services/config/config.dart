@@ -706,13 +706,17 @@ class Config {
     return primaryAccountAbstraction;
   }
 
-  CardsConfig getPrimaryCardManager() {
-    final primaryCardManager = cards?[community.primaryCardManager.fullAddress];
+  CardsConfig? getPrimaryCardManager() {
+    return cards?[community.primaryCardManager.fullAddress];
+  }
 
-    if (primaryCardManager == null) {
-      throw Exception('Primary Card Manager not found');
+  String getRpcUrl(String chainId) {
+    final chain = chains[chainId];
+
+    if (chain == null) {
+      throw Exception('Chain not found');
     }
 
-    return primaryCardManager;
+    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
   }
 }

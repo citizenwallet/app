@@ -145,7 +145,7 @@ class WalletService {
     _url = chain!.node.url;
     _wsurl = chain.node.wsUrl;
 
-    final rpcUrl = '$_url/v1/rpc/${accountAbstractionConfig.paymasterAddress}';
+    final rpcUrl = config.getRpcUrl(token.chainId.toString());
 
     print('url: $_url');
     print('rpcUrl: $rpcUrl');
@@ -193,7 +193,8 @@ class WalletService {
 
     final primaryCardManager = config.getPrimaryCardManager();
 
-    if (primaryCardManager.type == CardManagerType.classic) {
+    if (primaryCardManager != null &&
+        primaryCardManager.type == CardManagerType.classic) {
       _cardManager = CardManagerContract(
         _chainId!.toInt(),
         _ethClient,
@@ -201,7 +202,8 @@ class WalletService {
       );
     }
 
-    if (primaryCardManager.type == CardManagerType.safe &&
+    if (primaryCardManager != null &&
+        primaryCardManager.type == CardManagerType.safe &&
         primaryCardManager.instanceId != null) {
       final instanceId = primaryCardManager.instanceId!;
       _cardManager = SafeCardManagerContract(

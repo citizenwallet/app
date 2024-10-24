@@ -14,17 +14,18 @@ Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
     {String? customAccountFactory}) async {
   final primaryAccountFactory = config.community.primaryAccountFactory;
 
-  final url = config.chains[primaryAccountFactory.chainId.toString()]!.node.url;
-  final wsurl =
-      config.chains[primaryAccountFactory.chainId.toString()]!.node.wsUrl;
+  final url = config.getRpcUrl(primaryAccountFactory.chainId.toString());
+  // final wsurl =
+  //     config.chains[primaryAccountFactory.chainId.toString()]!.node.wsUrl;
+  print('url: $url');
 
   final client = Client();
 
   final ethClient = Web3Client(
     url,
     client,
-    socketConnector: () =>
-        WebSocketChannel.connect(Uri.parse(wsurl)).cast<String>(),
+    // socketConnector: () =>
+    //     WebSocketChannel.connect(Uri.parse(wsurl)).cast<String>(),
   );
 
   final chainId = await ethClient.getChainId();
