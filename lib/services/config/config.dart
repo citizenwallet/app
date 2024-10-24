@@ -514,10 +514,10 @@ class Config {
   final Map<String, TokenConfig> tokens;
   final ScanConfig scan;
   final Map<String, ERC4337Config> accounts;
-  final Map<String, CardsConfig> cards;
+  final Map<String, CardsConfig>? cards;
   final Map<String, ChainConfig> chains;
   final IPFSConfig ipfs;
-  final List<PluginConfig> plugins;
+  final List<PluginConfig>? plugins;
   final String configLocation;
   final int version;
   bool online;
@@ -642,13 +642,13 @@ class Config {
       scan: ScanConfig.fromJson(json['scan']),
       accounts: (json['accounts'] as Map<String, dynamic>)
           .map((key, value) => MapEntry(key, ERC4337Config.fromJson(value))),
-      cards: (json['cards'] as Map<String, dynamic>)
-          .map((key, value) => MapEntry(key, CardsConfig.fromJson(value))),
+      cards: (json['cards'] as Map<String, dynamic>?)
+          ?.map((key, value) => MapEntry(key, CardsConfig.fromJson(value))),
       chains: (json['chains'] as Map<String, dynamic>)
           .map((key, value) => MapEntry(key, ChainConfig.fromJson(value))),
       ipfs: IPFSConfig.fromJson(json['ipfs']),
-      plugins: (json['plugins'] as List)
-          .map((e) => PluginConfig.fromJson(e))
+      plugins: (json['plugins'] as List?)
+          ?.map((e) => PluginConfig.fromJson(e))
           .toList(),
       configLocation: json['config_location'],
       version: json['version'] ?? 0,
@@ -662,10 +662,11 @@ class Config {
       'tokens': tokens.map((key, value) => MapEntry(key, value.toJson())),
       'scan': scan.toJson(),
       'accounts': accounts.map((key, value) => MapEntry(key, value.toJson())),
-      'cards': cards.map((key, value) => MapEntry(key, value.toJson())),
+      if (cards != null)
+        'cards': cards!.map((key, value) => MapEntry(key, value.toJson())),
       'chains': chains.map((key, value) => MapEntry(key, value.toJson())),
       'ipfs': ipfs.toJson(),
-      'plugins': plugins.map((e) => e.toJson()).toList(),
+      if (plugins != null) 'plugins': plugins!.map((e) => e.toJson()).toList(),
       'config_location': configLocation,
       'version': version,
     };
@@ -678,11 +679,11 @@ class Config {
   }
 
   bool hasCards() {
-    return cards.isNotEmpty;
+    return cards?.isNotEmpty ?? false;
   }
 
   PluginConfig? getTopUpPlugin() {
-    return plugins.firstWhereOrNull((plugin) => plugin.action == 'topup');
+    return plugins?.firstWhereOrNull((plugin) => plugin.action == 'topup');
   }
 
   TokenConfig getPrimaryToken() {
@@ -706,7 +707,7 @@ class Config {
   }
 
   CardsConfig getPrimaryCardManager() {
-    final primaryCardManager = cards[community.primaryCardManager.fullAddress];
+    final primaryCardManager = cards?[community.primaryCardManager.fullAddress];
 
     if (primaryCardManager == null) {
       throw Exception('Primary Card Manager not found');
