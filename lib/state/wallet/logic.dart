@@ -1361,6 +1361,21 @@ class WalletLogic extends WidgetsBindingObserver {
     );
 
     try {
+      _state.setInProgressTransaction(
+        CWTransaction.sending(
+          fromDoubleUnit(
+            amount.toString(),
+            decimals: _wallet.currency.decimals,
+          ),
+          id: '',
+          hash: '',
+          chainId: _wallet.chainId,
+          to: to,
+          from: _wallet.account.hexEip55,
+          description: 'Minting tokens',
+          date: DateTime.now(),
+        ),
+      );
       _state.sendTransaction();
 
       if (to.isEmpty) {
@@ -1397,7 +1412,21 @@ class WalletLogic extends WidgetsBindingObserver {
       //
     } catch (_) {}
 
-    _state.sendTransactionError();
+    _state.setInProgressTransactionError(
+      CWTransaction.failed(
+        fromDoubleUnit(
+          amount.toString(),
+          decimals: _wallet.currency.decimals,
+        ),
+        id: '',
+        hash: '',
+        chainId: _wallet.chainId,
+        to: to,
+        from: _wallet.account.hexEip55,
+        description: 'Failed to mint token',
+        date: DateTime.now(),
+      ),
+    );
 
     return false;
   }
