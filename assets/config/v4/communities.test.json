@@ -48,6 +48,13 @@
         "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
         "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
         "paymaster_type": "cw"
+      },
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
       }
     },
     "cards": {
@@ -128,6 +135,13 @@
         "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
         "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
         "paymaster_type": "cw"
+      },
+      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
       }
     },
     "cards": {
