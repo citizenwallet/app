@@ -47,4 +47,8 @@ abstract class AccountsServiceInterface {
 
   // delete all accounts
   Future<void> deleteAllAccounts();
+
+  Future<void> populatePrivateKeysFromEncryptedStorage() async {}
+
+  Future<void> purgePrivateKeysAndAddToEncryptedStorage() async {}
 }

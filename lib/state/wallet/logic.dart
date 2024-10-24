@@ -1361,6 +1361,21 @@ class WalletLogic extends WidgetsBindingObserver {
     );
 
     try {
+      _state.setInProgressTransaction(
+        CWTransaction.sending(
+          fromDoubleUnit(
+            amount.toString(),
+            decimals: _wallet.currency.decimals,
+          ),
+          id: '',
+          hash: '',
+          chainId: _wallet.chainId,
+          to: to,
+          from: _wallet.account.hexEip55,
+          description: 'Minting tokens',
+          date: DateTime.now(),
+        ),
+      );
       _state.sendTransaction();
 
       if (to.isEmpty) {
@@ -1397,7 +1412,21 @@ class WalletLogic extends WidgetsBindingObserver {
       //
     } catch (_) {}
 
-    _state.sendTransactionError();
+    _state.setInProgressTransactionError(
+      CWTransaction.failed(
+        fromDoubleUnit(
+          amount.toString(),
+          decimals: _wallet.currency.decimals,
+        ),
+        id: '',
+        hash: '',
+        chainId: _wallet.chainId,
+        to: to,
+        from: _wallet.account.hexEip55,
+        description: 'Failed to mint token',
+        date: DateTime.now(),
+      ),
+    );
 
     return false;
   }
@@ -1426,7 +1455,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    final (address, _) = parseQRCode(_addressController.text);
+    final (address, _, _) = parseQRCode(_addressController.text);
     _state.setHasAddress(address.isNotEmpty);
   }
 
@@ -1476,7 +1505,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
-      final (address, amount) = parseQRCode(raw);
+      final (address, amount, description) = parseQRCode(raw);
       if (address == '') {
         throw QRInvalidException();
       }
@@ -1489,7 +1518,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       updateAddressFromHexCapture(address);
 
-      _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      if (description != null) {
+        _messageController.text = description;
+      } else {
+        _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      }
 
       return address;
     } on QREmptyException catch (e) {

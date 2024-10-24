@@ -231,8 +231,12 @@ GoRouter createRouter(
               path: 'send/:to/progress',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
+
+                final extra = state.extra as Map<String, dynamic>?;
+
                 return SendProgress(
                   to: state.pathParameters['to'],
+                  isMinting: extra?['isMinting'] ?? false,
                 );
               },
             ),

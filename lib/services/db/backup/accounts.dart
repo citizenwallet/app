@@ -29,7 +29,7 @@ class DBAccount {
       'alias': alias,
       'address': address.hexEip55,
       'name': name,
-      if (privateKey != null) 'privateKey': bytesToHex(privateKey!.privateKey),
+      'privateKey': privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
   }
@@ -79,7 +79,12 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {};
+    final migrations = {
+      2: [
+        'ALTER TABLE $name DROP COLUMN privateKey',
+        'ALTER TABLE $name ADD COLUMN privateKey TEXT',
+      ],
+    };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
       final queries = migrations[i];

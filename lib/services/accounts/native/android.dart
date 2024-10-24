@@ -4,7 +4,6 @@ import 'package:citizenwallet/utils/encrypt.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 
-
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -264,5 +263,30 @@ class AndroidAccountsService extends AccountsServiceInterface {
     backups.sort((a, b) => a.name.compareTo(b.name));
 
     return backups;
+  }
+
+  @override
+  Future<void> populatePrivateKeysFromEncryptedStorage() async {
+    final allAccounts = await getAllAccounts(); // accounts with private keys
+
+    for (final account in allAccounts) {
+      _accountsDB.accounts.update(account);
+    }
+  }
+
+  @override
+  Future<void> purgePrivateKeysAndAddToEncryptedStorage() async {
+    final allAccounts = await getAllAccounts(); // accounts with private keys
+
+    for (final account in allAccounts) {
+      await _credentials.write(
+        account.id,
+        bytesToHex(account.privateKey!.privateKey),
+      );
+
+      // null private key before updating in DB
+      account.privateKey = null;
+      await _accountsDB.accounts.update(account);
+    }
   }
 }
