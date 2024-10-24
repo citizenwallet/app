@@ -406,7 +406,7 @@ class WalletLogic extends WidgetsBindingObserver {
           currencyLogo: communityConfig.community.logo,
           decimalDigits: nativeCurrency.decimals,
           locked: dbWallet.privateKey == null,
-          plugins: communityConfig.plugins,
+          plugins: communityConfig.plugins ?? [],
           minter: false,
         ),
       );
@@ -1733,12 +1733,12 @@ class WalletLogic extends WidgetsBindingObserver {
 
       Config communityConfig = Config.fromJson(community.config);
 
-      if (communityConfig.plugins.isEmpty) {
+      if (communityConfig.plugins?.isEmpty ?? true) {
         return null;
       }
 
       final plugin =
-          communityConfig.plugins.firstWhereOrNull((p) => p.url == url);
+          communityConfig.plugins?.firstWhereOrNull((p) => p.url == url);
       if (plugin == null) {
         return null;
       }
@@ -1854,7 +1854,7 @@ class WalletLogic extends WidgetsBindingObserver {
         Config communityConfig = Config.fromJson(community.config);
         final plugins = communityConfig.plugins;
 
-        if (plugins.isNotEmpty) {
+        if (plugins?.isNotEmpty ?? false) {
           actionsToAdd.add(ActionButton(
             label: 'Plugins',
             buttonType: ActionButtonType.plugins,
