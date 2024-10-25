@@ -327,6 +327,14 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setInProgressTransactionError(CWTransaction transaction) {
+    inProgressTransaction = transaction;
+    inProgressTransactionLoading = false;
+    inProgressTransactionError = true;
+    transactionSendError = true;
+    notifyListeners();
+  }
+
   void clearInProgressTransaction({bool notify = false}) {
     inProgressTransaction = null;
     inProgressTransactionLoading = false;
