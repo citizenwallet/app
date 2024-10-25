@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc1155.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
@@ -78,8 +79,11 @@ class WalletService {
       _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
   late AccountFactoryService
       _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
-  late ERC20Contract
+  String _tokenStandard = 'erc20';
+  ERC20Contract?
       _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
+  ERC1155Contract?
+      _contract1155Token; // Represents a smart contract for an ERC1155 token on the Ethereum blockchain.
   late AccessControlUpgradeableContract _contractAccessControl;
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
   late ProfileContract
@@ -91,21 +95,34 @@ class WalletService {
   EthereumAddress get account => _account;
 
   /// retrieves the current balance of the address
-  Future<String> get balance async {
+  Future<String> getBalance({String? addr, BigInt? tokenId}) async {
     try {
-      final b = await _contractToken.getBalance(_account.hexEip55).timeout(
-            const Duration(seconds: 2),
-          );
+      BigInt b = BigInt.zero;
+      if (_tokenStandard == 'erc20') {
+        b = await _contractToken!.getBalance(addr ?? _account.hexEip55).timeout(
+              const Duration(seconds: 2),
+            );
+      } else if (_tokenStandard == 'erc1155') {
+        b = await _contract1155Token!
+            .getBalance(addr ?? _account.hexEip55, tokenId ?? BigInt.zero)
+            .timeout(
+              const Duration(seconds: 2),
+            );
+      }
 
       _pref.setBalance(_account.hexEip55, b.toString());
 
       return b.toString();
-    } catch (e) {
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
       //
     }
 
     return _pref.getBalance(_account.hexEip55) ?? '0.0';
   }
+
+  String get standard => _tokenStandard;
 
   Future<bool> get minter async {
     return _contractAccessControl.isMinter(_account.hexEip55);
@@ -121,7 +138,9 @@ class WalletService {
     return null;
   }
 
-  String get erc20Address => _contractToken.addr;
+  String get tokenAddress => _tokenStandard == 'erc20'
+      ? _contractToken!.addr
+      : _contract1155Token!.addr;
   String get profileAddress => _contractProfile.addr;
 
   Future<BigInt> get accountNonce async =>
@@ -221,7 +240,7 @@ class WalletService {
       config.community.alias,
       accountAbstractionConfig.entrypointAddress,
       accountAbstractionConfig.accountFactoryAddress,
-      token.address,
+      token,
       config.community.profile.address,
     );
 
@@ -330,7 +349,7 @@ class WalletService {
     String alias,
     String eaddr,
     String afaddr,
-    String taddr,
+    TokenConfig token,
     String prfaddr,
   ) async {
     // Get the Ethereum address for the current account.
@@ -354,12 +373,23 @@ class WalletService {
         AccountFactoryService(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
 
-    // Create a new ERC20 token contract instance and initialize it.
-    _contractToken = ERC20Contract(chainId, _ethClient, taddr);
-    await _contractToken.init();
+    _tokenStandard = token.standard;
+
+    switch (token.standard) {
+      case 'erc20':
+        // Create a new ERC20 token contract instance and initialize it.
+        _contractToken = ERC20Contract(chainId, _ethClient, token.address);
+        await _contractToken?.init();
+        break;
+      case 'erc1155':
+        _contract1155Token =
+            ERC1155Contract(chainId, _ethClient, token.address);
+        await _contract1155Token?.init();
+        break;
+    }
 
     _contractAccessControl =
-        AccessControlUpgradeableContract(chainId, _ethClient, taddr);
+        AccessControlUpgradeableContract(chainId, _ethClient, token.address);
     await _contractAccessControl.init();
 
     // Create a new user profile contract instance and initialize it.
@@ -419,20 +449,38 @@ class WalletService {
   }
 
   /// fetches the balance of a given address
-  Future<String> getBalance(String addr) async {
-    final b = await _contractToken.getBalance(addr);
-    return fromDoubleUnit(
-      b.toString(),
-      decimals: currency.decimals,
-    );
-  }
+  // Future<String> getBalance(String addr, {BigInt? tokenId}) async {
+  //   BigInt b = BigInt.zero;
+  //   if (_tokenStandard == 'erc20') {
+  //     b = await _contractToken!.getBalance(addr);
+  //   } else if (_tokenStandard == 'erc1155') {
+  //     b = await _contract1155Token!.getBalance(addr, tokenId!);
+  //   }
+
+  //   return fromDoubleUnit(
+  //     b.toString(),
+  //     decimals: currency.decimals,
+  //   );
+  // }
 
   String get transferEventStringSignature {
-    return _contractToken.transferEventStringSignature;
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferEventStringSignature;
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferEventStringSignature;
+    }
+
+    return '';
   }
 
   String get transferEventSignature {
-    return _contractToken.transferEventSignature;
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferEventSignature;
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferEventSignature;
+    }
+
+    return '';
   }
 
   Future<bool> isMinter(String addr) async {
@@ -757,7 +805,9 @@ class WalletService {
 
       const path = '/v1/logs';
 
-      final erc20EventSignature = _contractToken.transferEventSignature;
+      final eventSignature = _tokenStandard == 'erc20'
+          ? _contractToken!.transferEventSignature
+          : _contract1155Token!.transferEventSignature;
 
       final dataQueryParams = buildQueryParams([
         {
@@ -771,8 +821,12 @@ class WalletService {
         },
       ]);
 
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
       final url =
-          '$path/${_contractToken.addr}/$erc20EventSignature?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}&$dataQueryParams';
+          '$path/$addr/$eventSignature?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}&$dataQueryParams';
 
       final response = await _indexer.get(url: url);
 
@@ -798,8 +852,12 @@ class WalletService {
 
       const path = 'logs/v2/transfers';
 
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
       final url =
-          '/$path/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+          '/$path/$addr/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
 
       final response = await _indexer.get(url: url);
 
@@ -814,26 +872,36 @@ class WalletService {
     return null;
   }
 
-  /// construct erc20 transfer call data
-  Uint8List erc20TransferCallData(
+  /// construct transfer call data
+  Uint8List tokenTransferCallData(
     String to,
-    BigInt amount,
-  ) {
-    return _contractToken.transferCallData(
-      to,
-      amount,
-    );
+    BigInt amount, {
+    BigInt? tokenId,
+  }) {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferCallData(to, amount);
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferCallData(
+          _account.hexEip55, to, tokenId ?? BigInt.zero, amount);
+    }
+
+    return Uint8List.fromList([]);
   }
 
   /// construct erc20 transfer call data
-  Uint8List erc20MintCallData(
+  Uint8List tokenMintCallData(
     String to,
-    BigInt amount,
-  ) {
-    return _contractToken.mintCallData(
-      to,
-      amount,
-    );
+    BigInt amount, {
+    BigInt? tokenId,
+  }) {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.mintCallData(to, amount);
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!
+          .mintCallData(to, amount, tokenId ?? BigInt.zero);
+    }
+
+    return Uint8List.fromList([]);
   }
 
   /// construct simple faucet redeem call data
@@ -1195,9 +1263,7 @@ class WalletService {
       userop.generateSignature(cred, hash);
 
       return (bytesToHex(hash, include0x: true), userop);
-    } catch (e, s) {
-      print(e);
-      print(s);
+    } catch (_) {
       rethrow;
     }
   }
@@ -1247,7 +1313,11 @@ class WalletService {
         );
       }
 
-      final url = '/push/${_contractToken.addr}/${acc.hexEip55}';
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
+      final url = '/push/$addr/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         PushUpdateRequest(token, acc.hexEip55).toJson(),
@@ -1291,7 +1361,11 @@ class WalletService {
         );
       }
 
-      final url = '/push/${_contractToken.addr}/${acc.hexEip55}/$token';
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
+      final url = '/push/$addr/${acc.hexEip55}/$token';
 
       final encoded = jsonEncode(
         {

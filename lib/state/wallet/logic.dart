@@ -98,7 +98,7 @@ class WalletLogic extends WidgetsBindingObserver {
   String? get lastWallet => _preferences.lastWallet;
   String get address => _wallet.address.hexEip55;
   String get account => _wallet.account.hexEip55;
-  String get token => _wallet.erc20Address;
+  String get token => _wallet.tokenAddress;
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
@@ -274,7 +274,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.getBalance().then((v) => _state.setWalletBalance(v));
       _wallet.minter.then((v) => _state.setWalletMinter(v));
 
       if (loadAdditionalData != null) await loadAdditionalData();
@@ -341,7 +341,7 @@ class WalletLogic extends WidgetsBindingObserver {
       if (isWalletLoaded &&
           accAddress == _wallet.account.hexEip55 &&
           alias == _wallet.alias) {
-        final balance = await _wallet.balance;
+        final balance = await _wallet.getBalance();
 
         _state.updateWalletBalanceSuccess(balance);
 
@@ -411,7 +411,7 @@ class WalletLogic extends WidgetsBindingObserver {
         ),
       );
 
-      _wallet.balance.then((v) => _state.setWalletBalance(v));
+      _wallet.getBalance().then((v) => _state.setWalletBalance(v));
 
       await loadAdditionalData(true);
 
@@ -425,7 +425,10 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.loadWalletError(exception: NotFoundException());
 
       return null;
-    } catch (_) {}
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
+    }
 
     _state.loadWalletError();
     _state.setWalletReady(false);
@@ -650,7 +653,7 @@ class WalletLogic extends WidgetsBindingObserver {
           value: tx.value.toInt(),
           data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
           status: tx.status,
-          contract: _wallet.erc20Address,
+          contract: _wallet.tokenAddress,
         ));
 
         final txList = [
@@ -777,7 +780,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final List<CWTransaction> txs =
           (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
-        _wallet.erc20Address,
+        _wallet.tokenAddress,
         0, // TODO: remove tokenId hardcode
         _wallet.account.hexEip55,
         offset: 0,
@@ -826,7 +829,7 @@ class WalletLogic extends WidgetsBindingObserver {
               value: tx.value.toInt(),
               data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
-              contract: _wallet.erc20Address,
+              contract: _wallet.tokenAddress,
             ),
           );
 
@@ -864,7 +867,7 @@ class WalletLogic extends WidgetsBindingObserver {
         maxDate: maxDate,
       );
 
-      final balance = await _wallet.balance;
+      final balance = await _wallet.getBalance();
 
       transferEventSubscribe();
 
@@ -885,7 +888,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final List<CWTransaction> txs =
           (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
-        _wallet.erc20Address,
+        _wallet.tokenAddress,
         0, // TODO: remove tokenId hardcode
         _wallet.account.hexEip55,
         offset: offset,
@@ -934,7 +937,7 @@ class WalletLogic extends WidgetsBindingObserver {
               value: tx.value.toInt(),
               data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
-              contract: _wallet.erc20Address,
+              contract: _wallet.tokenAddress,
             ),
           );
 
@@ -982,7 +985,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('alias not found');
       }
 
-      final balance = await _wallet.balance;
+      final balance = await _wallet.getBalance();
 
       final currentDoubleBalance =
           double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
@@ -1128,26 +1131,32 @@ class WalletLogic extends WidgetsBindingObserver {
         message: message,
       );
 
-      final calldata = _wallet.erc20TransferCallData(
+      // TODO: token id should be set
+      final calldata = _wallet.tokenTransferCallData(
         to,
         parsedAmount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
       );
 
       tempId = hash;
 
+      final args = {
+        'from': _wallet.account.hexEip55,
+        'to': to,
+        'value': parsedAmount.toString(),
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+      }
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
-        args: {
-          'from': _wallet.account.hexEip55,
-          'to': to,
-          'value': parsedAmount.toString(),
-        },
+        args: args,
       );
 
       final txHash = await _wallet.submitUserop(
@@ -1215,7 +1224,9 @@ class WalletLogic extends WidgetsBindingObserver {
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
       );
-    } catch (_) {
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
       _state.sendQueueAddTransaction(
         CWTransaction.failed(
             fromDoubleUnit(
@@ -1265,26 +1276,32 @@ class WalletLogic extends WidgetsBindingObserver {
         _wallet.account.hexEip55,
       );
 
-      final calldata = _wallet.erc20TransferCallData(
+      // TODO: token id should be set
+      final calldata = _wallet.tokenTransferCallData(
         to,
         parsedAmount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
       );
 
       tempId = hash;
 
+      final args = {
+        'from': _wallet.account.hexEip55,
+        'to': to,
+        'value': parsedAmount.toString(),
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+      }
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
-        args: {
-          'from': _wallet.account.hexEip55,
-          'to': to,
-          'value': parsedAmount.toString(),
-        },
+        args: args,
       );
 
       final txHash = await _wallet.submitUserop(
@@ -1391,13 +1408,14 @@ class WalletLogic extends WidgetsBindingObserver {
         throw Exception('invalid address');
       }
 
-      final calldata = _wallet.erc20MintCallData(
+      // TODO: token id should be set
+      final calldata = _wallet.tokenMintCallData(
         to,
         parsedAmount,
       );
 
       final (_, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
       );
 

@@ -63,7 +63,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        final balance = await _wallet.getBalance(addr);
+        final balance = await _wallet.getBalance(addr: addr);
 
         await _accountDBService.vouchers.updateBalance(addr, balance);
 
@@ -156,7 +156,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               cache: false,
             );
 
-      final balance = await _wallet.getBalance(account.hexEip55);
+      final balance = await _wallet.getBalance(addr: account.hexEip55);
 
       final voucher = Voucher(
         address: account.hexEip55,
@@ -202,7 +202,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('voucher not found');
       }
 
-      final balance = await _wallet.getBalance(address);
+      final balance = await _wallet.getBalance(addr: address);
 
       await _accountDBService.vouchers.updateBalance(address, balance);
 
@@ -290,7 +290,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       final List<Voucher> vouchers = [];
 
       for (int i = 0; i < quantity; i++) {
-        addresses.add(_wallet.erc20Address);
+        addresses.add(_wallet.tokenAddress);
 
         final credentials = EthPrivateKey.createRandom(Random.secure());
 
@@ -317,7 +317,8 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         dbvouchers.add(dbvoucher);
 
-        calldata.add(_wallet.erc20TransferCallData(
+        // TODO: token id should be set
+        calldata.add(_wallet.tokenTransferCallData(
           account.hexEip55,
           parsedAmount,
         ));
@@ -412,24 +413,30 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       await _accountDBService.vouchers.insert(dbvoucher);
 
-      final calldata = _wallet.erc20TransferCallData(
+      // TODO: token id should be set
+      final calldata = _wallet.tokenTransferCallData(
         account.hexEip55,
         parsedAmount,
       );
 
       final (_, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
       );
 
+      final args = {
+        'from': _wallet.account.hexEip55,
+        'to': account.hexEip55,
+        'value': parsedAmount.toString(),
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+      }
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
-        args: {
-          'from': _wallet.account.hexEip55,
-          'to': account.hexEip55,
-          'value': parsedAmount.toString(),
-        },
+        args: args,
       );
 
       final txHash = await _wallet.submitUserop(
@@ -557,13 +564,13 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, tempId, _wallet.account.hexEip55, voucher.address);
       }
 
-      final calldata = _wallet.erc20TransferCallData(
+      final calldata = _wallet.tokenTransferCallData(
         _wallet.account.hexEip55,
         amount,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
         customCredentials: credentials,
       );
@@ -573,14 +580,19 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
+      final args = {
+        'from': voucher.address,
+        'to': _wallet.account.hexEip55,
+        'value': amount.toString(),
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = voucher.address;
+        args['id'] = '0';
+      }
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
-        args: {
-          'from': voucher.address,
-          'to': _wallet.account.hexEip55,
-          'value': amount.toString(),
-        },
+        args: args,
       );
 
       final txHash = await _wallet.submitUserop(

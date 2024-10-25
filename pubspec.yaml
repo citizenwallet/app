@@ -151,6 +151,7 @@ flutter:
     - packages/smartcontracts/contracts/standards/IAccessControlUpgradeable.abi.json
     - packages/smartcontracts/contracts/apps/SimpleFaucet.abi.json
     - packages/smartcontracts/contracts/standards/ERC20.abi.json
+    - packages/smartcontracts/contracts/standards/ERC1155.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
     - packages/smartcontracts/contracts/external/CardFactory.abi.json
     - packages/contractforge/abi/CardManagerModule.json

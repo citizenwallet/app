@@ -204,7 +204,7 @@
     },
     "tokens": {
       "42220:0x56744910f7dEcD48c1a7FA61B4C317b15E99F156": {
-        "standard": "erc20",
+        "standard": "erc1155",
         "name": "KFMEDIA℠ Pathways for LATAM™",
         "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
         "symbol": "KFMPFL",
