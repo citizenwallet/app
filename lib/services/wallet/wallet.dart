@@ -494,7 +494,7 @@ class WalletService {
     required String fileType,
   }) async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -542,7 +542,7 @@ class WalletService {
   /// update profile data
   Future<String?> updateProfile(ProfileV1 profile) async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -588,7 +588,7 @@ class WalletService {
   /// set profile data
   Future<bool> unpinCurrentProfile() async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         {
@@ -1317,7 +1317,7 @@ class WalletService {
           ? _contractToken!.addr
           : _contract1155Token!.addr;
 
-      final url = '/push/$addr/${acc.hexEip55}';
+      final url = '/v1/push/$addr/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         PushUpdateRequest(token, acc.hexEip55).toJson(),
@@ -1365,7 +1365,7 @@ class WalletService {
           ? _contractToken!.addr
           : _contract1155Token!.addr;
 
-      final url = '/push/$addr/${acc.hexEip55}/$token';
+      final url = '/v1/push/$addr/${acc.hexEip55}/$token';
 
       final encoded = jsonEncode(
         {
