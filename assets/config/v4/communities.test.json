@@ -68,8 +68,8 @@
       "100": {
         "id": 100,
         "node": {
-          "url": "https://100.engine.citizenwallet.xyz",
-          "ws_url": "wss://100.engine.citizenwallet.xyz"
+          "url": "https://engine.pay.brussels",
+          "ws_url": "wss://engine.pay.brussels"
         }
       }
     },
