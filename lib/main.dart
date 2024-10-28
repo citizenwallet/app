@@ -55,7 +55,6 @@ FutureOr<void> appRunner() async {
   AccountDBService();
 
   WalletService();
-
   final config = ConfigService();
 
   if (kIsWeb) {
@@ -69,7 +68,15 @@ FutureOr<void> appRunner() async {
     );
   }
 
+// TODO: init app db directly here. without using logic,
+
+// TODO: read configs from DB. and then check if single community mode is enabled. update config service attribte accordingly
+
+
+
   await AudioService().init(muted: PreferencesService().muted);
+
+  
 
   runApp(provideAppState(const MyApp()));
 }
@@ -124,7 +131,7 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    await _communitiesLogic.initializeAppDB();
+    await _communitiesLogic.initializeAppDB(); // TODO: remove init of DB from logic
 
     _communitiesLogic.fetchCommunitiesFromRemote();
 

@@ -19,6 +19,11 @@ class AppState with ChangeNotifier {
   String walletPassword = '';
   bool hasCopiedPassword = false;
 
+  // TODO: single mode: ConfigService().singleCommunityMode;
+  
+
+  // modifying
+
   bool walletLoading = false;
   bool walletError = false;
 

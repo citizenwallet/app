@@ -36,6 +36,8 @@ class ConfigService {
   late APIService _api;
   late APIService _communityServer;
 
+  // TODO: a new property to indicate single community mode. default is false
+
   List<Config> _configs = [];
 
   Future<Config> getConfig(String alias, String location) async {
@@ -155,6 +157,11 @@ class ConfigService {
     return configs;
   }
 
+
+  // TODO: function to get config from local 
+
+
+ 
   Future<List<Config>> getCommunitiesFromRemote() async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(

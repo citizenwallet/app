@@ -77,14 +77,18 @@ class DBCommunity {
   }
 }
 
+// TODO: use ConfigService instead of this to fetch configs
+
 class CommunityTable extends DBTable {
   CommunityTable(super.db);
 
-  static const String communityConfigListLocalFileName =
+  static const String communityConfigListLocalFileName = // TODO: remove
       kDebugMode ? 'communities.test' : 'communities';
-  static const String communityConfigListS3FileName = 'communities';
+  static const String communityConfigListS3FileName = 'communities'; // TODO: remove
 
-  static const int version = 3;
+  static const int version = 3; // TODO: remove
+
+  // TODO: _config singleton. user
 
   // The name of the table
   @override
