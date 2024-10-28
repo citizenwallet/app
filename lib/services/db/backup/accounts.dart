@@ -91,8 +91,6 @@ class AccountsTable extends DBTable {
     for (var i = oldVersion + 1; i <= newVersion; i++) {
       final queries = migrations[i];
 
-      print('Migrating accounts from $oldVersion to $newVersion: $queries');
-
       if (queries != null) {
         for (final query in queries) {
           await db.execute(query);
