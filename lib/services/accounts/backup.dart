@@ -23,7 +23,9 @@ class LegacyBackupWallet {
       : address = EthereumAddress.fromHex(json['address']).hexEip55,
         privateKey = json['privateKey'],
         name = json['name'],
-        alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+        alias = json['alias'] ??
+            dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
+            dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   Map<String, dynamic> toJson() => {
         'address': address,

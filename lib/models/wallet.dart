@@ -68,7 +68,9 @@ class CWWallet {
   CWWallet.fromJson(Map<String, dynamic> json)
       : name = json['name'],
         address = json['address'],
-        alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS'),
+        alias = json['alias'] ??
+            dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
+            dotenv.get('DEFAULT_COMMUNITY_ALIAS'),
         account = json['account'],
         _balance = json['balance'],
         currencyName = json['currencyName'],

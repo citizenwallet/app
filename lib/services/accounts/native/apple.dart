@@ -17,7 +17,8 @@ class AppleAccountsService extends AccountsServiceInterface {
   factory AppleAccountsService() => _instance;
   AppleAccountsService._internal();
 
-  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String defaultAlias = dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
+      dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late AccountBackupDBService _accountsDB;

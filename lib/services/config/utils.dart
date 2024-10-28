@@ -11,7 +11,8 @@ String fixLegacyAliases(String alias) {
     return correctedAliases[alias]!;
   }
 
-  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String defaultAlias = dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
+      dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   return alias == 'localhost' || alias == '' ? defaultAlias : alias;
 }

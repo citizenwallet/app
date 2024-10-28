@@ -70,7 +70,8 @@ class WalletLogic extends WidgetsBindingObserver {
   final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
 
-  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String defaultAlias = dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
+      dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
   final String appUniversalURL = dotenv.get('ORIGIN_HEADER');
 
@@ -307,9 +308,12 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
-      final String? accAddress = paramAddress ??
-          _preferences.lastWallet; // TODO: rename to account address
-      final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
+      final String? accAddress = paramAddress ?? _preferences.lastWallet;
+      String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
+
+      print('alias: $alias');
+      print('defaultAlias: $defaultAlias');
+      print('accAddress: $accAddress');
 
       if (accAddress == null) {
         throw Exception('address not found');

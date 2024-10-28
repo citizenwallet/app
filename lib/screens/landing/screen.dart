@@ -52,7 +52,8 @@ class LandingScreenState extends State<LandingScreen>
   late BackupLogic _backupLogic;
   late CommunitiesLogic _communitiesLogic;
 
-  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String defaultAlias =
+      dotenv.env['SINGLE_COMMUNITY_ALIAS'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS');
 
   @override
   void initState() {
