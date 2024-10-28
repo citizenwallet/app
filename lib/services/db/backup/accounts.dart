@@ -79,17 +79,16 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {
-       2: [
-        // Skip the broken migration
-      ],
-      3: [
+    final migrations = {     
+      2: [
         'UPDATE $name SET privateKey = NULL',
       ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
       final queries = migrations[i];
+
+      print('Migrating accounts from $oldVersion to $newVersion: $queries');
 
       if (queries != null) {
         for (final query in queries) {
