@@ -37,13 +37,13 @@ class _CommunityPickerModalState extends State<CommunityPickerModal> {
   }
 
   void onLoad() async {
-    _logic.silentFetchCommunities();
+    _logic.silentFetch();
   }
 
   Future<void> handleRefresh() async {
     HapticFeedback.heavyImpact();
 
-    await _logic.silentFetchCommunities();
+    await _logic.silentFetch();
 
     HapticFeedback.lightImpact();
   }
