@@ -310,10 +310,6 @@ class WalletLogic extends WidgetsBindingObserver {
       final String? accAddress = paramAddress ?? _preferences.lastWallet;
       String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
-      print('alias: $alias');
-      print('defaultAlias: $defaultAlias');
-      print('accAddress: $accAddress');
-
       if (accAddress == null) {
         throw Exception('address not found');
       }
