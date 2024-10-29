@@ -31,8 +31,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class BurnerWalletScreen extends StatefulWidget {
   final String encoded;
   final WalletLogic wallet;
-  String alias = dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
-      dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  String alias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String? voucher;
   final String? voucherParams;
   final String? receiveParams;

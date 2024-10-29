@@ -70,8 +70,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
 
-  final String defaultAlias = dotenv.env['SINGLE_COMMUNITY_ALIAS'] ??
-      dotenv.get('DEFAULT_COMMUNITY_ALIAS');
+  final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
   final String appUniversalURL = dotenv.get('ORIGIN_HEADER');
 
