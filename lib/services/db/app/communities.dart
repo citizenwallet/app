@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/legacy.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 
 Future<List<DBCommunity>> legacyToV4(Database db, String name) async {
@@ -77,18 +77,10 @@ class DBCommunity {
   }
 }
 
-// TODO: use ConfigService instead of this to fetch configs
-
 class CommunityTable extends DBTable {
   CommunityTable(super.db);
 
-  static const String communityConfigListLocalFileName = // TODO: remove
-      kDebugMode ? 'communities.test' : 'communities';
-  static const String communityConfigListS3FileName = 'communities'; // TODO: remove
-
-  static const int version = 3; // TODO: remove
-
-  // TODO: _config singleton. user
+  final ConfigService _config = ConfigService();
 
   // The name of the table
   @override
@@ -152,13 +144,7 @@ class CommunityTable extends DBTable {
   }
 
   Future<void> seed() async {
-    final String jsonString = await rootBundle.loadString(
-        'assets/config/v$version/$communityConfigListLocalFileName.json');
-
-    final List<dynamic> jsonList = jsonDecode(jsonString);
-
-    final List<Map<String, dynamic>> localConfigs =
-        jsonList.map((item) => Map<String, dynamic>.from(item)).toList();
+    final localConfigs = await _config.getLocalConfigs();
 
     // Check if the table is empty
     final count =
@@ -170,21 +156,21 @@ class CommunityTable extends DBTable {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
-    for (final data in localConfigs) {
-      final community = data['community'];
+    for (final config in localConfigs) {
+      final community = config.community;
 
-      final alias = community['alias'];
+      final alias = community.alias;
 
-      final isHidden = community['hidden'] ?? false;
+      final isHidden = community.hidden;
       final hidden = isHidden ? 1 : 0;
 
-      final version = data['version'] ?? 0;
+      final version = config.version;
       const online = 1;
 
       batch.insert(name, {
         'alias': alias,
         'hidden': hidden,
-        'config': jsonEncode(data),
+        'config': jsonEncode(config.toJson()),
         'version': version,
         'online': online,
       });
