@@ -35,8 +35,7 @@ class ConfigService {
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
   late APIService _communityServer;
-
-  // TODO: a new property to indicate single community mode. default is false
+  bool singleCommunityMode = false;
 
   List<Config> _configs = [];
 
@@ -157,11 +156,34 @@ class ConfigService {
     return configs;
   }
 
+  Future<List<Config>> getLocalConfigs() async {
+    final localConfigs = jsonDecode(await rootBundle.loadString(
+        'assets/config/v$version/$communityConfigListFileName.json'));
 
-  // TODO: function to get config from local 
+    final configs =
+        (localConfigs as List).map((e) => Config.fromJson(e)).toList();
 
+    return configs;
+  }
 
- 
+  Future<Config?> getRemoteConfig(String remoteConfigUrl) async {
+    final remote = APIService(baseURL: 'https://wallet.pay.brussels/config/community.json');
+
+    try {
+      final dynamic response =
+          await remote.get(url: '?cachebuster=${generateCacheBusterValue()}');
+
+      final config = Config.fromJson(response);
+
+      return config;
+    } catch (e, s) {
+      debugPrint('Error fetching remote config: $e');
+      debugPrint('Stacktrace: $s');
+
+      return null;
+    }
+  }
+
   Future<List<Config>> getCommunitiesFromRemote() async {
     if (kDebugMode) {
       final localConfigs = jsonDecode(await rootBundle.loadString(

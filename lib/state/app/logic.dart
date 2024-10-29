@@ -443,4 +443,8 @@ class AppLogic {
       //
     }
   }
+
+  void updateSingleCommunityMode() {
+    _appState.updateSingleCommunityMode();
+  }
 }

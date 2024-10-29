@@ -5,8 +5,10 @@ import 'package:citizenwallet/router/router.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
+import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -68,15 +70,13 @@ FutureOr<void> appRunner() async {
     );
   }
 
-// TODO: init app db directly here. without using logic,
+  final AppDBService appDBService = AppDBService();
+  await appDBService.init('app');
+  final numConfigs = (await appDBService.communities.getAll()).length;
 
-// TODO: read configs from DB. and then check if single community mode is enabled. update config service attribte accordingly
-
-
+  config.singleCommunityMode = numConfigs < 2;
 
   await AudioService().init(muted: PreferencesService().muted);
-
-  
 
   runApp(provideAppState(const MyApp()));
 }
@@ -93,6 +93,7 @@ class MyAppState extends State<MyApp> {
   late WalletLogic _logic;
   late NotificationsLogic _notificationsLogic;
   late CommunitiesLogic _communitiesLogic;
+  late AppLogic _appLogic;
   final ThemeLogic _themeLogic = ThemeLogic();
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -104,6 +105,7 @@ class MyAppState extends State<MyApp> {
     _notificationsLogic = NotificationsLogic(context);
     _logic = WalletLogic(context, _notificationsLogic);
     _communitiesLogic = CommunitiesLogic(context);
+    _appLogic = AppLogic(context);
 
     _themeLogic.init(context);
 
@@ -131,10 +133,8 @@ class MyAppState extends State<MyApp> {
   }
 
   void onLoad() async {
-    await _communitiesLogic.initializeAppDB(); // TODO: remove init of DB from logic
-
-    _communitiesLogic.fetchCommunitiesFromRemote();
-
+    _appLogic.updateSingleCommunityMode();
+    _communitiesLogic.fetchFromRemote();
     _notificationsLogic.checkPushPermissions();
     await _logic.fetchWalletConfig();
   }
