@@ -234,8 +234,11 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    final sent = await navigator
-        .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
+    final sent = await navigator.push<bool?>(
+        '/wallet/${walletLogic.account}/send/$toAccount/progress',
+        extra: {
+          'isMinting': widget.isMinting,
+        });
 
     if (sent == true) {
       walletLogic.clearInputControllers();
@@ -297,8 +300,11 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    final sent = await navigator
-        .push<bool?>('/wallet/${walletLogic.account}/send/$toAccount/progress');
+    final sent = await navigator.push<bool?>(
+        '/wallet/${walletLogic.account}/send/$toAccount/progress',
+        extra: {
+          'isMinting': widget.isMinting,
+        });
 
     if (sent == true) {
       walletLogic.clearInputControllers();
@@ -553,7 +559,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                                 child: Text(
-                                  AppLocalizations.of(context)!.send,
+                                  widget.isMinting
+                                      ? AppLocalizations.of(context)!.mint
+                                      : AppLocalizations.of(context)!.send,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

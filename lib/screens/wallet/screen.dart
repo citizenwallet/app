@@ -573,7 +573,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/$_address/mint', extra: {
+    await navigator.push('/wallet/$_address/mint', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
@@ -782,7 +782,7 @@ class WalletScreenState extends State<WalletScreen> {
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
-      final (parsedAddress, parsedValue) = parseQRCode(result);
+      final (parsedAddress, parsedValue, _) = parseQRCode(result);
       if (parsedAddress.isEmpty && parsedValue == null) {
         _logic.resumeFetching();
         _profilesLogic.resume();

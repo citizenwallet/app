@@ -15,8 +15,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SendProgress extends StatefulWidget {
   final String? to;
+  final bool isMinting;
 
-  const SendProgress({super.key, this.to});
+  const SendProgress({super.key, this.to, this.isMinting = false});
 
   @override
   State<SendProgress> createState() => _SendProgressState();
@@ -96,6 +97,18 @@ class _SendProgressState extends State<SendProgress> {
 
     final date = DateFormat.yMMMd().add_Hm().format(inProgressTransaction.date);
 
+  final statusMessage = inProgressTransactionError
+        ? widget.isMinting
+            ? AppLocalizations.of(context)!.failedMint(wallet.symbol)
+            : AppLocalizations.of(context)!.failedSend(wallet.symbol)
+        : widget.isMinting
+            ? isSending
+                ? AppLocalizations.of(context)!.minting
+                : AppLocalizations.of(context)!.minted
+            : isSending
+                ? AppLocalizations.of(context)!.sending
+                : '${AppLocalizations.of(context)!.sent}! 🎉';
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: CupertinoPageScaffold(
@@ -155,12 +168,7 @@ class _SendProgressState extends State<SendProgress> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            inProgressTransactionError
-                                ? AppLocalizations.of(context)!
-                                    .failedSend(wallet.symbol)
-                                : isSending
-                                    ? AppLocalizations.of(context)!.sending
-                                    : '${AppLocalizations.of(context)!.sent}! 🎉',
+                            statusMessage,
                             style: TextStyle(
                               color: Theme.of(context)
                                   .colors

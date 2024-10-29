@@ -2,7 +2,6 @@ import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/backup/db.dart';
@@ -11,7 +10,6 @@ import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
-import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +23,6 @@ class BackupLogic {
   final AccountsServiceInterface _accounts = getAccountsService();
   final PreferencesService _preferences = PreferencesService();
   final NotificationsLogic _notifications;
-  final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
 
   final AccountBackupDBService _accountsDB = AccountBackupDBService();
@@ -188,9 +185,10 @@ class BackupLogic {
 
       assert(accounts.isNotEmpty);
 
-      // final config = await _config.getConfig(accounts.first.alias);
+      await _accounts.purgePrivateKeysAndAddToEncryptedStorage();
 
-      final community = await _appDBService.communities.get(accounts.first.alias);
+      final community =
+          await _appDBService.communities.get(accounts.first.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -276,9 +274,9 @@ class BackupLogic {
         return;
       }
 
-      // final config = await _config.getConfig(accounts.first.alias);
+      await _accounts.purgePrivateKeysAndAddToEncryptedStorage();
 
-       final community =
+      final community =
           await _appDBService.communities.get(accounts.first.alias);
 
       if (community == null) {
@@ -351,11 +349,15 @@ class BackupLogic {
         await remoteDB.deleteDB();
       }
 
+      await _accounts.populatePrivateKeysFromEncryptedStorage();
+
       // this will upload, encrypt and replace any current backup in place
       await backupService.upload(
         _accountsDB.path,
         _accountsDB.name,
       );
+
+      await _accounts.purgePrivateKeysAndAddToEncryptedStorage();
 
       // TODO: upload app data as well
       // final accounts = await _accountsDB.accounts.all();
