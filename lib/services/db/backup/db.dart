@@ -34,6 +34,7 @@ class AccountBackupDBService extends DBService {
         return;
       },
       onUpgrade: (db, oldVersion, newVersion) async {
+        
         // migrate data
         await accounts.migrate(db, oldVersion, newVersion);
 
