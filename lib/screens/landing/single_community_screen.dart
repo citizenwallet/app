@@ -1,5 +1,4 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
-import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
@@ -281,17 +280,10 @@ class LandingScreenState extends State<SingleCommunityLandingScreen>
     return _backupLogic.hasAccounts();
   }
 
-  void handleStart() async {
+  void handleStart(String alias) async {
     final navigator = GoRouter.of(context);
 
-    final alias = await showCupertinoModalBottomSheet<String?>(
-      context: context,
-      expand: true,
-      useRootNavigator: true,
-      builder: (modalContext) => const CommunityPickerModal(),
-    );
-
-    if (alias == null || alias.isEmpty) {
+    if (alias.isEmpty) {
       return;
     }
 
@@ -519,19 +511,23 @@ class LandingScreenState extends State<SingleCommunityLandingScreen>
                                 ),
                                 const SizedBox(height: 20),
                                 if (isPlatformAndroid()) ...[
-                                  Container(
-                                    height: 1,
-                                    width: 200,
-                                    color: Theme.of(context)
-                                        .colors
-                                        .subtle
-                                        .resolveFrom(context),
-                                  ),
                                   CupertinoButton(
-                                    onPressed: handleStart,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: maxWidth,
+                                    onPressed: () => handleStart(
+                                        community?.community.alias ?? ''),
+                                    padding: EdgeInsets
+                                        .zero, // Remove default padding
+                                    child: Container(
+                                      height: 48,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(28),
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
+                                            .resolveFrom(context),
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
@@ -539,16 +535,25 @@ class LandingScreenState extends State<SingleCommunityLandingScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          const SizedBox(
-                                            width: 10,
-                                            height: 44,
+                                          Text(
+                                            AppLocalizations.of(context)!.start,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .white
+                                                  .resolveFrom(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
+                                          const SizedBox(width: 10),
                                           Icon(
                                             CupertinoIcons.arrow_right,
                                             color: Theme.of(context)
                                                 .colors
-                                                .primary
+                                                .white
                                                 .resolveFrom(context),
+                                            weight: 2,
                                           ),
                                         ],
                                       ),
@@ -602,19 +607,23 @@ class LandingScreenState extends State<SingleCommunityLandingScreen>
                                   ),
                                 ],
                                 if (isPlatformApple()) ...[
-                                  Container(
-                                    height: 1,
-                                    width: 200,
-                                    color: Theme.of(context)
-                                        .colors
-                                        .subtle
-                                        .resolveFrom(context),
-                                  ),
                                   CupertinoButton(
-                                    onPressed: handleStart,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: maxWidth,
+                                    onPressed: () => handleStart(
+                                        community?.community.alias ?? ''),
+                                    padding: EdgeInsets
+                                        .zero, // Remove default padding
+                                    child: Container(
+                                      height: 48,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(28),
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
+                                            .resolveFrom(context),
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
@@ -622,16 +631,25 @@ class LandingScreenState extends State<SingleCommunityLandingScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          const SizedBox(
-                                            width: 10,
-                                            height: 44,
+                                          Text(
+                                            AppLocalizations.of(context)!.start,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .white
+                                                  .resolveFrom(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
+                                          const SizedBox(width: 10),
                                           Icon(
                                             CupertinoIcons.arrow_right,
                                             color: Theme.of(context)
                                                 .colors
-                                                .primary
+                                                .white
                                                 .resolveFrom(context),
+                                            weight: 2,
                                           ),
                                         ],
                                       ),
