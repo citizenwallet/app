@@ -10,7 +10,7 @@ class VoucherRow extends StatefulWidget {
   final VoucherLogic logic;
   final double size;
   final String? logo;
-  final void Function(String, String, bool)? onTap;
+  final void Function(String, String, String?, bool)? onTap;
   final void Function(String, String, bool)? onMore;
 
   const VoucherRow({
@@ -67,7 +67,7 @@ class VoucherRowState extends State<VoucherRow> {
       ),
       child: CupertinoButton(
         onPressed: () =>
-            onTap?.call(voucher.address, voucher.balance, isRedeemed),
+            onTap?.call(voucher.address, voucher.formattedBalance, widget.logo, isRedeemed),
         color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
