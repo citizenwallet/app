@@ -872,6 +872,24 @@ class WalletService {
     return null;
   }
 
+  /// construct withdraw call data
+  Uint8List withdrawCallData(
+    Uint8List hash,
+    BigInt amount, {
+    BigInt? tokenId,
+  }) {
+    if (_cardManager != null) {
+      return _cardManager!.withdrawCallData(
+        hash,
+        _contractToken!.addr,
+        _account.hexEip55,
+        amount,
+      );
+    }
+
+    return Uint8List.fromList([]);
+  }
+
   /// construct transfer call data
   Uint8List tokenTransferCallData(
     String to,

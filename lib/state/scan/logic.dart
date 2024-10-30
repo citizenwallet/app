@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +47,8 @@ class ScanLogic extends WidgetsBindingObserver {
     _state.scannerNotReady();
   }
 
-  Future<String?> read({String? message, String? successMessage}) async {
+  Future<(Uint8List?, String?)> read(
+      {String? message, String? successMessage}) async {
     try {
       _state.setNfcAddressRequest();
 
@@ -64,7 +66,38 @@ class ScanLogic extends WidgetsBindingObserver {
 
       _state.setNfcAddressSuccess(address.hexEip55);
 
-      return address.hexEip55;
+      return (cardHash, address.hexEip55);
+    } catch (e, s) {
+      debugPrint('Error reading NFC: $e');
+      debugPrint('Stacktrace: $s');
+      _state.setNfcAddressError();
+      _state.setAddressBalance(null);
+      _state.setNfcReading(false);
+    }
+
+    return (null, null);
+  }
+
+  Future<Uint8List?> readSerialHash(
+      {String? message, String? successMessage}) async {
+    try {
+      _state.setNfcAddressRequest();
+
+      _state.setNfcReading(true);
+
+      final serialNumber = await _nfc.readSerialNumber(
+        message: message,
+        successMessage: successMessage,
+      );
+
+      _state.setNfcReading(false); //
+
+      final cardHash = await _wallet.getCardHash(serialNumber);
+      final address = await _wallet.getCardAddress(cardHash);
+
+      _state.setNfcAddressSuccess(address.hexEip55);
+
+      return cardHash;
     } catch (e, s) {
       debugPrint('Error reading NFC: $e');
       debugPrint('Stacktrace: $s');

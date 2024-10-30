@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
@@ -757,6 +758,26 @@ class WalletScreenState extends State<WalletScreen> {
     return params.replaceFirst('&', '?');
   }
 
+  void handleChargeManual() async {
+    HapticFeedback.heavyImpact();
+
+    _logic.pauseFetching();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    final navigator = GoRouter.of(context);
+
+    await navigator.push('/wallet/$_address/charge/manual', extra: {
+      'walletLogic': _logic,
+      'profilesLogic': _profilesLogic,
+      'voucherLogic': _voucherLogic,
+    });
+
+    _logic.resumeFetching();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleQRScan() async {
     _logic.pauseFetching();
     _profilesLogic.pause();
@@ -902,6 +923,8 @@ class WalletScreenState extends State<WalletScreen> {
 
     final hasNoProfile = imageSmall == '' && username == '';
 
+    final accountType = wallet?.type ?? AccountType.account;
+
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
 
@@ -961,7 +984,11 @@ class WalletScreenState extends State<WalletScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: config?.online == false ? () => () : handleQRScan,
+                    onTap: config?.online == false
+                        ? () => ()
+                        : accountType == AccountType.account
+                            ? handleQRScan
+                            : handleChargeManual,
                     child: Container(
                       height: 90,
                       width: 90,
@@ -991,7 +1018,9 @@ class WalletScreenState extends State<WalletScreen> {
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: Center(
                         child: Icon(
-                          CupertinoIcons.qrcode_viewfinder,
+                          accountType == AccountType.account
+                              ? CupertinoIcons.qrcode_viewfinder
+                              : CupertinoIcons.money_dollar,
                           size: 60,
                           color: config?.online == false
                               ? scanQrDisabledColor

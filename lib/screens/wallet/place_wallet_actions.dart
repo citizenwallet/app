@@ -289,30 +289,28 @@ class _PlaceWalletActionsState extends State<PlaceWalletActions> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       WalletActionButton(
-                        key: const Key('send_action_button'),
-                        icon: CupertinoIcons.arrow_up,
+                        key: const Key('products_action_button'),
+                        icon: CupertinoIcons.cube_box,
                         buttonSize: buttonSize,
                         buttonIconSize: buttonIconSize,
                         buttonFontSize: buttonFontSize,
                         shrink: widget.shrink,
-                        text: sendLoading
-                            ? AppLocalizations.of(context)!.sending
-                            : AppLocalizations.of(context)!.send,
+                        text: AppLocalizations.of(context)!.products,
                         loading: sendLoading,
-                        disabled: blockSending,
+                        // disabled: blockSending,
                         onPressed: widget.handleSendScreen,
                       ),
                       SizedBox(
                         width: buttonSeparator,
                       ),
                       WalletActionButton(
-                        key: const Key('receive_action_button'),
-                        icon: CupertinoIcons.arrow_down,
+                        key: const Key('device_action_button'),
+                        icon: CupertinoIcons.settings,
                         buttonSize: buttonSize,
                         buttonIconSize: buttonIconSize,
                         buttonFontSize: buttonFontSize,
                         shrink: widget.shrink,
-                        text: AppLocalizations.of(context)!.receive,
+                        text: AppLocalizations.of(context)!.device,
                         loading: sendLoading,
                         disabled: blockReceive,
                         onPressed: widget.handleReceive,
@@ -338,17 +336,16 @@ class _PlaceWalletActionsState extends State<PlaceWalletActions> {
                           actionButton?.buttonType ==
                               ActionButtonType.more) ...[
                         WalletActionButton(
-                          key: const Key('more_action_button'),
-                          icon: CupertinoIcons.ellipsis,
+                          key: const Key('connect_action_button'),
+                          icon: CupertinoIcons.bag,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
                           buttonFontSize: buttonFontSize,
                           shrink: widget.shrink,
-                          text: AppLocalizations.of(context)!.more,
+                          text: AppLocalizations.of(context)!.place,
                           loading: false,
                           disabled: false,
                           onPressed: widget.handleShowMore,
-                          alt: true,
                         ),
                       ],
                       if (showActionButton &&

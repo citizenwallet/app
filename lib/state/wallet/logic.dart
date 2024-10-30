@@ -1414,6 +1414,155 @@ class WalletLogic extends WidgetsBindingObserver {
     return false;
   }
 
+  Future<bool> chargeFrom(
+    Uint8List serialHash,
+    String from,
+    String amount, {
+    String message = '',
+    String? id,
+  }) async {
+    final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = toUnit(
+      doubleAmount,
+      decimals: _wallet.currency.decimals,
+    );
+
+    var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
+    try {
+      _state.sendTransaction(id: id);
+
+      if (from.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        _wallet.account.hexEip55,
+        from,
+        message: message,
+      );
+
+      final calldata = _wallet.withdrawCallData(
+        serialHash,
+        parsedAmount,
+      );
+
+      final (hash, userop) = await _wallet.prepareUserop(
+        [_wallet.tokenAddress],
+        [calldata],
+      );
+
+      tempId = hash;
+
+      final args = {
+        'from': from,
+        'to': _wallet.account.hexEip55,
+        'value': parsedAmount.toString(),
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+      }
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: args,
+      );
+
+      final txHash = await _wallet.submitUserop(
+        userop,
+        data: eventData,
+        extraData: message != '' ? TransferData(message) : null,
+      );
+      if (txHash == null) {
+        // this is an optional operation
+        throw Exception('transaction failed');
+      }
+
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        _wallet.account.hexEip55,
+        from,
+        message: message,
+      );
+
+      tempId = txHash;
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
+      }
+
+      clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
+
+      return true;
+    } on NetworkCongestedException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _wallet.currency.decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: _wallet.account.hexEip55,
+            from: from,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkCongestedException().message),
+      );
+    } on NetworkInvalidBalanceException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _wallet.currency.decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: _wallet.account.hexEip55,
+            from: from,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkInvalidBalanceException().message),
+      );
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _wallet.currency.decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: _wallet.account.hexEip55,
+            from: from,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkUnknownException().message),
+      );
+    }
+
+    _state.sendTransactionError();
+
+    return false;
+  }
+
   void clearInProgressTransaction() {
     _state.clearInProgressTransaction();
   }
@@ -1606,7 +1755,11 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  void updateReceiveQR({bool? onlyHex}) async {
+  void clearReceiveQR({bool notify = false}) {
+    _state.clearReceiveQR(notify: notify);
+  }
+
+  void updateReceiveQR({bool? onlyHex, String? formattedAmount}) async {
     try {
       updateListenerAmount();
 
@@ -1635,12 +1788,12 @@ class WalletLogic extends WidgetsBindingObserver {
       String params =
           '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}';
 
-      if (_amountController.value.text.isNotEmpty) {
-        final double amount = _amountController.value.text.isEmpty
+      final inputAmount = formattedAmount ?? _amountController.value.text;
+
+      if (inputAmount.isNotEmpty) {
+        final double amount = inputAmount.isEmpty
             ? 0
-            : double.tryParse(
-                    _amountController.value.text.replaceAll(',', '.')) ??
-                0;
+            : double.tryParse(inputAmount.replaceAll(',', '.')) ?? 0;
 
         params += '&amount=${amount.toStringAsFixed(2)}';
       }

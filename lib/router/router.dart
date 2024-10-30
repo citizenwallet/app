@@ -8,9 +8,12 @@ import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
+import 'package:citizenwallet/screens/place/charge_qr_code.dart';
+import 'package:citizenwallet/screens/place/screen.dart';
 import 'package:citizenwallet/screens/send/send_details.dart';
 import 'package:citizenwallet/screens/send/send_link_progress.dart';
 import 'package:citizenwallet/screens/send/send_progress.dart';
+import 'package:citizenwallet/screens/place/charge_progress.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
@@ -21,6 +24,7 @@ import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/amount/state.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
@@ -155,6 +159,28 @@ GoRouter createRouter(
               },
             ),
             GoRoute(
+              name: 'Charge Manual',
+              path: 'charge/manual',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ChangeNotifierProvider(
+                  create: (_) => AmountState(),
+                  child: PlaceChargeManual(
+                    walletLogic: extra['walletLogic'],
+                    // profilesLogic: extra['profilesLogic'],
+                    // voucherLogic: extra['voucherLogic'],
+                    // isMinting: extra['isMinting'] ?? false,
+                  ),
+                );
+              },
+            ),
+            GoRoute(
               name: 'Send To',
               path: 'send',
               parentNavigatorKey: rootNavigatorKey,
@@ -231,12 +257,21 @@ GoRouter createRouter(
               path: 'send/:to/progress',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
-
                 final extra = state.extra as Map<String, dynamic>?;
 
                 return SendProgress(
                   to: state.pathParameters['to'],
                   isMinting: extra?['isMinting'] ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Charge Progress',
+              path: 'charge/:from/progress',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                return ChargeProgress(
+                  from: state.pathParameters['from'],
                 );
               },
             ),
@@ -252,6 +287,22 @@ GoRouter createRouter(
                 final extra = state.extra as Map<String, dynamic>;
 
                 return ReceiveScreen(
+                  logic: extra['logic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Charge QR Code',
+              path: 'charge/qr',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ChargeQRCodeScreen(
                   logic: extra['logic'],
                 );
               },

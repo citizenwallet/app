@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:citizenwallet/services/nfc/service.dart';
 import 'package:citizenwallet/state/scan/logic.dart';
 import 'package:citizenwallet/state/scan/state.dart';
@@ -26,6 +28,7 @@ class NFCModal extends StatefulWidget {
 class NFCModalState extends State<NFCModal>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   String? nfcAddress;
+  Uint8List? nfcSerialHash;
   final ScanLogic _scanLogic = ScanLogic();
   late AnimationController _controller;
 
@@ -74,7 +77,10 @@ class NFCModalState extends State<NFCModal>
   void onLoad(BuildContext context) async {
     await delay(const Duration(milliseconds: 50));
 
-    nfcAddress = await _scanLogic.read();
+    final (h, a) = await _scanLogic.read();
+
+    nfcSerialHash = h;
+    nfcAddress = a;
 
     if (!context.mounted) {
       return;
@@ -102,7 +108,7 @@ class NFCModalState extends State<NFCModal>
 
     await delay(const Duration(milliseconds: 1000));
 
-    navigator.pop(nfcAddress);
+    navigator.pop((nfcSerialHash, nfcAddress));
   }
 
   @override

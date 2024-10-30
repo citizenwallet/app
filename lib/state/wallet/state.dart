@@ -488,9 +488,9 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearReceiveQR() {
+  void clearReceiveQR({bool notify = false}) {
     receiveQR = '';
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   void updateReceiveQR(String qr) {
