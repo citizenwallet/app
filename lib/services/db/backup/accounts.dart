@@ -29,7 +29,8 @@ class DBAccount {
       'alias': alias,
       'address': address.hexEip55,
       'name': name,
-      'privateKey': privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
+      'privateKey':
+          privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
   }
@@ -67,6 +68,7 @@ class AccountsTable extends DBTable {
         alias TEXT NOT NULL,
         address TEXT NOT NULL,
         name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'account',
         privateKey TEXT,
         profile TEXT
       )
@@ -79,7 +81,10 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {     
+    final migrations = {
+      3: [
+        'ALTER TABLE $name ADD COLUMN type TEXT NOT NULL DEFAULT "account"',
+      ],
       2: [
         'UPDATE $name SET privateKey = NULL',
       ],

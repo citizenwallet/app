@@ -64,7 +64,7 @@ class _WalletActionsState extends State<WalletActions> {
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
     final username = context.select((ProfileState state) => state.username);
 
-    final withOfflineBanner = config!.online == false;
+    final withOfflineBanner = config?.online == false;
 
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||

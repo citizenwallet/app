@@ -1029,7 +1029,7 @@ class WalletScreenState extends State<WalletScreen> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(5.0),
                                         child: SvgPicture.asset(
-                                          'assets/icons/switch_accounts.svg',
+                                          'assets/icons/contacts.svg',
                                           semanticsLabel: 'switch accounts',
                                           height: 24,
                                           width: 24,
