@@ -220,6 +220,7 @@ class AccountsScreenState extends State<AccountsScreen> {
     }
 
     if (option == 'place' || option == 'account') {
+      print('option: $option');
       await widget.logic.editWalletType(address, alias,
           AccountType.values.firstWhere((e) => e.name == option));
       return;

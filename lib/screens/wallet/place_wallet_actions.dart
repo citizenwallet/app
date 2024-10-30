@@ -16,7 +16,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class WalletActions extends StatefulWidget {
+class PlaceWalletActions extends StatefulWidget {
   final double shrink;
   final bool refreshing;
   final void Function()? handleSendScreen;
@@ -27,7 +27,7 @@ class WalletActions extends StatefulWidget {
   final void Function()? handleVouchers;
   final void Function()? handleShowMore;
 
-  const WalletActions({
+  const PlaceWalletActions({
     super.key,
     this.shrink = 0,
     this.refreshing = false,
@@ -41,10 +41,10 @@ class WalletActions extends StatefulWidget {
   });
 
   @override
-  State<WalletActions> createState() => _WalletActionsState();
+  State<PlaceWalletActions> createState() => _PlaceWalletActionsState();
 }
 
-class _WalletActionsState extends State<WalletActions> {
+class _PlaceWalletActionsState extends State<PlaceWalletActions> {
   final ScrollController controller = ScrollController();
 
   @override
@@ -148,19 +148,54 @@ class _WalletActionsState extends State<WalletActions> {
           Positioned(
             top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
-              opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-              child: ProfileCircle(
-                size: profileCircleSize,
-                imageUrl: imageSmall,
-                borderWidth: 3,
-                borderColor:
-                    Theme.of(context).colors.primary.resolveFrom(context),
-                backgroundColor: Theme.of(context)
-                    .colors
-                    .uiBackgroundAlt
-                    .resolveFrom(context),
-              ),
-            ),
+                opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
+                child: Stack(
+                  children: [
+                    ProfileCircle(
+                      size: profileCircleSize,
+                      imageUrl: imageSmall,
+                      borderWidth: 3,
+                      borderColor:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                      backgroundColor: Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
+                          .resolveFrom(context),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colors
+                              .white
+                              .resolveFrom(context),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            width: 3,
+                            color: Theme.of(context)
+                                .colors
+                                .primary
+                                .resolveFrom(context),
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            CupertinoIcons.bag,
+                            color: Theme.of(context)
+                                .colors
+                                .primary
+                                .resolveFrom(context),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
           ),
         Positioned(
           top: withOfflineBanner

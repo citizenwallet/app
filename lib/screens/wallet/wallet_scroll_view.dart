@@ -1,3 +1,5 @@
+import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/screens/wallet/place_wallet_actions.dart';
 import 'package:citizenwallet/screens/wallet/transaction_row.dart';
 import 'package:citizenwallet/screens/wallet/wallet_actions.dart';
 import 'package:citizenwallet/services/config/config.dart';
@@ -140,6 +142,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
 
     final qrData = isExternalWallet ? wallet?.account ?? '' : profileLink;
 
+    final accountType = wallet?.type ?? AccountType.account;
+
     final showQR = wallet != null &&
         wallet.doubleBalance == 0.0 &&
         transactions.isEmpty &&
@@ -185,17 +189,29 @@ class WalletScrollViewState extends State<WalletScrollView> {
             minHeight: 280,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
-              child: WalletActions(
-                shrink: shrink,
-                refreshing: _refreshing,
-                handleSendScreen: handleSendScreen,
-                handleReceive: handleReceive,
-                handlePlugin: handlePlugin,
-                handleCards: handleCards,
-                handleMint: handleMint,
-                handleVouchers: handleVouchers,
-                handleShowMore: handleShowMore,
-              ),
+              child: accountType == AccountType.account
+                  ? WalletActions(
+                      shrink: shrink,
+                      refreshing: _refreshing,
+                      handleSendScreen: handleSendScreen,
+                      handleReceive: handleReceive,
+                      handlePlugin: handlePlugin,
+                      handleCards: handleCards,
+                      handleMint: handleMint,
+                      handleVouchers: handleVouchers,
+                      handleShowMore: handleShowMore,
+                    )
+                  : PlaceWalletActions(
+                      shrink: shrink,
+                      refreshing: _refreshing,
+                      handleSendScreen: handleSendScreen,
+                      handleReceive: handleReceive,
+                      handlePlugin: handlePlugin,
+                      handleCards: handleCards,
+                      handleMint: handleMint,
+                      handleVouchers: handleVouchers,
+                      handleShowMore: handleShowMore,
+                    ),
             ),
           ),
         ),
