@@ -1,10 +1,12 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/wallet/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:web3dart/web3dart.dart';
 
 enum ActionButtonType {
   vouchers,
@@ -528,6 +530,15 @@ class WalletState with ChangeNotifier {
   void setInvalidPassword(bool invalid) {
     isInvalidPassword = invalid;
     notifyListeners();
+  }
+
+  void setWalletTypeOnWallets(String address, String alias, AccountType type) {
+    final index =
+        wallets.indexWhere((w) => w.account == address && w.alias == alias);
+    if (index != -1) {
+      wallets[index].type = type;
+      notifyListeners();
+    }
   }
 
   void loadWallets() {

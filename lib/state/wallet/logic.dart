@@ -12,6 +12,7 @@ import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
@@ -76,6 +77,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
   final ConfigService _config = ConfigService();
   final WalletService _wallet = WalletService();
+  final AccountBackupDBService _accountBackupDBService =
+      AccountBackupDBService();
   final AccountDBService _accountDBService = AccountDBService();
   final AppDBService _appDBService = AppDBService();
 
@@ -476,6 +479,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        type: cwwallet.type,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -543,6 +547,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        type: cwwallet.type,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -560,6 +565,24 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
+  Future<void> editWalletType(
+      String address, String alias, AccountType type) async {
+    try {
+      final ethereumAddress = EthereumAddress.fromHex(address);
+      final account =
+          await _accountBackupDBService.accounts.get(ethereumAddress, alias);
+
+      if (account == null) {
+        throw NotFoundException();
+      }
+
+      await _accountBackupDBService.accounts
+          .updateType(ethereumAddress, alias, type);
+
+      _state.setWalletTypeOnWallets(address, alias, type);
+    } catch (_) {}
+  }
+
   Future<void> editWallet(String address, String alias, String name) async {
     try {
       final dbWallet = await _encPrefs.getAccount(address, alias);
@@ -572,6 +595,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        type: dbWallet.type,
       ));
 
       loadDBWallets();

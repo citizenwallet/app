@@ -1,11 +1,17 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+enum AccountType {
+  account,
+  place,
+}
+
 class CWWallet {
   String name;
   final String address;
   final String alias;
   final String account;
+  AccountType type;
   String _balance;
   final String currencyName;
   final String symbol;
@@ -21,6 +27,7 @@ class CWWallet {
     required this.address,
     required this.alias,
     required this.account,
+    this.type = AccountType.account,
     required this.currencyName,
     required this.symbol,
     required this.currencyLogo,
@@ -36,6 +43,7 @@ class CWWallet {
     String? address,
     String? alias,
     String? account,
+    AccountType? type,
     String? balance,
     String? currencyName,
     String? symbol,
@@ -51,6 +59,7 @@ class CWWallet {
       address: address ?? this.address,
       alias: alias ?? this.alias,
       account: account ?? this.account,
+      type: type ?? this.type,
       currencyName: currencyName ?? this.currencyName,
       symbol: symbol ?? this.symbol,
       currencyLogo: currencyLogo ?? this.currencyLogo,
@@ -70,6 +79,8 @@ class CWWallet {
         address = json['address'],
         alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS'),
         account = json['account'],
+        type =
+            json['type'] == 'place' ? AccountType.place : AccountType.account,
         _balance = json['balance'],
         currencyName = json['currencyName'],
         symbol = json['symbol'],
@@ -89,6 +100,7 @@ class CWWallet {
         'address': address,
         'alias': alias,
         'account': account,
+        'type': type == AccountType.place ? 'place' : 'account',
         'balance': _balance,
         'currencyName': currencyName,
         'symbol': symbol,

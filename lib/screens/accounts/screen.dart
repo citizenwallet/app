@@ -1,5 +1,6 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
@@ -119,6 +120,7 @@ class AccountsScreenState extends State<AccountsScreen> {
     String address,
     String alias,
     String name,
+    AccountType type,
     bool locked,
     bool hasProfile,
   ) async {
@@ -139,6 +141,32 @@ class AccountsScreenState extends State<AccountsScreen> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.editname,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
+                ),
+              if (type == AccountType.account)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('place');
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.placeMode,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                    ),
+                  ),
+                ),
+              if (type == AccountType.place)
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop('account');
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.accountMode,
                     style: TextStyle(
                       color:
                           Theme.of(context).colors.primary.resolveFrom(context),
@@ -187,6 +215,16 @@ class AccountsScreenState extends State<AccountsScreen> {
 
     HapticFeedback.lightImpact();
 
+    if (!context.mounted) {
+      return;
+    }
+
+    if (option == 'place' || option == 'account') {
+      await widget.logic.editWalletType(address, alias,
+          AccountType.values.firstWhere((e) => e.name == option));
+      return;
+    }
+
     if (option == 'edit') {
       final newName = await showCupertinoModalPopup<String?>(
         context: context,
@@ -212,6 +250,10 @@ class AccountsScreenState extends State<AccountsScreen> {
       final webWalletUrl = await widget.logic.returnWallet(address, alias);
 
       if (webWalletUrl == null) {
+        return;
+      }
+
+      if (!context.mounted) {
         return;
       }
 
@@ -570,6 +612,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                                           wallet.account,
                                           wallet.alias,
                                           wallet.name,
+                                          wallet.type,
                                           wallet.locked,
                                           profiles.containsKey(wallet.account),
                                         ),

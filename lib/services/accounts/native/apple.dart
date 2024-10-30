@@ -1,3 +1,4 @@
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
@@ -170,6 +171,7 @@ class AppleAccountsService extends AccountsServiceInterface {
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            type: AccountType.account,
           );
 
           await _accountsDB.accounts.insert(account);

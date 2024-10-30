@@ -1,3 +1,4 @@
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
@@ -66,6 +67,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            type: AccountType.account,
           );
 
           await _accountsDB.accounts.insert(account);

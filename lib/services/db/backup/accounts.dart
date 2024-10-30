@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -11,6 +12,7 @@ class DBAccount {
   final String alias;
   final EthereumAddress address;
   final String name;
+  final AccountType type;
   EthPrivateKey? privateKey;
   final ProfileV1? profile;
 
@@ -18,6 +20,7 @@ class DBAccount {
     required this.alias,
     required this.address,
     required this.name,
+    required this.type,
     this.privateKey,
     this.profile,
   }) : id = getAccountID(address, alias);
@@ -29,6 +32,7 @@ class DBAccount {
       'alias': alias,
       'address': address.hexEip55,
       'name': name,
+      'type': type.name,
       'privateKey':
           privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
@@ -41,6 +45,10 @@ class DBAccount {
       alias: map['alias'],
       address: EthereumAddress.fromHex(map['address']),
       name: map['name'],
+      type: AccountType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => AccountType.account,
+      ),
       privateKey: map['privateKey'] != null
           ? EthPrivateKey.fromHex(map['privateKey'])
           : null,
@@ -167,5 +175,16 @@ class AccountsTable extends DBTable {
     return List.generate(maps.length, (i) {
       return DBAccount.fromMap(maps[i]);
     });
+  }
+
+  // update type
+  Future<void> updateType(
+      EthereumAddress address, String alias, AccountType type) async {
+    await db.update(
+      name,
+      {'type': type.name},
+      where: 'id = ?',
+      whereArgs: [getAccountID(address, alias)],
+    );
   }
 }

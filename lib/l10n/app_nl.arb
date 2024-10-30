@@ -1,5 +1,7 @@
 {
   "@@locale": "nl",
+  "placeMode": "Plaats modus",
+  "accountMode": "Account modus",
   "viewContract": "Contract bekijken",
   "confirm": "Bevestig",
   "welcomeCitizen": "Welcome, citizen!",

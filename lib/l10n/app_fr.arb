@@ -1,5 +1,7 @@
 {
   "@@locale": "fr",
+  "placeMode": "Mode place",
+  "accountMode": "Mode compte",
   "viewContract": "Voir le contrat",
   "confirm": "Confirmer",
   "welcomeCitizen": "Welcome, citizen!",
