@@ -185,7 +185,7 @@
   "scanAgain": "Scanner à nouveau",
   "max": "max",
   "insufficientFunds": "Fonds insuffisants.",
-  "currentBalance": "Solde actuel : {symbol} {formattedBalance}",
+  "currentBalance": "Solde actuel: {formattedBalance}",
   "sendDescription": "Ajouter une description\n\n\n",
   "chooseRecipient": "Choisir un destinataire",
   "createdBy": "Créé par",

@@ -184,7 +184,7 @@
   "scanAgain": "Scan opnieuw",
   "max": "max",
   "insufficientFunds": "Onvoldoende fondsen.",
-  "currentBalance": "Huidige balans: {symbol} {formattedBalance}",
+  "currentBalance": "Huidige balans: {formattedBalance}",
   "sendDescription": "Beschrijving toevoegen\n\n\n",
   "chooseRecipient": "Kies ontvanger",
   "createdBy": "Gedaan door",
