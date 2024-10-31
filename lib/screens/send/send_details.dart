@@ -606,12 +606,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.currentBalance(
-                                  formattedBalance, wallet?.symbol ?? ''),
+                              AppLocalizations.of(context)!
+                                  .currentBalance(formattedBalance),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
                               ),
+                            ),
+                            const SizedBox(width: 5),
+                            CoinLogo(
+                              size: 25,
+                              logo: wallet?.currencyLogo,
                             ),
                             if (balance > 0)
                               CupertinoButton(

@@ -10,7 +10,7 @@ class VoucherRow extends StatefulWidget {
   final VoucherLogic logic;
   final double size;
   final String? logo;
-  final void Function(String, String, bool)? onTap;
+  final void Function(String, String, String?, bool)? onTap;
   final void Function(String, String, bool)? onMore;
 
   const VoucherRow({
@@ -53,6 +53,8 @@ class VoucherRowState extends State<VoucherRow> {
 
     final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
+    final formattedAmount = voucher.formattedBalance;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -65,7 +67,7 @@ class VoucherRowState extends State<VoucherRow> {
       ),
       child: CupertinoButton(
         onPressed: () =>
-            onTap?.call(voucher.address, voucher.balance, isRedeemed),
+            onTap?.call(voucher.address, voucher.formattedBalance, widget.logo, isRedeemed),
         color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
@@ -80,17 +82,26 @@ class VoucherRowState extends State<VoucherRow> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        voucher.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context)
-                              .colors
-                              .text
-                              .resolveFrom(context),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!
+                                .voucherFor(formattedAmount),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Theme.of(context)
+                                  .colors
+                                  .text
+                                  .resolveFrom(context),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          CoinLogo(size: 16, logo: widget.logo),
+                        ],
                       ),
                       SizedBox(
                         height: 20,
