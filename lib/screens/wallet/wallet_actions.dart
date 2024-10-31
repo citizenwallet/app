@@ -1,11 +1,13 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
+import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/wallet/action_button.dart';
 import 'package:citizenwallet/widgets/wallet/coin_spinner.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,6 +61,9 @@ class _WalletActionsState extends State<WalletActions> {
     final plugins = wallet?.plugins ?? [];
     final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
+    final imageSmall = context.select((ProfileState state) => state.imageSmall);
+    final username = context.select((ProfileState state) => state.username);
+
     final withOfflineBanner = config!.online == false;
 
     final blockSending = context.select(selectShouldBlockSending) ||
@@ -85,7 +90,7 @@ class _WalletActionsState extends State<WalletActions> {
 
     final isIncreasing = newBalance > balance;
 
-    final coinSize = progressiveClamp(2, 70, widget.shrink);
+    final profileCircleSize = progressiveClamp(2, 65, widget.shrink);
     const coinNameSize = 20.0;
 
     final buttonSeparator = (1 - widget.shrink) < 0.7
@@ -143,11 +148,16 @@ class _WalletActionsState extends State<WalletActions> {
             top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
               opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-              child: CoinSpinner(
-                key: Key('${wallet.alias}-spinner'),
-                size: coinSize,
-                logo: wallet.currencyLogo,
-                spin: widget.refreshing || hasPending,
+              child: ProfileCircle(
+                size: profileCircleSize,
+                imageUrl: imageSmall,
+                borderWidth: 3,
+                borderColor:
+                    Theme.of(context).colors.primary.resolveFrom(context),
+                backgroundColor: Theme.of(context)
+                    .colors
+                    .uiBackgroundAlt
+                    .resolveFrom(context),
               ),
             ),
           ),
@@ -158,7 +168,9 @@ class _WalletActionsState extends State<WalletActions> {
           child: Opacity(
             opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
             child: Text(
-              wallet?.currencyName ?? 'Token',
+              username.isEmpty
+                  ? AppLocalizations.of(context)!.anonymous
+                  : '@$username',
               style: TextStyle(
                 fontSize: coinNameSize,
                 fontWeight: FontWeight.bold,
@@ -179,13 +191,6 @@ class _WalletActionsState extends State<WalletActions> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if ((1 - widget.shrink) < 0.7 && wallet != null) ...[
-                      CoinLogo(
-                        size: 40,
-                        logo: wallet.currencyLogo,
-                      ),
-                      const SizedBox(width: 5),
-                    ],
                     Text(
                       formattedBalance,
                       maxLines: 1,
@@ -212,7 +217,7 @@ class _WalletActionsState extends State<WalletActions> {
                                 .resolveFrom(context),
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         0,
@@ -220,21 +225,11 @@ class _WalletActionsState extends State<WalletActions> {
                         0,
                         0,
                       ),
-                      child: Text(
-                        wallet?.symbol ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: (1 - widget.shrink) < 0.6
-                              ? 18
-                              : progressiveClamp(8, 18, widget.shrink),
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context)
-                              .colors
-                              .text
-                              .resolveFrom(context),
-                        ),
+                      child: CoinLogo(
+                        size: (1 - widget.shrink) < 0.6
+                            ? 32
+                            : progressiveClamp(12, 48, widget.shrink),
+                        logo: wallet?.currencyLogo,
                       ),
                     ),
                   ],

@@ -183,11 +183,6 @@ class _SendProgressState extends State<SendProgress> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              CoinLogo(
-                                size: 60,
-                                logo: wallet.currencyLogo,
-                              ),
-                              const SizedBox(width: 20),
                               Text(
                                 formattedAmount,
                                 maxLines: 1,
@@ -203,27 +198,9 @@ class _SendProgressState extends State<SendProgress> {
                                 ),
                               ),
                               const SizedBox(width: 20),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                ),
-                                child: Text(
-                                  wallet.symbol,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .colors
-                                        .text
-                                        .resolveFrom(context),
-                                  ),
-                                ),
+                              CoinLogo(
+                                size: 60,
+                                logo: wallet.currencyLogo,
                               ),
                             ],
                           ),

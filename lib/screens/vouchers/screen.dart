@@ -71,6 +71,7 @@ class VouchersScreenState extends State<VouchersScreen> {
   void handleOpen(
     String address,
     String amount,
+    String? logo,
     bool isRedeemed,
   ) async {
     _logic.pause();
@@ -83,7 +84,11 @@ class VouchersScreenState extends State<VouchersScreen> {
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/${wallet.account}/vouchers/$address');
+    await navigator.push('/wallet/${wallet.account}/vouchers/$address',
+        extra: {
+          'amount': amount,
+          'logo': logo,
+        });
     _logic.resume(address: address);
   }
 

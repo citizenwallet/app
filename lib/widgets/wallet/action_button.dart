@@ -58,15 +58,21 @@ class WalletActionButton extends StatelessWidget {
                 width: buttonWidth,
                 decoration: BoxDecoration(
                   color: alt
-                      ? Theme.of(context)
-                          .colors
-                          .surfaceBackground
-                          .resolveFrom(context)
+                      ? Theme.of(context).colors.white
                       : Theme.of(context)
                           .colors
                           .surfacePrimary
                           .resolveFrom(context),
                   borderRadius: BorderRadius.circular(buttonSize / 2),
+                  border: alt
+                      ? Border.all(
+                          color: Theme.of(context)
+                              .colors
+                              .surfacePrimary
+                              .resolveFrom(context),
+                          width: 3.0,
+                        )
+                      : null,
                 ),
                 child: small
                     ? Row(

@@ -22,6 +22,7 @@ import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -1017,26 +1018,29 @@ class WalletScreenState extends State<WalletScreen> {
                         children: [
                           cleaningUp || wallet == null
                               ? const PulsingContainer(
-                                  height: 42,
-                                  width: 42,
+                                  height: 24,
+                                  width: 24,
                                   borderRadius: 21,
                                 )
                               : Stack(
                                   children: [
                                     GestureDetector(
                                       onTap: handleOpenAccountSwitcher,
-                                      child: ProfileCircle(
-                                        size: 42,
-                                        imageUrl: imageSmall,
-                                        borderWidth: 2,
-                                        borderColor: Theme.of(context)
-                                            .colors
-                                            .primary
-                                            .resolveFrom(context),
-                                        backgroundColor: Theme.of(context)
-                                            .colors
-                                            .uiBackgroundAlt
-                                            .resolveFrom(context),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: SvgPicture.asset(
+                                          'assets/icons/switch_accounts.svg',
+                                          semanticsLabel: 'switch accounts',
+                                          height: 24,
+                                          width: 24,
+                                          colorFilter: ColorFilter.mode(
+                                            Theme.of(context)
+                                                .colors
+                                                .primary
+                                                .resolveFrom(context),
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     if (hasNoProfile && !loading)
