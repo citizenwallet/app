@@ -66,9 +66,15 @@ class VoucherLogic extends WidgetsBindingObserver {
       try {
         final balance = await _wallet.getBalance(addr);
 
-        await _accountDBService.vouchers.updateBalance(addr, balance);
+        final doubleAmount = balance.replaceAll(',', '.');
+        final parsedAmount = toUnit(
+          doubleAmount,
+          decimals: _wallet.currency.decimals,
+        );
 
-        _state.updateVoucherBalance(addr, balance);
+        await _accountDBService.vouchers.updateBalance(addr, parsedAmount.toString());
+
+        _state.updateVoucherBalance(addr, parsedAmount.toString());
         continue;
       } catch (exception) {
         //
@@ -535,10 +541,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         credentials = wallet.privateKey;
       }
 
-      final amount = toUnit(
-        voucher.balance,
-        decimals: _wallet.currency.decimals,
-      );
+      final amount = BigInt.parse(voucher.balance);
+
 
       final tempId = '${pendingTransactionId}_${generateRandomId()}';
 
