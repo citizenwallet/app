@@ -11,7 +11,7 @@ class VoucherRow extends StatefulWidget {
   final double size;
   final String? logo;
   final void Function(String, String, String?, bool)? onTap;
-  final void Function(String, String, bool)? onMore;
+  final void Function(String, String, String?, bool)? onMore;
 
   const VoucherRow({
     super.key,
@@ -55,6 +55,9 @@ class VoucherRowState extends State<VoucherRow> {
 
     final formattedAmount = voucher.formattedBalance;
 
+    debugPrint(
+        'balance ${voucher.balance} formattedBalance $formattedAmount isRedeemed $isRedeemed');
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -66,8 +69,8 @@ class VoucherRowState extends State<VoucherRow> {
         color: Theme.of(context).colors.transparent.resolveFrom(context),
       ),
       child: CupertinoButton(
-        onPressed: () =>
-            onTap?.call(voucher.address, voucher.formattedBalance, widget.logo, isRedeemed),
+        onPressed: () => onTap?.call(
+            voucher.address, formattedAmount, widget.logo, isRedeemed),
         color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
@@ -124,8 +127,8 @@ class VoucherRowState extends State<VoucherRow> {
                 ),
                 if (onMore != null)
                   GestureDetector(
-                    onTap: () =>
-                        onMore(voucher.address, voucher.balance, isRedeemed),
+                    onTap: () => onMore(voucher.address, formattedAmount,
+                        widget.logo, isRedeemed),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       child: Icon(
