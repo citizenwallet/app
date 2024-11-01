@@ -1,9 +1,13 @@
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class VoucherRow extends StatefulWidget {
   final Voucher voucher;
@@ -51,12 +55,17 @@ class VoucherRowState extends State<VoucherRow> {
     final onTap = widget.onTap;
     final onMore = widget.onMore;
 
+    final wallet = context.select((WalletState state) => state.wallet);
+
     final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
-    final formattedAmount = voucher.formattedBalance;
-
-    debugPrint(
-        'balance ${voucher.balance} formattedBalance $formattedAmount isRedeemed $isRedeemed');
+    final formattedAmount = formatAmount(
+      double.parse(fromDoubleUnit(
+        voucher.balance,
+        decimals: wallet?.decimalDigits ?? 2,
+      )),
+      decimalDigits: 2,
+    );
 
     return Container(
       decoration: BoxDecoration(
