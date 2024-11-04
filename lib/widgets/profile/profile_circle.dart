@@ -33,7 +33,7 @@ class ProfileCircle extends StatelessWidget {
     final network = asset.startsWith('http');
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 60),
       width: size,
       height: size,
       decoration: BoxDecoration(
