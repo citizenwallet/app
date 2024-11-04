@@ -1,9 +1,13 @@
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class VoucherRow extends StatefulWidget {
   final Voucher voucher;
@@ -11,7 +15,7 @@ class VoucherRow extends StatefulWidget {
   final double size;
   final String? logo;
   final void Function(String, String, String?, bool)? onTap;
-  final void Function(String, String, bool)? onMore;
+  final void Function(String, String, String?, bool)? onMore;
 
   const VoucherRow({
     super.key,
@@ -51,9 +55,17 @@ class VoucherRowState extends State<VoucherRow> {
     final onTap = widget.onTap;
     final onMore = widget.onMore;
 
+    final wallet = context.select((WalletState state) => state.wallet);
+
     final isRedeemed = (double.tryParse(voucher.balance) ?? 0) <= 0;
 
-    final formattedAmount = voucher.formattedBalance;
+    final formattedAmount = formatAmount(
+      double.parse(fromDoubleUnit(
+        voucher.balance,
+        decimals: wallet?.decimalDigits ?? 2,
+      )),
+      decimalDigits: 2,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -66,8 +78,8 @@ class VoucherRowState extends State<VoucherRow> {
         color: Theme.of(context).colors.transparent.resolveFrom(context),
       ),
       child: CupertinoButton(
-        onPressed: () =>
-            onTap?.call(voucher.address, voucher.formattedBalance, widget.logo, isRedeemed),
+        onPressed: () => onTap?.call(
+            voucher.address, formattedAmount, widget.logo, isRedeemed),
         color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: Stack(
@@ -124,8 +136,8 @@ class VoucherRowState extends State<VoucherRow> {
                 ),
                 if (onMore != null)
                   GestureDetector(
-                    onTap: () =>
-                        onMore(voucher.address, voucher.balance, isRedeemed),
+                    onTap: () => onMore(voucher.address, formattedAmount,
+                        widget.logo, isRedeemed),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       child: Icon(
