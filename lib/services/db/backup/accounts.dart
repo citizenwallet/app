@@ -11,6 +11,8 @@ class DBAccount {
   final String alias;
   final EthereumAddress address;
   final String name;
+  final UserHandle? userHandle;
+  final String? username;
   EthPrivateKey? privateKey;
   final ProfileV1? profile;
 
@@ -18,9 +20,10 @@ class DBAccount {
     required this.alias,
     required this.address,
     required this.name,
+    this.username,
     this.privateKey,
     this.profile,
-  }) : id = getAccountID(address, alias);
+  }) : id = getAccountID(address, alias), userHandle = username != null ? UserHandle(username, alias) : null;
 
   // toMap
   Map<String, dynamic> toMap() {
@@ -29,6 +32,7 @@ class DBAccount {
       'alias': alias,
       'address': address.hexEip55,
       'name': name,
+      'username': username,
       'privateKey': privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
@@ -40,6 +44,7 @@ class DBAccount {
       alias: map['alias'],
       address: EthereumAddress.fromHex(map['address']),
       name: map['name'],
+      username: map['username'],
       privateKey: map['privateKey'] != null
           ? EthPrivateKey.fromHex(map['privateKey'])
           : null,
@@ -52,6 +57,24 @@ class DBAccount {
 
 String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
+}
+
+class UserHandle {
+  final String username;
+  final String communityAlias;
+
+  const UserHandle(this.username, this.communityAlias);
+
+  factory UserHandle.fromUserHandle(String userHandle) {
+    final parts = userHandle.split('@');
+    if (parts.length != 2) {
+      throw FormatException('Invalid user handle format: $userHandle');
+    }
+    return UserHandle(parts[0], parts[1]);
+  }
+
+  @override
+  String toString() => '$username@$communityAlias';
 }
 
 class AccountsTable extends DBTable {
