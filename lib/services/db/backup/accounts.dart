@@ -83,6 +83,9 @@ class AccountsTable extends DBTable {
       2: [
         'UPDATE $name SET privateKey = NULL',
       ],
+      3: [
+        'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
+      ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
