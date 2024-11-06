@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -23,7 +24,8 @@ class DBAccount {
     this.username,
     this.privateKey,
     this.profile,
-  }) : id = getAccountID(address, alias), userHandle = username != null ? UserHandle(username, alias) : null;
+  })  : id = getAccountID(address, alias),
+        userHandle = username != null ? UserHandle(username, alias) : null;
 
   // toMap
   Map<String, dynamic> toMap() {
@@ -33,7 +35,8 @@ class DBAccount {
       'address': address.hexEip55,
       'name': name,
       'username': username,
-      'privateKey': privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
+      'privateKey':
+          privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
     };
   }
@@ -102,7 +105,7 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {     
+    final migrations = {
       2: [
         'UPDATE $name SET privateKey = NULL',
       ],
@@ -118,7 +121,12 @@ class AccountsTable extends DBTable {
 
       if (queries != null) {
         for (final query in queries) {
-          await db.execute(query);
+          try {
+            await db.execute(query);
+          } catch (e, s) {
+            debugPrint('$name migration error, index $i: $e');
+            debugPrintStack(stackTrace: s);
+          }
         }
       }
     }
