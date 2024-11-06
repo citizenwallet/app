@@ -382,4 +382,12 @@ class ProfileLogic {
   void updateDescriptionText(String desc) {
     _state.setDescriptionText(desc);
   }
+
+  Future<void> handleNewProfile() async {
+    final address = _wallet.account.hexEip55;
+    final alias = _wallet.alias ?? '';
+
+    debugPrint('address: $address');
+    debugPrint('alias: $alias');
+  }
 }
