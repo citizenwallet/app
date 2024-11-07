@@ -132,7 +132,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       );
 
       if (profile != null) {
-        _db.contacts.insert(DBContact(
+        _db.contacts.upsert(DBContact(
           account: profile.account,
           username: profile.username,
           name: profile.name,

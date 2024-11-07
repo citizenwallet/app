@@ -296,7 +296,7 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       );
 
-      _db.contacts.insert(
+      _db.contacts.upsert(
         DBContact(
           account: newProfile.account,
           username: newProfile.username,
@@ -382,7 +382,7 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       );
 
-      _db.contacts.insert(DBContact(
+      _db.contacts.upsert(DBContact(
         account: newProfile.account,
         username: newProfile.username,
         name: newProfile.name,
@@ -506,7 +506,7 @@ class ProfileLogic {
         newProfile,
       );
 
-      _db.contacts.insert(
+      _db.contacts.upsert(
         DBContact(
           account: newProfile.account,
           username: newProfile.username,
