@@ -12,7 +12,6 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
-import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
@@ -29,13 +28,11 @@ class AppLogic {
   final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
   final AudioService _audio = AudioService();
-  late ProfileLogic profileLogic;
 
   late AppState _appState;
 
   AppLogic(BuildContext context) {
     _appState = context.read<AppState>();
-    profileLogic = ProfileLogic(context);
   }
 
   void setMuted(bool muted) {
@@ -199,12 +196,13 @@ class AppLogic {
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
 
-      profileLogic.handleNewProfile();
-
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (_) {}
+    } catch (e, s) {
+      debugPrint('error: $e');
+      debugPrint('stack: $s');
+    }
 
     _appState.importLoadingError();
 
