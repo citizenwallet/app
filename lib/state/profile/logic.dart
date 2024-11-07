@@ -349,6 +349,8 @@ class ProfileLogic {
         throw Exception('Failed to load profile');
       }
 
+      debugPrint('existing: ${existing.toJson()}');
+
       if (existing == profile) {
         _state.setProfileNoChangeSuccess();
         return true;
@@ -447,81 +449,87 @@ class ProfileLogic {
   Future<void> giveProfileUsername() async {
     debugPrint('handleNewProfile');
 
-    final username = await generateProfileUsername();
-    if (username == null) {
-      _state.setUsernameSuccess(username: '@anonymous');
-      return;
+    try {
+      final username = await generateProfileUsername();
+      if (username == null) {
+        _state.setUsernameSuccess(username: '@anonymous');
+        return;
+      }
+
+      _state.setUsernameSuccess(username: username);
+
+      final address = _wallet.account.hexEip55;
+      final alias = _wallet.alias ?? '';
+
+      final dbProfile = await _accountBackupDBService.accounts
+          .get(EthereumAddress.fromHex(address), alias);
+
+      if (dbProfile == null) {
+        debugPrint('dbProfile is null');
+        return;
+      }
+
+      ProfileV1 profile = dbProfile.profile ??
+          ProfileV1(
+            account: address,
+            username: username,
+            name: dbProfile.name,
+          );
+
+      _profiles.isLoaded(
+        profile.account,
+        profile,
+      );
+
+      final exists = await _wallet.createAccount();
+      if (!exists) {
+        debugPrint('createAccount failed');
+        return;
+      }
+
+      final url = await _wallet.setProfile(
+        ProfileRequest.fromProfileV1(profile),
+        image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
+        fileType: '.jpg',
+      );
+      if (url == null) {
+        return;
+      }
+
+      final newProfile = await _wallet.getProfileFromUrl(url);
+      if (newProfile == null) {
+        return;
+      }
+
+      _profiles.isLoaded(
+        newProfile.account,
+        newProfile,
+      );
+
+      _db.contacts.insert(
+        DBContact(
+          account: newProfile.account,
+          username: newProfile.username,
+          name: newProfile.name,
+          description: newProfile.description,
+          image: newProfile.image,
+          imageMedium: newProfile.imageMedium,
+          imageSmall: newProfile.imageSmall,
+        ),
+      );
+
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: alias,
+          address: EthereumAddress.fromHex(address),
+          name: newProfile.name,
+          username: newProfile.username,
+          profile: newProfile,
+          privateKey: null,
+        ),
+      );
+    } catch (e, s) {
+      debugPrint('giveProfileUsername error: $e, $s');
     }
-
-    _state.setUsernameSuccess(username: username);
-
-    final address = _wallet.account.hexEip55;
-    final alias = _wallet.alias ?? '';
-
-    final dbProfile = await _accountBackupDBService.accounts
-        .get(EthereumAddress.fromHex(address), alias);
-
-    if (dbProfile == null) {
-      return;
-    }
-
-    ProfileV1 profile = dbProfile.profile ??
-        ProfileV1(
-          account: address,
-          username: username,
-          name: dbProfile.name,
-        );
-
-    _profiles.isLoaded(
-      profile.account,
-      profile,
-    );
-
-    final exists = await _wallet.createAccount();
-    if (!exists) {
-      return;
-    }
-
-    final url = await _wallet.setProfile(
-      ProfileRequest.fromProfileV1(profile),
-      image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
-      fileType: '.jpg',
-    );
-    if (url == null) {
-      return;
-    }
-
-    final newProfile = await _wallet.getProfileFromUrl(url);
-    if (newProfile == null) {
-      return;
-    }
-
-    _profiles.isLoaded(
-      newProfile.account,
-      newProfile,
-    );
-
-    _db.contacts.insert(
-      DBContact(
-        account: newProfile.account,
-        username: newProfile.username,
-        name: newProfile.name,
-        description: newProfile.description,
-        image: newProfile.image,
-        imageMedium: newProfile.imageMedium,
-        imageSmall: newProfile.imageSmall,
-      ),
-    );
-
-    _accountBackupDBService.accounts.update(
-      DBAccount(
-        alias: alias,
-        address: EthereumAddress.fromHex(address),
-        name: newProfile.name,
-        username: newProfile.username,
-        profile: newProfile,
-        privateKey: null,
-      ),
-    );
   }
 }
