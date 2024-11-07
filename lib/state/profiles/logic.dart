@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -11,6 +12,8 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   final AccountDBService _db = AccountDBService();
+  final AccountBackupDBService _accountBackupDBService =
+      AccountBackupDBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
 
@@ -204,6 +207,25 @@ class ProfilesLogic extends WidgetsBindingObserver {
     }
 
     _state.profileListFail();
+  }
+
+  Future<void> loadProfilesFromAllAccounts() async {
+    try {
+      _state.profileListRequest();
+      final accounts = await _accountBackupDBService.accounts.all();
+
+      final profiles = <ProfileV1>[];
+      for (final account in accounts) {
+        if (account.profile == null) {
+          continue;
+        }
+
+        profiles.add(account.profile!);
+        _state.isLoaded(account.address.hexEip55, account.profile!);
+      }
+    } catch (_) {
+      _state.profileListFail();
+    }
   }
 
   void selectProfile(ProfileV1? profile) {
