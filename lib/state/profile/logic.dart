@@ -298,6 +298,16 @@ class ProfileLogic {
         ),
       );
 
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: _wallet.alias!,
+          address: EthereumAddress.fromHex(newProfile.account),
+          name: newProfile.name,
+          username: newProfile.username,
+          profile: newProfile,
+        ),
+      );
+
       _profiles.isLoaded(
         newProfile.account,
         newProfile,
@@ -368,6 +378,17 @@ class ProfileLogic {
         imageMedium: newProfile.imageMedium,
         imageSmall: newProfile.imageSmall,
       ));
+
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: _wallet.alias!,
+          address: EthereumAddress.fromHex(newProfile.account),
+          name: newProfile.name,
+          username: newProfile.username,
+          privateKey: null,
+          profile: newProfile,
+        ),
+      );
 
       _profiles.isLoaded(
         newProfile.account,
