@@ -24,7 +24,6 @@ import 'package:web3dart/web3dart.dart';
 class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-  final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
   final AccountBackupDBService _accountBackupDBService =
       AccountBackupDBService();
@@ -148,16 +147,18 @@ class ProfileLogic {
   }
 
   Future<void> loadProfile({String? account}) async {
+    final ethAccount = _wallet.account;
+    final alias = _wallet.alias ?? '';
+    final acc = account ?? ethAccount.hexEip55;
+
     try {
       _state.setProfileRequest();
 
-      final acc = account ?? _wallet.account.hexEip55;
+      final dbProfile =
+          await _accountBackupDBService.accounts.get(ethAccount, alias);
 
-      final cachedProfile =
-          _profiles.profiles.containsKey(acc) ? _profiles.profiles[acc] : null;
-
-      if (cachedProfile?.profile != null) {
-        final profile = cachedProfile!.profile;
+      if (dbProfile != null && dbProfile.profile != null) {
+        final profile = dbProfile.profile!;
         _state.setProfileSuccess(
           account: profile.account,
           username: profile.username,
@@ -192,6 +193,15 @@ class ProfileLogic {
         profile.account,
         profile,
       );
+
+      _accountBackupDBService.accounts.update(DBAccount(
+        alias: alias,
+        address: ethAccount,
+        name: profile.name,
+        username: profile.username,
+        privateKey: null,
+        profile: profile,
+      ));
 
       return;
     } catch (exception) {
@@ -304,6 +314,7 @@ class ProfileLogic {
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
+          privateKey: null,
           profile: newProfile,
         ),
       );
@@ -507,7 +518,7 @@ class ProfileLogic {
         alias: alias,
         address: EthereumAddress.fromHex(address),
         name: newProfile.name,
-        username: username,
+        username: newProfile.username,
         profile: newProfile,
         privateKey: null,
       ),
