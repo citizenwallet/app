@@ -33,7 +33,7 @@ class DBAccount {
       'id': id,
       'alias': alias,
       'address': address.hexEip55,
-      'name': name,
+      if (name.isNotEmpty) 'name': name,
       'username': username,
       'privateKey':
           privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
