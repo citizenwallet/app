@@ -3,6 +3,8 @@ import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -11,17 +13,21 @@ import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
   final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
+  final AccountBackupDBService _accountBackupDBService =
+      AccountBackupDBService();
 
   late ProfileState _state;
   late ProfilesState _profiles;
@@ -383,11 +389,107 @@ class ProfileLogic {
     _state.setDescriptionText(desc);
   }
 
-  Future<void> handleNewProfile() async {
+  Future<String?> generateProfileUsername() async {
+    String username = getRandomUsername();
+    _state.setUsernameSuccess(username: username);
+
+    const maxTries = 3;
+    const baseDelay = Duration(milliseconds: 100);
+
+    for (int tries = 1; tries <= maxTries; tries++) {
+      final exists = await _wallet.profileExists(username);
+
+      if (!exists) {
+        return username;
+      }
+
+      if (tries > maxTries) break;
+
+      username = getRandomUsername();
+      await delay(baseDelay * tries);
+    }
+
+    return null;
+  }
+
+  Future<void> giveProfileUsername() async {
+    debugPrint('handleNewProfile');
+
+    final username = await generateProfileUsername();
+    if (username == null) {
+      _state.setUsernameSuccess(username: '@anonymous');
+      return;
+    }
+
+    _state.setUsernameSuccess(username: username);
+
     final address = _wallet.account.hexEip55;
     final alias = _wallet.alias ?? '';
 
-    debugPrint('address: $address');
-    debugPrint('alias: $alias');
+    final dbProfile = await _accountBackupDBService.accounts
+        .get(EthereumAddress.fromHex(address), alias);
+
+    if (dbProfile == null) {
+      return;
+    }
+
+    ProfileV1 profile = dbProfile.profile ??
+        ProfileV1(
+          account: address,
+          username: username,
+          name: dbProfile.name,
+        );
+
+    _profiles.isLoaded(
+      profile.account,
+      profile,
+    );
+
+    final exists = await _wallet.createAccount();
+    if (!exists) {
+      return;
+    }
+
+    final url = await _wallet.setProfile(
+      ProfileRequest.fromProfileV1(profile),
+      image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
+      fileType: '.jpg',
+    );
+    if (url == null) {
+      return;
+    }
+
+    final newProfile = await _wallet.getProfileFromUrl(url);
+    if (newProfile == null) {
+      return;
+    }
+
+    _profiles.isLoaded(
+      newProfile.account,
+      newProfile,
+    );
+
+    _db.contacts.insert(
+      DBContact(
+        account: newProfile.account,
+        username: newProfile.username,
+        name: newProfile.name,
+        description: newProfile.description,
+        image: newProfile.image,
+        imageMedium: newProfile.imageMedium,
+        imageSmall: newProfile.imageSmall,
+      ),
+    );
+
+    _accountBackupDBService.accounts.update(
+      DBAccount(
+        alias: alias,
+        address: EthereumAddress.fromHex(address),
+        name: newProfile.name,
+        username: username,
+        profile: newProfile,
+        privateKey: null,
+      ),
+    );
   }
 }
