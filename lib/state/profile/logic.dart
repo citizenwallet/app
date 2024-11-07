@@ -1,5 +1,4 @@
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
@@ -348,8 +347,6 @@ class ProfileLogic {
       if (existing == null) {
         throw Exception('Failed to load profile');
       }
-
-      debugPrint('existing: ${existing.toJson()}');
 
       if (existing == profile) {
         _state.setProfileNoChangeSuccess();
