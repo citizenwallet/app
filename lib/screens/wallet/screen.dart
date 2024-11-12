@@ -782,7 +782,7 @@ class WalletScreenState extends State<WalletScreen> {
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
-      final (parsedAddress, parsedValue, _) = parseQRCode(result);
+      final (parsedAddress, parsedValue, parsedDescription) = parseQRCode(result); // TODO: description is the third value
       if (parsedAddress.isEmpty && parsedValue == null) {
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -790,8 +790,12 @@ class WalletScreenState extends State<WalletScreen> {
         return;
       }
 
-      _logic.updateFromCapture(result);
-      await handleSendScreen();
+      debugPrint('parsedAddress: $parsedAddress');
+      debugPrint('parsedValue: $parsedValue');
+      debugPrint('parsedDescription: $parsedDescription');
+
+      // _logic.updateFromCapture(result);
+      // await handleSendScreen();
       return;
     }
 

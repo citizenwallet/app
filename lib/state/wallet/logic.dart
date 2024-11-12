@@ -1512,7 +1512,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (amount != null) {
         _amountController.text = amount;
-
         updateAmount();
       }
 

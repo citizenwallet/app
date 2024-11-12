@@ -74,8 +74,12 @@ QRFormat parseQRFormat(String raw) {
 }
 
 // parse the sendto url
-// raw is the URL from the QR code, eg. https://example.com/?sendto=:username@:communitySlug?amount=100&description=Hello
+// raw is the URL from the QR code, eg. https://example.com/?sendto=:username@:communitySlug&amount=100&description=Hello
 (String, String?, String?) parseSendtoUrl(String raw) {
+
+
+  // TODO: decode different url format ?sendTo= &amount &description
+
   final receiveUrl = Uri.parse(raw);
   final urlEncodedParams = receiveUrl.queryParameters['sendto'];
   if (urlEncodedParams == null) {
