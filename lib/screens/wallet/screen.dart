@@ -4,6 +4,7 @@ import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -426,7 +427,8 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  Future<void> handleSendScreen({String? receiveParams}) async {
+  Future<void> handleSendScreen(
+      {String? receiveParams, ProfileV1? sendToProfile}) async {
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
@@ -484,6 +486,7 @@ class WalletScreenState extends State<WalletScreen> {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
+      'sendToProfile': sendToProfile,
     });
 
     _logic.resumeFetching();
@@ -782,7 +785,8 @@ class WalletScreenState extends State<WalletScreen> {
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
-      final (parsedAddress, parsedValue, parsedDescription) = parseQRCode(result); // TODO: description is the third value
+      final (parsedAddress, parsedValue, parsedDescription) =
+          parseQRCode(result);
       if (parsedAddress.isEmpty && parsedValue == null) {
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -790,12 +794,14 @@ class WalletScreenState extends State<WalletScreen> {
         return;
       }
 
-      debugPrint('parsedAddress: $parsedAddress');
-      debugPrint('parsedValue: $parsedValue');
-      debugPrint('parsedDescription: $parsedDescription');
+      final hex = await _logic.updateFromCapture(result);
 
-      // _logic.updateFromCapture(result);
-      // await handleSendScreen();
+      ProfileV1? profile;
+      if (hex != null) {
+        profile = await _profilesLogic.getSendToProfile(hex);
+      }
+      await handleSendScreen(sendToProfile: profile);
+
       return;
     }
 
