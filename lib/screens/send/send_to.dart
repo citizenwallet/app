@@ -30,6 +30,7 @@ class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
+  final ProfileV1? sendToProfile;
 
   final bool isMinting;
 
@@ -39,6 +40,7 @@ class SendToScreen extends StatefulWidget {
     required this.profilesLogic,
     this.voucherLogic,
     this.isMinting = false,
+    this.sendToProfile,
   });
 
   @override
@@ -48,7 +50,7 @@ class SendToScreen extends StatefulWidget {
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
   final ScanLogic _scanLogic = ScanLogic();
-
+  ProfileV1? _currentSendToProfile;
   final _scrollController = ScrollController();
 
   late void Function() debouncedAddressUpdate;
@@ -76,6 +78,8 @@ class _SendToScreenState extends State<SendToScreen> {
     nameFocusNode.dispose();
     _scrollController.dispose();
 
+    _currentSendToProfile = null;
+
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
@@ -85,6 +89,19 @@ class _SendToScreenState extends State<SendToScreen> {
     _scanLogic.cancelScan(notify: false);
 
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(SendToScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Only handle selection if sendToProfile is new and we haven't processed it yet
+    if (widget.sendToProfile != null &&
+        widget.sendToProfile != oldWidget.sendToProfile &&
+        widget.sendToProfile != _currentSendToProfile) {
+      _currentSendToProfile = widget.sendToProfile;
+      handleSelectProfile(context, widget.sendToProfile);
+    }
   }
 
   void onLoad() async {
@@ -100,6 +117,16 @@ class _SendToScreenState extends State<SendToScreen> {
     walletLogic.updateAddress();
 
     nameFocusNode.requestFocus();
+
+    isSendToProfileAvailable();
+  }
+
+  void isSendToProfileAvailable() {
+    if (widget.sendToProfile != null &&
+        widget.sendToProfile != _currentSendToProfile) {
+      _currentSendToProfile = widget.sendToProfile;
+      handleSelectProfile(context, widget.sendToProfile);
+    }
   }
 
   void handleThrottledUpdateAddress(String value) {
