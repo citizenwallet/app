@@ -210,6 +210,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSelected(profile);
   }
 
+  Future<ProfileV1?> getSendToProfile(String address) async {
+    final profile = await _wallet.getProfile(address);
+    return profile;
+  }
+
   void deSelectProfile() {
     _state.isDeSelected();
   }
