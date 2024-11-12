@@ -76,25 +76,20 @@ QRFormat parseQRFormat(String raw) {
 // parse the sendto url
 // raw is the URL from the QR code, eg. https://example.com/?sendto=:username@:communitySlug&amount=100&description=Hello
 (String, String?, String?) parseSendtoUrl(String raw) {
+  final decodedRaw = Uri.decodeComponent(raw);
+  final receiveUrl = Uri.parse(decodedRaw);
 
+  final sendToParam = receiveUrl.queryParameters['sendto'];
+  final amountParam = receiveUrl.queryParameters['amount'];
+  final descriptionParam = receiveUrl.queryParameters['description'];
 
-  // TODO: decode different url format ?sendTo= &amount &description
-
-  final receiveUrl = Uri.parse(raw);
-  final urlEncodedParams = receiveUrl.queryParameters['sendto'];
-  if (urlEncodedParams == null) {
+  if (sendToParam == null) {
     return ('', null, null);
   }
 
-  // Need to url decode the sendto param
-  final decodedSendToParam = Uri.decodeComponent(urlEncodedParams);
+  final address = sendToParam.split('@').first;
 
-  // then parse its format: :usernameOrAddress@:communitySlug?amount=:amount&description=:description
-  final sendtoParams = Uri.parse(decodedSendToParam);
-  final address = sendtoParams.pathSegments.first.split('@').first;
-  final amount = sendtoParams.queryParameters['amount'];
-  final description = sendtoParams.queryParameters['description'];
-  return (address, amount, description);
+  return (address, amountParam, descriptionParam);
 }
 
 (String, String?, String?) parseReceiveUrl(String raw) {
