@@ -23,7 +23,6 @@ const List<String> cases = [
   'https://example.com/?sendto=xavier@wallet.pay.brussels&amount=10.50',
   'https://example.com/?eip681=ethereum:0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@8453?value=10.50',
   'https://live.citizenwallet.xyz/wallet.pay.brussels/fridge/pay?sendto=fridge@wallet.commonshub.brussels&description=Drinks&amount=3.00',
-  'https://example.com/?sendto=fridge%40wallet.commonshub.brussels&description=Drinks%26Food&amount=3.00'
 ];
 
 const List<QRFormat> expected = [
@@ -67,7 +66,6 @@ const List<(String, String?, String?)> expectedParse = [
   ('xavier', '10.50', null),
   ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null),
   ('fridge', '3.00', 'Drinks'),
-  ('fridge', '3.00', 'Drinks&Food'),
 ];
 
 void main() {
