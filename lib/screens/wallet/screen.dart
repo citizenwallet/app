@@ -177,11 +177,6 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
-    final username = context.read<ProfileState>().username;
-    if (username.isEmpty) {
-      _profileLogic.giveProfileUsername();
-    }
-
     _notificationsLogic.init();
 
     if (_voucher != null && _voucherParams != null) {
