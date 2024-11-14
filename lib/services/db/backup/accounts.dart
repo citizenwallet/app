@@ -142,24 +142,24 @@ class AccountsTable extends DBTable {
 
     Future<void> _migrateProfiles(Database db) async {
     final accounts = await all();
+    final walletService = WalletService();
 
     for (final account in accounts) {
       final address = account.address.hexEip55;
-      final walletService = WalletService();
-
-      print('Migrating profile for $address');
 
       try {
         final profile = await walletService.getProfile(address);
-        print('profile username: ${profile?.username}');
-        if (profile?.username != null) {
-          await db.update(
-            name,
-            {'username': profile!.username},
-            where: 'address = ?',
-            whereArgs: [address],
-          );
-        }
+
+        print('address: $address, username: ${profile?.username}');
+        if (profile == null) continue;
+
+        await db.update(
+          name,
+          {'username': profile.username},
+          where: 'address = ?',
+          whereArgs: [address],
+        );
+        
         // Add a small delay between requests
         await Future.delayed(const Duration(milliseconds: 500));
       } catch (e) {

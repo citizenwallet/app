@@ -664,6 +664,8 @@ class WalletService {
 
       final profileData = await _ipfs.get(url: '/$url');
 
+      debugPrint('profileData: ${jsonEncode(profileData)}');
+
       final profile = ProfileV1.fromJson(profileData);
 
       profile.parseIPFSImageURLs(ipfsUrl);

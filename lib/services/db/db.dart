@@ -55,6 +55,8 @@ abstract class DBService {
     this.name = '$name.db';
     final dbPath =
         kIsWeb ? this.name : join(await getDatabasesPath(), this.name);
+
+    print('dbPath: $dbPath');
     _db = await openDB(dbPath);
   }
 
