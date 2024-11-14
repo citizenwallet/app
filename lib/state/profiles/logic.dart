@@ -209,20 +209,33 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.profileListFail();
   }
 
-  Future<void> loadProfilesFromAllAccounts() async {
+ Future<void> loadProfilesFromAllAccounts() async {
     try {
       _state.profileListRequest();
       final accounts = await _accountBackupDBService.accounts.all();
+      final profilesMap = <String, ProfileV1>{};
 
-      final profiles = <ProfileV1>[];
       for (final account in accounts) {
-        if (account.profile == null) {
+
+        if (account.profile != null) {
+          profilesMap[account.address.hexEip55] = account.profile!;
+          _state.isLoaded(account.address.hexEip55, account.profile!);
           continue;
         }
 
-        profiles.add(account.profile!);
-        _state.isLoaded(account.address.hexEip55, account.profile!);
+        // Try to get updated profile from wallet
+        final updatedProfile =
+            await _wallet.getProfile(account.address.hexEip55);
+          
+
+        if (updatedProfile != null) {
+          profilesMap[account.address.hexEip55] = updatedProfile; 
+          _state.isLoaded(account.address.hexEip55, updatedProfile);
+          await _accountBackupDBService.accounts.update(account);
+        }
       }
+
+      _state.profileListSuccess(profilesMap.values.toList());
     } catch (_) {
       _state.profileListFail();
     }
