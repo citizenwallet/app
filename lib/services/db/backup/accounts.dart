@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:web3dart/crypto.dart';
@@ -112,6 +113,9 @@ class AccountsTable extends DBTable {
       3: [
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
       ],
+      4:[
+         _migrateProfiles,
+      ]
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
@@ -122,12 +126,46 @@ class AccountsTable extends DBTable {
       if (queries != null) {
         for (final query in queries) {
           try {
-            await db.execute(query);
+             if (query is String) {
+              await db.execute(query);
+            } else if (query is Function) {
+              await query(db);
+            }
           } catch (e, s) {
             debugPrint('$name migration error, index $i: $e');
             debugPrintStack(stackTrace: s);
           }
         }
+      }
+    }
+  }
+
+    Future<void> _migrateProfiles(Database db) async {
+    final walletService = WalletService();
+
+    // Get all accounts from the database
+    final accounts = await all();
+
+
+
+    // For each account, fetch their profile and update username
+    for (final account in accounts) {
+      final address = account.address.hexEip55;
+
+      print('Migrating profile for $address');
+
+      try {
+        final profile = await walletService.getProfile(address);
+        if (profile?.username != null) {
+          await db.update(
+            name,
+            {'username': profile!.username},
+            where: 'address = ?',
+            whereArgs: [address],
+          );
+        }
+      } catch (e) {
+        debugPrint('Failed to fetch profile for $address: $e');
       }
     }
   }
