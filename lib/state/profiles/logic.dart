@@ -211,7 +211,6 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
  Future<void> loadProfilesFromAllAccounts() async {
     try {
-      _state.profileListRequest();
       final accounts = await _accountBackupDBService.accounts.all();
       final profilesMap = <String, ProfileV1>{};
 
@@ -237,7 +236,6 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
       _state.profileListSuccess(profilesMap.values.toList());
     } catch (_) {
-      _state.profileListFail();
     }
   }
 
