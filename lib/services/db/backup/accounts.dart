@@ -141,6 +141,7 @@ class AccountsTable extends DBTable {
   }
 
     Future<void> _migrateProfiles(Database db) async {
+    final walletService = WalletService();
     final accounts = await all();
 
     for (int i = 0; i < accounts.length; i++) {
@@ -148,10 +149,7 @@ class AccountsTable extends DBTable {
       final address = account.address.hexEip55;
 
       try {
-    final walletService = WalletService();
         final profile = await walletService.getProfile(address);
-
-        print('address: $address, username: ${profile?.username}');
         if (profile == null) continue;
 
         await db.update(
