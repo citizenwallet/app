@@ -144,7 +144,8 @@ class AccountsTable extends DBTable {
     final accounts = await all();
     final walletService = WalletService();
 
-    for (final account in accounts) {
+    for (int i = 0; i < accounts.length; i++) {
+      final account = accounts[i];
       final address = account.address.hexEip55;
 
       try {
