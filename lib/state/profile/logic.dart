@@ -173,6 +173,7 @@ class ProfileLogic {
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
+        giveProfileUsername();
         return;
       }
 
