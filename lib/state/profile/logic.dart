@@ -495,7 +495,7 @@ class ProfileLogic {
         fileType: '.jpg',
       );
       if (url == null) {
-        return;
+        throw Exception('Failed to create profile url');
       }
 
       final newProfile = await _wallet.getProfileFromUrl(url);
