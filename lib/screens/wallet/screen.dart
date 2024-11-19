@@ -790,6 +790,7 @@ class WalletScreenState extends State<WalletScreen> {
         deepLinkParams == null) {
       final (parsedAddress, parsedValue, parsedDescription, parsedAlias) =
           parseQRCode(result);
+
       if (parsedAddress.isEmpty && parsedValue == null) {
         _logic.resumeFetching();
         _profilesLogic.resume();
@@ -803,12 +804,14 @@ class WalletScreenState extends State<WalletScreen> {
         _profileLogic.clearProfileLink();
         _profileLogic.resetAll();
 
-        final switchToWallet =
-            await _profilesLogic.getAccountAddressWithAlias(parsedAlias);
+        final (switchToAddress, switchToAlias) = await handleLoadFromParams(
+          parsedAlias,
+          overrideAlias: parsedAlias,
+        );
 
-        if (switchToWallet != null) {
-          _address = switchToWallet;
-          _alias = parsedAlias;
+        if (switchToAddress != null && switchToAlias != null) {
+          _address = switchToAddress;
+          _alias = switchToAlias;
           final newRoute = '/wallet/$_address?alias=$_alias';
           navigator.replace(newRoute);
 
