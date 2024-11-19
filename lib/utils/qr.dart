@@ -33,8 +33,8 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.unsupported;
   }
 }
-
-(String, String?, String?) parseEIP681(String raw) {
+// address, value, null, null
+(String, String?, String?, String?) parseEIP681(String raw) {
   final url = Uri.parse(raw);
 
   String address = url.pathSegments.first;
@@ -47,10 +47,10 @@ QRFormat parseQRFormat(String raw) {
 
   final value = params['value'];
 
-  return (address, value, null);
+  return (address, value, null, null);
 }
 
-(String, String?, String?) parseEIP681Transfer(String raw) {
+(String, String?, String?, String?) parseEIP681Transfer(String raw) {
   final url = Uri.parse(raw);
 
   final params = url.queryParameters;
@@ -58,14 +58,14 @@ QRFormat parseQRFormat(String raw) {
   final address = params['address'];
   final value = params['uint256'];
 
-  return (address ?? '', value, null);
+  return (address ?? '', value, null, null);
 }
 
-(String, String?, String?) parseSendtoUrlWithEIP681(String raw) {
+(String, String?, String?, String?) parseSendtoUrlWithEIP681(String raw) {
   final receiveUrl = Uri.parse(raw);
   final urlEncodedParams = receiveUrl.queryParameters['eip681'];
   if (urlEncodedParams == null) {
-    return ('', null, null);
+    return ('', null, null, null);
   }
 
   // Need to url decode the sendto param
@@ -75,10 +75,8 @@ QRFormat parseQRFormat(String raw) {
 
 // parse the sendto url
 // raw is the URL from the QR code, eg. https://example.com/?sendto=:username@:communitySlug&amount=100&description=Hello
-(String, String?, String?) parseSendtoUrl(String raw) {
+(String, String?, String?, String?) parseSendtoUrl(String raw) {
   final decodedRaw = Uri.decodeComponent(raw);
-
-  print('decoded raw ${decodedRaw}');
 
   final receiveUrl = Uri.parse(decodedRaw);
 
@@ -87,20 +85,21 @@ QRFormat parseQRFormat(String raw) {
   final descriptionParam = receiveUrl.queryParameters['description'];
 
   if (sendToParam == null) {
-    return ('', null, null);
+    return ('', null, null, null);
   }
 
   final address = sendToParam.split('@').first;
+  final alias = sendToParam.split('@').last;
 
-  return (address, amountParam, descriptionParam);
+  return (address, amountParam, descriptionParam, alias);
 }
 
-(String, String?, String?) parseReceiveUrl(String raw) {
+(String, String?, String?, String?) parseReceiveUrl(String raw) {
   final receiveUrl = Uri.parse(raw.split('/#/').last);
 
   final encodedParams = receiveUrl.queryParameters['receiveParams'];
   if (encodedParams == null) {
-    return ('', null, null);
+    return ('', null, null, null);
   }
 
   final decodedParams = decompress(encodedParams);
@@ -111,15 +110,16 @@ QRFormat parseQRFormat(String raw) {
 
   final amount = paramUrl.queryParameters['amount'];
 
-  return (address ?? '', amount, null);
+  return (address ?? '', amount, null, null);
 }
 
-(String, String?, String?) parseQRCode(String raw) {
+// address, amount, description, alias
+(String, String?, String?, String?) parseQRCode(String raw) {
   final format = parseQRFormat(raw);
 
   switch (format) {
     case QRFormat.address:
-      return (raw, null, null);
+      return (raw, null, null, null);
     case QRFormat.eip681:
       return parseEIP681(raw);
     case QRFormat.eip681Transfer:
@@ -133,7 +133,7 @@ QRFormat parseQRFormat(String raw) {
     case QRFormat.voucher:
     // vouchers are invalid for a transfer
     default:
-      return ('', null, null);
+      return ('', null, null, null);
   }
 }
 

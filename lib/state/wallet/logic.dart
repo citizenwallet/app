@@ -1456,7 +1456,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    final (address, _, _) = parseQRCode(_addressController.text);
+    final (address, _, _, _) = parseQRCode(_addressController.text);
     _state.setHasAddress(address.isNotEmpty);
   }
 
@@ -1506,7 +1506,7 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
-      final (usernameOrAddress, amount, description) = parseQRCode(raw);
+      final (usernameOrAddress, amount, description, alias) = parseQRCode(raw);
       if (usernameOrAddress == '') {
         throw QRInvalidException();
       }

@@ -82,7 +82,7 @@ void main() {
       for (int i = 0; i < cases.length; i++) {
         final raw = cases[i];
 
-        final (address, amount, description) = parseQRCode(raw);
+        final (address, amount, description, alias) = parseQRCode(raw);
 
         expect((address, amount, description), expectedParse[i]);
       }
