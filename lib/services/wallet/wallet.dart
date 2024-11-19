@@ -840,7 +840,7 @@ class WalletService {
       for (final item in response['array']) {
         final log = Log.fromJson(item);
 
-        tx.add(TransferEvent.fromLog(log));
+        tx.add(TransferEvent.fromLog(log, standard: _tokenStandard));
       }
 
       return (tx, Pagination.fromJson(response['meta']));
