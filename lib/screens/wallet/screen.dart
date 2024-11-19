@@ -656,6 +656,7 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+
     _profileLogic.clearProfileLink();
     _profileLogic.resetAll();
 
@@ -761,6 +762,8 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleQRScan() async {
+    final navigator = GoRouter.of(context);
+
     _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
@@ -785,7 +788,7 @@ class WalletScreenState extends State<WalletScreen> {
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null) {
-      final (parsedAddress, parsedValue, parsedDescription) =
+      final (parsedAddress, parsedValue, parsedDescription, parsedAlias) =
           parseQRCode(result);
       if (parsedAddress.isEmpty && parsedValue == null) {
         _logic.resumeFetching();
@@ -794,12 +797,43 @@ class WalletScreenState extends State<WalletScreen> {
         return;
       }
 
+      if (parsedAlias != null &&
+          parsedAlias.isNotEmpty &&
+          parsedAlias != _alias) {
+        _profileLogic.clearProfileLink();
+        _profileLogic.resetAll();
+
+        final switchToWallet =
+            await _profilesLogic.getAccountAddressWithAlias(parsedAlias);
+
+        if (switchToWallet != null) {
+          _address = switchToWallet;
+          _alias = parsedAlias;
+          final newRoute = '/wallet/$_address?alias=$_alias';
+          navigator.replace(newRoute);
+
+          await _logic.openWallet(
+            _address,
+            _alias,
+            (bool hasChanged) async {
+              _logic.requestWalletActions();
+              if (hasChanged) _profileLogic.loadProfile();
+              await _profileLogic.loadProfileLink();
+              await _logic.loadTransactions();
+              await _voucherLogic.fetchVouchers();
+              await _logic.evaluateWalletActions();
+            },
+          );
+        }
+      }
+
       final hex = await _logic.updateFromCapture(result);
 
       ProfileV1? profile;
       if (hex != null) {
         profile = await _profilesLogic.getSendToProfile(hex);
       }
+
       await handleSendScreen(sendToProfile: profile);
 
       return;

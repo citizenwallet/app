@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -13,6 +14,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   final AccountDBService _db = AccountDBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
+  final AccountBackupDBService _backupDB = AccountBackupDBService();
 
   late Debounce debouncedSearchProfile;
 
@@ -208,6 +210,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void selectProfile(ProfileV1? profile) {
     _state.isSelected(profile);
+  }
+
+  Future<String?> getAccountAddressWithAlias(String alias) async {
+    final accounts = await _backupDB.accounts.allForAlias(alias);
+    return accounts.first.address.hex;
   }
 
   Future<ProfileV1?> getSendToProfile(String address) async {
