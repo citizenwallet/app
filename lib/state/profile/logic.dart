@@ -153,11 +153,11 @@ class ProfileLogic {
     try {
       _state.setProfileRequest();
 
-      final dbProfile =
+      final account =
           await _accountBackupDBService.accounts.get(ethAccount, alias);
 
-      if (dbProfile != null && dbProfile.profile != null) {
-        final profile = dbProfile.profile!;
+      if (account != null && account.profile != null) {
+        final profile = account.profile!;
         _state.setProfileSuccess(
           account: profile.account,
           username: profile.username,
@@ -166,6 +166,11 @@ class ProfileLogic {
           image: profile.image,
           imageMedium: profile.imageMedium,
           imageSmall: profile.imageSmall,
+        );
+
+        _profiles.isLoaded(
+          profile.account,
+          profile,
         );
       }
 
@@ -459,19 +464,19 @@ class ProfileLogic {
       final address = _wallet.account.hexEip55;
       final alias = _wallet.alias ?? '';
 
-      final dbProfile = await _accountBackupDBService.accounts
+      final account = await _accountBackupDBService.accounts
           .get(EthereumAddress.fromHex(address), alias);
 
-      if (dbProfile == null) {
-        debugPrint('dbProfile is null');
-        return;
+      if (account == null) {
+        throw Exception(
+            'acccount with address $address and alias $alias not found in db/backup/accounts table');
       }
 
-      ProfileV1 profile = dbProfile.profile ??
+      ProfileV1 profile = account.profile ??
           ProfileV1(
             account: address,
             username: username,
-            name: dbProfile.name,
+            name: account.name,
           );
 
       _profiles.isLoaded(
@@ -481,8 +486,7 @@ class ProfileLogic {
 
       final exists = await _wallet.createAccount();
       if (!exists) {
-        debugPrint('createAccount failed');
-        return;
+        throw Exception('Failed to create account');
       }
 
       final url = await _wallet.setProfile(
@@ -496,7 +500,7 @@ class ProfileLogic {
 
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
-        return;
+        throw Exception('Failed to get profile from url $url');
       }
 
       _profiles.isLoaded(
@@ -523,7 +527,6 @@ class ProfileLogic {
           name: newProfile.name,
           username: newProfile.username,
           profile: newProfile,
-          privateKey: null,
         ),
       );
     } catch (e, s) {
