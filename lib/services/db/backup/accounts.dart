@@ -112,9 +112,6 @@ class AccountsTable extends DBTable {
       ],
       3: [
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
-      ],
-      4:[
-         _migrateProfiles,
       ]
     };
 
@@ -126,43 +123,12 @@ class AccountsTable extends DBTable {
       if (queries != null) {
         for (final query in queries) {
           try {
-             if (query is String) {
-              await db.execute(query);
-            } else if (query is Function) {
-              await query(db);
-            }
+            await db.execute(query);
           } catch (e, s) {
-            debugPrint('$name migration error, index $i: $e');
+            debugPrint('Migration error: $e');
             debugPrintStack(stackTrace: s);
           }
         }
-      }
-    }
-  }
-
-    Future<void> _migrateProfiles(Database db) async {
-    final walletService = WalletService();
-    final accounts = await all();
-
-    for (int i = 0; i < accounts.length; i++) {
-      final account = accounts[i];
-      final address = account.address.hexEip55;
-
-      try {
-        final profile = await walletService.getProfile(address);
-        if (profile == null) continue;
-
-        await db.update(
-          name,
-          {'username': profile.username},
-          where: 'address = ?',
-          whereArgs: [address],
-        );
-        
-        // Add a small delay between requests
-        await Future.delayed(const Duration(milliseconds: 500));
-      } catch (e) {
-        debugPrint('Failed to fetch profile for $address: $e');
       }
     }
   }
