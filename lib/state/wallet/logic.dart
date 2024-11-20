@@ -1147,12 +1147,15 @@ class WalletLogic extends WidgetsBindingObserver {
       final args = {
         'from': _wallet.account.hexEip55,
         'to': to,
-        'value': parsedAmount.toString(),
       };
       if (_wallet.standard == 'erc1155') {
         args['operator'] = _wallet.account.hexEip55;
         args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
       }
+
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
@@ -1292,12 +1295,15 @@ class WalletLogic extends WidgetsBindingObserver {
       final args = {
         'from': _wallet.account.hexEip55,
         'to': to,
-        'value': parsedAmount.toString(),
       };
       if (_wallet.standard == 'erc1155') {
         args['operator'] = _wallet.account.hexEip55;
         args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
       }
+
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
