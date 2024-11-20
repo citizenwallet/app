@@ -17,7 +17,6 @@ class ProfilesLogic extends WidgetsBindingObserver {
       AccountBackupDBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
-  final AccountBackupDBService _backupDB = AccountBackupDBService();
 
   late Debounce debouncedSearchProfile;
 
@@ -252,7 +251,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<String?> getAccountAddressWithAlias(String alias) async {
-    final accounts = await _backupDB.accounts.allForAlias(alias);
+    final accounts = await _accountBackupDBService.accounts.allForAlias(alias);
     return accounts.first.address.hex;
   }
 
