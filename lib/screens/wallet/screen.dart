@@ -16,7 +16,6 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
@@ -894,13 +893,7 @@ class WalletScreenState extends State<WalletScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final loading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
-
-    final imageSmall = context.select((ProfileState state) => state.imageSmall);
-    final username = context.select((ProfileState state) => state.username);
-
-    final hasNoProfile = imageSmall == '' && username == '';
 
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
@@ -1042,24 +1035,7 @@ class WalletScreenState extends State<WalletScreen> {
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    if (hasNoProfile && !loading)
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          height: 10,
-                                          width: 10,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colors
-                                                .danger
-                                                .resolveFrom(context),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
+                                    ), 
                                   ],
                                 ),
                         ],

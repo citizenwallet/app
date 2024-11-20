@@ -169,7 +169,7 @@ class _WalletActionsState extends State<WalletActions> {
             opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
             child: Text(
               username.isEmpty
-                  ? AppLocalizations.of(context)!.anonymous
+                  ? ''
                   : '@$username',
               style: TextStyle(
                 fontSize: coinNameSize,

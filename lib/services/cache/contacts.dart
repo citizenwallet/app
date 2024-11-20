@@ -54,7 +54,7 @@ class ContactsCache extends Cache {
       throw Exception('Key not found');
     }
 
-    return _table.insert(value);
+    return _table.upsert(value);
   }
 
   @override
