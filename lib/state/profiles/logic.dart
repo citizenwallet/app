@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
@@ -12,6 +13,8 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   final AccountDBService _db = AccountDBService();
+  final AccountBackupDBService _accountBackupDBService =
+      AccountBackupDBService();
   late ProfilesState _state;
   final WalletService _wallet = WalletService();
   final AccountBackupDBService _backupDB = AccountBackupDBService();
@@ -131,7 +134,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       );
 
       if (profile != null) {
-        _db.contacts.insert(DBContact(
+        _db.contacts.upsert(DBContact(
           account: profile.account,
           username: profile.username,
           name: profile.name,
@@ -206,6 +209,42 @@ class ProfilesLogic extends WidgetsBindingObserver {
     }
 
     _state.profileListFail();
+  }
+
+  Future<void> loadProfilesFromAllAccounts() async {
+    try {
+      final accounts = await _accountBackupDBService.accounts.all();
+      final profilesMap = <String, ProfileV1>{};
+
+      for (final account in accounts) {
+        if (account.profile != null) {
+          profilesMap[account.address.hexEip55] = account.profile!;
+          _state.isLoaded(account.address.hexEip55, account.profile!);
+        }
+
+        // Try to get updated profile from wallet
+        final updatedProfile =
+            await _wallet.getProfile(account.address.hexEip55);
+
+        if (updatedProfile != null) {
+          profilesMap[account.address.hexEip55] = updatedProfile;
+          _state.isLoaded(account.address.hexEip55, updatedProfile);
+          await _accountBackupDBService.accounts.update(
+            DBAccount(
+              alias: account.alias,
+              address: account.address,
+              name: updatedProfile.name,
+              username: updatedProfile.username,
+              profile: updatedProfile,
+            ),
+          );
+        }
+      }
+
+      _state.profileListSuccess(profilesMap.values.toList());
+    } catch (_) {
+      //
+    }
   }
 
   void selectProfile(ProfileV1? profile) {

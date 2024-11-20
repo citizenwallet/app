@@ -173,8 +173,6 @@ class AppLogic {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -201,7 +199,10 @@ class AppLogic {
       _appState.importLoadingSuccess();
 
       return address.hexEip55;
-    } catch (_) {}
+    } catch (e, s) {
+      debugPrint('error: $e');
+      debugPrint('stack: $s');
+    }
 
     _appState.importLoadingError();
 

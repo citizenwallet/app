@@ -1,8 +1,9 @@
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/services/photos/photos.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -11,17 +12,20 @@ import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
+import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-  final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
+  final AccountBackupDBService _accountBackupDBService =
+      AccountBackupDBService();
 
   late ProfileState _state;
   late ProfilesState _profiles;
@@ -142,16 +146,18 @@ class ProfileLogic {
   }
 
   Future<void> loadProfile({String? account}) async {
+    final ethAccount = _wallet.account;
+    final alias = _wallet.alias ?? '';
+    final acc = account ?? ethAccount.hexEip55;
+
     try {
       _state.setProfileRequest();
 
-      final acc = account ?? _wallet.account.hexEip55;
+      final account =
+          await _accountBackupDBService.accounts.get(ethAccount, alias);
 
-      final cachedProfile =
-          _profiles.profiles.containsKey(acc) ? _profiles.profiles[acc] : null;
-
-      if (cachedProfile?.profile != null) {
-        final profile = cachedProfile!.profile;
+      if (account != null && account.profile != null) {
+        final profile = account.profile!;
         _state.setProfileSuccess(
           account: profile.account,
           username: profile.username,
@@ -161,12 +167,18 @@ class ProfileLogic {
           imageMedium: profile.imageMedium,
           imageSmall: profile.imageSmall,
         );
+
+        _profiles.isLoaded(
+          profile.account,
+          profile,
+        );
       }
 
       final profile = await _wallet.getProfile(acc);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
+        giveProfileUsername();
         return;
       }
 
@@ -186,6 +198,15 @@ class ProfileLogic {
         profile.account,
         profile,
       );
+
+      _accountBackupDBService.accounts.update(DBAccount(
+        alias: alias,
+        address: ethAccount,
+        name: profile.name,
+        username: profile.username,
+        privateKey: null,
+        profile: profile,
+      ));
 
       return;
     } catch (exception) {
@@ -280,7 +301,7 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       );
 
-      _db.contacts.insert(
+      _db.contacts.upsert(
         DBContact(
           account: newProfile.account,
           username: newProfile.username,
@@ -289,6 +310,17 @@ class ProfileLogic {
           image: newProfile.image,
           imageMedium: newProfile.imageMedium,
           imageSmall: newProfile.imageSmall,
+        ),
+      );
+
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: _wallet.alias!,
+          address: EthereumAddress.fromHex(newProfile.account),
+          name: newProfile.name,
+          username: newProfile.username,
+          privateKey: null,
+          profile: newProfile,
         ),
       );
 
@@ -353,7 +385,7 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       );
 
-      _db.contacts.insert(DBContact(
+      _db.contacts.upsert(DBContact(
         account: newProfile.account,
         username: newProfile.username,
         name: newProfile.name,
@@ -362,6 +394,17 @@ class ProfileLogic {
         imageMedium: newProfile.imageMedium,
         imageSmall: newProfile.imageSmall,
       ));
+
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: _wallet.alias!,
+          address: EthereumAddress.fromHex(newProfile.account),
+          name: newProfile.name,
+          username: newProfile.username,
+          privateKey: null,
+          profile: newProfile,
+        ),
+      );
 
       _profiles.isLoaded(
         newProfile.account,
@@ -381,5 +424,113 @@ class ProfileLogic {
 
   void updateDescriptionText(String desc) {
     _state.setDescriptionText(desc);
+  }
+
+  Future<String?> generateProfileUsername() async {
+    String username = getRandomUsername();
+    _state.setUsernameSuccess(username: username);
+
+    const maxTries = 3;
+    const baseDelay = Duration(milliseconds: 100);
+
+    for (int tries = 1; tries <= maxTries; tries++) {
+      final exists = await _wallet.profileExists(username);
+
+      if (!exists) {
+        return username;
+      }
+
+      if (tries > maxTries) break;
+
+      username = getRandomUsername();
+      await delay(baseDelay * tries);
+    }
+
+    return null;
+  }
+
+  Future<void> giveProfileUsername() async {
+    debugPrint('handleNewProfile');
+
+    try {
+      final username = await generateProfileUsername();
+      if (username == null) {
+        _state.setUsernameSuccess(username: '@anonymous');
+        return;
+      }
+
+      _state.setUsernameSuccess(username: username);
+
+      final address = _wallet.account.hexEip55;
+      final alias = _wallet.alias ?? '';
+
+      final account = await _accountBackupDBService.accounts
+          .get(EthereumAddress.fromHex(address), alias);
+
+      if (account == null) {
+        throw Exception(
+            'acccount with address $address and alias $alias not found in db/backup/accounts table');
+      }
+
+      ProfileV1 profile = account.profile ??
+          ProfileV1(
+            account: address,
+            username: username,
+            name: account.name,
+          );
+
+      _profiles.isLoaded(
+        profile.account,
+        profile,
+      );
+
+      final exists = await _wallet.createAccount();
+      if (!exists) {
+        throw Exception('Failed to create account');
+      }
+
+      final url = await _wallet.setProfile(
+        ProfileRequest.fromProfileV1(profile),
+        image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
+        fileType: '.jpg',
+      );
+      if (url == null) {
+        throw Exception('Failed to create profile url');
+      }
+
+      final newProfile = await _wallet.getProfileFromUrl(url);
+      if (newProfile == null) {
+        throw Exception('Failed to get profile from url $url');
+      }
+
+      _profiles.isLoaded(
+        newProfile.account,
+        newProfile,
+      );
+
+      _db.contacts.upsert(
+        DBContact(
+          account: newProfile.account,
+          username: newProfile.username,
+          name: newProfile.name,
+          description: newProfile.description,
+          image: newProfile.image,
+          imageMedium: newProfile.imageMedium,
+          imageSmall: newProfile.imageSmall,
+        ),
+      );
+
+      _accountBackupDBService.accounts.update(
+        DBAccount(
+          alias: alias,
+          address: EthereumAddress.fromHex(address),
+          name: newProfile.name,
+          username: newProfile.username,
+          profile: newProfile,
+        ),
+      );
+    } catch (e, s) {
+      debugPrint('giveProfileUsername error: $e, $s');
+    }
   }
 }
