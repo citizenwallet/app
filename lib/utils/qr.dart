@@ -111,7 +111,9 @@ QRFormat parseQRFormat(String raw) {
 
   final amount = paramUrl.queryParameters['amount'];
 
-  return (address ?? '', amount, null, null);
+  final alias = paramUrl.queryParameters['alias'];
+
+  return (address ?? '', amount, null, alias != '' ? alias : null);
 }
 
 // address, amount, description, alias
