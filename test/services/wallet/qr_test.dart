@@ -21,7 +21,7 @@ const List<String> cases = [
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
   'http://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50',
   'https://example.com/?sendto=xavier@wallet.pay.brussels&amount=10.50',
-  'https://example.com/?eip681=ethereum:0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@8453?value=10.50',
+  'https://example.com/?eip681=ethereum%3A0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%408453%3Fvalue%3D10.50',
   'https://live.citizenwallet.xyz/wallet.pay.brussels/fridge/pay?sendto=fridge@wallet.commonshub.brussels&description=Drinks&amount=3.00',
 ];
 

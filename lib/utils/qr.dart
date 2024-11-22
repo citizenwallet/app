@@ -33,6 +33,7 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.unsupported;
   }
 }
+
 // address, value, null, null
 (String, String?, String?, String?) parseEIP681(String raw) {
   final url = Uri.parse(raw);
