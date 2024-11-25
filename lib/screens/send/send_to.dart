@@ -30,7 +30,7 @@ class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
-  final ProfileV1? sendToProfile; // TODO: change to the scanned URL
+  final String? sendToURL;
 
   final bool isMinting;
 
@@ -40,7 +40,7 @@ class SendToScreen extends StatefulWidget {
     required this.profilesLogic,
     this.voucherLogic,
     this.isMinting = false,
-    this.sendToProfile,
+    this.sendToURL,
   });
 
   @override
@@ -50,7 +50,7 @@ class SendToScreen extends StatefulWidget {
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
   final ScanLogic _scanLogic = ScanLogic();
-  ProfileV1? _currentSendToProfile;
+  String? _currentSendToURL;
   final _scrollController = ScrollController();
 
   late void Function() debouncedAddressUpdate;
@@ -78,7 +78,7 @@ class _SendToScreenState extends State<SendToScreen> {
     nameFocusNode.dispose();
     _scrollController.dispose();
 
-    _currentSendToProfile = null;
+    _currentSendToURL = null;
 
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
@@ -95,12 +95,12 @@ class _SendToScreenState extends State<SendToScreen> {
   void didUpdateWidget(SendToScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Only handle selection if sendToProfile is new and we haven't processed it yet
-    if (widget.sendToProfile != null &&
-        widget.sendToProfile != oldWidget.sendToProfile &&
-        widget.sendToProfile != _currentSendToProfile) {
-      _currentSendToProfile = widget.sendToProfile;
-      handleSelectProfile(context, widget.sendToProfile);
+    // Only handle selection if sendToURL is new and we haven't processed it yet
+    if (widget.sendToURL != null &&
+        widget.sendToURL != oldWidget.sendToURL &&
+        widget.sendToURL != _currentSendToURL) {
+      _currentSendToURL = widget.sendToURL;
+      handleParseQRCode(context, widget.sendToURL!);
     }
   }
 
@@ -118,14 +118,13 @@ class _SendToScreenState extends State<SendToScreen> {
 
     nameFocusNode.requestFocus();
 
-    isSendToProfileAvailable();
+    isSendToURLAvailable();
   }
 
-  void isSendToProfileAvailable() {
-    if (widget.sendToProfile != null &&
-        widget.sendToProfile != _currentSendToProfile) {
-      _currentSendToProfile = widget.sendToProfile;
-      handleSelectProfile(context, widget.sendToProfile); // TODO: call handleParseQRCode
+  void isSendToURLAvailable() {
+    if (widget.sendToURL != null && widget.sendToURL != _currentSendToURL) {
+      _currentSendToURL = widget.sendToURL;
+      handleParseQRCode(context, widget.sendToURL!);
     }
   }
 

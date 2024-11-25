@@ -170,7 +170,7 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                   voucherLogic: extra['voucherLogic'],
                   isMinting: extra['isMinting'] ?? false,
-                  sendToProfile: extra['sendToProfile'],
+                  sendToURL: extra['sendToURL'],
                 );
               },
             ),
