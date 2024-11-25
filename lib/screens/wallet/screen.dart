@@ -780,7 +780,6 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-
     if (result == null) {
       _logic.resumeFetching();
       _profilesLogic.resume();
@@ -793,12 +792,10 @@ class WalletScreenState extends State<WalletScreen> {
     final (parsedAddress, parsedValue, parsedDescription, parsedAlias) =
         parseQRCode(result);
 
-
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null &&
-        parsedAddress.isEmpty &&
-        parsedValue == null) {
+        parsedAddress.isEmpty) {
       _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
