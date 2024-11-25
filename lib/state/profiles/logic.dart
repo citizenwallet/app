@@ -250,6 +250,16 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSelected(profile);
   }
 
+  Future<String?> getAccountAddressWithAlias(String alias) async {
+    final accounts = await _accountBackupDBService.accounts.allForAlias(alias);
+    return accounts.first.address.hex;
+  }
+
+  Future<ProfileV1?> getSendToProfile(String address) async {
+    final profile = await _wallet.getProfile(address);
+    return profile;
+  }
+
   void deSelectProfile() {
     _state.isDeSelected();
   }

@@ -15,6 +15,7 @@ import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/userop.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -1455,7 +1456,7 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    final (address, _, _) = parseQRCode(_addressController.text);
+    final (address, _, _, _) = parseQRCode(_addressController.text);
     _state.setHasAddress(address.isNotEmpty);
   }
 
@@ -1505,18 +1506,29 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
-      final (address, amount, description) = parseQRCode(raw);
-      if (address == '') {
+      final (usernameOrAddress, amount, description, alias) = parseQRCode(raw);
+      if (usernameOrAddress == '') {
         throw QRInvalidException();
       }
 
       if (amount != null) {
         _amountController.text = amount;
-
         updateAmount();
       }
 
-      updateAddressFromHexCapture(address);
+      String addressToUse = '';
+      try {
+        EthereumAddress.fromHex(usernameOrAddress).hexEip55;
+        addressToUse = usernameOrAddress;
+      } catch (_) {
+        String username = usernameOrAddress;
+        ProfileV1? profile = await _wallet.getProfileByUsername(username);
+        if (profile != null) {
+          addressToUse = profile.account;
+        }
+      }
+
+      updateAddressFromHexCapture(addressToUse);
 
       if (description != null) {
         _messageController.text = description;
@@ -1524,7 +1536,7 @@ class WalletLogic extends WidgetsBindingObserver {
         _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
       }
 
-      return address;
+      return addressToUse;
     } on QREmptyException catch (e) {
       _state.setInvalidScanMessage(e.message);
     } on QRInvalidException catch (e) {
