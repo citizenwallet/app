@@ -187,7 +187,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (_receiveParams != null) {
       await handleSendScreen(
-          receiveParams: _receiveParams, sendToURL: _sendToURL);
+          receiveParams: _receiveParams);
     }
 
     if (_sendToURL != null) {
