@@ -30,7 +30,7 @@ class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
-  final ProfileV1? sendToProfile;
+  final ProfileV1? sendToProfile; // TODO: change to the scanned URL
 
   final bool isMinting;
 
@@ -125,7 +125,7 @@ class _SendToScreenState extends State<SendToScreen> {
     if (widget.sendToProfile != null &&
         widget.sendToProfile != _currentSendToProfile) {
       _currentSendToProfile = widget.sendToProfile;
-      handleSelectProfile(context, widget.sendToProfile);
+      handleSelectProfile(context, widget.sendToProfile); // TODO: call handleParseQRCode
     }
   }
 
