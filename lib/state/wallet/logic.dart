@@ -307,9 +307,8 @@ class WalletLogic extends WidgetsBindingObserver {
     Future<void> Function(bool hasChanged) loadAdditionalData,
   ) async {
     try {
-      final String? accAddress = paramAddress ??
-          _preferences.lastWallet; // TODO: rename to account address
-      final String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
+      final String? accAddress = paramAddress ?? _preferences.lastWallet;
+      String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
 
       if (accAddress == null) {
         throw Exception('address not found');

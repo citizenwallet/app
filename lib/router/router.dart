@@ -7,6 +7,7 @@ import 'package:citizenwallet/screens/deeplink/deep_link.dart';
 import 'package:citizenwallet/screens/landing/account_connected.dart';
 import 'package:citizenwallet/screens/landing/account_recovery.dart';
 import 'package:citizenwallet/screens/landing/screen.dart';
+import 'package:citizenwallet/screens/landing/single_community_screen.dart';
 import 'package:citizenwallet/screens/landing/screen.web.dart';
 import 'package:citizenwallet/screens/send/send_details.dart';
 import 'package:citizenwallet/screens/send/send_link_progress.dart';
@@ -21,6 +22,7 @@ import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
@@ -49,6 +51,8 @@ GoRouter createRouter(
             path: '/',
             parentNavigatorKey: rootNavigatorKey,
             builder: (context, state) {
+              final appState = Provider.of<AppState>(context, listen: true);
+
               // coming in from a deep link "#/wallet/..." will come as a fragment
               final uri = Uri.parse(state.uri.fragment);
 
@@ -86,17 +90,35 @@ GoRouter createRouter(
               final stringUri =
                   '${state.uri.scheme}://${state.uri.host}/#${state.uri.path}${state.uri.fragment}';
 
-              return LandingScreen(
-                uri: state.uri.hasScheme ? stringUri : state.uri.toString(),
-                voucher: voucher,
-                voucherParams: voucherParams,
-                webWallet:
-                    webWallet != null && webWallet.isEmpty ? null : webWallet,
-                webWalletAlias: webWalletAlias,
-                receiveParams: receiveParams,
-                deepLink: deepLink,
-                deepLinkParams: deepLinkParams,
-              );
+              return appState.singleCommunityMode
+                  ? SingleCommunityLandingScreen(
+                      uri: state.uri.hasScheme
+                          ? stringUri
+                          : state.uri.toString(),
+                      voucher: voucher,
+                      voucherParams: voucherParams,
+                      webWallet: webWallet != null && webWallet.isEmpty
+                          ? null
+                          : webWallet,
+                      webWalletAlias: webWalletAlias,
+                      receiveParams: receiveParams,
+                      deepLink: deepLink,
+                      deepLinkParams: deepLinkParams,
+                    )
+                  : LandingScreen(
+                      uri: state.uri.hasScheme
+                          ? stringUri
+                          : state.uri.toString(),
+                      voucher: voucher,
+                      voucherParams: voucherParams,
+                      webWallet: webWallet != null && webWallet.isEmpty
+                          ? null
+                          : webWallet,
+                      webWalletAlias: webWalletAlias,
+                      receiveParams: receiveParams,
+                      deepLink: deepLink,
+                      deepLinkParams: deepLinkParams,
+                    );
             }),
         GoRoute(
             path: '/recovery',
@@ -231,7 +253,6 @@ GoRouter createRouter(
               path: 'send/:to/progress',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
-
                 final extra = state.extra as Map<String, dynamic>?;
 
                 return SendProgress(

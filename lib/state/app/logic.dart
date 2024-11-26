@@ -443,4 +443,22 @@ class AppLogic {
       //
     }
   }
+
+  Future<void> updateSingleCommunityMode() async {
+    _appState.updateSingleCommunityMode();
+
+    if (_appState.singleCommunityMode) {
+      final communities = await _appDBService.communities.getAll();
+
+      if (communities.isEmpty) {
+        return;
+      }
+
+      final community = communities[0];
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      _theme.changeTheme(communityConfig.community.theme);
+    }
+  }
 }

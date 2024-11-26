@@ -14,7 +14,15 @@ class CommunitiesLogic {
   CommunitiesLogic(BuildContext context)
       : _state = context.read<CommunitiesState>();
 
-  Future<void> silentFetchCommunities() async {
+  Future<void> silentFetch() async {
+    if (config.singleCommunityMode) {
+      await _silentFetchSingle();
+    } else {
+      await _silentFetchAll();
+    }
+  }
+
+  Future<void> _silentFetchAll() async {
     try {
       final communities = await _db.communities.getAll();
       List<Config> communityConfigs =
@@ -41,11 +49,40 @@ class CommunitiesLogic {
         final chain = communityConfig.chains[token.chainId.toString()];
 
         final isOnline = await config.isCommunityOnline(chain!.node.url);
+        _state.setCommunityOnline(communityConfig.community.alias, isOnline);
         await _db.communities
             .updateOnlineStatus(communityConfig.community.alias, isOnline);
-
-        _state.setCommunityOnline(communityConfig.community.alias, isOnline);
       }
+
+      return;
+    } catch (e) {
+      //
+    }
+  }
+
+  Future<void> _silentFetchSingle() async {
+    try {
+      final communities = await _db.communities.getAll();
+      List<Config> communityConfigs =
+          communities.map((c) => Config.fromJson(c.config)).toList();
+      _state.fetchCommunitiesSuccess(communityConfigs);
+
+      if (communityConfigs.isEmpty) {
+        return;
+      }
+
+      final first = communityConfigs.first;
+
+      if (first.community.hidden) {
+        return;
+      }
+
+      final token = first.getPrimaryToken();
+      final chain = first.chains[token.chainId.toString()];
+
+      final isOnline = await config.isCommunityOnline(chain!.node.url);
+      _state.setCommunityOnline(first.community.alias, isOnline);
+      await _db.communities.updateOnlineStatus(first.community.alias, isOnline);
 
       return;
     } catch (e) {
@@ -70,11 +107,45 @@ class CommunitiesLogic {
     _state.fetchCommunitiesFailure();
   }
 
-  void fetchCommunitiesFromRemote() async {
+  void fetchFromRemote() async {
+    if (config.singleCommunityMode) {
+      _fetchSingleCommunityFromRemote();
+    } else {
+      _fetchAllCommunitiesFromRemote();
+    }
+  }
+
+  void _fetchAllCommunitiesFromRemote() async {
     try {
       final List<Config> communities = await config.getCommunitiesFromRemote();
       await _db.communities
           .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
+      return;
+    } catch (e) {
+      //
+    }
+  }
+
+  void _fetchSingleCommunityFromRemote() async {
+    try {
+      final communities = await _db.communities.getAll();
+      List<Config> communityConfigs =
+          communities.map((c) => Config.fromJson(c.config)).toList();
+
+      if (communityConfigs.isEmpty) {
+        return;
+      }
+
+      final first = communityConfigs.first;
+
+      final remoteCommunity =
+          await config.getRemoteConfig(first.configLocation);
+
+      if (remoteCommunity == null) {
+        return;
+      }
+
+      await _db.communities.upsert([DBCommunity.fromConfig(remoteCommunity)]);
       return;
     } catch (e) {
       //

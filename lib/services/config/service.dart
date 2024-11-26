@@ -35,6 +35,7 @@ class ConfigService {
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
   late APIService _communityServer;
+  bool singleCommunityMode = false;
 
   List<Config> _configs = [];
 
@@ -153,6 +154,45 @@ class ConfigService {
     final configs = (response as List).map((e) => Config.fromJson(e)).toList();
 
     return configs;
+  }
+
+  Future<List<Config>> getLocalConfigs() async {
+    final localConfigs = jsonDecode(await rootBundle.loadString(
+        'assets/config/v$version/$communityConfigListFileName.json'));
+
+    final configs =
+        (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+
+    return configs;
+  }
+
+  Future<Config?> getRemoteConfig(String remoteConfigUrl) async {
+    if (kDebugMode && singleCommunityMode) {
+      final debugConfig = jsonDecode(
+          await rootBundle.loadString('assets/config/v$version/debug.json'));
+
+      return Config.fromJson(debugConfig);
+    }
+
+    if (kDebugMode && !singleCommunityMode) {
+      return null;
+    }
+
+    final remote = APIService(baseURL: remoteConfigUrl);
+
+    try {
+      final dynamic response =
+          await remote.get(url: '?cachebuster=${generateCacheBusterValue()}');
+
+      final config = Config.fromJson(response);
+
+      return config;
+    } catch (e, s) {
+      debugPrint('Error fetching remote config: $e');
+      debugPrint('Stacktrace: $s');
+
+      return null;
+    }
   }
 
   Future<List<Config>> getCommunitiesFromRemote() async {
