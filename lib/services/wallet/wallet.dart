@@ -1196,6 +1196,7 @@ class WalletService {
       // we need to call account.execute which will call token.transfer
       switch (getPaymasterType()) {
         case 'payg':
+        case 'cw':
           userop.callData = dest.length > 1 && calldata.length > 1
               ? _contractAccount.executeBatchCallData(
                   dest,

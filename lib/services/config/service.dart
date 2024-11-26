@@ -167,7 +167,18 @@ class ConfigService {
   }
 
   Future<Config?> getRemoteConfig(String remoteConfigUrl) async {
-    final remote = APIService(baseURL: 'https://wallet.pay.brussels/config/community.json');
+    if (kDebugMode && singleCommunityMode) {
+      final debugConfig = jsonDecode(
+          await rootBundle.loadString('assets/config/v$version/debug.json'));
+
+      return Config.fromJson(debugConfig);
+    }
+
+    if (kDebugMode && !singleCommunityMode) {
+      return null;
+    }
+
+    final remote = APIService(baseURL: remoteConfigUrl);
 
     try {
       final dynamic response =
