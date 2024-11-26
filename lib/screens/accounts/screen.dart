@@ -81,7 +81,8 @@ class AccountsScreenState extends State<AccountsScreen> {
 
     _communitiesLogic.fetchCommunities();
 
-    await widget.logic.loadDBWallets();
+    widget.logic.loadDBWallets();
+    _profilesLogic.loadProfilesFromAllAccounts();
   }
 
   void handleDismiss(BuildContext context) {

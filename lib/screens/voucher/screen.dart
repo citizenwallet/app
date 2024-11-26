@@ -5,6 +5,7 @@ import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/chip.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,10 +17,14 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VoucherScreen extends StatefulWidget {
   final String address;
+  final String amount;
+  final String? logo;
 
   const VoucherScreen({
     super.key,
     required this.address,
+    required this.amount,
+    this.logo = 'assets/icons/voucher.svg',
   });
 
   @override
@@ -129,18 +134,28 @@ class VoucherViewModalState extends State<VoucherScreen>
                             parent: BouncingScrollPhysics()),
                         scrollDirection: Axis.vertical,
                         children: [
-                          Text(
-                            voucher?.name ??
-                                AppLocalizations.of(context)!.voucher,
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colors
-                                  .text
-                                  .resolveFrom(context),
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .voucherFor(widget.amount),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(width: 5),
+                              CoinLogo(size: 35, logo: widget.logo),
+                            ],
                           ),
                           const SizedBox(height: 30),
                           SizedBox(

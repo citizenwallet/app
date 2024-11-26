@@ -19,6 +19,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
   sqflite: ^2.3.0
+  word_generator: ^0.4.4
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: any
@@ -130,6 +131,7 @@ flutter:
     - assets/config/v4/communities.json
     - assets/config/v4/communities.test.json
     - assets/config/v4/debug.json
+    - assets/icons/switch_accounts.svg
     - assets/config/v3/communities.json
     - assets/config/v3/communities.test.json
     - assets/config/v3/legacy_4337_bundlers.json

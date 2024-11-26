@@ -102,7 +102,7 @@ class ContactTable extends DBTable {
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {}
 
   // Inserts a new contact into the table
-  Future<void> insert(DBContact contact) async {
+  Future<void> upsert(DBContact contact) async {
     await db.insert(
       name,
       contact.toMap(),

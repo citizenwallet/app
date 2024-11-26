@@ -41,7 +41,7 @@ class ProfileCircle extends StatelessWidget {
     }
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 60),
       width: size,
       height: size,
       decoration: BoxDecoration(

@@ -1585,6 +1585,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.5.5"
+  word_generator:
+    dependency: "direct main"
+    description:
+      name: word_generator
+      sha256: "1703522a6ddf56b9c2331105c52f70a1f5f244b7de2512a2eb10284fa90d8e30"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.4"
   xdg_directories:
     dependency: transitive
     description:

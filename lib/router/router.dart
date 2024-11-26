@@ -192,6 +192,7 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                   voucherLogic: extra['voucherLogic'],
                   isMinting: extra['isMinting'] ?? false,
+                  sendToURL: extra['sendToURL'],
                 );
               },
             ),
@@ -317,8 +318,12 @@ GoRouter createRouter(
               path: 'vouchers/:voucher',
               parentNavigatorKey: rootNavigatorKey,
               builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
                 return VoucherScreen(
                   address: state.pathParameters['voucher'] ?? '',
+                  amount: extra['amount'],
+                  logo: extra['logo'],
                 );
               },
             ),

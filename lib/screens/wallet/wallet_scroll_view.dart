@@ -327,8 +327,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
               child: Text(
                 AppLocalizations.of(context)!.transactions,
                 style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
