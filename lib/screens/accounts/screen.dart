@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -89,7 +90,7 @@ class AccountsScreenState extends State<AccountsScreen> {
     GoRouter.of(context).pop();
   }
 
-  void handleCreate(BuildContext context) async {
+  void handleJoin(BuildContext context) async {
     final navigator = GoRouter.of(context);
 
     final alias =
@@ -98,6 +99,24 @@ class AccountsScreenState extends State<AccountsScreen> {
       expand: true,
       builder: (modalContext) => const CommunityPickerModal(),
     );
+
+    if (alias == null || alias.isEmpty) {
+      return;
+    }
+
+    final address = await widget.logic.createWallet(alias);
+
+    if (address == null) {
+      return;
+    }
+
+    HapticFeedback.heavyImpact();
+
+    navigator.pop((address, alias));
+  }
+
+  void handleCreate(BuildContext context, String? alias) async {
+    final navigator = GoRouter.of(context);
 
     if (alias == null || alias.isEmpty) {
       return;
@@ -334,9 +353,14 @@ class AccountsScreenState extends State<AccountsScreen> {
       (state) => state.cwWalletsLoading,
     );
 
+    final wallets = context.watch<WalletState>().wallets;
     final groupedWallets = context.select(selectSortedGroupedWalletsByAlias);
 
     final communities = context.select(selectMappedCommunityConfigs);
+
+    final singleCommunityMode = context.select(
+      (AppState state) => state.singleCommunityMode,
+    );
 
     final profiles = context.watch<ProfilesState>().profiles;
 
@@ -502,7 +526,35 @@ class AccountsScreenState extends State<AccountsScreen> {
                                   .resolveFrom(context),
                             ),
                           ),
-                        if (groupedWallets.isNotEmpty)
+                        if (singleCommunityMode)
+                          SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                  childCount: wallets.length, (context, index) {
+                            final wallet = wallets[index];
+
+                            return WalletRow(
+                              key: Key('${wallet.account}_${wallet.alias}'),
+                              wallet,
+                              communities: communities,
+                              profiles: profiles,
+                              isSelected:
+                                  widget.currentAddress == wallet.account,
+                              onTap: () => handleWalletTap(
+                                wallet.account,
+                                wallet.alias,
+                              ),
+                              onMore: () => handleMore(
+                                context,
+                                wallet.account,
+                                wallet.alias,
+                                wallet.name,
+                                wallet.locked,
+                                profiles.containsKey(wallet.account),
+                              ),
+                              onLoadProfile: handleLoadProfile,
+                            );
+                          })),
+                        if (!singleCommunityMode && groupedWallets.isNotEmpty)
                           ...((groupedWallets
                               .map<String, Widget>(
                                 (key, cwWallets) {
@@ -673,7 +725,10 @@ class AccountsScreenState extends State<AccountsScreen> {
                           const SizedBox(width: 10),
                           CupertinoButton(
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                            onPressed: () => handleCreate(context),
+                            onPressed: singleCommunityMode
+                                ? () =>
+                                    handleCreate(context, currentWallet?.alias)
+                                : () => handleJoin(context),
                             borderRadius: BorderRadius.circular(25),
                             color: Theme.of(context)
                                 .colors
@@ -684,7 +739,11 @@ class AccountsScreenState extends State<AccountsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)!.joinCommunity,
+                                  singleCommunityMode
+                                      ? AppLocalizations.of(context)!
+                                          .createNewAccount
+                                      : AppLocalizations.of(context)!
+                                          .joinCommunity,
                                   style: TextStyle(
                                     color: Theme.of(context).colors.black,
                                   ),
