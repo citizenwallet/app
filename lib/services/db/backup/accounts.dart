@@ -94,6 +94,7 @@ class AccountsTable extends DBTable {
         alias TEXT NOT NULL,
         address TEXT NOT NULL,
         name TEXT NOT NULL,
+        username TEXT,
         privateKey TEXT,
         profile TEXT
       )
