@@ -46,14 +46,16 @@ class TransferEvent {
   );
 
   // from Log
-  TransferEvent.fromLog(Log log)
+  TransferEvent.fromLog(Log log, {String standard = 'erc20'})
       : hash = log.hash,
         txhash = log.txHash,
         tokenId = 0, // Set to 0 as Log doesn't have tokenId
         createdAt = log.createdAt,
         from = EthereumAddress.fromHex(log.data?['from'] ?? ''),
         to = EthereumAddress.fromHex(log.data?['to'] ?? ''),
-        value = BigInt.parse(log.data?['value'] ?? '0'),
+        value = BigInt.parse(standard == 'erc20'
+            ? (log.data?['value'] ?? '0')
+            : (log.data?['amount'] ?? '0')),
         data = log.extraData != null
             ? TransferData.fromJson(log.extraData!)
             : null,

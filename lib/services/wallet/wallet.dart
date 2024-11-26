@@ -13,6 +13,7 @@ import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc1155.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
@@ -86,6 +87,7 @@ class WalletService {
       _contract1155Token; // Represents a smart contract for an ERC1155 token on the Ethereum blockchain.
   late AccessControlUpgradeableContract _contractAccessControl;
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
+  late SafeAccount _contractSafeAccount;
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
   AbstractCardManagerContract? _cardManager;
@@ -363,6 +365,10 @@ class WalletService {
     // Create a new simple account instance and initialize it.
     _contractAccount = SimpleAccount(chainId, _ethClient, _account.hexEip55);
     await _contractAccount.init();
+
+    // Create a new safe account instance and initialize it.
+    _contractSafeAccount = SafeAccount(chainId, _ethClient, _account.hexEip55);
+    await _contractSafeAccount.init();
 
     // Create a new entry point instance and initialize it.
     _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
@@ -834,7 +840,7 @@ class WalletService {
       for (final item in response['array']) {
         final log = Log.fromJson(item);
 
-        tx.add(TransferEvent.fromLog(log));
+        tx.add(TransferEvent.fromLog(log, standard: _tokenStandard));
       }
 
       return (tx, Pagination.fromJson(response['meta']));
@@ -1188,16 +1194,27 @@ class WalletService {
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
-      userop.callData = dest.length > 1 && calldata.length > 1
-          ? _contractAccount.executeBatchCallData(
-              dest,
-              calldata,
-            )
-          : _contractAccount.executeCallData(
-              dest[0],
-              BigInt.zero,
-              calldata[0],
-            );
+      switch (getPaymasterType()) {
+        case 'payg':
+          userop.callData = dest.length > 1 && calldata.length > 1
+              ? _contractAccount.executeBatchCallData(
+                  dest,
+                  calldata,
+                )
+              : _contractAccount.executeCallData(
+                  dest[0],
+                  BigInt.zero,
+                  calldata[0],
+                );
+          break;
+        case 'cw-safe':
+          userop.callData = _contractSafeAccount.executeCallData(
+            dest[0],
+            BigInt.zero,
+            calldata[0],
+          );
+          break;
+      }
 
       // set the appropriate gas fees based on network
       final fees = await _gasPriceEstimator.estimate;
