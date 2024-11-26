@@ -8,7 +8,6 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
-import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
@@ -16,7 +15,6 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
@@ -38,6 +36,7 @@ class WalletScreen extends StatefulWidget {
   final String? receiveParams;
   final String? deepLink;
   final String? deepLinkParams;
+  final String? sendToURL;
 
   const WalletScreen(
     this.address,
@@ -48,6 +47,7 @@ class WalletScreen extends StatefulWidget {
     this.receiveParams,
     this.deepLink,
     this.deepLinkParams,
+    this.sendToURL,
     super.key,
   });
 
@@ -71,6 +71,7 @@ class WalletScreenState extends State<WalletScreen> {
   String? _receiveParams;
   String? _deepLink;
   String? _deepLinkParams;
+  String? _sendToURL;
 
   @override
   void initState() {
@@ -83,7 +84,7 @@ class WalletScreenState extends State<WalletScreen> {
     _receiveParams = widget.receiveParams;
     _deepLink = widget.deepLink;
     _deepLinkParams = widget.deepLinkParams;
-
+    _sendToURL = widget.sendToURL;
     _notificationsLogic = NotificationsLogic(context);
     _appLogic = AppLogic(context);
     _logic = widget.wallet;
@@ -185,7 +186,12 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (_receiveParams != null) {
-      await handleSendScreen(receiveParams: _receiveParams);
+      await handleSendScreen(
+          receiveParams: _receiveParams);
+    }
+
+    if (_sendToURL != null) {
+      await handleSendScreen(sendToURL: _sendToURL);
     }
 
     if (_deepLink != null && _deepLinkParams != null) {
@@ -426,7 +432,10 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.resume();
   }
 
-  Future<void> handleSendScreen({String? receiveParams}) async {
+  Future<void> handleSendScreen({
+    String? receiveParams,
+    String? sendToURL,
+  }) async {
     HapticFeedback.heavyImpact();
 
     _logic.pauseFetching();
@@ -484,6 +493,7 @@ class WalletScreenState extends State<WalletScreen> {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
+      'sendToURL': sendToURL,
     });
 
     _logic.resumeFetching();
@@ -779,38 +789,38 @@ class WalletScreenState extends State<WalletScreen> {
 
     final (voucherParams, receiveParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
+    final (parsedAddress, parsedValue, parsedDescription, parsedAlias) =
+        parseQRCode(result);
+
     if (voucherParams == null &&
         receiveParams == null &&
-        deepLinkParams == null) {
-      final (parsedAddress, parsedValue, _) = parseQRCode(result);
-      if (parsedAddress.isEmpty && parsedValue == null) {
-        _logic.resumeFetching();
-        _profilesLogic.resume();
-        _voucherLogic.resume();
-        return;
-      }
-
-      _logic.updateFromCapture(result);
-      await handleSendScreen();
-      return;
-    }
-
-    final uriAlias = aliasFromUri(result);
-    final receiveAlias = aliasFromReceiveUri(result);
-
-    final (address, alias) = await handleLoadFromParams(
-      voucherParams ?? receiveParams ?? deepLinkParams,
-      overrideAlias: uriAlias ?? receiveAlias,
-    );
-
-    if (address == null) {
+        deepLinkParams == null &&
+        parsedAddress.isEmpty) {
       _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
     }
 
-    if (alias == null || alias.isEmpty) {
+    String? loadedAddress;
+    String? loadedAlias;
+    final uriAlias = aliasFromUri(result);
+    final receiveAlias = aliasFromReceiveUri(result);
+    final (address, alias) = await handleLoadFromParams(
+      voucherParams ?? receiveParams ?? deepLinkParams ?? parsedAlias,
+      overrideAlias: uriAlias ?? receiveAlias ?? parsedAlias,
+    );
+    loadedAddress = address;
+    loadedAlias = alias;
+
+    if (loadedAddress == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    if (loadedAlias == null || loadedAlias.isEmpty) {
       _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
@@ -819,14 +829,15 @@ class WalletScreenState extends State<WalletScreen> {
 
     final (voucher, deepLink) = deepLinkContentFromUri(result);
 
-    if (alias != _alias) {
-      _address = address;
-      _alias = alias;
+    if (loadedAlias != _alias) {
+      _address = loadedAddress;
+      _alias = loadedAlias;
       _voucher = voucher;
       _voucherParams = voucherParams;
       _receiveParams = receiveParams;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
+      _sendToURL = result;
 
       onLoad();
       return;
@@ -847,12 +858,14 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (deepLink != null && deepLinkParams != null) {
       await handleLoadDeepLink(
-        aliasOverride: alias,
+        aliasOverride: loadedAlias,
         deepLinkOverride: deepLink,
         deepLinkParamsOverride: deepLinkParams,
       );
       return;
     }
+
+    await handleSendScreen(sendToURL: result);
   }
 
   void handleShowMore() async {
@@ -894,13 +907,7 @@ class WalletScreenState extends State<WalletScreen> {
     final wallet = context.select((WalletState state) => state.wallet);
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final loading = context.select((WalletState state) => state.loading);
     final config = context.select((WalletState state) => state.config);
-
-    final imageSmall = context.select((ProfileState state) => state.imageSmall);
-    final username = context.select((ProfileState state) => state.username);
-
-    final hasNoProfile = imageSmall == '' && username == '';
 
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
@@ -1043,23 +1050,6 @@ class WalletScreenState extends State<WalletScreen> {
                                         ),
                                       ),
                                     ),
-                                    if (hasNoProfile && !loading)
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          height: 10,
-                                          width: 10,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colors
-                                                .danger
-                                                .resolveFrom(context),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                      ),
                                   ],
                                 ),
                         ],

@@ -225,9 +225,13 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setUsernameSuccess() {
+  void setUsernameSuccess({String? username}) {
     usernameLoading = false;
     usernameError = false;
+
+    if (username != null && username.isNotEmpty) {
+      this.username = username;
+    }
 
     notifyListeners();
   }

@@ -30,6 +30,7 @@ class SendToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
+  final String? sendToURL;
 
   final bool isMinting;
 
@@ -39,6 +40,7 @@ class SendToScreen extends StatefulWidget {
     required this.profilesLogic,
     this.voucherLogic,
     this.isMinting = false,
+    this.sendToURL,
   });
 
   @override
@@ -48,7 +50,7 @@ class SendToScreen extends StatefulWidget {
 class _SendToScreenState extends State<SendToScreen> {
   final nameFocusNode = FocusNode();
   final ScanLogic _scanLogic = ScanLogic();
-
+  String? _currentSendToURL;
   final _scrollController = ScrollController();
 
   late void Function() debouncedAddressUpdate;
@@ -76,6 +78,8 @@ class _SendToScreenState extends State<SendToScreen> {
     nameFocusNode.dispose();
     _scrollController.dispose();
 
+    _currentSendToURL = null;
+
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
@@ -85,6 +89,19 @@ class _SendToScreenState extends State<SendToScreen> {
     _scanLogic.cancelScan(notify: false);
 
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(SendToScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Only handle selection if sendToURL is new and we haven't processed it yet
+    if (widget.sendToURL != null &&
+        widget.sendToURL != oldWidget.sendToURL &&
+        widget.sendToURL != _currentSendToURL) {
+      _currentSendToURL = widget.sendToURL;
+      handleParseQRCode(context, widget.sendToURL!);
+    }
   }
 
   void onLoad() async {
@@ -100,6 +117,15 @@ class _SendToScreenState extends State<SendToScreen> {
     walletLogic.updateAddress();
 
     nameFocusNode.requestFocus();
+
+    isSendToURLAvailable();
+  }
+
+  void isSendToURLAvailable() {
+    if (widget.sendToURL != null && widget.sendToURL != _currentSendToURL) {
+      _currentSendToURL = widget.sendToURL;
+      handleParseQRCode(context, widget.sendToURL!);
+    }
   }
 
   void handleThrottledUpdateAddress(String value) {
