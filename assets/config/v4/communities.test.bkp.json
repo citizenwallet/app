@@ -1,0 +1,243 @@
+[
+  {
+    "community": {
+      "name": "Brussels Pay",
+      "description": "A community for the city of Brussels",
+      "url": "https://pay.brussels",
+      "alias": "wallet.pay.brussels",
+      "custom_domain": "wallet.pay.brussels",
+      "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+      "theme": {
+        "primary": "#4a90e2"
+      },
+      "profile": {
+        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
+        "chain_id": 100
+      },
+      "primary_token": {
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "chain_id": 100
+      },
+      "primary_card_manager": {
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "chain_id": 100
+      }
+    },
+    "tokens": {
+      "100:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+        "standard": "erc20",
+        "name": "pay.brussels",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "symbol": "EURb",
+        "decimals": 6,
+        "chain_id": 100
+      }
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "accounts": {
+      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
+        "chain_id": 100,
+        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "paymaster_type": "cw"
+      },
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "cards": {
+      "100:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+        "chain_id": 100,
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "type": "classic"
+      }
+    },
+    "chains": {
+      "100": {
+        "id": 100,
+        "node": {
+          "url": "https://engine.pay.brussels",
+          "ws_url": "wss://engine.pay.brussels"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+        "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+      }
+    ],
+    "config_location": "https://wallet.pay.brussels/config/community.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Gratitude Token",
+      "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+      "url": "https://citizenwallet.xyz/gratitude",
+      "alias": "gratitude",
+      "custom_domain": "gratitude.citizenwallet.xyz",
+      "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+      "theme": {
+        "primary": "#4EC19D"
+      },
+      "profile": {
+        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
+        "chain_id": 42220
+      },
+      "primary_token": {
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "chain_id": 42220
+      },
+      "primary_account_factory": {
+        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "chain_id": 42220
+      },
+      "primary_card_manager": {
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "chain_id": 42220
+      }
+    },
+    "tokens": {
+      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+        "standard": "erc20",
+        "name": "Gratitude Token",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "symbol": "GT",
+        "decimals": 0,
+        "chain_id": 42220
+      }
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "Celo Explorer"
+    },
+    "accounts": {
+      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "paymaster_type": "cw"
+      },
+      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "cards": {
+      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+        "chain_id": 42220,
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "type": "classic"
+      }
+    },
+    "chains": {
+      "42220": {
+        "id": 42220,
+        "node": {
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+        "url": "https://topup.citizenwallet.xyz/gratitude",
+        "launch_mode": "webview"
+      }
+    ],
+    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "KFMEDIA℠",
+      "description": "Certified Education Organization. Solving systemic educational disparity using Web3 solutions, removing barriers of entry for underdeveloped economies.",
+      "url": "https://kingfishersmedia.io",
+      "alias": "wallet.kingfishersmedia.io",
+      "custom_domain": "wallet.kingfishersmedia.io",
+      "logo": "https://config.internal.citizenwallet.xyz/_images/kfmpfl.svg",
+      "theme": {
+        "primary": "#88292c"
+      },
+      "profile": {
+        "address": "0x5f6FEb03ad8EfeCdD2a837FAA1a29DEA2bAcfd55",
+        "chain_id": 42220
+      },
+      "primary_token": {
+        "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+        "chain_id": 42220
+      },
+      "primary_account_factory": {
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "chain_id": 42220
+      },
+      "primary_card_manager": {
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "chain_id": 42220
+      }
+    },
+    "tokens": {
+      "42220:0x56744910f7dEcD48c1a7FA61B4C317b15E99F156": {
+        "standard": "erc1155",
+        "name": "KFMEDIA℠ Pathways for LATAM™",
+        "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+        "symbol": "KFMPFL",
+        "decimals": 0,
+        "chain_id": 42220
+      }
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "Celo Explorer"
+    },
+    "accounts": {
+      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x02BDA8370d9497A5C808B2db237cfaA8f0733F36",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "chains": {
+      "42220": {
+        "id": 42220,
+        "node": {
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.kingfishersmedia.io.json",
+    "version": 4
+  }
+]

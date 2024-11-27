@@ -59,7 +59,7 @@ class WalletScrollView extends StatefulWidget {
 }
 
 class WalletScrollViewState extends State<WalletScrollView> {
-  String _selectedValue = 'Citizen Wallet';
+  String _selectedValue = 'Brussels Pay';
   bool _refreshing = false;
 
   void handleSelect(String? value) {

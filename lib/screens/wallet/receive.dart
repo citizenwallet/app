@@ -34,7 +34,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
   late Debounce debouncedQRCode;
 
   double _opacity = 0;
-  String _selectedValue = 'Citizen Wallet';
+  String _selectedValue = 'Brussels Pay';
   bool _isEnteringAmount = false;
   bool _isDescribing = false;
 

@@ -26,8 +26,8 @@
 		</array>
 		<key>keychain-access-groups</key>
 		<array>
-			<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys</string>
-			<string>$(AppIdentifierPrefix)xyz.citizenwallet.keys-dev</string>
+			<string>$(AppIdentifierPrefix)brussels.pay.keys</string>
+			<string>$(AppIdentifierPrefix)brussels.pay.keys-dev</string>
 		</array>
 	</dict>
 </plist>

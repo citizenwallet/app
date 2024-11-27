@@ -7,7 +7,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Citizen Wallet</string>
+		<string>Brussels Pay</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -28,7 +28,7 @@
 				<key>CFBundleTypeRole</key>
 				<string>Editor</string>
 				<key>CFBundleURLName</key>
-				<string>xyz.citizenwallet.wallet</string>
+				<string>brussels.pay.wallet</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>citizenwallet</string>
@@ -52,11 +52,11 @@
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NFCReaderUsageDescription</key>
-		<string>Citizen Wallet needs NFC scanner access in order to scan NFC tags. Scanning is done on device.</string>
+		<string>Brussels Pay needs NFC scanner access in order to scan NFC tags. Scanning is done on device.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>Citizen Wallet needs camera access in order to scan QR codes. Scanning is done on device.</string>
+		<string>Brussels Pay needs camera access in order to scan QR codes. Scanning is done on device.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Citizen Wallet needs photo library access in order to pick a profile photo.</string>
+		<string>Brussels Pay needs photo library access in order to pick a profile photo.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UIBackgroundModes</key>

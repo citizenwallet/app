@@ -262,7 +262,7 @@ class WalletLogic extends WidgetsBindingObserver {
         CWWallet(
           '0',
           name:
-              'Citizen Wallet', // on web, acts as a page's title, wallet is fitting here
+              'Brussels Pay', // on web, acts as a page's title, wallet is fitting here
           address: _wallet.address.hexEip55,
           alias: config.community.alias,
           account: _wallet.account.hexEip55,
