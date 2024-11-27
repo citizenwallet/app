@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
+import 'package:citizenwallet/services/wallet/contracts/communityModule.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc1155.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
@@ -78,6 +79,7 @@ class WalletService {
   late EthereumAddress _account; // Represents an Ethereum address.
   late StackupEntryPoint
       _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
+  late CommunityModule _contractCommunityModule;
   late AccountFactoryService
       _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
   String _tokenStandard = 'erc20';
@@ -115,11 +117,7 @@ class WalletService {
       _pref.setBalance(_account.hexEip55, b.toString());
 
       return b.toString();
-    } catch (e, s) {
-      print('error: $e');
-      print('stack: $s');
-      //
-    }
+    } catch (_) {}
 
     return _pref.getBalance(_account.hexEip55) ?? '0.0';
   }
@@ -373,6 +371,10 @@ class WalletService {
     // Create a new entry point instance and initialize it.
     _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
+
+    // Create a new community module instance and initialize it.
+    _contractCommunityModule = CommunityModule(chainId, _ethClient, eaddr);
+    await _contractCommunityModule.init();
 
     // Create a new account factory instance and initialize it.
     _contractAccountFactory =
@@ -698,7 +700,7 @@ class WalletService {
     String? account,
   }) async {
     try {
-      final url = '/accounts/${account ?? _account.hexEip55}/exists';
+      final url = '/v1/accounts/${account ?? _account.hexEip55}/exists';
 
       await _indexer.get(
         url: url,
@@ -722,9 +724,12 @@ class WalletService {
         return true;
       }
 
-      final calldata = _contractAccount.transferOwnershipCallData(
+      Uint8List calldata = _contractAccount.transferOwnershipCallData(
         _credentials.address.hexEip55,
       );
+      if (_paymasterType == 'cw-safe') {
+        calldata = _contractCommunityModule.getChainIdCallData();
+      }
 
       final (_, userop) = await prepareUserop(
         [_account.hexEip55],

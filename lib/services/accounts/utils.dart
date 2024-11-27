@@ -67,7 +67,7 @@ Future<bool> accountExists(
   String account,
 ) async {
   try {
-    final url = '/accounts/$account/exists';
+    final url = '/v1/accounts/$account/exists';
 
     await indexer.get(
       url: url,
@@ -88,7 +88,7 @@ Future<bool> createAccount(
   try {
     final cred = customCredentials;
 
-    final url = '/accounts/factory/${accountFactory.addr}';
+    final url = '/v1/accounts/factory/${accountFactory.addr}';
 
     final encoded = jsonEncode(
       {
