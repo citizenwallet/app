@@ -13,6 +13,7 @@ import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/sigauth/sigauth.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -86,6 +87,7 @@ class WalletLogic extends WidgetsBindingObserver {
   String? _fetchRequest;
 
   WalletService get wallet => _wallet;
+  SigAuthConnection get connection => _wallet.connection;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();

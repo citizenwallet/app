@@ -26,6 +26,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
+import 'package:citizenwallet/widgets/webview/connected_webview_modal.dart';
 
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
@@ -186,8 +187,7 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (_receiveParams != null) {
-      await handleSendScreen(
-          receiveParams: _receiveParams);
+      await handleSendScreen(receiveParams: _receiveParams);
     }
 
     if (_sendToURL != null) {
@@ -781,6 +781,35 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     if (result == null) {
+      _logic.resumeFetching();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
+
+    final format = parseQRFormat(result);
+    if (format == QRFormat.url) {
+      if (!super.mounted) {
+        _logic.resumeFetching();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      final connection = _logic.connection;
+
+      await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => ConnectedWebViewModal(
+          modalKey: 'connected-webview',
+          url: '$result?${connection.queryParams}',
+          redirectUrl: "https://app.citizenwallet.xyz",
+          walletLogic: _logic,
+          profilesLogic: _profilesLogic,
+        ),
+      );
+
       _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();

@@ -1,7 +1,7 @@
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 
@@ -178,6 +178,7 @@ class _WebViewModalState extends State<WebViewModal> {
                     .resolveFrom(context),
               ),
               child: WebViewNavigation(
+                url: widget.url,
                 onDismiss: () => handleDismiss(context),
                 onBack: handleBack,
                 onForward: handleForward,
