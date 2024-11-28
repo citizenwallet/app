@@ -58,7 +58,7 @@ class _WalletActionsState extends State<WalletActions> {
     final isWalletReady = context.select((WalletState state) => state.ready);
     final showActionButton = !walletActionsLoading && isWalletReady;
     final actionButton = context.select(selectActionButtonToShow);
-    final plugins = wallet?.plugins ?? [];
+    final plugins = context.select(selectVisiblePlugins);
     final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
@@ -168,9 +168,7 @@ class _WalletActionsState extends State<WalletActions> {
           child: Opacity(
             opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
             child: Text(
-              username.isEmpty
-                  ? ''
-                  : '@$username',
+              username.isEmpty ? '' : '@$username',
               style: TextStyle(
                 fontSize: coinNameSize,
                 fontWeight: FontWeight.bold,
@@ -352,19 +350,23 @@ class _WalletActionsState extends State<WalletActions> {
                               ActionButtonType.plugins) ...[
                         WalletActionButton(
                           key: const Key('plugin_action_button'),
-                          customIcon: SvgPicture.network(
-                            onePlugin!.icon,
-                            semanticsLabel: '${onePlugin.name} icon',
-                            height: buttonIconSize,
-                            width: buttonIconSize,
-                            placeholderBuilder: (_) => Icon(
-                              CupertinoIcons.arrow_down,
-                              size: buttonIconSize,
-                              color: sendLoading
-                                  ? Theme.of(context).colors.subtleEmphasis
-                                  : Theme.of(context).colors.black,
-                            ),
-                          ),
+                          customIcon: onePlugin!.icon != null
+                              ? SvgPicture.network(
+                                  onePlugin.icon!,
+                                  semanticsLabel: '${onePlugin.name} icon',
+                                  height: buttonIconSize,
+                                  width: buttonIconSize,
+                                  placeholderBuilder: (_) => Icon(
+                                    CupertinoIcons.arrow_down,
+                                    size: buttonIconSize,
+                                    color: sendLoading
+                                        ? Theme.of(context)
+                                            .colors
+                                            .subtleEmphasis
+                                        : Theme.of(context).colors.black,
+                                  ),
+                                )
+                              : null,
                           buttonSize: buttonSize,
                           buttonIconSize: buttonIconSize,
                           buttonFontSize: buttonFontSize,
