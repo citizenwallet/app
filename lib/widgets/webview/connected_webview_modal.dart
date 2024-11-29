@@ -111,6 +111,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
         successUrl: successUrl,
         walletLogic: widget.walletLogic,
         profilesLogic: widget.profilesLogic,
+        webViewController: webViewController,
       ),
     );
 
