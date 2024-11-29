@@ -17,6 +17,8 @@ class ConnectedWebViewModal extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
 
+  final String closeUrl;
+
   const ConnectedWebViewModal({
     super.key,
     this.modalKey,
@@ -24,7 +26,7 @@ class ConnectedWebViewModal extends StatefulWidget {
     required this.redirectUrl,
     required this.walletLogic,
     required this.profilesLogic,
-  });
+  }) : closeUrl = '$redirectUrl/close';
 
   @override
   State<ConnectedWebViewModal> createState() => _WebViewModalState();
@@ -72,11 +74,19 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
   Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
       InAppWebViewController controller, NavigationAction action) async {
     final uri = Uri.parse(action.request.url.toString());
+
+    if (uri.toString().startsWith(widget.closeUrl)) {
+      handleClose();
+
+      return NavigationActionPolicy.CANCEL;
+    }
+
     if (uri.toString().startsWith(widget.redirectUrl)) {
       handleDisplayActionModal(uri);
 
       return NavigationActionPolicy.CANCEL;
     }
+
     return NavigationActionPolicy.ALLOW;
   }
 
@@ -86,6 +96,10 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     headlessWebView?.dispose();
     webViewController = null;
+  }
+
+  void handleClose() async {
+    handleDismiss(context);
   }
 
   void handleDisplayActionModal(Uri uri) async {
@@ -109,6 +123,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
         amount: amount,
         description: description,
         successUrl: successUrl,
+        closeUrl: widget.closeUrl,
         walletLogic: widget.walletLogic,
         profilesLogic: widget.profilesLogic,
         webViewController: webViewController,

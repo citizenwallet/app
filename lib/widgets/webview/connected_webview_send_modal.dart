@@ -19,6 +19,7 @@ class ConnectedWebViewSendModal extends StatefulWidget {
   final String amount;
   final String description;
   final String? successUrl;
+  final String closeUrl;
 
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
@@ -34,6 +35,7 @@ class ConnectedWebViewSendModal extends StatefulWidget {
     required this.amount,
     required this.description,
     required this.successUrl,
+    required this.closeUrl,
     required this.walletLogic,
     required this.profilesLogic,
     this.webViewController,
@@ -114,6 +116,9 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
       } else {
         rawUrl = '$rawUrl?tx=$txHash';
       }
+
+      final closeUrl = Uri.encodeComponent(widget.closeUrl);
+      rawUrl = '$rawUrl&close=$closeUrl';
 
       final uri = WebUri(rawUrl);
 
