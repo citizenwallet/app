@@ -108,8 +108,13 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
     webViewController = null;
   }
 
-  void handleSend(BuildContext context, String address, double amount,
-      String description) async {
+  void handleSend(
+    BuildContext context,
+    String address,
+    double amount,
+    String description, {
+    String? successUrl,
+  }) async {
     if (_isSending) {
       return;
     }
@@ -126,7 +131,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     final navigator = GoRouter.of(context);
 
-    walletLogic.sendTransaction(
+    final txHash = await walletLogic.sendTransaction(
       amount.toString(),
       address,
       message: description,
@@ -136,19 +141,44 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     HapticFeedback.heavyImpact();
 
-    final sent = await navigator.push<bool?>(
-      '/wallet/${walletLogic.account}/send/$address/progress',
-    );
+    if (txHash == null) {
+      setState(() {
+        _isSending = false;
+      });
 
-    if (sent == true) {
-      walletLogic.clearInputControllers();
-      walletLogic.resetInputErrorState();
-      widget.profilesLogic.clearSearch();
-
-      await Future.delayed(const Duration(milliseconds: 50));
-
-      navigator.pop(true);
       return;
+    }
+
+    if (successUrl == null || successUrl.isEmpty) {
+      final sent = await navigator.push<bool?>(
+        '/wallet/${walletLogic.account}/send/$address/progress',
+      );
+
+      if (sent == true) {
+        walletLogic.clearInputControllers();
+        walletLogic.resetInputErrorState();
+        widget.profilesLogic.clearSearch();
+
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        navigator.pop(true);
+        return;
+      }
+    }
+
+    if (successUrl != null && successUrl.isNotEmpty) {
+      String rawUrl = successUrl;
+      if (rawUrl.contains('?')) {
+        rawUrl = '$rawUrl&tx=$txHash';
+      } else {
+        rawUrl = '$rawUrl?tx=$txHash';
+      }
+
+      final uri = WebUri(rawUrl);
+
+      webViewController?.loadUrl(urlRequest: URLRequest(url: uri));
+
+      navigator.pop();
     }
 
     setState(() {
@@ -165,6 +195,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
     }
 
     final (address, amount, description, _) = parseQRCode(uri.toString());
+    final successUrl = uri.queryParameters['success'];
     if (amount == null || description == null) {
       return;
     }
@@ -175,7 +206,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     widget.profilesLogic.getProfile(address);
 
-    final sent = await showCupertinoModalBottomSheet<bool?>(
+    final dismiss = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       builder: (context) {
         final width = MediaQuery.of(context).size.width;
@@ -295,6 +326,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
                                       address,
                                       formattedAmount,
                                       description,
+                                      successUrl: successUrl,
                                     )
                                 : null,
                             enabled: isSendingValid,
@@ -333,7 +365,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       },
     );
 
-    if (sent == true && super.mounted) {
+    if (dismiss == true && super.mounted) {
       handleDismiss(context);
     }
   }

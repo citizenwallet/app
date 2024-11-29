@@ -1016,14 +1016,16 @@ class WalletLogic extends WidgetsBindingObserver {
       return false;
     }
 
-    return sendTransactionFromLocked(
+    final txHash = await sendTransactionFromLocked(
       tx.amount,
       tx.to,
       message: tx.description,
     );
+
+    return txHash != null;
   }
 
-  Future<bool> sendTransaction(String amount, String to,
+  Future<String?> sendTransaction(String amount, String to,
       {String message = '', String? id}) async {
     return kIsWeb
         ? sendTransactionFromUnlocked(amount, to, message: message, id: id)
@@ -1102,7 +1104,7 @@ class WalletLogic extends WidgetsBindingObserver {
     );
   }
 
-  Future<bool> sendTransactionFromLocked(
+  Future<String?> sendTransactionFromLocked(
     String amount,
     String to, {
     String message = '',
@@ -1177,7 +1179,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.sendTransactionSuccess(null);
 
-      return true;
+      return txHash;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
         CWTransaction.failed(
@@ -1224,10 +1226,10 @@ class WalletLogic extends WidgetsBindingObserver {
 
     _state.sendTransactionError();
 
-    return false;
+    return null;
   }
 
-  Future<bool> sendTransactionFromUnlocked(
+  Future<String?> sendTransactionFromUnlocked(
     String amount,
     String to, {
     String message = '',
@@ -1302,7 +1304,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.sendTransactionSuccess(null);
 
-      return true;
+      return txHash;
     } on NetworkCongestedException {
       _state.sendQueueAddTransaction(
         CWTransaction.failed(
@@ -1349,7 +1351,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
     _state.sendTransactionError();
 
-    return false;
+    return null;
   }
 
   void clearInProgressTransaction() {
