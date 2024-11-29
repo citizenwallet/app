@@ -1,22 +1,14 @@
 import 'package:citizenwallet/state/profiles/logic.dart';
-import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
-import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
-import 'package:citizenwallet/widgets/blurry_child.dart';
-import 'package:citizenwallet/widgets/profile/profile_circle.dart';
-import 'package:citizenwallet/widgets/slide_to_complete.dart';
+import 'package:citizenwallet/widgets/webview/connected_webview_send_modal.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:citizenwallet/widgets/coin_logo.dart';
 
 class ConnectedWebViewModal extends StatefulWidget {
   final String? modalKey;
@@ -45,11 +37,8 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
   HeadlessInAppWebView? headlessWebView;
   late InAppWebViewSettings settings;
 
-  String? _url;
   bool _show = false;
   bool _isDismissing = false;
-
-  bool _isSending = false;
 
   @override
   void initState() {
@@ -66,15 +55,6 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
         webViewController = controller;
       },
       shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-      onUpdateVisitedHistory: (controller, url, androidIsReload) {
-        if (url == null) {
-          return;
-        }
-
-        setState(() {
-          _url = url.toString();
-        });
-      },
       onLoadStop: (controller, url) {
         setState(() {
           _show = true;
@@ -108,86 +88,6 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
     webViewController = null;
   }
 
-  void handleSend(
-    BuildContext context,
-    String address,
-    double amount,
-    String description, {
-    String? successUrl,
-  }) async {
-    if (_isSending) {
-      return;
-    }
-
-    final walletLogic = widget.walletLogic;
-
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    setState(() {
-      _isSending = true;
-    });
-
-    HapticFeedback.lightImpact();
-
-    final navigator = GoRouter.of(context);
-
-    final txHash = await walletLogic.sendTransaction(
-      amount.toString(),
-      address,
-      message: description,
-    );
-
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    HapticFeedback.heavyImpact();
-
-    if (txHash == null) {
-      setState(() {
-        _isSending = false;
-      });
-
-      return;
-    }
-
-    if (successUrl == null || successUrl.isEmpty) {
-      final sent = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send/$address/progress',
-      );
-
-      if (sent == true) {
-        walletLogic.clearInputControllers();
-        walletLogic.resetInputErrorState();
-        widget.profilesLogic.clearSearch();
-
-        await Future.delayed(const Duration(milliseconds: 50));
-
-        navigator.pop(true);
-        return;
-      }
-    }
-
-    if (successUrl != null && successUrl.isNotEmpty) {
-      String rawUrl = successUrl;
-      if (rawUrl.contains('?')) {
-        rawUrl = '$rawUrl&tx=$txHash';
-      } else {
-        rawUrl = '$rawUrl?tx=$txHash';
-      }
-
-      final uri = WebUri(rawUrl);
-
-      webViewController?.loadUrl(urlRequest: URLRequest(url: uri));
-
-      navigator.pop();
-    }
-
-    setState(() {
-      _isSending = false;
-    });
-
-    return;
-  }
-
   void handleDisplayActionModal(Uri uri) async {
     final format = parseQRFormat(uri.toString());
     if (format != QRFormat.sendtoUrl) {
@@ -200,169 +100,18 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       return;
     }
 
-    final formattedAmount = double.parse(amount) / 100;
-    final descriptionItems =
-        description.split(',').map((e) => e.trim()).toList();
-
     widget.profilesLogic.getProfile(address);
 
     final dismiss = await showCupertinoModalBottomSheet<bool?>(
       context: context,
-      builder: (context) {
-        final width = MediaQuery.of(context).size.width;
-
-        final wallet = context.select(
-          (WalletState state) => state.wallet,
-        );
-        final balance =
-            double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
-
-        final isSendingValid = balance >= double.parse(amount);
-
-        final selectedProfile = context.select(
-          (ProfilesState state) => state.selectedProfile,
-        );
-
-        return SizedBox(
-          width: width,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ProfileCircle(
-                    imageUrl: selectedProfile?.imageSmall,
-                    size: 120,
-                  ),
-                  Text(
-                    selectedProfile?.name ?? '',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '@${selectedProfile?.username ?? ''}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          0,
-                          0,
-                          0,
-                          0,
-                        ),
-                        child: CoinLogo(
-                          size: 32,
-                          logo: wallet?.currencyLogo,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        formattedAmount.toString(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context)
-                              .colors
-                              .text
-                              .resolveFrom(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  ...descriptionItems.map(
-                    (e) => Text(
-                      e,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Positioned(
-                bottom: 0,
-                width: width,
-                child: SafeArea(
-                  child: BlurryChild(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: Theme.of(context)
-                                .colors
-                                .subtle
-                                .resolveFrom(context),
-                          ),
-                        ),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                      child: Column(
-                        children: [
-                          SlideToComplete(
-                            onCompleted: !_isSending
-                                ? () => handleSend(
-                                      context,
-                                      address,
-                                      formattedAmount,
-                                      description,
-                                      successUrl: successUrl,
-                                    )
-                                : null,
-                            enabled: isSendingValid,
-                            isComplete: _isSending,
-                            completionLabel:
-                                AppLocalizations.of(context)!.swipeToConfirm,
-                            completionLabelColor: Theme.of(context)
-                                .colors
-                                .primary
-                                .resolveFrom(context),
-                            thumbColor: Theme.of(context)
-                                .colors
-                                .surfacePrimary
-                                .resolveFrom(context),
-                            width: width * 0.65,
-                            child: SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.arrow_right,
-                                  color: Theme.of(context).colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (context) => ConnectedWebViewSendModal(
+        address: address,
+        amount: amount,
+        description: description,
+        successUrl: successUrl,
+        walletLogic: widget.walletLogic,
+        profilesLogic: widget.profilesLogic,
+      ),
     );
 
     if (dismiss == true && super.mounted) {
@@ -451,16 +200,6 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
                             webViewController = controller;
                           },
                           shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-                          onUpdateVisitedHistory:
-                              (controller, url, androidIsReload) {
-                            if (url == null) {
-                              return;
-                            }
-
-                            setState(() {
-                              _url = url.toString();
-                            });
-                          },
                           onLoadStop: (controller, url) {
                             setState(() {
                               _show = true;
