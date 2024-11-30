@@ -5,6 +5,7 @@ import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/webview/connected_webview_send_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
@@ -62,6 +63,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
           _show = true;
         });
       },
+      onConsoleMessage: kDebugMode ? handleConsoleMessage : null,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,6 +71,11 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
       handleRunWebView();
     });
+  }
+
+  void handleConsoleMessage(
+      InAppWebViewController controller, ConsoleMessage message) {
+    print('>>>> ${message.message}');
   }
 
   Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
@@ -110,7 +117,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     final (address, amount, description, _) = parseQRCode(uri.toString());
     final successUrl = uri.queryParameters['success'];
-    if (amount == null || description == null) {
+    if (amount == null) {
       return;
     }
 
@@ -221,6 +228,8 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
                               _show = true;
                             });
                           },
+                          onConsoleMessage:
+                              kDebugMode ? handleConsoleMessage : null,
                         )
                       : const SizedBox(),
                 ),

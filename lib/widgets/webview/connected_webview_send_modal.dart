@@ -17,7 +17,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ConnectedWebViewSendModal extends StatefulWidget {
   final String address;
   final String amount;
-  final String description;
+  final String? description;
   final String? successUrl;
   final String closeUrl;
 
@@ -27,13 +27,13 @@ class ConnectedWebViewSendModal extends StatefulWidget {
   final InAppWebViewController? webViewController;
 
   final double formattedAmount;
-  final List<String> descriptionItems;
+  final List<String>? descriptionItems;
 
   ConnectedWebViewSendModal({
     super.key,
     required this.address,
     required this.amount,
-    required this.description,
+    this.description,
     required this.successUrl,
     required this.closeUrl,
     required this.walletLogic,
@@ -41,7 +41,7 @@ class ConnectedWebViewSendModal extends StatefulWidget {
     this.webViewController,
   })  : formattedAmount = double.parse(amount) / 100,
         descriptionItems =
-            description.split('\n').map((e) => e.trim()).toList();
+            description?.split('\n').map((e) => e.trim()).toList();
 
   @override
   State<ConnectedWebViewSendModal> createState() =>
@@ -54,8 +54,8 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
   void handleSend(
     BuildContext context,
     String address,
-    double amount,
-    String description, {
+    double amount, {
+    String? description,
     String? successUrl,
   }) async {
     if (_isSending) {
@@ -77,7 +77,7 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
     final txHash = await walletLogic.sendTransaction(
       amount.toString(),
       address,
-      message: description,
+      message: description ?? '',
     );
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -213,16 +213,17 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              ...widget.descriptionItems.map(
-                (e) => Text(
-                  e,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w400,
+              if (widget.description != null) const SizedBox(height: 20),
+              if (widget.descriptionItems != null)
+                ...widget.descriptionItems!.map(
+                  (e) => Text(
+                    e,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           Positioned(
@@ -259,7 +260,7 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
                                     context,
                                     widget.address,
                                     widget.formattedAmount,
-                                    widget.description,
+                                    description: widget.description,
                                     successUrl: widget.successUrl,
                                   )
                               : null,
