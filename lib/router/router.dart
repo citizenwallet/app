@@ -24,6 +24,7 @@ import 'package:citizenwallet/screens/wallet/screen.web.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
+import 'package:citizenwallet/state/transaction.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/platform.dart';
@@ -167,12 +168,23 @@ GoRouter createRouter(
                   return const SizedBox();
                 }
 
+                final transactionHash = state.pathParameters['transactionId'];
+                if (transactionHash == null) {
+                  return const SizedBox();
+                }
+
                 final extra = state.extra as Map<String, dynamic>;
 
-                return TransactionScreen(
-                  transactionId: state.pathParameters['transactionId'],
-                  logic: extra['logic'],
-                  profilesLogic: extra['profilesLogic'],
+                return ChangeNotifierProvider(
+                  key: Key('transaction-$transactionHash'),
+                  create: (_) => TransactionState(
+                    transactionHash: transactionHash,
+                  ),
+                  child: TransactionScreen(
+                    transactionId: transactionHash,
+                    logic: extra['logic'],
+                    profilesLogic: extra['profilesLogic'],
+                  ),
                 );
               },
             ),
