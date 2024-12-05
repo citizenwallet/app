@@ -1849,6 +1849,7 @@ class WalletLogic extends WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         resumeFetching();
+        loadTransactions();
 
         if (_wallet.alias == null) {
           return;
