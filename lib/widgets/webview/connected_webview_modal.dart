@@ -1,29 +1,39 @@
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/qr.dart';
+import 'package:citizenwallet/widgets/webview/connected_webview_send_modal.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class WebViewModal extends StatefulWidget {
+class ConnectedWebViewModal extends StatefulWidget {
   final String? modalKey;
   final String url;
   final String redirectUrl;
-  final String? customScheme;
+  final WalletLogic walletLogic;
+  final ProfilesLogic profilesLogic;
 
-  const WebViewModal({
+  final String closeUrl;
+
+  const ConnectedWebViewModal({
     super.key,
     this.modalKey,
     required this.url,
     required this.redirectUrl,
-    this.customScheme,
-  });
+    required this.walletLogic,
+    required this.profilesLogic,
+  }) : closeUrl = '$redirectUrl/close';
 
   @override
-  State<WebViewModal> createState() => _WebViewModalState();
+  State<ConnectedWebViewModal> createState() => _WebViewModalState();
 }
 
-class _WebViewModalState extends State<WebViewModal> {
+class _WebViewModalState extends State<ConnectedWebViewModal> {
   final GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
@@ -32,8 +42,6 @@ class _WebViewModalState extends State<WebViewModal> {
 
   bool _show = false;
   bool _isDismissing = false;
-  bool _canGoBack = false;
-  bool _canGoForward = false;
 
   @override
   void initState() {
@@ -41,8 +49,6 @@ class _WebViewModalState extends State<WebViewModal> {
 
     settings = InAppWebViewSettings(
       javaScriptEnabled: true,
-      resourceCustomSchemes:
-          widget.customScheme != null ? [widget.customScheme!] : [],
     );
 
     headlessWebView = HeadlessInAppWebView(
@@ -51,48 +57,13 @@ class _WebViewModalState extends State<WebViewModal> {
       onWebViewCreated: (controller) {
         webViewController = controller;
       },
-      onLoadStart: (controller, url) {
-        setState(() {
-          _show = false;
-        });
-
-        if (url == null) {
-          return;
-        }
-
-        final uri = Uri.parse(url.toString());
-        if (uri.toString() == widget.redirectUrl) {
-          handleDismiss(context, path: uri.queryParameters['response']);
-        }
-      },
-      onUpdateVisitedHistory: (controller, url, androidIsReload) {
-        updateNavigationState();
-
-        if (url == null) {
-          return;
-        }
-
-        final uri = Uri.parse(url.toString());
-        if (uri.toString() == widget.redirectUrl) {
-          handleDismiss(context, path: uri.queryParameters['response']);
-        }
-      },
-      onLoadResource: (controller, request) async {
-        final uri = Uri.parse(request.url.toString());
-        if (uri.toString() == widget.redirectUrl) {
-          handleDismiss(context, path: uri.queryParameters['response']);
-        }
-      },
-      onLoadResourceWithCustomScheme: (controller, request) async {
-        final uri = Uri.parse(request.url.toString());
-        handleDismiss(context, path: uri.queryParameters['response']);
-        return null;
-      },
+      shouldOverrideUrlLoading: shouldOverrideUrlLoading,
       onLoadStop: (controller, url) {
         setState(() {
           _show = true;
         });
       },
+      onConsoleMessage: kDebugMode ? handleConsoleMessage : null,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,12 +73,73 @@ class _WebViewModalState extends State<WebViewModal> {
     });
   }
 
+  void handleConsoleMessage(
+      InAppWebViewController controller, ConsoleMessage message) {
+    print('>>>> ${message.message}');
+  }
+
+  Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
+      InAppWebViewController controller, NavigationAction action) async {
+    final uri = Uri.parse(action.request.url.toString());
+
+    if (uri.toString().startsWith(widget.closeUrl)) {
+      handleClose();
+
+      return NavigationActionPolicy.CANCEL;
+    }
+
+    if (uri.toString().startsWith(widget.redirectUrl)) {
+      handleDisplayActionModal(uri);
+
+      return NavigationActionPolicy.CANCEL;
+    }
+
+    return NavigationActionPolicy.ALLOW;
+  }
+
   @override
   void dispose() {
     super.dispose();
 
     headlessWebView?.dispose();
     webViewController = null;
+  }
+
+  void handleClose() async {
+    handleDismiss(context);
+  }
+
+  void handleDisplayActionModal(Uri uri) async {
+    final format = parseQRFormat(uri.toString());
+    if (format != QRFormat.sendtoUrl) {
+      return;
+    }
+
+    final (address, amount, description, _) = parseQRCode(uri.toString());
+    final successUrl = uri.queryParameters['success'];
+    if (amount == null) {
+      return;
+    }
+
+    widget.profilesLogic.getProfile(address);
+
+    final dismiss = await showCupertinoModalBottomSheet<bool?>(
+      context: context,
+      builder: (context) => ConnectedWebViewSendModal(
+        address: address,
+        amount: amount,
+        description: description,
+        successUrl: successUrl,
+        closeUrl: widget.closeUrl,
+        walletLogic: widget.walletLogic,
+        profilesLogic: widget.profilesLogic,
+        webViewController: webViewController,
+      ),
+    );
+
+    if (dismiss == true && super.mounted) {
+      handleDismiss(context);
+    }
   }
 
   void handleDismiss(BuildContext context, {String? path}) async {
@@ -126,16 +158,16 @@ class _WebViewModalState extends State<WebViewModal> {
     navigator.pop(path);
   }
 
-  void handleBack() async {
-    await webViewController?.goBack();
+  void handleBack({InAppWebViewController? controller}) async {
+    await (controller ?? webViewController)?.goBack();
   }
 
-  void handleForward() async {
-    await webViewController?.goForward();
+  void handleForward({InAppWebViewController? controller}) async {
+    await (controller ?? webViewController)?.goForward();
   }
 
-  void handleRefresh() async {
-    await webViewController?.reload();
+  void handleRefresh({InAppWebViewController? controller}) async {
+    await (controller ?? webViewController)?.reload();
   }
 
   void handleRunWebView() async {
@@ -144,16 +176,6 @@ class _WebViewModalState extends State<WebViewModal> {
     }
 
     headlessWebView!.run();
-  }
-
-  void updateNavigationState() async {
-    final canGoBack = await webViewController?.canGoBack() ?? false;
-    final canGoForward = await webViewController?.canGoForward() ?? false;
-
-    setState(() {
-      _canGoBack = canGoBack;
-      _canGoForward = canGoForward;
-    });
   }
 
   @override
@@ -169,7 +191,7 @@ class _WebViewModalState extends State<WebViewModal> {
           direction: Axis.vertical,
           children: [
             Container(
-              height: 90 + safeTopPadding,
+              height: 44 + safeTopPadding,
               padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
               decoration: BoxDecoration(
                 color: Theme.of(context)
@@ -178,11 +200,7 @@ class _WebViewModalState extends State<WebViewModal> {
                     .resolveFrom(context),
               ),
               child: WebViewNavigation(
-                url: widget.url,
                 onDismiss: () => handleDismiss(context),
-                onBack: handleBack,
-                onForward: handleForward,
-                onRefresh: handleRefresh,
                 canGoBack: true,
                 canGoForward: true,
               ),
@@ -204,52 +222,14 @@ class _WebViewModalState extends State<WebViewModal> {
                             headlessWebView = null;
                             webViewController = controller;
                           },
-                          onLoadStart: (controller, url) {
-                            if (url == null) {
-                              return;
-                            }
-
-                            final uri = Uri.parse(url.toString());
-                            if (uri.toString() == widget.redirectUrl) {
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                            }
-                          },
-                          onUpdateVisitedHistory:
-                              (controller, url, androidIsReload) {
-                            updateNavigationState();
-
-                            if (url == null) {
-                              return;
-                            }
-
-                            final uri = Uri.parse(url.toString());
-
-                            if (uri.toString() == widget.redirectUrl) {
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                            }
-                          },
-                          onLoadResource: (controller, request) async {
-                            final uri = Uri.parse(request.url.toString());
-
-                            if (uri.toString() == widget.redirectUrl) {
-                              handleDismiss(context,
-                                  path: uri.queryParameters['response']);
-                            }
-                          },
-                          onLoadResourceWithCustomScheme:
-                              (controller, request) async {
-                            final uri = Uri.parse(request.url.toString());
-                            handleDismiss(context,
-                                path: uri.queryParameters['response']);
-                            return null;
-                          },
+                          shouldOverrideUrlLoading: shouldOverrideUrlLoading,
                           onLoadStop: (controller, url) {
                             setState(() {
                               _show = true;
                             });
                           },
+                          onConsoleMessage:
+                              kDebugMode ? handleConsoleMessage : null,
                         )
                       : const SizedBox(),
                 ),

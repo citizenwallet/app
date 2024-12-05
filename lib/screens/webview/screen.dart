@@ -1,7 +1,7 @@
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:zikzak_inappwebview/zikzak_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
 
@@ -162,7 +162,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
           direction: Axis.vertical,
           children: [
             Container(
-              height: 90 + safeTopPadding,
+              height: 44 + safeTopPadding,
               padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
               decoration: BoxDecoration(
                 color: Theme.of(context)
@@ -171,6 +171,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                     .resolveFrom(context),
               ),
               child: WebViewNavigation(
+                url: widget.url,
                 onDismiss: () => handleDismiss(context),
                 onBack: handleBack,
                 onForward: handleForward,

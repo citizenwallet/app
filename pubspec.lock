@@ -436,6 +436,62 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.0"
+  flutter_inappwebview:
+    dependency: "direct main"
+    description:
+      name: flutter_inappwebview
+      sha256: "3e9a443a18ecef966fb930c3a76ca5ab6a7aafc0c7b5e14a4a850cf107b09959"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
+  flutter_inappwebview_android:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_android
+      sha256: "62557c15a5c2db5d195cb3892aab74fcaec266d7b86d59a6f0027abd672cddba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.3"
+  flutter_inappwebview_internal_annotations:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_internal_annotations
+      sha256: "787171d43f8af67864740b6f04166c13190aa74a1468a1f1f1e9ee5b90c359cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
+  flutter_inappwebview_ios:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_ios
+      sha256: "5818cf9b26cf0cbb0f62ff50772217d41ea8d3d9cc00279c45f8aabaa1b4025d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
+  flutter_inappwebview_macos:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_macos
+      sha256: c1fbb86af1a3738e3541364d7d1866315ffb0468a1a77e34198c9be571287da1
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
+  flutter_inappwebview_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_platform_interface
+      sha256: cf5323e194096b6ede7a1ca808c3e0a078e4b33cc3f6338977d75b4024ba2500
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0+1"
+  flutter_inappwebview_web:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview_web
+      sha256: d8c680abfb6fec71609a700199635d38a744df0febd5544c5a020bd73de8ee07
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -1657,62 +1713,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  zikzak_inappwebview:
-    dependency: "direct main"
-    description:
-      name: zikzak_inappwebview
-      sha256: cfabd768c229c7f275605158163a2dcec29420eec4d76f57f5789a616d398665
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
-  zikzak_inappwebview_android:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_android
-      sha256: "9064ab7586a9fc99a8885904fa36038fab709d0de7055e52c81e896d6173d769"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  zikzak_inappwebview_internal_annotations:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_internal_annotations
-      sha256: "9bfc449aed94d6d9eef743436594fb78c179a4f7a0d08436e5736217f0a087e5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  zikzak_inappwebview_ios:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_ios
-      sha256: c701e6bf6d345ccee8f9ae22e75d93d4da3df7cd77982147c5ff50e3f08e59ad
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  zikzak_inappwebview_macos:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_macos
-      sha256: ea73283d6aeece642091df1c5ed1c247fca4f67789c3d0b17ca0cd3c95189235
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  zikzak_inappwebview_platform_interface:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_platform_interface
-      sha256: "1f06d969a34ed55441df64e5d8a185ac333d4751edd8c09f4eebd6c1d21762b7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  zikzak_inappwebview_web:
-    dependency: transitive
-    description:
-      name: zikzak_inappwebview_web
-      sha256: fede1f8ceb0f5b054d2f90241d834ab82c4795ebcfce6b99a99f1ef29f4ab0c1
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
 sdks:
   dart: ">=3.5.0 <4.0.0"
   flutter: ">=3.24.0"

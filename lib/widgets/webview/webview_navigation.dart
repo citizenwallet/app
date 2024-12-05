@@ -3,19 +3,21 @@ import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebViewNavigation extends StatelessWidget {
+  final String? url;
   final VoidCallback onDismiss;
-  final VoidCallback onBack;
-  final VoidCallback onForward;
-  final VoidCallback onRefresh;
+  final VoidCallback? onBack;
+  final VoidCallback? onForward;
+  final VoidCallback? onRefresh;
   final bool canGoForward;
   final bool canGoBack;
 
   const WebViewNavigation({
     super.key,
+    this.url,
     required this.onDismiss,
-    required this.onBack,
-    required this.onForward,
-    required this.onRefresh,
+    this.onBack,
+    this.onForward,
+    this.onRefresh,
     this.canGoBack = false,
     this.canGoForward = false,
   });
@@ -23,48 +25,94 @@ class WebViewNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            const SizedBox(
-              width: 20,
-            ),
-            _buildNavButton(
-              context: context,
-              icon: CupertinoIcons.arrow_left,
-              onPressed: onBack,
-              disabled: !canGoBack,
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            _buildNavButton(
-              context: context,
-              icon: CupertinoIcons.arrow_right,
-              onPressed: onForward,
-              disabled: !canGoForward,
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            _buildNavButton(
-              context: context,
-              icon: CupertinoIcons.refresh,
-              onPressed: onRefresh,
-            ),
-          ],
+        Expanded(
+          child: Row(
+            children: [
+              if (onBack != null)
+                const SizedBox(
+                  width: 12,
+                ),
+              if (onBack != null)
+                _buildNavButton(
+                  context: context,
+                  icon: CupertinoIcons.arrow_left,
+                  onPressed: onBack!,
+                  disabled: !canGoBack,
+                ),
+              if (onForward != null)
+                const SizedBox(
+                  width: 12,
+                ),
+              if (onForward != null)
+                _buildNavButton(
+                  context: context,
+                  icon: CupertinoIcons.arrow_right,
+                  onPressed: onForward!,
+                  disabled: !canGoForward,
+                ),
+              if (onRefresh != null)
+                const SizedBox(
+                  width: 12,
+                ),
+              if (onRefresh != null)
+                _buildNavButton(
+                  context: context,
+                  icon: CupertinoIcons.refresh,
+                  onPressed: onRefresh!,
+                ),
+              if (url != null)
+                const SizedBox(
+                  width: 12,
+                ),
+              if (url != null)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Theme.of(context)
+                            .colors
+                            .surfaceBackground
+                            .resolveFrom(context),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              url!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colors
+                                    .surfaceText
+                                    .resolveFrom(context),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
         Row(
           children: [
-            _buildCloseButton(
+            _buildNavButton(
               context: context,
+              icon: CupertinoIcons.xmark,
+              width: 44,
               onPressed: onDismiss,
             ),
-            const SizedBox(
-              width: 20,
-            )
           ],
         ),
       ],
@@ -76,53 +124,25 @@ class WebViewNavigation extends StatelessWidget {
     required IconData icon,
     required VoidCallback onPressed,
     bool disabled = false,
+    double width = 26,
   }) {
     return Opacity(
       opacity: disabled ? 0.5 : 1,
-      child: Container(
-        height: 50,
-        width: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context)
-              .colors
-              .uiBackground
-              .resolveFrom(context)
-              .withOpacity(0.5),
-          borderRadius: BorderRadius.circular(25),
-        ),
+      child: SizedBox(
+        height: 44,
+        width: width,
         child: Center(
           child: CupertinoButton(
             padding: const EdgeInsets.all(5),
             onPressed: disabled ? () => {} : onPressed,
             child: Icon(
               icon,
+              size: 16,
               color: Theme.of(context).colors.touchable.resolveFrom(context),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCloseButton({
-    required BuildContext context,
-    required VoidCallback onPressed,
-  }) {
-    return CupertinoButton(
-      onPressed: onPressed,
-      child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Center(
-            child: Text(
-              AppLocalizations.of(context)!.close,
-              style: TextStyle(
-                  color: Theme.of(context).colors.primary, fontSize: 12),
-            ),
-          )),
     );
   }
 }

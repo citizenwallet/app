@@ -236,14 +236,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                SettingsRow(
-                  label: AppLocalizations.of(context)!.darkMode,
-                  icon: 'assets/icons/dark-mode.svg',
-                  trailing: CupertinoSwitch(
-                    value: darkMode,
-                    onChanged: onToggleDarkMode,
-                  ),
-                ),
+                // SettingsRow(
+                //   label: AppLocalizations.of(context)!.darkMode,
+                //   icon: 'assets/icons/dark-mode.svg',
+                //   trailing: CupertinoSwitch(
+                //     value: darkMode,
+                //     onChanged: onToggleDarkMode,
+                //   ),
+                // ),
                 SettingsRow(
                     label: AppLocalizations.of(context)!.language,
                     icon: 'assets/icons/language-svgrepo-com.svg',
