@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,8 +24,7 @@ class MoreActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final plugins =
-        context.select((WalletState state) => state.wallet!.plugins);
+    final plugins = context.select(selectVisiblePlugins);
     final actions = context.select((WalletState state) => state.walletActions);
 
     final navigator = GoRouter.of(context);
@@ -62,8 +62,10 @@ class MoreActionsSheet extends StatelessWidget {
                       context,
                       AppLocalizations.of(context)!.vouchers,
                       icon: CupertinoIcons.ticket,
-                      onPressed: () => navigator
-                          .pop({'action': ActionButtonType.vouchers, 'pluginConfig': null}),
+                      onPressed: () => navigator.pop({
+                        'action': ActionButtonType.vouchers,
+                        'pluginConfig': null
+                      }),
                     )
                   ];
                 case ActionButtonType.minter:
@@ -72,8 +74,10 @@ class MoreActionsSheet extends StatelessWidget {
                       context,
                       AppLocalizations.of(context)!.mint,
                       icon: CupertinoIcons.hammer,
-                      onPressed: () => navigator
-                          .pop({'action': ActionButtonType.minter, 'pluginConfig': null}),
+                      onPressed: () => navigator.pop({
+                        'action': ActionButtonType.minter,
+                        'pluginConfig': null
+                      }),
                     )
                   ];
                 case ActionButtonType.plugins:
@@ -81,19 +85,23 @@ class MoreActionsSheet extends StatelessWidget {
                     return _buildSheetItem(
                       context,
                       plugin.name,
-                      customIcon: SvgPicture.network(
-                        plugin.icon,
-                        semanticsLabel: '${plugin.name} icon',
-                        height: 30,
-                        width: 30,
-                        placeholderBuilder: (_) => Icon(
-                          CupertinoIcons.arrow_down,
-                          size: 30,
-                          color: Theme.of(context).colors.primary,
-                        ),
-                      ),
-                      onPressed: () => navigator
-                          .pop({'action': ActionButtonType.plugins, 'pluginConfig': plugin}),
+                      customIcon: plugin.icon != null
+                          ? SvgPicture.network(
+                              plugin.icon!,
+                              semanticsLabel: '${plugin.name} icon',
+                              height: 30,
+                              width: 30,
+                              placeholderBuilder: (_) => Icon(
+                                CupertinoIcons.arrow_down,
+                                size: 30,
+                                color: Theme.of(context).colors.primary,
+                              ),
+                            )
+                          : null,
+                      onPressed: () => navigator.pop({
+                        'action': ActionButtonType.plugins,
+                        'pluginConfig': plugin
+                      }),
                     );
                   }).toList();
                 default:

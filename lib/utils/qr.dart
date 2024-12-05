@@ -9,6 +9,7 @@ enum QRFormat {
   receiveUrl,
   sendtoUrl,
   sendtoUrlWithEIP681,
+  url,
   unsupported,
 }
 
@@ -29,6 +30,8 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.receiveUrl;
   } else if (raw.contains('voucher=')) {
     return QRFormat.voucher;
+  } else if (raw.startsWith('https://') || raw.startsWith('http://')) {
+    return QRFormat.url;
   } else {
     return QRFormat.unsupported;
   }
@@ -133,6 +136,8 @@ QRFormat parseQRFormat(String raw) {
       return parseSendtoUrl(raw);
     case QRFormat.sendtoUrlWithEIP681:
       return parseSendtoUrlWithEIP681(raw);
+    case QRFormat.url:
+    // nothing to parse
     case QRFormat.voucher:
     // vouchers are invalid for a transfer
     default:

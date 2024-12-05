@@ -38,10 +38,11 @@ class PreferencesService {
   bool pushNotifications(String account) =>
       _preferences.getBool('pushNotifications_$account') ?? false;
 
-  bool get darkMode =>
-      _preferences.getBool('darkMode') ??
-      SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-          Brightness.dark;
+  // bool get darkMode =>
+  //     _preferences.getBool('darkMode') ??
+  //     SchedulerBinding.instance.platformDispatcher.platformBrightness ==
+  //         Brightness.dark;
+  bool get darkMode => false;
 
   // save the first launch property
   Future setFirstLaunch(bool firstLaunch) async {

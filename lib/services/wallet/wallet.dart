@@ -6,6 +6,7 @@ import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/sigauth/sigauth.dart';
 import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
@@ -77,6 +78,8 @@ class WalletService {
   late EthPrivateKey
       _credentials; // Represents a private key for an Ethereum account.
   late EthereumAddress _account; // Represents an Ethereum address.
+  late SigAuthService _sigAuth;
+
   late StackupEntryPoint
       _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
   late CommunityModule _contractCommunityModule;
@@ -143,6 +146,8 @@ class WalletService {
       : _contract1155Token!.addr;
   String get profileAddress => _contractProfile.addr;
 
+  SigAuthConnection get connection => _sigAuth.connect();
+
   Future<BigInt> get accountNonce async =>
       getEntryPointContract().getNonce(_account.hexEip55);
 
@@ -200,6 +205,11 @@ class WalletService {
     }
 
     _credentials = privateKey;
+    _sigAuth = SigAuthService(
+      credentials: privateKey,
+      address: account,
+      redirect: dotenv.get('ORIGIN_HEADER'),
+    );
 
     final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
     _chainId = cachedChainId != null

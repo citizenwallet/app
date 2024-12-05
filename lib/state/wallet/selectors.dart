@@ -1,6 +1,7 @@
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:collection/collection.dart';
+import 'package:citizenwallet/services/config/config.dart';
 
 double selectWalletBalance(WalletState state) {
   if (state.wallet == null) {
@@ -91,3 +92,6 @@ ActionButton? selectActionButtonToShow(WalletState state) {
 
   return state.walletActions.last;
 }
+
+List<PluginConfig> selectVisiblePlugins(WalletState state) =>
+    (state.wallet?.plugins ?? []).where((plugin) => !plugin.hidden).toList();

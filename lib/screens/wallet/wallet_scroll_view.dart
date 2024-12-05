@@ -384,7 +384,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
-                    logo: config?.community.logo,
+                    logo: config.community.logo,
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,
