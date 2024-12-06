@@ -39,7 +39,7 @@ class ConfigService {
 
   List<Config> _configs = [];
 
-  Future<Config> getConfig(String alias, String location) async {
+  Future<Config> getConfig(String alias, String? location) async {
     return _getConfig(fixLegacyAliases(alias), location);
   }
 

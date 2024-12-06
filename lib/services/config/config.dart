@@ -101,9 +101,9 @@ class CommunityConfig {
       primaryToken: ContractLocation.fromJson(json['primary_token']),
       primaryAccountFactory:
           ContractLocation.fromJson(json['primary_account_factory']),
-        primaryCardManager: json['primary_card_manager'] != null
-            ? ContractLocation.fromJson(json['primary_card_manager'])
-            : null,
+      primaryCardManager: json['primary_card_manager'] != null
+          ? ContractLocation.fromJson(json['primary_card_manager'])
+          : null,
     );
   }
 
@@ -714,6 +714,16 @@ class Config {
 
   CardsConfig? getPrimaryCardManager() {
     return cards?[community.primaryCardManager?.fullAddress];
+  }
+
+  String getNodeUrl(String chainId) {
+    final chain = chains[chainId];
+
+    if (chain == null) {
+      throw Exception('Chain not found');
+    }
+
+    return chain.node.url;
   }
 
   String getRpcUrl(String chainId) {
