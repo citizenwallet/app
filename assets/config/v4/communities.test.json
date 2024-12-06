@@ -170,7 +170,8 @@
         "name": "Top Up",
         "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
         "url": "https://topup.citizenwallet.xyz/gratitude",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "action": "topup"
       }
     ],
     "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
@@ -298,7 +299,8 @@
       {
         "name": "Top Up",
         "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/bread"
+        "url": "https://topup.citizenspring.earth/bread",
+        "action": "topup"
       },
       {
         "name": "Market",
@@ -501,8 +503,8 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
@@ -517,7 +519,7 @@
         "launch_mode": "webview"
       }
     ],
-    "config_location": "https://gt.celo.citizenwallet.xyz/config/community.json",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/gt.celo.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -571,8 +573,8 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
@@ -580,7 +582,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://ceur.celo.citizenwallet.xyz/config/community.json",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/ceur.celo.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -632,8 +634,8 @@
       "137": {
         "id": 137,
         "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
         }
       }
     },
@@ -641,7 +643,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/eure.polygon.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -696,8 +698,8 @@
       "137": {
         "id": 137,
         "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
         }
       }
     },
@@ -705,7 +707,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/app.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -760,8 +762,8 @@
       "8453": {
         "id": 8453,
         "node": {
-          "url": "https://nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e",
-          "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
+          "url": "https://8453.engine.citizenwallet.xyz",
+          "ws_url": "wss://8453.engine.citizenwallet.xyz"
         }
       }
     },
@@ -769,7 +771,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-base.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/usdc.base.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -811,8 +813,8 @@
       "8453:0x9406Cc6185a346906296840746125a0E44976454": {
         "chain_id": 8453,
         "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "paymaster_address": "0x123",
         "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
-        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b73b74fc928ad4169893224898464773da0bce5f838bcc64791cd8b68e9e8128",
         "paymaster_type": "payg"
       }
     },
@@ -820,8 +822,8 @@
       "8453": {
         "id": 8453,
         "node": {
-          "url": "https://nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e",
-          "ws_url": "wss://ws-nd-231-060-478.p2pify.com/1200e5d6ce27d6e7cd61ab0567a9927e"
+          "url": "https://8453.engine.citizenwallet.xyz",
+          "ws_url": "wss://8453.engine.citizenwallet.xyz"
         }
       }
     },
@@ -829,7 +831,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-base.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.oak.community.json",
     "version": 4
   },
   {
@@ -839,6 +841,7 @@
       "url": "https://brale.xyz/",
       "alias": "sbc.polygon",
       "logo": "https://sbc.polygon.citizenwallet.xyz/wallet-config/_images/sbc.svg",
+      "hidden": true,
       "profile": {
         "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
         "chain_id": 137
@@ -870,8 +873,8 @@
       "137:0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5": {
         "chain_id": 137,
         "entrypoint_address": "0xe84423Ba1A3f3535B09237245e22dBda5E27eB88",
+        "paymaster_address": "0x123",
         "account_factory_address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5",
-        "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -879,8 +882,8 @@
       "137": {
         "id": 137,
         "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
         }
       }
     },
@@ -888,7 +891,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/sbc.polygon.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -930,8 +933,8 @@
       "137:0x11af2639817692D2b805BcE0e1e405E530B20006": {
         "chain_id": 137,
         "entrypoint_address": "0xF5507B3042f1C63625D856a2ABFF046243A5D74e",
+        "paymaster_address": "0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b",
         "account_factory_address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
-        "paymaster_rpc_url": "https://indexer-polygon.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -939,8 +942,8 @@
       "137": {
         "id": 137,
         "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
         }
       }
     },
@@ -948,7 +951,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/zinne.brussels.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -989,8 +992,8 @@
       "42220:0x39b77d77f7677997871b304094a05295eb71e240": {
         "chain_id": 42220,
         "entrypoint_address": "0x41176F0C9b8f795Cb99e2DD5Db16017978eeFa4d",
+        "paymaster_address": "0xe45858bf63176595c2920822581917c7C705a12f",
         "account_factory_address": "0x39b77d77f7677997871b304094a05295eb71e240",
-        "paymaster_rpc_url": "https://timebank.regensunite.earth/indexer/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -998,8 +1001,8 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
@@ -1055,8 +1058,8 @@
       "42220:0x671f0662de72268d0f3966Fb62dFc6ee6389e244": {
         "chain_id": 42220,
         "entrypoint_address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
+        "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
         "account_factory_address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
-        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1064,8 +1067,8 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
@@ -1080,7 +1083,7 @@
         "launch_mode": "webview"
       }
     ],
-    "config_location": "https://indexer-celo.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/moos.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -1121,8 +1124,8 @@
       "42220:0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284": {
         "chain_id": 42220,
         "entrypoint_address": "0xA90904F33df36899d810d040b8d5b3b77265Bb05",
+        "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
         "account_factory_address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
-        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1130,8 +1133,8 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
@@ -1142,10 +1145,17 @@
       {
         "name": "Get started",
         "icon": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/topup.svg",
-        "url": "https://topup.citizenwallet.xyz/selcoupdepouce"
+        "url": "https://topup.citizenwallet.xyz/selcoupdepouce",
+        "launch_mode": "webview"
+      },
+      {
+        "name": "Market",
+        "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
+        "url": "https://marketplace.citizenwallet.xyz/selcoupdepouce",
+        "launch_mode": "browser"
       }
     ],
-    "config_location": "https://indexer-celo.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/selcoupdepouce.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -1186,8 +1196,8 @@
       "42220:0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970": {
         "chain_id": 42220,
         "entrypoint_address": "0xB8d9412f3A91A00ca762B5c35cd0863E9b716D68",
+        "paymaster_address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
         "account_factory_address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970",
-        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1195,15 +1205,15 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "config_location": "https://indexer-celo.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/cit.celo.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -1252,8 +1262,8 @@
       "42220:0x8474153A00C959f2cB64852949954DBC68415Bb3": {
         "chain_id": 42220,
         "entrypoint_address": "0x0F805BC1ED718FB9C7C18439cB11E1C17C6538C4",
+        "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
         "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
-        "paymaster_rpc_url": "https://wallet.wolugo.be/indexer/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1268,15 +1278,15 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "config_location": "https://wallet.wolugo.be/indexer",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.wolugo.be.json",
     "version": 4
   },
   {
@@ -1318,8 +1328,8 @@
       "42220:0xE79E19594A749330036280c685E2719d58d99052": {
         "chain_id": 42220,
         "entrypoint_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "paymaster_address": "0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9",
         "account_factory_address": "0xE79E19594A749330036280c685E2719d58d99052",
-        "paymaster_rpc_url": "https://indexer-celo.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1327,15 +1337,15 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "config_location": "https://indexer-celo.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wtc.celo.citizenwallet.xyz.json",
     "version": 4
   },
   {
@@ -1377,8 +1387,8 @@
       "84532:0xc1654087C580f868F08E34cd1c01eDB1d3673b82": {
         "chain_id": 84532,
         "entrypoint_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
         "account_factory_address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
-        "paymaster_rpc_url": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1386,15 +1396,15 @@
       "84532": {
         "id": 84532,
         "node": {
-          "url": "https://sepolia.base.org",
-          "ws_url": "wss://base-sepolia-rpc.publicnode.com"
+          "url": "https://84532.engine.citizenwallet.xyz",
+          "ws_url": "wss://84532.engine.citizenwallet.xyz"
         }
       }
     },
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "config_location": "https://indexer-testnet-ethldn.internal.citizenwallet.xyz",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/testnet-ethldn.json",
     "version": 4
   },
   {
@@ -1436,8 +1446,8 @@
       "42220:0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA": {
         "chain_id": 42220,
         "entrypoint_address": "0x66fE9c22CcA49B257dd4F00508AC90198d99Bf27",
+        "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
         "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
-        "paymaster_rpc_url": "https://celo-c.citizenwallet.xyz/indexer/rpc",
         "paymaster_type": "cw"
       }
     },
@@ -1445,15 +1455,15 @@
       "42220": {
         "id": 42220,
         "node": {
-          "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
-          "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
         }
       }
     },
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "config_location": "https://celo-c.citizenwallet.xyz/indexer",
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/celo-c.citizenwallet.xyz.json",
     "version": 4
   },
   {
