@@ -157,23 +157,10 @@ class CommunityTable extends DBTable {
     final batch = db.batch();
 
     for (final config in localConfigs) {
-      final community = config.community;
-
-      final alias = community.alias;
-
-      final isHidden = community.hidden;
-      final hidden = isHidden ? 1 : 0;
-
-      final version = config.version;
-      const online = 1;
-
-      batch.insert(name, {
-        'alias': alias,
-        'hidden': hidden,
-        'config': jsonEncode(config.toJson()),
-        'version': version,
-        'online': online,
-      });
+      batch.insert(
+        name,
+        DBCommunity.fromConfig(config).toMap(),
+      );
     }
 
     await batch.commit(noResult: true);
@@ -184,24 +171,11 @@ class CommunityTable extends DBTable {
     final batch = db.batch();
 
     for (final community in communities) {
-      final alias = community.alias;
-
-      final isHidden = community.hidden;
-      final hidden = isHidden ? 1 : 0;
-
-      final version = community.version;
-
-      const online = 1;
-
-      batch.rawInsert('''
-        INSERT INTO $name (alias, hidden, config, version, online)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(alias) DO UPDATE SET
-          hidden = excluded.hidden,
-          config = excluded.config,
-          version = excluded.version,
-          online = excluded.online
-      ''', [alias, hidden, jsonEncode(community.config), version, online]);
+      batch.insert(
+        name,
+        community.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }
