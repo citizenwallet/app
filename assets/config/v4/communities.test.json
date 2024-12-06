@@ -1280,8 +1280,9 @@
       "description": "A community for the city of Brussels",
       "url": "https://pay.brussels",
       "alias": "wallet.pay.brussels",
-      "custom_domain": "wallet.pay.brussels",
       "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+      "custom_domain": "wallet.pay.brussels",
+      "hidden": false,
       "theme": {
         "primary": "#4a90e2"
       },
@@ -1355,7 +1356,8 @@
       {
         "name": "Top Up",
         "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+        "url": "https://topup.citizenspring.earth/wallet.pay.brussels",
+        "action": "topup"
       }
     ],
     "config_location": "https://wallet.pay.brussels/config/community.json",
