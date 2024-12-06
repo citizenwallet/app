@@ -1,8 +1,8 @@
-import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/transaction.dart' as transaction_state;
 import 'package:citizenwallet/state/vouchers/selectors.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
@@ -11,7 +11,6 @@ import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/profile/profile_badge.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -36,14 +35,41 @@ class TransactionScreen extends StatefulWidget {
   TransactionScreenState createState() => TransactionScreenState();
 }
 
-class TransactionScreenState extends State<TransactionScreen> {
+class TransactionScreenState extends State<TransactionScreen>
+    with WidgetsBindingObserver {
+  late transaction_state.TransactionState _transactionState;
+
   @override
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addObserver(this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // initial requests go here
+      _transactionState = context.read<transaction_state.TransactionState>();
+
+      onLoad();
     });
+  }
+
+  void onLoad() {
+    _transactionState.fetchTransaction();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        onLoad();
+        break;
+      default:
+    }
   }
 
   void handleDismiss(BuildContext context) {
@@ -146,9 +172,9 @@ class TransactionScreenState extends State<TransactionScreen> {
     final safePadding = MediaQuery.of(context).padding.top;
 
     final wallet = context.select((WalletState state) => state.wallet);
-    final CWTransaction? transaction = context.select((WalletState state) =>
-        state.transactions
-            .firstWhereOrNull((element) => element.id == widget.transactionId));
+
+    final transaction =
+        context.watch<transaction_state.TransactionState>().transaction;
 
     final loading = context.select((WalletState state) => state.loading);
 
@@ -165,9 +191,6 @@ class TransactionScreenState extends State<TransactionScreen> {
     final from = transaction.isIncoming(wallet.account)
         ? transaction.from
         : transaction.to;
-
-    final author =
-        getTransactionAuthor(wallet.account, transaction.from, transaction.to);
 
     final profile =
         context.select((ProfilesState state) => state.profiles[from]);
