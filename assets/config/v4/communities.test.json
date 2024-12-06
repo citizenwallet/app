@@ -1,12 +1,13 @@
 [
   {
     "community": {
-      "name": "Brussels Pay [SAFE]",
+      "name": "Brussels Pay",
       "description": "A community for the city of Brussels",
       "url": "https://pay.brussels",
-      "alias": "wallet.pay.brussels.safe",
-      "custom_domain": "wallet.pay.brussels",
+      "alias": "wallet.pay.brussels",
       "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+      "custom_domain": "wallet.pay.brussels",
+      "hidden": false,
       "theme": {
         "primary": "#4a90e2"
       },
@@ -19,11 +20,11 @@
         "chain_id": 100
       },
       "primary_account_factory": {
-        "address": "0xE66e6896dA710fC0E36135C2768ce46f6D451263",
+        "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
         "chain_id": 100
       },
       "primary_card_manager": {
-        "address": "0x37e40A8c3061Bd2cCa824E751768ed0Acd3C88fa",
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
         "chain_id": 100
       }
     },
@@ -42,27 +43,34 @@
       "name": "Gnosis Explorer"
     },
     "accounts": {
-      "100:0xE66e6896dA710fC0E36135C2768ce46f6D451263": {
+      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
         "chain_id": 100,
-        "entrypoint_address": "0x061fdFcb266401cB9E9407fAbb64559751684f80",
-        "paymaster_address": "0xc3530b6feb4EF647D10DCa343B045E09efA6aB20",
-        "account_factory_address": "0xE66e6896dA710fC0E36135C2768ce46f6D451263",
+        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "paymaster_type": "cw"
+      },
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "paymaster_type": "cw-safe"
       }
     },
     "cards": {
-      "100:0x37e40A8c3061Bd2cCa824E751768ed0Acd3C88fa": {
+      "100:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
         "chain_id": 100,
-        "address": "0x37e40A8c3061Bd2cCa824E751768ed0Acd3C88fa",
-        "type": "safe"
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "type": "classic"
       }
     },
     "chains": {
       "100": {
         "id": 100,
         "node": {
-          "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
-          "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f"
+          "url": "https://engine.pay.brussels",
+          "ws_url": "wss://engine.pay.brussels"
         }
       }
     },
@@ -73,10 +81,372 @@
       {
         "name": "Top Up",
         "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/wallet.pay.brussels"
+        "url": "https://topup.citizenspring.earth/wallet.pay.brussels",
+        "action": "topup"
       }
     ],
-    "config_location": "https://wallet.pay.brussels/indexer",
+    "config_location": "https://wallet.pay.brussels/config/community.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Gratitude Token",
+      "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+      "url": "https://citizenwallet.xyz/gratitude",
+      "alias": "gratitude",
+      "custom_domain": "gratitude.citizenwallet.xyz",
+      "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+      "theme": {
+        "primary": "#4EC19D"
+      },
+      "profile": {
+        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
+        "chain_id": 42220
+      },
+      "primary_token": {
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "chain_id": 42220
+      },
+      "primary_account_factory": {
+        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "chain_id": 42220
+      },
+      "primary_card_manager": {
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "chain_id": 42220
+      }
+    },
+    "tokens": {
+      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+        "standard": "erc20",
+        "name": "Gratitude Token",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "symbol": "GT",
+        "decimals": 0,
+        "chain_id": 42220
+      }
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "Celo Explorer"
+    },
+    "accounts": {
+      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "paymaster_type": "cw"
+      },
+      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "cards": {
+      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
+        "chain_id": 42220,
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "type": "classic"
+      }
+    },
+    "chains": {
+      "42220": {
+        "id": 42220,
+        "node": {
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+        "url": "https://topup.citizenwallet.xyz/gratitude",
+        "launch_mode": "webview"
+      }
+    ],
+    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "SFLUV Community",
+      "description": "A community currency for the city of San Francisco.",
+      "url": "https://sfluv.org",
+      "alias": "wallet.sfluv.org",
+      "custom_domain": "wallet.sfluv.org",
+      "logo": "https://wallet.sfluv.org/uploads/logo.svg",
+      "theme": {
+        "primary": "#eb6c6c"
+      },
+      "profile": {
+        "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
+        "chain_id": 137
+      },
+      "primary_token": {
+        "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
+        "chain_id": 137
+      },
+      "primary_account_factory": {
+        "address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+        "chain_id": 137
+      }
+    },
+    "tokens": {
+      "137:0x58a2993A618Afee681DE23dECBCF535A58A080BA": {
+        "standard": "erc20",
+        "name": "SFLUV V1.1",
+        "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
+        "symbol": "SFLUV",
+        "decimals": 6,
+        "chain_id": 137
+      }
+    },
+    "scan": {
+      "url": "https://polygonscan.com",
+      "name": "Polygon Explorer"
+    },
+    "accounts": {
+      "137:0x5e987a6c4bb4239d498E78c34e986acf29c81E8e": {
+        "chain_id": 137,
+        "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
+        "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
+        "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+        "paymaster_type": "cw"
+      }
+    },
+    "chains": {
+      "137": {
+        "id": 137,
+        "node": {
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Breadchain Community Token",
+      "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
+      "url": "https://breadchain.xyz/",
+      "alias": "bread",
+      "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+      "profile": {
+        "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986",
+        "chain_id": 100
+      },
+      "primary_token": {
+        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+        "chain_id": 100
+      }
+    },
+    "tokens": {
+      "100:0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3": {
+        "standard": "erc20",
+        "name": "Breadchain Community Token",
+        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+        "symbol": "BREAD",
+        "decimals": 18,
+        "chain_id": 100
+      }
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "accounts": {
+      "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
+        "chain_id": 100,
+        "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
+        "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
+        "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+        "paymaster_type": "cw"
+      }
+    },
+    "chains": {
+      "100": {
+        "id": 100,
+        "node": {
+          "url": "https://100.engine.citizenwallet.xyz",
+          "ws_url": "wss://100.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "url": "https://topup.citizenspring.earth/bread"
+      },
+      {
+        "name": "Market",
+        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "url": "https://marketplace.citizenwallet.xyz/bread",
+        "launch_mode": "webview"
+      }
+    ],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Commons Hub Brussels",
+      "description": "Community Token for the Commons Hub Brussels community",
+      "url": "https://commonshub.brussels",
+      "alias": "wallet.commonshub.brussels",
+      "custom_domain": "wallet.commonshub.brussels",
+      "logo": "https://wallet.commonshub.brussels/uploads/logo.svg",
+      "theme": {
+        "primary": "#ff4c02"
+      },
+      "profile": {
+        "address": "0xc06bE1BbbeEAF2f34F3d5b76069D2560aee184Ae",
+        "chain_id": 42220
+      },
+      "primary_token": {
+        "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
+        "chain_id": 42220
+      },
+      "primary_account_factory": {
+        "address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
+        "chain_id": 42220
+      }
+    },
+    "tokens": {
+      "42220:0x65DD32834927de9E57E72a3E2130a19f81C6371D": {
+        "standard": "erc20",
+        "name": "Commons Hub Token",
+        "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
+        "symbol": "CHT",
+        "decimals": 6,
+        "chain_id": 42220
+      }
+    },
+    "scan": {
+      "url": "https://celoscan.io",
+      "name": "CELO Explorer"
+    },
+    "accounts": {
+      "42220:0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87": {
+        "chain_id": 42220,
+        "entrypoint_address": "0xb7608dDA592d319687C89c4479e320b5a7740117",
+        "paymaster_address": "0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3",
+        "account_factory_address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
+        "paymaster_type": "cw"
+      }
+    },
+    "chains": {
+      "42220": {
+        "id": 42220,
+        "node": {
+          "url": "https://42220.engine.citizenwallet.xyz",
+          "ws_url": "wss://42220.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "cards": {
+      "42220:0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570": {
+        "chain_id": 42220,
+        "address": "0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570",
+        "type": "classic"
+      }
+    },
+    "plugins": [
+      {
+        "name": "Market",
+        "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
+        "url": "https://marketplace.citizenwallet.xyz/wallet.commonshub.brussels",
+        "launch_mode": "webview"
+      }
+    ],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.commonshub.brussels.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Regens Unite",
+      "description": "A community currency for the Regens Unite community.",
+      "url": "https://www.regensunite.earth/",
+      "alias": "wallet.regensunite.earth",
+      "logo": "https://wallet.regensunite.earth/wallet-config/_images/rgn.svg",
+      "custom_domain": "wallet.regensunite.earth",
+      "hidden": true,
+      "profile": {
+        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+        "chain_id": 137
+      },
+      "primary_token": {
+        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+        "chain_id": 137
+      },
+      "primary_account_factory": {
+        "address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "chain_id": 137
+      }
+    },
+    "tokens": {
+      "137:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
+        "standard": "erc20",
+        "name": "Regens Unite Token",
+        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+        "symbol": "RGN",
+        "decimals": 6,
+        "chain_id": 137
+      }
+    },
+    "scan": {
+      "url": "https://polygonscan.com",
+      "name": "Polygon Explorer"
+    },
+    "accounts": {
+      "137:0x9406Cc6185a346906296840746125a0E44976454": {
+        "chain_id": 137,
+        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
+        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "paymaster_type": "payg",
+        "gas_extra_percentage": 50
+      }
+    },
+    "chains": {
+      "137": {
+        "id": 137,
+        "node": {
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.regensunite.earth.json",
     "version": 4
   },
   {
@@ -404,67 +774,6 @@
   },
   {
     "community": {
-      "name": "Regens Unite",
-      "description": "A community currency for the Regens Unite community.",
-      "url": "https://www.regensunite.earth/",
-      "alias": "wallet.regensunite.earth",
-      "logo": "https://wallet.regensunite.earth/wallet-config/_images/rgn.svg",
-      "custom_domain": "wallet.regensunite.earth",
-      "profile": {
-        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x9406Cc6185a346906296840746125a0E44976454",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
-        "standard": "erc20",
-        "name": "Regens Unite Token",
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "symbol": "RGN",
-        "decimals": 6,
-        "chain_id": 137
-      }
-    },
-    "scan": {
-      "url": "https://polygonscan.com",
-      "name": "Polygon Explorer"
-    },
-    "accounts": {
-      "137:0x9406Cc6185a346906296840746125a0E44976454": {
-        "chain_id": 137,
-        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "paymaster_rpc_url": "https://api.stackup.sh/v1/paymaster/b9a4ab767689e3142ac60e761e96a9d3361ad07366bc4c850fa0cd311c923bdd",
-        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
-        "paymaster_type": "payg",
-        "gas_extra_percentage": 50
-      }
-    },
-    "chains": {
-      "137": {
-        "id": 137,
-        "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
-    "version": 4
-  },
-  {
-    "community": {
       "name": "OAK Community",
       "description": "A community currency for the city of Oakland.",
       "url": "https://www.oak.community/",
@@ -521,69 +830,6 @@
     },
     "plugins": [],
     "config_location": "https://indexer-base.internal.citizenwallet.xyz",
-    "version": 4
-  },
-  {
-    "community": {
-      "name": "SFLUV Community",
-      "description": "A community currency for the city of San Francisco.",
-      "url": "https://sfluv.org",
-      "alias": "wallet.sfluv.org",
-      "custom_domain": "wallet.sfluv.org",
-      "logo": "https://wallet.sfluv.org/uploads/logo.svg",
-      "theme": {
-        "primary": "#eb6c6c"
-      },
-      "profile": {
-        "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0x58a2993A618Afee681DE23dECBCF535A58A080BA": {
-        "standard": "erc20",
-        "name": "SFLUV V1.1",
-        "address": "0x58a2993A618Afee681DE23dECBCF535A58A080BA",
-        "symbol": "SFLUV",
-        "decimals": 6,
-        "chain_id": 137
-      }
-    },
-    "scan": {
-      "url": "https://polygonscan.com",
-      "name": "Polygon Explorer"
-    },
-    "accounts": {
-      "137:0x5e987a6c4bb4239d498E78c34e986acf29c81E8e": {
-        "chain_id": 137,
-        "entrypoint_address": "0x2d01C5E40Aa6a8478eD0FFbF2784EBb9bf67C46A",
-        "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
-        "paymaster_rpc_url": "https://wallet.sfluv.org/indexer/rpc",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "137": {
-        "id": 137,
-        "node": {
-          "url": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2",
-          "ws_url": "wss://ws-nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://wallet.sfluv.org/indexer",
     "version": 4
   },
   {
@@ -703,77 +949,6 @@
     },
     "plugins": [],
     "config_location": "https://indexer-polygon.internal.citizenwallet.xyz",
-    "version": 4
-  },
-  {
-    "community": {
-      "name": "Breadchain Community Token",
-      "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
-      "url": "https://breadchain.xyz/",
-      "alias": "bread",
-      "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-      "profile": {
-        "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986",
-        "chain_id": 100
-      },
-      "primary_token": {
-        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
-        "chain_id": 100
-      },
-      "primary_account_factory": {
-        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "chain_id": 100
-      }
-    },
-    "tokens": {
-      "100:0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3": {
-        "standard": "erc20",
-        "name": "Breadchain Community Token",
-        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
-        "symbol": "BREAD",
-        "decimals": 18,
-        "chain_id": 100
-      }
-    },
-    "scan": {
-      "url": "https://gnosisscan.io",
-      "name": "Gnosis Explorer"
-    },
-    "accounts": {
-      "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
-        "chain_id": 100,
-        "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
-        "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "paymaster_rpc_url": "https://bread.citizenwallet.xyz/indexer/rpc",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "100": {
-        "id": 100,
-        "node": {
-          "url": "https://nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f",
-          "ws_url": "wss://ws-nd-186-204-791.p2pify.com/e5512c5ca6fba9a6a20ccbbb8960799f"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/bread"
-      },
-      {
-        "name": "Market",
-        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-        "url": "https://marketplace.citizenwallet.xyz/bread",
-        "launch_mode": "webview"
-      }
-    ],
-    "config_location": "https://bread.citizenwallet.xyz/indexer",
     "version": 4
   },
   {
@@ -1279,183 +1454,6 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://celo-c.citizenwallet.xyz/indexer",
-    "version": 4
-  },
-  {
-    "community": {
-      "name": "Brussels Pay",
-      "description": "A community for the city of Brussels",
-      "url": "https://pay.brussels",
-      "alias": "wallet.pay.brussels",
-      "logo": "https://wallet.pay.brussels/uploads/logo.svg",
-      "custom_domain": "wallet.pay.brussels",
-      "hidden": false,
-      "theme": {
-        "primary": "#4a90e2"
-      },
-      "profile": {
-        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
-        "chain_id": 100
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 100
-      },
-      "primary_account_factory": {
-        "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-        "chain_id": 100
-      },
-      "primary_card_manager": {
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "chain_id": 100
-      }
-    },
-    "tokens": {
-      "100:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "pay.brussels",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "EURb",
-        "decimals": 6,
-        "chain_id": 100
-      }
-    },
-    "scan": {
-      "url": "https://gnosisscan.io",
-      "name": "Gnosis Explorer"
-    },
-    "accounts": {
-      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
-        "chain_id": 100,
-        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-        "paymaster_type": "cw"
-      },
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 100,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "cards": {
-      "100:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-        "chain_id": 100,
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "type": "classic"
-      }
-    },
-    "chains": {
-      "100": {
-        "id": 100,
-        "node": {
-          "url": "https://engine.pay.brussels",
-          "ws_url": "wss://engine.pay.brussels"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/wallet.pay.brussels",
-        "action": "topup"
-      }
-    ],
-    "config_location": "https://wallet.pay.brussels/config/community.json",
-    "version": 4
-  },
-  {
-    "community": {
-      "name": "Gratitude Token",
-      "description": "Express your gratitude towards someone by sending them a token of gratitude.",
-      "url": "https://citizenwallet.xyz/gratitude",
-      "alias": "gratitude",
-      "custom_domain": "gratitude.citizenwallet.xyz",
-      "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-      "theme": {
-        "primary": "#4EC19D"
-      },
-      "profile": {
-        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "chain_id": 42220
-      },
-      "primary_card_manager": {
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "Gratitude Token",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "GT",
-        "decimals": 0,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
-        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
-        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "paymaster_type": "cw"
-      },
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "cards": {
-      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-        "chain_id": 42220,
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "type": "classic"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-        "url": "https://topup.citizenwallet.xyz/gratitude",
-        "launch_mode": "webview"
-      }
-    ],
-    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
     "version": 4
   },
   {
