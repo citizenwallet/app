@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:io' show WebSocket;
 
 class WebSocketEvent {
   final String poolId;
@@ -42,7 +42,7 @@ class EventService {
   final String _url;
   final String _contractAddress;
   final String _topic;
-  WebSocketChannel? _ws;
+  WebSocket? _ws;
   Timer? _reconnectTimer;
   final Duration _reconnectDelay = const Duration(seconds: 2);
   bool _isConnected = false;
@@ -58,11 +58,15 @@ class EventService {
     if (_isConnected) return;
 
     try {
-      _ws = WebSocketChannel.connect(
-        Uri.parse('$_url/v1/events/$_contractAddress/$_topic'),
+      _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
+          .timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => throw TimeoutException('Connection timed out'),
       );
+
+      _ws!.pingInterval = const Duration(seconds: 10);
       _isConnected = true;
-      _ws!.stream.listen(
+      _ws!.listen(
         _onMessage,
         onError: _onError,
         onDone: _onDone,
@@ -121,6 +125,6 @@ class EventService {
     _reconnectTimer?.cancel();
     _isConnected = false;
     _intentionalDisconnect = true;
-    await _ws?.sink.close();
+    await _ws?.close();
   }
 }
