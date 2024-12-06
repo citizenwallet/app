@@ -66,7 +66,7 @@ class CommunityConfig {
   final ContractLocation profile;
   final ContractLocation primaryToken;
   final ContractLocation primaryAccountFactory;
-  final ContractLocation primaryCardManager;
+  final ContractLocation? primaryCardManager;
 
   CommunityConfig({
     required this.name,
@@ -80,7 +80,7 @@ class CommunityConfig {
     required this.profile,
     required this.primaryToken,
     required this.primaryAccountFactory,
-    required this.primaryCardManager,
+    this.primaryCardManager,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
@@ -101,8 +101,9 @@ class CommunityConfig {
       primaryToken: ContractLocation.fromJson(json['primary_token']),
       primaryAccountFactory:
           ContractLocation.fromJson(json['primary_account_factory']),
-      primaryCardManager:
-          ContractLocation.fromJson(json['primary_card_manager']),
+        primaryCardManager: json['primary_card_manager'] != null
+            ? ContractLocation.fromJson(json['primary_card_manager'])
+            : null,
     );
   }
 
@@ -120,7 +121,8 @@ class CommunityConfig {
       'profile': profile.toJson(),
       'primary_token': primaryToken.toJson(),
       'primary_account_factory': primaryAccountFactory.toJson(),
-      'primary_card_manager': primaryCardManager.toJson(),
+      if (primaryCardManager != null)
+        'primary_card_manager': primaryCardManager!.toJson(),
     };
   }
 
@@ -711,7 +713,7 @@ class Config {
   }
 
   CardsConfig? getPrimaryCardManager() {
-    return cards?[community.primaryCardManager.fullAddress];
+    return cards?[community.primaryCardManager?.fullAddress];
   }
 
   String getRpcUrl(String chainId) {
