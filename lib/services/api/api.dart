@@ -43,7 +43,7 @@ class APIService {
           Uri.parse('$baseURL${url ?? ''}'),
           headers: mergedHeaders,
         )
-        .timeout( Duration(seconds: netTimeoutSeconds));
+        .timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -83,7 +83,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout( Duration(seconds: netTimeoutSeconds));
+        .timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -119,7 +119,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout( Duration(seconds: netTimeoutSeconds));
+        .timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -155,7 +155,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout( Duration(seconds: netTimeoutSeconds));
+        .timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -191,7 +191,7 @@ class APIService {
           headers: mergedHeaders,
           body: jsonEncode(body),
         )
-        .timeout( Duration(seconds: netTimeoutSeconds));
+        .timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
@@ -241,7 +241,7 @@ class APIService {
 
     final response = await http.Response.fromStream(
       await request.send(),
-    ).timeout( Duration(seconds: netTimeoutSeconds));
+    ).timeout(Duration(seconds: netTimeoutSeconds));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {

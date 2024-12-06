@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -18,6 +19,10 @@ final List<Language> languageOptions = [
 class AppState with ChangeNotifier {
   String walletPassword = '';
   bool hasCopiedPassword = false;
+
+  bool singleCommunityMode = ConfigService().singleCommunityMode;
+
+  // modifying
 
   bool walletLoading = false;
   bool walletError = false;
@@ -162,6 +167,11 @@ class AppState with ChangeNotifier {
 
     this.language = language;
     selectedLanguage = languageCodeIndex;
+    notifyListeners();
+  }
+
+  void updateSingleCommunityMode() {
+    singleCommunityMode = ConfigService().singleCommunityMode;
     notifyListeners();
   }
 }
