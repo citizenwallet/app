@@ -158,6 +158,9 @@
       "alias": "ceur.celo",
       "logo": "https://ceur.celo.citizenwallet.xyz/wallet-config/_images/ceur.svg",
       "hidden": true,
+      "theme": {
+        "primary": "#a256ff"
+      },
       "profile": {
         "address": "0x0334C579E61aF6922D5deFEF02A361FBb2D6f406",
         "chain_id": 42220
@@ -207,7 +210,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://indexer-celo.internal.citizenwallet.xyz",
+    "config_location": "https://ceur.celo.citizenwallet.xyz/config/community.json",
     "version": 4
   },
   {
