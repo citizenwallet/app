@@ -86,7 +86,11 @@
       "url": "https://citizenwallet.xyz/gratitude",
       "alias": "gt.celo",
       "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+      "custom_domain": null,
       "hidden": true,
+      "theme": {
+        "primary": "#a256ff"
+      },
       "profile": {
         "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
         "chain_id": 42220
@@ -143,7 +147,7 @@
         "launch_mode": "webview"
       }
     ],
-    "config_location": "https://indexer-gratitude.internal.citizenwallet.xyz",
+    "config_location": "https://gt.celo.citizenwallet.xyz/config/community.json",
     "version": 4
   },
   {
