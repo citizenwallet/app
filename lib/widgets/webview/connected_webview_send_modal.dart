@@ -118,7 +118,11 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
       }
 
       final closeUrl = Uri.encodeComponent(widget.closeUrl);
-      rawUrl = '$rawUrl&close=$closeUrl';
+      if (rawUrl.contains('?')) {
+        rawUrl = '$rawUrl&close=$closeUrl';
+      } else {
+        rawUrl = '$rawUrl?close=$closeUrl';
+      }
 
       final uri = WebUri(rawUrl);
 
