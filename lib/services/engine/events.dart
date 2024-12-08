@@ -122,6 +122,7 @@ class EventService {
   }
 
   Future<void> disconnect() async {
+    print('Disconnecting from $_url/v1/events/$_contractAddress/$_topic');
     _reconnectTimer?.cancel();
     _isConnected = false;
     _intentionalDisconnect = true;
