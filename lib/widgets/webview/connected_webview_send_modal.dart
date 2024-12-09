@@ -104,7 +104,9 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
 
         await Future.delayed(const Duration(milliseconds: 50));
 
-        navigator.pop(true);
+        if (navigator.canPop()) {
+          navigator.pop(true);
+        }
         return;
       }
     }

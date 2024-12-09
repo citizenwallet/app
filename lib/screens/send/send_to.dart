@@ -314,7 +314,11 @@ class _SendToScreenState extends State<SendToScreen> {
     if (sent == true) {
       await Future.delayed(const Duration(milliseconds: 50));
 
-      navigator.pop(true);
+      if (navigator.canPop()) {
+        navigator.pop(true);
+      } else {
+        navigator.go('/wallet/${walletLogic.account}');
+      }
       return;
     }
 
