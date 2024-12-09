@@ -343,9 +343,9 @@ class WalletLogic extends WidgetsBindingObserver {
       if (isWalletLoaded &&
           accAddress == _wallet.account.hexEip55 &&
           alias == _wallet.alias) {
-        final balance = await _wallet.getBalance();
-
-        _state.updateWalletBalanceSuccess(balance);
+        _wallet.getBalance().then((v) {
+          _state.updateWalletBalanceSuccess(v);
+        });
 
         _state.loadWalletSuccess();
 
@@ -386,15 +386,17 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
-      final currency = _wallet.currency;
+      _config
+          .isCommunityOnline(
+              communityConfig.chains[token.chainId.toString()]!.node.url)
+          .then((isOnline) {
+        communityConfig.online = isOnline;
 
-      communityConfig.online = await _config.isCommunityOnline(
-          communityConfig.chains[token.chainId.toString()]!.node.url);
+        _state.setWalletConfig(communityConfig);
 
-      _state.setWalletConfig(communityConfig);
-
-      await _appDBService.communities.updateOnlineStatus(
-          communityConfig.community.alias, communityConfig.online);
+        _appDBService.communities
+            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+      });
 
       _state.setWallet(
         CWWallet(
@@ -415,7 +417,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _wallet.getBalance().then((v) => _state.setWalletBalance(v));
 
-      await loadAdditionalData(true);
+      loadAdditionalData(true);
 
       _state.loadWalletSuccess();
 

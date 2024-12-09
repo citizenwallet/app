@@ -172,10 +172,10 @@ class WalletScreenState extends State<WalletScreen> {
       _alias,
       (bool hasChanged) async {
         _logic.requestWalletActions();
+        _logic.loadTransactions();
         if (hasChanged) _profileLogic.loadProfile();
+        _voucherLogic.fetchVouchers();
         await _profileLogic.loadProfileLink();
-        await _logic.loadTransactions();
-        await _voucherLogic.fetchVouchers();
         await _logic.evaluateWalletActions();
       },
     );

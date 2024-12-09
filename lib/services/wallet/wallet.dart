@@ -107,22 +107,23 @@ class WalletService {
       BigInt b = BigInt.zero;
       if (_tokenStandard == 'erc20') {
         b = await _contractToken!.getBalance(addr ?? _account.hexEip55).timeout(
-              const Duration(seconds: 2),
+              const Duration(seconds: 4),
             );
       } else if (_tokenStandard == 'erc1155') {
         b = await _contract1155Token!
             .getBalance(addr ?? _account.hexEip55, tokenId ?? BigInt.zero)
             .timeout(
-              const Duration(seconds: 2),
+              const Duration(seconds: 4),
             );
       }
 
+      // TODO: figure out why the returned balance is sometimes out of bounds
       _pref.setBalance(_account.hexEip55, b.toString());
 
       return b.toString();
     } catch (_) {}
 
-    return _pref.getBalance(_account.hexEip55) ?? '0.0';
+    return _pref.getBalance(_account.hexEip55) ?? '0';
   }
 
   String get standard => _tokenStandard;
