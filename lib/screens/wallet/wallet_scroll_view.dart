@@ -148,6 +148,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         CupertinoSliverRefreshControl(
             onRefresh: handleRefresh,
