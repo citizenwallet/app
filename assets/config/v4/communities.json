@@ -782,6 +782,7 @@
             "alias": "wallet.oak.community",
             "logo": "https://wallet.oak.community/wallet-config/_images/oak.svg",
             "custom_domain": "wallet.oak.community",
+            "hidden": true,
             "profile": {
                 "address": "0xFE213c74e25505B232CE4C7f89647408bE6f71d2",
                 "chain_id": 8453
@@ -901,6 +902,7 @@
             "url": "https://zinne.brussels",
             "alias": "zinne",
             "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
+            "hidden": true,
             "profile": {
                 "address": "0x23DB3D3Da510e60aF40902A04850E1F3a744905c",
                 "chain_id": 137
@@ -912,8 +914,7 @@
             "primary_account_factory": {
                 "address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
                 "chain_id": 137
-            },
-            "hidden": true
+            }
         },
         "tokens": {
             "137:0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D": {
@@ -961,6 +962,7 @@
             "url": "https://regensunite.earth",
             "alias": "timebank.regensunite.earth",
             "logo": "https://timebank.regensunite.earth/uploads/logo.svg",
+            "hidden": true,
             "profile": {
                 "address": "0x605A827DF8C405D16Ec70AAb8d9a47D21db45c09",
                 "chain_id": 42220
@@ -1027,6 +1029,7 @@
             "url": "https://www.moos.garden/",
             "alias": "moos",
             "logo": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
+            "hidden": true,
             "profile": {
                 "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341",
                 "chain_id": 42220
@@ -1093,6 +1096,7 @@
             "url": "https://selcoupdepouce.be",
             "alias": "selcoupdepouce",
             "logo": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/sel-coin.svg",
+            "hidden": true,
             "profile": {
                 "address": "0xfB8F1e7ED42599638B3c509679E2F43937002C56",
                 "chain_id": 42220
@@ -1165,6 +1169,7 @@
             "url": "https://citizenwallet.xyz/cit",
             "alias": "cit.celo",
             "logo": "https://cit.celo.citizenwallet.xyz/wallet-config/_images/cit.celo.svg",
+            "hidden": true,
             "profile": {
                 "address": "0x4cB296BEc9FAd0B5e1E4FF1A2F307B425724AC82",
                 "chain_id": 42220
@@ -1227,6 +1232,7 @@
             "theme": {
                 "primary": "#81e2c1"
             },
+            "hidden": true,
             "profile": {
                 "address": "0x07e7b95B35866302b3A089feF4CFA3061061a51d",
                 "chain_id": 42220
