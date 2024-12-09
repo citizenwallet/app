@@ -48,10 +48,18 @@ class CommunitiesLogic {
         final token = communityConfig.getPrimaryToken();
         final chain = communityConfig.chains[token.chainId.toString()];
 
-        final isOnline = await config.isCommunityOnline(chain!.node.url);
-        _state.setCommunityOnline(communityConfig.community.alias, isOnline);
-        await _db.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
+        if (chain == null) {
+          _state.setCommunityOnline(communityConfig.community.alias, false);
+          _db.communities
+              .updateOnlineStatus(communityConfig.community.alias, false);
+          continue;
+        }
+
+        config.isCommunityOnline(chain.node.url).then((isOnline) {
+          _state.setCommunityOnline(communityConfig.community.alias, isOnline);
+          _db.communities
+              .updateOnlineStatus(communityConfig.community.alias, isOnline);
+        });
       }
 
       return;
