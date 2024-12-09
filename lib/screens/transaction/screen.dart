@@ -150,7 +150,11 @@ class TransactionScreenState extends State<TransactionScreen>
     profilesLogic.clearSearch(notify: false);
 
     if (sent == true) {
-      navigator.pop(sent);
+      if (navigator.canPop()) {
+        navigator.pop(sent);
+      } else {
+        navigator.go('/wallet/${widget.logic.account}');
+      }
     }
   }
 
