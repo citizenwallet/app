@@ -217,7 +217,7 @@ class ConfigService {
   }
 
   Future<bool> isCommunityOnline(String indexerUrl) async {
-    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 5);
+    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 12);
 
     try {
       await indexer.get(url: '/health');
