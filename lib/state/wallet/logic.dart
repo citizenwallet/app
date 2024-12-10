@@ -871,11 +871,12 @@ class WalletLogic extends WidgetsBindingObserver {
         maxDate: maxDate,
       );
 
-      final balance = await _wallet.getBalance();
+      _wallet.getBalance().then((v) {
+        _state.updateWalletBalanceSuccess(v);
+      });
 
       transferEventSubscribe();
 
-      _state.updateWalletBalanceSuccess(balance);
       return;
     } catch (_) {}
 
