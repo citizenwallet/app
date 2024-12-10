@@ -186,7 +186,6 @@
   "max": "max",
   "insufficientFunds": "Insufficient funds.",
   "currentBalance": "Current balance: {formattedBalance}",
-  "voucherFor": "Voucher for {formattedAmount}",
   "sendDescription": "Add a description\n\n\n",
   "chooseRecipient": "Choose Recipient",
   "createdBy": "Created by",

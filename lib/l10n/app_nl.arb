@@ -185,7 +185,6 @@
   "max": "max",
   "insufficientFunds": "Onvoldoende fondsen.",
   "currentBalance": "Huidige balans: {formattedBalance}",
-  "voucherFor": "Voucher van {formattedAmount}",
   "sendDescription": "Beschrijving toevoegen\n\n\n",
   "chooseRecipient": "Kies ontvanger",
   "createdBy": "Gedaan door",

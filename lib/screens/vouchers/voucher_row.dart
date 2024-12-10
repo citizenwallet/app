@@ -7,6 +7,7 @@ import 'package:citizenwallet/utils/currency.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class VoucherRow extends StatefulWidget {
@@ -82,108 +83,76 @@ class VoucherRowState extends State<VoucherRow> {
             voucher.address, formattedAmount, widget.logo, isRedeemed),
         color: Theme.of(context).colors.transparent.resolveFrom(context),
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-        child: Stack(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CoinLogo(size: size, logo: widget.logo),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            CoinLogo(size: size, logo: widget.logo),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!
-                                .voucherFor(formattedAmount),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              color: Theme.of(context)
-                                  .colors
-                                  .text
-                                  .resolveFrom(context),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          CoinLogo(size: 16, logo: widget.logo),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                        child: Text(
-                          voucher.formattedAddress,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context)
-                                .colors
-                                .subtleText
-                                .resolveFrom(context),
-                          ),
+                      Text(
+                        !isRedeemed
+                            ? voucher.name
+                            : AppLocalizations.of(context)!
+                                    .redeemed[0]
+                                    .toUpperCase() +
+                                AppLocalizations.of(context)!
+                                    .redeemed
+                                    .substring(1),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context)
+                              .colors
+                              .text
+                              .resolveFrom(context),
                         ),
                       ),
+                      const SizedBox(width: 5),
+                      if (!isRedeemed) CoinLogo(size: 16, logo: widget.logo),
                     ],
                   ),
-                ),
-                if (onMore != null)
-                  GestureDetector(
-                    onTap: () => onMore(voucher.address, formattedAmount,
-                        widget.logo, isRedeemed),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: Icon(
-                        CupertinoIcons.ellipsis,
-                        size: 18,
+                  SizedBox(
+                    height: 20,
+                    child: Text(
+                      DateFormat.yMMMd().format(voucher.createdAt),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
                         color: Theme.of(context)
                             .colors
-                            .touchable
+                            .subtleText
                             .resolveFrom(context),
                       ),
                     ),
-                  )
-              ],
-            ),
-            Positioned(
-              bottom: 0,
-              right: 50,
-              child: Container(
-                height: 20,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: isRedeemed
-                      ? Theme.of(context).colors.surfacePrimary
-                      : Theme.of(context).colors.white,
-                ),
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                child: Center(
-                    child: isRedeemed
-                        ? Text(
-                            AppLocalizations.of(context)!.redeemed,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colors.text,
-                            ),
-                          )
-                        : Text(
-                            AppLocalizations.of(context)!.issued,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colors.text,
-                            ),
-                          )),
+                  ),
+                ],
               ),
             ),
+            if (onMore != null)
+              GestureDetector(
+                onTap: () => onMore(
+                    voucher.address, formattedAmount, widget.logo, isRedeemed),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                  child: Icon(
+                    CupertinoIcons.ellipsis,
+                    size: 18,
+                    color:
+                        Theme.of(context).colors.touchable.resolveFrom(context),
+                  ),
+                ),
+              )
           ],
         ),
       ),

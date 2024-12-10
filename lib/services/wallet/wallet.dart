@@ -172,9 +172,6 @@ class WalletService {
 
     final rpcUrl = config.getRpcUrl(token.chainId.toString());
 
-    print('url: $_url');
-    print('rpcUrl: $rpcUrl');
-
     _ethClient = Web3Client(
       rpcUrl,
       _client,
