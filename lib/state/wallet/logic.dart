@@ -644,7 +644,7 @@ class WalletLogic extends WidgetsBindingObserver {
       case 'update':
         final log = Log.fromJson(event.data);
 
-        final tx = TransferEvent.fromLog(log);
+        final tx = TransferEvent.fromLog(log, standard: _wallet.standard);
 
         _accountDBService.transactions.insert(DBTransaction(
           hash: tx.hash,
@@ -772,6 +772,8 @@ class WalletLogic extends WidgetsBindingObserver {
       // with network errors or bugs there can be a build up of invalid transactions that will never return
       // clear the old ones out when the user pulls to refresh
       await _accountDBService.transactions.clearOldTransactions();
+
+      _state.clearSendingTransactions();
 
       transferEventUnsubscribe();
 
@@ -1146,8 +1148,6 @@ class WalletLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      tempId = hash;
-
       final args = {
         'from': _wallet.account.hexEip55,
         'to': to,
@@ -1183,8 +1183,6 @@ class WalletLogic extends WidgetsBindingObserver {
         _wallet.account.hexEip55,
         message: message,
       );
-
-      tempId = txHash;
 
       if (userop.isFirst()) {
         // an account was created, update push token in the background
@@ -1294,8 +1292,6 @@ class WalletLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
-      tempId = hash;
-
       final args = {
         'from': _wallet.account.hexEip55,
         'to': to,
@@ -1329,9 +1325,8 @@ class WalletLogic extends WidgetsBindingObserver {
         tempId,
         to,
         _wallet.account.hexEip55,
+        message: message,
       );
-
-      tempId = txHash;
 
       if (userop.isFirst()) {
         // an account was created, update push token in the background
