@@ -5,7 +5,7 @@
         "url": "https://kingfishersmedia.io",
         "alias": "wallet.kingfishersmedia.io",
         "custom_domain": "wallet.kingfishersmedia.io",
-        "logo": "https://config.internal.citizenwallet.xyz/_images/kfmpfl.svg",
+        "logo": "https://config.internal.citizenwallet.xyz/_images/kfmpfl.png",
         "theme": {
             "primary": "#88292c"
         },
