@@ -566,6 +566,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       final calldata = _wallet.tokenTransferCallData(
         _wallet.account.hexEip55,
         amount,
+        from: voucher.address,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(

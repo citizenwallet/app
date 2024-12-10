@@ -895,13 +895,14 @@ class WalletService {
   Uint8List tokenTransferCallData(
     String to,
     BigInt amount, {
+    String? from,
     BigInt? tokenId,
   }) {
     if (_tokenStandard == 'erc20') {
       return _contractToken!.transferCallData(to, amount);
     } else if (_tokenStandard == 'erc1155') {
       return _contract1155Token!.transferCallData(
-          _account.hexEip55, to, tokenId ?? BigInt.zero, amount);
+          from ?? _account.hexEip55, to, tokenId ?? BigInt.zero, amount);
     }
 
     return Uint8List.fromList([]);
