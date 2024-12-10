@@ -428,12 +428,15 @@ class VoucherLogic extends WidgetsBindingObserver {
       final args = {
         'from': _wallet.account.hexEip55,
         'to': account.hexEip55,
-        'value': parsedAmount.toString(),
       };
       if (_wallet.standard == 'erc1155') {
         args['operator'] = _wallet.account.hexEip55;
         args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
       }
+
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
@@ -579,12 +582,15 @@ class VoucherLogic extends WidgetsBindingObserver {
       final args = {
         'from': voucher.address,
         'to': _wallet.account.hexEip55,
-        'value': amount.toString(),
       };
       if (_wallet.standard == 'erc1155') {
         args['operator'] = voucher.address;
         args['id'] = '0';
+        args['amount'] = amount.toString();
+      } else {
+        args['value'] = amount.toString();
       }
+
       final eventData = createEventData(
         stringSignature: _wallet.transferEventStringSignature,
         topic: _wallet.transferEventSignature,
