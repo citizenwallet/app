@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:citizenwallet/services/config/service.dart';
 
 class ProfileLogic {
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
@@ -26,6 +27,7 @@ class ProfileLogic {
   final AppDBService _appDBService = AppDBService();
   final AccountBackupDBService _accountBackupDBService =
       AccountBackupDBService();
+  final ConfigService _config = ConfigService();
 
   late ProfileState _state;
   late ProfilesState _profiles;
@@ -172,6 +174,19 @@ class ProfileLogic {
           profile.account,
           profile,
         );
+      }
+
+      final config = await _config.getConfig(alias, null);
+      if (config.community.alias != alias) {
+        throw Exception('community alias mismatch');
+      }
+
+      final online = await _config.isCommunityOnline(
+        config.getNodeUrl(config.getPrimaryToken().chainId.toString()),
+      );
+
+      if (!online) {
+        throw Exception('community is offline');
       }
 
       final profile = await _wallet.getProfile(acc);

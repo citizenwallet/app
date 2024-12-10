@@ -148,6 +148,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
     return CustomScrollView(
       controller: controller,
       scrollBehavior: const CupertinoScrollBehavior(),
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         CupertinoSliverRefreshControl(
             onRefresh: handleRefresh,
@@ -181,7 +182,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: config!.online ? 400 : 400 + 20,
+            expandedHeight: config?.online == true ? 400 : 400 + 20,
             minHeight: 280,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
@@ -384,7 +385,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
                   child: TransactionRow(
                     key: Key(transaction.id),
                     transaction: transaction,
-                    logo: config.community.logo,
+                    logo: config?.community.logo,
                     wallet: wallet,
                     profiles: profiles,
                     vouchers: vouchers,

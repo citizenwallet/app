@@ -252,4 +252,10 @@ class TransactionsTable extends DBTable {
       whereArgs: [formattedDate, 'success'],
     );
   }
+
+  // get transaction by hash
+  Future<DBTransaction?> getTransactionByHash(String hash) async {
+    final maps = await db.query(name, where: 'hash = ?', whereArgs: [hash]);
+    return maps.isNotEmpty ? DBTransaction.fromMap(maps.first) : null;
+  }
 }

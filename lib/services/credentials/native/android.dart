@@ -57,7 +57,7 @@ class AndroidCredentialsService extends CredentialsServiceInterface {
 
     try {
       // check if there is an encryption key available
-      final credential = await _credentials.getPasswordCredentials();
+      final credential = await _credentials.getCredentials();
 
       if (credential.passwordCredential == null) {
         // this error should be handled differently, the credential is incompatible with the current setup
