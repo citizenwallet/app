@@ -680,11 +680,9 @@ class WalletLogic extends WidgetsBindingObserver {
             element.to == _wallet.account.hexEip55 &&
             element.state != TransactionState.success));
 
-        final hasChanges = _state.incomingTransactionsRequestSuccess(txList);
+        _state.incomingTransactionsRequestSuccess(txList);
 
-        if (hasChanges) {
-          updateBalance();
-        }
+        updateBalance();
 
         break;
       default:
@@ -1001,7 +999,6 @@ class WalletLogic extends WidgetsBindingObserver {
         HapticFeedback.lightImpact();
 
         _state.updateWalletBalanceSuccess(balance, notify: true);
-        clearInProgressTransaction();
       }
       return;
     } catch (_) {}
@@ -1402,8 +1399,8 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
-  void clearInProgressTransaction() {
-    _state.clearInProgressTransaction();
+  void clearInProgressTransaction({bool notify = false}) {
+    _state.clearInProgressTransaction(notify: notify);
   }
 
   Future<bool> mintTokens(String amount, String to) async {

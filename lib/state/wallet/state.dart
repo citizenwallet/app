@@ -405,16 +405,6 @@ class WalletState with ChangeNotifier {
       this.transactions = filteredTransactions;
     }
 
-    if (hasChanges && inProgressTransaction != null) {
-      final index = this.transactions.indexWhere((t) =>
-          t.from == inProgressTransaction!.from &&
-          t.to == inProgressTransaction!.to &&
-          t.amount == inProgressTransaction!.amount);
-      if (index != -1) {
-        clearInProgressTransaction();
-      }
-    }
-
     if (hasChanges) notifyListeners();
 
     return hasChanges;

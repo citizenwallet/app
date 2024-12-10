@@ -240,6 +240,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'isMinting': widget.isMinting,
         });
 
+    walletLogic.clearInProgressTransaction();
+
     if (sent == true) {
       walletLogic.clearInputControllers();
       walletLogic.resetInputErrorState();
@@ -309,6 +311,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         extra: {
           'isMinting': widget.isMinting,
         });
+
+    walletLogic.clearInProgressTransaction();
 
     if (sent == true) {
       walletLogic.clearInputControllers();
