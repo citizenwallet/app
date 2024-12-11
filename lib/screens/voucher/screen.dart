@@ -103,6 +103,8 @@ class VoucherViewModalState extends State<VoucherScreen>
     final viewLoading =
         context.select((VoucherState state) => state.viewLoading);
 
+    final isRedeemed = (double.tryParse(voucher?.balance ?? '0') ?? 0) <= 0;
+
     final viewingVoucherLink =
         context.select((VoucherState state) => state.viewingVoucherLink);
 
@@ -139,8 +141,14 @@ class VoucherViewModalState extends State<VoucherScreen>
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!
-                                    .voucherFor(widget.amount),
+                                !isRedeemed
+                                    ? voucher?.name ?? ''
+                                    : AppLocalizations.of(context)!
+                                            .redeemed[0]
+                                            .toUpperCase() +
+                                        AppLocalizations.of(context)!
+                                            .redeemed
+                                            .substring(1),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

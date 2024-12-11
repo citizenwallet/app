@@ -207,6 +207,19 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearSendingTransactions({bool notify = true}) {
+    transactions = transactions
+        .where((element) => element.state != TransactionState.sending)
+        .toList();
+
+    transactionsLoading = false;
+    transactionsError = false;
+
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
   void clearPendingTransactions({bool notify = true}) {
     transactions = transactions
         .where((element) => element.state != TransactionState.pending)
@@ -223,7 +236,7 @@ class WalletState with ChangeNotifier {
   void updateWalletBalanceSuccess(String balance, {bool notify = true}) {
     wallet!.setBalance(balance);
 
-    clearPendingTransactions();
+    clearSendingTransactions();
 
     loading = false;
     error = false;
@@ -261,6 +274,8 @@ class WalletState with ChangeNotifier {
             DateTime.now().toUtc())
         .subtract(const Duration(minutes: 1));
     this.transactions = [...transactions];
+
+    clearSendingTransactions();
 
     transactionsLoading = false;
     transactionsError = false;
@@ -350,6 +365,9 @@ class WalletState with ChangeNotifier {
 
       transactions.insert(0, transaction);
     }
+
+    clearSendingTransactions();
+
     transactionSendLoading = false;
     transactionSendError = false;
     notifyListeners();
@@ -403,16 +421,6 @@ class WalletState with ChangeNotifier {
           .subtract(const Duration(minutes: 1));
 
       this.transactions = filteredTransactions;
-    }
-
-    if (hasChanges && inProgressTransaction != null) {
-      final index = this.transactions.indexWhere((t) =>
-          t.from == inProgressTransaction!.from &&
-          t.to == inProgressTransaction!.to &&
-          t.amount == inProgressTransaction!.amount);
-      if (index != -1) {
-        clearInProgressTransaction();
-      }
     }
 
     if (hasChanges) notifyListeners();

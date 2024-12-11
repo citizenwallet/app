@@ -1,8 +1,32 @@
 import 'dart:convert';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/legacy.dart';
+import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
+
+Future<List<DBCommunity>> legacyToV4(Database db, String name) async {
+  final List<Map<String, dynamic>> maps = await db.query(name);
+
+  final legacyConfigs = List.generate(maps.length, (i) {
+    return DBCommunity.fromMap(maps[i]);
+  });
+
+  final List<DBCommunity> v4Configs = [];
+  for (final legacyConfig in legacyConfigs) {
+    if (legacyConfig.version == 4) {
+      continue;
+    }
+
+    final config =
+        Config.fromLegacy(LegacyConfig.fromJson(legacyConfig.config));
+
+    v4Configs.add(DBCommunity.fromConfig(config));
+  }
+
+  return v4Configs;
+}
 
 class DBCommunity {
   final String alias; // index
@@ -18,6 +42,17 @@ class DBCommunity {
     this.version = 0,
     this.online = true,
   });
+
+  // from Config
+  factory DBCommunity.fromConfig(Config config) {
+    return DBCommunity(
+      alias: config.community.alias,
+      config: config.toJson(),
+      hidden: config.community.hidden,
+      version: config.version,
+      online: config.online,
+    );
+  }
 
   // process after reading from table
   factory DBCommunity.fromMap(Map<String, dynamic> map) {
@@ -45,11 +80,7 @@ class DBCommunity {
 class CommunityTable extends DBTable {
   CommunityTable(super.db);
 
-  static const String communityConfigListLocalFileName =
-      kDebugMode ? 'communities.test' : 'communities';
-  static const String communityConfigListS3FileName = 'communities';
-
-  static const int version = 3;
+  final ConfigService _config = ConfigService();
 
   // The name of the table
   @override
@@ -83,7 +114,11 @@ class CommunityTable extends DBTable {
   // Migrates the table
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
-    final migrations = {};
+    final migrations = {
+      2: [
+        'V4Migration',
+      ],
+    };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
       final queries = migrations[i];
@@ -91,6 +126,13 @@ class CommunityTable extends DBTable {
       if (queries != null) {
         for (final query in queries) {
           try {
+            switch (query) {
+              case 'V4Migration':
+                final updatedConfigs = await legacyToV4(db, name);
+                await upsert(updatedConfigs);
+                continue;
+            }
+
             await db.execute(query);
           } catch (e, s) {
             debugPrint('$name migration error, index $i: $e');
@@ -102,13 +144,7 @@ class CommunityTable extends DBTable {
   }
 
   Future<void> seed() async {
-    final String jsonString = await rootBundle.loadString(
-        'assets/config/v$version/$communityConfigListLocalFileName.json');
-
-    final List<dynamic> jsonList = jsonDecode(jsonString);
-
-    final List<Map<String, dynamic>> localConfigs =
-        jsonList.map((item) => Map<String, dynamic>.from(item)).toList();
+    final localConfigs = await _config.getLocalConfigs();
 
     // Check if the table is empty
     final count =
@@ -120,54 +156,26 @@ class CommunityTable extends DBTable {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
-    for (final data in localConfigs) {
-      final community = data['community'];
-
-      final alias = community['alias'];
-
-      final isHidden = community['hidden'] ?? false;
-      final hidden = isHidden ? 1 : 0;
-
-      final version = data['version'] ?? 0;
-      const online = 1;
-
-      batch.insert(name, {
-        'alias': alias,
-        'hidden': hidden,
-        'config': jsonEncode(data),
-        'version': version,
-        'online': online,
-      });
+    for (final config in localConfigs) {
+      batch.insert(
+        name,
+        DBCommunity.fromConfig(config).toMap(),
+      );
     }
 
     await batch.commit(noResult: true);
   }
 
-  Future<void> upsert(List<Map<String, dynamic>> communities) async {
+  Future<void> upsert(List<DBCommunity> communities) async {
     // Prepare batch operation for efficient insertion
     final batch = db.batch();
 
-    for (final data in communities) {
-      final community = data['community'];
-
-      final alias = community['alias'];
-
-      final isHidden = community['hidden'] ?? false;
-      final hidden = isHidden ? 1 : 0;
-
-      final version = data['version'] ?? 0;
-
-      const online = 1;
-
-      batch.rawInsert('''
-        INSERT INTO $name (alias, hidden, config, version, online)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(alias) DO UPDATE SET
-          hidden = excluded.hidden,
-          config = excluded.config,
-          version = excluded.version,
-          online = excluded.online
-      ''', [alias, hidden, jsonEncode(data), version, online]);
+    for (final community in communities) {
+      batch.insert(
+        name,
+        community.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }

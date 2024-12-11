@@ -172,10 +172,10 @@ class WalletScreenState extends State<WalletScreen> {
       _alias,
       (bool hasChanged) async {
         _logic.requestWalletActions();
+        _logic.loadTransactions();
         if (hasChanged) _profileLogic.loadProfile();
+        _voucherLogic.fetchVouchers();
         await _profileLogic.loadProfileLink();
-        await _logic.loadTransactions();
-        await _voucherLogic.fetchVouchers();
         await _logic.evaluateWalletActions();
       },
     );
@@ -229,7 +229,6 @@ class WalletScreenState extends State<WalletScreen> {
       case 'onboarding':
         break;
       default:
-        _logic.pauseFetching();
         _profilesLogic.pause();
         _voucherLogic.pause();
 
@@ -241,7 +240,6 @@ class WalletScreenState extends State<WalletScreen> {
           'deepLinkParams': deepLinkParams,
         });
 
-        _logic.resumeFetching();
         _profilesLogic.resume();
         _voucherLogic.resume();
         break;
@@ -270,7 +268,6 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -279,7 +276,6 @@ class WalletScreenState extends State<WalletScreen> {
       'logic': _logic,
     });
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
 
@@ -287,7 +283,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleFailedTransaction(String id, bool blockSending) async {
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -350,7 +345,6 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (option == null) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -388,7 +382,6 @@ class WalletScreenState extends State<WalletScreen> {
       _logic.removeQueuedTransaction(id);
     }
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -403,14 +396,12 @@ class WalletScreenState extends State<WalletScreen> {
     // temporarily disabled until we move the account screen back
     _logic.updateWalletQR();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
     final wallet = context.read<WalletState>().wallet;
 
     if (wallet == null) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -427,7 +418,6 @@ class WalletScreenState extends State<WalletScreen> {
       ),
     );
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -438,7 +428,6 @@ class WalletScreenState extends State<WalletScreen> {
   }) async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -448,14 +437,12 @@ class WalletScreenState extends State<WalletScreen> {
       );
 
       if (hex == null) {
-        _logic.resumeFetching();
         _profilesLogic.resume();
         _voucherLogic.resume();
         return;
       }
 
       if (!super.mounted) {
-        _logic.resumeFetching();
         _profilesLogic.resume();
         _voucherLogic.resume();
         return;
@@ -473,7 +460,6 @@ class WalletScreenState extends State<WalletScreen> {
       _logic.clearInputControllers();
       _profilesLogic.clearSearch(notify: false);
 
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
 
@@ -481,7 +467,6 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     if (!super.mounted) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -496,7 +481,6 @@ class WalletScreenState extends State<WalletScreen> {
       'sendToURL': sendToURL,
     });
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -522,7 +506,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     switch (pluginConfig.launchMode) {
       case PluginLaunchMode.webview:
-        _logic.pauseFetching();
         _profilesLogic.pause();
         _voucherLogic.pause();
 
@@ -537,7 +520,6 @@ class WalletScreenState extends State<WalletScreen> {
           ),
         );
 
-        _logic.resumeFetching();
         _profilesLogic.resume();
         _voucherLogic.resume();
         break;
@@ -550,7 +532,6 @@ class WalletScreenState extends State<WalletScreen> {
   void handleCards() async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -569,7 +550,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     await _voucherLogic.fetchVouchers();
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -577,7 +557,6 @@ class WalletScreenState extends State<WalletScreen> {
   Future<void> handleMint({String? receiveParams}) async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -590,7 +569,6 @@ class WalletScreenState extends State<WalletScreen> {
       'receiveParams': receiveParams,
     });
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -598,7 +576,6 @@ class WalletScreenState extends State<WalletScreen> {
   void handleVouchers() async {
     HapticFeedback.heavyImpact();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -611,7 +588,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     await _voucherLogic.fetchVouchers();
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -625,7 +601,6 @@ class WalletScreenState extends State<WalletScreen> {
   void handleTransactionTap(String transactionId) async {
     HapticFeedback.lightImpact();
 
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -637,7 +612,6 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
-    _logic.resumeFetching();
     _profilesLogic.resume();
     _voucherLogic.resume();
   }
@@ -663,6 +637,7 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    _logic.pauseFetching();
     _profileLogic.clearProfileLink();
     _profileLogic.resetAll();
 
@@ -768,7 +743,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleQRScan() async {
-    _logic.pauseFetching();
     _profilesLogic.pause();
     _voucherLogic.pause();
 
@@ -781,7 +755,6 @@ class WalletScreenState extends State<WalletScreen> {
     );
 
     if (result == null) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -790,7 +763,6 @@ class WalletScreenState extends State<WalletScreen> {
     final format = parseQRFormat(result);
     if (format == QRFormat.url) {
       if (!super.mounted) {
-        _logic.resumeFetching();
         _profilesLogic.resume();
         _voucherLogic.resume();
         return;
@@ -810,7 +782,6 @@ class WalletScreenState extends State<WalletScreen> {
         ),
       );
 
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -825,7 +796,6 @@ class WalletScreenState extends State<WalletScreen> {
         receiveParams == null &&
         deepLinkParams == null &&
         parsedAddress.isEmpty) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
@@ -843,14 +813,12 @@ class WalletScreenState extends State<WalletScreen> {
     loadedAlias = alias;
 
     if (loadedAddress == null) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;
     }
 
     if (loadedAlias == null || loadedAlias.isEmpty) {
-      _logic.resumeFetching();
       _profilesLogic.resume();
       _voucherLogic.resume();
       return;

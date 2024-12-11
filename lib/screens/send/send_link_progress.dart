@@ -145,19 +145,13 @@ class _SendLinkProgressState extends State<SendLinkProgress> {
 
     final createdVoucher = context.watch<VoucherState>().createdVoucher;
 
-    final amount = double.tryParse(
-            createdVoucher != null ? createdVoucher.balance : '0.0') ??
-        0.0;
-
-    final formattedAmount = createdVoucher != null
-        ? formatAmount(
-            double.parse(fromDoubleUnit(
-              '$amount',
-              decimals: wallet?.decimalDigits ?? 2,
-            )),
-            decimalDigits: 2,
-          )
-        : '';
+    final formattedAmount = formatAmount(
+      double.parse(fromDoubleUnit(
+        createdVoucher?.balance ?? '0.0',
+        decimals: wallet.decimalDigits,
+      )),
+      decimalDigits: 2,
+    );
 
     final creationState =
         context.select((VoucherState state) => state.creationState);

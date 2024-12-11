@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/legacy.dart';
 import 'package:collection/collection.dart';
 
 const String defaultPrimary = '#A256FF';
@@ -27,6 +28,32 @@ class ColorTheme {
   }
 }
 
+class ContractLocation {
+  final String address;
+  final int chainId;
+
+  ContractLocation({
+    required this.address,
+    required this.chainId,
+  });
+
+  factory ContractLocation.fromJson(Map<String, dynamic> json) {
+    return ContractLocation(
+      address: json['address'],
+      chainId: json['chain_id'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'address': address,
+      'chain_id': chainId,
+    };
+  }
+
+  String get fullAddress => '$chainId:$address';
+}
+
 class CommunityConfig {
   final String name;
   final String description;
@@ -36,6 +63,10 @@ class CommunityConfig {
   final String? customDomain;
   final bool hidden;
   final ColorTheme theme;
+  final ContractLocation profile;
+  final ContractLocation primaryToken;
+  final ContractLocation primaryAccountFactory;
+  final ContractLocation? primaryCardManager;
 
   CommunityConfig({
     required this.name,
@@ -46,6 +77,10 @@ class CommunityConfig {
     this.customDomain,
     this.hidden = false,
     required this.theme,
+    required this.profile,
+    required this.primaryToken,
+    required this.primaryAccountFactory,
+    this.primaryCardManager,
   });
 
   factory CommunityConfig.fromJson(Map<String, dynamic> json) {
@@ -62,6 +97,13 @@ class CommunityConfig {
       customDomain: json['custom_domain'],
       hidden: json['hidden'] ?? false,
       theme: theme,
+      profile: ContractLocation.fromJson(json['profile']),
+      primaryToken: ContractLocation.fromJson(json['primary_token']),
+      primaryAccountFactory:
+          ContractLocation.fromJson(json['primary_account_factory']),
+      primaryCardManager: json['primary_card_manager'] != null
+          ? ContractLocation.fromJson(json['primary_card_manager'])
+          : null,
     );
   }
 
@@ -76,6 +118,11 @@ class CommunityConfig {
       'custom_domain': customDomain,
       'hidden': hidden,
       'theme': theme,
+      'profile': profile.toJson(),
+      'primary_token': primaryToken.toJson(),
+      'primary_account_factory': primaryAccountFactory.toJson(),
+      if (primaryCardManager != null)
+        'primary_card_manager': primaryCardManager!.toJson(),
     };
   }
 
@@ -218,44 +265,39 @@ class NodeConfig {
 }
 
 class ERC4337Config {
-  final String rpcUrl;
-  final String? paymasterAddress;
+  final int chainId;
   final String entrypointAddress;
+  final String? paymasterAddress;
   final String accountFactoryAddress;
-  final String paymasterRPCUrl;
   final String paymasterType;
   final int gasExtraPercentage;
 
   ERC4337Config({
-    required this.rpcUrl,
-    this.paymasterAddress,
+    required this.chainId,
     required this.entrypointAddress,
+    this.paymasterAddress,
     required this.accountFactoryAddress,
-    required this.paymasterRPCUrl,
     required this.paymasterType,
     this.gasExtraPercentage = 13,
   });
 
   factory ERC4337Config.fromJson(Map<String, dynamic> json) {
     return ERC4337Config(
-      rpcUrl: json['rpc_url'],
-      paymasterAddress: json['paymaster_address'],
+      chainId: json['chain_id'],
       entrypointAddress: json['entrypoint_address'],
+      paymasterAddress: json['paymaster_address'],
       accountFactoryAddress: json['account_factory_address'],
-      paymasterRPCUrl: json['paymaster_rpc_url'],
       paymasterType: json['paymaster_type'],
       gasExtraPercentage: json['gas_extra_percentage'] ?? 13,
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
-      'rpc_url': rpcUrl,
-      if (paymasterAddress != null) 'paymaster_address': paymasterAddress,
+      'chain_id': chainId,
       'entrypoint_address': entrypointAddress,
+      if (paymasterAddress != null) 'paymaster_address': paymasterAddress,
       'account_factory_address': accountFactoryAddress,
-      'paymaster_rpc_url': paymasterRPCUrl,
       'paymaster_type': paymasterType,
       'gas_extra_percentage': gasExtraPercentage,
     };
@@ -264,7 +306,7 @@ class ERC4337Config {
   // to string
   @override
   String toString() {
-    return 'ERC4337Config{rpcUrl: $rpcUrl, paymasterAddress: $paymasterAddress, entrypointAddress: $entrypointAddress, accountFactoryAddress: $accountFactoryAddress, paymasterRPCUrl: $paymasterRPCUrl, paymasterType: $paymasterType}';
+    return 'ERC4337Config{chainId: $chainId, entrypointAddress: $entrypointAddress, paymasterAddress: $paymasterAddress, accountFactoryAddress: $accountFactoryAddress}';
   }
 }
 
@@ -274,6 +316,7 @@ class TokenConfig {
   final String name;
   final String symbol;
   final int decimals;
+  final int chainId;
 
   TokenConfig({
     required this.standard,
@@ -281,6 +324,7 @@ class TokenConfig {
     required this.name,
     required this.symbol,
     required this.decimals,
+    required this.chainId,
   });
 
   factory TokenConfig.fromJson(Map<String, dynamic> json) {
@@ -290,10 +334,10 @@ class TokenConfig {
       name: json['name'],
       symbol: json['symbol'],
       decimals: json['decimals'],
+      chainId: json['chain_id'],
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
       'standard': standard,
@@ -301,40 +345,14 @@ class TokenConfig {
       'name': name,
       'symbol': symbol,
       'decimals': decimals,
+      'chain_id': chainId,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'TokenConfig{standard: $standard, address: $address , name: $name, symbol: $symbol, decimals: $decimals}';
-  }
-}
-
-class ProfileConfig {
-  final String address;
-
-  ProfileConfig({
-    required this.address,
-  });
-
-  factory ProfileConfig.fromJson(Map<String, dynamic> json) {
-    return ProfileConfig(
-      address: json['address'],
-    );
-  }
-
-  // to json
-  Map<String, dynamic> toJson() {
-    return {
-      'address': address,
-    };
-  }
-
-  // to string
-  @override
-  String toString() {
-    return 'ProfileConfig{address: $address}';
+    return 'TokenConfig{standard: $standard, address: $address , name: $name, symbol: $symbol, decimals: $decimals, chainId: $chainId}';
   }
 }
 
@@ -433,131 +451,229 @@ class Legacy4337Bundlers {
   }
 }
 
-class CardsConfig {
-  final String cardFactoryAddress;
+enum CardManagerType {
+  classic,
+  safe;
+}
+
+class CardsConfig extends ContractLocation {
+  final String? instanceId;
+  final CardManagerType type;
 
   CardsConfig({
-    required this.cardFactoryAddress,
+    required super.chainId,
+    required super.address,
+    this.instanceId,
+    this.type = CardManagerType.safe,
   });
 
   factory CardsConfig.fromJson(Map<String, dynamic> json) {
     return CardsConfig(
-      cardFactoryAddress: json['card_factory_address'],
-    );
+        chainId: json['chain_id'],
+        address: json['address'],
+        type: CardManagerType.values.firstWhere((t) => t.name == json['type']));
   }
 
   // to json
+  @override
   Map<String, dynamic> toJson() {
     return {
-      'card_factory_address': cardFactoryAddress,
+      'chain_id': chainId,
+      'address': address,
+      'type': type.name,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'CardsConfig{card_factory_address: $cardFactoryAddress}';
+    return 'CardsConfig{chainId: $chainId, address: $address, type: $type}';
   }
 }
 
-class SafeCardsConfig {
-  final String cardManagerAddress;
-  final String instanceId;
+class ChainConfig {
+  final int id;
+  final NodeConfig node;
 
-  SafeCardsConfig({
-    required this.cardManagerAddress,
-    required this.instanceId,
+  ChainConfig({
+    required this.id,
+    required this.node,
   });
 
-  factory SafeCardsConfig.fromJson(Map<String, dynamic> json) {
-    return SafeCardsConfig(
-      cardManagerAddress: json['card_manager_address'],
-      instanceId: json['instance_id'],
+  factory ChainConfig.fromJson(Map<String, dynamic> json) {
+    return ChainConfig(
+      id: json['id'],
+      node: NodeConfig.fromJson(json['node']),
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
-      'card_manager_address': cardManagerAddress,
+      'id': id,
+      'node': node.toJson(),
     };
-  }
-
-  // to string
-  @override
-  String toString() {
-    return 'SafeCardsConfig{card_manager_address: $cardManagerAddress}';
   }
 }
 
 class Config {
   final CommunityConfig community;
+  final Map<String, TokenConfig> tokens;
   final ScanConfig scan;
-  final IndexerConfig indexer;
+  final Map<String, ERC4337Config> accounts;
+  final Map<String, CardsConfig>? cards;
+  final Map<String, ChainConfig> chains;
   final IPFSConfig ipfs;
-  final NodeConfig node;
-  final ERC4337Config erc4337;
-  final TokenConfig token;
-  final ProfileConfig profile;
-  final CardsConfig? cards;
-  final SafeCardsConfig? safeCards;
-  final List<PluginConfig> plugins;
+  final List<PluginConfig>? plugins;
+  final String configLocation;
   final int version;
   bool online;
 
   Config({
     required this.community,
+    required this.tokens,
     required this.scan,
-    required this.indexer,
+    required this.accounts,
+    required this.cards,
+    required this.chains,
     required this.ipfs,
-    required this.node,
-    required this.erc4337,
-    required this.token,
-    required this.profile,
-    this.cards,
-    this.safeCards,
     required this.plugins,
+    required this.configLocation,
     this.version = 0,
     this.online = true,
   });
 
+  factory Config.fromLegacy(LegacyConfig legacy) {
+    final community = CommunityConfig(
+      name: legacy.community.name,
+      description: legacy.community.description,
+      url: legacy.community.url,
+      alias: legacy.community.alias,
+      logo: legacy.community.logo,
+      customDomain: legacy.community.customDomain,
+      hidden: legacy.community.hidden,
+      theme: ColorTheme(primary: legacy.community.theme.primary),
+      profile: ContractLocation(
+        address: legacy.profile.address,
+        chainId: legacy.node.chainId,
+      ),
+      primaryToken: ContractLocation(
+        address: legacy.token.address,
+        chainId: legacy.node.chainId,
+      ),
+      primaryAccountFactory: ContractLocation(
+        address: legacy.erc4337.accountFactoryAddress,
+        chainId: legacy.node.chainId,
+      ),
+      primaryCardManager: ContractLocation(
+        address: legacy.safeCards?.cardManagerAddress ??
+            legacy.cards?.cardFactoryAddress ??
+            '',
+        chainId: legacy.node.chainId,
+      ),
+    );
+
+    final tokens = {
+      '${legacy.node.chainId}:${legacy.token.address}': TokenConfig(
+        standard: legacy.token.standard,
+        address: legacy.token.address,
+        name: legacy.token.name,
+        symbol: legacy.token.symbol,
+        decimals: legacy.token.decimals,
+        chainId: legacy.node.chainId,
+      ),
+    };
+
+    final accounts = {
+      '${legacy.node.chainId}:${legacy.erc4337.accountFactoryAddress}':
+          ERC4337Config(
+        chainId: legacy.node.chainId,
+        entrypointAddress: legacy.erc4337.entrypointAddress,
+        paymasterAddress: legacy.erc4337.paymasterAddress,
+        accountFactoryAddress: legacy.erc4337.accountFactoryAddress,
+        paymasterType: legacy.erc4337.paymasterType,
+        gasExtraPercentage: legacy.erc4337.gasExtraPercentage,
+      ),
+    };
+
+    final cards = legacy.safeCards != null || legacy.cards != null
+        ? {
+            '${legacy.node.chainId}:${legacy.safeCards?.cardManagerAddress ?? legacy.cards!.cardFactoryAddress}':
+                CardsConfig(
+              chainId: legacy.node.chainId,
+              address: legacy.safeCards?.cardManagerAddress ??
+                  legacy.cards!.cardFactoryAddress,
+              instanceId: legacy.safeCards?.instanceId,
+              type: legacy.safeCards != null
+                  ? CardManagerType.safe
+                  : CardManagerType.classic,
+            ),
+          }
+        : <String, CardsConfig>{};
+
+    final chains = {
+      legacy.node.chainId.toString(): ChainConfig(
+        id: legacy.node.chainId,
+        node: NodeConfig(
+          chainId: legacy.node.chainId,
+          url: legacy.node.url,
+          wsUrl: legacy.node.wsUrl,
+        ),
+      ),
+    };
+
+    return Config(
+      community: community,
+      tokens: tokens,
+      scan: ScanConfig(name: legacy.scan.name, url: legacy.scan.url),
+      accounts: accounts,
+      cards: cards,
+      chains: chains,
+      ipfs: IPFSConfig(url: legacy.ipfs.url),
+      plugins: legacy.plugins
+          .map((e) => PluginConfig(name: e.name, icon: e.icon, url: e.url))
+          .toList(),
+      configLocation: legacy.community.customDomain != null
+          ? 'https://${legacy.community.customDomain}/config/community.json'
+          : 'https://${legacy.community.alias}.citizenwallet.xyz/config/community.json',
+      version: 4,
+      online: true,
+    );
+  }
+
   factory Config.fromJson(Map<String, dynamic> json) {
     return Config(
       community: CommunityConfig.fromJson(json['community']),
+      tokens: (json['tokens'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, TokenConfig.fromJson(value))),
       scan: ScanConfig.fromJson(json['scan']),
-      indexer: IndexerConfig.fromJson(json['indexer']),
+      accounts: (json['accounts'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, ERC4337Config.fromJson(value))),
+      cards: (json['cards'] as Map<String, dynamic>?)
+          ?.map((key, value) => MapEntry(key, CardsConfig.fromJson(value))),
+      chains: (json['chains'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, ChainConfig.fromJson(value))),
       ipfs: IPFSConfig.fromJson(json['ipfs']),
-      node: NodeConfig.fromJson(json['node']),
-      erc4337: ERC4337Config.fromJson(json['erc4337']),
-      token: TokenConfig.fromJson(json['token']),
-      profile: ProfileConfig.fromJson(json['profile']),
-      cards: json['cards'] != null ? CardsConfig.fromJson(json['cards']) : null,
-      safeCards: json['safe_cards'] != null
-          ? SafeCardsConfig.fromJson(json['safe_cards'])
-          : null,
-      plugins: json['plugins'] != null
-          ? (json['plugins'] as List)
-              .map((e) => PluginConfig.fromJson(e))
-              .toList()
-          : [],
+      plugins: (json['plugins'] as List?)
+          ?.map((e) => PluginConfig.fromJson(e))
+          .toList(),
+      configLocation: json['config_location'],
       version: json['version'] ?? 0,
       online: true,
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
-      'community': community,
-      'scan': scan,
-      'indexer': indexer,
-      'ipfs': ipfs,
-      'node': node,
-      'erc4337': erc4337,
-      'token': token,
-      'profile': profile,
-      if (cards != null) 'cards': cards,
-      'plugins': plugins,
+      'community': community.toJson(),
+      'tokens': tokens.map((key, value) => MapEntry(key, value.toJson())),
+      'scan': scan.toJson(),
+      'accounts': accounts.map((key, value) => MapEntry(key, value.toJson())),
+      if (cards != null)
+        'cards': cards!.map((key, value) => MapEntry(key, value.toJson())),
+      'chains': chains.map((key, value) => MapEntry(key, value.toJson())),
+      'ipfs': ipfs.toJson(),
+      if (plugins != null) 'plugins': plugins!.map((e) => e.toJson()).toList(),
+      'config_location': configLocation,
       'version': version,
     };
   }
@@ -565,14 +681,58 @@ class Config {
   // to string
   @override
   String toString() {
-    return 'Config{community: $community, scan: $scan, indexer: $indexer, ipfs: $ipfs, node: $node, erc4337: $erc4337, token: $token, profile: $profile}';
+    return 'Config{community: $community, scan: $scan, chains: $chains, ipfs: $ipfs, tokens: $tokens, plugins: $plugins}';
   }
 
   bool hasCards() {
-    return cards != null || safeCards != null;
+    return cards?.isNotEmpty ?? false;
   }
 
   PluginConfig? getTopUpPlugin() {
-    return plugins.firstWhereOrNull((plugin) => plugin.action == 'topup');
+    return plugins?.firstWhereOrNull((plugin) => plugin.action == 'topup');
+  }
+
+  TokenConfig getPrimaryToken() {
+    final primaryToken = tokens[community.primaryToken.fullAddress];
+    if (primaryToken == null) {
+      throw Exception('Primary token not found in config');
+    }
+
+    return primaryToken;
+  }
+
+  ERC4337Config getPrimaryAccountAbstractionConfig() {
+    final primaryAccountAbstraction =
+        accounts[community.primaryAccountFactory.fullAddress];
+
+    if (primaryAccountAbstraction == null) {
+      throw Exception('Primary Account Abstraction Config not found');
+    }
+
+    return primaryAccountAbstraction;
+  }
+
+  CardsConfig? getPrimaryCardManager() {
+    return cards?[community.primaryCardManager?.fullAddress];
+  }
+
+  String getNodeUrl(String chainId) {
+    final chain = chains[chainId];
+
+    if (chain == null) {
+      throw Exception('Chain not found');
+    }
+
+    return chain.node.url;
+  }
+
+  String getRpcUrl(String chainId) {
+    final chain = chains[chainId];
+
+    if (chain == null) {
+      throw Exception('Chain not found');
+    }
+
+    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
   }
 }

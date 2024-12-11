@@ -27,7 +27,7 @@ class AppDBService extends DBService {
         await communities.migrate(db, oldVersion, newVersion);
         return;
       },
-      version: 1,
+      version: 2,
     );
 
     final db = await databaseFactory.openDatabase(

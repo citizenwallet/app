@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/account/vouchers.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
@@ -25,7 +25,6 @@ class VoucherLogic extends WidgetsBindingObserver {
   final String password = dotenv.get('DB_VOUCHER_PASSWORD');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-  final ConfigService _config = ConfigService();
   final AppDBService _appDBService = AppDBService();
   final AccountDBService _accountDBService = AccountDBService();
   final WalletService _wallet = WalletService();
@@ -64,17 +63,12 @@ class VoucherLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        final balance = await _wallet.getBalance(addr);
+        final balance = await _wallet.getBalance(addr: addr);
 
-        final doubleAmount = balance.replaceAll(',', '.');
-        final parsedAmount = toUnit(
-          doubleAmount,
-          decimals: _wallet.currency.decimals,
-        );
+        await _accountDBService.vouchers
+            .updateBalance(addr, balance.toString());
 
-        await _accountDBService.vouchers.updateBalance(addr, parsedAmount.toString());
-
-        _state.updateVoucherBalance(addr, parsedAmount.toString());
+        _state.updateVoucherBalance(addr, balance.toString());
         continue;
       } catch (exception) {
         //
@@ -163,7 +157,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               cache: false,
             );
 
-      final balance = await _wallet.getBalance(account.hexEip55);
+      final balance = await _wallet.getBalance(addr: account.hexEip55);
 
       final voucher = Voucher(
         address: account.hexEip55,
@@ -209,7 +203,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('voucher not found');
       }
 
-      final balance = await _wallet.getBalance(address);
+      final balance = await _wallet.getBalance(addr: address);
 
       await _accountDBService.vouchers.updateBalance(address, balance);
 
@@ -297,7 +291,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       final List<Voucher> vouchers = [];
 
       for (int i = 0; i < quantity; i++) {
-        addresses.add(_wallet.erc20Address);
+        addresses.add(_wallet.tokenAddress);
 
         final credentials = EthPrivateKey.createRandom(Random.secure());
 
@@ -324,7 +318,8 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         dbvouchers.add(dbvoucher);
 
-        calldata.add(_wallet.erc20TransferCallData(
+        // TODO: token id should be set
+        calldata.add(_wallet.tokenTransferCallData(
           account.hexEip55,
           parsedAmount,
         ));
@@ -419,19 +414,39 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       await _accountDBService.vouchers.insert(dbvoucher);
 
-      final calldata = _wallet.erc20TransferCallData(
+      // TODO: token id should be set
+      final calldata = _wallet.tokenTransferCallData(
         account.hexEip55,
         parsedAmount,
       );
 
       final (_, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
+      );
+
+      final args = {
+        'from': _wallet.account.hexEip55,
+        'to': account.hexEip55,
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
+      }
+
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: args,
       );
 
       final txHash = await _wallet.submitUserop(
         userop,
-        data: name != null ? TransferData(name) : null,
+        data: eventData,
+        extraData: TransferData(dbvoucher.name),
       );
       if (txHash == null) {
         throw Exception('transaction failed');
@@ -468,9 +483,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         voucher,
       );
       return;
-    } catch (_) {
-      //
-    }
+    } catch (_) {}
 
     _state.createVoucherError();
   }
@@ -543,7 +556,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       final amount = BigInt.parse(voucher.balance);
 
-
       final tempId = '${pendingTransactionId}_${generateRandomId()}';
 
       if (preSendingTransaction != null) {
@@ -551,16 +563,16 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, tempId, _wallet.account.hexEip55, voucher.address);
       }
 
-      final calldata = _wallet.erc20TransferCallData(
+      final calldata = _wallet.tokenTransferCallData(
         _wallet.account.hexEip55,
         amount,
+        from: voucher.address,
       );
 
       final (hash, userop) = await _wallet.prepareUserop(
-        [_wallet.erc20Address],
+        [_wallet.tokenAddress],
         [calldata],
         customCredentials: credentials,
-        legacy: voucher.legacy,
       );
 
       if (sendingTransaction != null) {
@@ -568,11 +580,29 @@ class VoucherLogic extends WidgetsBindingObserver {
             amount, hash, _wallet.account.hexEip55, voucher.address);
       }
 
+      final args = {
+        'from': voucher.address,
+        'to': _wallet.account.hexEip55,
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = voucher.address;
+        args['id'] = '0';
+        args['amount'] = amount.toString();
+      } else {
+        args['value'] = amount.toString();
+      }
+
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: args,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
         customCredentials: credentials,
-        legacy: voucher.legacy,
-        data: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
+        data: eventData,
+        extraData: voucher.name.isNotEmpty ? TransferData(voucher.name) : null,
       );
       if (txHash == null) {
         throw Exception('transaction failed');

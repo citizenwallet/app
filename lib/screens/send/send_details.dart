@@ -240,6 +240,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'isMinting': widget.isMinting,
         });
 
+    walletLogic.clearInProgressTransaction();
+
     if (sent == true) {
       walletLogic.clearInputControllers();
       walletLogic.resetInputErrorState();
@@ -247,7 +249,11 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
       await Future.delayed(const Duration(milliseconds: 50));
 
-      navigator.pop(true);
+      if (navigator.canPop()) {
+        navigator.pop(true);
+      } else {
+        navigator.go('/wallet/${walletLogic.account}');
+      }
       return;
     }
 
@@ -306,12 +312,18 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'isMinting': widget.isMinting,
         });
 
+    walletLogic.clearInProgressTransaction();
+
     if (sent == true) {
       walletLogic.clearInputControllers();
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
-      navigator.pop(true);
+      if (navigator.canPop()) {
+        navigator.pop(true);
+      } else {
+        navigator.go('/wallet/${walletLogic.account}');
+      }
       return;
     }
 

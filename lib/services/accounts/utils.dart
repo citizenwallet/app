@@ -35,22 +35,21 @@ Future<EthereumAddress?> getLegacyAccountAddress(
       communityConfig,
       customAccountFactory: legacyConfig.accountFactoryAddress,
     );
+    final primaryAccountFactory =
+        communityConfig.community.primaryAccountFactory;
 
     final account = await legacyAccountFactory.getAddress(backup.address);
 
-    final indexer = APIService(baseURL: communityConfig.indexer.url);
+    final indexer = APIService(
+        baseURL: communityConfig
+            .chains[primaryAccountFactory.chainId.toString()]!.node.url);
 
-    final exists = await accountExists(
-      indexer,
-      communityConfig.indexer.key,
-      account.hexEip55,
-    );
+    final exists = await accountExists(indexer, account.hexEip55);
 
     if (!exists) {
       // deploy account
       await createAccount(
         indexer,
-        communityConfig.indexer.key,
         legacyAccountFactory,
         EthPrivateKey.fromHex(backup.privateKey),
       );
@@ -65,17 +64,13 @@ Future<EthereumAddress?> getLegacyAccountAddress(
 /// check if an account exists
 Future<bool> accountExists(
   APIService indexer,
-  String indexerKey,
   String account,
 ) async {
   try {
-    final url = '/accounts/$account/exists';
+    final url = '/v1/accounts/$account/exists';
 
     await indexer.get(
       url: url,
-      headers: {
-        'Authorization': 'Bearer $indexerKey',
-      },
     );
 
     return true;
@@ -87,14 +82,13 @@ Future<bool> accountExists(
 /// create an account
 Future<bool> createAccount(
   APIService indexer,
-  String indexerKey,
   AccountFactoryService accountFactory,
   EthPrivateKey customCredentials,
 ) async {
   try {
     final cred = customCredentials;
 
-    final url = '/accounts/factory/${accountFactory.addr}';
+    final url = '/v1/accounts/factory/${accountFactory.addr}';
 
     final encoded = jsonEncode(
       {
@@ -111,7 +105,6 @@ Future<bool> createAccount(
     await indexer.post(
       url: url,
       headers: {
-        'Authorization': 'Bearer $indexerKey',
         'X-Signature': sig,
         'X-Address': cred.address
             .hexEip55, // owner verification since 1271 is impossible at this point

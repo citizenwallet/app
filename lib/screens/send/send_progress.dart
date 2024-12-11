@@ -97,7 +97,7 @@ class _SendProgressState extends State<SendProgress> {
 
     final date = DateFormat.yMMMd().add_Hm().format(inProgressTransaction.date);
 
-  final statusMessage = inProgressTransactionError
+    final statusMessage = inProgressTransactionError
         ? widget.isMinting
             ? AppLocalizations.of(context)!.failedMint(wallet.symbol)
             : AppLocalizations.of(context)!.failedSend(wallet.symbol)

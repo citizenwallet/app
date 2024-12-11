@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/indexer/pagination.dart';
 import 'package:citizenwallet/services/indexer/push_update_request.dart';
 import 'package:citizenwallet/services/indexer/signed_request.dart';
@@ -11,13 +10,17 @@ import 'package:citizenwallet/services/sigauth/sigauth.dart';
 import 'package:citizenwallet/services/wallet/contracts/accessControl.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
+import 'package:citizenwallet/services/wallet/contracts/communityModule.dart';
 import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc1155.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/interface.dart';
+import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:citizenwallet/services/wallet/gas.dart';
 import 'package:citizenwallet/services/wallet/models/chain.dart';
 import 'package:citizenwallet/services/wallet/models/json_rpc.dart';
@@ -42,14 +45,10 @@ class WalletService {
 
   final PreferencesService _pref = PreferencesService();
 
-  bool _useLegacyBundlers = false;
-
   BigInt? _chainId;
   late NativeCurrency currency;
 
   late Client _client;
-
-  late String _indexerKey;
 
   late String _alias;
   late String _url;
@@ -65,8 +64,6 @@ class WalletService {
   late APIService _bundlerRPC;
   late APIService _paymasterRPC;
   late String _paymasterType;
-
-  late Legacy4337Bundlers _legacy4337Bundlers;
 
   late EIP1559GasPriceEstimator _gasPriceEstimator;
 
@@ -85,43 +82,51 @@ class WalletService {
 
   late StackupEntryPoint
       _contractEntryPoint; // Represents the entry point for a smart contract on the Ethereum blockchain.
+  late CommunityModule _contractCommunityModule;
   late AccountFactoryService
       _contractAccountFactory; // Represents a factory for creating Ethereum accounts.
-  late ERC20Contract
+  String _tokenStandard = 'erc20';
+  ERC20Contract?
       _contractToken; // Represents a smart contract for an ERC20 token on the Ethereum blockchain.
+  ERC1155Contract?
+      _contract1155Token; // Represents a smart contract for an ERC1155 token on the Ethereum blockchain.
   late AccessControlUpgradeableContract _contractAccessControl;
   late SimpleAccount _contractAccount; // Represents a simple Ethereum account.
+  late SafeAccount _contractSafeAccount;
   late ProfileContract
       _contractProfile; // Represents a smart contract for a user profile on the Ethereum blockchain.
   AbstractCardManagerContract? _cardManager;
-
-  // legacy contracts
-  late StackupEntryPoint _contractLegacyEntryPoint;
-  late AccountFactoryService _contractLegacyAccountFactory;
-  late APIService _bundlerLegacyRPC;
-  late APIService _paymasterLegacyRPC;
-  late String _paymasterLegacyType;
 
   EthPrivateKey get credentials => _credentials;
   EthereumAddress get address => _credentials.address;
   EthereumAddress get account => _account;
 
   /// retrieves the current balance of the address
-  Future<String> get balance async {
+  Future<String> getBalance({String? addr, BigInt? tokenId}) async {
     try {
-      final b = await _contractToken.getBalance(_account.hexEip55).timeout(
-            const Duration(seconds: 2),
-          );
+      BigInt b = BigInt.zero;
+      if (_tokenStandard == 'erc20') {
+        b = await _contractToken!.getBalance(addr ?? _account.hexEip55).timeout(
+              const Duration(seconds: 4),
+            );
+      } else if (_tokenStandard == 'erc1155') {
+        b = await _contract1155Token!
+            .getBalance(addr ?? _account.hexEip55, tokenId ?? BigInt.zero)
+            .timeout(
+              const Duration(seconds: 4),
+            );
+      }
 
+      // TODO: figure out why the returned balance is sometimes out of bounds
       _pref.setBalance(_account.hexEip55, b.toString());
 
       return b.toString();
-    } catch (e) {
-      //
-    }
+    } catch (_) {}
 
-    return _pref.getBalance(_account.hexEip55) ?? '0.0';
+    return _pref.getBalance(_account.hexEip55) ?? '0';
   }
+
+  String get standard => _tokenStandard;
 
   Future<bool> get minter async {
     return _contractAccessControl.isMinter(_account.hexEip55);
@@ -137,7 +142,9 @@ class WalletService {
     return null;
   }
 
-  String get erc20Address => _contractToken.addr;
+  String get tokenAddress => _tokenStandard == 'erc20'
+      ? _contractToken!.addr
+      : _contract1155Token!.addr;
   String get profileAddress => _contractProfile.addr;
 
   SigAuthConnection get connection => _sigAuth.connect();
@@ -153,39 +160,40 @@ class WalletService {
     void Function(String)? onNotify,
     void Function(bool)? onFinished,
   }) async {
-    _indexerKey = config.indexer.key;
-
     _alias = config.community.alias;
-    _url = config.node.url;
-    _wsurl = config.node.wsUrl;
+
+    final token = config.getPrimaryToken();
+    final accountAbstractionConfig =
+        config.getPrimaryAccountAbstractionConfig();
+    final chain = config.chains[token.chainId.toString()];
+
+    _url = chain!.node.url;
+    _wsurl = chain.node.wsUrl;
+
+    final rpcUrl = config.getRpcUrl(token.chainId.toString());
 
     _ethClient = Web3Client(
-      _url,
+      rpcUrl,
       _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+      // socketConnector: () =>
+      //     WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
     );
 
     ipfsUrl = config.ipfs.url;
     _ipfs = APIService(baseURL: ipfsUrl);
-    _indexer = APIService(baseURL: config.indexer.url);
-    _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
+    _indexer = APIService(baseURL: _url);
+    _indexerIPFS = APIService(baseURL: _url);
 
-    _rpc = APIService(baseURL: config.node.url);
-    _bundlerRPC = APIService(
-        baseURL: config.erc4337.paymasterAddress != null
-            ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
-            : config.erc4337.rpcUrl);
-    _paymasterRPC = APIService(
-        baseURL: config.erc4337.paymasterAddress != null
-            ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
-            : config.erc4337.paymasterRPCUrl);
-    _paymasterType = config.erc4337.paymasterType;
+    _rpc = APIService(baseURL: rpcUrl);
+
+    _bundlerRPC = APIService(baseURL: rpcUrl);
+    _paymasterRPC = APIService(baseURL: rpcUrl);
+    _paymasterType = accountAbstractionConfig.paymasterType;
 
     _gasPriceEstimator = EIP1559GasPriceEstimator(
       _rpc,
       _ethClient,
-      gasExtraPercentage: config.erc4337.gasExtraPercentage,
+      gasExtraPercentage: accountAbstractionConfig.gasExtraPercentage,
     );
 
     erc4337Headers = {};
@@ -210,23 +218,26 @@ class WalletService {
 
     this.currency = currency;
 
-    _legacy4337Bundlers = await getLegacy4337Bundlers();
+    final primaryCardManager = config.getPrimaryCardManager();
 
-    if (config.cards?.cardFactoryAddress != null) {
+    if (primaryCardManager != null &&
+        primaryCardManager.type == CardManagerType.classic) {
       _cardManager = CardManagerContract(
         _chainId!.toInt(),
         _ethClient,
-        config.cards!.cardFactoryAddress,
+        primaryCardManager.address,
       );
     }
 
-    if (config.safeCards?.cardManagerAddress != null) {
-      final instanceId = config.safeCards!.instanceId;
+    if (primaryCardManager != null &&
+        primaryCardManager.type == CardManagerType.safe &&
+        primaryCardManager.instanceId != null) {
+      final instanceId = primaryCardManager.instanceId!;
       _cardManager = SafeCardManagerContract(
         keccak256(convertStringToUint8List(instanceId)),
         _chainId!.toInt(),
         _ethClient,
-        config.safeCards!.cardManagerAddress,
+        primaryCardManager.address,
       );
     }
 
@@ -235,16 +246,13 @@ class WalletService {
     await _initContracts(
       account,
       config.community.alias,
-      config.erc4337.entrypointAddress,
-      config.erc4337.accountFactoryAddress,
-      config.token.address,
-      config.profile.address,
+      accountAbstractionConfig.entrypointAddress,
+      accountAbstractionConfig.accountFactoryAddress,
+      token,
+      config.community.profile.address,
     );
 
-    await _initLegacyContracts();
-    await _initLegacyRPCs();
-
-    _initAccount(onNotify, onFinished);
+    onFinished?.call(true);
   }
 
   Future<Uint8List> getCardHash(String serial, {bool local = true}) async {
@@ -269,73 +277,71 @@ class WalletService {
     Config config, {
     bool legacy = false,
   }) async {
-    _useLegacyBundlers = legacy;
+    // _useLegacyBundlers = legacy;
 
-    _indexerKey = config.indexer.key;
+    // _alias = config.community.alias;
+    // _url = config.node.url;
+    // _wsurl = config.node.wsUrl;
 
-    _alias = config.community.alias;
-    _url = config.node.url;
-    _wsurl = config.node.wsUrl;
+    // _ethClient = Web3Client(
+    //   _url,
+    //   _client,
+    //   socketConnector: () =>
+    //       WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
+    // );
 
-    _ethClient = Web3Client(
-      _url,
-      _client,
-      socketConnector: () =>
-          WebSocketChannel.connect(Uri.parse(_wsurl)).cast<String>(),
-    );
+    // ipfsUrl = config.ipfs.url;
+    // _ipfs = APIService(baseURL: ipfsUrl);
+    // _indexer = APIService(baseURL: config.indexer.url);
+    // _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
 
-    ipfsUrl = config.ipfs.url;
-    _ipfs = APIService(baseURL: ipfsUrl);
-    _indexer = APIService(baseURL: config.indexer.url);
-    _indexerIPFS = APIService(baseURL: config.indexer.ipfsUrl);
+    // _rpc = APIService(baseURL: config.node.url);
+    // _bundlerRPC = APIService(
+    //     baseURL: config.erc4337.paymasterAddress != null
+    //         ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
+    //         : config.erc4337.rpcUrl);
+    // _paymasterRPC = APIService(
+    //     baseURL: config.erc4337.paymasterAddress != null
+    //         ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
+    //         : config.erc4337.paymasterRPCUrl);
+    // _paymasterType = config.erc4337.paymasterType;
 
-    _rpc = APIService(baseURL: config.node.url);
-    _bundlerRPC = APIService(
-        baseURL: config.erc4337.paymasterAddress != null
-            ? '${config.erc4337.rpcUrl}/${config.erc4337.paymasterAddress}'
-            : config.erc4337.rpcUrl);
-    _paymasterRPC = APIService(
-        baseURL: config.erc4337.paymasterAddress != null
-            ? '${config.erc4337.paymasterRPCUrl}/${config.erc4337.paymasterAddress}'
-            : config.erc4337.paymasterRPCUrl);
-    _paymasterType = config.erc4337.paymasterType;
+    // _gasPriceEstimator = EIP1559GasPriceEstimator(
+    //   _rpc,
+    //   _ethClient,
+    //   gasExtraPercentage: config.erc4337.gasExtraPercentage,
+    // );
 
-    _gasPriceEstimator = EIP1559GasPriceEstimator(
-      _rpc,
-      _ethClient,
-      gasExtraPercentage: config.erc4337.gasExtraPercentage,
-    );
+    // erc4337Headers = {};
+    // if (!kIsWeb || kDebugMode) {
+    //   // on native, we need to set the origin header
+    //   erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
+    // }
 
-    erc4337Headers = {};
-    if (!kIsWeb || kDebugMode) {
-      // on native, we need to set the origin header
-      erc4337Headers['Origin'] = dotenv.get('ORIGIN_HEADER');
-    }
+    // _credentials = privateKey;
 
-    _credentials = privateKey;
+    // final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
+    // _chainId = cachedChainId != null
+    //     ? BigInt.parse(cachedChainId)
+    //     : await _ethClient.getChainId();
+    // await _pref.setChainIdForAlias(
+    //     config.community.alias, _chainId!.toString());
 
-    final cachedChainId = _pref.getChainIdForAlias(config.community.alias);
-    _chainId = cachedChainId != null
-        ? BigInt.parse(cachedChainId)
-        : await _ethClient.getChainId();
-    await _pref.setChainIdForAlias(
-        config.community.alias, _chainId!.toString());
+    // this.currency = currency;
 
-    this.currency = currency;
+    // _legacy4337Bundlers = await getLegacy4337Bundlers();
 
-    _legacy4337Bundlers = await getLegacy4337Bundlers();
+    // await _initContracts(
+    //   account,
+    //   config.community.alias,
+    //   config.erc4337.entrypointAddress,
+    //   config.erc4337.accountFactoryAddress,
+    //   config.token.address,
+    //   config.profile.address,
+    // );
 
-    await _initContracts(
-      account,
-      config.community.alias,
-      config.erc4337.entrypointAddress,
-      config.erc4337.accountFactoryAddress,
-      config.token.address,
-      config.profile.address,
-    );
-
-    await _initLegacyContracts();
-    await _initLegacyRPCs();
+    // await _initLegacyContracts();
+    // await _initLegacyRPCs();
   }
 
   /// Initializes the Ethereum smart contracts used by the wallet.
@@ -351,7 +357,7 @@ class WalletService {
     String alias,
     String eaddr,
     String afaddr,
-    String taddr,
+    TokenConfig token,
     String prfaddr,
   ) async {
     // Get the Ethereum address for the current account.
@@ -366,104 +372,45 @@ class WalletService {
     _contractAccount = SimpleAccount(chainId, _ethClient, _account.hexEip55);
     await _contractAccount.init();
 
+    // Create a new safe account instance and initialize it.
+    _contractSafeAccount = SafeAccount(chainId, _ethClient, _account.hexEip55);
+    await _contractSafeAccount.init();
+
     // Create a new entry point instance and initialize it.
     _contractEntryPoint = StackupEntryPoint(chainId, _ethClient, eaddr);
     await _contractEntryPoint.init();
+
+    // Create a new community module instance and initialize it.
+    _contractCommunityModule = CommunityModule(chainId, _ethClient, eaddr);
+    await _contractCommunityModule.init();
 
     // Create a new account factory instance and initialize it.
     _contractAccountFactory =
         AccountFactoryService(chainId, _ethClient, afaddr);
     await _contractAccountFactory.init();
 
-    // Create a new ERC20 token contract instance and initialize it.
-    _contractToken = ERC20Contract(chainId, _ethClient, taddr);
-    await _contractToken.init();
+    _tokenStandard = token.standard;
+
+    switch (token.standard) {
+      case 'erc20':
+        // Create a new ERC20 token contract instance and initialize it.
+        _contractToken = ERC20Contract(chainId, _ethClient, token.address);
+        await _contractToken?.init();
+        break;
+      case 'erc1155':
+        _contract1155Token =
+            ERC1155Contract(chainId, _ethClient, token.address);
+        await _contract1155Token?.init();
+        break;
+    }
 
     _contractAccessControl =
-        AccessControlUpgradeableContract(chainId, _ethClient, taddr);
+        AccessControlUpgradeableContract(chainId, _ethClient, token.address);
     await _contractAccessControl.init();
 
     // Create a new user profile contract instance and initialize it.
     _contractProfile = ProfileContract(chainId, _ethClient, prfaddr);
     await _contractProfile.init();
-  }
-
-  /// Initializes the Legacy Ethereum smart contracts used by the wallet.
-  Future<void> _initLegacyContracts() async {
-    final legacyConfig = _legacy4337Bundlers.get(chainId.toString());
-
-    // Create a new entry point instance and initialize it.
-    _contractLegacyEntryPoint =
-        StackupEntryPoint(chainId, _ethClient, legacyConfig.entrypointAddress);
-    await _contractLegacyEntryPoint.init();
-
-    // Create a new account factory instance and initialize it.
-    _contractLegacyAccountFactory = AccountFactoryService(
-        chainId, _ethClient, legacyConfig.accountFactoryAddress);
-    await _contractLegacyAccountFactory.init();
-  }
-
-  /// Initializes the Legacy RPCs used by the wallet.
-  Future<void> _initLegacyRPCs() async {
-    final legacyConfig = _legacy4337Bundlers.get(chainId.toString());
-
-    _bundlerLegacyRPC = APIService(baseURL: legacyConfig.rpcUrl);
-    _paymasterLegacyRPC = APIService(baseURL: legacyConfig.paymasterRPCUrl);
-    _paymasterLegacyType = legacyConfig.paymasterType;
-  }
-
-  Future<void> _initAccount(
-    void Function(String)? onNotify,
-    void Function(bool)? onFinished,
-  ) async {
-    try {
-      // purely checking if there is byte code
-      final exists = await accountExists();
-      if (!exists) {
-        _useLegacyBundlers = false;
-        onFinished?.call(true);
-        return;
-      }
-
-      // call the upgrade function on our API, it will return the new implementation address
-      final implementation = await upgradeAccount();
-
-      if (implementation != null) {
-        onNotify?.call('Upgrading account...');
-        // upgrade the account to the new implementation address
-        final calldata = _contractAccount.upgradeToCallData(implementation);
-
-        final (_, userop) = await prepareUserop(
-          [_account.hexEip55],
-          [calldata],
-          deploy: false,
-        );
-
-        final txHash = await submitUserop(
-          userop,
-        );
-
-        if (txHash == null) {
-          return;
-        }
-
-        final success = await waitForTxSuccess(txHash);
-        if (!success) {
-          return;
-        }
-
-        _useLegacyBundlers = false;
-
-        onNotify?.call('Account upgraded...');
-      }
-
-      onFinished?.call(true);
-      return;
-    } catch (_) {}
-
-    _useLegacyBundlers = true;
-
-    onFinished?.call(false);
   }
 
   /// given a tx hash, waits for the tx to be mined
@@ -498,36 +445,58 @@ class WalletService {
   }
 
   StackupEntryPoint getEntryPointContract({bool legacy = false}) {
-    return _useLegacyBundlers || legacy
-        ? _contractLegacyEntryPoint
-        : _contractEntryPoint;
+    return _contractEntryPoint;
   }
 
   AccountFactoryService getAccounFactoryContract({bool legacy = false}) {
-    return _useLegacyBundlers || legacy
-        ? _contractLegacyAccountFactory
-        : _contractAccountFactory;
+    return _contractAccountFactory;
   }
 
   APIService getBundlerRPC({bool legacy = false}) {
-    return _useLegacyBundlers || legacy ? _bundlerLegacyRPC : _bundlerRPC;
+    return _bundlerRPC;
   }
 
   APIService getPaymasterRPC({bool legacy = false}) {
-    return _useLegacyBundlers || legacy ? _paymasterLegacyRPC : _paymasterRPC;
+    return _paymasterRPC;
   }
 
   String getPaymasterType({bool legacy = false}) {
-    return _useLegacyBundlers || legacy ? _paymasterLegacyType : _paymasterType;
+    return _paymasterType;
   }
 
   /// fetches the balance of a given address
-  Future<String> getBalance(String addr) async {
-    final b = await _contractToken.getBalance(addr);
-    return fromDoubleUnit(
-      b.toString(),
-      decimals: currency.decimals,
-    );
+  // Future<String> getBalance(String addr, {BigInt? tokenId}) async {
+  //   BigInt b = BigInt.zero;
+  //   if (_tokenStandard == 'erc20') {
+  //     b = await _contractToken!.getBalance(addr);
+  //   } else if (_tokenStandard == 'erc1155') {
+  //     b = await _contract1155Token!.getBalance(addr, tokenId!);
+  //   }
+
+  //   return fromDoubleUnit(
+  //     b.toString(),
+  //     decimals: currency.decimals,
+  //   );
+  // }
+
+  String get transferEventStringSignature {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferEventStringSignature;
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferEventStringSignature;
+    }
+
+    return '';
+  }
+
+  String get transferEventSignature {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferEventSignature;
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferEventSignature;
+    }
+
+    return '';
   }
 
   Future<bool> isMinter(String addr) async {
@@ -541,7 +510,7 @@ class WalletService {
     required String fileType,
   }) async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -557,7 +526,6 @@ class WalletService {
         file: image,
         fileType: fileType,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': _account.hexEip55,
         },
@@ -590,7 +558,7 @@ class WalletService {
   /// update profile data
   Future<String?> updateProfile(ProfileV1 profile) async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final json = jsonEncode(
         profile.toJson(),
@@ -604,7 +572,6 @@ class WalletService {
       final resp = await _indexerIPFS.patch(
         url: url,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': _account.hexEip55,
         },
@@ -637,7 +604,7 @@ class WalletService {
   /// set profile data
   Future<bool> unpinCurrentProfile() async {
     try {
-      final url = '/profiles/v2/$profileAddress/${_account.hexEip55}';
+      final url = '/v1/profiles/$profileAddress/${_account.hexEip55}';
 
       final encoded = jsonEncode(
         {
@@ -654,7 +621,6 @@ class WalletService {
       await _indexerIPFS.delete(
         url: url,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': _account.hexEip55,
         },
@@ -742,13 +708,10 @@ class WalletService {
     String? account,
   }) async {
     try {
-      final url = '/accounts/${account ?? _account.hexEip55}/exists';
+      final url = '/v1/accounts/${account ?? _account.hexEip55}/exists';
 
       await _indexer.get(
         url: url,
-        headers: {
-          'Authorization': 'Bearer $_indexerKey',
-        },
       );
 
       return true;
@@ -769,9 +732,12 @@ class WalletService {
         return true;
       }
 
-      final calldata = _contractAccount.transferOwnershipCallData(
+      Uint8List calldata = _contractAccount.transferOwnershipCallData(
         _credentials.address.hexEip55,
       );
+      if (_paymasterType == 'cw-safe') {
+        calldata = _contractCommunityModule.getChainIdCallData();
+      }
 
       final (_, userop) = await prepareUserop(
         [_account.hexEip55],
@@ -819,7 +785,6 @@ class WalletService {
       final response = await _indexer.patch(
         url: url,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': _account.hexEip55,
         },
@@ -857,18 +822,38 @@ class WalletService {
     try {
       final List<TransferEvent> tx = [];
 
-      const path = 'logs/v2/transfers';
+      const path = '/v1/logs';
+
+      final eventSignature = _tokenStandard == 'erc20'
+          ? _contractToken!.transferEventSignature
+          : _contract1155Token!.transferEventSignature;
+
+      final dataQueryParams = buildQueryParams([
+        {
+          'key': 'from',
+          'value': _account.hexEip55,
+        },
+      ], or: [
+        {
+          'key': 'to',
+          'value': _account.hexEip55,
+        },
+      ]);
+
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
 
       final url =
-          '/$path/${_contractToken.addr}/${_account.hexEip55}?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}';
+          '$path/$addr/$eventSignature?offset=$offset&limit=$limit&maxDate=${Uri.encodeComponent(maxDate.toUtc().toIso8601String())}&$dataQueryParams';
 
-      final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer $_indexerKey',
-      });
+      final response = await _indexer.get(url: url);
 
       // convert response array into TransferEvent list
       for (final item in response['array']) {
-        tx.add(TransferEvent.fromJson(item));
+        final log = Log.fromJson(item);
+
+        tx.add(TransferEvent.fromLog(log, standard: _tokenStandard));
       }
 
       return (tx, Pagination.fromJson(response['meta']));
@@ -886,12 +871,14 @@ class WalletService {
 
       const path = 'logs/v2/transfers';
 
-      final url =
-          '/$path/${_contractToken.addr}/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
 
-      final response = await _indexer.get(url: url, headers: {
-        'Authorization': 'Bearer $_indexerKey',
-      });
+      final url =
+          '/$path/$addr/${_account.hexEip55}/new?limit=10&fromDate=${Uri.encodeComponent(fromDate.toUtc().toIso8601String())}';
+
+      final response = await _indexer.get(url: url);
 
       // convert response array into TransferEvent list
       for (final item in response['array']) {
@@ -904,26 +891,37 @@ class WalletService {
     return null;
   }
 
-  /// construct erc20 transfer call data
-  Uint8List erc20TransferCallData(
+  /// construct transfer call data
+  Uint8List tokenTransferCallData(
     String to,
-    BigInt amount,
-  ) {
-    return _contractToken.transferCallData(
-      to,
-      amount,
-    );
+    BigInt amount, {
+    String? from,
+    BigInt? tokenId,
+  }) {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.transferCallData(to, amount);
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!.transferCallData(
+          from ?? _account.hexEip55, to, tokenId ?? BigInt.zero, amount);
+    }
+
+    return Uint8List.fromList([]);
   }
 
   /// construct erc20 transfer call data
-  Uint8List erc20MintCallData(
+  Uint8List tokenMintCallData(
     String to,
-    BigInt amount,
-  ) {
-    return _contractToken.mintCallData(
-      to,
-      amount,
-    );
+    BigInt amount, {
+    BigInt? tokenId,
+  }) {
+    if (_tokenStandard == 'erc20') {
+      return _contractToken!.mintCallData(to, amount);
+    } else if (_tokenStandard == 'erc1155') {
+      return _contract1155Token!
+          .mintCallData(to, amount, tokenId ?? BigInt.zero);
+    }
+
+    return Uint8List.fromList([]);
   }
 
   /// construct simple faucet redeem call data
@@ -1003,12 +1001,15 @@ class WalletService {
   Future<(String?, Exception?)> _submitUserOp(
     UserOp userop,
     String eaddr, {
-    bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic>? data,
+    TransferData? extraData,
   }) async {
     final params = [userop.toJson(), eaddr];
-    if (!legacy && data != null) {
-      params.add(data.toJson());
+    if (data != null) {
+      params.add(data);
+    }
+    if (data != null && extraData != null) {
+      params.add(extraData.toJson());
     }
 
     final body = SUJSONRPCRequest(
@@ -1017,7 +1018,7 @@ class WalletService {
     );
 
     try {
-      final response = await _requestBundler(body, legacy: legacy);
+      final response = await _requestBundler(body);
 
       return (response.result as String, null);
     } catch (exception) {
@@ -1057,11 +1058,8 @@ class WalletService {
   }
 
   /// makes a jsonrpc request from this wallet
-  Future<SUJSONRPCResponse> _requestBundler(
-    SUJSONRPCRequest body, {
-    bool legacy = false,
-  }) async {
-    final rawResponse = await getBundlerRPC(legacy: legacy).post(
+  Future<SUJSONRPCResponse> _requestBundler(SUJSONRPCRequest body) async {
+    final rawResponse = await getBundlerRPC().post(
       body: body,
       headers: erc4337Headers,
     );
@@ -1162,29 +1160,18 @@ class WalletService {
     List<Uint8List> calldata, {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
-    bool legacy = false,
     bool deploy = true,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
-      bool isLegacy = legacy;
 
       EthereumAddress acc = _account;
       if (customCredentials != null) {
         acc = await getAccountAddress(
           customCredentials.address.hexEip55,
         );
-
-        final exists = await accountExists(account: acc.hexEip55);
-
-        if (exists) {
-          // check if this account does not support a token entrypoint
-          isLegacy =
-              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
-        }
       }
-      final StackupEntryPoint entryPoint =
-          getEntryPointContract(legacy: isLegacy);
+      final StackupEntryPoint entryPoint = getEntryPointContract();
 
       // instantiate user op with default values
       final userop = UserOp.defaultUserOp();
@@ -1198,13 +1185,13 @@ class WalletService {
       // if it's the first user op from this account, we need to deploy the account contract
       if (nonce == BigInt.zero && deploy) {
         bool exists = false;
-        if (getPaymasterType(legacy: isLegacy) == 'payg') {
+        if (getPaymasterType() == 'payg') {
           // solves edge case with legacy account migration
           exists = await accountExists(account: acc.hexEip55);
         }
 
         if (!exists) {
-          final accountFactory = getAccounFactoryContract(legacy: isLegacy);
+          final accountFactory = getAccounFactoryContract();
 
           // construct the init code to deploy the account
           userop.initCode = await accountFactory.createAccountInitCode(
@@ -1221,16 +1208,28 @@ class WalletService {
 
       // set the appropriate call data for the transfer
       // we need to call account.execute which will call token.transfer
-      userop.callData = dest.length > 1 && calldata.length > 1
-          ? _contractAccount.executeBatchCallData(
-              dest,
-              calldata,
-            )
-          : _contractAccount.executeCallData(
-              dest[0],
-              BigInt.zero,
-              calldata[0],
-            );
+      switch (getPaymasterType()) {
+        case 'payg':
+        case 'cw':
+          userop.callData = dest.length > 1 && calldata.length > 1
+              ? _contractAccount.executeBatchCallData(
+                  dest,
+                  calldata,
+                )
+              : _contractAccount.executeCallData(
+                  dest[0],
+                  BigInt.zero,
+                  calldata[0],
+                );
+          break;
+        case 'cw-safe':
+          userop.callData = _contractSafeAccount.executeCallData(
+            dest[0],
+            BigInt.zero,
+            calldata[0],
+          );
+          break;
+      }
 
       // set the appropriate gas fees based on network
       final fees = await _gasPriceEstimator.estimate;
@@ -1245,9 +1244,8 @@ class WalletService {
       // submit the user op to the paymaster in order to receive information to complete the user op
       List<PaymasterData> paymasterOOData = [];
       Exception? paymasterErr;
-      final useAccountNonce = (nonce == BigInt.zero ||
-              getPaymasterType(legacy: isLegacy) == 'payg') &&
-          deploy;
+      final useAccountNonce =
+          (nonce == BigInt.zero || getPaymasterType() == 'payg') && deploy;
 
       if (useAccountNonce) {
         // if it's the first user op, we should use a normal paymaster signature
@@ -1255,8 +1253,7 @@ class WalletService {
         (paymasterData, paymasterErr) = await _getPaymasterData(
           userop,
           entryPoint.addr,
-          getPaymasterType(legacy: isLegacy),
-          legacy: isLegacy,
+          getPaymasterType(),
         );
 
         if (paymasterData != null) {
@@ -1267,8 +1264,7 @@ class WalletService {
         (paymasterOOData, paymasterErr) = await _getPaymasterOOData(
           userop,
           entryPoint.addr,
-          getPaymasterType(legacy: isLegacy),
-          legacy: isLegacy,
+          getPaymasterType(),
         );
       }
 
@@ -1308,34 +1304,18 @@ class WalletService {
   Future<String?> submitUserop(
     UserOp userop, {
     EthPrivateKey? customCredentials,
-    bool legacy = false,
-    TransferData? data,
+    Map<String, dynamic>? data,
+    TransferData? extraData,
   }) async {
     try {
-      bool isLegacy = legacy;
-
-      EthereumAddress acc = _account;
-      if (customCredentials != null) {
-        acc = await getAccountAddress(
-          customCredentials.address.hexEip55,
-        );
-
-        final exists = await accountExists(account: acc.hexEip55);
-
-        if (exists) {
-          // check if this account does not support a token entrypoint
-          isLegacy =
-              await SimpleAccount(chainId, _ethClient, acc.hexEip55).isLegacy();
-        }
-      }
-      final entryPoint = getEntryPointContract(legacy: isLegacy);
+      final entryPoint = getEntryPointContract();
 
       // send the user op
       final (txHash, useropErr) = await _submitUserOp(
         userop,
         entryPoint.addr,
-        legacy: isLegacy,
         data: data,
+        extraData: extraData,
       );
       if (useropErr != null) {
         throw useropErr;
@@ -1365,7 +1345,11 @@ class WalletService {
         );
       }
 
-      final url = '/push/${_contractToken.addr}/${acc.hexEip55}';
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
+      final url = '/v1/push/$addr/${acc.hexEip55}';
 
       final encoded = jsonEncode(
         PushUpdateRequest(token, acc.hexEip55).toJson(),
@@ -1379,7 +1363,6 @@ class WalletService {
       await _indexer.put(
         url: url,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': acc.hexEip55,
         },
@@ -1410,7 +1393,11 @@ class WalletService {
         );
       }
 
-      final url = '/push/${_contractToken.addr}/${acc.hexEip55}/$token';
+      final addr = _tokenStandard == 'erc20'
+          ? _contractToken!.addr
+          : _contract1155Token!.addr;
+
+      final url = '/v1/push/$addr/${acc.hexEip55}/$token';
 
       final encoded = jsonEncode(
         {
@@ -1427,7 +1414,6 @@ class WalletService {
       await _indexer.delete(
         url: url,
         headers: {
-          'Authorization': 'Bearer $_indexerKey',
           'X-Signature': sig,
           'X-Address': acc.hexEip55,
         },

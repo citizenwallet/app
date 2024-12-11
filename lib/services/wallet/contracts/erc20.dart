@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:smartcontracts/contracts/standards/ERC20.g.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class TransferData {
@@ -42,6 +44,22 @@ class TransferEvent {
     this.data,
     this.status,
   );
+
+  // from Log
+  TransferEvent.fromLog(Log log, {String standard = 'erc20'})
+      : hash = log.hash,
+        txhash = log.txHash,
+        tokenId = 0, // Set to 0 as Log doesn't have tokenId
+        createdAt = log.createdAt,
+        from = EthereumAddress.fromHex(log.data?['from'] ?? ''),
+        to = EthereumAddress.fromHex(log.data?['to'] ?? ''),
+        value = BigInt.parse(standard == 'erc20'
+            ? (log.data?['value'] ?? '0')
+            : (log.data?['amount'] ?? '0')),
+        data = log.extraData != null
+            ? TransferData.fromJson(log.extraData!)
+            : null,
+        status = log.status.toString().split('.').last;
 
   // instantiate from json
   TransferEvent.fromJson(Map<String, dynamic> json)
@@ -111,6 +129,18 @@ class ERC20Contract {
     final function = rcontract.function('mint');
 
     return function.encodeCall([EthereumAddress.fromHex(to), amount]);
+  }
+
+  String get transferEventStringSignature {
+    final event = rcontract.event('Transfer');
+
+    return event.stringSignature;
+  }
+
+  String get transferEventSignature {
+    final event = rcontract.event('Transfer');
+
+    return bytesToHex(event.signature, include0x: true);
   }
 
   void dispose() {

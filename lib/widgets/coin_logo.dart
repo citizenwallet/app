@@ -1,6 +1,7 @@
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CoinLogo extends StatelessWidget {
   final double size;
@@ -14,6 +15,40 @@ class CoinLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? logoWidget;
+
+    if (logo == null) {
+      logoWidget = SvgPicture.asset('assets/logo.svg');
+    } else {
+      final isSvg = logo!.endsWith('.svg');
+
+      logoWidget = isSvg
+          ? SvgPicture.network(
+              logo!,
+              semanticsLabel: 'coin logo',
+              height: size,
+              width: size,
+              placeholderBuilder: (context) => SvgPicture.asset(
+                'assets/logo.svg',
+                semanticsLabel: 'coin logo',
+                height: size,
+                width: size,
+              ),
+            )
+          : CachedNetworkImage(
+              imageUrl: logo!,
+              height: size,
+              width: size,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => SvgPicture.asset(
+                'assets/logo.svg',
+                semanticsLabel: 'coin logo',
+                height: size,
+                width: size,
+              ),
+            );
+    }
+
     return Container(
       height: size,
       width: size,
@@ -25,13 +60,7 @@ class CoinLogo extends StatelessWidget {
           color: Theme.of(context).colors.subtle.resolveFrom(context),
         ),
       ),
-      child: logo != null
-          ? SvgPicture.network(
-              logo!,
-              placeholderBuilder: (context) =>
-                  SvgPicture.asset('assets/logo.svg'),
-            )
-          : SvgPicture.asset('assets/logo.svg'),
+      child: logoWidget,
     );
   }
 }
