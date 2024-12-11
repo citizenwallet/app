@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/legacy.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test/test.dart';
@@ -140,8 +141,19 @@ void main() {
     test('returns a valid wallet url for a given community', () async {
       final deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-      final List<Config> configs = communityConfigs
-          .map((e) => Config.fromJson(e))
+      final List<LegacyConfig> legacyConfigs = communityConfigs
+          .map((e) => LegacyConfig.fromJson(e))
+          .toList(growable: false);
+
+      for (var i = 0; i < legacyConfigs.length; i++) {
+        expect(
+          legacyConfigs[i].community.walletUrl(deepLinkURL),
+          expectedWalletUrls[i],
+        );
+      }
+
+      final List<Config> configs = legacyConfigs
+          .map((e) => Config.fromLegacy(e))
           .toList(growable: false);
 
       for (var i = 0; i < configs.length; i++) {

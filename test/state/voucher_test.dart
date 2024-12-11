@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/config/legacy.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -141,8 +142,12 @@ void main() {
     test('returns a valid voucher url for a given community', () async {
       final deepLinkURL = dotenv.get('ORIGIN_HEADER');
 
-      final List<Config> configs = communityConfigs
-          .map((e) => Config.fromJson(e))
+      final List<LegacyConfig> legacyConfigs = communityConfigs
+          .map((e) => LegacyConfig.fromJson(e))
+          .toList(growable: false);
+
+      final List<Config> configs = legacyConfigs
+          .map((e) => Config.fromLegacy(e))
           .toList(growable: false);
 
       for (var i = 0; i < configs.length; i++) {
