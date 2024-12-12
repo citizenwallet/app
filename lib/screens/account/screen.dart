@@ -75,7 +75,8 @@ class AccountScreenState extends State<AccountScreen> {
 
         if (hasChanged) {
           _logic.resetAll();
-          _logic.loadProfile();
+          final online = _walletLogic.isOnline;
+          _logic.loadProfile(online: online);
         }
       },
     );

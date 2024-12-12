@@ -1,6 +1,7 @@
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/wallet/utils.dart';
 import 'package:collection/collection.dart';
@@ -28,6 +29,8 @@ class WalletState with ChangeNotifier {
   bool firstLoad = true;
   bool loading = true;
   bool error = false;
+
+  EventServiceState eventServiceState = EventServiceState.disconnected;
 
   Exception? errorException;
 
@@ -75,6 +78,11 @@ class WalletState with ChangeNotifier {
 
   bool cwWalletsLoading = false;
   bool cwWalletsError = false;
+
+  void setEventServiceState(EventServiceState state) {
+    eventServiceState = state;
+    notifyListeners();
+  }
 
   void updateAmount(String amount) {
     this.amount = amount;

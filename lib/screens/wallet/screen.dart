@@ -4,6 +4,7 @@ import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
@@ -172,8 +173,11 @@ class WalletScreenState extends State<WalletScreen> {
       _alias,
       (bool hasChanged) async {
         _logic.requestWalletActions();
-        _logic.loadTransactions();
-        if (hasChanged) _profileLogic.loadProfile();
+        await _logic.loadTransactions();
+
+        final online = _logic.isOnline;
+
+        if (hasChanged) _profileLogic.loadProfile(online: online);
         _voucherLogic.fetchVouchers();
         await _profileLogic.loadProfileLink();
         await _logic.evaluateWalletActions();
@@ -902,6 +906,11 @@ class WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+    final eventServiceState =
+        context.select((WalletState state) => state.eventServiceState);
+
+    final isOffline = eventServiceState != EventServiceState.connected &&
+        eventServiceState != EventServiceState.disconnected;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
@@ -1007,56 +1016,62 @@ class WalletScreenState extends State<WalletScreen> {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: handleScrollToTop,
-              child: SafeArea(
-                child: Padding(
-                    padding:
-                        EdgeInsets.only(top: config?.online == false ? 40 : 0),
-                    child: Header(
-                      transparent: true,
-                      color: Theme.of(context).colors.transparent,
-                      title: '',
-                      actionButton: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          cleaningUp || wallet == null
-                              ? const PulsingContainer(
-                                  height: 24,
-                                  width: 24,
-                                  borderRadius: 21,
-                                )
-                              : Stack(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: handleOpenAccountSwitcher,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: SvgPicture.asset(
-                                          'assets/icons/switch_accounts.svg',
-                                          semanticsLabel: 'switch accounts',
-                                          height: 24,
-                                          width: 24,
-                                          colorFilter: ColorFilter.mode(
-                                            Theme.of(context)
-                                                .colors
-                                                .primary
-                                                .resolveFrom(context),
-                                            BlendMode.srcIn,
+            Positioned(
+              top: isOffline ? 40 : 0,
+              left: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: handleScrollToTop,
+                child: SafeArea(
+                  child: Padding(
+                      padding: EdgeInsets.only(
+                          top: config?.online == false ? 40 : 0),
+                      child: Header(
+                        transparent: true,
+                        color: Theme.of(context).colors.transparent,
+                        title: '',
+                        actionButton: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            cleaningUp || wallet == null
+                                ? const PulsingContainer(
+                                    height: 24,
+                                    width: 24,
+                                    borderRadius: 21,
+                                  )
+                                : Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: handleOpenAccountSwitcher,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: SvgPicture.asset(
+                                            'assets/icons/switch_accounts.svg',
+                                            semanticsLabel: 'switch accounts',
+                                            height: 24,
+                                            width: 24,
+                                            colorFilter: ColorFilter.mode(
+                                              Theme.of(context)
+                                                  .colors
+                                                  .primary
+                                                  .resolveFrom(context),
+                                              BlendMode.srcIn,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                        ],
-                      ),
-                    )),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      )),
+                ),
               ),
             ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
-              display: config?.online == false,
+              display: isOffline,
+              loading: eventServiceState == EventServiceState.connecting,
             ),
           ],
         ),

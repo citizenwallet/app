@@ -198,5 +198,6 @@
   "topup": "Recharger",
   "more": "Plus",
   "close": "Fermer",
-  "start": "Commencer"
+  "start": "Commencer",
+  "connecting": "Connexion"
 }
