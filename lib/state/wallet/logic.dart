@@ -440,6 +440,8 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
+  bool get isOnline => _eventService != null && !_eventService!.isOffline;
+
   Future<String?> createWallet(String alias) async {
     try {
       _state.createWallet();
@@ -593,7 +595,7 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.createWalletError();
   }
 
-  void transferEventSubscribe() async {
+  Future<void> transferEventSubscribe() async {
     try {
       final alias = _wallet.alias;
       if (alias == null) {
@@ -621,9 +623,10 @@ class WalletLogic extends WidgetsBindingObserver {
         _wallet.transferEventSignature,
       );
 
-      _eventService!.connect();
-
       _eventService!.setMessageHandler(handleTransferEvent);
+      _eventService!.setStateHandler(handleEventServiceStateChange);
+
+      await _eventService!.connect();
 
       return;
     } catch (_) {}
@@ -634,6 +637,10 @@ class WalletLogic extends WidgetsBindingObserver {
       _eventService!.disconnect();
       _eventService = null;
     }
+  }
+
+  void handleEventServiceStateChange(EventServiceState state) {
+    _state.setEventServiceState(state);
   }
 
   void handleTransferEvent(WebSocketEvent event) {

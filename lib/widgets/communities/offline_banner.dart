@@ -8,13 +8,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OfflineBanner extends StatefulWidget {
-  final bool display;
   final String communityUrl;
+  final bool display;
+  final bool loading;
 
   const OfflineBanner({
     super.key,
     required this.communityUrl,
     this.display = false,
+    this.loading = false,
   });
 
   @override
@@ -25,13 +27,15 @@ class _OfflineBannerState extends State<OfflineBanner> {
   bool _display = false;
   double _opacity = 0;
 
-  Timer? _timer;
+  Timer? _showTimer;
+  Timer? _hideTimer;
 
   @override
   void initState() {
     super.initState();
 
     _display = widget.display;
+    _opacity = widget.display ? 1 : 0;
   }
 
   @override
@@ -49,7 +53,8 @@ class _OfflineBannerState extends State<OfflineBanner> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _showTimer?.cancel();
+    _hideTimer?.cancel();
 
     super.dispose();
   }
@@ -59,12 +64,13 @@ class _OfflineBannerState extends State<OfflineBanner> {
       _display = true;
     });
 
-    await delay(const Duration(milliseconds: 50));
+    _hideTimer?.cancel();
+    _showTimer = Timer(const Duration(milliseconds: 50), () {
+      HapticFeedback.heavyImpact();
 
-    HapticFeedback.heavyImpact();
-
-    setState(() {
-      _opacity = 1;
+      setState(() {
+        _opacity = 1;
+      });
     });
   }
 
@@ -73,12 +79,13 @@ class _OfflineBannerState extends State<OfflineBanner> {
       _opacity = 0;
     });
 
-    await delay(const Duration(milliseconds: 250));
+    _showTimer?.cancel();
+    _hideTimer = Timer(const Duration(milliseconds: 250), () {
+      HapticFeedback.lightImpact();
 
-    HapticFeedback.lightImpact();
-
-    setState(() {
-      _display = false;
+      setState(() {
+        _display = false;
+      });
     });
   }
 
@@ -99,14 +106,17 @@ class _OfflineBannerState extends State<OfflineBanner> {
     return AnimatedOpacity(
       opacity: _opacity,
       duration: const Duration(milliseconds: 250),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
         height: 45 + safeTopPadding,
         padding: EdgeInsets.fromLTRB(0, safeTopPadding, 0, 0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colors.danger.resolveFrom(context),
+          color: widget.loading
+              ? Theme.of(context).colors.primary.resolveFrom(context)
+              : Theme.of(context).colors.danger.resolveFrom(context),
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20), 
+            bottomRight: Radius.circular(20),
           ),
         ),
         child: Row(
@@ -124,7 +134,10 @@ class _OfflineBannerState extends State<OfflineBanner> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.communityCurrentlyOffline,
+                        widget.loading
+                            ? '${AppLocalizations.of(context)!.connecting}...'
+                            : AppLocalizations.of(context)!
+                                .communityCurrentlyOffline,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -134,16 +147,21 @@ class _OfflineBannerState extends State<OfflineBanner> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      CupertinoButton(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10),
-                        onPressed: handleCommunityInfo,
-                        minSize: 20,
-                        child: Icon(
-                          CupertinoIcons.info,
-                          color: Theme.of(context).colors.white,
+                      if (!widget.loading)
+                        CupertinoButton(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          onPressed: handleCommunityInfo,
+                          minSize: 20,
+                          child: Icon(
+                            CupertinoIcons.info,
+                            color: Theme.of(context).colors.white,
+                          ),
+                        )
+                      else
+                        const CupertinoActivityIndicator(
+                          color: CupertinoColors.white,
                         ),
-                      )
                     ],
                   )
                 ],

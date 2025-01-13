@@ -199,5 +199,6 @@
   "topup": "Top Up",
   "close": "Close",
   "more": "More",
-  "start": "Start"
+  "start": "Start",
+  "connecting": "Connecting"
 }

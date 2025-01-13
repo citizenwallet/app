@@ -2,6 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show WebSocket;
 
+import 'package:citizenwallet/utils/delay.dart';
+
+enum EventServiceState {
+  disconnected,
+  connecting,
+  connected,
+  error,
+}
+
 class WebSocketEvent {
   final String poolId;
   final String type;
@@ -44,18 +53,24 @@ class EventService {
   final String _topic;
   WebSocket? _ws;
   Timer? _reconnectTimer;
+  final Duration _reconnectMaxSeconds = const Duration(seconds: 10);
   final Duration _reconnectDelay = const Duration(seconds: 2);
   bool _isConnected = false;
   bool _intentionalDisconnect = false;
 
   Function(WebSocketEvent)? _messageHandler;
+  Function(EventServiceState)? _stateHandler;
 
   EventService(this._url, this._contractAddress, this._topic);
 
-  Future<void> connect() async {
+  bool get isOffline => _isConnected == false;
+
+  Future<void> connect({Duration? reconnectDelay}) async {
     print('Connecting to $_url/v1/events/$_contractAddress/$_topic');
 
     if (_isConnected) return;
+
+    _onStateChange(EventServiceState.connected);
 
     try {
       _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
@@ -66,6 +81,7 @@ class EventService {
 
       _ws!.pingInterval = const Duration(seconds: 10);
       _isConnected = true;
+
       _ws!.listen(
         _onMessage,
         onError: _onError,
@@ -73,12 +89,30 @@ class EventService {
       );
     } catch (e) {
       print('Connection error: $e');
-      _scheduleReconnect();
+      _onStateChange(EventServiceState.error);
+      Duration delay = Duration(seconds: _reconnectDelay.inSeconds);
+      if (reconnectDelay != null && reconnectDelay >= _reconnectMaxSeconds) {
+        delay = Duration(seconds: reconnectDelay.inSeconds);
+      }
+
+      if (reconnectDelay != null && reconnectDelay < _reconnectMaxSeconds) {
+        delay = Duration(seconds: reconnectDelay.inSeconds + 2);
+      }
+
+      _scheduleReconnect(reconnectDelay: delay);
     }
   }
 
   void setMessageHandler(Function(WebSocketEvent) onMessage) {
     _messageHandler = onMessage;
+  }
+
+  void setStateHandler(Function(EventServiceState) onStateChange) {
+    _stateHandler = onStateChange;
+  }
+
+  void _onStateChange(EventServiceState state) {
+    _stateHandler?.call(state);
   }
 
   void _onMessage(dynamic message) {
@@ -101,6 +135,7 @@ class EventService {
   void _onError(error) {
     print('WebSocket error: $error');
     _isConnected = false;
+    _onStateChange(EventServiceState.error);
     _scheduleReconnect();
   }
 
@@ -109,15 +144,22 @@ class EventService {
     _isConnected = false;
     if (!_intentionalDisconnect) {
       _scheduleReconnect();
+    } else {
+      _onStateChange(EventServiceState.disconnected);
     }
     _intentionalDisconnect = false;
   }
 
-  void _scheduleReconnect() {
+  void _scheduleReconnect({Duration? reconnectDelay}) {
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(_reconnectDelay, () {
+    _reconnectTimer = Timer(reconnectDelay ?? _reconnectDelay, () async {
       print('Attempting to reconnect...');
-      connect();
+
+      _onStateChange(EventServiceState.connecting);
+
+      await delay(const Duration(seconds: 1));
+
+      connect(reconnectDelay: reconnectDelay);
     });
   }
 
@@ -127,5 +169,6 @@ class EventService {
     _isConnected = false;
     _intentionalDisconnect = true;
     await _ws?.close();
+    _onStateChange(EventServiceState.disconnected);
   }
 }

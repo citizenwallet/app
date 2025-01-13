@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 2.0.0+230
+version: 2.0.1+231
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -50,7 +50,7 @@ dependencies:
   async: ^2.11.0
   modal_bottom_sheet: ^3.0.0-pre
   username_gen: ^1.0.4
-  file_picker: ^8.0.1
+  file_picker: 8.1.3
   universal_io: ^2.2.2
   share_plus: ^10.0.0
   sqflite_common: ^2.5.0

@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
@@ -49,8 +50,9 @@ class _WalletActionsState extends State<WalletActions> {
   Widget build(BuildContext context) {
     final loading = context.select((WalletState state) => state.loading);
     final firstLoad = context.select((WalletState state) => state.firstLoad);
+    final eventServiceState =
+        context.select((WalletState state) => state.eventServiceState);
     final wallet = context.select((WalletState state) => state.wallet);
-    final config = context.select((WalletState state) => state.config);
 
     final walletActionsLoading =
         context.select((WalletState state) => state.walletActionsLoading);
@@ -63,7 +65,9 @@ class _WalletActionsState extends State<WalletActions> {
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
     final username = context.select((ProfileState state) => state.username);
 
-    final withOfflineBanner = config!.online == false;
+    final withOfflineBanner =
+        eventServiceState != EventServiceState.connected &&
+            eventServiceState != EventServiceState.disconnected;
 
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||
