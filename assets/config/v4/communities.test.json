@@ -391,6 +391,80 @@
   },
   {
     "community": {
+      "name": "TECHI",
+      "description": "A community for TECHI users",
+      "url": "https://my.techi.be",
+      "alias": "my.techi.be",
+      "logo": "https://my.techi.be/assets/token.svg",
+      "hidden": false,
+      "theme": {
+        "primary": "#617FF8"
+      },
+      "profile": {
+        "address": "0x80C141861607b8FEfD53C9E71a9c7D2D3e2e76dc",
+        "chain_id": 100
+      },
+      "primary_token": {
+        "address": "0x01D0E7117510b371Ac38f52Cc6689ff8875280FA",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "chain_id": 100
+      },
+      "primary_card_manager": {
+        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+        "chain_id": 100
+      }
+    },
+    "tokens": {
+      "100:0x01D0E7117510b371Ac38f52Cc6689ff8875280FA": {
+        "standard": "erc20",
+        "name": "TECHI",
+        "address": "0x01D0E7117510b371Ac38f52Cc6689ff8875280FA",
+        "symbol": "TECHI",
+        "decimals": 6,
+        "chain_id": 100
+      }
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "accounts": {
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x68c5a20f233264DB124a3c95a200bbD20b3b9762",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "chains": {
+      "100": {
+        "id": 100,
+        "node": {
+          "url": "https://engine.my.techi.be",
+          "ws_url": "wss://engine.my.techi.be"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "Top Up",
+        "icon": "https://my.techi.be/assets/token.svg",
+        "url": "https://my.techi.be/topup",
+        "action": "topup"
+      }
+    ],
+    "config_location": "https://my.techi.be/assets/community.json",
+    "version": 4
+  },
+  {
+    "community": {
       "name": "Regens Unite",
       "description": "A community currency for the Regens Unite community.",
       "url": "https://www.regensunite.earth/",
