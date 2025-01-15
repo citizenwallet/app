@@ -162,6 +162,9 @@ class CommunitiesLogic {
 
   Future<bool> isAliasFromDeeplinkExist(String alias) async {
     bool communityExists = await _db.communities.exists(alias);
+    if (communityExists) {
+      return true;
+    }
 
     for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
       final List<Config> communities = await config.getCommunitiesFromRemote();
@@ -179,6 +182,9 @@ class CommunitiesLogic {
 
       // Check again if the community exists after the update
       communityExists = await _db.communities.exists(alias);
+      if (communityExists) {
+        return true;
+      }
     }
 
     return communityExists;
