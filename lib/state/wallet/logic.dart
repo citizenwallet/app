@@ -1405,35 +1405,31 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.clearInProgressTransaction(notify: notify);
   }
 
-  Future<bool> mintTokens(String amount, String to) async {
+  Future<bool> mintTokens(String amount, String to,
+      {String message = '', String? id}) async {
     final doubleAmount = amount.replaceAll(',', '.');
     final parsedAmount = toUnit(
       doubleAmount,
       decimals: _wallet.currency.decimals,
     );
 
+    var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
     try {
-      _state.setInProgressTransaction(
-        CWTransaction.sending(
-          fromDoubleUnit(
-            amount.toString(),
-            decimals: _wallet.currency.decimals,
-          ),
-          id: '',
-          hash: '',
-          chainId: _wallet.chainId,
-          to: to,
-          from: _wallet.account.hexEip55,
-          description: 'Minting tokens',
-          date: DateTime.now(),
-        ),
-      );
-      _state.sendTransaction();
+      _state.sendTransaction(id: id);
 
       if (to.isEmpty) {
         _state.setInvalidAddress(true);
         throw Exception('invalid address');
       }
+
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        zeroAddress,
+        message: message,
+      );
 
       // TODO: token id should be set
       final calldata = _wallet.tokenMintCallData(
@@ -1446,12 +1442,52 @@ class WalletLogic extends WidgetsBindingObserver {
         [calldata],
       );
 
+      final args = {
+        'from': zeroAddress,
+        'to': to,
+      };
+      if (_wallet.standard == 'erc1155') {
+        args['operator'] = _wallet.account.hexEip55;
+        args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
+      }
+
+      final eventData = createEventData(
+        stringSignature: _wallet.transferEventStringSignature,
+        topic: _wallet.transferEventSignature,
+        args: args,
+      );
+
       final txHash = await _wallet.submitUserop(
         userop,
+        data: eventData,
+        extraData: message != '' ? TransferData(message) : null,
       );
       if (txHash == null) {
         // this is an optional operation
         throw Exception('transaction failed');
+      }
+
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        zeroAddress,
+        message: message,
+      );
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
       }
 
       clearInputControllers();
@@ -1471,12 +1507,12 @@ class WalletLogic extends WidgetsBindingObserver {
           amount.toString(),
           decimals: _wallet.currency.decimals,
         ),
-        id: '',
+        id: tempId,
         hash: '',
         chainId: _wallet.chainId,
         to: to,
-        from: _wallet.account.hexEip55,
-        description: 'Failed to mint token',
+        from: zeroAddress,
+        description: message.isNotEmpty ? message : 'Failed to mint token',
         date: DateTime.now(),
       ),
     );
