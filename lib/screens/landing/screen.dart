@@ -28,6 +28,7 @@ class LandingScreen extends StatefulWidget {
   final String? receiveParams;
   final String? deepLink;
   final String? deepLinkParams;
+  final String? sendToParams;
 
   const LandingScreen({
     super.key,
@@ -39,6 +40,7 @@ class LandingScreen extends StatefulWidget {
     this.receiveParams,
     this.deepLink,
     this.deepLinkParams,
+    this.sendToParams,
   });
 
   @override
@@ -86,6 +88,7 @@ class LandingScreenState extends State<LandingScreen>
     String? receiveParams,
     String? deepLink,
     String? deepLinkParams,
+    String? sendToParams,
   }) {
     String params = '';
     if (voucher != null && voucherParams != null) {
@@ -100,6 +103,10 @@ class LandingScreenState extends State<LandingScreen>
     if (deepLink != null && deepLinkParams != null) {
       params += '&dl=$deepLink';
       params += '&$deepLink=$deepLinkParams';
+    }
+
+    if (sendToParams != null) {
+      params += '&${Uri.decodeComponent(sendToParams)}';
     }
 
     if (extra.isNotEmpty) {
@@ -133,6 +140,7 @@ class LandingScreenState extends State<LandingScreen>
 
     alias ??= aliasFromUri(widget.uri);
     alias ??= aliasFromReceiveUri(widget.uri);
+    alias ??= aliasFromSendUri(widget.uri);
 
     // handle voucher redemption
     // pick an appropriate wallet to load
@@ -155,6 +163,12 @@ class LandingScreenState extends State<LandingScreen>
     if (widget.deepLink != null) {
       (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
           overrideAlias: alias);
+    }
+
+    // handle send to params
+    if (widget.sendToParams != null) {
+      (address, alias) =
+          await handleLoadFromParams(widget.sendToParams, overrideAlias: alias);
     }
 
     if (alias != null) {
@@ -181,6 +195,7 @@ class LandingScreenState extends State<LandingScreen>
       receiveParams: widget.receiveParams,
       deepLink: widget.deepLink,
       deepLinkParams: widget.deepLinkParams,
+      sendToParams: widget.sendToParams,
       extra: [
         'alias=${alias ?? defaultAlias}',
       ],

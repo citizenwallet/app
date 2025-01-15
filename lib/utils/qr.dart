@@ -66,7 +66,9 @@ QRFormat parseQRFormat(String raw) {
 }
 
 (String, String?, String?, String?) parseSendtoUrlWithEIP681(String raw) {
-  final receiveUrl = Uri.parse(raw);
+  final cleanRaw = raw.replaceFirst('/#/', '/');
+
+  final receiveUrl = Uri.parse(cleanRaw);
   final urlEncodedParams = receiveUrl.queryParameters['eip681'];
   if (urlEncodedParams == null) {
     return ('', null, null, null);
@@ -80,7 +82,8 @@ QRFormat parseQRFormat(String raw) {
 // parse the sendto url
 // raw is the URL from the QR code, eg. https://example.com/?sendto=:username@:communitySlug&amount=100&description=Hello
 (String, String?, String?, String?) parseSendtoUrl(String raw) {
-  final decodedRaw = Uri.decodeComponent(raw);
+  final cleanRaw = raw.replaceFirst('/#/', '/');
+  final decodedRaw = Uri.decodeComponent(cleanRaw);
 
   final receiveUrl = Uri.parse(decodedRaw);
 

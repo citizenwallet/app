@@ -24,7 +24,9 @@ const List<String> cases = [
   'https://example.com/?eip681=ethereum%3A0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%408453%3Fvalue%3D10.50',
   'https://live.citizenwallet.xyz/wallet.pay.brussels/fridge/pay?sendto=fridge@wallet.commonshub.brussels&description=Drinks&amount=3.00',
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%40wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
-  'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest'
+  'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
+  'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
+  'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
 ];
 
 const List<QRFormat> expected = [
@@ -45,6 +47,8 @@ const List<QRFormat> expected = [
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrlWithEIP681,
+  QRFormat.sendtoUrl,
+  QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
@@ -79,6 +83,18 @@ const List<(String, String?, String?, String?)> expectedParse = [
   ('xavier', '10.50', null, 'wallet.pay.brussels'),
   ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null, null),
   ('fridge', '3.00', 'Drinks', 'wallet.commonshub.brussels'),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    'test',
+    'wallet.pay.brussels'
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    'test',
+    'wallet.pay.brussels'
+  ),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
