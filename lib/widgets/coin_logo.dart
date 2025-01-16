@@ -6,11 +6,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 class CoinLogo extends StatelessWidget {
   final double size;
   final String? logo;
+  final double? borderWidth;
 
   const CoinLogo({
     super.key,
     required this.size,
     this.logo,
+    this.borderWidth,
   });
 
   @override
@@ -56,7 +58,7 @@ class CoinLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(size / 2),
         color: Theme.of(context).colors.white,
         border: Border.all(
-          width: 1,
+          width: borderWidth ?? 1,
           color: Theme.of(context).colors.subtle.resolveFrom(context),
         ),
       ),

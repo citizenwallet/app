@@ -1,5 +1,6 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
@@ -56,11 +57,14 @@ class CommunityRow extends StatelessWidget {
                 ),
                 child: config.community.logo.isNotEmpty
                     ? kDebugMode
-                        ? SvgPicture.asset('assets/logo.svg')
-                        : SvgPicture.network(
-                            config.community.logo,
-                            placeholderBuilder: (context) =>
-                                SvgPicture.asset('assets/logo.svg'),
+                        ? CoinLogo(
+                            size: 50,
+                            borderWidth: 0,
+                          )
+                        : CoinLogo(
+                            size: 50,
+                            borderWidth: 0,
+                            logo: config.community.logo,
                           )
                     : Center(
                         child: Text(
