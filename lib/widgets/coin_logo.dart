@@ -41,7 +41,7 @@ class CoinLogo extends StatelessWidget {
               imageUrl: logo!,
               height: size,
               width: size,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               placeholder: (context, url) => SvgPicture.asset(
                 'assets/logo.svg',
                 semanticsLabel: 'coin logo',
