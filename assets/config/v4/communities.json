@@ -396,7 +396,7 @@
             "url": "https://citizenwallet.xyz/community/seldesalm",
             "alias": "seldesalm",
             "custom_domain": "seldesalm.citizenwallet.xyz",
-            "logo": "https://seldesalm.citizenwallet.xyz/wallet-config/_images/myrt.png",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
             "theme": {
                 "primary": "#6B5CA4"
             },
@@ -444,7 +444,7 @@
             "42220": {
                 "id": 42220,
                 "node": {
-                    "url": "http://42220.engine.citizenwallet.xyz",
+                    "url": "https://42220.engine.citizenwallet.xyz",
                     "ws_url": "wss://42220.engine.citizenwallet.xyz"
                 }
             }
