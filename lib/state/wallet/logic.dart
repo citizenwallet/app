@@ -882,7 +882,7 @@ class WalletLogic extends WidgetsBindingObserver {
         _state.updateWalletBalanceSuccess(v);
       });
 
-      transferEventSubscribe();
+      await transferEventSubscribe();
 
       return;
     } catch (_) {}
