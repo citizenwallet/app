@@ -653,6 +653,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
         final tx = TransferEvent.fromLog(log, standard: _wallet.standard);
 
+        // TODO: fix this on the websocket side
+        final myAccount = _wallet.account.hexEip55;
+        if (tx.from.hexEip55 != myAccount && tx.to.hexEip55 != myAccount) {
+          return;
+        }
+        ///////////////////////////////////////
+
         _accountDBService.transactions.insert(DBTransaction(
           hash: tx.hash,
           txHash: tx.txhash,
