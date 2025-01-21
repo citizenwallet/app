@@ -162,11 +162,18 @@ class CommunitiesLogic {
 
   Future<bool> isAliasFromDeeplinkExist(String alias) async {
     bool communityExists = await _db.communities.exists(alias);
+    if (communityExists) {
+      return true;
+    }
 
-    for (int attempt = 0; attempt < 2 && !communityExists; attempt++) {
+    for (int attempt = 0; attempt < 2; attempt++) {
       final List<Config> communities = await config.getCommunitiesFromRemote();
 
       for (final community in communities) {
+        if (community.community.alias != alias) {
+          continue;
+        }
+
         final token = community.getPrimaryToken();
         final chain = community.chains[token.chainId.toString()];
 

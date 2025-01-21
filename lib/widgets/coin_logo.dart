@@ -6,13 +6,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 class CoinLogo extends StatelessWidget {
   final double size;
   final String? logo;
-  final double? borderWidth;
+  final double borderWidth;
 
   const CoinLogo({
     super.key,
     required this.size,
     this.logo,
-    this.borderWidth,
+    this.borderWidth = 0,
   });
 
   @override
@@ -41,7 +41,7 @@ class CoinLogo extends StatelessWidget {
               imageUrl: logo!,
               height: size,
               width: size,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               placeholder: (context, url) => SvgPicture.asset(
                 'assets/logo.svg',
                 semanticsLabel: 'coin logo',
@@ -58,11 +58,14 @@ class CoinLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(size / 2),
         color: Theme.of(context).colors.white,
         border: Border.all(
-          width: borderWidth ?? 1,
+          width: borderWidth,
           color: Theme.of(context).colors.subtle.resolveFrom(context),
         ),
       ),
-      child: logoWidget,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size / 2),
+        child: logoWidget,
+      ),
     );
   }
 }
