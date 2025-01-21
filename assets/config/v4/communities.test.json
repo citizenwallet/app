@@ -460,7 +460,14 @@
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "plugins": [],
+    "plugins": [
+      {
+        "name": "Marché",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
+        "url": "https://marketplace.citizenwallet.xyz/seldesalm",
+        "launch_mode": "webview"
+      }
+    ],
     "config_location": "https://seldesalm.citizenwallet.xyz/config/community.json",
     "version": 4
   },
