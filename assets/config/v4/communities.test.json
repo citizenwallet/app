@@ -393,7 +393,7 @@
     "community": {
       "name": "Sel de Salm",
       "description": "La communauté de Sel de Salm",
-      "url": "https://citizenwallet.xyz/community/seldesalm",
+      "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
       "alias": "seldesalm",
       "custom_domain": "seldesalm.citizenwallet.xyz",
       "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
@@ -461,6 +461,12 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [
+      {
+        "name": "Informations Générales",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
+        "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
+        "launch_mode": "webview"
+      },
       {
         "name": "Marché",
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
