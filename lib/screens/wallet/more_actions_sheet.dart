@@ -2,6 +2,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -85,19 +86,16 @@ class MoreActionsSheet extends StatelessWidget {
                     return _buildSheetItem(
                       context,
                       plugin.name,
-                      customIcon: plugin.icon != null
-                          ? SvgPicture.network(
-                              plugin.icon!,
-                              semanticsLabel: '${plugin.name} icon',
-                              height: 30,
-                              width: 30,
-                              placeholderBuilder: (_) => Icon(
-                                CupertinoIcons.arrow_down,
-                                size: 30,
-                                color: Theme.of(context).colors.primary,
-                              ),
-                            )
-                          : null,
+                      customIcon: CoinLogo(
+                        size: 30,
+                        logo: plugin.icon,
+                        placeholderWidget: (context) => Icon(
+                          CupertinoIcons.link,
+                          size: 30,
+                          color: Theme.of(context).colors.primary,
+                        ),
+                        borderRadius: BorderRadius.circular(0),
+                      ),
                       onPressed: () => navigator.pop({
                         'action': ActionButtonType.plugins,
                         'pluginConfig': plugin

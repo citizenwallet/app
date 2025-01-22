@@ -471,6 +471,7 @@ class CardsConfig extends ContractLocation {
     return CardsConfig(
         chainId: json['chain_id'],
         address: json['address'],
+        instanceId: json['instance_id'],
         type: CardManagerType.values.firstWhere((t) => t.name == json['type']));
   }
 
@@ -481,6 +482,7 @@ class CardsConfig extends ContractLocation {
       'chain_id': chainId,
       'address': address,
       'type': type.name,
+      if (instanceId != null) 'instance_id': instanceId,
     };
   }
 
