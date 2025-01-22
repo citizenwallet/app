@@ -468,7 +468,7 @@
                 "launch_mode": "webview"
             },
             {
-                "name": "Marché",
+                "name": "Échanges",
                 "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
                 "url": "https://marketplace.citizenwallet.xyz/seldesalm",
                 "launch_mode": "webview"
