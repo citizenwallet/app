@@ -180,9 +180,9 @@ class ProfileLogic {
 
       final profile = await _wallet.getProfile(acc);
       if (profile == null) {
-        await delay(const Duration(milliseconds: 500));
+        // await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
-        giveProfileUsername();
+        await giveProfileUsername();
         return;
       }
 
@@ -431,7 +431,7 @@ class ProfileLogic {
   }
 
   Future<String?> generateProfileUsername() async {
-    String username = getRandomUsername();
+    String username = await getRandomUsername();
     _state.setUsernameSuccess(username: username);
 
     const maxTries = 3;
@@ -446,7 +446,7 @@ class ProfileLogic {
 
       if (tries > maxTries) break;
 
-      username = getRandomUsername();
+      username = await getRandomUsername();
       await delay(baseDelay * tries);
     }
 

@@ -19,7 +19,6 @@ dependencies:
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
   sqflite: ^2.3.0
-  word_generator: ^0.4.4
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: any
@@ -136,6 +135,7 @@ flutter:
     - assets/config/v3/communities.test.json
     - assets/config/v3/legacy_4337_bundlers.json
     - assets/config/v3/debug.json
+    - assets/words/nouns.json
     - assets/lottie/chat.json
     - assets/lottie/gift-voucher.json
     - assets/lottie/success.json
