@@ -163,6 +163,7 @@ class _SendToScreenState extends State<SendToScreen> {
       'walletLogic': walletLogic,
       'profilesLogic': profilesLogic,
       'voucherLogic': widget.voucherLogic,
+      'isMinting': widget.isMinting,
     });
 
     if (address != null) {

@@ -374,6 +374,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     String balance = '0.0',
     String symbol = '',
     String salt = '',
+    bool mint = false,
   }) async {
     try {
       _state.createVoucherRequest();
@@ -415,10 +416,15 @@ class VoucherLogic extends WidgetsBindingObserver {
       await _accountDBService.vouchers.insert(dbvoucher);
 
       // TODO: token id should be set
-      final calldata = _wallet.tokenTransferCallData(
-        account.hexEip55,
-        parsedAmount,
-      );
+      final calldata = mint
+          ? _wallet.tokenMintCallData(
+              account.hexEip55,
+              parsedAmount,
+            )
+          : _wallet.tokenTransferCallData(
+              account.hexEip55,
+              parsedAmount,
+            );
 
       final (_, userop) = await _wallet.prepareUserop(
         [_wallet.tokenAddress],

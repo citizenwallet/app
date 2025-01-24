@@ -224,6 +224,7 @@ GoRouter createRouter(
                   profilesLogic: extra['profilesLogic'],
                   voucherLogic: extra['voucherLogic'],
                   isLink: true,
+                  isMinting: extra['isMinting'] ?? false,
                 );
               },
             ),
@@ -304,6 +305,7 @@ GoRouter createRouter(
                 return SendToScreen(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
+                  voucherLogic: extra['voucherLogic'],
                   isMinting: true,
                 );
               },
