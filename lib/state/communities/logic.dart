@@ -186,6 +186,9 @@ class CommunitiesLogic {
 
       // Check again if the community exists after the update
       communityExists = await _db.communities.exists(alias);
+      if (communityExists) {
+        return true;
+      }
     }
 
     return communityExists;

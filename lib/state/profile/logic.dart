@@ -34,6 +34,8 @@ class ProfileLogic {
   final AccountDBService _db = AccountDBService();
   final WalletService _wallet = WalletService();
 
+  bool _pauseProfileCreation = false;
+
   ProfileLogic(BuildContext context) {
     _state = context.read<ProfileState>();
     _profiles = context.read<ProfilesState>();
@@ -150,6 +152,8 @@ class ProfileLogic {
     final alias = _wallet.alias ?? '';
     final acc = account ?? ethAccount.hexEip55;
 
+    resume();
+
     try {
       _state.setProfileRequest();
 
@@ -180,9 +184,9 @@ class ProfileLogic {
 
       final profile = await _wallet.getProfile(acc);
       if (profile == null) {
-        await delay(const Duration(milliseconds: 500));
         _state.setProfileNoChangeSuccess();
         giveProfileUsername();
+
         return;
       }
 
@@ -431,7 +435,7 @@ class ProfileLogic {
   }
 
   Future<String?> generateProfileUsername() async {
-    String username = getRandomUsername();
+    String username = await getRandomUsername();
     _state.setUsernameSuccess(username: username);
 
     const maxTries = 3;
@@ -446,7 +450,7 @@ class ProfileLogic {
 
       if (tries > maxTries) break;
 
-      username = getRandomUsername();
+      username = await getRandomUsername();
       await delay(baseDelay * tries);
     }
 
@@ -476,6 +480,8 @@ class ProfileLogic {
             'acccount with address $address and alias $alias not found in db/backup/accounts table');
       }
 
+      account.profile?.updateUsername(username);
+
       ProfileV1 profile = account.profile ??
           ProfileV1(
             account: address,
@@ -488,9 +494,17 @@ class ProfileLogic {
         profile,
       );
 
+      if (_pauseProfileCreation) {
+        return;
+      }
+
       final exists = await _wallet.createAccount();
       if (!exists) {
         throw Exception('Failed to create account');
+      }
+
+      if (_pauseProfileCreation) {
+        return;
       }
 
       final url = await _wallet.setProfile(
@@ -502,6 +516,10 @@ class ProfileLogic {
         throw Exception('Failed to create profile url');
       }
 
+      if (_pauseProfileCreation) {
+        return;
+      }
+
       final newProfile = await _wallet.getProfileFromUrl(url);
       if (newProfile == null) {
         throw Exception('Failed to get profile from url $url');
@@ -511,6 +529,10 @@ class ProfileLogic {
         newProfile.account,
         newProfile,
       );
+
+      if (_pauseProfileCreation) {
+        return;
+      }
 
       _db.contacts.upsert(
         DBContact(
@@ -524,6 +546,10 @@ class ProfileLogic {
         ),
       );
 
+      if (_pauseProfileCreation) {
+        return;
+      }
+
       _accountBackupDBService.accounts.update(
         DBAccount(
           alias: alias,
@@ -536,5 +562,13 @@ class ProfileLogic {
     } catch (e, s) {
       debugPrint('giveProfileUsername error: $e, $s');
     }
+  }
+
+  void pause() {
+    _pauseProfileCreation = true;
+  }
+
+  void resume() {
+    _pauseProfileCreation = false;
   }
 }
