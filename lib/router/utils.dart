@@ -68,3 +68,23 @@ String? aliasFromReceiveUri(String uri) {
 
   return decodedUri.queryParameters['alias'];
 }
+
+String? aliasFromSendUri(String uri) {
+  final format = parseQRFormat(uri);
+  if (format != QRFormat.sendtoUrl && format != QRFormat.sendtoUrlWithEIP681) {
+    return null;
+  }
+
+  final uriData = Uri.parse(Uri.parse(uri).fragment);
+
+  switch (format) {
+    case QRFormat.sendtoUrl:
+      final (_, _, _, alias) = parseSendtoUrl(uriData.toString());
+      return alias;
+    case QRFormat.sendtoUrlWithEIP681:
+      final (_, _, _, alias) = parseSendtoUrlWithEIP681(uriData.toString());
+      return alias;
+    default:
+      return null;
+  }
+}

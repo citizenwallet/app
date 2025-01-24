@@ -141,7 +141,7 @@
             "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
                 "chain_id": 42220,
                 "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-                "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+                "paymaster_address": "0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE",
                 "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
                 "paymaster_type": "cw-safe"
             }
@@ -468,7 +468,7 @@
                 "launch_mode": "webview"
             },
             {
-                "name": "Marché",
+                "name": "Échanges",
                 "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
                 "url": "https://marketplace.citizenwallet.xyz/seldesalm",
                 "launch_mode": "webview"

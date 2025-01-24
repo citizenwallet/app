@@ -231,7 +231,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     walletLogic.sendTransaction(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      toAccount,
       message: walletLogic.messageController.value.text.trim(),
     );
 
@@ -305,6 +305,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     walletLogic.mintTokens(
       walletLogic.amountController.value.text,
       toAccount,
+      message: walletLogic.messageController.value.text.trim(),
     );
 
     await Future.delayed(const Duration(milliseconds: 50));

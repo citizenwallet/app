@@ -8,7 +8,6 @@ import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sig
 
 import 'package:citizenwallet/services/backup/backup.dart';
 import 'package:flutter/foundation.dart';
-import 'package:googleapis/photoslibrary/v1.dart';
 
 class AndroidBackupService extends BackupServiceInterface {
   static final AndroidBackupService _instance =
@@ -82,7 +81,7 @@ class AndroidBackupService extends BackupServiceInterface {
 
   @override
   Future<void> upload(String path, String name) async {
-    final user = await _googleSignIn.signInSilently();
+    final user = await _googleSignIn.signInSilently(reAuthenticate: true);
     if (user == null) {
       await _googleSignIn.signIn();
     }
@@ -135,7 +134,7 @@ class AndroidBackupService extends BackupServiceInterface {
     String name,
     String path,
   ) async {
-    final user = await _googleSignIn.signInSilently();
+    final user = await _googleSignIn.signInSilently(reAuthenticate: true);
     if (user == null) {
       await _googleSignIn.signIn();
     }
@@ -166,7 +165,7 @@ class AndroidBackupService extends BackupServiceInterface {
 
   @override
   Future<void> delete(String name) async {
-    final user = await _googleSignIn.signInSilently();
+    final user = await _googleSignIn.signInSilently(reAuthenticate: true);
     if (user == null) {
       await _googleSignIn.signIn();
     }

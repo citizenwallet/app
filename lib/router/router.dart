@@ -67,6 +67,13 @@ GoRouter createRouter(
                 }
               }
 
+              String? sendToParams;
+              final sendTo = uri.queryParameters['sendto'];
+              if (sendTo != null) {
+                sendToParams =
+                    encodeParams(uri.toString().replaceFirst('/?', ''));
+              }
+
               // parse from a voucher deep link
               final voucher = uri.queryParameters['voucher'];
               final voucherParams = uri.queryParameters['params'];
@@ -119,6 +126,7 @@ GoRouter createRouter(
                       receiveParams: receiveParams,
                       deepLink: deepLink,
                       deepLinkParams: deepLinkParams,
+                      sendToParams: sendToParams,
                     );
             }),
         GoRoute(

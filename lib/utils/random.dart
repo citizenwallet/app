@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:word_generator/word_generator.dart';
+import 'package:flutter/services.dart';
 
 String getRandomString(int len) {
   final random = Random.secure();
@@ -24,14 +24,20 @@ int getRandomNumber({int len = 6}) {
   return int.parse(values.join());
 }
 
-String getRandomNoun() {
-  final wordGenerator = WordGenerator();
-  return wordGenerator.randomNoun();
+Future<String> getRandomNoun() async {
+  final rawNouns =
+      jsonDecode(await rootBundle.loadString('assets/words/nouns.json'));
+
+  final nouns = (rawNouns as List).map((e) => e.toString()).toList();
+
+  final random = Random.secure();
+
+  return nouns[random.nextInt(nouns.length)].toLowerCase();
 }
 
-String getRandomUsername() {
+Future<String> getRandomUsername() async {
   final number = getRandomNumber(len: 4);
-  final noun = getRandomNoun();
+  final noun = await getRandomNoun();
 
   return '$noun-$number';
 }
