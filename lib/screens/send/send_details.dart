@@ -106,7 +106,11 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     walletLogic.setMaxAmount();
   }
 
-  void handleCreateVoucher(BuildContext context, String symbol) async {
+  void handleCreateVoucher(
+    BuildContext context,
+    String symbol, {
+    bool mint = false,
+  }) async {
     if (_isSending) {
       return;
     }
@@ -125,6 +129,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     voucherLogic.createVoucher(
       balance: widget.walletLogic.amountController.value.text,
       symbol: symbol,
+      mint: mint,
     );
 
     voucherLogic.shareReady();
@@ -753,14 +758,15 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                               children: [
                                 SlideToComplete(
                                   onCompleted: !_isSending
-                                      ? widget.isMinting
+                                      ? (widget.isMinting && !isLink)
                                           ? () => handleMint(
                                               context,
                                               selectedProfile?.account ??
                                                   searchedProfile?.account)
                                           : isLink
                                               ? () => handleCreateVoucher(
-                                                  context, wallet?.symbol ?? '')
+                                                  context, wallet?.symbol ?? '',
+                                                  mint: widget.isMinting)
                                               : () => handleSend(
                                                     context,
                                                     selectedProfile?.account ??

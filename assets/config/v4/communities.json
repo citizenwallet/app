@@ -94,7 +94,6 @@
             "description": "Express your gratitude towards someone by sending them a token of gratitude.",
             "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gratitude",
-            "custom_domain": "gratitude.citizenwallet.xyz",
             "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
             "theme": {
                 "primary": "#4EC19D"
@@ -395,7 +394,6 @@
             "description": "La communauté de Sel de Salm",
             "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
             "alias": "seldesalm",
-            "custom_domain": "seldesalm.citizenwallet.xyz",
             "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
             "theme": {
                 "primary": "#6B5CA4"
