@@ -241,7 +241,8 @@
                 "icon": "https://wallet.sfluv.org/uploads/logo.svg",
                 "url": "https://app.sfluv.org",
                 "launch_mode": "webview",
-                "signature": true
+                "signature": true,
+                "hidden": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
