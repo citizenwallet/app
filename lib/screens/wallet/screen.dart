@@ -820,16 +820,24 @@ class WalletScreenState extends State<WalletScreen> {
         final uri = Uri.parse(resultUri.fragment);
 
         final params = uri.queryParameters['plugin'];
-        if (params == null) {
+        final alias = uri.queryParameters['alias'];
+        if (params == null || alias == null) {
           _profileLogic.resume();
           _profilesLogic.resume();
           _voucherLogic.resume();
           return;
         }
 
-        final pluginConfig =
-            await _logic.getPluginConfig('wallet.sfluv.org', params);
-        url = '${pluginConfig?.url}?${connection.queryParams}';
+        final pluginConfig = await _logic.getPluginConfig(alias, params);
+        if (pluginConfig == null) {
+          _profileLogic.resume();
+          _profilesLogic.resume();
+          _voucherLogic.resume();
+          return;
+        }
+
+        url =
+            '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection.queryParams}';
       }
 
       if (!super.mounted) {

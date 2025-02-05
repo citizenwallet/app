@@ -1823,7 +1823,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (pluginConfig.signature) {
         return (
-          '${pluginConfig.url}?${connection.queryParams}',
+          '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection.queryParams}',
           parsedURL.scheme != 'https' ? parsedURL.scheme : null,
           redirectUrl,
         );
@@ -1856,16 +1856,23 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       String? url = uri.queryParameters['url'];
+      String? extraParams;
       if (url != null) {
         url = Uri.decodeComponent(url);
       } else {
-        url = uri.query;
+        final parsedUri = Uri.parse(uri.query);
+        url = '${parsedUri.scheme}://${parsedUri.host}${parsedUri.path}';
+        extraParams = parsedUri.query;
       }
 
       final plugin =
           communityConfig.plugins?.firstWhereOrNull((p) => p.url == url);
       if (plugin == null) {
         return null;
+      }
+
+      if (extraParams != null) {
+        plugin.updateUrl('${plugin.url}?$extraParams');
       }
 
       return plugin;

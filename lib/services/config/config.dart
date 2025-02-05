@@ -364,7 +364,7 @@ enum PluginLaunchMode {
 class PluginConfig {
   final String name;
   final String? icon;
-  final String url;
+  String url;
   final PluginLaunchMode launchMode;
   final String? action;
   final bool hidden;
@@ -392,6 +392,10 @@ class PluginConfig {
       hidden: json['hidden'] ?? false,
       signature: json['signature'] ?? false,
     );
+  }
+
+  void updateUrl(String url) {
+    this.url = url;
   }
 
   // to json
