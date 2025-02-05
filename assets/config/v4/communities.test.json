@@ -94,7 +94,6 @@
       "description": "Express your gratitude towards someone by sending them a token of gratitude.",
       "url": "https://citizenwallet.xyz/gratitude",
       "alias": "gratitude",
-      "custom_domain": "gratitude.citizenwallet.xyz",
       "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
       "theme": {
         "primary": "#4EC19D"
@@ -141,7 +140,7 @@
       "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
         "chain_id": 42220,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
+        "paymaster_address": "0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE",
         "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "paymaster_type": "cw-safe"
       }
@@ -236,7 +235,15 @@
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "plugins": [],
+    "plugins": [
+      {
+        "name": "About",
+        "icon": "https://wallet.sfluv.org/uploads/logo.svg",
+        "url": "https://app.sfluv.org",
+        "launch_mode": "webview",
+        "signature": true
+      }
+    ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
     "version": 4
   },
@@ -281,6 +288,13 @@
         "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
         "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
         "paymaster_type": "cw"
+      },
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x5C41F1114AB13aF5d66bac485924D03556d0cd51",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
       }
     },
     "chains": {
@@ -395,7 +409,6 @@
       "description": "La communauté de Sel de Salm",
       "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
       "alias": "seldesalm",
-      "custom_domain": "seldesalm.citizenwallet.xyz",
       "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
       "theme": {
         "primary": "#6B5CA4"

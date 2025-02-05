@@ -524,6 +524,21 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    if (pluginConfig.signature) {
+      await showCupertinoModalPopup<String?>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => ConnectedWebViewModal(
+          modalKey: 'connected-webview',
+          url: uri.toString(),
+          redirectUrl: "https://app.citizenwallet.xyz",
+          walletLogic: _logic,
+          profilesLogic: _profilesLogic,
+        ),
+      );
+      return;
+    }
+
     switch (pluginConfig.launchMode) {
       case PluginLaunchMode.webview:
         _profileLogic.pause();
@@ -795,6 +810,28 @@ class WalletScreenState extends State<WalletScreen> {
 
     final format = parseQRFormat(result);
     if (format == QRFormat.url) {
+      final redirectUrl = 'https://app.citizenwallet.xyz';
+      final pluginUrl = '$redirectUrl/#/?dl=plugin';
+      final connection = _logic.connection;
+
+      String url = '$result?${connection.queryParams}';
+      if (result.startsWith(pluginUrl)) {
+        final resultUri = Uri.parse(result);
+        final uri = Uri.parse(resultUri.fragment);
+
+        final params = uri.queryParameters['plugin'];
+        if (params == null) {
+          _profileLogic.resume();
+          _profilesLogic.resume();
+          _voucherLogic.resume();
+          return;
+        }
+
+        final pluginConfig =
+            await _logic.getPluginConfig('wallet.sfluv.org', params);
+        url = '${pluginConfig?.url}?${connection.queryParams}';
+      }
+
       if (!super.mounted) {
         _profileLogic.resume();
         _profilesLogic.resume();
@@ -802,15 +839,13 @@ class WalletScreenState extends State<WalletScreen> {
         return;
       }
 
-      final connection = _logic.connection;
-
       await showCupertinoModalPopup<String?>(
         context: context,
         barrierDismissible: true,
         builder: (_) => ConnectedWebViewModal(
           modalKey: 'connected-webview',
-          url: '$result?${connection.queryParams}',
-          redirectUrl: "https://app.citizenwallet.xyz",
+          url: url,
+          redirectUrl: redirectUrl,
           walletLogic: _logic,
           profilesLogic: _profilesLogic,
         ),

@@ -1821,6 +1821,14 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final parsedURL = Uri.parse(appUniversalURL);
 
+      if (pluginConfig.signature) {
+        return (
+          '${pluginConfig.url}?${connection.queryParams}',
+          parsedURL.scheme != 'https' ? parsedURL.scheme : null,
+          redirectUrl,
+        );
+      }
+
       return (
         '${pluginConfig.url}?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$encodedRedirectUrl&signature=0x123',
         parsedURL.scheme != 'https' ? parsedURL.scheme : null,
@@ -1835,13 +1843,6 @@ class WalletLogic extends WidgetsBindingObserver {
     try {
       final uri = Uri(query: params);
 
-      String? url = uri.queryParameters['url'];
-      if (url == null) {
-        return null;
-      }
-
-      url = Uri.decodeComponent(url);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -1852,6 +1853,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (communityConfig.plugins?.isEmpty ?? true) {
         return null;
+      }
+
+      String? url = uri.queryParameters['url'];
+      if (url != null) {
+        url = Uri.decodeComponent(url);
+      } else {
+        url = uri.query;
       }
 
       final plugin =

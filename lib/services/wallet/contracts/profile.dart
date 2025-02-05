@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:smartcontracts/contracts/apps/Profile.g.dart';
-import 'package:web3dart/crypto.dart';
 
 import 'package:web3dart/web3dart.dart';
 
