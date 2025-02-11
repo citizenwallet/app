@@ -19,6 +19,7 @@ class ConnectedWebViewModal extends StatefulWidget {
   final ProfilesLogic profilesLogic;
 
   final String closeUrl;
+  final String pluginUrl;
 
   const ConnectedWebViewModal({
     super.key,
@@ -27,7 +28,8 @@ class ConnectedWebViewModal extends StatefulWidget {
     required this.redirectUrl,
     required this.walletLogic,
     required this.profilesLogic,
-  }) : closeUrl = '$redirectUrl/close';
+  })  : closeUrl = '$redirectUrl/close',
+        pluginUrl = '$redirectUrl/#/?dl=plugin';
 
   @override
   State<ConnectedWebViewModal> createState() => _WebViewModalState();
@@ -88,7 +90,8 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       return NavigationActionPolicy.CANCEL;
     }
 
-    if (uri.toString().startsWith(widget.redirectUrl)) {
+    if (uri.toString().startsWith(widget.redirectUrl) &&
+        !uri.toString().startsWith(widget.pluginUrl)) {
       handleDisplayActionModal(uri);
 
       return NavigationActionPolicy.CANCEL;

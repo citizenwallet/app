@@ -364,10 +364,11 @@ enum PluginLaunchMode {
 class PluginConfig {
   final String name;
   final String? icon;
-  final String url;
+  String url;
   final PluginLaunchMode launchMode;
   final String? action;
   final bool hidden;
+  final bool signature;
 
   PluginConfig({
     required this.name,
@@ -376,6 +377,7 @@ class PluginConfig {
     this.launchMode = PluginLaunchMode.external,
     this.action,
     this.hidden = false,
+    this.signature = false,
   });
 
   factory PluginConfig.fromJson(Map<String, dynamic> json) {
@@ -388,7 +390,12 @@ class PluginConfig {
           : PluginLaunchMode.external,
       action: json['action'],
       hidden: json['hidden'] ?? false,
+      signature: json['signature'] ?? false,
     );
+  }
+
+  void updateUrl(String url) {
+    this.url = url;
   }
 
   // to json
@@ -400,13 +407,14 @@ class PluginConfig {
       'launch_mode': launchMode.name,
       if (action != null) 'action': action,
       'hidden': hidden,
+      'signature': signature,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'PluginConfig{name: $name, icon: $icon, url: $url}';
+    return 'PluginConfig{name: $name, icon: $icon, url: $url, launchMode: $launchMode, action: $action, hidden: $hidden, signature: $signature}';
   }
 }
 
