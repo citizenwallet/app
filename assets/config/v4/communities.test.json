@@ -81,8 +81,9 @@
       {
         "name": "Top Up",
         "icon": "https://wallet.pay.brussels/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/wallet.pay.brussels",
-        "action": "topup"
+        "url": "https://checkout.pay.brussels/topup",
+        "action": "topup",
+        "signature": true
       }
     ],
     "config_location": "https://wallet.pay.brussels/config/community.json",
@@ -164,15 +165,7 @@
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-        "url": "https://topup.citizenwallet.xyz/gratitude",
-        "launch_mode": "webview",
-        "action": "topup"
-      }
-    ],
+    "plugins": [],
     "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
     "version": 4
   },
@@ -372,12 +365,6 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
-        "url": "https://topup.citizenspring.earth/bread",
-        "action": "topup"
-      },
       {
         "name": "Market",
         "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
@@ -615,14 +602,7 @@
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://my.techi.be/assets/token.svg",
-        "url": "https://my.techi.be/topup",
-        "action": "topup"
-      }
-    ],
+    "plugins": [],
     "config_location": "https://my.techi.be/assets/community.json",
     "version": 4
   },
@@ -748,14 +728,7 @@
     "ipfs": {
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
-        "url": "https://topup.citizenwallet.xyz/gt.celo",
-        "launch_mode": "webview"
-      }
-    ],
+    "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/gt.celo.citizenwallet.xyz.json",
     "version": 4
   },
@@ -1383,12 +1356,6 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [
-      {
-        "name": "Get started",
-        "icon": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/topup.svg",
-        "url": "https://topup.citizenwallet.xyz/selcoupdepouce",
-        "launch_mode": "webview"
-      },
       {
         "name": "Market",
         "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
