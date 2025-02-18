@@ -84,6 +84,12 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       InAppWebViewController controller, NavigationAction action) async {
     final uri = Uri.parse(action.request.url.toString());
 
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
+      widget.walletLogic.launchPluginUrl(uri.toString());
+
+      return NavigationActionPolicy.CANCEL;
+    }
+
     if (uri.toString().startsWith(widget.closeUrl)) {
       handleClose();
 
