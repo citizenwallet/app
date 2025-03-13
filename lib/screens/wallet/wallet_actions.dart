@@ -103,16 +103,16 @@ class _WalletActionsState extends State<WalletActions> {
     final profileCircleSize = progressiveClamp(2, 65, widget.shrink);
     const coinNameSize = 20.0;
 
-    final buttonSeparator = (1 - widget.shrink) < 0.7
+    final buttonSeparator = (1 - widget.shrink) < 0.9
         ? 10.0
         : progressiveClamp(10, 40, widget.shrink);
 
     final buttonBarHeight = (1 - widget.shrink) < 0.7
         ? 60.0
         : progressiveClamp(40, 120, widget.shrink);
-    final buttonSize = (1 - widget.shrink) < 0.7 ? 60.0 : 80.0;
-    final buttonIconSize = (1 - widget.shrink) < 0.7 ? 20.0 : 40.0;
-    final buttonFontSize = (1 - widget.shrink) < 0.7
+    final buttonSize = (1 - widget.shrink) < 0.9 ? 60.0 : 80.0;
+    final buttonIconSize = (1 - widget.shrink) < 0.9 ? 20.0 : 40.0;
+    final buttonFontSize = (1 - widget.shrink) < 0.9
         ? 12.0
         : progressiveClamp(10, 14, widget.shrink);
 

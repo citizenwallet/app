@@ -33,7 +33,7 @@ class WalletActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final small = (1 - shrink) < 0.95;
+    final small = (1 - shrink) < 0.90;
     final buttonWidth = small ? 110.0 : buttonSize;
 
     final color = alt

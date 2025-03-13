@@ -105,7 +105,6 @@ flutter:
     - assets/icons/contacts.svg
     - assets/icons/profile.svg
     - assets/icons/notification_bell.svg
-    - assets/icons/profile.png
     - assets/icons/profile.jpg
     - assets/icons/voucher.svg
     - assets/icons/voucher.png
