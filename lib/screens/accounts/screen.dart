@@ -635,7 +635,7 @@ class AccountsScreenState extends State<AccountsScreen> {
                                     cwWallets.length + 1, // +1 for the header
                               ),
                             );
-                          }).toList(),
+                          }),
                         const SliverToBoxAdapter(
                           child: SizedBox(
                             height: 120,

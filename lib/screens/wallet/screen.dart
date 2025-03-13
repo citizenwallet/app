@@ -1082,7 +1082,7 @@ class WalletScreenState extends State<WalletScreen> {
                         border: Border.all(
                           color: config?.online == false
                               ? scanQrDisabledColor
-                              : Theme.of(context).colors.primary,
+                              : Theme.of(context).colors.surfacePrimary,
                           width: 3,
                         ),
                         boxShadow: [
@@ -1103,7 +1103,7 @@ class WalletScreenState extends State<WalletScreen> {
                           size: 60,
                           color: config?.online == false
                               ? scanQrDisabledColor
-                              : Theme.of(context).colors.primary,
+                              : Theme.of(context).colors.surfacePrimary,
                         ),
                       ),
                     ),

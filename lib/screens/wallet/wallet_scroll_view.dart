@@ -186,8 +186,8 @@ class WalletScrollViewState extends State<WalletScrollView> {
           pinned: true,
           floating: false,
           delegate: PersistentHeaderDelegate(
-            expandedHeight: config?.online == true ? 400 : 400 + 20,
-            minHeight: 280,
+            expandedHeight: config?.online == true ? 420 : 420 + 20,
+            minHeight: 300,
             builder: (context, shrink) => GestureDetector(
               onTap: widget.handleScrollToTop,
               child: WalletActions(

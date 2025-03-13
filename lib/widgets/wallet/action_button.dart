@@ -73,6 +73,13 @@ class WalletActionButton extends StatelessWidget {
                           width: 3.0,
                         )
                       : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: small
                     ? Row(

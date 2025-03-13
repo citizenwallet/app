@@ -95,6 +95,11 @@ class _WalletActionsState extends State<WalletActions> {
 
     final isIncreasing = newBalance > balance;
 
+    final width = MediaQuery.of(context).size.width;
+
+    final profileBackgroundHeight = (1 - widget.shrink) < 0.9
+        ? 0.0
+        : progressiveClamp(0, 226, widget.shrink);
     final profileCircleSize = progressiveClamp(2, 65, widget.shrink);
     const coinNameSize = 20.0;
 
@@ -148,6 +153,21 @@ class _WalletActionsState extends State<WalletActions> {
             ),
           ),
         ),
+        Positioned(
+          top: withOfflineBanner ? 60 + 20 : 60,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colors
+                  .primary
+                  .resolveFrom(context)
+                  .withOpacity(0.1),
+              borderRadius: BorderRadius.circular(40),
+            ),
+            height: profileBackgroundHeight,
+            width: width * 0.9,
+          ),
+        ),
         if (wallet != null)
           Positioned(
             top: withOfflineBanner ? 90 + 20 : 90,
@@ -155,17 +175,30 @@ class _WalletActionsState extends State<WalletActions> {
               opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
               child: GestureDetector(
                 onTap: widget.handleProfileEdit,
-                child: ProfileCircle(
-                  size: profileCircleSize,
-                  imageUrl: imageSmall,
-                  borderWidth: 3,
-                  borderColor:
-                      Theme.of(context).colors.primary.resolveFrom(context),
-                  backgroundColor: Theme.of(context)
-                      .colors
-                      .uiBackgroundAlt
-                      .resolveFrom(context),
-                ),
+                child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              Theme.of(context).colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                      borderRadius:
+                          BorderRadius.circular(profileCircleSize / 2),
+                    ),
+                    child: ProfileCircle(
+                      size: profileCircleSize,
+                      imageUrl: imageSmall,
+                      borderWidth: 3,
+                      borderColor:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                      backgroundColor: Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
+                          .resolveFrom(context),
+                    )),
               ),
             ),
           ),
@@ -183,7 +216,7 @@ class _WalletActionsState extends State<WalletActions> {
                   fontSize: coinNameSize,
                   fontWeight: FontWeight.bold,
                   color:
-                      Theme.of(context).colors.subtleText.resolveFrom(context),
+                      Theme.of(context).colors.subtleSolid.resolveFrom(context),
                 ),
               ),
             ),
@@ -247,8 +280,8 @@ class _WalletActionsState extends State<WalletActions> {
         ),
         Positioned(
           top: withOfflineBanner
-              ? progressiveClamp(140 + 20, 280 + 20, widget.shrink * 2)
-              : progressiveClamp(140, 280, widget.shrink * 2),
+              ? progressiveClamp(160 + 20, 300 + 20, widget.shrink * 2)
+              : progressiveClamp(160, 300, widget.shrink * 2),
           left: 0,
           right: 0,
           child: Row(
