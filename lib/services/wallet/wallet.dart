@@ -645,8 +645,18 @@ class WalletService {
       profile.parseIPFSImageURLs(ipfsUrl);
 
       return profile;
+    } on UnauthorizedException {
+      //
+    } on NotFoundException {
+      //
+    } on ConflictException {
+      //
     } catch (exception) {
       //
+      final rpcError = parseRPCErrorText(exception.toString());
+      if (rpcError.code == -1) {
+        throw NetworkException();
+      }
     }
 
     return null;
