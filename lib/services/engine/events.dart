@@ -53,7 +53,7 @@ class EventService {
   final String _topic;
   WebSocket? _ws;
   Timer? _reconnectTimer;
-  final Duration _reconnectMaxSeconds = const Duration(seconds: 10);
+  final Duration _reconnectMaxSeconds = const Duration(seconds: 20);
   final Duration _reconnectDelay = const Duration(seconds: 2);
   bool _isConnected = false;
   bool _intentionalDisconnect = false;
@@ -75,7 +75,7 @@ class EventService {
     try {
       _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
           .timeout(
-        const Duration(seconds: 5),
+        const Duration(seconds: 10),
         onTimeout: () => throw TimeoutException('Connection timed out'),
       );
 
