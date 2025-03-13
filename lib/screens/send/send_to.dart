@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -381,7 +382,8 @@ class _SendToScreenState extends State<SendToScreen> {
     );
 
     final bool noAccountFound = profileSuggestions.isEmpty &&
-        walletLogic.addressController.value.text.isNotEmpty;
+        walletLogic.addressController.value.text.isNotEmpty &&
+        !isEthAddress(walletLogic.addressController.value.text);
 
     final bool displayScanNfc = config != null &&
         config.hasCards() &&
