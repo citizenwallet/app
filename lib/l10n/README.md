@@ -6,7 +6,45 @@ Citizen Wallet is built by a community of people, by contributing, you are also 
 
 Thank you for your contribution! It makes a difference.
 
-## How to add a new language (you are a developer, see below if not)
+## How to add a new language (if you are a developer, see below)
+
+Go to `lib/l10n`.
+
+This folder contains the language files.
+
+Open `app_en.arb`.
+
+Copy it somewhere you can edit text.
+
+At the top of the file, modify the language code:
+
+```
+"@@locale": "en", >> "@@locale": "es",
+```
+
+Make changes on the right hand side, do not edit the keys.
+
+Don't do ❌:
+```
+{
+  "regarderContrat": "Regarder Contrat",
+}
+```
+
+Do ✅:
+```
+{
+  "viewContract": "Regarder Contrat",
+}
+```
+
+When you see something like this: `Failed to send {currencyName}.`
+
+`{currencyName}` will be replaced by the app. Do not translate it!
+
+[Submit a request here](https://citizenwallet.notion.site/196c274a65fc8068a9ade755de1bc54c?pvs=105)
+
+## How to add a new language
 
 Branch out from `main`.
 
@@ -46,41 +84,3 @@ Also add it to `timeago`:
 ```
 
 Make a pull request.
-
-## How to add a new language
-
-Go to `lib/l10n`.
-
-This folder contains the language files.
-
-Open `app_en.arb`.
-
-Copy it somewhere you can edit text.
-
-At the top of the file, modify the language code:
-
-```
-"@@locale": "en", >> "@@locale": "es",
-```
-
-Make changes on the right hand side, do not edit the keys.
-
-Don't do ❌:
-```
-{
-  "regarderContrat": "Regarder Contrat",
-}
-```
-
-Do ✅:
-```
-{
-  "viewContract": "Regarder Contrat",
-}
-```
-
-When you see something like this: `Failed to send {currencyName}.`
-
-`{currencyName}` will be replaced by the app. Do not translate it!
-
-[Submit a request here](https://citizenwallet.notion.site/196c274a65fc8068a9ade755de1bc54c?pvs=105)
