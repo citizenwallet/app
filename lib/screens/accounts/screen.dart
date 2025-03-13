@@ -322,10 +322,9 @@ class AccountsScreenState extends State<AccountsScreen> {
   }
 
   void handleProfileEdit() async {
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
-      expand: true,
-      useRootNavigator: true,
+      topRadius: const Radius.circular(40),
       builder: (context) => const EditProfileModal(),
     );
   }

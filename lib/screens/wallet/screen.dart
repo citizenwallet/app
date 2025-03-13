@@ -1,4 +1,5 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
+import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
@@ -566,6 +567,22 @@ class WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  void handleProfileEdit() async {
+    _profileLogic.pause();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
+      context: context,
+      topRadius: const Radius.circular(40),
+      builder: (context) => const EditProfileModal(),
+    );
+
+    _profileLogic.resume();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   void handleCards() async {
     HapticFeedback.heavyImpact();
 
@@ -1004,6 +1021,7 @@ class WalletScreenState extends State<WalletScreen> {
             WalletScrollView(
               controller: _scrollController,
               handleRefresh: handleRefresh,
+              handleProfileEdit: handleProfileEdit,
               handleSendScreen: handleSendScreen,
               handleReceive: handleReceive,
               handlePlugin: handlePlugin,

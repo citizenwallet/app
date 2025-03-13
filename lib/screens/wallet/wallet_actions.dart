@@ -18,6 +18,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class WalletActions extends StatefulWidget {
   final double shrink;
   final bool refreshing;
+  final void Function()? handleProfileEdit;
   final void Function()? handleSendScreen;
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
@@ -30,6 +31,7 @@ class WalletActions extends StatefulWidget {
     super.key,
     this.shrink = 0,
     this.refreshing = false,
+    this.handleProfileEdit,
     this.handleSendScreen,
     this.handleReceive,
     this.handlePlugin,
@@ -151,16 +153,19 @@ class _WalletActionsState extends State<WalletActions> {
             top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
               opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-              child: ProfileCircle(
-                size: profileCircleSize,
-                imageUrl: imageSmall,
-                borderWidth: 3,
-                borderColor:
-                    Theme.of(context).colors.primary.resolveFrom(context),
-                backgroundColor: Theme.of(context)
-                    .colors
-                    .uiBackgroundAlt
-                    .resolveFrom(context),
+              child: GestureDetector(
+                onTap: widget.handleProfileEdit,
+                child: ProfileCircle(
+                  size: profileCircleSize,
+                  imageUrl: imageSmall,
+                  borderWidth: 3,
+                  borderColor:
+                      Theme.of(context).colors.primary.resolveFrom(context),
+                  backgroundColor: Theme.of(context)
+                      .colors
+                      .uiBackgroundAlt
+                      .resolveFrom(context),
+                ),
               ),
             ),
           ),
@@ -168,14 +173,18 @@ class _WalletActionsState extends State<WalletActions> {
           top: withOfflineBanner
               ? progressiveClamp(90 + 20, 170 + 20, widget.shrink)
               : progressiveClamp(90, 170, widget.shrink),
-          child: Opacity(
-            opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-            child: Text(
-              username.isEmpty ? '' : '@$username',
-              style: TextStyle(
-                fontSize: coinNameSize,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colors.subtleText.resolveFrom(context),
+          child: GestureDetector(
+            onTap: widget.handleProfileEdit,
+            child: Opacity(
+              opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
+              child: Text(
+                username.isEmpty ? '' : '@$username',
+                style: TextStyle(
+                  fontSize: coinNameSize,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      Theme.of(context).colors.subtleText.resolveFrom(context),
+                ),
               ),
             ),
           ),

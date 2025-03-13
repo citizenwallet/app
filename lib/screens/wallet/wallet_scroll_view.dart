@@ -23,6 +23,7 @@ class WalletScrollView extends StatefulWidget {
   final ScrollController controller;
 
   final Future<void> Function() handleRefresh;
+  final void Function() handleProfileEdit;
   final void Function() handleSendScreen;
   final void Function() handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
@@ -41,6 +42,7 @@ class WalletScrollView extends StatefulWidget {
     super.key,
     required this.controller,
     required this.handleRefresh,
+    required this.handleProfileEdit,
     required this.handleSendScreen,
     required this.handleReceive,
     this.handlePlugin,
@@ -87,6 +89,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final handleRefresh = widget.handleRefresh;
+    final handleProfileEdit = widget.handleProfileEdit;
     final handleSendScreen = widget.handleSendScreen;
     final handleReceive = widget.handleReceive;
     final handlePlugin = widget.handlePlugin;
@@ -190,6 +193,7 @@ class WalletScrollViewState extends State<WalletScrollView> {
               child: WalletActions(
                 shrink: shrink,
                 refreshing: _refreshing,
+                handleProfileEdit: handleProfileEdit,
                 handleSendScreen: handleSendScreen,
                 handleReceive: handleReceive,
                 handlePlugin: handlePlugin,
