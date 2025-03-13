@@ -78,6 +78,7 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
       amount.toString(),
       address,
       message: description ?? '',
+      clearInProgress: true,
     );
 
     await Future.delayed(const Duration(milliseconds: 50));

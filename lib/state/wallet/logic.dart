@@ -787,7 +787,7 @@ class WalletLogic extends WidgetsBindingObserver {
       // clear the old ones out when the user pulls to refresh
       await _accountDBService.transactions.clearOldTransactions();
 
-      _state.clearSendingTransactions();
+      _state.clearTemporaryTransactions();
 
       transferEventUnsubscribe();
 
@@ -1042,11 +1042,23 @@ class WalletLogic extends WidgetsBindingObserver {
     return txHash != null;
   }
 
-  Future<String?> sendTransaction(String amount, String to,
-      {String message = '', String? id}) async {
+  Future<String?> sendTransaction(
+    String amount,
+    String to, {
+    String message = '',
+    String? id,
+    bool clearInProgress = false,
+  }) async {
     return kIsWeb
-        ? sendTransactionFromUnlocked(amount, to, message: message, id: id)
-        : sendTransactionFromLocked(amount, to, message: message, id: id);
+        ? sendTransactionFromUnlocked(
+            amount,
+            to,
+            message: message,
+            id: id,
+            clearInProgress: clearInProgress,
+          )
+        : sendTransactionFromLocked(amount, to,
+            message: message, id: id, clearInProgress: clearInProgress);
   }
 
   bool isInvalidAmount(String amount, {unlimited = false}) {
@@ -1126,6 +1138,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
     String? id,
+    bool clearInProgress = false,
   }) async {
     final doubleAmount = amount.replaceAll(',', '.');
     final parsedAmount = toUnit(
@@ -1213,6 +1226,9 @@ class WalletLogic extends WidgetsBindingObserver {
       clearInputControllers();
 
       _state.sendTransactionSuccess(null);
+      if (clearInProgress) {
+        _state.clearInProgressTransaction(notify: true);
+      }
 
       return txHash;
     } on NetworkCongestedException {
@@ -1271,6 +1287,7 @@ class WalletLogic extends WidgetsBindingObserver {
     String to, {
     String message = '',
     String? id,
+    bool clearInProgress = false,
   }) async {
     final doubleAmount = amount.replaceAll(',', '.');
     final parsedAmount = toUnit(
@@ -1357,6 +1374,9 @@ class WalletLogic extends WidgetsBindingObserver {
       clearInputControllers();
 
       _state.sendTransactionSuccess(null);
+      if (clearInProgress) {
+        _state.clearInProgressTransaction(notify: true);
+      }
 
       return txHash;
     } on NetworkCongestedException {
