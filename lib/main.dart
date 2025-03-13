@@ -34,6 +34,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+const supportedLocales = [
+  Locale('en'), // English
+  Locale('fr'), // fench
+  Locale('nl'), // ductch
+];
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -187,11 +193,7 @@ class MyAppState extends State<MyApp> {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              supportedLocales: const [
-                Locale('en'), // English
-                Locale('fr'), // fench
-                Locale('nl'), // ductch
-              ],
+              supportedLocales: supportedLocales,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(1.0)),
