@@ -199,5 +199,6 @@
   "more": "Plus",
   "close": "Fermer",
   "start": "Commencer",
-  "connecting": "Connexion"
+  "connecting": "Connexion",
+  "accountNotFound": "Compte non trouvé"
 }

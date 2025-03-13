@@ -200,5 +200,6 @@
   "close": "Close",
   "more": "More",
   "start": "Start",
-  "connecting": "Connecting"
+  "connecting": "Connecting",
+  "accountNotFound": "Account not found"
 }
