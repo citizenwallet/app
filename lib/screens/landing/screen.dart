@@ -418,15 +418,15 @@ class LandingScreenState extends State<LandingScreen>
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.easeInOut,
-                      top: appLoading ? (height / 2) - 200 : minTopPadding,
+                      top: appLoading ? (height / 2) - 160 : minTopPadding,
                       child: SizedBox(
-                        height: 200,
-                        width: 200,
+                        height: 160,
+                        width: 160,
                         child: Center(
                             child: SvgPicture.asset(
                           'assets/citizenwallet-only-logo.svg',
                           semanticsLabel: 'Citizen Wallet Icon',
-                          height: 200,
+                          height: 160,
                         )),
                       ),
                     ),
@@ -442,7 +442,7 @@ class LandingScreenState extends State<LandingScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(height: minTopPadding + 200),
+                              SizedBox(height: minTopPadding + 160),
                               const SizedBox(height: 30),
                               ConstrainedBox(
                                 constraints: BoxConstraints(
