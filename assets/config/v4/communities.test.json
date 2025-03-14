@@ -5,7 +5,7 @@
       "description": "A community for the city of Brussels",
       "url": "https://pay.brussels",
       "alias": "wallet.pay.brussels",
-      "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
       "custom_domain": "wallet.pay.brussels",
       "hidden": false,
       "theme": {
@@ -80,7 +80,7 @@
     "plugins": [
       {
         "name": "Top Up",
-        "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
         "url": "https://checkout.pay.brussels/topup",
         "action": "topup",
         "signature": true
