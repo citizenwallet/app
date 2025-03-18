@@ -27,6 +27,7 @@ class ScannerModalState extends State<ScannerModal>
   final TextEditingController _textController = TextEditingController();
   late final AnimationController _animationController;
   final MobileScannerController _controller = MobileScannerController(
+    autoStart: true,
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
     torchEnabled: false,
@@ -237,27 +238,27 @@ class ScannerModalState extends State<ScannerModal>
                           child: MobileScanner(
                             controller: _controller,
                             fit: BoxFit.cover,
-                            placeholderBuilder: (p0, p1) {
-                              return Container(
-                                height: height,
-                                width: width,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colors
-                                      .uiBackground
-                                      .resolveFrom(context),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: CupertinoActivityIndicator(
-                                    color: Theme.of(context)
-                                        .colors
-                                        .subtle
-                                        .resolveFrom(context),
-                                  ),
-                                ),
-                              );
-                            },
+                            // placeholderBuilder: (context, _) {
+                            //   return Container(
+                            //     height: height,
+                            //     width: width,
+                            //     decoration: BoxDecoration(
+                            //       color: Theme.of(context)
+                            //           .colors
+                            //           .uiBackground
+                            //           .resolveFrom(context),
+                            //       borderRadius: BorderRadius.circular(10),
+                            //     ),
+                            //     child: Center(
+                            //       child: CupertinoActivityIndicator(
+                            //         color: Theme.of(context)
+                            //             .colors
+                            //             .subtle
+                            //             .resolveFrom(context),
+                            //       ),
+                            //     ),
+                            //   );
+                            // },
                           ),
                         ),
                       ),
