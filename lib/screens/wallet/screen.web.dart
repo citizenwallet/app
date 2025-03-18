@@ -1,3 +1,4 @@
+import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -509,6 +510,23 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     _voucherLogic.resume();
   }
 
+  void handleProfileEdit() async {
+    _profileLogic.pause();
+    _profilesLogic.pause();
+    _voucherLogic.pause();
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (context) => const EditProfileModal(),
+    );
+
+    _profileLogic.resume();
+    _profilesLogic.resume();
+    _voucherLogic.resume();
+  }
+
   Future<void> handleOnboarding() async {
     _logic.pauseFetching();
     _profilesLogic.pause();
@@ -585,6 +603,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
                   : WalletScrollView(
                       controller: _scrollController,
                       handleRefresh: handleRefresh,
+                      handleProfileEdit: handleProfileEdit,
                       handleSendScreen: handleSendScreen,
                       handleReceive: handleReceive,
                       handleVouchers: handleVouchers,

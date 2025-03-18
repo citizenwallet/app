@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
@@ -380,6 +381,10 @@ class _SendToScreenState extends State<SendToScreen> {
       (ScanState state) => state,
     );
 
+    final bool noAccountFound = profileSuggestions.isEmpty &&
+        walletLogic.addressController.value.text.isNotEmpty &&
+        !isEthAddress(walletLogic.addressController.value.text);
+
     final bool displayScanNfc = config != null &&
         config.hasCards() &&
         scanStatus.status != ScanStateType.notAvailable &&
@@ -722,26 +727,58 @@ class _SendToScreenState extends State<SendToScreen> {
                             height: 20,
                           ),
                         ),
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: profileSuggestions.length,
-                            (context, index) {
-                              final profile = profileSuggestions[index];
-
-                              return Padding(
-                                key: Key(profile.account),
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                                child: ProfileRow(
-                                  profile: profile,
-                                  loading: false,
-                                  onTap: () =>
-                                      handleSelectProfile(context, profile),
-                                ),
-                              );
-                            },
+                        if (noAccountFound)
+                          SliverFillRemaining(
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.search,
+                                    color: Theme.of(context)
+                                        .colors
+                                        .subtleEmphasis
+                                        .resolveFrom(context),
+                                    size: 100,
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  Text(
+                                    AppLocalizations.of(context)!
+                                        .accountNotFound,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colors
+                                          .subtleSolid
+                                          .resolveFrom(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                        if (!noAccountFound)
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              childCount: profileSuggestions.length,
+                              (context, index) {
+                                final profile = profileSuggestions[index];
+
+                                return Padding(
+                                  key: Key(profile.account),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                                  child: ProfileRow(
+                                    profile: profile,
+                                    loading: false,
+                                    onTap: () =>
+                                        handleSelectProfile(context, profile),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                       ],
                     ),
                     Positioned(

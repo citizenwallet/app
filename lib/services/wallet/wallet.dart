@@ -107,13 +107,13 @@ class WalletService {
       BigInt b = BigInt.zero;
       if (_tokenStandard == 'erc20') {
         b = await _contractToken!.getBalance(addr ?? _account.hexEip55).timeout(
-              const Duration(seconds: 4),
+              const Duration(seconds: 10),
             );
       } else if (_tokenStandard == 'erc1155') {
         b = await _contract1155Token!
             .getBalance(addr ?? _account.hexEip55, tokenId ?? BigInt.zero)
             .timeout(
-              const Duration(seconds: 4),
+              const Duration(seconds: 10),
             );
       }
 
@@ -645,8 +645,18 @@ class WalletService {
       profile.parseIPFSImageURLs(ipfsUrl);
 
       return profile;
+    } on UnauthorizedException {
+      //
+    } on NotFoundException {
+      //
+    } on ConflictException {
+      //
     } catch (exception) {
       //
+      final rpcError = parseRPCErrorText(exception.toString());
+      if (rpcError.code == -1) {
+        throw NetworkException();
+      }
     }
 
     return null;

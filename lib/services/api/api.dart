@@ -23,6 +23,25 @@ class ConflictException implements Exception {
   ConflictException();
 }
 
+class NetworkException implements Exception {
+  final String message = 'network';
+
+  NetworkException();
+}
+
+class RPCException implements Exception {
+  final int code;
+  final String message;
+  final dynamic data;
+
+  RPCException({required this.code, required this.message, this.data});
+
+  @override
+  String toString() {
+    return 'RPCException: [$code] $message${data != null ? ' - $data' : ''}';
+  }
+}
+
 class APIService {
   final String baseURL;
 
@@ -68,6 +87,7 @@ class APIService {
     String? url,
     required Object body,
     Map<String, String>? headers,
+    bool isRPC = false,
   }) async {
     final mergedHeaders = <String, String>{
       'Accept': 'application/json',
@@ -85,6 +105,10 @@ class APIService {
         )
         .timeout(Duration(seconds: netTimeoutSeconds));
 
+    if (isRPC && response.body.contains('"error"')) {
+      throw parseRPCError(response.body);
+    }
+
     if (response.statusCode < 200 || response.statusCode >= 300) {
       switch (response.statusCode) {
         case 401:
@@ -93,6 +117,13 @@ class APIService {
           throw NotFoundException();
         case 409:
           throw ConflictException();
+      }
+      if (isRPC) {
+        try {
+          throw parseRPCError(response.body);
+        } catch (e) {
+          if (e is RPCException) rethrow;
+        }
       }
       throw Exception('[${response.statusCode}] ${response.reasonPhrase}');
     }
@@ -256,5 +287,55 @@ class APIService {
     }
 
     return jsonDecode(utf8.decode(response.bodyBytes));
+  }
+}
+
+RPCException parseRPCError(String responseBody) {
+  try {
+    final Map<String, dynamic> errorJson = jsonDecode(responseBody);
+
+    if (errorJson.containsKey('RPCError')) {
+      final error = errorJson['error'];
+      return RPCException(
+        code: error['code'] ?? -1,
+        message: error['message'] ?? 'Unknown RPC error',
+        data: error['data'],
+      );
+    }
+    return RPCException(code: -1, message: 'Invalid RPC error format');
+  } catch (e) {
+    return RPCException(code: -1, message: 'Failed to parse RPC error: $e');
+  }
+}
+
+RPCException parseRPCErrorText(String errorText) {
+  try {
+    // Pattern to match: RPCError: got code -XXXXX with msg "MESSAGE".
+    final RegExp regex =
+        RegExp(r'RPCError: got code (-?\d+) with msg "([^"]+)"');
+    final match = regex.firstMatch(errorText);
+
+    if (match != null && match.groupCount >= 2) {
+      final code = int.parse(match.group(1)!);
+      final message = match.group(2)!;
+
+      return RPCException(
+        code: code,
+        message: message,
+        data: null,
+      );
+    }
+
+    return RPCException(
+      code: -1,
+      message: 'Could not parse error: $errorText',
+      data: null,
+    );
+  } catch (e) {
+    return RPCException(
+      code: -1,
+      message: 'Failed to parse RPC error text: $e',
+      data: null,
+    );
   }
 }

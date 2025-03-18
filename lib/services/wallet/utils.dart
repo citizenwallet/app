@@ -198,3 +198,12 @@ EthereumAddress recoverAddressFromPersonalSignature(
 bool isEmptyAddress(String address) {
   return address == emptyAddress;
 }
+
+bool isEthAddress(String address) {
+  try {
+    EthereumAddress.fromHex(address);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

@@ -322,10 +322,9 @@ class AccountsScreenState extends State<AccountsScreen> {
   }
 
   void handleProfileEdit() async {
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
+    await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
-      expand: true,
-      useRootNavigator: true,
+      topRadius: const Radius.circular(40),
       builder: (context) => const EditProfileModal(),
     );
   }
@@ -556,102 +555,87 @@ class AccountsScreenState extends State<AccountsScreen> {
                             );
                           })),
                         if (!singleCommunityMode && groupedWallets.isNotEmpty)
-                          ...((groupedWallets
-                              .map<String, Widget>(
-                                (key, cwWallets) {
-                                  final community = communities[key];
-                                  if (community == null) {
-                                    return MapEntry(
-                                      key,
-                                      const SliverToBoxAdapter(
-                                        child: SizedBox.shrink(),
+                          ...groupedWallets.entries.map((entry) {
+                            final key = entry.key;
+                            final cwWallets = entry.value;
+                            final community = communities[key];
+
+                            if (community == null) {
+                              return const SliverToBoxAdapter(
+                                child: SizedBox.shrink(),
+                              );
+                            }
+
+                            return SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  if (index == 0) {
+                                    // Community header
+                                    return Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 16, 16, 8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          ProfileCircle(
+                                            size: 30,
+                                            imageUrl: community.logo,
+                                            borderColor: Theme.of(context)
+                                                .colors
+                                                .transparent,
+                                            backgroundColor:
+                                                Theme.of(context).colors.white,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            community.name,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .text
+                                                  .resolveFrom(context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     );
                                   }
 
-                                  Widget panelTitle = Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      ProfileCircle(
-                                        size: 30,
-                                        imageUrl: community.logo,
-                                        borderColor: Theme.of(context)
-                                            .colors
-                                            .transparent,
-                                        backgroundColor:
-                                            Theme.of(context).colors.white,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        community.name,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colors
-                                              .text
-                                              .resolveFrom(context),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-
-                                  Widget panelChildren = ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: cwWallets.length,
-                                    itemBuilder: (context, index) {
-                                      final wallet = cwWallets[index];
-
-                                      return WalletRow(
-                                        key: Key(
-                                            '${wallet.account}_${wallet.alias}'),
-                                        wallet,
-                                        communities: communities,
-                                        profiles: profiles,
-                                        isSelected: widget.currentAddress ==
-                                            wallet.account,
-                                        onTap: () => handleWalletTap(
-                                          wallet.account,
-                                          wallet.alias,
-                                        ),
-                                        onMore: () => handleMore(
-                                          context,
-                                          wallet.account,
-                                          wallet.alias,
-                                          wallet.name,
-                                          wallet.locked,
-                                          profiles.containsKey(wallet.account),
-                                        ),
-                                        onLoadProfile: handleLoadProfile,
-                                      );
-                                    },
-                                  );
-
-                                  Widget expansion = SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                      childCount: 1,
-                                      (context, index) {
-                                        return CupertinoExpansionPanel(
-                                          title: panelTitle,
-                                          dontCollapse: cwWallets.length < 2,
-                                          child: panelChildren,
-                                        );
-                                      },
+                                  // Wallet rows
+                                  final wallet = cwWallets[index - 1];
+                                  return WalletRow(
+                                    key: Key(
+                                        '${wallet.account}_${wallet.alias}'),
+                                    wallet,
+                                    communities: communities,
+                                    profiles: profiles,
+                                    isSelected:
+                                        widget.currentAddress == wallet.account,
+                                    onTap: () => handleWalletTap(
+                                      wallet.account,
+                                      wallet.alias,
                                     ),
-                                  );
-
-                                  return MapEntry(
-                                    key,
-                                    expansion,
+                                    onMore: () => handleMore(
+                                      context,
+                                      wallet.account,
+                                      wallet.alias,
+                                      wallet.name,
+                                      wallet.locked,
+                                      profiles.containsKey(wallet.account),
+                                    ),
+                                    onLoadProfile: handleLoadProfile,
                                   );
                                 },
-                              )
-                              .values
-                              .toList())),
+                                childCount:
+                                    cwWallets.length + 1, // +1 for the header
+                              ),
+                            );
+                          }),
                         const SliverToBoxAdapter(
                           child: SizedBox(
                             height: 120,

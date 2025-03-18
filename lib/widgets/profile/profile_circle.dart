@@ -28,7 +28,7 @@ class ProfileCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final String asset = imageUrl != null && imageUrl != ''
         ? imageUrl!
-        : 'assets/icons/profile.png';
+        : 'assets/icons/profile.jpg';
 
     final network = asset.startsWith('http');
 
@@ -96,7 +96,7 @@ class ProfileCircle extends StatelessWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 Image.asset(
-                              'assets/icons/profile.png',
+                              'assets/icons/profile.jpg',
                               semanticLabel: 'profile icon',
                               height: size,
                               width: size,
@@ -116,7 +116,7 @@ class ProfileCircle extends StatelessWidget {
                             ),
                             errorWidget: (context, error, stackTrace) =>
                                 Image.asset(
-                              'assets/icons/profile.png',
+                              'assets/icons/profile.jpg',
                               semanticLabel: 'profile icon',
                               height: size,
                               width: size,

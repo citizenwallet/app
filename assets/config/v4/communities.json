@@ -5,7 +5,7 @@
             "description": "A community for the city of Brussels",
             "url": "https://pay.brussels",
             "alias": "wallet.pay.brussels",
-            "logo": "https://wallet.pay.brussels/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
             "custom_domain": "wallet.pay.brussels",
             "hidden": false,
             "theme": {
@@ -80,7 +80,7 @@
         "plugins": [
             {
                 "name": "Top Up",
-                "icon": "https://wallet.pay.brussels/uploads/logo.svg",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
                 "url": "https://checkout.pay.brussels/topup",
                 "action": "topup",
                 "signature": true
@@ -95,7 +95,7 @@
             "description": "Express your gratitude towards someone by sending them a token of gratitude.",
             "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gratitude",
-            "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
             "theme": {
                 "primary": "#4EC19D"
             },
@@ -176,7 +176,7 @@
             "url": "https://sfluv.org",
             "alias": "wallet.sfluv.org",
             "custom_domain": "wallet.sfluv.org",
-            "logo": "https://wallet.sfluv.org/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
             "theme": {
                 "primary": "#eb6c6c"
             },
@@ -247,7 +247,7 @@
             "description": "A community for Ethereum Bolivia.",
             "url": "https://www.ethereumbolivia.org",
             "alias": "boliviapay",
-            "logo": "https://config.internal.citizenwallet.xyz/_images/boliviapay.png",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/boliviapay.png",
             "theme": {
                 "primary": "#009393"
             },
@@ -308,7 +308,7 @@
             "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
             "url": "https://breadchain.xyz/",
             "alias": "bread",
-            "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
             "profile": {
                 "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986",
                 "chain_id": 100
@@ -382,7 +382,7 @@
             "url": "https://commonshub.brussels",
             "alias": "wallet.commonshub.brussels",
             "custom_domain": "wallet.commonshub.brussels",
-            "logo": "https://wallet.commonshub.brussels/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/chb.png",
             "theme": {
                 "primary": "#ff4c02"
             },
@@ -612,7 +612,7 @@
             "description": "A community currency for the Regens Unite community.",
             "url": "https://www.regensunite.earth/",
             "alias": "wallet.regensunite.earth",
-            "logo": "https://wallet.regensunite.earth/wallet-config/_images/rgn.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
             "custom_domain": "wallet.regensunite.earth",
             "hidden": true,
             "profile": {
@@ -674,7 +674,7 @@
             "description": "Express your gratitude towards someone by sending them a token.",
             "url": "https://citizenwallet.xyz/gratitude",
             "alias": "gt.celo",
-            "logo": "https://gt.celo.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
             "custom_domain": null,
             "hidden": true,
             "theme": {
@@ -738,7 +738,7 @@
             "description": "Celo Euro is a stablecoin for the Celo Community.",
             "url": "https://celo.org/",
             "alias": "ceur.celo",
-            "logo": "https://ceur.celo.citizenwallet.xyz/wallet-config/_images/ceur.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ceur.svg",
             "hidden": true,
             "theme": {
                 "primary": "#a256ff"
@@ -801,7 +801,7 @@
             "description": "Token by Monerium EMI, a regulated entity, licensed in the EEA.",
             "url": "https://monerium.com/tokens/",
             "alias": "eure.polygon",
-            "logo": "https://eure.polygon.citizenwallet.xyz/wallet-config/_images/eure.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/eure.svg",
             "hidden": true,
             "profile": {
                 "address": "0xF5F7317EDb8E88CaE09071B0C4F0fd6EA20B21f9",
@@ -990,7 +990,7 @@
             "description": "A community currency for the city of Oakland.",
             "url": "https://www.oak.community/",
             "alias": "wallet.oak.community",
-            "logo": "https://wallet.oak.community/wallet-config/_images/oak.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/oak.svg",
             "custom_domain": "wallet.oak.community",
             "hidden": true,
             "profile": {
@@ -1051,7 +1051,7 @@
             "description": "SBC is a digital dollar stablecoin issued by Brale",
             "url": "https://brale.xyz/",
             "alias": "sbc.polygon",
-            "logo": "https://sbc.polygon.citizenwallet.xyz/wallet-config/_images/sbc.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sbc.svg",
             "hidden": true,
             "profile": {
                 "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
@@ -1171,7 +1171,7 @@
             "description": "Make time to regen",
             "url": "https://regensunite.earth",
             "alias": "timebank.regensunite.earth",
-            "logo": "https://timebank.regensunite.earth/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
             "hidden": true,
             "profile": {
                 "address": "0x605A827DF8C405D16Ec70AAb8d9a47D21db45c09",
@@ -1238,7 +1238,7 @@
             "description": "A community currency for MOOS.",
             "url": "https://www.moos.garden/",
             "alias": "moos",
-            "logo": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/moos.svg",
             "hidden": true,
             "profile": {
                 "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341",
@@ -1372,7 +1372,7 @@
             "description": "Monnaie locale du Cercle Informatique de l’ULB",
             "url": "https://citizenwallet.xyz/cit",
             "alias": "cit.celo",
-            "logo": "https://cit.celo.citizenwallet.xyz/wallet-config/_images/cit.celo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/cit.celo.svg",
             "hidden": true,
             "profile": {
                 "address": "0x4cB296BEc9FAd0B5e1E4FF1A2F307B425724AC82",
@@ -1683,7 +1683,7 @@
             "url": "https://kingfishersmedia.io",
             "alias": "wallet.kingfishersmedia.io",
             "custom_domain": "wallet.kingfishersmedia.io",
-            "logo": "https://config.internal.citizenwallet.xyz/_images/kfmpfl.png",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/kfmpfl.png",
             "theme": {
                 "primary": "#88292c"
             },

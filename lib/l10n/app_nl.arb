@@ -199,5 +199,6 @@
   "more": "Meer",
   "close": "Sluiten",
   "start": "Start",
-  "connecting": "Verbinding maken"
+  "connecting": "Verbinding maken",
+  "accountNotFound": "Account niet gevonden"
 }

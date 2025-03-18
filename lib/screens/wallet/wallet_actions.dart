@@ -18,6 +18,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class WalletActions extends StatefulWidget {
   final double shrink;
   final bool refreshing;
+  final void Function()? handleProfileEdit;
   final void Function()? handleSendScreen;
   final void Function()? handleReceive;
   final void Function(PluginConfig pluginConfig)? handlePlugin;
@@ -30,6 +31,7 @@ class WalletActions extends StatefulWidget {
     super.key,
     this.shrink = 0,
     this.refreshing = false,
+    this.handleProfileEdit,
     this.handleSendScreen,
     this.handleReceive,
     this.handlePlugin,
@@ -93,19 +95,24 @@ class _WalletActionsState extends State<WalletActions> {
 
     final isIncreasing = newBalance > balance;
 
+    final width = MediaQuery.of(context).size.width;
+
+    final profileBackgroundHeight = (1 - widget.shrink) < 0.9
+        ? 0.0
+        : progressiveClamp(0, 226, widget.shrink);
     final profileCircleSize = progressiveClamp(2, 65, widget.shrink);
     const coinNameSize = 20.0;
 
-    final buttonSeparator = (1 - widget.shrink) < 0.7
+    final buttonSeparator = (1 - widget.shrink) < 0.9
         ? 10.0
         : progressiveClamp(10, 40, widget.shrink);
 
     final buttonBarHeight = (1 - widget.shrink) < 0.7
         ? 60.0
         : progressiveClamp(40, 120, widget.shrink);
-    final buttonSize = (1 - widget.shrink) < 0.7 ? 60.0 : 80.0;
-    final buttonIconSize = (1 - widget.shrink) < 0.7 ? 20.0 : 40.0;
-    final buttonFontSize = (1 - widget.shrink) < 0.7
+    final buttonSize = (1 - widget.shrink) < 0.9 ? 60.0 : 80.0;
+    final buttonIconSize = (1 - widget.shrink) < 0.9 ? 20.0 : 40.0;
+    final buttonFontSize = (1 - widget.shrink) < 0.9
         ? 12.0
         : progressiveClamp(10, 14, widget.shrink);
 
@@ -146,21 +153,52 @@ class _WalletActionsState extends State<WalletActions> {
             ),
           ),
         ),
+        Positioned(
+          top: withOfflineBanner ? 60 + 20 : 60,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colors
+                  .primary
+                  .resolveFrom(context)
+                  .withOpacity(0.1),
+              borderRadius: BorderRadius.circular(40),
+            ),
+            height: profileBackgroundHeight,
+            width: width * 0.9,
+          ),
+        ),
         if (wallet != null)
           Positioned(
             top: withOfflineBanner ? 90 + 20 : 90,
             child: Opacity(
               opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-              child: ProfileCircle(
-                size: profileCircleSize,
-                imageUrl: imageSmall,
-                borderWidth: 3,
-                borderColor:
-                    Theme.of(context).colors.primary.resolveFrom(context),
-                backgroundColor: Theme.of(context)
-                    .colors
-                    .uiBackgroundAlt
-                    .resolveFrom(context),
+              child: GestureDetector(
+                onTap: widget.handleProfileEdit,
+                child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              Theme.of(context).colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                      borderRadius:
+                          BorderRadius.circular(profileCircleSize / 2),
+                    ),
+                    child: ProfileCircle(
+                      size: profileCircleSize,
+                      imageUrl: imageSmall,
+                      borderWidth: 3,
+                      borderColor:
+                          Theme.of(context).colors.primary.resolveFrom(context),
+                      backgroundColor: Theme.of(context)
+                          .colors
+                          .uiBackgroundAlt
+                          .resolveFrom(context),
+                    )),
               ),
             ),
           ),
@@ -168,14 +206,18 @@ class _WalletActionsState extends State<WalletActions> {
           top: withOfflineBanner
               ? progressiveClamp(90 + 20, 170 + 20, widget.shrink)
               : progressiveClamp(90, 170, widget.shrink),
-          child: Opacity(
-            opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
-            child: Text(
-              username.isEmpty ? '' : '@$username',
-              style: TextStyle(
-                fontSize: coinNameSize,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colors.subtleText.resolveFrom(context),
+          child: GestureDetector(
+            onTap: widget.handleProfileEdit,
+            child: Opacity(
+              opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
+              child: Text(
+                username.isEmpty ? '' : '@$username',
+                style: TextStyle(
+                  fontSize: coinNameSize,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      Theme.of(context).colors.subtleSolid.resolveFrom(context),
+                ),
               ),
             ),
           ),
@@ -238,8 +280,8 @@ class _WalletActionsState extends State<WalletActions> {
         ),
         Positioned(
           top: withOfflineBanner
-              ? progressiveClamp(140 + 20, 280 + 20, widget.shrink * 2)
-              : progressiveClamp(140, 280, widget.shrink * 2),
+              ? progressiveClamp(160 + 20, 300 + 20, widget.shrink * 2)
+              : progressiveClamp(160, 300, widget.shrink * 2),
           left: 0,
           right: 0,
           child: Row(

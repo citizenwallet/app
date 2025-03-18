@@ -33,7 +33,7 @@ class WalletActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final small = (1 - shrink) < 0.95;
+    final small = (1 - shrink) < 0.90;
     final buttonWidth = small ? 110.0 : buttonSize;
 
     final color = alt
@@ -73,6 +73,13 @@ class WalletActionButton extends StatelessWidget {
                           width: 3.0,
                         )
                       : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: small
                     ? Row(
