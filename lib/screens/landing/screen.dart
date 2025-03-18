@@ -387,9 +387,12 @@ class LandingScreenState extends State<LandingScreen>
 
     final informationContainerHeight =
         isPlatformApple() ? 600.0 : 812.0; // based on a small device
-    final minTopPadding = (height - informationContainerHeight) > 60.0
+    double minTopPadding = (height - informationContainerHeight) > 60.0
         ? 60.0
         : (height - informationContainerHeight);
+    if (minTopPadding < 0) {
+      minTopPadding = 0;
+    }
 
     final width = MediaQuery.of(context).size.width;
     final maxWidth = width > 600 ? 600.0 : width * 0.8;
