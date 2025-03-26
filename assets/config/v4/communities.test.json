@@ -1,6 +1,75 @@
 [
   {
     "community": {
+      "name": "Citizen Wallet (CTZN)",
+      "description": "The token powering the Citizen Wallet economy.",
+      "url": "https://citizenwallet.xyz",
+      "alias": "ctzn",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+      "theme": {
+        "primary": "#9563D3"
+      },
+      "profile": {
+        "address": "0x8dA817724Eb6A2aA47c0F8d8b8A98b9B3C2Ddb68",
+        "chain_id": 137
+      },
+      "primary_token": {
+        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
+        "chain_id": 137
+      },
+      "primary_account_factory": {
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "chain_id": 137
+      }
+    },
+    "tokens": {
+      "137:0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607": {
+        "standard": "erc20",
+        "name": "Citizen Wallet",
+        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
+        "symbol": "CTZN",
+        "decimals": 18,
+        "chain_id": 137
+      }
+    },
+    "scan": {
+      "url": "https://polygonscan.com",
+      "name": "Polygon Explorer"
+    },
+    "accounts": {
+      "137:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 137,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x3A3E25871c5C6C84D5f397829FF316a37F7FD596",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "chains": {
+      "137": {
+        "id": 137,
+        "node": {
+          "url": "https://137.engine.citizenwallet.xyz",
+          "ws_url": "wss://137.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [
+      {
+        "name": "About",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+        "url": "https://citizenwallet.xyz/pay-with-ctzn",
+        "launch_mode": "webview"
+      }
+    ],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
+    "version": 4
+  },
+  {
+    "community": {
       "name": "Brussels Pay",
       "description": "A community for the city of Brussels",
       "url": "https://pay.brussels",
