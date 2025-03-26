@@ -887,11 +887,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b38d978
-      resolved-ref: b38d9782f1d2b8a1f5a4c02ab78f8d11eb1e9a77
+      ref: "72f168c"
+      resolved-ref: "72f168c408c928a1834a94de73f7b6b8be0346c8"
       url: "https://github.com/juliansteenbakker/mobile_scanner.git"
     source: git
-    version: "7.0.0-beta.6"
+    version: "7.0.0-beta.8"
   mocktail:
     dependency: "direct dev"
     description:

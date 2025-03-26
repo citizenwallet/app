@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 2.0.12+246
+version: 2.0.13+247
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -33,7 +33,7 @@ dependencies:
   mobile_scanner:
     git:
       url: https://github.com/juliansteenbakker/mobile_scanner.git
-      ref: b38d978
+      ref: 72f168c
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
