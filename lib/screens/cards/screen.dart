@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/state/cards/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -5,7 +6,7 @@ import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CardsScreen extends StatefulWidget {
   final WalletLogic walletLogic;

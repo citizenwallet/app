@@ -280,8 +280,6 @@ class WalletLogic extends WidgetsBindingObserver {
       _wallet.getBalance().then((v) => _state.setWalletBalance(v));
       _wallet.minter.then((v) => _state.setWalletMinter(v));
 
-      if (loadAdditionalData != null) await loadAdditionalData();
-
       _theme.changeTheme(config.community.theme);
 
       await _preferences.setLastWallet(_wallet.address.hexEip55);
@@ -304,68 +302,31 @@ class WalletLogic extends WidgetsBindingObserver {
   /// openWallet opens a wallet given an address and also loads additional data
   ///
   /// if a wallet is already loaded, it only fetches additional data
-  Future<String?> openWallet(
-    String? paramAddress,
-    String? paramAlias,
-    Future<void> Function(bool hasChanged) loadAdditionalData,
-  ) async {
+  Future<String?> openWallet(String accAddress, String alias,
+      [Function(bool)? onChanged]) async {
     try {
-      final String? accAddress = paramAddress ?? _preferences.lastWallet;
-      String alias = paramAlias ?? _preferences.lastAlias ?? defaultAlias;
+      _state.loadWallet(); // Changed from loadWalletRequest to loadWallet
 
-      if (accAddress == null) {
-        throw Exception('address not found');
+      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
+
+      if (dbWallet == null) {
+        throw NotFoundException();
       }
 
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
-        throw Exception('community not found');
-      }
-
-      Config communityConfig = Config.fromJson(community.config);
-      _theme.changeTheme(communityConfig.community.theme);
-
-      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
-
-      if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }
 
-      final token = communityConfig.getPrimaryToken();
+      Config communityConfig = Config.fromJson(community.config);
 
-      final nativeCurrency = NativeCurrency(
+      final token = communityConfig.getPrimaryToken();
+      final nativeCurrency = NativeCurrency( // Changed from getNativeCurrency to direct instantiation
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
       );
-
-      if (isWalletLoaded &&
-          accAddress == _wallet.account.hexEip55 &&
-          alias == _wallet.alias) {
-        _wallet.getBalance().then((v) {
-          _state.updateWalletBalanceSuccess(v);
-        });
-
-        _state.loadWalletSuccess();
-
-        await loadAdditionalData(false);
-
-        _theme.changeTheme(communityConfig.community.theme);
-
-        await _preferences.setLastWallet(address);
-        await _preferences.setLastAlias(alias);
-
-        return address;
-      }
-
-      _state.loadWallet();
-      _state.setWalletReady(false);
-      _state.setWalletReadyLoading(true);
-
-      final int chainId = _preferences.chainId;
-
-      _state.setChainId(chainId);
 
       await _wallet.init(
         dbWallet.address,
@@ -386,17 +347,13 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
-      _config
-          .isCommunityOnline(
-              communityConfig.chains[token.chainId.toString()]!.node.url)
-          .then((isOnline) {
-        communityConfig.online = isOnline;
-
-        _state.setWalletConfig(communityConfig);
-
-        _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
-      });
+      // Check online status immediately when switching accounts
+      final isOnline = await _config.isCommunityOnline(
+          communityConfig.chains[token.chainId.toString()]!.node.url);
+      
+      communityConfig.online = isOnline;
+      _state.setWalletConfig(communityConfig);
+      await _appDBService.communities.updateOnlineStatus(communityConfig.community.alias, isOnline);
 
       _state.setWallet(
         CWWallet(
@@ -417,12 +374,14 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _wallet.getBalance().then((v) => _state.setWalletBalance(v));
 
-      loadAdditionalData(true);
-
       _state.loadWalletSuccess();
 
       await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
+
+      if (onChanged != null) {
+        onChanged(true);
+      }
 
       return accAddress;
     } on NotFoundException {
@@ -617,6 +576,8 @@ class WalletLogic extends WidgetsBindingObserver {
         _eventService = null;
       }
 
+      _state.setEventServiceState(EventServiceState.connecting);
+
       _eventService = EventService(
         communityConfig.chains[token.chainId.toString()]!.node.wsUrl,
         token.address,
@@ -629,13 +590,17 @@ class WalletLogic extends WidgetsBindingObserver {
       await _eventService!.connect();
 
       return;
-    } catch (_) {}
+    } catch (_) {
+      // If there's an error, set the state to error
+      _state.setEventServiceState(EventServiceState.error);
+    }
   }
 
   void transferEventUnsubscribe() {
     if (_eventService != null) {
       _eventService!.disconnect();
       _eventService = null;
+      _state.setEventServiceState(EventServiceState.disconnected);
     }
   }
 
@@ -658,7 +623,6 @@ class WalletLogic extends WidgetsBindingObserver {
         if (tx.from.hexEip55 != myAccount && tx.to.hexEip55 != myAccount) {
           return;
         }
-        ///////////////////////////////////////
 
         _accountDBService.transactions.insert(DBTransaction(
           hash: tx.hash,

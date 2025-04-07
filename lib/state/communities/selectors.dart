@@ -1,15 +1,21 @@
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/communities/state.dart';
 
+// List<Config> selectVisibleCommunities(CommunitiesState state) =>
+//     state.communities
+//         .where((Config config) => !config.community.hidden)
+//         .toList();
+
+// List<Config> selectVisibleAndOnlineCommunities(CommunitiesState state) =>
+//     state.communities
+//         .where((Config config) => !config.community.hidden && config.online)
+//         .toList();
+
 List<Config> selectVisibleCommunities(CommunitiesState state) =>
-    state.communities
-        .where((Config config) => !config.community.hidden)
-        .toList();
+    state.communities.toList();
 
 List<Config> selectVisibleAndOnlineCommunities(CommunitiesState state) =>
-    state.communities
-        .where((Config config) => !config.community.hidden && config.online)
-        .toList();
+    state.communities.toList();
 
 Map<String, CommunityConfig> selectMappedCommunityConfigs(
         CommunitiesState state) =>

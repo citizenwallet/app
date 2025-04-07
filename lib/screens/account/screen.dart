@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/account/switch_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
@@ -16,7 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountScreen extends StatefulWidget {
   final String? address;
@@ -68,8 +69,8 @@ class AccountScreenState extends State<AccountScreen> {
     }
 
     await _walletLogic.openWallet(
-      widget.address,
-      widget.alias,
+      widget.address!,
+      widget.alias!,
       (bool hasChanged) async {
         await _logic.loadProfileLink();
 

@@ -1,10 +1,11 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AndroidAccountsScreen extends StatelessWidget {
-  const AndroidAccountsScreen({Key? key}) : super(key: key);
+  const AndroidAccountsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

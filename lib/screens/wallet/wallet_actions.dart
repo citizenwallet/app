@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -13,7 +14,7 @@ import 'package:citizenwallet/widgets/wallet/action_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletActions extends StatefulWidget {
   final double shrink;
@@ -68,8 +69,8 @@ class _WalletActionsState extends State<WalletActions> {
     final username = context.select((ProfileState state) => state.username);
 
     final withOfflineBanner =
-        eventServiceState != EventServiceState.connected &&
-            eventServiceState != EventServiceState.disconnected;
+        eventServiceState == EventServiceState.disconnected ||
+            eventServiceState == EventServiceState.error;
 
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||
@@ -154,7 +155,7 @@ class _WalletActionsState extends State<WalletActions> {
           ),
         ),
         Positioned(
-          top: withOfflineBanner ? 60 + 20 : 60,
+          top: 70,
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context)
@@ -170,42 +171,39 @@ class _WalletActionsState extends State<WalletActions> {
         ),
         if (wallet != null)
           Positioned(
-            top: withOfflineBanner ? 90 + 20 : 90,
+            top: 100,
             child: Opacity(
               opacity: progressiveClamp(0, 1, widget.shrink * 2.5),
               child: GestureDetector(
                 onTap: widget.handleProfileEdit,
                 child: Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              Theme.of(context).colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                      borderRadius:
-                          BorderRadius.circular(profileCircleSize / 2),
-                    ),
-                    child: ProfileCircle(
-                      size: profileCircleSize,
-                      imageUrl: imageSmall,
-                      borderWidth: 3,
-                      borderColor:
-                          Theme.of(context).colors.primary.resolveFrom(context),
-                      backgroundColor: Theme.of(context)
-                          .colors
-                          .uiBackgroundAlt
-                          .resolveFrom(context),
-                    )),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: Offset(0, 6),
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(profileCircleSize / 2),
+                  ),
+                  child: ProfileCircle(
+                    size: profileCircleSize,
+                    imageUrl: imageSmall,
+                    borderWidth: 3,
+                    borderColor:
+                        Theme.of(context).colors.primary.resolveFrom(context),
+                    backgroundColor: Theme.of(context)
+                        .colors
+                        .uiBackgroundAlt
+                        .resolveFrom(context),
+                  ),
+                ),
               ),
             ),
           ),
         Positioned(
-          top: withOfflineBanner
-              ? progressiveClamp(90 + 20, 170 + 20, widget.shrink)
-              : progressiveClamp(90, 170, widget.shrink),
+          top: progressiveClamp(100, 170, widget.shrink),
           child: GestureDetector(
             onTap: widget.handleProfileEdit,
             child: Opacity(
@@ -223,9 +221,7 @@ class _WalletActionsState extends State<WalletActions> {
           ),
         ),
         Positioned(
-          top: withOfflineBanner
-              ? progressiveClamp(90 + 20, 210 + 20, widget.shrink * 2)
-              : progressiveClamp(90, 210, widget.shrink * 2),
+          top: progressiveClamp(100, 210, widget.shrink * 2),
           child: loading && formattedBalance.isEmpty
               ? CupertinoActivityIndicator(
                   color: Theme.of(context).colors.subtle.resolveFrom(context),
@@ -279,9 +275,7 @@ class _WalletActionsState extends State<WalletActions> {
                 ),
         ),
         Positioned(
-          top: withOfflineBanner
-              ? progressiveClamp(160 + 20, 300 + 20, widget.shrink * 2)
-              : progressiveClamp(160, 300, widget.shrink * 2),
+          top: progressiveClamp(170, 300, widget.shrink * 2),
           left: 0,
           right: 0,
           child: Row(

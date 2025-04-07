@@ -24,7 +24,11 @@ class WalletHeader extends SliverPersistentHeaderDelegate {
         minHeight: minHeight,
       ),
       child: SizedBox.expand(
-          child: builder(context, (shrinkOffset / expandedHeight).clamp(0, 1))),
+        child: builder(
+          context,
+          (shrinkOffset / expandedHeight).clamp(0, 1),
+        ),
+      ),
     );
   }
 
