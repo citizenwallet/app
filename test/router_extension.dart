@@ -1,6 +1,7 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:citizenwallet/state/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';

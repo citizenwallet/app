@@ -1,10 +1,11 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebLandingScreen extends StatefulWidget {
   final String? voucher;

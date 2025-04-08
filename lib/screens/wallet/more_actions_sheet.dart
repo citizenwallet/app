@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/state/wallet/selectors.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MoreActionsSheet extends StatelessWidget {
   final void Function()? handleSendScreen;

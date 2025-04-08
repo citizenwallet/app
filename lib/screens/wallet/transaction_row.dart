@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/models/wallet.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -9,7 +10,7 @@ import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class TransactionRow extends StatefulWidget {

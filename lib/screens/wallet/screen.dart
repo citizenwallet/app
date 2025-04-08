@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
@@ -26,7 +27,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
 import 'package:citizenwallet/widgets/webview/connected_webview_modal.dart';
 
@@ -170,8 +171,8 @@ class WalletScreenState extends State<WalletScreen> {
     }
 
     await _logic.openWallet(
-      _address,
-      _alias,
+      _address!,
+      _alias!,
       (bool hasChanged) async {
         _logic.requestWalletActions();
         await _logic.loadTransactions();
@@ -1000,6 +1001,7 @@ class WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
@@ -1007,6 +1009,7 @@ class WalletScreenState extends State<WalletScreen> {
         eventServiceState != EventServiceState.disconnected;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
+
     final config = context.select((WalletState state) => state.config);
 
     final scanQrDisabledColor =
@@ -1060,59 +1063,67 @@ class WalletScreenState extends State<WalletScreen> {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 60,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: config?.online == false ? () => () : handleQRScan,
-                    child: Container(
-                      height: 90,
-                      width: 90,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colors
-                            .background
-                            .resolveFrom(context),
-                        borderRadius: BorderRadius.circular(45),
-                        border: Border.all(
-                          color: config?.online == false
-                              ? scanQrDisabledColor
-                              : Theme.of(context).colors.surfacePrimary,
-                          width: 3,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                Theme.of(context).colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 7,
-                            offset: const Offset(
-                                0, 5), // changes position of shadow
+            // Positioned(
+            //   bottom: 60,
+            //   left: 0,
+            //   right: 0,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 60),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: config?.online == false ? () => () : handleQRScan,
+                      child: Container(
+                        height: 90,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colors
+                              .background
+                              .resolveFrom(context),
+                          borderRadius: BorderRadius.circular(45),
+                          border: Border.all(
+                            color: config?.online == false
+                                ? scanQrDisabledColor
+                                : Theme.of(context).colors.surfacePrimary,
+                            width: 3,
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      child: Center(
-                        child: Icon(
-                          CupertinoIcons.qrcode_viewfinder,
-                          size: 60,
-                          color: config?.online == false
-                              ? scanQrDisabledColor
-                              : Theme.of(context).colors.surfacePrimary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .colors
+                                  .black
+                                  .withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 7,
+                              offset: const Offset(
+                                  0, 5), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: Center(
+                          child: Icon(
+                            CupertinoIcons.qrcode_viewfinder,
+                            size: 60,
+                            color: config?.online == false
+                                ? scanQrDisabledColor
+                                : Theme.of(context).colors.surfacePrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Positioned(
-              top: isOffline ? 40 : 0,
+              top: 0,
+              // isOffline ? 40 : 0,
               left: 0,
               right: 0,
               child: GestureDetector(
@@ -1120,7 +1131,9 @@ class WalletScreenState extends State<WalletScreen> {
                 child: SafeArea(
                   child: Padding(
                       padding: EdgeInsets.only(
-                          top: config?.online == false ? 40 : 0),
+                        top: 30,
+                      ),
+                      // config?.online == false ? 40 : 0),
                       child: Header(
                         transparent: true,
                         color: Theme.of(context).colors.transparent,

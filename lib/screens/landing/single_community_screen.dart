@@ -1,3 +1,4 @@
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -17,7 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SingleCommunityLandingScreen extends StatefulWidget {
   final String uri;

@@ -188,32 +188,34 @@ class ScannerState extends State<Scanner>
                       controller: _controller,
                       // startDelay: kIsWeb ? true : false,
                       fit: BoxFit.cover,
-                      placeholderBuilder: (p0, p1) {
+                      placeholderBuilder: (context) {
                         return Container(
                           height: height,
                           width: width,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colors
-                                .transparent
-                                .resolveFrom(context),
-                            border: Border.all(
-                              width: 3,
-                              color: Theme.of(context).colors.white,
-                              strokeAlign: BorderSide.strokeAlignInside,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Center(
-                            child: CupertinoActivityIndicator(
-                              color: Theme.of(context)
-                                  .colors
-                                  .subtle
-                                  .resolveFrom(context),
-                            ),
-                          ),
                         );
                       },
+                      //     decoration: BoxDecoration(
+                      //       color: Theme.of(context)
+                      //           .colors
+                      //           .transparent
+                      //           .resolveFrom(context),
+                      //       border: Border.all(
+                      //         width: 3,
+                      //         color: Theme.of(context).colors.white,
+                      //         strokeAlign: BorderSide.strokeAlignInside,
+                      //       ),
+                      //       borderRadius: BorderRadius.circular(20),
+                      //     ),
+                      //     child: Center(
+                      //       child: CupertinoActivityIndicator(
+                      //         color: Theme.of(context)
+                      //             .colors
+                      //             .subtle
+                      //             .resolveFrom(context),
+                      //       ),
+                      //     ),
+                      //   );
+                      // },
                     ),
                   ),
                 ),
