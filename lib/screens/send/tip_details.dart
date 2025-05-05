@@ -25,30 +25,30 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class SendDetailsScreen extends StatefulWidget {
+class TipDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
+  final SendTransaction? sendTransaction;
 
   final bool isMinting;
-  final bool isTip;
   final bool isLink;
 
-  const SendDetailsScreen({
+  const TipDetailsScreen({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.voucherLogic,
+    this.sendTransaction,
     this.isMinting = false,
-    this.isTip = false,
     this.isLink = false,
   });
 
   @override
-  State<SendDetailsScreen> createState() => _SendDetailsScreenState();
+  State<TipDetailsScreen> createState() => _TipDetailsScreenState();
 }
 
-class _SendDetailsScreenState extends State<SendDetailsScreen> {
+class _TipDetailsScreenState extends State<TipDetailsScreen> {
   final FocusNode amountFocusNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
@@ -60,11 +60,12 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
+  late SendTransaction _sendTransaction;
 
   @override
   void initState() {
     super.initState();
-
+    _sendTransaction = widget.sendTransaction ?? SendTransaction();
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -233,32 +234,26 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final toAccount =
         selectedAddress ?? walletLogic.addressController.value.text;
 
-    final sendTransaction = SendTransaction(
-      amount: walletLogic.amountController.value.text,
-      to: toAccount,
-      description: walletLogic.messageController.value.text.trim(),
-    );
+    _sendTransaction.tipAmount = walletLogic.amountController.value.text;
+    _sendTransaction.tipTo = toAccount;
+    _sendTransaction.tipDescription =
+        walletLogic.messageController.value.text.trim();
 
     walletLogic.sendTransaction(
-      sendTransaction.amount!,
-      sendTransaction.to!,
-      message: sendTransaction.description!,
+      _sendTransaction.tipAmount!,
+      _sendTransaction.tipTo!,
+      message: _sendTransaction.tipDescription!,
     );
 
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
-    walletLogic.clearInputControllers();
-    walletLogic.resetInputErrorState();
-    widget.profilesLogic.clearSearch();
-
     final sent = await navigator.push<bool?>(
         '/wallet/${walletLogic.account}/send/$toAccount/progress',
         extra: {
           'isMinting': widget.isMinting,
-          'walletLogic': walletLogic,
-          'isTip': true,
+          'isTip': false,
         });
 
     walletLogic.clearInProgressTransaction();
@@ -268,26 +263,14 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
-      await Future.delayed(const Duration(milliseconds: 30));
+      await Future.delayed(const Duration(milliseconds: 50));
 
-      final result = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send',
-        extra: {
-          'walletLogic': walletLogic,
-          'profilesLogic': widget.profilesLogic,
-          'isMinting': widget.isMinting,
-          'isTip': true,
-          'sendTransaction': sendTransaction,
-        },
-      );
-
-      if (result == true) {
-        walletLogic.clearInputControllers();
-        walletLogic.resetInputErrorState();
-        widget.profilesLogic.clearSearch();
-
-        return;
+      if (navigator.canPop()) {
+        navigator.go('/wallet/${walletLogic.account}');
+      } else {
+        navigator.go('/wallet/${walletLogic.account}');
       }
+      return;
     }
 
     setState(() {
@@ -466,7 +449,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                 child: Header(
                   title: widget.isMinting
                       ? AppLocalizations.of(context)!.mint
-                      : AppLocalizations.of(context)!.send,
+                      : "${AppLocalizations.of(context)!.send} Tip",
                   showBackButton: true,
                 ),
               ),
@@ -808,10 +791,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                       ? AppLocalizations.of(context)!
                                           .swipeToMint
                                       : isLink
-                                          ? AppLocalizations.of(context)!
-                                              .swipeToConfirm
-                                          : AppLocalizations.of(context)!
-                                              .swipeToSend,
+                                          ? "${AppLocalizations.of(context)!.swipeToConfirm} Tip"
+                                          : "${AppLocalizations.of(context)!.swipeToSend} Tip",
                                   completionLabelColor: Theme.of(context)
                                       .colors
                                       .primary

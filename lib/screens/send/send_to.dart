@@ -1,4 +1,5 @@
 import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -33,8 +34,10 @@ class SendToScreen extends StatefulWidget {
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
   final String? sendToURL;
+  final SendTransaction? sendTransaction;
 
   final bool isMinting;
+  final bool isTip;
 
   const SendToScreen({
     super.key,
@@ -43,6 +46,8 @@ class SendToScreen extends StatefulWidget {
     this.voucherLogic,
     this.isMinting = false,
     this.sendToURL,
+    this.sendTransaction,
+    this.isTip = false,
   });
 
   @override
@@ -54,13 +59,13 @@ class _SendToScreenState extends State<SendToScreen> {
   final ScanLogic _scanLogic = ScanLogic();
   String? _currentSendToURL;
   final _scrollController = ScrollController();
+  // late SendTransaction _sendTransaction;
 
   late void Function() debouncedAddressUpdate;
 
   @override
   void initState() {
     super.initState();
-
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -307,16 +312,31 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    final sent = await navigator
-        .push('/wallet/${walletLogic.account}/send/$toAccount', extra: {
-      'walletLogic': walletLogic,
-      'profilesLogic': profilesLogic,
-      'isMinting': widget.isMinting,
-    });
+    bool? sent;
+    if (widget.isTip == false) {
+      sent = await navigator.push(
+        '/wallet/${walletLogic.account}/send/$toAccount',
+        extra: {
+          'walletLogic': walletLogic,
+          'profilesLogic': profilesLogic,
+          'isMinting': widget.isMinting,
+        },
+      );
+    } else {
+      sent = await navigator.push(
+        '/wallet/${walletLogic.account}/send/$toAccount/tip',
+        extra: {
+          'walletLogic': walletLogic,
+          'profilesLogic': profilesLogic,
+          'isMinting': widget.isMinting,
+          'sendTransaction': widget.sendTransaction,
+        },
+      );
+    }
+
 
     if (sent == true) {
       await Future.delayed(const Duration(milliseconds: 50));
-
       if (navigator.canPop()) {
         navigator.pop(true);
       } else {
@@ -404,12 +424,18 @@ class _SendToScreenState extends State<SendToScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Header(
-                  title: widget.isMinting
-                      ? AppLocalizations.of(context)!.mint
-                      : AppLocalizations.of(context)!.send,
-                  showBackButton: true,
-                ),
+                child: widget.isTip == false
+                    ? Header(
+                        title: widget.isMinting
+                            ? AppLocalizations.of(context)!.mint
+                            : AppLocalizations.of(context)!.send,
+                        showBackButton: true,
+                      )
+                    : Header(
+                        title: widget.isMinting
+                            ? AppLocalizations.of(context)!.mint
+                            : AppLocalizations.of(context)!.send,
+                      ),
               ),
               Expanded(
                 child: Stack(

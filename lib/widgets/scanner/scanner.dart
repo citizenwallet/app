@@ -189,7 +189,7 @@ class ScannerState extends State<Scanner>
                       // startDelay: kIsWeb ? true : false,
                       fit: BoxFit.cover,
                       placeholderBuilder: (context) {
-                        return Container(
+                        return SizedBox(
                           height: height,
                           width: width,
                         );

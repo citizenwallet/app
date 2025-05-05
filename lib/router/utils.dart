@@ -5,7 +5,10 @@ import 'package:citizenwallet/utils/qr.dart';
   final uriData = Uri.parse(Uri.parse(uri).fragment);
 
   String? voucherParams = uriData.queryParameters['params'];
-  String? receiveParams = uriData.queryParameters['receiveParams'];
+  // String? receiveParams = uriData.queryParameters['receiveParams'];
+  String? sendToParams = uriData.queryParameters['sendto'] != null
+      ? 'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}'
+      : null;
   String? deepLinkParams;
   final deepLink = uriData.queryParameters['dl'];
   if (deepLink != null) {
@@ -15,7 +18,7 @@ import 'package:citizenwallet/utils/qr.dart';
     }
   }
 
-  return (voucherParams, receiveParams, deepLinkParams);
+  return (voucherParams, sendToParams, deepLinkParams);
 }
 
 (String?, String?) deepLinkContentFromUri(String uri) {
@@ -79,11 +82,11 @@ String? aliasFromSendUri(String uri) {
 
   switch (format) {
     case QRFormat.sendtoUrl:
-      final (_, _, _, alias) = parseSendtoUrl(uriData.toString());
-      return alias;
+      final parsedData = parseSendtoUrl(uriData.toString());
+      return parsedData.alias;
     case QRFormat.sendtoUrlWithEIP681:
-      final (_, _, _, alias) = parseSendtoUrlWithEIP681(uriData.toString());
-      return alias;
+      final parsedData = parseSendtoUrlWithEIP681(uriData.toString());
+      return parsedData.alias;
     default:
       return null;
   }

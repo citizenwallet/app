@@ -2,6 +2,7 @@ import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
+import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
@@ -166,6 +167,9 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
+    SendTransaction sendTransaction = SendTransaction();
+    sendTransaction.isTip = false;
+
     if (_address == null || _alias == null) {
       return;
     }
@@ -885,13 +889,13 @@ class WalletScreenState extends State<WalletScreen> {
 
     final (voucherParams, receiveParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
-    final (parsedAddress, parsedValue, parsedDescription, parsedAlias) =
-        parseQRCode(result);
+
+    final parsedQRData = parseQRCode(result);
 
     if (voucherParams == null &&
         receiveParams == null &&
         deepLinkParams == null &&
-        parsedAddress.isEmpty) {
+        parsedQRData.address.isEmpty) {
       _profileLogic.resume();
       _profilesLogic.resume();
       _voucherLogic.resume();
@@ -903,8 +907,8 @@ class WalletScreenState extends State<WalletScreen> {
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
     final (address, alias) = await handleLoadFromParams(
-      voucherParams ?? receiveParams ?? deepLinkParams ?? parsedAlias,
-      overrideAlias: uriAlias ?? receiveAlias ?? parsedAlias,
+      voucherParams ?? receiveParams ?? deepLinkParams ?? parsedQRData.alias,
+      overrideAlias: uriAlias ?? receiveAlias ?? parsedQRData.alias,
     );
     loadedAddress = address;
     loadedAlias = alias;

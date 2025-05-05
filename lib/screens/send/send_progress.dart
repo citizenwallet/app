@@ -2,6 +2,7 @@ import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -17,8 +18,16 @@ import 'package:provider/provider.dart';
 class SendProgress extends StatefulWidget {
   final String? to;
   final bool isMinting;
+  final WalletLogic? walletLogic;
+  final bool isTip;
 
-  const SendProgress({super.key, this.to, this.isMinting = false});
+  const SendProgress({
+    super.key,
+    this.to,
+    this.isMinting = false,
+    this.walletLogic,
+    this.isTip = false,
+  });
 
   @override
   State<SendProgress> createState() => _SendProgressState();
@@ -299,14 +308,53 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Button(
-                      text: AppLocalizations.of(context)!.dismiss,
-                      labelColor:
-                          Theme.of(context).colors.white.resolveFrom(context),
-                      onPressed: () => handleDone(context),
-                      minWidth: 200,
-                      maxWidth: width - 60,
-                    ),
+                    widget.isTip == false
+                        ? Button(
+                            text: AppLocalizations.of(context)!.dismiss,
+                            labelColor: Theme.of(context)
+                                .colors
+                                .white
+                                .resolveFrom(context),
+                            onPressed: () => handleDone(context),
+                            minWidth: 100,
+                            maxWidth: width - 60,
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Button(
+                                text:
+                                    "${AppLocalizations.of(context)!.send} Tip",
+                                labelColor: Theme.of(context)
+                                    .colors
+                                    .white
+                                    .resolveFrom(context),
+                                onPressed: () => handleDone(context),
+                                minWidth: 200,
+                                maxWidth: width - 200,
+                              ),
+                              SizedBox(width: 10),
+                              Button(
+                                text: AppLocalizations.of(context)!.dismiss,
+                                color: Theme.of(context)
+                                    .colors
+                                    .danger
+                                    .resolveFrom(context),
+                                labelColor: Theme.of(context)
+                                    .colors
+                                    .white
+                                    .resolveFrom(context),
+                                onPressed: () {
+                                  final navigator = GoRouter.of(context);
+
+                                  navigator.go(
+                                      '/wallet/${widget.walletLogic?.account}');
+                                },
+                                minWidth: 75,
+                                maxWidth: width - 300,
+                              ),
+                            ],
+                          )
                   ],
                 ),
               if (inProgressTransactionError)

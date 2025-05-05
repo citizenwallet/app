@@ -5,12 +5,12 @@ import 'package:sqflite_common/sqflite.dart';
 class DBTransaction {
   final String hash;
   final String txHash;
-  final int tokenId;
+  final String tokenId;
   final DateTime createdAt;
   final String from;
   final String to;
-  final int nonce;
-  final int value;
+  final String nonce;
+  final String value;
   final String data;
   final String status;
 
@@ -55,7 +55,7 @@ class DBTransaction {
       from: map['t_from'],
       to: map['t_to'],
       nonce: map['nonce'],
-      value: map['value'],
+      value: map['value'].toString(),
       data: map['data'],
       status: map['status'],
       contract: map['contract'],
@@ -125,6 +125,60 @@ class TransactionsTable extends DBTable {
           CREATE INDEX idx_${name}_date_from_contract_token_id_t_to_simple ON $name (created_at, contract, token_id, t_to);
         ''',
       ],
+      9: [
+        // Create temporary table with new schema (nonce and value now TEXT)
+        '''
+        CREATE TABLE ${name}_temp (
+          hash TEXT PRIMARY KEY,
+          tx_hash TEXT NOT NULL,
+          token_id TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          t_from TEXT NOT NULL,
+          t_to TEXT NOT NULL,
+          nonce TEXT NOT NULL,
+          value TEXT NOT NULL,
+          data TEXT NOT NULL,
+          status TEXT NOT NULL,
+          contract TEXT NOT NULL
+        )
+        ''',
+        // Copy data with token_id, nonce, and value converted to TEXT
+        '''
+        INSERT INTO ${name}_temp 
+        SELECT 
+          hash,
+          tx_hash,
+          CAST(token_id AS TEXT) as token_id,
+          created_at,
+          t_from,
+          t_to,
+          CAST(nonce AS TEXT) as nonce,
+          CAST(value AS TEXT) as value,
+          data,
+          status,
+          contract
+        FROM $name
+        ''',
+        // Drop old table
+        'DROP TABLE $name',
+        // Rename temp table
+        'ALTER TABLE ${name}_temp RENAME TO $name',
+        // Recreate indexes
+        '''
+        CREATE INDEX idx_${name}_contract_token_id ON $name (contract, token_id)
+        ''',
+        '''
+        CREATE INDEX idx_${name}_tx_hash ON $name (tx_hash)
+        ''',
+        '''
+        CREATE INDEX idx_${name}_date_from_contract_token_id_t_from_simple 
+        ON $name (created_at, contract, token_id, t_from)
+        ''',
+        '''
+        CREATE INDEX idx_${name}_date_from_contract_token_id_t_to_simple 
+        ON $name (created_at, contract, token_id, t_to)
+        ''',
+      ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
@@ -168,7 +222,7 @@ class TransactionsTable extends DBTable {
   Future<List<DBTransaction>> getPreviousTransactions(
     DateTime createdAt,
     String contract,
-    int tokenId,
+    String tokenId,
     String address, {
     int limit = 10,
     int offset = 0,
@@ -206,7 +260,7 @@ class TransactionsTable extends DBTable {
   Future<List<DBTransaction>> getNewTransactions(
     DateTime createdAt,
     String contract,
-    int tokenId,
+    String tokenId,
     String address, {
     int limit = 10,
     int offset = 0,
