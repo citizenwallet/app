@@ -316,11 +316,10 @@ class _SendProgressState extends State<SendProgress> {
                                 .white
                                 .resolveFrom(context),
                             onPressed: () => handleDone(context),
-                            minWidth: 100,
+                            minWidth: 200,
                             maxWidth: width - 60,
                           )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        : Column( 
                             children: [
                               Button(
                                 text:
@@ -331,9 +330,10 @@ class _SendProgressState extends State<SendProgress> {
                                     .resolveFrom(context),
                                 onPressed: () => handleDone(context),
                                 minWidth: 200,
-                                maxWidth: width - 200,
+                                maxWidth: width - 60,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(
+                                  height: 10),
                               Button(
                                 text: AppLocalizations.of(context)!.dismiss,
                                 color: Theme.of(context)
@@ -350,8 +350,8 @@ class _SendProgressState extends State<SendProgress> {
                                   navigator.go(
                                       '/wallet/${widget.walletLogic?.account}');
                                 },
-                                minWidth: 75,
-                                maxWidth: width - 300,
+                                minWidth: 200,
+                                maxWidth: width - 60,
                               ),
                             ],
                           )
