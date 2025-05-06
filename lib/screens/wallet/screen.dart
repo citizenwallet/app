@@ -951,11 +951,6 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    if (receiveParams != null) {
-      await handleSendScreen(receiveParams: receiveParams);
-      return;
-    }
-
     if (deepLink != null && deepLinkParams != null) {
       await handleLoadDeepLink(
         aliasOverride: loadedAlias,
