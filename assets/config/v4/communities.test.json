@@ -62,7 +62,7 @@
         "name": "About",
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
         "url": "https://citizenwallet.xyz/pay-with-ctzn",
-        "launch_mode": "webview"
+        "launch_mode": "browser"
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
@@ -308,6 +308,69 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
+    "version": 4
+  },
+  {
+    "community": {
+      "name": "Txirrin",
+      "description": "A community for Txirrin",
+      "url": "https://citizenwallet.xyz/txirrin",
+      "alias": "txirrin",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/txirrin.png",
+      "hidden": false,
+      "theme": {
+        "primary": "#FB7502"
+      },
+      "profile": {
+        "address": "0xd47f7198bf335bfe66dD29C0f3EeEf0cFE9D05D8",
+        "chain_id": 100
+      },
+      "primary_token": {
+        "address": "0x6c6611244547a6E9AaCfBA8744115ca1076756fc",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "chain_id": 100
+      }
+    },
+    "tokens": {
+      "100:0x6c6611244547a6E9AaCfBA8744115ca1076756fc": {
+        "standard": "erc20",
+        "name": "Txirrin",
+        "address": "0x6c6611244547a6E9AaCfBA8744115ca1076756fc",
+        "symbol": "TXI",
+        "decimals": 6,
+        "chain_id": 100
+      }
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "accounts": {
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x33500E7Eb3452421e56c2f4117530B1C4C85E0A5",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
+      }
+    },
+    "chains": {
+      "100": {
+        "id": 100,
+        "node": {
+          "url": "https://100.engine.citizenwallet.xyz",
+          "ws_url": "wss://100.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "plugins": [],
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/txirrin.json",
     "version": 4
   },
   {
