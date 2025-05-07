@@ -368,11 +368,11 @@ class _SendProgressState extends State<SendProgress> {
                                 text: AppLocalizations.of(context)!.dismiss,
                                 color: Theme.of(context)
                                     .colors
-                                    .secondary
+                                    .white
                                     .resolveFrom(context),
                                 labelColor: Theme.of(context)
                                     .colors
-                                    .white
+                                    .primary
                                     .resolveFrom(context),
                                 onPressed: () {
                                   final navigator = GoRouter.of(context);
