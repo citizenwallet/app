@@ -518,6 +518,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     navigator.push('/wallet/$_address/receive', extra: {
       'logic': _logic,
+      'profilesLogic': _profilesLogic,
     });
   }
 

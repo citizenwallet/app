@@ -312,28 +312,14 @@ class _SendToScreenState extends State<SendToScreen> {
 
     final navigator = GoRouter.of(context);
 
-    bool? sent;
-    if (widget.isTip == false) {
-      sent = await navigator.push(
-        '/wallet/${walletLogic.account}/send/$toAccount',
-        extra: {
-          'walletLogic': walletLogic,
-          'profilesLogic': profilesLogic,
-          'isMinting': widget.isMinting,
-        },
-      );
-    } else {
-      sent = await navigator.push(
-        '/wallet/${walletLogic.account}/send/$toAccount/tip',
-        extra: {
-          'walletLogic': walletLogic,
-          'profilesLogic': profilesLogic,
-          'isMinting': widget.isMinting,
-          'sendTransaction': widget.sendTransaction,
-        },
-      );
-    }
-
+    final sent = await navigator.push(
+      '/wallet/${walletLogic.account}/send/$toAccount',
+      extra: {
+        'walletLogic': walletLogic,
+        'profilesLogic': profilesLogic,
+        'isMinting': widget.isMinting,
+      },
+    );
 
     if (sent == true) {
       await Future.delayed(const Duration(milliseconds: 50));
@@ -424,18 +410,12 @@ class _SendToScreenState extends State<SendToScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: widget.isTip == false
-                    ? Header(
-                        title: widget.isMinting
-                            ? AppLocalizations.of(context)!.mint
-                            : AppLocalizations.of(context)!.send,
-                        showBackButton: true,
-                      )
-                    : Header(
-                        title: widget.isMinting
-                            ? AppLocalizations.of(context)!.mint
-                            : AppLocalizations.of(context)!.send,
-                      ),
+                child: Header(
+                  title: widget.isMinting
+                      ? AppLocalizations.of(context)!.mint
+                      : AppLocalizations.of(context)!.send,
+                  showBackButton: true,
+                ),
               ),
               Expanded(
                 child: Stack(

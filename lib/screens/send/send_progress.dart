@@ -1,6 +1,8 @@
 import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -20,6 +22,8 @@ class SendProgress extends StatefulWidget {
   final bool isMinting;
   final WalletLogic? walletLogic;
   final bool isTip;
+  final ProfilesLogic? profilesLogic;
+  final SendTransaction? sendTransaction;
 
   const SendProgress({
     super.key,
@@ -27,6 +31,8 @@ class SendProgress extends StatefulWidget {
     this.isMinting = false,
     this.walletLogic,
     this.isTip = false,
+    this.profilesLogic,
+    this.sendTransaction,
   });
 
   @override
@@ -65,8 +71,29 @@ class _SendProgressState extends State<SendProgress> {
         return;
       }
 
-      handleDone(context);
+      // handleDone(context);
     });
+  }
+
+  Future<void> handleSendTip(BuildContext context) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    final toAccount = widget.sendTransaction?.to ??
+        widget.walletLogic?.addressController.value.text;
+
+    await navigator.push(
+      '/wallet/${widget.walletLogic?.account}/send/$toAccount/tip',
+      extra: {
+        'walletLogic': widget.walletLogic,
+        'profilesLogic': widget.profilesLogic,
+        'isMinting': widget.isMinting,
+        'sendTransaction': widget.sendTransaction,
+      },
+    );
   }
 
   @override
@@ -319,26 +346,29 @@ class _SendProgressState extends State<SendProgress> {
                             minWidth: 200,
                             maxWidth: width - 60,
                           )
-                        : Column( 
+                        : Column(
                             children: [
                               Button(
                                 text:
                                     "${AppLocalizations.of(context)!.send} Tip",
+                                color: Theme.of(context)
+                                    .colors
+                                    .primary
+                                    .resolveFrom(context),
                                 labelColor: Theme.of(context)
                                     .colors
                                     .white
                                     .resolveFrom(context),
-                                onPressed: () => handleDone(context),
+                                onPressed: () => handleSendTip(context),
                                 minWidth: 200,
                                 maxWidth: width - 60,
                               ),
-                              const SizedBox(
-                                  height: 10),
+                              const SizedBox(height: 10),
                               Button(
                                 text: AppLocalizations.of(context)!.dismiss,
                                 color: Theme.of(context)
                                     .colors
-                                    .danger
+                                    .secondary
                                     .resolveFrom(context),
                                 labelColor: Theme.of(context)
                                     .colors

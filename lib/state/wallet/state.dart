@@ -79,6 +79,8 @@ class WalletState with ChangeNotifier {
   bool cwWalletsLoading = false;
   bool cwWalletsError = false;
 
+  String? tipTo;
+
   void setEventServiceState(EventServiceState state) {
     eventServiceState = state;
     notifyListeners();
@@ -668,6 +670,16 @@ class WalletState with ChangeNotifier {
     this.walletActions = walletActions;
     walletActionsLoading = false;
 
+    notifyListeners();
+  }
+
+  void setTipTo(String? tipTo) {
+    this.tipTo = tipTo;
+    notifyListeners();
+  }
+
+  void clearTipTo() {
+    tipTo = null;
     notifyListeners();
   }
 }

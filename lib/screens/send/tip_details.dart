@@ -234,15 +234,18 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     final toAccount =
         selectedAddress ?? walletLogic.addressController.value.text;
 
-    _sendTransaction.tipAmount = walletLogic.amountController.value.text;
-    _sendTransaction.tipTo = toAccount;
-    _sendTransaction.tipDescription =
-        walletLogic.messageController.value.text.trim();
+    print('toAccount: $toAccount');
+
+    final sendTip = SendTransaction(
+      tipAmount: walletLogic.amountController.value.text,
+      tipTo: toAccount,
+      description: walletLogic.messageController.value.text.trim(),
+    );
 
     walletLogic.sendTransaction(
-      _sendTransaction.tipAmount!,
-      _sendTransaction.tipTo!,
-      message: _sendTransaction.tipDescription!,
+      sendTip.tipAmount!,
+      sendTip.tipTo!,
+      message: sendTip.description!,
     );
 
     await Future.delayed(const Duration(milliseconds: 50));

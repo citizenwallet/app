@@ -249,15 +249,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    walletLogic.clearInputControllers();
-    walletLogic.resetInputErrorState();
-    widget.profilesLogic.clearSearch();
+    // walletLogic.clearInputControllers();
+    // walletLogic.resetInputErrorState();
+    // widget.profilesLogic.clearSearch();
 
     final sent = await navigator.push<bool?>(
         '/wallet/${walletLogic.account}/send/$toAccount/progress',
         extra: {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
+          'profilesLogic': widget.profilesLogic,
+          'sendTransaction': sendTransaction,
           'isTip': true,
         });
 
@@ -268,26 +270,14 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
-      await Future.delayed(const Duration(milliseconds: 30));
+      await Future.delayed(const Duration(milliseconds: 50));
 
-      final result = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send',
-        extra: {
-          'walletLogic': walletLogic,
-          'profilesLogic': widget.profilesLogic,
-          'isMinting': widget.isMinting,
-          'isTip': true,
-          'sendTransaction': sendTransaction,
-        },
-      );
-
-      if (result == true) {
-        walletLogic.clearInputControllers();
-        walletLogic.resetInputErrorState();
-        widget.profilesLogic.clearSearch();
-
-        return;
+      if (navigator.canPop()) {
+        navigator.pop(true);
+      } else {
+        navigator.go('/wallet/${walletLogic.account}');
       }
+      return;
     }
 
     setState(() {

@@ -1686,16 +1686,11 @@ class WalletLogic extends WidgetsBindingObserver {
       final url = communityConfig.community.walletUrl(deepLinkURL);
 
       if (onlyHex != null && onlyHex) {
-        // final compressedParams = compress(
-        //     '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
-
-        // _state.updateReceiveQR('$url&receiveParams=$compressedParams');
         _state.updateReceiveQR(
             '$url?sendto=${_wallet.account.hexEip55}@${communityConfig.community.alias}');
         return;
       }
-      // String params =
-      // '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}';
+
       String params =
           'sendto=${_wallet.account.hexEip55}@${communityConfig.community.alias}';
 
@@ -1710,18 +1705,17 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       if (_messageController.value.text.isNotEmpty) {
-        // params += '&message=${_messageController.value.text}';
         params += '&description=${_messageController.value.text}';
       }
 
-      // final compressedParams = compress(params);
-
-      // _state.updateReceiveQR('$url&receiveParams=$compressedParams');
+      // Add tipTo parameter if it exists in the state
+      final tipTo = _state.tipTo;
+      if (tipTo != null && tipTo.isNotEmpty) {
+        params += '&tipTo=$tipTo';
+      }
 
       _state.updateReceiveQR('$url&$params');
       return;
-    } on NotFoundException {
-      // HANDLE
     } catch (_) {}
 
     _state.clearReceiveQR();

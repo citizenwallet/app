@@ -22,6 +22,7 @@ import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/screens/wallet/tip_to.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
@@ -303,6 +304,9 @@ GoRouter createRouter(
                   to: state.pathParameters['to'],
                   isMinting: extra?['isMinting'] ?? false,
                   isTip: extra?['isTip'] ?? false,
+                  profilesLogic: extra?['profilesLogic'],
+                  sendTransaction: extra?['sendTransaction'],
+                  walletLogic: extra?['walletLogic'],
                 );
               },
             ),
@@ -319,6 +323,24 @@ GoRouter createRouter(
 
                 return ReceiveScreen(
                   logic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Tip To',
+              path: 'tipto',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TipToScreen(
+                  walletLogic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
                 );
               },
             ),

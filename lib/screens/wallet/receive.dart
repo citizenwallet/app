@@ -1,4 +1,6 @@
 import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:citizenwallet/screens/wallet/tip_to.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
@@ -20,8 +22,13 @@ import 'package:rate_limiter/rate_limiter.dart';
 
 class ReceiveScreen extends StatefulWidget {
   final WalletLogic logic;
+  final ProfilesLogic profilesLogic;
 
-  const ReceiveScreen({super.key, required this.logic});
+  const ReceiveScreen({
+    super.key,
+    required this.logic,
+    required this.profilesLogic,
+  });
 
   @override
   ReceiveScreenState createState() => ReceiveScreenState();
@@ -38,6 +45,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
   String _selectedValue = 'Citizen Wallet';
   bool _isEnteringAmount = false;
   bool _isDescribing = false;
+  String? _selectedTipTo;
 
   @override
   void initState() {
@@ -66,6 +74,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     amountFocusNode.removeListener(handleAmountListenerUpdate);
 
     widget.logic.clearInputControllers();
+    widget.profilesLogic.clearSearch(notify: false);
 
     super.dispose();
   }
@@ -86,6 +95,27 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     setState(() {
       _opacity = 1;
     });
+  }
+
+  void handleSendTip() async {
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      useRootNavigator: false,
+      builder: (_) => TipToScreen(
+        walletLogic: widget.logic,
+        profilesLogic: widget.profilesLogic,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTipTo = result;
+      });
+
+      context.read<WalletState>().setTipTo(result);
+      // Update QR code with new tip information
+      widget.logic.updateReceiveQR();
+    }
   }
 
   void handleAmountListenerUpdate() {
@@ -390,15 +420,40 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                         const SizedBox(
                           height: 20,
                         ),
+                        if (!isExternalWallet) const SizedBox(height: 20),
                         if (!isExternalWallet)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              AppLocalizations.of(context)!.description,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!.description,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    CupertinoButton(
+                                      padding: EdgeInsets.zero,
+                                      onPressed: handleSendTip,
+                                      child: Text(
+                                        'Tip',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(context)
+                                              .colors
+                                              .primary
+                                              .resolveFrom(context),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         if (!isExternalWallet) const SizedBox(height: 10),
