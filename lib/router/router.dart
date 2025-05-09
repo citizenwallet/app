@@ -215,7 +215,6 @@ GoRouter createRouter(
                   voucherLogic: extra['voucherLogic'],
                   isMinting: extra['isMinting'] ?? false,
                   sendToURL: extra['sendToURL'],
-                  isTip: extra['isTip'] ?? false,
                   sendTransaction: extra['sendTransaction'],
                 );
               },
@@ -303,7 +302,6 @@ GoRouter createRouter(
                 return SendProgress(
                   to: state.pathParameters['to'],
                   isMinting: extra?['isMinting'] ?? false,
-                  isTip: extra?['isTip'] ?? false,
                   profilesLogic: extra?['profilesLogic'],
                   sendTransaction: extra?['sendTransaction'],
                   walletLogic: extra?['walletLogic'],

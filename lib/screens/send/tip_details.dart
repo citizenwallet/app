@@ -70,6 +70,16 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
       final walletLogic = widget.walletLogic;
+      final tipTo = context.read<WalletState>().tipTo;
+
+      if (tipTo != null) {
+        // Get profile from tipTo address
+        widget.profilesLogic.getProfile(tipTo).then((profile) {
+          if (profile != null) {
+            widget.profilesLogic.selectProfile(profile);
+          }
+        });
+      }
 
       onLoad();
 
@@ -201,12 +211,17 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     }
   }
 
-  void handleSend(BuildContext context, String? selectedAddress) async {
+  void handleSend(
+      BuildContext context, String? selectedAddress, String? tipTo) async {
     if (_isSending) {
       return;
     }
 
     final walletLogic = widget.walletLogic;
+
+    if (tipTo == null) {
+      return;
+    }
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -227,26 +242,25 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       setState(() {
         _isSending = false;
       });
-
       return;
     }
 
     final toAccount =
         selectedAddress ?? walletLogic.addressController.value.text;
 
-    print('toAccount: $toAccount');
-
     final sendTip = SendTransaction(
       tipAmount: walletLogic.amountController.value.text,
-      tipTo: toAccount,
-      description: walletLogic.messageController.value.text.trim(),
+      tipTo: tipTo,
+      tipDescription: walletLogic.messageController.value.text.trim(),
     );
 
     walletLogic.sendTransaction(
       sendTip.tipAmount!,
       sendTip.tipTo!,
-      message: sendTip.description!,
+      message: sendTip.tipDescription!,
     );
+
+    context.read<WalletState>().setHasTip(false);
 
     await Future.delayed(const Duration(milliseconds: 50));
 
@@ -256,7 +270,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
         '/wallet/${walletLogic.account}/send/$toAccount/progress',
         extra: {
           'isMinting': widget.isMinting,
-          'isTip': false,
+          'walletLogic': walletLogic,
+          'profilesLogic': widget.profilesLogic,
+          'sendTransaction': sendTip,
         });
 
     walletLogic.clearInProgressTransaction();
@@ -379,6 +395,11 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     final wallet = context.select(
       (WalletState state) => state.wallet,
     );
+
+    final tipTo = context.select(
+      (WalletState state) => state.tipTo,
+    );
+
     final balance =
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
 
@@ -786,6 +807,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                                     selectedProfile?.account ??
                                                         searchedProfile
                                                             ?.account,
+                                                    tipTo,
                                                   )
                                       : null,
                                   enabled: isSendingValid,

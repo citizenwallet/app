@@ -93,8 +93,7 @@ class _TipToScreenState extends State<TipToScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
-  void handleSelectProfile(
-      BuildContext context, ProfileV1? profile) async {
+  void handleSelectProfile(BuildContext context, ProfileV1? profile) async {
     if (profile == null) {
       return;
     }
@@ -187,9 +186,24 @@ class _TipToScreenState extends State<TipToScreen> {
             direction: Axis.vertical,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                padding: const EdgeInsets.fromLTRB(
+                  5,
+                  0,
+                  5,
+                  10,
+                ),
                 child: Header(
-                  showBackButton: true,
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => context.pop(),
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
+                    ),
+                  ),
                 ),
               ),
               Expanded(

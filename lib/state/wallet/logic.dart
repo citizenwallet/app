@@ -1611,7 +1611,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<String?> updateFromCapture(String raw) async {
     try {
-      //
       if (raw.isEmpty) {
         throw QREmptyException();
       }
@@ -1649,6 +1648,12 @@ class WalletLogic extends WidgetsBindingObserver {
         _messageController.text = parsedData.description!;
       } else {
         _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      }
+
+      // Handle tip information if present
+      if (parsedData.tip != null) {
+        _state.setTipTo(parsedData.tip!.to);
+        _state.setHasTip(true);
       }
 
       return addressToUse;

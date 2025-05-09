@@ -1,6 +1,7 @@
 import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/screens/wallet/tip_to.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
@@ -13,7 +14,9 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/picker.dart';
+import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +49,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
   bool _isEnteringAmount = false;
   bool _isDescribing = false;
   String? _selectedTipTo;
+  ProfileV1? _selectedProfile;
 
   @override
   void initState() {
@@ -110,12 +114,24 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     if (result != null) {
       setState(() {
         _selectedTipTo = result;
+        _selectedProfile = context.read<ProfilesState>().selectedProfile;
       });
 
       context.read<WalletState>().setTipTo(result);
       // Update QR code with new tip information
       widget.logic.updateReceiveQR();
     }
+  }
+
+  void handleDeselectProfile() {
+    setState(() {
+      _selectedProfile = null;
+      _selectedTipTo = null;
+    });
+    widget.profilesLogic.deSelectProfile();
+    widget.logic.clearAddressController();
+    context.read<WalletState>().setTipTo(null);
+    widget.logic.updateReceiveQR();
   }
 
   void handleAmountListenerUpdate() {
@@ -424,36 +440,12 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                         if (!isExternalWallet)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.description,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    CupertinoButton(
-                                      padding: EdgeInsets.zero,
-                                      onPressed: handleSendTip,
-                                      child: Text(
-                                        'Tip',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Theme.of(context)
-                                              .colors
-                                              .primary
-                                              .resolveFrom(context),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            child: Text(
+                              AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         if (!isExternalWallet) const SizedBox(height: 10),
@@ -523,8 +515,42 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                               ),
                             ),
                           ),
+                        if (!isExternalWallet) const SizedBox(height: 20),
+                        if (!isExternalWallet)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Tip",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (!isExternalWallet) const SizedBox(height: 10),
+                        if (!isExternalWallet)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: _selectedProfile == null
+                                ? CupertinoButton(
+                                    onPressed: handleSendTip,
+                                    child: Text(
+                                      "Set Tip Destination Account",
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                                  )
+                                : ProfileChip(
+                                    selectedProfile: _selectedProfile,
+                                    handleDeSelect: handleDeselectProfile,
+                                  ),
+                          ),
                         const SizedBox(
-                          height: 160,
+                          height: 130,
                         ),
                       ],
                     ),

@@ -80,6 +80,8 @@ class WalletState with ChangeNotifier {
   bool cwWalletsError = false;
 
   String? tipTo;
+  bool _hasTip = false;
+  bool get hasTip => _hasTip;
 
   void setEventServiceState(EventServiceState state) {
     eventServiceState = state;
@@ -678,8 +680,14 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
+  void setHasTip(bool value) {
+    _hasTip = value;
+    notifyListeners();
+  }
+
   void clearTipTo() {
     tipTo = null;
+    _hasTip = false;
     notifyListeners();
   }
 }

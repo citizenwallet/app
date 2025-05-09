@@ -5,7 +5,6 @@ class SendTransaction {
   String? _tipTo;
   String? _tipAmount;
   String? _tipDescription;
-  bool _isTip;
 
   SendTransaction({
     String? to,
@@ -14,14 +13,12 @@ class SendTransaction {
     String? tipTo,
     String? tipAmount,
     String? tipDescription,
-    bool? isTip,
   })  : _to = to,
         _amount = amount,
         _description = description,
         _tipTo = tipTo,
         _tipAmount = tipAmount,
-        _tipDescription = tipDescription,
-        _isTip = isTip ?? false;
+        _tipDescription = tipDescription;
 
   String? get to => _to;
   set to(String? value) => _to = value;
@@ -40,9 +37,4 @@ class SendTransaction {
 
   String? get tipDescription => _tipDescription;
   set tipDescription(String? value) => _tipDescription = value;
-
-  bool get hasTip => _tipTo != null && _tipAmount != null;
-
-  bool get isTip => _isTip;
-  set isTip(bool value) => _isTip = value;
 }

@@ -31,7 +31,6 @@ class SendDetailsScreen extends StatefulWidget {
   final VoucherLogic? voucherLogic;
 
   final bool isMinting;
-  final bool isTip;
   final bool isLink;
 
   const SendDetailsScreen({
@@ -40,7 +39,6 @@ class SendDetailsScreen extends StatefulWidget {
     required this.profilesLogic,
     this.voucherLogic,
     this.isMinting = false,
-    this.isTip = false,
     this.isLink = false,
   });
 
@@ -206,6 +204,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     }
 
     final walletLogic = widget.walletLogic;
+    final walletState = context.read<WalletState>();
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -249,10 +248,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     HapticFeedback.heavyImpact();
 
-    // walletLogic.clearInputControllers();
-    // walletLogic.resetInputErrorState();
-    // widget.profilesLogic.clearSearch();
-
     final sent = await navigator.push<bool?>(
         '/wallet/${walletLogic.account}/send/$toAccount/progress',
         extra: {
@@ -260,7 +255,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'walletLogic': walletLogic,
           'profilesLogic': widget.profilesLogic,
           'sendTransaction': sendTransaction,
-          'isTip': true,
         });
 
     walletLogic.clearInProgressTransaction();

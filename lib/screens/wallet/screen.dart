@@ -167,9 +167,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void onLoad() async {
-    SendTransaction sendTransaction = SendTransaction();
-    sendTransaction.isTip = false;
-
     if (_address == null || _alias == null) {
       return;
     }

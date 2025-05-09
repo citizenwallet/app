@@ -37,7 +37,6 @@ class SendToScreen extends StatefulWidget {
   final SendTransaction? sendTransaction;
 
   final bool isMinting;
-  final bool isTip;
 
   const SendToScreen({
     super.key,
@@ -47,7 +46,6 @@ class SendToScreen extends StatefulWidget {
     this.isMinting = false,
     this.sendToURL,
     this.sendTransaction,
-    this.isTip = false,
   });
 
   @override

@@ -21,7 +21,6 @@ class SendProgress extends StatefulWidget {
   final String? to;
   final bool isMinting;
   final WalletLogic? walletLogic;
-  final bool isTip;
   final ProfilesLogic? profilesLogic;
   final SendTransaction? sendTransaction;
 
@@ -30,7 +29,6 @@ class SendProgress extends StatefulWidget {
     this.to,
     this.isMinting = false,
     this.walletLogic,
-    this.isTip = false,
     this.profilesLogic,
     this.sendTransaction,
   });
@@ -292,7 +290,7 @@ class _SendProgressState extends State<SendProgress> {
                                       .text
                                       .resolveFrom(context),
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 24,
+                                  fontSize: 20,
                                 ),
                               ),
                             ],
@@ -335,18 +333,8 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    widget.isTip == false
-                        ? Button(
-                            text: AppLocalizations.of(context)!.dismiss,
-                            labelColor: Theme.of(context)
-                                .colors
-                                .white
-                                .resolveFrom(context),
-                            onPressed: () => handleDone(context),
-                            minWidth: 200,
-                            maxWidth: width - 60,
-                          )
-                        : Column(
+                    context.select((WalletState state) => state.hasTip)
+                        ? Column(
                             children: [
                               Button(
                                 text:
@@ -363,27 +351,47 @@ class _SendProgressState extends State<SendProgress> {
                                 minWidth: 200,
                                 maxWidth: width - 60,
                               ),
-                              const SizedBox(height: 10),
-                              Button(
-                                text: AppLocalizations.of(context)!.dismiss,
-                                color: Theme.of(context)
-                                    .colors
-                                    .white
-                                    .resolveFrom(context),
-                                labelColor: Theme.of(context)
-                                    .colors
-                                    .primary
-                                    .resolveFrom(context),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              CupertinoButton(
                                 onPressed: () {
                                   final navigator = GoRouter.of(context);
 
                                   navigator.go(
                                       '/wallet/${widget.walletLogic?.account}');
                                 },
-                                minWidth: 200,
-                                maxWidth: width - 60,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minWidth: 200,
+                                    maxWidth: width - 60,
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.dismiss,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colors
+                                          .primary
+                                          .resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ),
                             ],
+                          )
+                        : Button(
+                            text: AppLocalizations.of(context)!.dismiss,
+                            labelColor: Theme.of(context)
+                                .colors
+                                .white
+                                .resolveFrom(context),
+                            onPressed: () => handleDone(context),
+                            minWidth: 200,
+                            maxWidth: width - 60,
                           )
                   ],
                 ),
