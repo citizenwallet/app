@@ -13,6 +13,7 @@ import 'package:citizenwallet/screens/send/send_details.dart';
 import 'package:citizenwallet/screens/send/send_link_progress.dart';
 import 'package:citizenwallet/screens/send/send_progress.dart';
 import 'package:citizenwallet/screens/send/send_to.dart';
+import 'package:citizenwallet/screens/send/tip_details.dart';
 import 'package:citizenwallet/screens/settings/screen.dart';
 import 'package:citizenwallet/screens/transaction/screen.dart';
 import 'package:citizenwallet/screens/voucher/screen.dart';
@@ -21,6 +22,7 @@ import 'package:citizenwallet/screens/vouchers/voucher_read.dart';
 import 'package:citizenwallet/screens/wallet/receive.dart';
 import 'package:citizenwallet/screens/wallet/screen.dart';
 import 'package:citizenwallet/screens/wallet/screen.web.dart';
+import 'package:citizenwallet/screens/wallet/tip_to.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
@@ -213,6 +215,7 @@ GoRouter createRouter(
                   voucherLogic: extra['voucherLogic'],
                   isMinting: extra['isMinting'] ?? false,
                   sendToURL: extra['sendToURL'],
+                  sendTransaction: extra['sendTransaction'],
                 );
               },
             ),
@@ -255,6 +258,25 @@ GoRouter createRouter(
               },
             ),
             GoRoute(
+              name: 'Sent Tip',
+              path: 'send/:to/tip',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TipDetailsScreen(
+                  walletLogic: extra['walletLogic'],
+                  profilesLogic: extra['profilesLogic'],
+                  isMinting: extra['isMinting'] ?? false,
+                  sendTransaction: extra['sendTransaction'],
+                );
+              },
+            ),
+            GoRoute(
               name: 'Send Link Progress',
               path: 'send/link/progress',
               parentNavigatorKey: rootNavigatorKey,
@@ -280,6 +302,9 @@ GoRouter createRouter(
                 return SendProgress(
                   to: state.pathParameters['to'],
                   isMinting: extra?['isMinting'] ?? false,
+                  profilesLogic: extra?['profilesLogic'],
+                  sendTransaction: extra?['sendTransaction'],
+                  walletLogic: extra?['walletLogic'],
                 );
               },
             ),
@@ -296,6 +321,24 @@ GoRouter createRouter(
 
                 return ReceiveScreen(
                   logic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
+                );
+              },
+            ),
+            GoRoute(
+              name: 'Tip To',
+              path: 'tipto',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                if (state.extra == null) {
+                  return const SizedBox();
+                }
+
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TipToScreen(
+                  walletLogic: extra['logic'],
+                  profilesLogic: extra['profilesLogic'],
                 );
               },
             ),

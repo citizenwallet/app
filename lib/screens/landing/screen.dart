@@ -1,3 +1,4 @@
+// import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/router/utils.dart';
@@ -100,14 +101,18 @@ class LandingScreenState extends State<LandingScreen>
       params += '&receiveParams=$receiveParams';
     }
 
+    if (sendToParams != null) {
+      params += '&$sendToParams';
+    }
+
     if (deepLink != null && deepLinkParams != null) {
       params += '&dl=$deepLink';
       params += '&$deepLink=$deepLinkParams';
     }
 
-    if (sendToParams != null) {
-      params += '&${Uri.decodeComponent(sendToParams)}';
-    }
+    // if (sendToParams != null) {
+    //   params += '&${Uri.decodeComponent(sendToParams)}';
+    // }
 
     if (extra.isNotEmpty) {
       params += '&${extra.join('&')}';
