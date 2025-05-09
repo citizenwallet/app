@@ -2,7 +2,6 @@
 import 'package:citizenwallet/modals/account/select_account.dart';
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/modals/profile/profile.dart';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/screens/wallet/more_actions_sheet.dart';
 import 'package:citizenwallet/screens/wallet/wallet_scroll_view.dart';
