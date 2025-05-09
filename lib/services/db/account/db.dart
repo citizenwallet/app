@@ -51,7 +51,7 @@ class AccountDBService extends DBService {
 
         return;
       },
-      version: 8,
+      version: 9,
     );
 
     final db = await databaseFactory.openDatabase(

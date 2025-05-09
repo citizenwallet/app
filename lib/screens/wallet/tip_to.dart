@@ -1,63 +1,46 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/selectors.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
-import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
-import 'package:citizenwallet/state/scan/logic.dart';
-import 'package:citizenwallet/state/scan/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/delay.dart';
-import 'package:citizenwallet/utils/platform.dart';
-import 'package:citizenwallet/utils/ratio.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
 import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/profile/profile_row.dart';
-import 'package:citizenwallet/widgets/scanner/nfc_modal.dart';
-import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
-import 'package:flutter_svg/svg.dart';
 
-class SendToScreen extends StatefulWidget {
+class TipToScreen extends StatefulWidget {
   final WalletLogic walletLogic;
-  final ProfilesLogic profilesLogic;
-  final VoucherLogic? voucherLogic;
-  final String? sendToURL;
-  final SendTransaction? sendTransaction;
+  final ProfilesLogic? profilesLogic;
 
   final bool isMinting;
+  final bool isTip;
 
-  const SendToScreen({
+  const TipToScreen({
     super.key,
     required this.walletLogic,
-    required this.profilesLogic,
-    this.voucherLogic,
+    this.profilesLogic,
     this.isMinting = false,
-    this.sendToURL,
-    this.sendTransaction,
+    this.isTip = false,
   });
 
   @override
-  State<SendToScreen> createState() => _SendToScreenState();
+  State<TipToScreen> createState() => _TipToScreenState();
 }
 
-class _SendToScreenState extends State<SendToScreen> {
+class _TipToScreenState extends State<TipToScreen> {
   final nameFocusNode = FocusNode();
-  final ScanLogic _scanLogic = ScanLogic();
-  String? _currentSendToURL;
   final _scrollController = ScrollController();
-  // late SendTransaction _sendTransaction;
 
   late void Function() debouncedAddressUpdate;
 
@@ -83,182 +66,31 @@ class _SendToScreenState extends State<SendToScreen> {
     nameFocusNode.dispose();
     _scrollController.dispose();
 
-    _currentSendToURL = null;
-
     final walletLogic = widget.walletLogic;
-    final profilesLogic = widget.profilesLogic;
-
     walletLogic.clearAddressController();
-    profilesLogic.clearSearch(notify: false);
-
-    _scanLogic.cancelScan(notify: false);
 
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(SendToScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Only handle selection if sendToURL is new and we haven't processed it yet
-    if (widget.sendToURL != null &&
-        widget.sendToURL != oldWidget.sendToURL &&
-        widget.sendToURL != _currentSendToURL) {
-      _currentSendToURL = widget.sendToURL;
-      handleParseQRCode(context, widget.sendToURL!);
-    }
-  }
-
   void onLoad() async {
-    _scanLogic.init(context);
-    _scanLogic.load();
-
-    await delay(const Duration(milliseconds: 250));
-
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
-    profilesLogic.allProfiles();
+    profilesLogic?.allProfiles();
     walletLogic.updateAddress();
 
     nameFocusNode.requestFocus();
-
-    isSendToURLAvailable();
-  }
-
-  void isSendToURLAvailable() {
-    if (widget.sendToURL != null && widget.sendToURL != _currentSendToURL) {
-      _currentSendToURL = widget.sendToURL;
-      handleParseQRCode(context, widget.sendToURL!);
-    }
   }
 
   void handleThrottledUpdateAddress(String value) {
     final profilesLogic = widget.profilesLogic;
 
     debouncedAddressUpdate();
-    profilesLogic.searchProfile(value);
+    profilesLogic?.searchProfile(value);
   }
 
   void handleAddressFieldSubmitted(String value) {
     FocusManager.instance.primaryFocus?.unfocus();
-  }
-
-  void handleSendLink(BuildContext context) async {
-    final walletLogic = widget.walletLogic;
-
-    final profilesLogic = widget.profilesLogic;
-
-    profilesLogic.clearSearch(notify: false);
-
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    HapticFeedback.heavyImpact();
-
-    if (!context.mounted) {
-      return;
-    }
-
-    final navigator = GoRouter.of(context);
-
-    final address = await navigator
-        .push<String?>('/wallet/${walletLogic.account}/send/link', extra: {
-      'walletLogic': walletLogic,
-      'profilesLogic': profilesLogic,
-      'voucherLogic': widget.voucherLogic,
-      'isMinting': widget.isMinting,
-    });
-
-    if (address != null) {
-      navigator.pop(true);
-    }
-
-    onLoad();
-  }
-
-  void handleScanQRCode(BuildContext context) async {
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    final result = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => const ScannerModal(
-        modalKey: 'send-qr-scanner',
-      ),
-    );
-
-    if (result == null) {
-      return;
-    }
-
-    if (!context.mounted) {
-      return;
-    }
-
-    handleDismissSelection();
-
-    handleParseQRCode(context, result);
-  }
-
-  void handleReadNFC(BuildContext context) async {
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    final result = await showCupertinoModalPopup<String?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => const NFCModal(
-        modalKey: 'send-nfc-scanner',
-      ),
-    );
-
-    // the iOS NFC Modal sets the app to inactive and then resumes it
-    // this causes transactions to start being requested again
-    // this is a workaround to wait for the app to resume before pausing the fetching
-    if (isPlatformApple()) {
-      // iOS needs an extra delay which is the time it takes to close the NFC modal
-      delay(const Duration(seconds: 1)).then((_) {
-        widget.walletLogic.pauseFetching();
-      });
-    }
-
-    widget.walletLogic.pauseFetching();
-
-    if (result == null) {
-      return;
-    }
-
-    if (!context.mounted) {
-      return;
-    }
-
-    handleDismissSelection();
-
-    handleParseQRCode(context, result);
-  }
-
-  void handleParseQRCode(
-    BuildContext context,
-    String result,
-  ) async {
-    final walletLogic = widget.walletLogic;
-
-    final hex = await walletLogic.updateFromCapture(result);
-    if (hex == null) {
-      return;
-    }
-
-    widget.profilesLogic.getProfile(hex);
-
-    if (!context.mounted) {
-      return;
-    }
-
-    handleSetAmount(
-      context,
-      account: hex,
-    );
   }
 
   void handleSelectProfile(BuildContext context, ProfileV1? profile) async {
@@ -269,7 +101,7 @@ class _SendToScreenState extends State<SendToScreen> {
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
-    profilesLogic.selectProfile(profile);
+    profilesLogic?.selectProfile(profile);
     walletLogic.updateAddress(override: true);
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -277,64 +109,12 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
-    handleSetAmount(context, account: profile.account);
-  }
-
-  void handleSetAmount(
-    BuildContext context, {
-    String? account,
-  }) async {
-    final walletLogic = widget.walletLogic;
-
-    final selectedProfile = context.read<ProfilesState>().selectedProfile;
-
-    final toAccount = account ??
-        selectedProfile?.account ??
-        walletLogic.addressController.value.text;
-
-    if (toAccount.isEmpty) {
-      return;
-    }
-
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    HapticFeedback.heavyImpact();
-
-    if (!context.mounted) {
-      return;
-    }
-
-    final profilesLogic = widget.profilesLogic;
-
-    final navigator = GoRouter.of(context);
-
-    final sent = await navigator.push(
-      '/wallet/${walletLogic.account}/send/$toAccount',
-      extra: {
-        'walletLogic': walletLogic,
-        'profilesLogic': profilesLogic,
-        'isMinting': widget.isMinting,
-      },
-    );
-
-    if (sent == true) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      if (navigator.canPop()) {
-        navigator.pop(true);
-      } else {
-        navigator.go('/wallet/${walletLogic.account}');
-      }
-      return;
-    }
-
-    onLoad();
+    context.pop(profile.account);
   }
 
   void handleDismissSelection() async {
     final walletLogic = widget.walletLogic;
-    widget.profilesLogic.deSelectProfile();
+    widget.profilesLogic?.deSelectProfile();
 
     walletLogic.clearAddressController();
     walletLogic.updateAddress();
@@ -350,9 +130,15 @@ class _SendToScreenState extends State<SendToScreen> {
     );
   }
 
+  void clearSearch() {
+    final profilesLogic = widget.profilesLogic;
+    profilesLogic?.clearSearch(notify: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
     final walletLogic = widget.walletLogic;
 
@@ -372,34 +158,27 @@ class _SendToScreenState extends State<SendToScreen> {
       (ProfilesState state) => state.searchLoading,
     );
 
-    final parsingQRAddressError = context.select(
-      (WalletState state) => state.parsingQRAddressError,
-    );
-
     final profileSuggestions = context.select(selectProfileSuggestions);
 
     final selectedProfile = context.select(
       (ProfilesState state) => state.selectedProfile,
     );
 
-    final scanStatus = context.select(
-      (ScanState state) => state,
-    );
-
     final bool noAccountFound = profileSuggestions.isEmpty &&
         walletLogic.addressController.value.text.isNotEmpty &&
         !isEthAddress(walletLogic.addressController.value.text);
 
-    final bool displayScanNfc = config != null &&
-        config.hasCards() &&
-        scanStatus.status != ScanStateType.notAvailable &&
-        scanStatus.status != ScanStateType.notReady;
-
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: CupertinoPageScaffold(
-        backgroundColor:
-            Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+    return Container(
+      height: height * 0.7,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
           minimum: const EdgeInsets.only(left: 0, right: 0, top: 20),
           bottom: false,
@@ -407,12 +186,24 @@ class _SendToScreenState extends State<SendToScreen> {
             direction: Axis.vertical,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                padding: const EdgeInsets.fromLTRB(
+                  5,
+                  0,
+                  5,
+                  10,
+                ),
                 child: Header(
-                  title: widget.isMinting
-                      ? AppLocalizations.of(context)!.mint
-                      : AppLocalizations.of(context)!.send,
-                  showBackButton: true,
+                  actionButton: CupertinoButton(
+                    padding: const EdgeInsets.all(5),
+                    onPressed: () => context.pop(),
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: Theme.of(context)
+                          .colors
+                          .touchable
+                          .resolveFrom(context),
+                    ),
+                  ),
                 ),
               ),
               Expanded(
@@ -427,8 +218,8 @@ class _SendToScreenState extends State<SendToScreen> {
                           pinned: true,
                           floating: false,
                           delegate: PersistentHeaderDelegate(
-                            expandedHeight: displayScanNfc ? 220 : 180,
-                            minHeight: 110,
+                            expandedHeight: 80,
+                            minHeight: 50,
                             builder: (context, shrink) => GestureDetector(
                               onTap: handleScrollToTop,
                               child: Stack(
@@ -459,162 +250,6 @@ class _SendToScreenState extends State<SendToScreen> {
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                    bottom: displayScanNfc ? 100 : 50,
-                                    left: 20,
-                                    right: 20,
-                                    child: Opacity(
-                                      opacity: progressiveClamp(
-                                        0,
-                                        1,
-                                        shrink * 4,
-                                      ),
-                                      child: CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: () =>
-                                            handleSendLink(context),
-                                        child: Container(
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                CupertinoIcons.link,
-                                                color: Theme.of(context)
-                                                    .colors
-                                                    .primary
-                                                    .resolveFrom(context),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                AppLocalizations.of(context)!
-                                                    .sendViaLink,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colors
-                                                      .primary
-                                                      .resolveFrom(context),
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: displayScanNfc ? 50 : 0,
-                                    left: 20,
-                                    right: 20,
-                                    child: Opacity(
-                                      opacity: progressiveClamp(
-                                        0,
-                                        1,
-                                        shrink * 2,
-                                      ),
-                                      child: CupertinoButton(
-                                        padding: const EdgeInsets.all(5),
-                                        onPressed: () =>
-                                            handleScanQRCode(context),
-                                        child: Container(
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                CupertinoIcons
-                                                    .qrcode_viewfinder,
-                                                color: Theme.of(context)
-                                                    .colors
-                                                    .primary
-                                                    .resolveFrom(context),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                AppLocalizations.of(context)!
-                                                    .scanQRCode,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colors
-                                                      .primary
-                                                      .resolveFrom(context),
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  if (displayScanNfc)
-                                    Positioned(
-                                      bottom: 0,
-                                      left: 20,
-                                      right: 20,
-                                      child: Opacity(
-                                        opacity: progressiveClamp(
-                                          0,
-                                          1,
-                                          shrink * 2,
-                                        ),
-                                        child: CupertinoButton(
-                                          padding: const EdgeInsets.all(5),
-                                          onPressed: () =>
-                                              handleReadNFC(context),
-                                          child: Container(
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                SvgPicture.asset(
-                                                  'assets/icons/contactless.svg',
-                                                  semanticsLabel:
-                                                      'contactless icon',
-                                                  height: 24,
-                                                  width: 24,
-                                                  color: Theme.of(context)
-                                                      .colors
-                                                      .primary
-                                                      .resolveFrom(context),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Text(
-                                                  AppLocalizations.of(context)!
-                                                      .sendToNFCTag,
-                                                  style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colors
-                                                        .primary
-                                                        .resolveFrom(context),
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
                                   if (selectedProfile != null)
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -647,8 +282,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                           textInputAction: TextInputAction.done,
                                           onChanged:
                                               handleThrottledUpdateAddress,
-                                          decoration: invalidAddress ||
-                                                  parsingQRAddressError
+                                          decoration: invalidAddress
                                               ? BoxDecoration(
                                                   color: Theme.of(context)
                                                       .colors
@@ -727,11 +361,6 @@ class _SendToScreenState extends State<SendToScreen> {
                             ),
                           ),
                         ),
-                        const SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 20,
-                          ),
-                        ),
                         if (noAccountFound)
                           SliverFillRemaining(
                             child: Center(
@@ -746,7 +375,7 @@ class _SendToScreenState extends State<SendToScreen> {
                                         .resolveFrom(context),
                                     size: 100,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 20,
                                   ),
                                   Text(
@@ -821,12 +450,13 @@ class _SendToScreenState extends State<SendToScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Button(
-                              text: AppLocalizations.of(context)!.enteramount,
+                              text: AppLocalizations.of(context)!.done,
                               labelColor: Theme.of(context)
                                   .colors
                                   .white
                                   .resolveFrom(context),
-                              onPressed: () => handleSetAmount(context),
+                              onPressed: () =>
+                                  handleSelectProfile(context, selectedProfile),
                               minWidth: 200,
                               maxWidth: width - 60,
                             ),

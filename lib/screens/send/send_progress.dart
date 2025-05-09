@@ -1,6 +1,10 @@
+// import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -16,8 +20,18 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class SendProgress extends StatefulWidget {
   final String? to;
   final bool isMinting;
+  final WalletLogic? walletLogic;
+  final ProfilesLogic? profilesLogic;
+  final SendTransaction? sendTransaction;
 
-  const SendProgress({super.key, this.to, this.isMinting = false});
+  const SendProgress({
+    super.key,
+    this.to,
+    this.isMinting = false,
+    this.walletLogic,
+    this.profilesLogic,
+    this.sendTransaction,
+  });
 
   @override
   State<SendProgress> createState() => _SendProgressState();
@@ -55,8 +69,29 @@ class _SendProgressState extends State<SendProgress> {
         return;
       }
 
-      handleDone(context);
+      // handleDone(context);
     });
+  }
+
+  Future<void> handleSendTip(BuildContext context) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+
+    final toAccount = widget.sendTransaction?.to ??
+        widget.walletLogic?.addressController.value.text;
+
+    await navigator.push(
+      '/wallet/${widget.walletLogic?.account}/send/$toAccount/tip',
+      extra: {
+        'walletLogic': widget.walletLogic,
+        'profilesLogic': widget.profilesLogic,
+        'isMinting': widget.isMinting,
+        'sendTransaction': widget.sendTransaction,
+      },
+    );
   }
 
   @override
@@ -255,7 +290,7 @@ class _SendProgressState extends State<SendProgress> {
                                       .text
                                       .resolveFrom(context),
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 24,
+                                  fontSize: 20,
                                 ),
                               ),
                             ],
@@ -298,14 +333,66 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Button(
-                      text: AppLocalizations.of(context)!.dismiss,
-                      labelColor:
-                          Theme.of(context).colors.white.resolveFrom(context),
-                      onPressed: () => handleDone(context),
-                      minWidth: 200,
-                      maxWidth: width - 60,
-                    ),
+                    context.select((WalletState state) => state.hasTip)
+                        ? Column(
+                            children: [
+                              Button(
+                                text:
+                                    "${AppLocalizations.of(context)!.send} Tip",
+                                color: Theme.of(context)
+                                    .colors
+                                    .primary
+                                    .resolveFrom(context),
+                                labelColor: Theme.of(context)
+                                    .colors
+                                    .white
+                                    .resolveFrom(context),
+                                onPressed: () => handleSendTip(context),
+                                minWidth: 200,
+                                maxWidth: width - 60,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              CupertinoButton(
+                                onPressed: () {
+                                  final navigator = GoRouter.of(context);
+
+                                  navigator.go(
+                                      '/wallet/${widget.walletLogic?.account}');
+                                },
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minWidth: 200,
+                                    maxWidth: width - 60,
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.dismiss,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colors
+                                          .primary
+                                          .resolveFrom(context),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Button(
+                            text: AppLocalizations.of(context)!.dismiss,
+                            labelColor: Theme.of(context)
+                                .colors
+                                .white
+                                .resolveFrom(context),
+                            onPressed: () => handleDone(context),
+                            minWidth: 200,
+                            maxWidth: width - 60,
+                          )
                   ],
                 ),
               if (inProgressTransactionError)

@@ -663,12 +663,12 @@ class WalletLogic extends WidgetsBindingObserver {
         _accountDBService.transactions.insert(DBTransaction(
           hash: tx.hash,
           txHash: tx.txhash,
-          tokenId: tx.tokenId,
+          tokenId: tx.tokenId.toString(),
           createdAt: tx.createdAt,
           from: tx.from.hexEip55,
           to: tx.to.hexEip55,
-          nonce: 0, // TODO: remove nonce hardcode
-          value: tx.value.toInt(),
+          nonce: "0", // TODO: remove nonce hardcode
+          value: tx.value.toString(),
           data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
           status: tx.status,
           contract: _wallet.tokenAddress,
@@ -799,7 +799,7 @@ class WalletLogic extends WidgetsBindingObserver {
           (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
         _wallet.tokenAddress,
-        0, // TODO: remove tokenId hardcode
+        "0", // TODO: remove tokenId hardcode
         _wallet.account.hexEip55,
         offset: 0,
         limit: limit,
@@ -839,12 +839,12 @@ class WalletLogic extends WidgetsBindingObserver {
             (tx) => DBTransaction(
               hash: tx.hash,
               txHash: tx.txhash,
-              tokenId: tx.tokenId,
+              tokenId: tx.tokenId.toString(),
               createdAt: tx.createdAt,
               from: tx.from.hexEip55,
               to: tx.to.hexEip55,
-              nonce: 0, // TODO: remove nonce hardcode
-              value: tx.value.toInt(),
+              nonce: "0", // TODO: remove nonce hardcode
+              value: tx.value.toString(),
               data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.tokenAddress,
@@ -908,7 +908,7 @@ class WalletLogic extends WidgetsBindingObserver {
           (await _accountDBService.transactions.getPreviousTransactions(
         maxDate,
         _wallet.tokenAddress,
-        0, // TODO: remove tokenId hardcode
+        "0", // TODO: remove tokenId hardcode
         _wallet.account.hexEip55,
         offset: offset,
         limit: limit,
@@ -948,12 +948,12 @@ class WalletLogic extends WidgetsBindingObserver {
             (tx) => DBTransaction(
               hash: tx.hash,
               txHash: tx.txhash,
-              tokenId: tx.tokenId,
+              tokenId: tx.tokenId.toString(),
               createdAt: tx.createdAt,
               from: tx.from.hexEip55,
               to: tx.to.hexEip55,
-              nonce: 0, // TODO: remove nonce hardcode
-              value: tx.value.toInt(),
+              nonce: "0", // TODO: remove nonce hardcode
+              value: tx.value.toString(),
               data: tx.data != null ? jsonEncode(tx.data?.toJson()) : '',
               status: tx.status,
               contract: _wallet.tokenAddress,
@@ -1571,8 +1571,8 @@ class WalletLogic extends WidgetsBindingObserver {
       return;
     }
 
-    final (address, _, _, _) = parseQRCode(_addressController.text);
-    _state.setHasAddress(address.isNotEmpty);
+    final parsedData = parseQRCode(_addressController.text);
+    _state.setHasAddress(parsedData.address.isNotEmpty);
   }
 
   void setInvalidAddress() {
@@ -1611,7 +1611,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<String?> updateFromCapture(String raw) async {
     try {
-      //
       if (raw.isEmpty) {
         throw QREmptyException();
       }
@@ -1621,22 +1620,22 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
-      final (usernameOrAddress, amount, description, alias) = parseQRCode(raw);
-      if (usernameOrAddress == '') {
+      final parsedData = parseQRCode(raw);
+      if (parsedData.address == '') {
         throw QRInvalidException();
       }
 
-      if (amount != null) {
-        _amountController.text = amount;
+      if (parsedData.amount != null) {
+        _amountController.text = parsedData.amount!;
         updateAmount();
       }
 
       String addressToUse = '';
       try {
-        EthereumAddress.fromHex(usernameOrAddress).hexEip55;
-        addressToUse = usernameOrAddress;
+        EthereumAddress.fromHex(parsedData.address).hexEip55;
+        addressToUse = parsedData.address;
       } catch (_) {
-        String username = usernameOrAddress;
+        String username = parsedData.address;
         ProfileV1? profile = await _wallet.getProfileByUsername(username);
         if (profile != null) {
           addressToUse = profile.account;
@@ -1645,10 +1644,16 @@ class WalletLogic extends WidgetsBindingObserver {
 
       updateAddressFromHexCapture(addressToUse);
 
-      if (description != null) {
-        _messageController.text = description;
+      if (parsedData.description != null) {
+        _messageController.text = parsedData.description!;
       } else {
         _messageController.text = parseMessageFromReceiveParams(raw) ?? '';
+      }
+
+      // Handle tip information if present
+      if (parsedData.tip != null) {
+        _state.setTipTo(parsedData.tip!.to);
+        _state.setHasTip(true);
       }
 
       return addressToUse;
@@ -1686,15 +1691,13 @@ class WalletLogic extends WidgetsBindingObserver {
       final url = communityConfig.community.walletUrl(deepLinkURL);
 
       if (onlyHex != null && onlyHex) {
-        final compressedParams = compress(
-            '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
-
-        _state.updateReceiveQR('$url&receiveParams=$compressedParams');
+        _state.updateReceiveQR(
+            '$url?sendto=${_wallet.account.hexEip55}@${communityConfig.community.alias}');
         return;
       }
 
       String params =
-          '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}';
+          'sendto=${_wallet.account.hexEip55}@${communityConfig.community.alias}';
 
       if (_amountController.value.text.isNotEmpty) {
         final double amount = _amountController.value.text.isEmpty
@@ -1707,15 +1710,17 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       if (_messageController.value.text.isNotEmpty) {
-        params += '&message=${_messageController.value.text}';
+        params += '&description=${_messageController.value.text}';
       }
 
-      final compressedParams = compress(params);
+      // Add tipTo parameter if it exists in the state
+      final tipTo = _state.tipTo;
+      if (tipTo != null && tipTo.isNotEmpty) {
+        params += '&tipTo=$tipTo';
+      }
 
-      _state.updateReceiveQR('$url&receiveParams=$compressedParams');
+      _state.updateReceiveQR('$url&$params');
       return;
-    } on NotFoundException {
-      // HANDLE
     } catch (_) {}
 
     _state.clearReceiveQR();

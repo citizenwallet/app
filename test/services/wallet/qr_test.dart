@@ -1,6 +1,7 @@
 // test if the qr code parsing
 
 import 'package:citizenwallet/utils/qr.dart';
+import 'package:citizenwallet/utils/send.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,6 +28,7 @@ const List<String> cases = [
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
+  'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test&tipTo=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE&tipAmount=2.00&tipDescription=tipDescriptionTest',
 ];
 
 const List<QRFormat> expected = [
@@ -52,60 +54,79 @@ const List<QRFormat> expected = [
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
+  QRFormat.sendtoUrl,
 ];
 
-const List<(String, String?, String?, String?)> expectedParse = [
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, 'app'),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1.00', null, 'app'),
-  ('', null, null, null),
-  ('', null, null, null),
-  ('', null, null, null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '0.1', null, null),
-  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1', null, null),
-  ('', null, null, null),
-  ('', null, null, null),
-  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null, null),
-  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null, null),
+const List<(String, String?, String?, String?, SendDestination?)>
+    expectedParse = [
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, 'app', null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1.00', null, 'app', null),
+  ('', null, null, null, null),
+  ('', null, null, null, null),
+  ('', null, null, null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', null, null, null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '0.1', null, null, null),
+  ('0xDA9e31F176F5B499b3B208a20Fe169b3aA01BA26', '1', null, null, null),
+  ('', null, null, null, null),
+  ('', null, null, null, null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null, null, null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', null, null, null, null),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
     'test',
-    'wallet.pay.brussels'
+    'wallet.pay.brussels',
+    null
   ),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
     null,
-    'wallet.pay.brussels'
+    'wallet.pay.brussels',
+    null
   ),
-  ('xavier', '10.50', null, 'wallet.pay.brussels'),
-  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null, null),
-  ('fridge', '3.00', 'Drinks', 'wallet.commonshub.brussels'),
+  ('xavier', '10.50', null, 'wallet.pay.brussels', null),
+  ('0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE', '10.50', null, null, null),
+  ('fridge', '3.00', 'Drinks', 'wallet.commonshub.brussels', null),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
     'test',
-    'wallet.pay.brussels'
-  ),
-  (
-    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
-    '10.50',
-    'test',
-    'wallet.pay.brussels'
+    'wallet.pay.brussels',
+    null
   ),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
     'test',
-    'wallet.pay.brussels'
+    'wallet.pay.brussels',
+    null
   ),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
     '10.50',
     'test',
-    'wallet.pay.brussels'
+    'wallet.pay.brussels',
+    null
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    'test',
+    'wallet.pay.brussels',
+    null
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    'test',
+    'wallet.pay.brussels',
+    SendDestination(
+      to: '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+      amount: '2.00',
+      description: 'tipDescriptionTest',
+    )
   ),
 ];
 
@@ -123,9 +144,15 @@ void main() {
       for (int i = 0; i < cases.length; i++) {
         final raw = cases[i];
 
-        final (address, amount, description, alias) = parseQRCode(raw);
+        final parsed = parseQRCode(raw);
 
-        expect((address, amount, description, alias), expectedParse[i]);
+        expect((
+          parsed.address,
+          parsed.amount,
+          parsed.description,
+          parsed.alias,
+          parsed.tip,
+        ), expectedParse[i]);
       }
     });
   });

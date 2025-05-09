@@ -124,20 +124,20 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       return;
     }
 
-    final (address, amount, description, _) = parseQRCode(uri.toString());
+    final parsedData = parseQRCode(uri.toString());
     final successUrl = uri.queryParameters['success'];
-    if (amount == null) {
+    if (parsedData.amount == null) {
       return;
     }
 
-    widget.profilesLogic.getProfile(address);
+    widget.profilesLogic.getProfile(parsedData.address);
 
     final dismiss = await showCupertinoModalBottomSheet<bool?>(
       context: context,
       builder: (context) => ConnectedWebViewSendModal(
-        address: address,
-        amount: amount,
-        description: description,
+        address: parsedData.address,
+        amount: parsedData.amount!,
+        description: parsedData.description,
         successUrl: successUrl,
         closeUrl: widget.closeUrl,
         walletLogic: widget.walletLogic,
