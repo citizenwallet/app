@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 2.0.13+247
+version: 2.0.14+248
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -29,12 +29,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^3.0.0
-  # mobile_scanner: ^7.0.0
-  mobile_scanner:
-    git:
-      url: https://github.com/juliansteenbakker/mobile_scanner.git
-      # ref: 5634bf6
-      ref: 72f168c
+  mobile_scanner: ^7.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
@@ -76,7 +71,7 @@ dependencies:
     sdk: flutter
   timeago: ^3.6.1
   nfc_manager: ^3.5.0
-  
+
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
   flutter_lints: ^5.0.0
