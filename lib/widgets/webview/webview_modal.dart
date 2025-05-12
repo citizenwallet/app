@@ -121,7 +121,7 @@ class _WebViewModalState extends State<WebViewModal> {
       InAppWebViewController controller, NavigationAction action) async {
     final uri = Uri.parse(action.request.url.toString());
 
-    if (customSchemes.contains(uri.scheme)) {
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
       try {
         launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (_) {}
