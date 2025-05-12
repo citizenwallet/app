@@ -1,3 +1,7 @@
+// import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:citizenwallet/screens/wallet/tip_to.dart';
+import 'package:citizenwallet/state/profiles/logic.dart';
+import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
@@ -10,7 +14,9 @@ import 'package:citizenwallet/widgets/chip.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/picker.dart';
+import 'package:citizenwallet/widgets/profile/profile_chip.dart';
 import 'package:citizenwallet/widgets/qr/qr.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +25,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ReceiveScreen extends StatefulWidget {
   final WalletLogic logic;
+  final ProfilesLogic profilesLogic;
 
-  const ReceiveScreen({super.key, required this.logic});
+  const ReceiveScreen({
+    super.key,
+    required this.logic,
+    required this.profilesLogic,
+  });
 
   @override
   ReceiveScreenState createState() => ReceiveScreenState();
@@ -37,6 +48,8 @@ class ReceiveScreenState extends State<ReceiveScreen> {
   String _selectedValue = 'Citizen Wallet';
   bool _isEnteringAmount = false;
   bool _isDescribing = false;
+  String? _selectedTipTo;
+  ProfileV1? _selectedProfile;
 
   @override
   void initState() {
@@ -65,6 +78,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     amountFocusNode.removeListener(handleAmountListenerUpdate);
 
     widget.logic.clearInputControllers();
+    widget.profilesLogic.clearSearch(notify: false);
 
     super.dispose();
   }
@@ -85,6 +99,39 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     setState(() {
       _opacity = 1;
     });
+  }
+
+  void handleSendTip() async {
+    final result = await showCupertinoModalPopup<String?>(
+      context: context,
+      useRootNavigator: false,
+      builder: (_) => TipToScreen(
+        walletLogic: widget.logic,
+        profilesLogic: widget.profilesLogic,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTipTo = result;
+        _selectedProfile = context.read<ProfilesState>().selectedProfile;
+      });
+
+      context.read<WalletState>().setTipTo(result);
+      // Update QR code with new tip information
+      widget.logic.updateReceiveQR();
+    }
+  }
+
+  void handleDeselectProfile() {
+    setState(() {
+      _selectedProfile = null;
+      _selectedTipTo = null;
+    });
+    widget.profilesLogic.deSelectProfile();
+    widget.logic.clearAddressController();
+    context.read<WalletState>().setTipTo(null);
+    widget.logic.updateReceiveQR();
   }
 
   void handleAmountListenerUpdate() {
@@ -389,6 +436,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                         const SizedBox(
                           height: 20,
                         ),
+                        if (!isExternalWallet) const SizedBox(height: 20),
                         if (!isExternalWallet)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -467,8 +515,42 @@ class ReceiveScreenState extends State<ReceiveScreen> {
                               ),
                             ),
                           ),
+                        if (!isExternalWallet) const SizedBox(height: 20),
+                        if (!isExternalWallet)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Tip",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (!isExternalWallet) const SizedBox(height: 10),
+                        if (!isExternalWallet)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: _selectedProfile == null
+                                ? CupertinoButton(
+                                    onPressed: handleSendTip,
+                                    child: Text(
+                                      "Set Tip Destination Account",
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colors
+                                            .primary
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                                  )
+                                : ProfileChip(
+                                    selectedProfile: _selectedProfile,
+                                    handleDeSelect: handleDeselectProfile,
+                                  ),
+                          ),
                         const SizedBox(
-                          height: 160,
+                          height: 130,
                         ),
                       ],
                     ),

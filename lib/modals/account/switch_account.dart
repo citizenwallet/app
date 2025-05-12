@@ -1,3 +1,4 @@
+// import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
 import 'package:citizenwallet/state/communities/logic.dart';

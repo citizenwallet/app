@@ -25,28 +25,30 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
-class SendDetailsScreen extends StatefulWidget {
+class TipDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
+  final SendTransaction? sendTransaction;
 
   final bool isMinting;
   final bool isLink;
 
-  const SendDetailsScreen({
+  const TipDetailsScreen({
     super.key,
     required this.walletLogic,
     required this.profilesLogic,
     this.voucherLogic,
+    this.sendTransaction,
     this.isMinting = false,
     this.isLink = false,
   });
 
   @override
-  State<SendDetailsScreen> createState() => _SendDetailsScreenState();
+  State<TipDetailsScreen> createState() => _TipDetailsScreenState();
 }
 
-class _SendDetailsScreenState extends State<SendDetailsScreen> {
+class _TipDetailsScreenState extends State<TipDetailsScreen> {
   final FocusNode amountFocusNode = FocusNode();
   final FocusNode messageFocusNode = FocusNode();
   final AmountFormatter amountFormatter = AmountFormatter();
@@ -58,15 +60,26 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
+  late SendTransaction _sendTransaction;
 
   @override
   void initState() {
     super.initState();
-
+    _sendTransaction = widget.sendTransaction ?? SendTransaction();
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
       final walletLogic = widget.walletLogic;
+      final tipTo = context.read<WalletState>().tipTo;
+
+      if (tipTo != null) {
+        // Get profile from tipTo address
+        widget.profilesLogic.getProfile(tipTo).then((profile) {
+          if (profile != null) {
+            widget.profilesLogic.selectProfile(profile);
+          }
+        });
+      }
 
       onLoad();
 
@@ -198,13 +211,17 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     }
   }
 
-  void handleSend(BuildContext context, String? selectedAddress) async {
+  void handleSend(
+      BuildContext context, String? selectedAddress, String? tipTo) async {
     if (_isSending) {
       return;
     }
 
     final walletLogic = widget.walletLogic;
-    final walletState = context.read<WalletState>();
+
+    if (tipTo == null) {
+      return;
+    }
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -225,24 +242,25 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       setState(() {
         _isSending = false;
       });
-
       return;
     }
 
     final toAccount =
         selectedAddress ?? walletLogic.addressController.value.text;
 
-    final sendTransaction = SendTransaction(
-      amount: walletLogic.amountController.value.text,
-      to: toAccount,
-      description: walletLogic.messageController.value.text.trim(),
+    final sendTip = SendTransaction(
+      tipAmount: walletLogic.amountController.value.text,
+      tipTo: tipTo,
+      tipDescription: walletLogic.messageController.value.text.trim(),
     );
 
     walletLogic.sendTransaction(
-      sendTransaction.amount!,
-      sendTransaction.to!,
-      message: sendTransaction.description!,
+      sendTip.tipAmount!,
+      sendTip.tipTo!,
+      message: sendTip.tipDescription!,
     );
+
+    context.read<WalletState>().setHasTip(false);
 
     await Future.delayed(const Duration(milliseconds: 50));
 
@@ -254,7 +272,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
           'profilesLogic': widget.profilesLogic,
-          'sendTransaction': sendTransaction,
+          'sendTransaction': sendTip,
         });
 
     walletLogic.clearInProgressTransaction();
@@ -267,7 +285,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
       await Future.delayed(const Duration(milliseconds: 50));
 
       if (navigator.canPop()) {
-        navigator.pop(true);
+        navigator.go('/wallet/${walletLogic.account}');
       } else {
         navigator.go('/wallet/${walletLogic.account}');
       }
@@ -377,6 +395,11 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final wallet = context.select(
       (WalletState state) => state.wallet,
     );
+
+    final tipTo = context.select(
+      (WalletState state) => state.tipTo,
+    );
+
     final balance =
         double.tryParse(wallet != null ? wallet.balance : '0.0') ?? 0.0;
 
@@ -450,7 +473,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                 child: Header(
                   title: widget.isMinting
                       ? AppLocalizations.of(context)!.mint
-                      : AppLocalizations.of(context)!.send,
+                      : "${AppLocalizations.of(context)!.send} Tip",
                   showBackButton: true,
                 ),
               ),
@@ -784,6 +807,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                                     selectedProfile?.account ??
                                                         searchedProfile
                                                             ?.account,
+                                                    tipTo,
                                                   )
                                       : null,
                                   enabled: isSendingValid,
@@ -792,10 +816,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                       ? AppLocalizations.of(context)!
                                           .swipeToMint
                                       : isLink
-                                          ? AppLocalizations.of(context)!
-                                              .swipeToConfirm
-                                          : AppLocalizations.of(context)!
-                                              .swipeToSend,
+                                          ? "${AppLocalizations.of(context)!.swipeToConfirm} Tip"
+                                          : "${AppLocalizations.of(context)!.swipeToSend} Tip",
                                   completionLabelColor: Theme.of(context)
                                       .colors
                                       .primary
