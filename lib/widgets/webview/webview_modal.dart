@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+const List<String> customSchemes = ['mailto', 'tel'];
 
 class WebViewModal extends StatefulWidget {
   final String? modalKey;
@@ -41,8 +44,10 @@ class _WebViewModalState extends State<WebViewModal> {
 
     settings = InAppWebViewSettings(
       javaScriptEnabled: true,
-      resourceCustomSchemes:
-          widget.customScheme != null ? [widget.customScheme!] : [],
+      resourceCustomSchemes: [
+        ...(widget.customScheme != null ? [widget.customScheme!] : []),
+        ...customSchemes,
+      ],
     );
 
     headlessWebView = HeadlessInAppWebView(
@@ -85,6 +90,7 @@ class _WebViewModalState extends State<WebViewModal> {
       },
       onLoadResourceWithCustomScheme: (controller, request) async {
         final uri = Uri.parse(request.url.toString());
+
         handleDismiss(context, path: uri.queryParameters['response']);
         return null;
       },
@@ -93,6 +99,7 @@ class _WebViewModalState extends State<WebViewModal> {
           _show = true;
         });
       },
+      shouldOverrideUrlLoading: shouldOverrideUrlLoading,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -108,6 +115,21 @@ class _WebViewModalState extends State<WebViewModal> {
 
     headlessWebView?.dispose();
     webViewController = null;
+  }
+
+  Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
+      InAppWebViewController controller, NavigationAction action) async {
+    final uri = Uri.parse(action.request.url.toString());
+
+    if (customSchemes.contains(uri.scheme)) {
+      try {
+        launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {}
+
+      return NavigationActionPolicy.CANCEL;
+    }
+
+    return NavigationActionPolicy.ALLOW;
   }
 
   void handleDismiss(BuildContext context, {String? path}) async {
@@ -241,6 +263,7 @@ class _WebViewModalState extends State<WebViewModal> {
                           onLoadResourceWithCustomScheme:
                               (controller, request) async {
                             final uri = Uri.parse(request.url.toString());
+
                             handleDismiss(context,
                                 path: uri.queryParameters['response']);
                             return null;
@@ -250,6 +273,7 @@ class _WebViewModalState extends State<WebViewModal> {
                               _show = true;
                             });
                           },
+                          shouldOverrideUrlLoading: shouldOverrideUrlLoading,
                         )
                       : const SizedBox(),
                 ),

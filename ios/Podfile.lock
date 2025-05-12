@@ -43,31 +43,31 @@ PODS:
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
-  - Firebase/CoreOnly (11.10.0):
-    - FirebaseCore (~> 11.10.0)
-  - Firebase/Messaging (11.10.0):
+  - Firebase/CoreOnly (11.4.0):
+    - FirebaseCore (= 11.4.0)
+  - Firebase/Messaging (11.4.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 11.10.0)
-  - firebase_core (3.13.0):
-    - Firebase/CoreOnly (= 11.10.0)
+    - FirebaseMessaging (~> 11.4.0)
+  - firebase_core (3.8.1):
+    - Firebase/CoreOnly (= 11.4.0)
     - Flutter
-  - firebase_messaging (15.2.5):
-    - Firebase/Messaging (= 11.10.0)
+  - firebase_messaging (15.1.6):
+    - Firebase/Messaging (= 11.4.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (11.10.0):
-    - FirebaseCoreInternal (~> 11.10.0)
+  - FirebaseCore (11.4.0):
+    - FirebaseCoreInternal (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/Logger (~> 8.0)
-  - FirebaseCoreInternal (11.10.0):
+  - FirebaseCoreInternal (11.12.0):
     - "GoogleUtilities/NSData+zlib (~> 8.0)"
-  - FirebaseInstallations (11.10.0):
-    - FirebaseCore (~> 11.10.0)
+  - FirebaseInstallations (11.4.0):
+    - FirebaseCore (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (11.10.0):
-    - FirebaseCore (~> 11.10.0)
+  - FirebaseMessaging (11.4.0):
+    - FirebaseCore (~> 11.0)
     - FirebaseInstallations (~> 11.0)
     - GoogleDataTransport (~> 10.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.0)
@@ -250,17 +250,17 @@ SPEC CHECKSUMS:
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: be9a674155d9f334323856cb266e0d145d75d5c0
-  Firebase: 1fe1c0a7d9aaea32efe01fbea5f0ebd8d70e53a2
-  firebase_core: 432718558359a8c08762151b5f49bb0f093eb6e0
-  firebase_messaging: 3b99522baf7480dfb4b7683d2b34e842d577c362
-  FirebaseCore: 8344daef5e2661eb004b177488d6f9f0f24251b7
-  FirebaseCoreInternal: ef4505d2afb1d0ebbc33162cb3795382904b5679
-  FirebaseInstallations: 9980995bdd06ec8081dfb6ab364162bdd64245c3
-  FirebaseMessaging: 2b9f56aa4ed286e1f0ce2ee1d413aabb8f9f5cb9
+  Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
+  firebase_core: 418aed674e9a0b8b6088aec16cde82a811f6261f
+  firebase_messaging: 98619a0572d82cfb3668e78859ba9f1110e268c9
+  FirebaseCore: e0510f1523bc0eb21653cac00792e1e2bd6f1771
+  FirebaseCoreInternal: 480d23e21f699cc7bcbc3d8eaa301f15d1e3ffaf
+  FirebaseInstallations: 6ef4a1c7eb2a61ee1f74727d7f6ce2e72acf1414
+  FirebaseMessaging: f8a160d99c2c2e5babbbcc90c4a3e15db036aee2
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  google_sign_in_ios: 4111e87aa5e24a4404f00ea13479f35e571969cc
+  google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
@@ -281,6 +281,6 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: 941fb5500e678049607b72b0a573901d7295c021
+PODFILE CHECKSUM: f90b7b7d52ec0d905039aa6f51266424548151c7
 
 COCOAPODS: 1.16.2
