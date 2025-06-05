@@ -29,12 +29,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^3.0.0
-  # mobile_scanner: ^7.0.0
-  mobile_scanner:
-    git:
-      url: https://github.com/juliansteenbakker/mobile_scanner.git
-      # ref: 5634bf6
-      ref: 72f168c
+  mobile_scanner: ^7.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   pointycastle: ^3.7.3
