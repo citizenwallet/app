@@ -36,9 +36,9 @@ class WalletKitLogic {
       await _service.initialize(config: config);
       _setupEventListeners();
       await _updateSessions();
-      print('WalletKit initialized successfully');
+      debugPrint('WalletKit initialized successfully');
     } catch (e) {
-      print('Error initializing WalletKit: $e');
+      debugPrint('Error initializing WalletKit: $e');
       rethrow;
     }
   }
@@ -47,13 +47,11 @@ class WalletKitLogic {
     _service.onSessionProposal((event) {
       if (event != null) {
         _currentProposal = event;
-        print('📝 Received session proposal: ${event.params.requiredNamespaces}');
       }
     });
 
     _service.onSessionRequest((event) {
       if (event != null && _state?.isAppActive == true) {
-        print('📨 Received session request while app is active');
         _state?.setAppState(true);
         _updateSessions();
       }
@@ -61,10 +59,8 @@ class WalletKitLogic {
 
     _service.client?.onSessionDelete.subscribe((event) {
       if (event != null) {
-        print('🗑️ Session deleted: ${event.topic}');
         _updateSessions();
         if (_state?.hasActiveSessions == false) {
-          print('🔌 No active sessions remaining, updating connection state');
           _state?.setConnectionState(false);
         }
       }
@@ -101,11 +97,9 @@ class WalletKitLogic {
         }
 
         _state!.setActiveSessions(uniqueSessions);
-        print(
-            'Updated active sessions: ${uniqueSessions.length} unique sessions');
       }
     } catch (e) {
-      print('Error updating sessions: $e');
+      debugPrint('Error updating sessions: $e');
     }
   }
 
@@ -125,56 +119,46 @@ class WalletKitLogic {
   }
 
   Future<void> _handleAppBackground() async {
-    print('📱 App going to BACKGROUND');
     _checkInactiveTimeout();
     _state?.setConnectionState(false);
-    print('🔌 Connection state set to: DISCONNECTED');
   }
 
   Future<void> _handleAppForeground() async {
-    print('📱 App coming to FOREGROUND');
     try {
-      print('🔄 Attempting to reconnect sessions...');
       await _reconnectSessions();
       await _updateSessions();
     } catch (e) {
-      print('❌ Error reconnecting sessions: $e');
+      debugPrint('Error reconnecting sessions: $e');
     }
   }
 
   Future<void> _reconnectSessions() async {
     if (_state?.hasActiveSessions == true) {
-      print('🔌 Found active sessions, attempting reconnection...');
       _state?.setConnecting(true);
       try {
-        print('⏳ Waiting for network stability (${_reconnectTimeout.inSeconds}s)...');
         await Future.delayed(_reconnectTimeout);
-        
+
         final sessions = await _service.client?.getActiveSessions();
         if (sessions != null && sessions.isNotEmpty) {
           _state?.setConnectionState(true);
-          print('✅ Successfully reconnected ${sessions.length} sessions');
         } else {
           _state?.setConnectionState(false);
-          print('⚠️ No active sessions found during reconnection');
         }
       } catch (e) {
         _state?.setConnectionState(false);
-        print('❌ Error during session reconnection: $e');
+        debugPrint('Error during session reconnection: $e');
       } finally {
         _state?.setConnecting(false);
       }
     } else {
-      print('ℹ️ No active sessions to reconnect');
+      debugPrint('No active sessions to reconnect');
     }
   }
 
   void _startInactiveCheckTimer() {
-    print('⏰ Starting inactive check timer');
     _inactiveCheckTimer?.cancel();
     _inactiveCheckTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       if (_state?.isAppActive == false) {
-        print('⏰ Checking inactive timeout...');
         _checkInactiveTimeout();
       }
     });
@@ -182,13 +166,11 @@ class WalletKitLogic {
 
   Future<void> _checkInactiveTimeout() async {
     if (_state?.isAppActive == false && _state?.lastActiveTime != null) {
-      final inactiveDuration = DateTime.now().difference(_state!.lastActiveTime!);
-      print('⏱️ App inactive for: ${inactiveDuration.inMinutes} minutes');
+      final inactiveDuration =
+          DateTime.now().difference(_state!.lastActiveTime!);
       if (inactiveDuration > _inactiveTimeout) {
-        print('⚠️ App inactive for more than 5 minutes, disconnecting all sessions');
         await disconnectAllSessions();
         _inactiveCheckTimer?.cancel();
-        print('⏰ Inactive check timer cancelled');
       }
     }
   }
@@ -197,8 +179,6 @@ class WalletKitLogic {
     try {
       final sessions = await _service.client?.getActiveSessions();
       if (sessions != null && sessions.isNotEmpty) {
-        print('Disconnecting ${sessions.length} active sessions');
-
         for (final topic in sessions.keys) {
           try {
             await disconnectSession(
@@ -206,15 +186,14 @@ class WalletKitLogic {
               reason:
                   Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
             );
-            print('Successfully disconnected session: $topic');
           } catch (e) {
-            print('Error disconnecting session $topic: $e');
+            debugPrint('Error disconnecting session $topic: $e');
           }
         }
         _state?.setActiveSessions({});
       }
     } catch (e) {
-      print('Error getting active sessions: $e');
+      debugPrint('Error getting active sessions: $e');
     }
   }
 
@@ -234,7 +213,6 @@ class WalletKitLogic {
     );
 
     await _updateSessions();
-    print('Wallet registered: $address');
   }
 
   Future<void> pairWithDapp(String uri) async {
@@ -330,7 +308,6 @@ class WalletKitLogic {
     final SessionRequest request = _service.getPendingRequests().last;
 
     if (_context == null) {
-      print('No context available for showing transaction popup');
       return await _service.ethSendTransactionHandler(topic, params, false);
     }
 
@@ -338,7 +315,7 @@ class WalletKitLogic {
     final currentSession = sessions?[topic];
 
     if (currentSession == null) {
-      print('No active session found for topic: $topic');
+      debugPrint('No active session found for topic: $topic');
       return await _service.ethSendTransactionHandler(topic, params, false);
     }
 
