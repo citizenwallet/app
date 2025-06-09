@@ -16,8 +16,6 @@ class WalletKitLogic {
   NotificationsLogic? _notificationsLogic;
   Config? _config;
   WalletConnectState? _state;
-  Timer? _inactiveCheckTimer;
-  static const Duration _inactiveTimeout = Duration(minutes: 5);
   static const Duration _reconnectTimeout = Duration(seconds: 5);
 
   ReownWalletKit? get connectClient => _service.client;
@@ -74,6 +72,7 @@ class WalletKitLogic {
       final sessions = await _service.client?.getActiveSessions();
       if (sessions != null) {
         final Map<String, dynamic> uniqueSessions = {};
+        final Set<String> processedDapps = {};
 
         for (var entry in sessions.entries) {
           final session = entry.value;
@@ -82,21 +81,21 @@ class WalletKitLogic {
 
           if (peerName == null || peerUrl == null) continue;
 
-          bool isDuplicate = false;
-          for (var existingSession in uniqueSessions.values) {
-            if (existingSession.peer.metadata.name == peerName &&
-                existingSession.peer.metadata.url == peerUrl) {
-              isDuplicate = true;
-              break;
-            }
-          }
-
-          if (!isDuplicate) {
+          // Create a unique identifier for the dApp
+          final dappIdentifier = '$peerName-$peerUrl';
+          
+          // If we haven't seen this dApp before, add its session
+          if (!processedDapps.contains(dappIdentifier)) {
             uniqueSessions[entry.key] = session;
+            processedDapps.add(dappIdentifier);
+            debugPrint('Added session for dApp: $peerName ($peerUrl)');
+          } else {
+            debugPrint('Skipping duplicate session for dApp: $peerName ($peerUrl)');
           }
         }
 
         _state!.setActiveSessions(uniqueSessions);
+        debugPrint('Updated sessions. Total unique sessions: ${uniqueSessions.length}');
       }
     } catch (e) {
       debugPrint('Error updating sessions: $e');
@@ -111,7 +110,6 @@ class WalletKitLogic {
     print('🔄 App state changing to: ${isActive ? "ACTIVE" : "INACTIVE"}');
     _state?.setAppState(isActive);
     if (isActive) {
-      _startInactiveCheckTimer();
       _handleAppForeground();
     } else {
       _handleAppBackground();
@@ -119,8 +117,7 @@ class WalletKitLogic {
   }
 
   Future<void> _handleAppBackground() async {
-    _checkInactiveTimeout();
-    _state?.setConnectionState(false);
+    // No automatic disconnection when app goes to background
   }
 
   Future<void> _handleAppForeground() async {
@@ -152,48 +149,6 @@ class WalletKitLogic {
       }
     } else {
       debugPrint('No active sessions to reconnect');
-    }
-  }
-
-  void _startInactiveCheckTimer() {
-    _inactiveCheckTimer?.cancel();
-    _inactiveCheckTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      if (_state?.isAppActive == false) {
-        _checkInactiveTimeout();
-      }
-    });
-  }
-
-  Future<void> _checkInactiveTimeout() async {
-    if (_state?.isAppActive == false && _state?.lastActiveTime != null) {
-      final inactiveDuration =
-          DateTime.now().difference(_state!.lastActiveTime!);
-      if (inactiveDuration > _inactiveTimeout) {
-        await disconnectAllSessions();
-        _inactiveCheckTimer?.cancel();
-      }
-    }
-  }
-
-  Future<void> disconnectAllSessions() async {
-    try {
-      final sessions = await _service.client?.getActiveSessions();
-      if (sessions != null && sessions.isNotEmpty) {
-        for (final topic in sessions.keys) {
-          try {
-            await disconnectSession(
-              topic: topic,
-              reason:
-                  Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
-            );
-          } catch (e) {
-            debugPrint('Error disconnecting session $topic: $e');
-          }
-        }
-        _state?.setActiveSessions({});
-      }
-    } catch (e) {
-      debugPrint('Error getting active sessions: $e');
     }
   }
 
@@ -272,8 +227,38 @@ class WalletKitLogic {
     required String topic,
     required ReownSignError reason,
   }) async {
-    await _service.disconnectSession(topic: topic, reason: reason);
-    await _updateSessions();
+    try {
+      await _service.disconnectSession(topic: topic, reason: reason);
+      // Update sessions immediately after disconnection
+      await _updateSessions();
+      debugPrint('Successfully disconnected session: $topic');
+    } catch (e) {
+      debugPrint('Error disconnecting session $topic: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> disconnectAllSessions() async {
+    try {
+      final sessions = await _service.client?.getActiveSessions();
+      if (sessions != null && sessions.isNotEmpty) {
+        for (final topic in sessions.keys) {
+          try {
+            await _service.disconnectSession(
+              topic: topic,
+              reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+            );
+            debugPrint('Disconnected session: $topic');
+          } catch (e) {
+            debugPrint('Error disconnecting session $topic: $e');
+          }
+        }
+        _state?.setActiveSessions({});
+        debugPrint('All sessions disconnected');
+      }
+    } catch (e) {
+      debugPrint('Error getting active sessions: $e');
+    }
   }
 
   Future<void> emitSessionEvent({

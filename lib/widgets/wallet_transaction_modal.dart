@@ -43,7 +43,6 @@ class _WalletTransactionModalState extends State<WalletTransactionModal> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: CupertinoColors.systemBackground.withOpacity(0.95),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
