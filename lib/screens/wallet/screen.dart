@@ -298,6 +298,12 @@ class WalletScreenState extends State<WalletScreen>
                   'Successfully disconnected from session',
                   type: ToastType.success,
                 );
+
+                final remainingSessions =
+                    _walletKitLogic.connectClient?.getActiveSessions();
+                if (remainingSessions == null || remainingSessions.isEmpty) {
+                  Navigator.of(context).pop();
+                }
               }
             },
           ),
