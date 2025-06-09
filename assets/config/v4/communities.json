@@ -502,6 +502,14 @@
                 "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
                 "url": "https://marketplace.citizenwallet.xyz/bread",
                 "launch_mode": "webview"
+            },
+            {
+                "name": "Breadcon 2025 Faucet",
+                "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+                "url": "https://faucet.citizenwallet.xyz/breadcon2025",
+                "launch_mode": "webview",
+                "signature": true,
+                "hidden": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",

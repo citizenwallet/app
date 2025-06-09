@@ -90,7 +90,7 @@ class WebViewNavigation extends StatelessWidget {
                               style: TextStyle(
                                 color: Theme.of(context)
                                     .colors
-                                    .surfaceText
+                                    .text
                                     .resolveFrom(context),
                                 fontSize: 12,
                               ),
