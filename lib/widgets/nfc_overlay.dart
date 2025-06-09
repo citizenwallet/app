@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:citizenwallet/services/nfc/service.dart';
 import 'package:citizenwallet/state/scan/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class NfcOverlay extends StatefulWidget {
   final Function()? onCancel;

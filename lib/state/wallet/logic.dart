@@ -39,6 +39,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:citizenwallet/state/wallet_connect/logic.dart';
 
 const txFetchInterval = Duration(seconds: 1);
 
@@ -71,6 +72,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final WalletState _state;
   final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
+  final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
@@ -105,7 +107,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
-        _notificationsLogic = notificationsLogic;
+        _notificationsLogic = notificationsLogic {
+    _walletKitLogic.setContext(context);
+  }
 
   EthPrivateKey get privateKey {
     return _wallet.credentials;
