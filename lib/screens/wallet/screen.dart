@@ -1143,7 +1143,6 @@ class WalletScreenState extends State<WalletScreen>
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
-
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
@@ -1151,8 +1150,9 @@ class WalletScreenState extends State<WalletScreen>
         eventServiceState != EventServiceState.disconnected;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-
     final config = context.select((WalletState state) => state.config);
+    final hasActiveSessions =
+        context.select((WalletConnectState state) => state.hasActiveSessions);
 
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
@@ -1273,7 +1273,7 @@ class WalletScreenState extends State<WalletScreen>
                 child: SafeArea(
                   child: Padding(
                     padding: EdgeInsets.only(
-                      top: 0,
+                      top: 30,
                     ),
                     // config?.online == false ? 40 : 0),
                     child: Header(
@@ -1294,32 +1294,27 @@ class WalletScreenState extends State<WalletScreen>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Consumer<WalletConnectState>(
-                                        builder: (context, state, _) {
-                                          if (!state.hasActiveSessions) {
-                                            return const SizedBox.shrink();
-                                          }
-                                          return GestureDetector(
-                                            onTap: handleDisconnect,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(5.0),
-                                              child: Icon(
-                                                CupertinoIcons.eject,
-                                                size: 24,
-                                                color: Theme.of(context)
-                                                    .colors
-                                                    .primary
-                                                    .resolveFrom(context),
+                                      hasActiveSessions != false
+                                          ? GestureDetector(
+                                              onTap: handleDisconnect,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20),
+                                                child: Icon(
+                                                  CupertinoIcons.eject,
+                                                  size: 24,
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
+                                                      .resolveFrom(context),
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                            )
+                                          : const SizedBox.shrink(),
                                       GestureDetector(
                                         onTap: handleOpenAccountSwitcher,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
+                                          padding: const EdgeInsets.all(20),
                                           child: SvgPicture.asset(
                                             'assets/icons/switch_accounts.svg',
                                             semanticsLabel: 'switch accounts',
