@@ -10,11 +10,14 @@ import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/state/scan/state.dart';
+import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
-Widget provideAppState(Widget? child, {Widget Function(BuildContext, Widget?)? builder}) => MultiProvider(
+Widget provideAppState(Widget? child,
+        {Widget Function(BuildContext, Widget?)? builder}) =>
+    MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => ThemeState(),
@@ -37,7 +40,7 @@ Widget provideAppState(Widget? child, {Widget Function(BuildContext, Widget?)? b
         ChangeNotifierProvider(
           create: (_) => CommunitiesState(),
         ),
-         ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (_) => ScanState(),
         ),
         ChangeNotifierProvider(
@@ -45,6 +48,9 @@ Widget provideAppState(Widget? child, {Widget Function(BuildContext, Widget?)? b
         ),
         ChangeNotifierProvider(
           create: (_) => BackupState(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WalletConnectState(),
         ),
         if (!kIsWeb)
           ChangeNotifierProvider(

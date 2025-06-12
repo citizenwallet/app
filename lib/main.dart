@@ -19,7 +19,6 @@ import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
 import 'package:citizenwallet/widgets/notifications/toast.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -31,7 +30,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 const supportedLocales = [

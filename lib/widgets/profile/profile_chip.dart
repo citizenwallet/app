@@ -2,7 +2,7 @@ import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class ProfileChip extends StatelessWidget {
   final ProfileV1? selectedProfile;
