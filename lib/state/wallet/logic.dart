@@ -617,7 +617,7 @@ class WalletLogic extends WidgetsBindingObserver {
       final token = communityConfig.getPrimaryToken();
 
       if (_eventService != null) {
-        _eventService!.disconnect();
+        await _eventService!.disconnect();
         _eventService = null;
       }
 
@@ -636,9 +636,9 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  void transferEventUnsubscribe() {
+  Future<void> transferEventUnsubscribe() async {
     if (_eventService != null) {
-      _eventService!.disconnect();
+      await _eventService!.disconnect();
       _eventService = null;
     }
   }
