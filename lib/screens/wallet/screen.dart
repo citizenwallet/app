@@ -242,41 +242,6 @@ class WalletScreenState extends State<WalletScreen>
     _walletKitLogic.setContext(context);
   }
 
-  void handleSessionApproval(BuildContext context, String result) async {
-    try {
-      await _walletKitLogic.approveSession();
-      await _walletKitLogic.registerWallet(_address!);
-      await _walletKitLogic.pairWithDapp(result);
-
-      await Future.delayed(
-        const Duration(seconds: 3),
-      );
-      if (mounted) {
-        _notificationsLogic.toastShow('Successfully approved session',
-            type: ToastType.success);
-      }
-
-      Navigator.of(context).pop(true);
-    } catch (e) {
-      _notificationsLogic.toastShow('Failed to approve session',
-          type: ToastType.error);
-
-      Navigator.of(context).pop(false);
-    }
-  }
-
-  Future<void> handleSessionCancel() async {
-    await _walletKitLogic.rejectSession();
-    Navigator.of(context).pop(true);
-    if (mounted) {
-      _notificationsLogic.toastShow('Successfully rejected session',
-          type: ToastType.success);
-    } else {
-      _notificationsLogic.toastShow('Failed to reject session',
-          type: ToastType.error);
-    }
-  }
-
   Future<void> handleDisconnect() async {
     try {
       final sessions = _walletKitLogic.connectClient?.getActiveSessions();
@@ -941,31 +906,13 @@ class WalletScreenState extends State<WalletScreen>
 
     if (result.startsWith('wc:')) {
       try {
-        await _walletKitLogic.initialize(_config);
-
-        if (!mounted) {
-          _profileLogic.resume();
-          _profilesLogic.resume();
-          _voucherLogic.resume();
-          return;
+        if (_walletKitLogic.connectClient == null) {
+          await _walletKitLogic.initialize();
         }
-
-        final shouldApproveSession = await showCupertinoModalPopup<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) => WalletSessionApprovalModal(
-            uri: result,
-            onConfirm: () => handleSessionApproval(context, result),
-            onCancel: () => handleSessionCancel(),
-          ),
-        );
-
-        if (shouldApproveSession != true) {
-          _profileLogic.resume();
-          _profilesLogic.resume();
-          _voucherLogic.resume();
-          return;
-        }
+        
+        await _walletKitLogic.registerWallet(_address!);
+        await _walletKitLogic.pairWithDapp(result);
+        await _walletKitLogic.approveSession();
 
         _profileLogic.resume();
         _profilesLogic.resume();
@@ -1279,7 +1226,7 @@ class WalletScreenState extends State<WalletScreen>
                 child: SafeArea(
                   child: Padding(
                     padding: EdgeInsets.only(
-                      top: 30,
+                      top: isOffline ? 45 : 15,
                     ),
                     // config?.online == false ? 40 : 0),
                     child: Header(
@@ -1307,7 +1254,7 @@ class WalletScreenState extends State<WalletScreen>
                                                 padding:
                                                     const EdgeInsets.all(20),
                                                 child: Icon(
-                                                  CupertinoIcons.eject,
+                                                  CupertinoIcons.link,
                                                   size: 24,
                                                   color: Theme.of(context)
                                                       .colors

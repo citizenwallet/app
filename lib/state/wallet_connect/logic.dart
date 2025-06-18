@@ -1,4 +1,3 @@
-import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet_connect/wallet_kit.dart';
 import 'package:citizenwallet/widgets/wallet_transaction_modal.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
@@ -7,31 +6,39 @@ import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:provider/provider.dart';
+import 'package:citizenwallet/widgets/wallet_session_approval.dart';
 import 'dart:async';
 
 class WalletKitLogic {
   final WalletKitService _service = WalletKitService();
   SessionProposalEvent? _currentProposal;
+  Completer<SessionProposalEvent?>? _proposalCompleter;
   BuildContext? _context;
   NotificationsLogic? _notificationsLogic;
-  Config? _config;
   WalletConnectState? _state;
   static const Duration _reconnectTimeout = Duration(seconds: 5);
 
   ReownWalletKit? get connectClient => _service.client;
   SessionProposalEvent? get currentProposal => _currentProposal;
 
+  Future<SessionProposalEvent?> waitForProposal() async {
+    if (_currentProposal != null) {
+      return _currentProposal;
+    }
+
+    _proposalCompleter = Completer<SessionProposalEvent?>();
+    return _proposalCompleter?.future;
+  }
+
   void setContext(BuildContext context) {
     _context = context;
     _notificationsLogic = NotificationsLogic(context);
     _state = context.read<WalletConnectState>();
-    _updateSessions();
   }
 
-  Future<void> initialize(Config? config) async {
+  Future<void> initialize() async {
     try {
-      _config = config;
-      await _service.initialize(config: config);
+      await _service.initialize();
       _setupEventListeners();
       await _updateSessions();
       debugPrint('WalletKit initialized successfully');
@@ -45,6 +52,7 @@ class WalletKitLogic {
     _service.onSessionProposal((event) {
       if (event != null) {
         _currentProposal = event;
+        _proposalCompleter?.complete(event);
       }
     });
 
@@ -71,31 +79,8 @@ class WalletKitLogic {
     try {
       final sessions = await _service.client?.getActiveSessions();
       if (sessions != null) {
-        final Map<String, dynamic> uniqueSessions = {};
-        final Set<String> processedDapps = {};
-
-        for (var entry in sessions.entries) {
-          final session = entry.value;
-          final peerName = session.peer.metadata.name;
-          final peerUrl = session.peer.metadata.url;
-
-          if (peerName == null || peerUrl == null) continue;
-
-          // Create a unique identifier for the dApp
-          final dappIdentifier = '$peerName-$peerUrl';
-          
-          // If we haven't seen this dApp before, add its session
-          if (!processedDapps.contains(dappIdentifier)) {
-            uniqueSessions[entry.key] = session;
-            processedDapps.add(dappIdentifier);
-            debugPrint('Added session for dApp: $peerName ($peerUrl)');
-          } else {
-            debugPrint('Skipping duplicate session for dApp: $peerName ($peerUrl)');
-          }
-        }
-
-        _state!.setActiveSessions(uniqueSessions);
-        debugPrint('Updated sessions. Total unique sessions: ${uniqueSessions.length}');
+        _state!.setActiveSessions(sessions);
+        debugPrint('Updated sessions. Total sessions: ${sessions.length}');
       }
     } catch (e) {
       debugPrint('Error updating sessions: $e');
@@ -107,7 +92,6 @@ class WalletKitLogic {
   }
 
   void setAppState(bool isActive) {
-    print('🔄 App state changing to: ${isActive ? "ACTIVE" : "INACTIVE"}');
     _state?.setAppState(isActive);
     if (isActive) {
       _handleAppForeground();
@@ -135,7 +119,7 @@ class WalletKitLogic {
       try {
         await Future.delayed(_reconnectTimeout);
 
-        final sessions = await _service.client?.getActiveSessions();
+        final sessions = _service.client?.getActiveSessions();
         if (sessions != null && sessions.isNotEmpty) {
           _state?.setConnectionState(true);
         } else {
@@ -154,7 +138,7 @@ class WalletKitLogic {
 
   Future<void> registerWallet(String address) async {
     if (connectClient == null) {
-      await initialize(_config);
+      await initialize();
     }
 
     _service.registerWallet(
@@ -166,41 +150,90 @@ class WalletKitLogic {
             _ethSendTransactionHandler(topic, params),
       },
     );
-
-    await _updateSessions();
   }
 
   Future<void> pairWithDapp(String uri) async {
     if (connectClient == null) {
-      await initialize(_config);
+      await initialize();
     }
+
+    _currentProposal = null;
+    _proposalCompleter = null;
 
     await _service.pair(uri);
     await _updateSessions();
   }
 
   Future<void> approveSession() async {
-    _service.onSessionProposal((SessionProposalEvent? event) async {
-      if (event != null) {
-        await _service.approveSession(
-          id: event.id,
-          namespaces: event.params.generatedNamespaces ?? {},
-        );
-        await _updateSessions();
-      }
-    });
+    final proposal = await waitForProposal();
+    if (proposal == null || _context == null) {
+      throw Exception('No proposal available or context not set');
+    }
+
+    final shouldApprove = await showCupertinoModalPopup<bool>(
+      context: _context!,
+      barrierDismissible: false,
+      builder: (BuildContext context) => WalletSessionApprovalModal(
+        sessionProposal: proposal,
+        onConfirm: () async {
+          try {
+            await _service.approveSession(
+              id: proposal.id,
+              namespaces: proposal.params.generatedNamespaces ?? {},
+            );
+            await _updateSessions();
+
+            if (_context != null) {
+              _notificationsLogic?.toastShow('Successfully approved session',
+                  type: ToastType.success);
+            }
+
+            _currentProposal = null;
+            _proposalCompleter = null;
+
+            Navigator.of(context).pop(true);
+          } catch (e) {
+            _notificationsLogic?.toastShow('Failed to approve session',
+                type: ToastType.error);
+            Navigator.of(context).pop(false);
+          }
+        },
+        onCancel: () async {
+          await rejectSession();
+          _currentProposal = null;
+          _proposalCompleter = null;
+
+          Navigator.of(context).pop(true);
+          if (_context != null) {
+            _notificationsLogic?.toastShow('Successfully rejected session',
+                type: ToastType.success);
+          }
+        },
+      ),
+    );
+
+    if (shouldApprove != true) {
+      _currentProposal = null;
+      _proposalCompleter = null;
+      throw Exception('Session approval was cancelled');
+    }
   }
 
   Future<void> rejectSession() async {
-    _service.onSessionProposal((SessionProposalEvent? event) async {
-      if (event != null) {
-        await _service.rejectSession(
-          id: event.id,
-          reason: Errors.getSdkError(Errors.USER_REJECTED).toSignError(),
-        );
-        await _updateSessions();
-      }
-    });
+    if (_currentProposal == null) {
+      throw Exception('No proposal available to reject');
+    }
+
+    try {
+      await _service.rejectSession(
+        id: _currentProposal!.id,
+        reason: Errors.getSdkError(Errors.USER_REJECTED).toSignError(),
+      );
+      await _updateSessions();
+    } catch (e) {
+      debugPrint('Error rejecting session: $e');
+      rethrow;
+    }
   }
 
   Future<void> respondSessionRequest({
@@ -229,7 +262,6 @@ class WalletKitLogic {
   }) async {
     try {
       await _service.disconnectSession(topic: topic, reason: reason);
-      // Update sessions immediately after disconnection
       await _updateSessions();
       debugPrint('Successfully disconnected session: $topic');
     } catch (e) {
@@ -246,7 +278,8 @@ class WalletKitLogic {
           try {
             await _service.disconnectSession(
               topic: topic,
-              reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+              reason:
+                  Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
             );
             debugPrint('Disconnected session: $topic');
           } catch (e) {
@@ -290,10 +323,8 @@ class WalletKitLogic {
   }
 
   Future<void> _ethSendTransactionHandler(String topic, dynamic params) async {
-    final SessionRequest request = _service.getPendingRequests().last;
-
     if (_context == null) {
-      return await _service.ethSendTransactionHandler(topic, params, false);
+      debugPrint('Context is null, returning early: $topic');
     }
 
     final sessions = await _service.client?.getActiveSessions();
@@ -304,12 +335,33 @@ class WalletKitLogic {
       return await _service.ethSendTransactionHandler(topic, params, false);
     }
 
+    final List<dynamic> paramsList = params as List<dynamic>;
+    if (paramsList.isEmpty) {
+      throw Exception('No transaction parameters provided');
+    }
+    final transaction = paramsList[0] as Map<String, dynamic>;
+
+    String? transactionType;
+    try {
+      final contractData = await _service.getContractDetails(transaction['to']);
+      if (contractData != null && contractData.abi != null) {
+        transactionType = _service.getTransactionTypeFromAbi(
+          contractData.abi!,
+          transaction['data'] ?? '',
+        );
+      } else {
+        transactionType = 'unknown';
+      }
+    } catch (e) {
+      transactionType = 'unknown';
+    }
+
     final bool? result = await showCupertinoModalPopup<bool>(
       context: _context!,
       barrierDismissible: false,
       builder: (BuildContext context) => WalletTransactionModal(
-        message:
-            'You are about to do a transaction with ${currentSession.peer.metadata.name}',
+        event: currentSession,
+        transactionType: transactionType ?? '',
         onConfirm: () async {
           await _service.ethSendTransactionHandler(topic, params, true);
           Navigator.of(_context!).pop(true);
@@ -318,7 +370,6 @@ class WalletKitLogic {
           await _service.ethSendTransactionHandler(topic, params, false);
           Navigator.of(_context!).pop(false);
         },
-        uri: currentSession.peer.metadata.url,
       ),
     );
 
@@ -331,7 +382,6 @@ class WalletKitLogic {
             .toastShow('Transaction rejected', type: ToastType.error);
       }
     }
-
     return;
   }
 }

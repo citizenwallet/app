@@ -1,19 +1,17 @@
 import 'package:flutter/cupertino.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WalletSessionApprovalModal extends StatefulWidget {
-  final String uri;
+  final SessionProposalEvent? sessionProposal;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
-  final String? title;
-  final String? message;
 
   const WalletSessionApprovalModal({
     super.key,
-    required this.uri,
+    this.sessionProposal,
     required this.onConfirm,
     required this.onCancel,
-    this.title,
-    this.message,
   });
 
   @override
@@ -52,18 +50,64 @@ class _WalletSessionApprovalModalState
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                widget.title ?? 'Approve Session',
+                "Connect to ${widget.sessionProposal?.params.proposer.metadata.name}",
                 style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              widget.sessionProposal?.params.proposer.metadata.icons
+                          .isNotEmpty ==
+                      true
+                  ? Image.network(
+                      widget.sessionProposal!.params.proposer.metadata.icons
+                          .first,
+                      width: 40,
+                      height: 40,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildInitialsAvatar();
+                      },
+                    )
+                  : _buildInitialsAvatar(),
+              const SizedBox(height: 10),
+              Text(
+                "${widget.sessionProposal?.params.proposer.metadata.name} wants to connect",
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () async {
+                  final url =
+                      widget.sessionProposal?.params.proposer.metadata.url;
+                  if (url != null) {
+                    final uri = Uri.parse(url);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri);
+                    }
+                  }
+                },
+                child: Text(
+                  "${widget.sessionProposal?.params.proposer.metadata.url}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: CupertinoColors.systemBlue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               Text(
-                widget.message ??
-                    'Do you want to approve this session?\n${widget.uri}',
+                '${widget.sessionProposal?.params.proposer.metadata.description}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -82,6 +126,30 @@ class _WalletSessionApprovalModalState
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInitialsAvatar() {
+    final name = widget.sessionProposal?.params.proposer.metadata.name ?? '';
+    final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBlue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.systemBlue,
           ),
         ),
       ),

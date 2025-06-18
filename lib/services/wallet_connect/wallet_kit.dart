@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:async';
 
+import 'package:citizenwallet/models/contract_data.dart';
+import 'package:citizenwallet/models/extended_abi_item.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:citizenwallet/services/config/config.dart';
 
 final List<String> supportedChains = [
   'eip155:100',
@@ -39,19 +41,15 @@ class WalletKitService {
   WalletKitService._internal();
 
   ReownWalletKit? _connectClient;
-  Config? _config;
 
   ReownWalletKit? get client => _connectClient;
 
-  Future<ReownWalletKit> initialize({Config? config}) async {
+  Future<ReownWalletKit> initialize() async {
     if (_connectClient != null) {
       return _connectClient!;
     }
 
-    _config = config;
-
     final projectId = dotenv.env['PUBLIC_REOWN_PROJECT_ID'] ?? '';
-    final community = _config?.community;
 
     _connectClient = await ReownWalletKit.createInstance(
       projectId: projectId,
@@ -75,7 +73,7 @@ class WalletKitService {
     if (_connectClient == null) return;
 
     _connectClient!.onSessionProposal.subscribe((event) {
-      debugPrint('Session proposal received: ${event.id}');
+      // Event is handled in WalletKitLogic
     });
 
     _connectClient!.onSessionDelete.subscribe((event) {
@@ -364,5 +362,106 @@ class WalletKitService {
         ),
       );
     }
+  }
+
+  Future<ContractData?> getContractDetails(String address) async {
+    final apiKey = dotenv.env['PUBLIC_GNOSIS_SCAN_API_KEY'] ??
+        'ZN5GXS2JRUU7TRUMRMU4X1MS2AKTR83E1C';
+
+    const explorerApi = "https://api.gnosisscan.io/api";
+
+    var response = await http.get(Uri.parse(
+      '$explorerApi?module=contract&action=getsourcecode&address=$address&apikey=$apiKey',
+    ));
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    final data = jsonDecode(response.body);
+
+    if (data['status'] != "1" ||
+        data['message'] != "OK" ||
+        data['result'].isEmpty ||
+        data['result'][0]['ContractName'] == null) {
+      debugPrint("Failed to fetch contract details: ${data['message']}");
+      return null;
+    }
+
+    var result = data['result'][0];
+
+    final implementation = result['Implementation'];
+    if (implementation != null && implementation != "") {
+      response = await http.get(Uri.parse(
+        '$explorerApi?module=contract&action=getsourcecode&address=$implementation&apikey=$apiKey',
+      ));
+      final data2 = jsonDecode(response.body);
+
+      if (data2['status'] != "1" ||
+          data2['message'] != "OK" ||
+          data2['result'].isEmpty ||
+          data2['result'][0]['ContractName'] == null) {
+        debugPrint("Failed to fetch contract details: ${data2['message']}");
+        return null;
+      }
+
+      result = data2['result'][0];
+    }
+    return ContractData.fromJson(result);
+  }
+
+  List<ExtendedAbiItem> parseAbi(String rawAbi) {
+    final List<dynamic> abi = jsonDecode(rawAbi);
+
+    return abi.where((v) => v['type'] == 'function').map<ExtendedAbiItem>((v) {
+      final name = v['name'];
+      final inputs = v['inputs'] as List<dynamic>;
+
+      final id =
+          "$name(${inputs.map((input) => "${input['name']} ${input['type']}").join(',')})";
+
+      final signatureString =
+          "$name(${inputs.map((input) => input['type']).join(',')})";
+
+      final signature =
+          '0x${bytesToHex(keccakUtf8(signatureString)).substring(0, 8)}';
+
+      final item = ExtendedAbiItem(
+        name: name,
+        type: v['type'],
+        inputs: inputs,
+        id: id,
+        signature: signature,
+        selected: false,
+      );
+
+      return item;
+    }).toList();
+  }
+
+  String? getTransactionTypeFromAbi(String rawAbi, String data) {
+    if (data.isEmpty || !data.startsWith('0x') || data.length < 10) {
+      return null;
+    }
+    final selector = data.substring(0, 10);
+    final abiItems = parseAbi(rawAbi);
+    final matched = abiItems.firstWhere(
+      (item) => item.signature == selector,
+      orElse: () => ExtendedAbiItem(
+        name: '',
+        type: '',
+        inputs: [],
+        id: '',
+        signature: '',
+        selected: false,
+      ),
+    );
+
+    final name = matched.name.toLowerCase();
+    if (name.contains('mint')) return 'mint';
+    if (name.contains('burn')) return 'burn';
+    if (name.contains('transfer')) return 'transfer';
+
+    return matched.name;
   }
 }
