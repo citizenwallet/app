@@ -115,6 +115,16 @@ class WalletScreenState extends State<WalletScreen>
       _scrollController.addListener(onScrollUpdate);
       onLoad();
     });
+
+    _startSessionCheckTimer();
+  }
+
+  void _startSessionCheckTimer() {
+    _sessionCheckTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      if (_walletKitLogic.connectClient != null) {
+        _walletKitLogic.checkAndRestoreSessions();
+      }
+    });
   }
 
   @override
@@ -136,8 +146,7 @@ class WalletScreenState extends State<WalletScreen>
 
     switch (state) {
       case AppLifecycleState.detached:
-        // App is completely closed, disconnect all sessions
-        _walletKitLogic.disconnectAllSessions();
+        // App is completely closed
         _walletKitLogic.setAppState(false);
         return;
       case AppLifecycleState.hidden:
@@ -147,8 +156,12 @@ class WalletScreenState extends State<WalletScreen>
         _walletKitLogic.setAppState(false);
         return;
       case AppLifecycleState.resumed:
-        // Set app as active and update sessions
+        // Set app as active and restore sessions
         _walletKitLogic.setAppState(true);
+        if (mounted) {
+          _restoreWalletConnectSessions();
+        }
+
         onLoad();
     }
   }
@@ -173,6 +186,9 @@ class WalletScreenState extends State<WalletScreen>
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
+        if (_walletKitLogic.connectClient != null && _address != null) {
+          _walletKitLogic.registerWallet(_address!);
+        }
       });
     }
   }
@@ -223,6 +239,8 @@ class WalletScreenState extends State<WalletScreen>
 
     _notificationsLogic.init();
 
+    await _initializeWalletConnect();
+
     if (_voucher != null && _voucherParams != null) {
       await handleLoadFromVoucher();
     }
@@ -240,6 +258,20 @@ class WalletScreenState extends State<WalletScreen>
     }
 
     _walletKitLogic.setContext(context);
+  }
+
+  Future<void> _initializeWalletConnect() async {
+    try {
+      if (_walletKitLogic.connectClient == null) {
+        await _walletKitLogic.initialize();
+      }
+
+      await _walletKitLogic.registerWallet(_address!);
+
+      await _walletKitLogic.checkAndRestoreSessions();
+    } catch (e) {
+      debugPrint('Error initializing WalletConnect: $e');
+    }
   }
 
   Future<void> handleDisconnect() async {
@@ -909,7 +941,7 @@ class WalletScreenState extends State<WalletScreen>
         if (_walletKitLogic.connectClient == null) {
           await _walletKitLogic.initialize();
         }
-        
+
         await _walletKitLogic.registerWallet(_address!);
         await _walletKitLogic.pairWithDapp(result);
         await _walletKitLogic.approveSession();
@@ -1090,6 +1122,16 @@ class WalletScreenState extends State<WalletScreen>
       case ActionButtonType.plugins:
         handlePlugin(pluginConfig);
         break;
+    }
+  }
+
+  Future<void> _restoreWalletConnectSessions() async {
+    try {
+      if (_walletKitLogic.connectClient != null) {
+        await _walletKitLogic.checkAndRestoreSessions();
+      }
+    } catch (e) {
+      debugPrint('Error restoring WalletConnect sessions: $e');
     }
   }
 

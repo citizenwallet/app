@@ -48,6 +48,49 @@ class WalletKitLogic {
     }
   }
 
+  Future<void> checkAndRestoreSessions() async {
+    try {
+      if (_service.client != null) {
+        debugPrint('Checking for existing sessions...');
+        await _updateSessions();
+        final sessions = await _service.client?.getActiveSessions();
+        if (sessions != null && sessions.isNotEmpty) {
+          debugPrint(
+              'Successfully restored ${sessions.length} existing sessions');
+          _state?.setConnectionState(true);
+
+          // Log session details for debugging
+          for (final entry in sessions.entries) {
+            final session = entry.value;
+            debugPrint(
+                'Session ${entry.key}: ${session.peer?.metadata?.name ?? 'Unknown'}');
+          }
+        } else {
+          debugPrint('No existing sessions found to restore');
+          _state?.setConnectionState(false);
+        }
+      } else {
+        debugPrint(
+            'WalletConnect client not initialized, skipping session restoration');
+      }
+    } catch (e) {
+      debugPrint('Error checking/restoring sessions: $e');
+      _state?.setConnectionState(false);
+    }
+  }
+
+  // Future<void> testSessionRestoration() async {
+  //   debugPrint('=== Testing Session Restoration ===');
+  //   try {
+  //     await checkAndRestoreSessions();
+  //     final sessions = await _service.client?.getActiveSessions();
+  //     debugPrint('Test completed. Active sessions: ${sessions?.length ?? 0}');
+  //   } catch (e) {
+  //     debugPrint('Test failed: $e');
+  //   }
+  //   debugPrint('=== End Test ===');
+  // }
+
   void _setupEventListeners() {
     _service.onSessionProposal((event) {
       if (event != null) {
@@ -80,10 +123,17 @@ class WalletKitLogic {
       final sessions = await _service.client?.getActiveSessions();
       if (sessions != null) {
         _state!.setActiveSessions(sessions);
+        _state!.setConnectionState(sessions.isNotEmpty);
         debugPrint('Updated sessions. Total sessions: ${sessions.length}');
+      } else {
+        _state!.setActiveSessions({});
+        _state!.setConnectionState(false);
+        debugPrint('No sessions found');
       }
     } catch (e) {
       debugPrint('Error updating sessions: $e');
+      _state!.setActiveSessions({});
+      _state!.setConnectionState(false);
     }
   }
 
@@ -114,25 +164,24 @@ class WalletKitLogic {
   }
 
   Future<void> _reconnectSessions() async {
-    if (_state?.hasActiveSessions == true) {
+    try {
       _state?.setConnecting(true);
-      try {
-        await Future.delayed(_reconnectTimeout);
 
-        final sessions = _service.client?.getActiveSessions();
-        if (sessions != null && sessions.isNotEmpty) {
-          _state?.setConnectionState(true);
-        } else {
-          _state?.setConnectionState(false);
-        }
-      } catch (e) {
+      // Check if there are any active sessions
+      final sessions = _service.client?.getActiveSessions();
+      if (sessions != null && sessions.isNotEmpty) {
+        debugPrint('Found ${sessions.length} active sessions to restore');
+        _state?.setConnectionState(true);
+        _state?.setActiveSessions(sessions);
+      } else {
+        debugPrint('No active sessions found');
         _state?.setConnectionState(false);
-        debugPrint('Error during session reconnection: $e');
-      } finally {
-        _state?.setConnecting(false);
       }
-    } else {
-      debugPrint('No active sessions to reconnect');
+    } catch (e) {
+      _state?.setConnectionState(false);
+      debugPrint('Error during session reconnection: $e');
+    } finally {
+      _state?.setConnecting(false);
     }
   }
 
