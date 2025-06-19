@@ -70,7 +70,7 @@ class EventService {
 
     if (_isConnected) return;
 
-    _onStateChange(EventServiceState.connected);
+    _onStateChange(EventServiceState.connecting);
 
     try {
       _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
@@ -81,6 +81,7 @@ class EventService {
 
       _ws!.pingInterval = const Duration(seconds: 10);
       _isConnected = true;
+      _onStateChange(EventServiceState.connected);
 
       _ws!.listen(
         _onMessage,
@@ -89,6 +90,7 @@ class EventService {
       );
     } catch (e) {
       print('Connection error: $e');
+      _isConnected = false;
       _onStateChange(EventServiceState.error);
       Duration delay = Duration(seconds: _reconnectDelay.inSeconds);
       if (reconnectDelay != null && reconnectDelay >= _reconnectMaxSeconds) {

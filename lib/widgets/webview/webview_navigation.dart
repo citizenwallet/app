@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebViewNavigation extends StatelessWidget {
   final String? url;
