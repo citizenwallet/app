@@ -759,12 +759,14 @@ class WalletScreenState extends State<WalletScreen>
         .push<(String, String)?>('/wallet/${_address!}/accounts?alias=$_alias');
 
     if (args == null) {
+      _logic.resumeFetching();
       return;
     }
 
     final (address, alias) = args;
 
     if (address == _address && alias == _alias) {
+      _logic.resumeFetching();
       return;
     }
 
