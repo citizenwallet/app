@@ -68,11 +68,9 @@ class EventService {
   Future<void> connect({Duration? reconnectDelay}) async {
     print('Connecting to $_url/v1/events/$_contractAddress/$_topic');
 
-    if (_isConnected) {
-      _onStateChange(EventServiceState.connected);
-      return;
-    }
-    ;
+    if (_isConnected) return;
+
+    _onStateChange(EventServiceState.connected);
 
     try {
       _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
