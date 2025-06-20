@@ -1087,11 +1087,17 @@ class WalletScreenState extends State<WalletScreen>
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
+
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
+    final eventServiceIntentionalDisconnect = context
+        .select((WalletState state) => state.eventServiceIntentionalDisconnect);
+
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
+
+    final showOfflineBanner = isOffline && !eventServiceIntentionalDisconnect;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
