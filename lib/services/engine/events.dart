@@ -70,7 +70,7 @@ class EventService {
 
     if (_isConnected) return;
 
-    _onStateChange(EventServiceState.connecting);
+    _onStateChange(EventServiceState.connected);
 
     try {
       _ws = await WebSocket.connect('$_url/v1/events/$_contractAddress/$_topic')
@@ -138,7 +138,12 @@ class EventService {
     print('WebSocket error: $error');
     _isConnected = false;
     _onStateChange(EventServiceState.error);
-    _scheduleReconnect();
+
+    if (!_intentionalDisconnect) {
+      _scheduleReconnect();
+    } else {
+      print('Skipping reconnect due to intentional disconnect');
+    }
   }
 
   void _onDone() {
@@ -153,6 +158,10 @@ class EventService {
   }
 
   void _scheduleReconnect({Duration? reconnectDelay}) {
+    if (_intentionalDisconnect) {
+      return;
+    }
+
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(reconnectDelay ?? _reconnectDelay, () async {
       print('Attempting to reconnect...');

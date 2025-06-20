@@ -618,6 +618,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       if (_eventService != null) {
         await _eventService!.disconnect();
+        handleEventServiceIntentionalDisconnect(true);
         _eventService = null;
       }
 
@@ -631,6 +632,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _eventService!.setStateHandler(handleEventServiceStateChange);
 
       await _eventService!.connect();
+      handleEventServiceIntentionalDisconnect(false);
 
       return;
     } catch (_) {}
@@ -639,12 +641,17 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> transferEventUnsubscribe() async {
     if (_eventService != null) {
       await _eventService!.disconnect();
+      handleEventServiceIntentionalDisconnect(true);
       _eventService = null;
     }
   }
 
   void handleEventServiceStateChange(EventServiceState state) {
     _state.setEventServiceState(state);
+  }
+
+  void handleEventServiceIntentionalDisconnect(bool intentionalDisconnect) {
+    _state.setEventServiceIntentionalDisconnect(intentionalDisconnect);
   }
 
   void handleTransferEvent(WebSocketEvent event) {
