@@ -24,7 +24,6 @@ import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
 import 'package:citizenwallet/widgets/wallet_connect_sessions_modal.dart';
-import 'package:citizenwallet/widgets/wallet_session_approval.dart';
 import 'package:citizenwallet/widgets/webview/connected_webview_modal.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
@@ -76,7 +75,6 @@ class WalletScreenState extends State<WalletScreen>
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
   final WalletKitLogic _walletKitLogic = WalletKitLogic();
-  Timer? _sessionCheckTimer;
 
   String? _address;
   String? _alias;
@@ -110,20 +108,11 @@ class WalletScreenState extends State<WalletScreen>
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
     WidgetsBinding.instance.addObserver(_voucherLogic);
+    WidgetsBinding.instance.addObserver(_walletKitLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.addListener(onScrollUpdate);
       onLoad();
-    });
-
-    _startSessionCheckTimer();
-  }
-
-  void _startSessionCheckTimer() {
-    _sessionCheckTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      if (_walletKitLogic.connectClient != null) {
-        _walletKitLogic.checkAndRestoreSessions();
-      }
     });
   }
 
@@ -133,42 +122,12 @@ class WalletScreenState extends State<WalletScreen>
     _scrollController.removeListener(onScrollUpdate);
     WidgetsBinding.instance.removeObserver(_profilesLogic);
     WidgetsBinding.instance.removeObserver(_voucherLogic);
+    WidgetsBinding.instance.removeObserver(_walletKitLogic);
     WidgetsBinding.instance.removeObserver(this);
-    _sessionCheckTimer?.cancel();
+
     _profilesLogic.dispose();
     _voucherLogic.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    switch (state) {
-      case AppLifecycleState.detached:
-        // App is completely closed
-        _walletKitLogic.setAppState(false);
-        return;
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
-        // Set app as inactive
-        _walletKitLogic.setAppState(false);
-        return;
-      case AppLifecycleState.resumed:
-        // Set app as active and restore sessions
-        _walletKitLogic.setAppState(true);
-        if (mounted) {
-          _restoreWalletConnectSessions();
-        }
-
-        onLoad();
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -186,9 +145,6 @@ class WalletScreenState extends State<WalletScreen>
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
-        if (_walletKitLogic.connectClient != null && _address != null) {
-          _walletKitLogic.registerWallet(_address!);
-        }
       });
     }
   }
@@ -221,6 +177,8 @@ class WalletScreenState extends State<WalletScreen>
       return;
     }
 
+    _walletKitLogic.setContext(context);
+
     await _logic.openWallet(
       _address!,
       _alias!,
@@ -237,9 +195,20 @@ class WalletScreenState extends State<WalletScreen>
       },
     );
 
-    _notificationsLogic.init();
+    try {
+      await _walletKitLogic.initialize();
+      await _walletKitLogic.registerWallet(_address!);
 
-    await _initializeWalletConnect();
+      await _walletKitLogic.restoreSessions();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error initializing WalletKit: $e');
+    }
+
+    _notificationsLogic.init();
 
     if (_voucher != null && _voucherParams != null) {
       await handleLoadFromVoucher();
@@ -255,22 +224,6 @@ class WalletScreenState extends State<WalletScreen>
 
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
-    }
-
-    _walletKitLogic.setContext(context);
-  }
-
-  Future<void> _initializeWalletConnect() async {
-    try {
-      if (_walletKitLogic.connectClient == null) {
-        await _walletKitLogic.initialize();
-      }
-
-      await _walletKitLogic.registerWallet(_address!);
-
-      await _walletKitLogic.checkAndRestoreSessions();
-    } catch (e) {
-      debugPrint('Error initializing WalletConnect: $e');
     }
   }
 
@@ -301,6 +254,8 @@ class WalletScreenState extends State<WalletScreen>
                 if (remainingSessions == null || remainingSessions.isEmpty) {
                   Navigator.of(context).pop();
                 }
+
+                setState(() {});
               }
             },
           ),
@@ -798,6 +753,8 @@ class WalletScreenState extends State<WalletScreen>
   void handleOpenAccountSwitcher() async {
     final navigator = GoRouter.of(context);
 
+    _logic.pauseFetching();
+
     final args = await navigator
         .push<(String, String)?>('/wallet/${_address!}/accounts?alias=$_alias');
 
@@ -1125,29 +1082,22 @@ class WalletScreenState extends State<WalletScreen>
     }
   }
 
-  Future<void> _restoreWalletConnectSessions() async {
-    try {
-      if (_walletKitLogic.connectClient != null) {
-        await _walletKitLogic.checkAndRestoreSessions();
-      }
-    } catch (e) {
-      debugPrint('Error restoring WalletConnect sessions: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final wallet = context.select((WalletState state) => state.wallet);
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
-    final isOffline = eventServiceState != EventServiceState.connected &&
-        eventServiceState != EventServiceState.disconnected;
+    final isOffline = eventServiceState == EventServiceState.error ||
+        eventServiceState == EventServiceState.connecting;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
     final hasActiveSessions =
         context.select((WalletConnectState state) => state.hasActiveSessions);
+
+    final isInitialized =
+        context.select((WalletConnectState state) => state.isInitialized);
 
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
@@ -1289,7 +1239,8 @@ class WalletScreenState extends State<WalletScreen>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      hasActiveSessions != false
+                                      (hasActiveSessions == true &&
+                                              isInitialized == true)
                                           ? GestureDetector(
                                               onTap: handleDisconnect,
                                               child: Padding(

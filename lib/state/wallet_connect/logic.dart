@@ -9,14 +9,13 @@ import 'package:provider/provider.dart';
 import 'package:citizenwallet/widgets/wallet_session_approval.dart';
 import 'dart:async';
 
-class WalletKitLogic {
+class WalletKitLogic with WidgetsBindingObserver {
   final WalletKitService _service = WalletKitService();
   SessionProposalEvent? _currentProposal;
   Completer<SessionProposalEvent?>? _proposalCompleter;
   BuildContext? _context;
   NotificationsLogic? _notificationsLogic;
   WalletConnectState? _state;
-  static const Duration _reconnectTimeout = Duration(seconds: 5);
 
   ReownWalletKit? get connectClient => _service.client;
   SessionProposalEvent? get currentProposal => _currentProposal;
@@ -48,48 +47,33 @@ class WalletKitLogic {
     }
   }
 
-  Future<void> checkAndRestoreSessions() async {
+  Future<void> restoreSessions() async {
     try {
-      if (_service.client != null) {
-        debugPrint('Checking for existing sessions...');
-        await _updateSessions();
-        final sessions = await _service.client?.getActiveSessions();
-        if (sessions != null && sessions.isNotEmpty) {
-          debugPrint(
-              'Successfully restored ${sessions.length} existing sessions');
-          _state?.setConnectionState(true);
+      _state?.setConnecting(true);
+      _state?.setError(null);
 
-          // Log session details for debugging
-          for (final entry in sessions.entries) {
-            final session = entry.value;
-            debugPrint(
-                'Session ${entry.key}: ${session.peer?.metadata?.name ?? 'Unknown'}');
-          }
-        } else {
-          debugPrint('No existing sessions found to restore');
-          _state?.setConnectionState(false);
-        }
+      if (_service.client == null) {
+        await _service.initialize();
+        _setupEventListeners();
+      }
+
+      await _updateSessions();
+      final sessions = _service.client?.getActiveSessions();
+      if (sessions != null && sessions.isNotEmpty) {
+        _state?.setActiveSessions(sessions);
+        _state?.setConnectionState(true);
+        _state?.setInitialized(true);
       } else {
-        debugPrint(
-            'WalletConnect client not initialized, skipping session restoration');
+        _state?.setActiveSessions({});
+        _state?.setConnectionState(false);
+        _state?.setInitialized(true);
       }
     } catch (e) {
-      debugPrint('Error checking/restoring sessions: $e');
+      debugPrint('Error restoring sessions: $e');
       _state?.setConnectionState(false);
+      _state?.setActiveSessions({});
     }
   }
-
-  // Future<void> testSessionRestoration() async {
-  //   debugPrint('=== Testing Session Restoration ===');
-  //   try {
-  //     await checkAndRestoreSessions();
-  //     final sessions = await _service.client?.getActiveSessions();
-  //     debugPrint('Test completed. Active sessions: ${sessions?.length ?? 0}');
-  //   } catch (e) {
-  //     debugPrint('Test failed: $e');
-  //   }
-  //   debugPrint('=== End Test ===');
-  // }
 
   void _setupEventListeners() {
     _service.onSessionProposal((event) {
@@ -107,11 +91,9 @@ class WalletKitLogic {
     });
 
     _service.client?.onSessionDelete.subscribe((event) {
-      if (event != null) {
-        _updateSessions();
-        if (_state?.hasActiveSessions == false) {
-          _state?.setConnectionState(false);
-        }
+      _updateSessions();
+      if (_state?.hasActiveSessions == false) {
+        _state?.setConnectionState(false);
       }
     });
   }
@@ -120,7 +102,7 @@ class WalletKitLogic {
     if (_state == null) return;
 
     try {
-      final sessions = await _service.client?.getActiveSessions();
+      final sessions = _service.client?.getActiveSessions();
       if (sessions != null) {
         _state!.setActiveSessions(sessions);
         _state!.setConnectionState(sessions.isNotEmpty);
@@ -167,7 +149,11 @@ class WalletKitLogic {
     try {
       _state?.setConnecting(true);
 
-      // Check if there are any active sessions
+      if (_service.client == null) {
+        await _service.initialize();
+        _setupEventListeners();
+      }
+
       final sessions = _service.client?.getActiveSessions();
       if (sessions != null && sessions.isNotEmpty) {
         debugPrint('Found ${sessions.length} active sessions to restore');
@@ -176,9 +162,11 @@ class WalletKitLogic {
       } else {
         debugPrint('No active sessions found');
         _state?.setConnectionState(false);
+        _state?.setActiveSessions({});
       }
     } catch (e) {
       _state?.setConnectionState(false);
+      _state?.setActiveSessions({});
       debugPrint('Error during session reconnection: $e');
     } finally {
       _state?.setConnecting(false);
@@ -321,7 +309,7 @@ class WalletKitLogic {
 
   Future<void> disconnectAllSessions() async {
     try {
-      final sessions = await _service.client?.getActiveSessions();
+      final sessions = _service.client?.getActiveSessions();
       if (sessions != null && sessions.isNotEmpty) {
         for (final topic in sessions.keys) {
           try {
@@ -376,7 +364,7 @@ class WalletKitLogic {
       debugPrint('Context is null, returning early: $topic');
     }
 
-    final sessions = await _service.client?.getActiveSessions();
+    final sessions = _service.client?.getActiveSessions();
     final currentSession = sessions?[topic];
 
     if (currentSession == null) {
@@ -395,7 +383,7 @@ class WalletKitLogic {
       final contractData = await _service.getContractDetails(transaction['to']);
       if (contractData != null && contractData.abi != null) {
         transactionType = _service.getTransactionTypeFromAbi(
-          contractData.abi!,
+          contractData.abi,
           transaction['data'] ?? '',
         );
       } else {
@@ -422,15 +410,25 @@ class WalletKitLogic {
       ),
     );
 
-    if (_notificationsLogic != null) {
-      if (result != null && result) {
-        _notificationsLogic!
-            .toastShow('Transaction approved', type: ToastType.success);
-      } else {
-        _notificationsLogic!
-            .toastShow('Transaction rejected', type: ToastType.error);
-      }
+    if (result == true) {
+      _notificationsLogic?.toastShow('Transaction approved',
+          type: ToastType.success);
+    } else {
+      _notificationsLogic?.toastShow('Transaction rejected',
+          type: ToastType.error);
     }
     return;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Only handle foreground if context is available
+      if (_context != null) {
+        _handleAppForeground();
+      }
+    } else if (state == AppLifecycleState.inactive) {
+      _handleAppBackground();
+    }
   }
 }

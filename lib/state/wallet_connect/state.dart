@@ -13,7 +13,11 @@ class WalletConnectState extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   bool get isConnecting => _isConnecting;
   String? get error => _error;
-  bool get hasActiveSessions => _activeSessions.isNotEmpty;
+  bool get hasActiveSessions {
+    final hasSessions = _activeSessions.isNotEmpty;
+    return hasSessions;
+  }
+
   bool get isAppActive => _isAppActive;
   DateTime? get lastActiveTime => _lastActiveTime;
   bool get isConnected => _isConnected;
