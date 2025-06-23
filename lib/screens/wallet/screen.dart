@@ -903,12 +903,18 @@ class WalletScreenState extends State<WalletScreen> {
     String? loadedAlias;
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
-    final (address, alias) = await handleLoadFromParams(
-      voucherParams ?? receiveParams ?? deepLinkParams ?? parsedQRData.alias,
-      overrideAlias: uriAlias ?? receiveAlias ?? parsedQRData.alias,
-    );
-    loadedAddress = address;
-    loadedAlias = alias;
+
+    if (voucherParams != null || receiveParams != null || deepLinkParams != null) {
+      final (address, alias) = await handleLoadFromParams(
+        voucherParams ?? receiveParams ?? deepLinkParams ?? parsedQRData.alias,
+        overrideAlias: uriAlias ?? receiveAlias ?? parsedQRData.alias,
+      );
+      loadedAddress = address;
+      loadedAlias = alias;
+    } else {
+      loadedAddress = parsedQRData.address;
+      loadedAlias = _alias;
+    }
 
     if (loadedAddress == null) {
       _profileLogic.resume();
