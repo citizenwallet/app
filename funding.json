@@ -1,5 +1,7 @@
 {
-  "opRetro": {
-    "projectId": "0xbde4ef89d6c7719a9e514a74ba1f6accc016f8cbdc4e76ca50108927d45c4c4a"
+  "drips": {
+    "optimism": {
+      "ownedBy": "0xAE35b0AdB1dD4D406f4Edb82F46208Ea7ec0BEcC"
+    }
   }
 }
