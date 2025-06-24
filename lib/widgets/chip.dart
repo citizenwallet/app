@@ -4,7 +4,7 @@ import 'package:citizenwallet/theme/colors.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class Chip extends StatefulWidget {
   final Color color;
