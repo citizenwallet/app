@@ -63,6 +63,13 @@
                 "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
                 "url": "https://citizenwallet.xyz/pay-with-ctzn",
                 "launch_mode": "browser"
+            },
+            {
+                "name": "Top Up",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+                "url": "https://my.citizenwallet.xyz/onramp",
+                "action": "topup",
+                "signature": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
