@@ -2,6 +2,8 @@
   "@@locale": "fr",
   "viewContract": "Voir le contrat",
   "confirm": "Confirmer",
+  "confirmAction": "Confirmer l'action",
+  "confirmActionSub": "Êtes-vous sûr de vouloir confirmer cette action?",
   "welcomeCitizen": "Welcome, citizen!",
   "aWalletForYourCommunity": "Ceci est votre nouveau portefeuille, où vous pouvez stocker, envoyer et recevoir les jetons de votre communauté.",
   "createNewAccount": "Créer un nouveau compte",

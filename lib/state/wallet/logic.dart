@@ -1293,6 +1293,66 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
+  Future<String?> sendCallDataTransaction(
+    String to,
+    String value,
+    String data,
+  ) async {
+    try {
+      _state.sendCallDataTransaction();
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      final calldata = hexToBytes(data);
+
+      final (hash, userop) = await _wallet.prepareUserop(
+        [to],
+        [calldata],
+        value: BigInt.parse(value.isEmpty ? '0' : value),
+      );
+
+      final txHash = await _wallet.submitUserop(
+        userop,
+      );
+      if (txHash == null) {
+        // this is an optional operation
+        throw Exception('transaction failed');
+      }
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
+      }
+
+      clearInputControllers();
+
+      _state.sendCallDataTransactionSuccess();
+
+      return txHash;
+    } on NetworkCongestedException {
+      //
+    } on NetworkInvalidBalanceException {
+      //
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
+    }
+
+    _state.sendCallDataTransactionError();
+
+    return null;
+  }
+
   Future<String?> sendTransactionFromUnlocked(
     String amount,
     String to, {

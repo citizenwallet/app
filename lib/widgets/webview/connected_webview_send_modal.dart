@@ -5,6 +5,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
+import 'package:citizenwallet/widgets/dismissible_modal_popup.dart';
 import 'package:citizenwallet/widgets/profile/profile_circle.dart';
 import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:flutter/cupertino.dart';
@@ -158,150 +159,186 @@ class _ConnectedWebViewSendModalState extends State<ConnectedWebViewSendModal> {
       (ProfilesState state) => state.selectedProfile,
     );
 
-    return SizedBox(
-      width: width,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              ProfileCircle(
-                imageUrl: selectedProfile?.imageSmall,
-                size: 120,
-              ),
-              Text(
-                selectedProfile?.name ?? '',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
+    return DismissibleModalPopup(
+      modaleKey: 'connected_webview_send_modal',
+      maxHeight: 440,
+      paddingSides: 16,
+      paddingTopBottom: 16,
+      topRadius: 12,
+      blockDismiss: false,
+      child: SizedBox(
+        width: width,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 20,
                 ),
-              ),
-              Text(
-                '@${selectedProfile?.username ?? ''}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ProfileCircle(
+                          imageUrl: selectedProfile?.imageSmall,
+                          size: 80,
+                        ),
+                        Text(
+                          selectedProfile?.name ?? '',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '@${selectedProfile?.username ?? ''}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      0,
-                      0,
-                      0,
-                      0,
-                    ),
-                    child: CoinLogo(
-                      size: 32,
-                      logo: wallet?.currencyLogo,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.formattedAmount.toString(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colors.text.resolveFrom(context),
-                    ),
-                  ),
-                ],
-              ),
-              if (widget.description != null) const SizedBox(height: 20),
-              if (widget.descriptionItems != null)
-                ...widget.descriptionItems!.map(
-                  (e) => Text(
-                    e,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
+                const SizedBox(
+                  height: 20,
                 ),
-            ],
-          ),
-          Positioned(
-            bottom: 0,
-            width: width,
-            child: SafeArea(
-              child: BlurryChild(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: Theme.of(context)
-                            .colors
-                            .subtle
-                            .resolveFrom(context),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            0,
+                            0,
+                            0,
+                            0,
+                          ),
+                          child: CoinLogo(
+                            size: 32,
+                            logo: wallet?.currencyLogo,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.formattedAmount.toString(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context)
+                                .colors
+                                .text
+                                .resolveFrom(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (widget.description != null) const SizedBox(height: 20),
+                    if (widget.description != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (widget.descriptionItems != null)
+                            ...widget.descriptionItems!.map(
+                              (e) => Text(
+                                e,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
+                  ],
+                )
+              ],
+            ),
+            Positioned(
+              bottom: 0,
+              width: width,
+              child: SafeArea(
+                child: BlurryChild(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context)
+                              .colors
+                              .subtle
+                              .resolveFrom(context),
+                        ),
                       ),
                     ),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (_isSending)
-                        const SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: CupertinoActivityIndicator(),
-                        )
-                      else
-                        SlideToComplete(
-                          onCompleted: !_isSending
-                              ? () => handleSend(
-                                    context,
-                                    widget.address,
-                                    widget.formattedAmount,
-                                    description: widget.description,
-                                    successUrl: widget.successUrl,
-                                  )
-                              : null,
-                          enabled: isSendingValid,
-                          isComplete: _isSending,
-                          completionLabel:
-                              AppLocalizations.of(context)!.swipeToConfirm,
-                          completionLabelColor: Theme.of(context)
-                              .colors
-                              .primary
-                              .resolveFrom(context),
-                          thumbColor: Theme.of(context)
-                              .colors
-                              .surfacePrimary
-                              .resolveFrom(context),
-                          width: width * 0.65,
-                          child: SizedBox(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_isSending)
+                          const SizedBox(
                             height: 50,
                             width: 50,
-                            child: Center(
-                              child: Icon(
-                                CupertinoIcons.arrow_right,
-                                color: Theme.of(context).colors.white,
+                            child: CupertinoActivityIndicator(),
+                          )
+                        else
+                          SlideToComplete(
+                            onCompleted: !_isSending
+                                ? () => handleSend(
+                                      context,
+                                      widget.address,
+                                      widget.formattedAmount,
+                                      description: widget.description,
+                                      successUrl: widget.successUrl,
+                                    )
+                                : null,
+                            enabled: isSendingValid,
+                            isComplete: _isSending,
+                            completionLabel:
+                                AppLocalizations.of(context)!.swipeToConfirm,
+                            completionLabelColor: Theme.of(context)
+                                .colors
+                                .primary
+                                .resolveFrom(context),
+                            thumbColor: Theme.of(context)
+                                .colors
+                                .surfacePrimary
+                                .resolveFrom(context),
+                            width: width * 0.65,
+                            child: SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: Center(
+                                child: Icon(
+                                  CupertinoIcons.arrow_right,
+                                  color: Theme.of(context).colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

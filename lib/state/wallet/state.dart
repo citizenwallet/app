@@ -94,10 +94,6 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-
-
-
-
   void updateAmount(String amount) {
     this.amount = amount;
     notifyListeners();
@@ -326,6 +322,24 @@ class WalletState with ChangeNotifier {
   void loadAdditionalTransactionsError() {
     transactionsLoading = false;
     transactionsError = true;
+    notifyListeners();
+  }
+
+  void sendCallDataTransaction() {
+    transactionSendLoading = true;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendCallDataTransactionSuccess() {
+    transactionSendLoading = false;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendCallDataTransactionError() {
+    transactionSendLoading = false;
+    transactionSendError = true;
     notifyListeners();
   }
 

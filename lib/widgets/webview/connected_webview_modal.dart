@@ -3,9 +3,11 @@ import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/qr.dart';
+import 'package:citizenwallet/widgets/webview/connected_webview_calldata_modal.dart';
 import 'package:citizenwallet/widgets/webview/connected_webview_send_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
@@ -98,7 +100,17 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
     if (uri.toString().startsWith(widget.redirectUrl) &&
         !uri.toString().startsWith(widget.pluginUrl)) {
-      handleDisplayActionModal(uri);
+      final format = parseQRFormat(uri.toString());
+
+      switch (format) {
+        case QRFormat.sendtoUrl:
+          handleDisplaySendActionModal(uri);
+          break;
+        case QRFormat.calldataUrl:
+          handleDisplayCallDataActionModal(uri);
+          break;
+        default:
+      }
 
       return NavigationActionPolicy.CANCEL;
     }
@@ -118,26 +130,53 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
     handleDismiss(context);
   }
 
-  void handleDisplayActionModal(Uri uri) async {
-    final format = parseQRFormat(uri.toString());
-    if (format != QRFormat.sendtoUrl) {
-      return;
-    }
-
+  void handleDisplaySendActionModal(Uri uri) async {
     final parsedData = parseQRCode(uri.toString());
     final successUrl = uri.queryParameters['success'];
     if (parsedData.amount == null) {
       return;
     }
 
+    HapticFeedback.heavyImpact();
+
     widget.profilesLogic.getProfile(parsedData.address);
 
-    final dismiss = await showCupertinoModalBottomSheet<bool?>(
+    final dismiss = await showCupertinoModalPopup<bool?>(
       context: context,
       builder: (context) => ConnectedWebViewSendModal(
         address: parsedData.address,
         amount: parsedData.amount!,
         description: parsedData.description,
+        successUrl: successUrl,
+        closeUrl: widget.closeUrl,
+        walletLogic: widget.walletLogic,
+        profilesLogic: widget.profilesLogic,
+        webViewController: webViewController,
+      ),
+    );
+
+    if (dismiss == true && super.mounted) {
+      handleDismiss(context);
+    }
+  }
+
+  void handleDisplayCallDataActionModal(Uri uri) async {
+    final parsedData = parseQRCode(uri.toString());
+    final successUrl = uri.queryParameters['success'];
+    if (parsedData.calldata == null) {
+      return;
+    }
+
+    HapticFeedback.heavyImpact();
+
+    widget.profilesLogic.getProfile(parsedData.address);
+
+    final dismiss = await showCupertinoModalPopup<bool?>(
+      context: context,
+      builder: (context) => ConnectedWebViewCallDataModal(
+        address: parsedData.address,
+        value: parsedData.amount ?? '0',
+        calldata: parsedData.calldata!,
         successUrl: successUrl,
         closeUrl: widget.closeUrl,
         walletLogic: widget.walletLogic,

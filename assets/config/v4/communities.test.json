@@ -506,7 +506,7 @@
     "plugins": [
       {
         "name": "Market",
-        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
         "url": "https://marketplace.citizenwallet.xyz/bread",
         "launch_mode": "webview"
       },
