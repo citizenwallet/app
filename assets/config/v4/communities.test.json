@@ -63,6 +63,13 @@
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
         "url": "https://citizenwallet.xyz/pay-with-ctzn",
         "launch_mode": "browser"
+      },
+      {
+        "name": "Top Up",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+        "url": "https://my.citizenwallet.xyz/onramp",
+        "action": "topup",
+        "signature": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
@@ -502,6 +509,14 @@
         "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
         "url": "https://marketplace.citizenwallet.xyz/bread",
         "launch_mode": "webview"
+      },
+      {
+        "name": "Breadcon 2025 Faucet",
+        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "url": "https://faucet.citizenwallet.xyz/breadcon2025",
+        "launch_mode": "webview",
+        "signature": true,
+        "hidden": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",
@@ -665,7 +680,8 @@
         "name": "Échanges",
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
         "url": "https://marketplace.citizenwallet.xyz/seldesalm",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "signature": true
       }
     ],
     "config_location": "https://seldesalm.citizenwallet.xyz/config/community.json",
