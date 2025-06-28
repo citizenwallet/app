@@ -31,6 +31,7 @@ class WalletState with ChangeNotifier {
   bool error = false;
 
   EventServiceState eventServiceState = EventServiceState.disconnected;
+  bool eventServiceIntentionalDisconnect = true;
 
   Exception? errorException;
 
@@ -87,6 +88,15 @@ class WalletState with ChangeNotifier {
     eventServiceState = state;
     notifyListeners();
   }
+
+  void setEventServiceIntentionalDisconnect(bool intentionalDisconnect) {
+    eventServiceIntentionalDisconnect = intentionalDisconnect;
+    notifyListeners();
+  }
+
+
+
+
 
   void updateAmount(String amount) {
     this.amount = amount;

@@ -1171,6 +1171,7 @@ class WalletService {
     EthPrivateKey? customCredentials,
     BigInt? customNonce,
     bool deploy = true,
+    BigInt? value,
   }) async {
     try {
       final cred = customCredentials ?? _credentials;
@@ -1228,14 +1229,14 @@ class WalletService {
                 )
               : _contractAccount.executeCallData(
                   dest[0],
-                  BigInt.zero,
+                  value ?? BigInt.zero,
                   calldata[0],
                 );
           break;
         case 'cw-safe':
           userop.callData = _contractSafeAccount.executeCallData(
             dest[0],
-            BigInt.zero,
+            value ?? BigInt.zero,
             calldata[0],
           );
           break;
