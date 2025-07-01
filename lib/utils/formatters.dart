@@ -12,7 +12,7 @@ class AmountFormatter extends TextInputFormatter {
       return newValue;
     }
 
-    final r = RegExp("^\\d+([\\.\\,]\\d{0,2})?\$");
+    final r = RegExp("^\\d*([\\.\\,]\\d{0,2})?\$");
 
     if (!r.hasMatch(text)) {
       return oldValue;
