@@ -15,6 +15,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
+  String get confirmAction => 'Confirm Action';
+
+  @override
+  String get confirmActionSub =>
+      'Are you sure you want to confirm this action?';
+
+  @override
   String get welcomeCitizen => 'Welcome, citizen!';
 
   @override

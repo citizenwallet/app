@@ -2,6 +2,8 @@
   "@@locale": "es",
   "viewContract": "Ver contrato",
   "confirm": "Confirmar",
+  "confirmAction": "Confirmar acción",
+  "confirmActionSub": "¿Estás seguro de que quieres confirmar esta acción?",
   "welcomeCitizen": "¡Bienvenido, ciudadano!",
   "aWalletForYourCommunity": "Esta es tu nueva billetera, donde puedes almacenar, enviar y recibir los tokens de tu comunidad.",
   "createNewAccount": "Crear nueva cuenta",

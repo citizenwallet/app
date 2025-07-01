@@ -10,6 +10,7 @@ enum QRFormat {
   receiveUrl,
   sendtoUrl,
   sendtoUrlWithEIP681,
+  calldataUrl,
   url,
   unsupported,
 }
@@ -25,6 +26,8 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.sendtoUrl;
   } else if (raw.startsWith('https://') && raw.contains('sendto=')) {
     return QRFormat.sendtoUrl;
+  } else if (raw.startsWith('https://') && raw.contains('calldata=')) {
+    return QRFormat.calldataUrl;
   } else if (raw.startsWith('0x')) {
     return QRFormat.address;
   } else if (raw.contains('receiveParams=')) {
@@ -122,6 +125,29 @@ ParsedQRData parseSendtoUrl(String raw) {
   );
 }
 
+ParsedQRData parseCalldataUrl(String raw) {
+  final cleanRaw = raw.replaceFirst('/#/', '/');
+  final decodedRaw = Uri.decodeComponent(cleanRaw);
+
+  final receiveUrl = Uri.parse(decodedRaw);
+
+  final aliasParam = receiveUrl.queryParameters['alias'];
+  final addressParam = receiveUrl.queryParameters['address'];
+  final calldataParam = receiveUrl.queryParameters['calldata'];
+  final valueParam = receiveUrl.queryParameters['value'];
+
+  if (calldataParam == null || addressParam == null) {
+    return ParsedQRData(address: '');
+  }
+
+  return ParsedQRData(
+    address: addressParam,
+    calldata: calldataParam,
+    amount: valueParam,
+    alias: aliasParam,
+  );
+}
+
 ParsedQRData parseReceiveUrl(String raw) {
   final receiveUrl = Uri.parse(raw.split('/#/').last);
 
@@ -177,6 +203,8 @@ ParsedQRData parseQRCode(String raw) {
       return parseSendtoUrl(raw);
     case QRFormat.sendtoUrlWithEIP681:
       return parseSendtoUrlWithEIP681(raw);
+    case QRFormat.calldataUrl:
+      return parseCalldataUrl(raw);
     case QRFormat.url:
     // nothing to parse
     case QRFormat.voucher:
@@ -226,6 +254,7 @@ class ParsedQRData {
   final String? description;
   final String? alias;
   final SendDestination? tip;
+  final String? calldata;
 
   const ParsedQRData({
     required this.address,
@@ -233,5 +262,6 @@ class ParsedQRData {
     this.description,
     this.alias,
     this.tip,
+    this.calldata,
   });
 }
