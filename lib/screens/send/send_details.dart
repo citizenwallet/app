@@ -20,7 +20,7 @@ import 'package:citizenwallet/widgets/slide_to_complete.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
@@ -406,7 +406,8 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final enteredAmount =
         (double.tryParse(walletLogic.amountController.value.text) ?? 0.0);
-    final requiresTopup = balance <= 0 || (invalidAmount && enteredAmount > 0);
+    final requiresTopup = !widget.isMinting &&
+        (balance <= 0 || (invalidAmount && enteredAmount > 0));
     final topUpPlugin = context.select(
       (WalletState state) => state.config!.getTopUpPlugin(),
     );
@@ -433,7 +434,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
         hasAmount &&
         !invalidAmount &&
         (!invalidAddress || isLink) &&
-        !(balance <= 0 && topUpPlugin == null);
+        !(!widget.isMinting && balance <= 0 && topUpPlugin == null);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -612,8 +613,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        if ((invalidAmount && enteredAmount > 0) ||
-                            (balance <= 0 && topUpPlugin == null))
+                        if (!widget.isMinting &&
+                            ((invalidAmount && enteredAmount > 0) ||
+                                (balance <= 0 && topUpPlugin == null)))
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -631,70 +633,73 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                             ],
                           ),
                         const SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!
-                                  .currentBalance(formattedBalance),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
+                        if (!widget.isMinting)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .currentBalance(formattedBalance),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 5),
-                            CoinLogo(
-                              size: 25,
-                              logo: wallet?.currencyLogo,
-                            ),
-                            if (balance > 0)
-                              CupertinoButton(
-                                onPressed: handleSetMaxAmount,
-                                child: Container(
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colors
-                                        .primary
-                                        .resolveFrom(context)
-                                        .withOpacity(0.25),
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(
+                              const SizedBox(width: 5),
+                              CoinLogo(
+                                size: 25,
+                                logo: wallet?.currencyLogo,
+                              ),
+                              if (balance > 0)
+                                CupertinoButton(
+                                  onPressed: handleSetMaxAmount,
+                                  child: Container(
+                                    height: 18,
+                                    decoration: BoxDecoration(
                                       color: Theme.of(context)
                                           .colors
-                                          .surfacePrimary
-                                          .resolveFrom(context),
-                                      width: 2,
-                                      strokeAlign:
-                                          BorderSide.strokeAlignOutside,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 0,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)!
-                                          .max
-                                          .toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                          .primary
+                                          .resolveFrom(context)
+                                          .withOpacity(0.25),
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
                                         color: Theme.of(context)
                                             .colors
-                                            .primary
+                                            .surfacePrimary
                                             .resolveFrom(context),
+                                        width: 2,
+                                        strokeAlign:
+                                            BorderSide.strokeAlignOutside,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 0,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!
+                                            .max
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colors
+                                              .primary
+                                              .resolveFrom(context),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
-                        ),
+                            ],
+                          ),
                         const SizedBox(height: 30),
-                        if (topUpPlugin != null && requiresTopup)
+                        if (!widget.isMinting &&
+                            topUpPlugin != null &&
+                            requiresTopup)
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

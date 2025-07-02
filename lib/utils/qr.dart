@@ -12,6 +12,7 @@ enum QRFormat {
   sendtoUrlWithEIP681,
   url,
   unsupported,
+  plugin,
 }
 
 QRFormat parseQRFormat(String raw) {
@@ -31,6 +32,8 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.receiveUrl;
   } else if (raw.contains('voucher=')) {
     return QRFormat.voucher;
+  } else if (raw.contains('dl=plugin')) {
+    return QRFormat.plugin;
   } else if (raw.startsWith('https://') || raw.startsWith('http://')) {
     return QRFormat.url;
   } else {
@@ -160,6 +163,24 @@ ParsedQRData parseReceiveUrl(String raw) {
   return ParsedQRData(address: '');
 }
 
+ParsedQRData parsePluginUrl(String raw) {
+  final receiveUrl = Uri.parse(raw.split('/#/').last);
+
+  final alias = receiveUrl.queryParameters['alias'];
+  final pluginUrl = receiveUrl.queryParameters['plugin'];
+
+  String? decodedPluginUrl;
+  if (pluginUrl != null) {
+    decodedPluginUrl = Uri.decodeComponent(pluginUrl);
+  }
+
+  return ParsedQRData(
+    address: alias ?? '',
+    description: decodedPluginUrl,
+    alias: alias,
+  );
+}
+
 // address, amount, description, alias
 ParsedQRData parseQRCode(String raw) {
   final format = parseQRFormat(raw);
@@ -177,6 +198,8 @@ ParsedQRData parseQRCode(String raw) {
       return parseSendtoUrl(raw);
     case QRFormat.sendtoUrlWithEIP681:
       return parseSendtoUrlWithEIP681(raw);
+    case QRFormat.plugin:
+      return parsePluginUrl(raw);
     case QRFormat.url:
     // nothing to parse
     case QRFormat.voucher:
