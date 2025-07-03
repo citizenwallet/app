@@ -66,6 +66,7 @@
   "voucherCreateFailed": "Falló la creación del vale",
   "anonymous": "Anónimo",
   "minted": "Acuñado",
+  "burned": "Quemado",
   "noDescription": "sin descripción",
   "preparingWallet": "Preparando billetera...",
   "transactions": "Historial de transacciones",

@@ -66,6 +66,7 @@
   "voucherCreateFailed": "Échec de la création du bon",
   "anonymous": "Anonyme",
   "minted": "Émis",
+  "burned": "Brûlé",
   "noDescription": "pas de description",
   "preparingWallet": "Préparation du portefeuille...",
   "transactions": "Historique des transactions",
