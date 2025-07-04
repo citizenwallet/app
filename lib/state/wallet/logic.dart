@@ -39,6 +39,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:citizenwallet/state/wallet_connect/logic.dart';
 
 const txFetchInterval = Duration(seconds: 1);
 
@@ -71,6 +72,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final WalletState _state;
   final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
+  final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
@@ -105,7 +107,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
-        _notificationsLogic = notificationsLogic;
+        _notificationsLogic = notificationsLogic {
+    _walletKitLogic.setContext(context);
+  }
 
   EthPrivateKey get privateKey {
     return _wallet.credentials;
@@ -613,7 +617,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final token = communityConfig.getPrimaryToken();
 
       if (_eventService != null) {
-        _eventService!.disconnect();
+        await _eventService!.disconnect();
+        handleEventServiceIntentionalDisconnect(true);
         _eventService = null;
       }
 
@@ -627,20 +632,26 @@ class WalletLogic extends WidgetsBindingObserver {
       _eventService!.setStateHandler(handleEventServiceStateChange);
 
       await _eventService!.connect();
+      handleEventServiceIntentionalDisconnect(false);
 
       return;
     } catch (_) {}
   }
 
-  void transferEventUnsubscribe() {
+  Future<void> transferEventUnsubscribe() async {
     if (_eventService != null) {
-      _eventService!.disconnect();
+      await _eventService!.disconnect();
+      handleEventServiceIntentionalDisconnect(true);
       _eventService = null;
     }
   }
 
   void handleEventServiceStateChange(EventServiceState state) {
     _state.setEventServiceState(state);
+  }
+
+  void handleEventServiceIntentionalDisconnect(bool intentionalDisconnect) {
+    _state.setEventServiceIntentionalDisconnect(intentionalDisconnect);
   }
 
   void handleTransferEvent(WebSocketEvent event) {
@@ -1278,6 +1289,66 @@ class WalletLogic extends WidgetsBindingObserver {
     }
 
     _state.sendTransactionError();
+
+    return null;
+  }
+
+  Future<String?> sendCallDataTransaction(
+    String to,
+    String value,
+    String data,
+  ) async {
+    try {
+      _state.sendCallDataTransaction();
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      final calldata = hexToBytes(data);
+
+      final (hash, userop) = await _wallet.prepareUserop(
+        [to],
+        [calldata],
+        value: BigInt.parse(value.isEmpty ? '0' : value),
+      );
+
+      final txHash = await _wallet.submitUserop(
+        userop,
+      );
+      if (txHash == null) {
+        // this is an optional operation
+        throw Exception('transaction failed');
+      }
+
+      if (userop.isFirst()) {
+        // an account was created, update push token in the background
+        _wallet.waitForTxSuccess(txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.updatePushToken();
+        });
+      }
+
+      clearInputControllers();
+
+      _state.sendCallDataTransactionSuccess();
+
+      return txHash;
+    } on NetworkCongestedException {
+      //
+    } on NetworkInvalidBalanceException {
+      //
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
+    }
+
+    _state.sendCallDataTransactionError();
 
     return null;
   }

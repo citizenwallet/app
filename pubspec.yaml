@@ -1,5 +1,5 @@
 name: citizenwallet
-version: 2.0.15+250
+version: 2.0.17+258
 publish_to: none
 description: A mobile wallet for your community.
 environment:
@@ -14,7 +14,7 @@ dependencies:
       url: https://github.com/citizenwallet/contractforge.git
       ref: v0.0.11
   cupertino_icons: ^1.0.2
-  go_router: ^14.0.2
+  go_router: ^15.1.2
   provider: ^6.0.5
   flutter_dotenv: ^5.0.2
   shared_preferences: ^2.1.0
@@ -22,7 +22,7 @@ dependencies:
   path: ^1.8.2
   flutter_svg: ^2.0.4
   intl: any
-  web3dart: ^2.7.1
+  web3dart: ^2.7.2
   http: ^1.1.0
   flutter_secure_storage: ^9.0.0
   convert: ^3.1.1
@@ -51,7 +51,7 @@ dependencies:
   username_gen: ^1.0.4
   file_picker: ^10.0.0
   universal_io: ^2.2.2
-  share_plus: ^10.0.0
+  share_plus: ^11.0.0
   sqflite_common: ^2.5.0
   image: ^4.0.17
   qr_flutter: ^4.1.0
@@ -71,6 +71,7 @@ dependencies:
     sdk: flutter
   timeago: ^3.6.1
   nfc_manager: ^3.5.0
+  reown_walletkit: ^1.1.5+1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1

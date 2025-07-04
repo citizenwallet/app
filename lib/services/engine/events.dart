@@ -81,6 +81,7 @@ class EventService {
 
       _ws!.pingInterval = const Duration(seconds: 10);
       _isConnected = true;
+      _onStateChange(EventServiceState.connected);
 
       _ws!.listen(
         _onMessage,
@@ -89,6 +90,7 @@ class EventService {
       );
     } catch (e) {
       print('Connection error: $e');
+      _isConnected = false;
       _onStateChange(EventServiceState.error);
       Duration delay = Duration(seconds: _reconnectDelay.inSeconds);
       if (reconnectDelay != null && reconnectDelay >= _reconnectMaxSeconds) {
@@ -136,7 +138,12 @@ class EventService {
     print('WebSocket error: $error');
     _isConnected = false;
     _onStateChange(EventServiceState.error);
-    _scheduleReconnect();
+
+    if (!_intentionalDisconnect) {
+      _scheduleReconnect();
+    } else {
+      print('Skipping reconnect due to intentional disconnect');
+    }
   }
 
   void _onDone() {
@@ -151,6 +158,10 @@ class EventService {
   }
 
   void _scheduleReconnect({Duration? reconnectDelay}) {
+    if (_intentionalDisconnect) {
+      return;
+    }
+
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(reconnectDelay ?? _reconnectDelay, () async {
       print('Attempting to reconnect...');
