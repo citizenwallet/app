@@ -231,6 +231,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get minted => 'Émis';
 
   @override
+  String get burned => 'Brûlé';
+
+  @override
   String get noDescription => 'pas de description';
 
   @override

@@ -498,6 +498,12 @@ abstract class AppLocalizations {
   /// **'Minted'**
   String get minted;
 
+  /// No description provided for @burned.
+  ///
+  /// In en, this message translates to:
+  /// **'Burned'**
+  String get burned;
+
   /// No description provided for @noDescription.
   ///
   /// In en, this message translates to:

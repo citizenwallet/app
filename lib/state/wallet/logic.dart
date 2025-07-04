@@ -1697,7 +1697,15 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       if (parsedData.amount != null) {
-        _amountController.text = parsedData.amount!;
+        if (format == QRFormat.eip681Transfer) {
+          final amount = fromDoubleUnit(
+            parsedData.amount!,
+            decimals: _wallet.currency.decimals,
+          );
+          _amountController.text = amount;
+        } else {
+          _amountController.text = parsedData.amount!;
+        }
         updateAmount();
       }
 
