@@ -29,6 +29,7 @@ const List<String> cases = [
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test&tipTo=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE&tipAmount=2.00&tipDescription=tipDescriptionTest',
+  'https://app.citizenwallet.xyz/#/?alias=bread&dl=plugin&plugin=https%3A%2F%2Fmarketplace.citizenwallet.xyz%2Fbread'
 ];
 
 const List<QRFormat> expected = [
@@ -55,6 +56,7 @@ const List<QRFormat> expected = [
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
+  QRFormat.plugin,
 ];
 
 const List<(String, String?, String?, String?, SendDestination?)>
@@ -128,6 +130,7 @@ const List<(String, String?, String?, String?, SendDestination?)>
       description: 'tipDescriptionTest',
     )
   ),
+  ('bread', null, 'https://marketplace.citizenwallet.xyz/bread', 'bread', null),
 ];
 
 void main() {
