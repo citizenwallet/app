@@ -50,11 +50,11 @@ class DBTransaction {
     return DBTransaction(
       hash: map['hash'],
       txHash: map['tx_hash'],
-      tokenId: map['token_id'],
+      tokenId: map['token_id'].toString(),
       createdAt: DateTime.parse(map['created_at']),
       from: map['t_from'],
       to: map['t_to'],
-      nonce: map['nonce'],
+      nonce: map['nonce'].toString(),
       value: map['value'].toString(),
       data: map['data'],
       status: map['status'],

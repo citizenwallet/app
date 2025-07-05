@@ -43,12 +43,16 @@ class SigAuthService {
   SigAuthConnection connect({DateTime? expiry}) {
     final expiryDate = expiry ?? DateTime.now().add(const Duration(days: 7));
 
-    final message =
-        'Signature auth for ${_address.hexEip55} with expiry ${expiryDate.toIso8601String()} and redirect ${Uri.encodeComponent(_redirect)}';
+    String message =
+        'Signature auth for ${_address.hexEip55} with expiry ${expiryDate.toIso8601String()}';
 
+    if (_redirect != null) {
+      message += ' and redirect ${Uri.encodeComponent(_redirect)}';
+    }
+    
     final signature = bytesToHex(
       _credentials.signPersonalMessageToUint8List(
-        convertBytesToUint8List(utf8.encode(message)),
+        keccak256(utf8.encode(message)),
       ),
       include0x: true,
     );

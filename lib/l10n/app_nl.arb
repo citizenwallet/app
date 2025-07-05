@@ -66,6 +66,7 @@
   "voucherCreateFailed": "Voucher creatie mislukt",
   "anonymous": "Anoniem",
   "minted": "Minted",
+  "burned": "Verbrand",
   "noDescription": "Geen beschrijving",
   "preparingWallet": "Wallet wordt geïnitialiseerd...",
   "transactions": "Transactiegeschiedenis",
