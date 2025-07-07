@@ -234,6 +234,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get minted => 'Minted';
 
   @override
+  String get burned => 'Verbrand';
+
+  @override
   String get noDescription => 'Geen beschrijving';
 
   @override
