@@ -49,6 +49,13 @@ class SafeAccount {
     return function.encodeCall([EthereumAddress.fromHex(implementation)]);
   }
 
+  Uint8List fixFallbackHandlerCallData() {
+    final function = rcontract.function('setFallbackHandler');
+    return function.encodeCall([
+      EthereumAddress.fromHex('0xfd0732Dc9E303f09fCEf3a7388Ad10A83459Ec99')
+    ]);
+  }
+
   void dispose() {
     // _sub?.cancel();
   }
