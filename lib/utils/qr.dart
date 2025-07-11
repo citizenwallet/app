@@ -48,9 +48,17 @@ QRFormat parseQRFormat(String raw) {
 ParsedQRData parseEIP681(String raw) {
   final url = Uri.parse(raw);
 
-  String address = url.pathSegments.first;
+  // EIP681 format is ethereum:address@chainId/...
+  // The address is in the authority part, not path segments
+  String address = url.authority;
+  
+  // If authority is empty, try path segments as fallback
+  if (address.isEmpty && url.pathSegments.isNotEmpty) {
+    address = url.pathSegments.first;
+  }
+
+  // Remove chain ID if present (format: address@chainId)
   if (address.contains('@')) {
-    // includes chain id, remove
     address = address.split('@').first;
   }
 
@@ -58,7 +66,8 @@ ParsedQRData parseEIP681(String raw) {
 
   final value = params['value'];
 
-  return ParsedQRData(address: address, amount: value);
+  final result = ParsedQRData(address: address, amount: value);
+  return result;
 }
 
 ParsedQRData parseEIP681Transfer(String raw) {
@@ -78,14 +87,37 @@ ParsedQRData parseSendtoUrlWithEIP681(String raw) {
   final receiveUrl = Uri.parse(cleanRaw);
 
   final urlEncodedParams = receiveUrl.queryParameters['eip681'];
+  final aliasParam = receiveUrl.queryParameters['alias'];
 
   if (urlEncodedParams == null) {
-    return ParsedQRData(address: '');
+    return ParsedQRData(address: '', alias: aliasParam);
   }
 
-  // Need to url decode the sendto param
   final decodedEIP681Param = Uri.decodeComponent(urlEncodedParams);
-  return parseEIP681(decodedEIP681Param);
+
+  if (decodedEIP681Param.contains('/transfer')) {
+    final parsedEIP681Transfer = parseEIP681Transfer(decodedEIP681Param);
+
+    return ParsedQRData(
+      address: parsedEIP681Transfer.address,
+      amount: parsedEIP681Transfer.amount,
+      description: parsedEIP681Transfer.description,
+      alias: aliasParam,
+      tip: parsedEIP681Transfer.tip,
+      calldata: parsedEIP681Transfer.calldata,
+    );
+  }
+
+  final parsedEIP681 = parseEIP681(decodedEIP681Param);
+
+  return ParsedQRData(
+    address: parsedEIP681.address,
+    amount: parsedEIP681.amount,
+    description: parsedEIP681.description,
+    alias: aliasParam,
+    tip: parsedEIP681.tip,
+    calldata: parsedEIP681.calldata,
+  );
 }
 
 // parse the sendto url
