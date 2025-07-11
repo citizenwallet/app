@@ -1707,22 +1707,30 @@ class WalletLogic extends WidgetsBindingObserver {
           final config = Config.fromJson(community.config);
           final token = config.getPrimaryToken();
 
-          if (raw.contains('eip681=')) {
-            final uri = Uri.parse(raw);
-            final eip681Param = uri.queryParameters['eip681'];
-            if (eip681Param != null) {
-              final decodedEIP681 = Uri.decodeComponent(eip681Param);
-              if (decodedEIP681.contains('@')) {
-                final chainIdPart = decodedEIP681.split('@')[1].split('/')[0];
-                final chainId = int.tryParse(chainIdPart);
-                if (chainId != null && chainId != token.chainId) {
-                  _notificationsLogic.show(
-                      'Wrong chain ID. Expected ${token.chainId}, got $chainId');
-                  throw QRInvalidException();
-                }
-              }
-            }
+          if (!raw.contains('eip681=')) {
+            return null;
           }
+
+          final uri = Uri.parse(raw);
+          final eip681Param = uri.queryParameters['eip681'];
+          if (eip681Param == null) {
+            return null;
+          }
+
+          final decodedEIP681 = Uri.decodeComponent(eip681Param);
+          if (!decodedEIP681.contains('@')) {
+            return null;
+          }
+
+          final chainIdPart = decodedEIP681.split('@')[1].split('/')[0];
+          final chainId = int.tryParse(chainIdPart);
+          if (chainId == null || chainId == token.chainId) {
+            return null;
+          }
+
+          _notificationsLogic
+              .show('Wrong chain ID. Expected ${token.chainId}, got $chainId');
+          throw QRInvalidException();
         } catch (e) {
           if (e is QRInvalidException) {
             rethrow;
