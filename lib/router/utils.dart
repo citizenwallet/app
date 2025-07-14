@@ -2,13 +2,28 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/utils/qr.dart';
 
 (String?, String?, String?) deepLinkParamsFromUri(String uri) {
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   String? voucherParams = uriData.queryParameters['params'];
   // String? receiveParams = uriData.queryParameters['receiveParams'];
-  String? sendToParams = uriData.queryParameters['sendto'] != null
-      ? 'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}'
-      : null;
+  String? sendToParams;
+
+  if (uriData.queryParameters['sendto'] != null) {
+    sendToParams =
+        'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}';
+  } else if (uriData.queryParameters['eip681'] != null) {
+    sendToParams =
+        'eip681=${uriData.queryParameters['eip681']}${uriData.queryParameters['alias'] != null ? '&alias=${uriData.queryParameters['alias']}' : ''}';
+  }
+
   String? deepLinkParams;
   final deepLink = uriData.queryParameters['dl'];
   if (deepLink != null) {
@@ -22,19 +37,43 @@ import 'package:citizenwallet/utils/qr.dart';
 }
 
 (String?, String?) deepLinkContentFromUri(String uri) {
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   return (uriData.queryParameters['voucher'], uriData.queryParameters['dl']);
 }
 
 String? aliasFromUri(String uri) {
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   return uriData.queryParameters['alias'];
 }
 
 String? aliasFromDeepLinkUri(String uri) {
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   final deepLinkName = uriData.queryParameters['dl'];
   if (deepLinkName == null) {
@@ -58,7 +97,15 @@ String? aliasFromReceiveUri(String uri) {
     return null;
   }
 
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   final compressedParams = uriData.queryParameters['receiveParams'];
   if (compressedParams == null) {
@@ -74,18 +121,28 @@ String? aliasFromReceiveUri(String uri) {
 
 String? aliasFromSendUri(String uri) {
   final format = parseQRFormat(uri);
+  
   if (format != QRFormat.sendtoUrl && format != QRFormat.sendtoUrlWithEIP681) {
     return null;
   }
 
-  final uriData = Uri.parse(Uri.parse(uri).fragment);
+  final fragment = Uri.parse(uri).fragment;
+  
+  // Handle the case where fragment starts with /?
+  String queryString = fragment;
+  if (fragment.startsWith('/?')) {
+    queryString = fragment.substring(2);
+  }
+  
+  final uriData = Uri.parse('temp://temp?$queryString');
 
   switch (format) {
     case QRFormat.sendtoUrl:
       final parsedData = parseSendtoUrl(uriData.toString());
       return parsedData.alias;
     case QRFormat.sendtoUrlWithEIP681:
-      final parsedData = parseSendtoUrlWithEIP681(uriData.toString());
+      // For sendtoUrlWithEIP681, we need to parse the original URI, not the dummy one
+      final parsedData = parseSendtoUrlWithEIP681(uri);
       return parsedData.alias;
     default:
       return null;

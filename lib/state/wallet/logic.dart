@@ -1696,6 +1696,51 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
+      if (format == QRFormat.sendtoUrlWithEIP681 && parsedData.alias != null) {
+        try {
+          final community =
+              await _appDBService.communities.get(parsedData.alias!);
+          if (community == null) {
+            throw Exception('Community not found');
+          }
+
+          final config = Config.fromJson(community.config);
+          final token = config.getPrimaryToken();
+
+          if (!raw.contains('eip681=')) {
+            return null;
+          }
+
+          final uri = Uri.parse(raw);
+          final eip681Param = uri.queryParameters['eip681'];
+          if (eip681Param == null) {
+            return null;
+          }
+
+          final decodedEIP681 = Uri.decodeComponent(eip681Param);
+          if (!decodedEIP681.contains('@')) {
+            return null;
+          }
+
+          final chainIdPart = decodedEIP681.split('@')[1].split('/')[0];
+          final chainId = int.tryParse(chainIdPart);
+          if (chainId == null || chainId == token.chainId) {
+            return null;
+          }
+
+          _notificationsLogic
+              .show('Wrong chain ID. Expected ${token.chainId}, got $chainId');
+          throw QRInvalidException();
+        } catch (e) {
+          if (e is QRInvalidException) {
+            rethrow;
+          }
+          _notificationsLogic
+              .show('Invalid token contract or community configuration');
+          throw QRInvalidException();
+        }
+      }
+
       if (parsedData.amount != null) {
         if (format == QRFormat.eip681Transfer) {
           final amount = fromDoubleUnit(
@@ -1718,6 +1763,8 @@ class WalletLogic extends WidgetsBindingObserver {
         ProfileV1? profile = await _wallet.getProfileByUsername(username);
         if (profile != null) {
           addressToUse = profile.account;
+        } else {
+          addressToUse = parsedData.address;
         }
       }
 

@@ -29,7 +29,10 @@ const List<String> cases = [
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test&tipTo=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE&tipAmount=2.00&tipDescription=tipDescriptionTest',
-  'https://app.citizenwallet.xyz/#/?alias=bread&dl=plugin&plugin=https%3A%2F%2Fmarketplace.citizenwallet.xyz%2Fbread'
+  'https://app.citizenwallet.xyz/#/?alias=bread&dl=plugin&plugin=https%3A%2F%2Fmarketplace.citizenwallet.xyz%2Fbread',
+  'https://example.com/?eip681=ethereum%3A0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%408453%3Fvalue%3D10.50&alias=wallet.pay.brussels',
+  'https://app.citizenwallet.xyz/#/?eip681=ethereum%3A0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607%40137%2Ftransfer%3Faddress%3D0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86B&alias=wallet.pay.brussels',
+  'https://app.citizenwallet.xyz/#/?eip681=ethereum%3A0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607%40137%2Ftransfer%3Faddress%3D0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86B',
 ];
 
 const List<QRFormat> expected = [
@@ -57,6 +60,9 @@ const List<QRFormat> expected = [
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.plugin,
+  QRFormat.sendtoUrlWithEIP681,
+  QRFormat.sendtoUrlWithEIP681,
+  QRFormat.sendtoUrlWithEIP681,
 ];
 
 const List<(String, String?, String?, String?, SendDestination?)>
@@ -130,7 +136,34 @@ const List<(String, String?, String?, String?, SendDestination?)>
       description: 'tipDescriptionTest',
     )
   ),
-  ('bread', null, 'https://marketplace.citizenwallet.xyz/bread', 'bread', null),
+  (
+    'bread',
+    null,
+    'https://marketplace.citizenwallet.xyz/bread',
+    'bread',
+    null,
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    null,
+    'wallet.pay.brussels',
+    null,
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86B',
+    null,
+    null,
+    'wallet.pay.brussels',
+    null,
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86B',
+    null,
+    null,
+    null,
+    null,
+  ),
 ];
 
 void main() {
