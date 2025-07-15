@@ -307,7 +307,7 @@
         "plugins": [
             {
                 "name": "About",
-                "icon": "https://wallet.sfluv.org/uploads/logo.svg",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
                 "url": "https://app.sfluv.org",
                 "launch_mode": "webview",
                 "signature": true,
@@ -506,13 +506,14 @@
         "plugins": [
             {
                 "name": "Market",
-                "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
                 "url": "https://marketplace.citizenwallet.xyz/bread",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "signature": true
             },
             {
                 "name": "Breadcon 2025 Faucet",
-                "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
                 "url": "https://faucet.citizenwallet.xyz/breadcon2025",
                 "launch_mode": "webview",
                 "signature": true,
@@ -593,7 +594,8 @@
                 "name": "Market",
                 "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
                 "url": "https://marketplace.citizenwallet.xyz/wallet.commonshub.brussels",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "signature": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.commonshub.brussels.json",
@@ -1372,9 +1374,10 @@
         "plugins": [
             {
                 "name": "Market",
-                "icon": "https://timebank.regensunite.earth/uploads/logo.svg",
+                "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
                 "url": "https://marketplace.citizenwallet.xyz/timebank.regensunite.earth",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "signature": true
             }
         ],
         "config_location": "https://timebank.regensunite.earth/indexer",
@@ -1441,7 +1444,8 @@
                 "name": "Market",
                 "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
                 "url": "https://marketplace.citizenwallet.xyz/moos",
-                "launch_mode": "webview"
+                "launch_mode": "webview",
+                "signature": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/moos.citizenwallet.xyz.json",
@@ -1508,7 +1512,8 @@
                 "name": "Market",
                 "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
                 "url": "https://marketplace.citizenwallet.xyz/selcoupdepouce",
-                "launch_mode": "browser"
+                "launch_mode": "browser",
+                "signature": true
             }
         ],
         "config_location": "https://config.internal.citizenwallet.xyz/v4/selcoupdepouce.citizenwallet.xyz.json",
@@ -1580,7 +1585,7 @@
             "url": "https://wolugo.be",
             "alias": "wallet.wolugo.be",
             "custom_domain": "wallet.wolugo.be",
-            "logo": "https://wallet.wolugo.be/uploads/logo.svg",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wolugo.svg",
             "theme": {
                 "primary": "#81e2c1"
             },
