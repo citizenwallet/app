@@ -508,7 +508,8 @@
         "name": "Market",
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
         "url": "https://marketplace.citizenwallet.xyz/bread",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "signature": true
       },
       {
         "name": "Breadcon 2025 Faucet",
@@ -593,7 +594,8 @@
         "name": "Market",
         "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
         "url": "https://marketplace.citizenwallet.xyz/wallet.commonshub.brussels",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "signature": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.commonshub.brussels.json",
@@ -1374,7 +1376,8 @@
         "name": "Market",
         "icon": "https://timebank.regensunite.earth/uploads/logo.svg",
         "url": "https://marketplace.citizenwallet.xyz/timebank.regensunite.earth",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "signature": true
       }
     ],
     "config_location": "https://timebank.regensunite.earth/indexer",
@@ -1441,7 +1444,8 @@
         "name": "Market",
         "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
         "url": "https://marketplace.citizenwallet.xyz/moos",
-        "launch_mode": "webview"
+        "launch_mode": "webview",
+        "signature": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/moos.citizenwallet.xyz.json",
@@ -1508,7 +1512,8 @@
         "name": "Market",
         "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
         "url": "https://marketplace.citizenwallet.xyz/selcoupdepouce",
-        "launch_mode": "browser"
+        "launch_mode": "browser",
+        "signature": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/selcoupdepouce.citizenwallet.xyz.json",

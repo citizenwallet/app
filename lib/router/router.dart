@@ -71,7 +71,11 @@ GoRouter createRouter(
 
               String? sendToParams;
               final sendTo = uri.queryParameters['sendto'];
+              final eip681 = uri.queryParameters['eip681'];
               if (sendTo != null) {
+                sendToParams =
+                    encodeParams(uri.toString().replaceFirst('/?', ''));
+              } else if (eip681 != null) {
                 sendToParams =
                     encodeParams(uri.toString().replaceFirst('/?', ''));
               }

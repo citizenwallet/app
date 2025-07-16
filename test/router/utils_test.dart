@@ -28,23 +28,23 @@ void main() {
     });
   });
 
-  group('Receive URI parsing', () {
-    const receiveUri =
-        'https://zinne.citizenwallet.xyz/#/?alias=zinne&receiveParams=H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
+  group('SendTo URI parsing', () {
+    const sendToUri =
+        'https://zinne.citizenwallet.xyz/#/?alias=zinne&sendto=H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
     const expectedAlias = 'zinne';
-    const expectedReceiveParams =
-        'H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
+    const expectedSendToParams =
+        'sendto=H4sIAOwZHmYA_w3MWQqAIBQAwNv4GSqKvQ-JQLvHcyvBBbIgOn3NAWbBEM44hqYPY9YI7hhIOQu1JaFUQgvWe1jBBDVLD07wQLBkHPrNrUWCtd_t0myilNT_wT3qI5bSP9IF7TdZAAAA';
 
-    test('parse alias from receive uri', () {
-      final alias = aliasFromReceiveUri(receiveUri);
+    test('parse alias from sendto uri', () {
+      final alias = aliasFromUri(sendToUri);
 
       expect(alias, expectedAlias);
     });
 
-    test('parse receive params from uri', () {
-      final (_, receiveParams, _) = deepLinkParamsFromUri(receiveUri);
+    test('parse sendto params from uri', () {
+      final (_, sendToParams, _) = deepLinkParamsFromUri(sendToUri);
 
-      expect(receiveParams, expectedReceiveParams);
+      expect(sendToParams, expectedSendToParams);
     });
   });
 

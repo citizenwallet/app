@@ -800,11 +800,15 @@ class WalletScreenState extends State<WalletScreen>
     String? params, {
     String? overrideAlias,
   }) async {
-    if (params == null) {
+    if (params == null && overrideAlias == null) {
       return (null, null);
     }
 
-    String? alias = overrideAlias ?? paramsAlias(params);
+    String? alias = overrideAlias;
+    if (alias == null && params != null) {
+      alias = paramsAlias(params);
+    }
+    
     if (alias == null) {
       return (null, null);
     }
@@ -817,7 +821,6 @@ class WalletScreenState extends State<WalletScreen>
 
     if (wallets.isEmpty) {
       final newAddress = await _appLogic.createWallet(alias);
-
       return (newAddress, alias);
     }
 
@@ -891,7 +894,7 @@ class WalletScreenState extends State<WalletScreen>
     if (result == null) {
       _profileLogic.resume();
       _profilesLogic.resume();
-      _voucherLogic.resume();
+      _voucherLogic.pause();
       return;
     }
 
@@ -918,6 +921,57 @@ class WalletScreenState extends State<WalletScreen>
     }
 
     final format = parseQRFormat(result);
+    if (format == QRFormat.plugin) {
+      final parsed = parseQRCode(result);
+      final pluginUrl = parsed.description;
+      final alias = parsed.alias;
+      if (pluginUrl == null || alias == null) {
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      if (alias != _alias) {
+        _address = null;
+        _alias = null;
+        _deepLink = 'plugin';
+        _deepLinkParams = encodeParams(pluginUrl);
+
+        final (address, newAlias) = await handleLoadFromParams(
+          null,
+          overrideAlias: alias,
+        );
+
+        if (address == null || newAlias == null) {
+          _profileLogic.resume();
+          _profilesLogic.resume();
+          _voucherLogic.resume();
+          return;
+        }
+
+        _address = address;
+        _alias = newAlias;
+
+        onLoad();
+        return;
+      }
+
+      final pluginConfig = await _logic.getPluginConfig(alias, pluginUrl);
+      if (pluginConfig == null) {
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      await handlePlugin(pluginConfig);
+
+      _profileLogic.resume();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
     if (format == QRFormat.url) {
       final redirectUrl = 'https://app.citizenwallet.xyz';
       final pluginUrl = '$redirectUrl/#/?dl=plugin';
@@ -974,13 +1028,13 @@ class WalletScreenState extends State<WalletScreen>
       return;
     }
 
-    final (voucherParams, receiveParams, deepLinkParams) =
+    final (voucherParams, sendToParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
 
     final parsedQRData = parseQRCode(result);
 
     if (voucherParams == null &&
-        receiveParams == null &&
+        sendToParams == null &&
         deepLinkParams == null &&
         parsedQRData.address.isEmpty) {
       _profileLogic.resume();
@@ -993,15 +1047,24 @@ class WalletScreenState extends State<WalletScreen>
     String? loadedAlias;
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
-
-    if (voucherParams != null || receiveParams != null || deepLinkParams != null) {
+    final sendAlias = aliasFromSendUri(result);
+    
+    if (voucherParams != null ||
+        deepLinkParams != null ||
+        sendToParams != null) {
       final (address, alias) = await handleLoadFromParams(
-        voucherParams ?? receiveParams ?? deepLinkParams ?? parsedQRData.alias,
-        overrideAlias: uriAlias ?? receiveAlias ?? parsedQRData.alias,
+        voucherParams ?? sendToParams ?? deepLinkParams ?? parsedQRData.alias,
+        overrideAlias: uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
       );
       loadedAddress = address;
       loadedAlias = alias;
     } else {
+      loadedAddress = parsedQRData.address;
+      loadedAlias = _alias;
+    }
+
+    // If loading from params failed but we have a parsed address, use that instead
+    if (loadedAddress == null && parsedQRData.address.isNotEmpty) {
       loadedAddress = parsedQRData.address;
       loadedAlias = _alias;
     }
@@ -1027,7 +1090,7 @@ class WalletScreenState extends State<WalletScreen>
       _alias = loadedAlias;
       _voucher = voucher;
       _voucherParams = voucherParams;
-      _receiveParams = receiveParams;
+      _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
       _sendToURL = result;

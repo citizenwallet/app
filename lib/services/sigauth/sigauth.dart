@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -8,19 +7,36 @@ class SigAuthConnection {
   final EthereumAddress address;
   final DateTime expiry;
   final String signature;
-  final String redirect;
+  final String? redirect;
 
   SigAuthConnection({
     required this.address,
     required this.expiry,
     required this.signature,
-    required this.redirect,
+    this.redirect,
   });
 
   bool get isValid => expiry.isAfter(DateTime.now());
 
-  String get queryParams =>
-      'sigAuthAccount=${address.hexEip55}&sigAuthExpiry=${expiry.toIso8601String()}&sigAuthSignature=$signature&sigAuthRedirect=${Uri.encodeComponent(redirect)}';
+  String get queryParams {
+    String params =
+        'sigAuthAccount=${address.hexEip55}&sigAuthExpiry=${expiry.toIso8601String()}&sigAuthSignature=$signature';
+
+    if (redirect != null) {
+      params += '&sigAuthRedirect=${Uri.encodeComponent(redirect!)}';
+    }
+
+    return params;
+  }
+
+  Map<String, String> toMap() {
+    return {
+      'x-sigauth-account': address.hexEip55,
+      'x-sigauth-expiry': expiry.toIso8601String(),
+      'x-sigauth-signature': signature,
+      if (redirect != null) 'x-sigauth-redirect': redirect!,
+    };
+  }
 
   @override
   String toString() =>
@@ -30,12 +46,12 @@ class SigAuthConnection {
 class SigAuthService {
   final EthPrivateKey _credentials;
   final EthereumAddress _address;
-  final String _redirect;
+  final String? _redirect;
 
   SigAuthService({
     required EthPrivateKey credentials,
     required EthereumAddress address,
-    required String redirect,
+    String? redirect,
   })  : _credentials = credentials,
         _address = address,
         _redirect = redirect;
@@ -43,12 +59,16 @@ class SigAuthService {
   SigAuthConnection connect({DateTime? expiry}) {
     final expiryDate = expiry ?? DateTime.now().add(const Duration(days: 7));
 
-    final message =
-        'Signature auth for ${_address.hexEip55} with expiry ${expiryDate.toIso8601String()} and redirect ${Uri.encodeComponent(_redirect)}';
+    String message =
+        'Signature auth for ${_address.hexEip55} with expiry ${expiryDate.toIso8601String()}';
+
+    if (_redirect != null) {
+      message += ' and redirect ${Uri.encodeComponent(_redirect!)}';
+    }
 
     final signature = bytesToHex(
       _credentials.signPersonalMessageToUint8List(
-        convertBytesToUint8List(utf8.encode(message)),
+        keccak256(utf8.encode(message)),
       ),
       include0x: true,
     );

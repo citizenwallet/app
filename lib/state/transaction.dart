@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:citizenwallet/models/transaction.dart' as transaction_model;
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
@@ -67,7 +68,6 @@ class TransactionState with ChangeNotifier {
             ) ??
             transaction_model.TransactionState.success,
       );
-
     } catch (_) {
     } finally {
       loading = false;
