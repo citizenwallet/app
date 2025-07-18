@@ -175,7 +175,8 @@ Future<ProfileV1?> getProfileByUsername(Config config, String username) async {
 /// profileExists checks whether there is a profile for this username
 Future<bool> profileExists(Config config, String username) async {
   try {
-    final url = await config.profileContract.getURLFromUsername(username);
+    final url = await config.profileContract.getURLFromUsername(username)
+        .timeout(const Duration(seconds: 10));
 
     return url != '';
   } catch (exception) {
@@ -604,6 +605,7 @@ Future<(String, UserOp)> prepareUserop(
               : simpleAccount.executeCallData(
                   dest[0],
                   value ?? BigInt.zero,
+                  // value ?? BigInt.zero,
                   calldata[0],
                 );
           break;
@@ -614,6 +616,7 @@ Future<(String, UserOp)> prepareUserop(
           userop.callData = safeAccount.executeCallData(
             dest[0],
             value ?? BigInt.zero,
+            // value ?? BigInt.zero,
             calldata[0],
           );
           break;

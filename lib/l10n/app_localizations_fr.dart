@@ -15,6 +15,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm => 'Confirmer';
 
   @override
+  String get confirmAction => 'Confirmer l\'action';
+
+  @override
+  String get confirmActionSub =>
+      'Êtes-vous sûr de vouloir confirmer cette action?';
+
+  @override
   String get welcomeCitizen => 'Welcome, citizen!';
 
   @override
@@ -222,6 +229,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minted => 'Émis';
+
+  @override
+  String get burned => 'Brûlé';
 
   @override
   String get noDescription => 'pas de description';

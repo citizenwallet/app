@@ -72,7 +72,6 @@ class AccountScreenState extends State<AccountScreen> {
       widget.address!,
       widget.alias!,
       (bool hasChanged) async {
-        // Initialize ProfileLogic with wallet state
         _logic.setWalletState(
           _walletLogic.config!,
           _walletLogic.credentials!,
@@ -82,7 +81,6 @@ class AccountScreenState extends State<AccountScreen> {
         await _logic.loadProfileLink();
 
         if (hasChanged) {
-          // Only reset if we don't already have profile data
           final profileState = context.read<ProfileState>();
           if (profileState.username.isEmpty) {
             _logic.resetAll();

@@ -333,7 +333,8 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    context.select((WalletState state) => state.hasTip)
+                    context.select((WalletState state) => state.hasTip) &&
+                            widget.sendTransaction?.tipTo == null
                         ? Column(
                             children: [
                               Button(
@@ -358,8 +359,12 @@ class _SendProgressState extends State<SendProgress> {
                                 onPressed: () {
                                   final navigator = GoRouter.of(context);
 
-                                  navigator.go(
-                                      '/wallet/${widget.walletLogic?.account}');
+                                  if (navigator.canPop()) {
+                                    navigator.pop();
+                                  } else {
+                                    navigator.go(
+                                        '/wallet/${widget.walletLogic?.account}');
+                                  }
                                 },
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(

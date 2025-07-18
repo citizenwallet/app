@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/delay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';

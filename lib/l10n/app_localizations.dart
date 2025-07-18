@@ -114,6 +114,18 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
+  /// No description provided for @confirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Action'**
+  String get confirmAction;
+
+  /// No description provided for @confirmActionSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to confirm this action?'**
+  String get confirmActionSub;
+
   /// No description provided for @welcomeCitizen.
   ///
   /// In en, this message translates to:
@@ -485,6 +497,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Minted'**
   String get minted;
+
+  /// No description provided for @burned.
+  ///
+  /// In en, this message translates to:
+  /// **'Burned'**
+  String get burned;
 
   /// No description provided for @noDescription.
   ///

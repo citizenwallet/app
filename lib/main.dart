@@ -19,7 +19,6 @@ import 'package:citizenwallet/state/theme/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/notifications/notification_banner.dart';
 import 'package:citizenwallet/widgets/notifications/toast.dart';
 import 'package:firebase_core/firebase_core.dart';

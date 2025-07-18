@@ -40,6 +40,7 @@ class ProfileState with ChangeNotifier {
   final TextEditingController usernameController = TextEditingController();
   bool usernameLoading = false;
   bool usernameError = false;
+  String usernameErrorMessage = '';
 
   final TextEditingController nameController = TextEditingController();
   bool nameError = false;
@@ -56,7 +57,6 @@ class ProfileState with ChangeNotifier {
   ProfileV1? viewProfile;
 
   void resetAll({notify = false}) {
-    print('ProfileState.resetAll: Resetting all profile data');
     account = '';
     username = '';
     name = '';
@@ -68,6 +68,7 @@ class ProfileState with ChangeNotifier {
     usernameController.text = '';
     usernameLoading = false;
     usernameError = false;
+    usernameErrorMessage = '';
 
     nameController.text = '';
     nameError = false;
@@ -84,6 +85,7 @@ class ProfileState with ChangeNotifier {
     usernameController.text = '';
     usernameLoading = false;
     usernameError = false;
+    usernameErrorMessage = '';
 
     nameController.text = '';
     nameError = false;
@@ -179,7 +181,6 @@ class ProfileState with ChangeNotifier {
     required String imageMedium,
     required String imageSmall,
   }) {
-    print('ProfileState.setProfileSuccess: Setting username to "$username"');
     this.account = account;
     this.username = username;
     this.name = name;
@@ -227,20 +228,22 @@ class ProfileState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setUsernameSuccess({String? username}) {
+  void setUsernameError({String message = ''}) {
     usernameLoading = false;
-    usernameError = false;
-
-    if (username != null && username.isNotEmpty) {
-      this.username = username;
-    }
+    usernameError = true;
+    usernameErrorMessage = message;
 
     notifyListeners();
   }
 
-  void setUsernameError() {
+  void setUsernameSuccess({String? username}) {
     usernameLoading = false;
-    usernameError = true;
+    usernameError = false;
+    usernameErrorMessage = '';
+
+    if (username != null && username.isNotEmpty) {
+      this.username = username;
+    }
 
     notifyListeners();
   }

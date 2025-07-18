@@ -135,7 +135,24 @@ class ProfileLogic {
       _state.setUsernameError();
     }
 
-    if (username == _state.username) {
+    if (username.length < 3) {
+      _state.setUsernameError(
+          message: 'Username must be at least 3 characters long.');
+      return;
+    }
+
+    final usernameRegex = RegExp(r'^[a-zA-Z0-9_-]+$');
+    if (!usernameRegex.hasMatch(username)) {
+      _state.setUsernameError(
+          message:
+              'Username can only contain letters, numbers, underscores, and hyphens.');
+      return;
+    }
+
+    if (username.toLowerCase() == _state.username.toLowerCase()) {
+      debugPrint(
+          'Username unchanged: "$username" matches current username "${_state.username}"');
+      _state.setUsernameSuccess();
       return;
     }
 
@@ -147,31 +164,35 @@ class ProfileLogic {
     try {
       _state.setUsernameRequest();
 
-      final exists = await profileExists(_config!, username);
+      final exists = await profileExists(_config!, username.toLowerCase());
       if (exists) {
+        final existingProfile =
+            await getProfileByUsername(_config!, username.toLowerCase());
+        if (existingProfile != null &&
+            existingProfile.account == _account!.hexEip55) {
+          _state.setUsernameSuccess();
+          return;
+        }
         throw Exception('Already exists');
       }
 
       _state.setUsernameSuccess();
       return;
     } catch (exception) {
-      //
+      debugPrint('Username check error: $exception');
+      if (exception.toString().contains('Already exists')) {
+        _state.setUsernameError(message: 'This username is already taken.');
+      } else {
+        _state.setUsernameError(
+            message: 'Unable to check username availability.');
+      }
     }
-
-    _state.setUsernameError();
   }
 
   Future<void> loadProfile({String? account, bool online = false}) async {
-    if (_account == null || _config == null) {
-      print('ProfileLogic.loadProfile: _account or _config is null');
-      return;
-    }
-    
     final ethAccount = _account!;
     final alias = _config!.community.alias;
     final acc = account ?? ethAccount.hexEip55;
-
-    print('ProfileLogic.loadProfile: Loading profile for account $acc, alias $alias, online: $online');
 
     resume();
 
@@ -181,12 +202,8 @@ class ProfileLogic {
       final account =
           await _accountBackupDBService.accounts.get(ethAccount, alias);
 
-      print('ProfileLogic.loadProfile: Found account in DB: ${account != null}');
-      print('ProfileLogic.loadProfile: Account has profile: ${account?.profile != null}');
-
       if (account != null && account.profile != null) {
         final profile = account.profile!;
-        print('ProfileLogic.loadProfile: Setting profile from DB - username: ${profile.username}');
         _state.setProfileSuccess(
           account: profile.account,
           username: profile.username,
@@ -204,24 +221,15 @@ class ProfileLogic {
       }
 
       if (!online) {
-        print('ProfileLogic.loadProfile: Community is offline, exiting');
         throw Exception('community is offline');
       }
 
-      print('ProfileLogic.loadProfile: Fetching profile from network');
       final profile = await getProfile(_config!, acc);
-      print('ProfileLogic.loadProfile: Network profile found: ${profile != null}');
-      
       if (profile == null) {
-        print('ProfileLogic.loadProfile: No network profile found, current username: ${_state.username}');
         _state.setProfileNoChangeSuccess();
-        
-        // Only generate a new username if we don't already have one
+
         if (_state.username.isEmpty) {
-          print('ProfileLogic.loadProfile: Generating new username');
           giveProfileUsername();
-        } else {
-          print('ProfileLogic.loadProfile: Keeping existing username: ${_state.username}');
         }
 
         return;
@@ -229,7 +237,6 @@ class ProfileLogic {
 
       profile.name = cleanNameString(profile.name);
 
-      print('ProfileLogic.loadProfile: Setting profile from network - username: ${profile.username}');
       _state.setProfileSuccess(
         account: profile.account,
         username: profile.username,

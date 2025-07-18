@@ -42,6 +42,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:citizenwallet/state/wallet_connect/logic.dart';
 
 const txFetchInterval = Duration(seconds: 1);
 
@@ -74,6 +75,7 @@ class WalletLogic extends WidgetsBindingObserver {
   final WalletState _state;
   final ThemeLogic _theme = ThemeLogic();
   final NotificationsLogic _notificationsLogic;
+  final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   final String defaultAlias = dotenv.get('DEFAULT_COMMUNITY_ALIAS');
   final String deepLinkURL = dotenv.get('ORIGIN_HEADER');
@@ -123,7 +125,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
-        _notificationsLogic = notificationsLogic;
+        _notificationsLogic = notificationsLogic {
+    _walletKitLogic.setContext(context);
+  }
 
   // References to other logic classes that need wallet state
   ProfilesLogic? _profilesLogic;
@@ -666,7 +670,8 @@ class WalletLogic extends WidgetsBindingObserver {
       final token = communityConfig.getPrimaryToken();
 
       if (_eventService != null) {
-        _eventService!.disconnect();
+        await _eventService!.disconnect();
+        handleEventServiceIntentionalDisconnect(true);
         _eventService = null;
       }
 
@@ -680,20 +685,26 @@ class WalletLogic extends WidgetsBindingObserver {
       _eventService!.setStateHandler(handleEventServiceStateChange);
 
       await _eventService!.connect();
+      handleEventServiceIntentionalDisconnect(false);
 
       return;
     } catch (_) {}
   }
 
-  void transferEventUnsubscribe() {
+  Future<void> transferEventUnsubscribe() async {
     if (_eventService != null) {
-      _eventService!.disconnect();
+      await _eventService!.disconnect();
+      handleEventServiceIntentionalDisconnect(true);
       _eventService = null;
     }
   }
 
   void handleEventServiceStateChange(EventServiceState state) {
     _state.setEventServiceState(state);
+  }
+
+  void handleEventServiceIntentionalDisconnect(bool intentionalDisconnect) {
+    _state.setEventServiceIntentionalDisconnect(intentionalDisconnect);
   }
 
   void handleTransferEvent(WebSocketEvent event) {
@@ -1345,6 +1356,69 @@ class WalletLogic extends WidgetsBindingObserver {
     return null;
   }
 
+  Future<String?> sendCallDataTransaction(
+    String to,
+    String value,
+    String data,
+  ) async {
+    try {
+      _state.sendCallDataTransaction();
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      final calldata = hexToBytes(data);
+
+      final (hash, userop) = await prepareUserop(
+        _currentConfig!,
+        _currentAccount!,
+        _currentCredentials!,
+        [to],
+        [calldata],
+        value: BigInt.parse(value.isEmpty ? '0' : value),
+      );
+
+      final txHash = await submitUserop(
+        _currentConfig!,
+        userop,
+      );
+      if (txHash == null) {
+        // this is an optional operation
+        throw Exception('transaction failed');
+      }
+
+      if (userop.isFirst()) {
+        waitForTxSuccess(_currentConfig!, txHash).then((value) {
+          if (!value) {
+            return;
+          }
+
+          // the account exists, enable push notifications
+          _notificationsLogic.refreshPushToken();
+        });
+      }
+
+      clearInputControllers();
+
+      _state.sendCallDataTransactionSuccess();
+
+      return txHash;
+    } on NetworkCongestedException {
+      //
+    } on NetworkInvalidBalanceException {
+      //
+    } catch (e, s) {
+      print('error: $e');
+      print('stack: $s');
+    }
+
+    _state.sendCallDataTransactionError();
+
+    return null;
+  }
+
   Future<String?> sendTransactionFromUnlocked(
     String amount,
     String to, {
@@ -1375,7 +1449,6 @@ class WalletLogic extends WidgetsBindingObserver {
         _currentAccount!.hexEip55,
       );
 
-      // TODO: token id should be set
       final calldata = tokenTransferCallData(
         _currentConfig!,
         _currentAccount!,
@@ -1699,8 +1772,61 @@ class WalletLogic extends WidgetsBindingObserver {
         throw QRInvalidException();
       }
 
+      if (format == QRFormat.sendtoUrlWithEIP681 && parsedData.alias != null) {
+        try {
+          final community =
+              await _appDBService.communities.get(parsedData.alias!);
+          if (community == null) {
+            throw Exception('Community not found');
+          }
+
+          final config = Config.fromJson(community.config);
+          final token = config.getPrimaryToken();
+
+          if (!raw.contains('eip681=')) {
+            return null;
+          }
+
+          final uri = Uri.parse(raw);
+          final eip681Param = uri.queryParameters['eip681'];
+          if (eip681Param == null) {
+            return null;
+          }
+
+          final decodedEIP681 = Uri.decodeComponent(eip681Param);
+          if (!decodedEIP681.contains('@')) {
+            return null;
+          }
+
+          final chainIdPart = decodedEIP681.split('@')[1].split('/')[0];
+          final chainId = int.tryParse(chainIdPart);
+          if (chainId == null || chainId == token.chainId) {
+            return null;
+          }
+
+          _notificationsLogic
+              .show('Wrong chain ID. Expected ${token.chainId}, got $chainId');
+          throw QRInvalidException();
+        } catch (e) {
+          if (e is QRInvalidException) {
+            rethrow;
+          }
+          _notificationsLogic
+              .show('Invalid token contract or community configuration');
+          throw QRInvalidException();
+        }
+      }
+
       if (parsedData.amount != null) {
-        _amountController.text = parsedData.amount!;
+        if (format == QRFormat.eip681Transfer) {
+          final amount = fromDoubleUnit(
+            parsedData.amount!,
+            decimals: _currentConfig!.getPrimaryToken().decimals,
+          );
+          _amountController.text = amount;
+        } else {
+          _amountController.text = parsedData.amount!;
+        }
         updateAmount();
       }
 
@@ -1714,6 +1840,8 @@ class WalletLogic extends WidgetsBindingObserver {
             await getProfileByUsername(_currentConfig!, username);
         if (profile != null) {
           addressToUse = profile.account;
+        } else {
+          addressToUse = parsedData.address;
         }
       }
 

@@ -68,6 +68,11 @@ class TransactionRowState extends State<TransactionRow> {
     final addressEmpty = isEmptyAddress(address);
     final formattedAddress = addressEmpty ? '' : formatHexAddress(address);
 
+    final fromEmpty = isEmptyAddress(transaction.from);
+    final toEmpty = isEmptyAddress(transaction.to);
+    final isMintTransaction = fromEmpty && !toEmpty;
+    final isBurnTransaction = !fromEmpty && toEmpty;
+
     final profile = widget.profiles[address];
     final voucher = widget.vouchers[address];
 
@@ -184,9 +189,12 @@ class TransactionRowState extends State<TransactionRow> {
                         child: Text(
                           transaction.description.isNotEmpty
                               ? transaction.description
-                              : addressEmpty
+                              : isMintTransaction
                                   ? AppLocalizations.of(context)!.minted
-                                  : AppLocalizations.of(context)!.noDescription,
+                                  : isBurnTransaction
+                                      ? AppLocalizations.of(context)!.burned
+                                      : AppLocalizations.of(context)!
+                                          .noDescription,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

@@ -31,6 +31,7 @@ class WalletState with ChangeNotifier {
   bool error = false;
 
   EventServiceState eventServiceState = EventServiceState.disconnected;
+  bool eventServiceIntentionalDisconnect = true;
 
   Exception? errorException;
 
@@ -85,6 +86,11 @@ class WalletState with ChangeNotifier {
 
   void setEventServiceState(EventServiceState state) {
     eventServiceState = state;
+    notifyListeners();
+  }
+
+  void setEventServiceIntentionalDisconnect(bool intentionalDisconnect) {
+    eventServiceIntentionalDisconnect = intentionalDisconnect;
     notifyListeners();
   }
 
@@ -316,6 +322,24 @@ class WalletState with ChangeNotifier {
   void loadAdditionalTransactionsError() {
     transactionsLoading = false;
     transactionsError = true;
+    notifyListeners();
+  }
+
+  void sendCallDataTransaction() {
+    transactionSendLoading = true;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendCallDataTransactionSuccess() {
+    transactionSendLoading = false;
+    transactionSendError = false;
+    notifyListeners();
+  }
+
+  void sendCallDataTransactionError() {
+    transactionSendLoading = false;
+    transactionSendError = true;
     notifyListeners();
   }
 

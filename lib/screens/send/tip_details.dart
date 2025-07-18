@@ -66,14 +66,12 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   void initState() {
     super.initState();
     _sendTransaction = widget.sendTransaction ?? SendTransaction();
-    // post frame callback
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // initial requests go here
       final walletLogic = widget.walletLogic;
       final tipTo = context.read<WalletState>().tipTo;
 
       if (tipTo != null) {
-        // Get profile from tipTo address
         widget.profilesLogic.getLocalProfile(tipTo).then((profile) {
           if (profile != null) {
             widget.profilesLogic.selectProfile(profile);
@@ -88,6 +86,16 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
         const Duration(milliseconds: 500),
       );
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tipTo = context.read<WalletState>().tipTo;
+    if (tipTo != null) {
+      context.read<WalletState>().setHasTip(true);
+      context.read<WalletState>().setHasAddress(true);
+    }
   }
 
   @override
@@ -235,7 +243,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final isValid = walletLogic.validateSendFields(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      tipTo,
     );
 
     if (!isValid) {
@@ -261,13 +269,15 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     );
 
     context.read<WalletState>().setHasTip(false);
+    context.read<WalletState>().setHasAddress(false);
+    context.read<WalletState>().setTipTo(null);
 
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
     final sent = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send/$toAccount/progress',
+        '/wallet/${walletLogic.account}/send/$tipTo/progress',
         extra: {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
@@ -275,19 +285,24 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
           'sendTransaction': sendTip,
         });
 
-    walletLogic.clearInProgressTransaction();
-
     if (sent == true) {
+      walletLogic.clearInProgressTransaction();
       walletLogic.clearInputControllers();
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
       await Future.delayed(const Duration(milliseconds: 50));
 
-      if (navigator.canPop()) {
-        navigator.go('/wallet/${walletLogic.account}');
+      final walletAddress = walletLogic.address.isNotEmpty 
+          ? walletLogic.address 
+          : walletLogic.account.isNotEmpty 
+              ? walletLogic.account 
+              : context.read<WalletState>().wallet?.address ?? '';
+      
+      if (walletAddress.isNotEmpty) {
+        navigator.go('/wallet/$walletAddress');
       } else {
-        navigator.go('/wallet/${walletLogic.account}');
+        navigator.go('/');
       }
       return;
     }

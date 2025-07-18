@@ -10,8 +10,10 @@ enum QRFormat {
   receiveUrl,
   sendtoUrl,
   sendtoUrlWithEIP681,
+  calldataUrl,
   url,
   unsupported,
+  plugin,
 }
 
 QRFormat parseQRFormat(String raw) {
@@ -25,12 +27,16 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.sendtoUrl;
   } else if (raw.startsWith('https://') && raw.contains('sendto=')) {
     return QRFormat.sendtoUrl;
+  } else if (raw.startsWith('https://') && raw.contains('calldata=')) {
+    return QRFormat.calldataUrl;
   } else if (raw.startsWith('0x')) {
     return QRFormat.address;
   } else if (raw.contains('receiveParams=')) {
     return QRFormat.receiveUrl;
   } else if (raw.contains('voucher=')) {
     return QRFormat.voucher;
+  } else if (raw.contains('dl=plugin')) {
+    return QRFormat.plugin;
   } else if (raw.startsWith('https://') || raw.startsWith('http://')) {
     return QRFormat.url;
   } else {
@@ -42,9 +48,17 @@ QRFormat parseQRFormat(String raw) {
 ParsedQRData parseEIP681(String raw) {
   final url = Uri.parse(raw);
 
-  String address = url.pathSegments.first;
+  // EIP681 format is ethereum:address@chainId/...
+  // The address is in the authority part, not path segments
+  String address = url.authority;
+  
+  // If authority is empty, try path segments as fallback
+  if (address.isEmpty && url.pathSegments.isNotEmpty) {
+    address = url.pathSegments.first;
+  }
+
+  // Remove chain ID if present (format: address@chainId)
   if (address.contains('@')) {
-    // includes chain id, remove
     address = address.split('@').first;
   }
 
@@ -52,7 +66,8 @@ ParsedQRData parseEIP681(String raw) {
 
   final value = params['value'];
 
-  return ParsedQRData(address: address, amount: value);
+  final result = ParsedQRData(address: address, amount: value);
+  return result;
 }
 
 ParsedQRData parseEIP681Transfer(String raw) {
@@ -72,14 +87,37 @@ ParsedQRData parseSendtoUrlWithEIP681(String raw) {
   final receiveUrl = Uri.parse(cleanRaw);
 
   final urlEncodedParams = receiveUrl.queryParameters['eip681'];
+  final aliasParam = receiveUrl.queryParameters['alias'];
 
   if (urlEncodedParams == null) {
-    return ParsedQRData(address: '');
+    return ParsedQRData(address: '', alias: aliasParam);
   }
 
-  // Need to url decode the sendto param
   final decodedEIP681Param = Uri.decodeComponent(urlEncodedParams);
-  return parseEIP681(decodedEIP681Param);
+
+  if (decodedEIP681Param.contains('/transfer')) {
+    final parsedEIP681Transfer = parseEIP681Transfer(decodedEIP681Param);
+
+    return ParsedQRData(
+      address: parsedEIP681Transfer.address,
+      amount: parsedEIP681Transfer.amount,
+      description: parsedEIP681Transfer.description,
+      alias: aliasParam,
+      tip: parsedEIP681Transfer.tip,
+      calldata: parsedEIP681Transfer.calldata,
+    );
+  }
+
+  final parsedEIP681 = parseEIP681(decodedEIP681Param);
+
+  return ParsedQRData(
+    address: parsedEIP681.address,
+    amount: parsedEIP681.amount,
+    description: parsedEIP681.description,
+    alias: aliasParam,
+    tip: parsedEIP681.tip,
+    calldata: parsedEIP681.calldata,
+  );
 }
 
 // parse the sendto url
@@ -122,6 +160,29 @@ ParsedQRData parseSendtoUrl(String raw) {
   );
 }
 
+ParsedQRData parseCalldataUrl(String raw) {
+  final cleanRaw = raw.replaceFirst('/#/', '/');
+  final decodedRaw = Uri.decodeComponent(cleanRaw);
+
+  final receiveUrl = Uri.parse(decodedRaw);
+
+  final aliasParam = receiveUrl.queryParameters['alias'];
+  final addressParam = receiveUrl.queryParameters['address'];
+  final calldataParam = receiveUrl.queryParameters['calldata'];
+  final valueParam = receiveUrl.queryParameters['value'];
+
+  if (calldataParam == null || addressParam == null) {
+    return ParsedQRData(address: '');
+  }
+
+  return ParsedQRData(
+    address: addressParam,
+    calldata: calldataParam,
+    amount: valueParam,
+    alias: aliasParam,
+  );
+}
+
 ParsedQRData parseReceiveUrl(String raw) {
   final receiveUrl = Uri.parse(raw.split('/#/').last);
 
@@ -160,6 +221,24 @@ ParsedQRData parseReceiveUrl(String raw) {
   return ParsedQRData(address: '');
 }
 
+ParsedQRData parsePluginUrl(String raw) {
+  final receiveUrl = Uri.parse(raw.split('/#/').last);
+
+  final alias = receiveUrl.queryParameters['alias'];
+  final pluginUrl = receiveUrl.queryParameters['plugin'];
+
+  String? decodedPluginUrl;
+  if (pluginUrl != null) {
+    decodedPluginUrl = Uri.decodeComponent(pluginUrl);
+  }
+
+  return ParsedQRData(
+    address: alias ?? '',
+    description: decodedPluginUrl,
+    alias: alias,
+  );
+}
+
 // address, amount, description, alias
 ParsedQRData parseQRCode(String raw) {
   final format = parseQRFormat(raw);
@@ -177,6 +256,10 @@ ParsedQRData parseQRCode(String raw) {
       return parseSendtoUrl(raw);
     case QRFormat.sendtoUrlWithEIP681:
       return parseSendtoUrlWithEIP681(raw);
+    case QRFormat.calldataUrl:
+      return parseCalldataUrl(raw);
+    case QRFormat.plugin:
+      return parsePluginUrl(raw);
     case QRFormat.url:
     // nothing to parse
     case QRFormat.voucher:
@@ -226,6 +309,7 @@ class ParsedQRData {
   final String? description;
   final String? alias;
   final SendDestination? tip;
+  final String? calldata;
 
   const ParsedQRData({
     required this.address,
@@ -233,5 +317,6 @@ class ParsedQRData {
     this.description,
     this.alias,
     this.tip,
+    this.calldata,
   });
 }

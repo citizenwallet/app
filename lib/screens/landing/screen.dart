@@ -346,10 +346,10 @@ class LandingScreenState extends State<LandingScreen>
       return;
     }
 
-    final (voucherParams, receiveParams, deepLinkParams) =
+    final (voucherParams, sendToParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
     if (voucherParams == null &&
-        receiveParams == null &&
+        sendToParams == null &&
         deepLinkParams == null) {
       return;
     }
@@ -358,7 +358,7 @@ class LandingScreenState extends State<LandingScreen>
     final receiveAlias = aliasFromReceiveUri(result);
 
     final (address, alias) = await handleLoadFromParams(
-      voucherParams ?? receiveParams ?? deepLinkParams,
+      voucherParams ?? sendToParams ?? deepLinkParams,
       overrideAlias: uriAlias ?? receiveAlias,
     );
 
@@ -375,7 +375,7 @@ class LandingScreenState extends State<LandingScreen>
     String params = parseParamsFromWidget(
       voucher: voucher,
       voucherParams: voucherParams,
-      receiveParams: receiveParams,
+      receiveParams: null,
       deepLink: deepLink,
       deepLinkParams: deepLinkParams,
       extra: [

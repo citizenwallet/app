@@ -10,16 +10,21 @@ import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
+import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
+import 'package:citizenwallet/state/wallet_connect/logic.dart';
+import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/skeleton/pulsing_container.dart';
+import 'package:citizenwallet/widgets/wallet_connect_sessions_modal.dart';
+import 'package:citizenwallet/widgets/webview/connected_webview_modal.dart';
 import 'package:citizenwallet/widgets/webview/webview_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +34,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
-import 'package:citizenwallet/widgets/webview/connected_webview_modal.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
+import 'dart:async';
 
 class WalletScreen extends StatefulWidget {
   final WalletLogic wallet;
@@ -59,7 +65,8 @@ class WalletScreen extends StatefulWidget {
   WalletScreenState createState() => WalletScreenState();
 }
 
-class WalletScreenState extends State<WalletScreen> {
+class WalletScreenState extends State<WalletScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   late NotificationsLogic _notificationsLogic;
   late AppLogic _appLogic;
@@ -67,6 +74,7 @@ class WalletScreenState extends State<WalletScreen> {
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
+  final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   String? _address;
   String? _alias;
@@ -76,10 +84,12 @@ class WalletScreenState extends State<WalletScreen> {
   String? _deepLink;
   String? _deepLinkParams;
   String? _sendToURL;
+  Config? _config;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _address = widget.address;
     _alias = widget.alias;
@@ -98,12 +108,10 @@ class WalletScreenState extends State<WalletScreen> {
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
     WidgetsBinding.instance.addObserver(_voucherLogic);
+    WidgetsBinding.instance.addObserver(_walletKitLogic);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // make initial requests here
-
       _scrollController.addListener(onScrollUpdate);
-
       onLoad();
     });
   }
@@ -111,15 +119,14 @@ class WalletScreenState extends State<WalletScreen> {
   @override
   void dispose() {
     _logic.pauseFetching();
-
     _scrollController.removeListener(onScrollUpdate);
-
     WidgetsBinding.instance.removeObserver(_profilesLogic);
     WidgetsBinding.instance.removeObserver(_voucherLogic);
+    WidgetsBinding.instance.removeObserver(_walletKitLogic);
+    WidgetsBinding.instance.removeObserver(this);
 
     _profilesLogic.dispose();
     _voucherLogic.dispose();
-
     super.dispose();
   }
 
@@ -170,6 +177,8 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
+    _walletKitLogic.setContext(context);
+
     await _logic.openWallet(
       _address!,
       _alias!,
@@ -192,6 +201,19 @@ class WalletScreenState extends State<WalletScreen> {
       },
     );
 
+    try {
+      await _walletKitLogic.initialize();
+      await _walletKitLogic.registerWallet(_address!);
+
+      await _walletKitLogic.restoreSessions();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error initializing WalletKit: $e');
+    }
+
     _notificationsLogic.init();
 
     if (_voucher != null && _voucherParams != null) {
@@ -208,6 +230,50 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
+    }
+  }
+
+  Future<void> handleDisconnect() async {
+    try {
+      final sessions = _walletKitLogic.connectClient?.getActiveSessions();
+      if (sessions != null && sessions.isNotEmpty) {
+        if (!mounted) return;
+
+        await showCupertinoModalPopup(
+          context: context,
+          builder: (context) => WalletConnectSessionsModal(
+            onDisconnect: (topic) async {
+              await _walletKitLogic.disconnectSession(
+                topic: topic,
+                reason:
+                    Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+              );
+
+              if (mounted) {
+                _notificationsLogic.toastShow(
+                  'Successfully disconnected from session',
+                  type: ToastType.success,
+                );
+
+                final remainingSessions =
+                    _walletKitLogic.connectClient?.getActiveSessions();
+                if (remainingSessions == null || remainingSessions.isEmpty) {
+                  Navigator.of(context).pop();
+                }
+
+                setState(() {});
+              }
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _notificationsLogic.toastShow(
+          'Failed to disconnect from session',
+          type: ToastType.error,
+        );
+      }
     }
   }
 
@@ -411,7 +477,6 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   void handleDisplayWalletQR(BuildContext context) async {
-    // temporarily disabled until we move the account screen back
     _logic.updateWalletQR();
 
     _profileLogic.pause();
@@ -697,16 +762,20 @@ class WalletScreenState extends State<WalletScreen> {
   void handleOpenAccountSwitcher() async {
     final navigator = GoRouter.of(context);
 
+    _logic.pauseFetching();
+
     final args = await navigator
         .push<(String, String)?>('/wallet/${_address!}/accounts?alias=$_alias');
 
     if (args == null) {
+      _logic.resumeFetching();
       return;
     }
 
     final (address, alias) = args;
 
     if (address == _address && alias == _alias) {
+      _logic.resumeFetching();
       return;
     }
 
@@ -728,7 +797,6 @@ class WalletScreenState extends State<WalletScreen> {
     try {
       params = decodeParams(compressedParams);
     } catch (_) {
-      // support the old format with compressed params
       params = decompress(compressedParams);
     }
 
@@ -741,11 +809,15 @@ class WalletScreenState extends State<WalletScreen> {
     String? params, {
     String? overrideAlias,
   }) async {
-    if (params == null) {
+    if (params == null && overrideAlias == null) {
       return (null, null);
     }
 
-    String? alias = overrideAlias ?? paramsAlias(params);
+    String? alias = overrideAlias;
+    if (alias == null && params != null) {
+      alias = paramsAlias(params);
+    }
+    
     if (alias == null) {
       return (null, null);
     }
@@ -758,7 +830,6 @@ class WalletScreenState extends State<WalletScreen> {
 
     if (wallets.isEmpty) {
       final newAddress = await _appLogic.createWallet(alias);
-
       return (newAddress, alias);
     }
 
@@ -832,11 +903,84 @@ class WalletScreenState extends State<WalletScreen> {
     if (result == null) {
       _profileLogic.resume();
       _profilesLogic.resume();
-      _voucherLogic.resume();
+      _voucherLogic.pause();
       return;
     }
 
+    if (result.startsWith('wc:')) {
+      try {
+        if (_walletKitLogic.connectClient == null) {
+          await _walletKitLogic.initialize();
+        }
+
+        await _walletKitLogic.registerWallet(_address!);
+        await _walletKitLogic.pairWithDapp(result);
+        await _walletKitLogic.approveSession();
+
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      } catch (e) {
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+    }
+
     final format = parseQRFormat(result);
+    if (format == QRFormat.plugin) {
+      final parsed = parseQRCode(result);
+      final pluginUrl = parsed.description;
+      final alias = parsed.alias;
+      if (pluginUrl == null || alias == null) {
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      if (alias != _alias) {
+        _address = null;
+        _alias = null;
+        _deepLink = 'plugin';
+        _deepLinkParams = encodeParams(pluginUrl);
+
+        final (address, newAlias) = await handleLoadFromParams(
+          null,
+          overrideAlias: alias,
+        );
+
+        if (address == null || newAlias == null) {
+          _profileLogic.resume();
+          _profilesLogic.resume();
+          _voucherLogic.resume();
+          return;
+        }
+
+        _address = address;
+        _alias = newAlias;
+
+        onLoad();
+        return;
+      }
+
+      final pluginConfig = await _logic.getPluginConfig(alias, pluginUrl);
+      if (pluginConfig == null) {
+        _profileLogic.resume();
+        _profilesLogic.resume();
+        _voucherLogic.resume();
+        return;
+      }
+
+      await handlePlugin(pluginConfig);
+
+      _profileLogic.resume();
+      _profilesLogic.resume();
+      _voucherLogic.resume();
+      return;
+    }
     if (format == QRFormat.url) {
       final redirectUrl = 'https://app.citizenwallet.xyz';
       final pluginUrl = '$redirectUrl/#/?dl=plugin';
@@ -893,13 +1037,13 @@ class WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    final (voucherParams, receiveParams, deepLinkParams) =
+    final (voucherParams, sendToParams, deepLinkParams) =
         deepLinkParamsFromUri(result);
 
     final parsedQRData = parseQRCode(result);
 
     if (voucherParams == null &&
-        receiveParams == null &&
+        sendToParams == null &&
         deepLinkParams == null &&
         parsedQRData.address.isEmpty) {
       _profileLogic.resume();
@@ -912,12 +1056,27 @@ class WalletScreenState extends State<WalletScreen> {
     String? loadedAlias;
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
-    final (address, alias) = await handleLoadFromParams(
-      voucherParams ?? receiveParams ?? deepLinkParams ?? parsedQRData.alias,
-      overrideAlias: uriAlias ?? receiveAlias ?? parsedQRData.alias,
-    );
-    loadedAddress = address;
-    loadedAlias = alias;
+    final sendAlias = aliasFromSendUri(result);
+    
+    if (voucherParams != null ||
+        deepLinkParams != null ||
+        sendToParams != null) {
+      final (address, alias) = await handleLoadFromParams(
+        voucherParams ?? sendToParams ?? deepLinkParams ?? parsedQRData.alias,
+        overrideAlias: uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
+      );
+      loadedAddress = address;
+      loadedAlias = alias;
+    } else {
+      loadedAddress = parsedQRData.address;
+      loadedAlias = _alias;
+    }
+
+    // If loading from params failed but we have a parsed address, use that instead
+    if (loadedAddress == null && parsedQRData.address.isNotEmpty) {
+      loadedAddress = parsedQRData.address;
+      loadedAlias = _alias;
+    }
 
     if (loadedAddress == null) {
       _profileLogic.resume();
@@ -940,7 +1099,7 @@ class WalletScreenState extends State<WalletScreen> {
       _alias = loadedAlias;
       _voucher = voucher;
       _voucherParams = voucherParams;
-      _receiveParams = receiveParams;
+      _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
       _sendToURL = result;
@@ -1010,12 +1169,21 @@ class WalletScreenState extends State<WalletScreen> {
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
-    final isOffline = eventServiceState != EventServiceState.connected &&
-        eventServiceState != EventServiceState.disconnected;
+    final eventServiceIntentionalDisconnect = context
+        .select((WalletState state) => state.eventServiceIntentionalDisconnect);
+
+    final isOffline = eventServiceState == EventServiceState.error ||
+        eventServiceState == EventServiceState.connecting;
+
+    final showOfflineBanner = isOffline && !eventServiceIntentionalDisconnect;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-
     final config = context.select((WalletState state) => state.config);
+    final hasActiveSessions =
+        context.select((WalletConnectState state) => state.hasActiveSessions);
+
+    final isInitialized =
+        context.select((WalletConnectState state) => state.isInitialized);
 
     final scanQrDisabledColor =
         Theme.of(context).colors.primary.withOpacity(0.5);
@@ -1135,29 +1303,50 @@ class WalletScreenState extends State<WalletScreen> {
                 onTap: handleScrollToTop,
                 child: SafeArea(
                   child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 30,
-                      ),
-                      // config?.online == false ? 40 : 0),
-                      child: Header(
-                        transparent: true,
-                        color: Theme.of(context).colors.transparent,
-                        title: '',
-                        actionButton: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            cleaningUp || wallet == null
-                                ? const PulsingContainer(
-                                    height: 24,
-                                    width: 24,
-                                    borderRadius: 21,
-                                  )
-                                : Stack(
+                    padding: EdgeInsets.only(
+                      top: isOffline ? 45 : 15,
+                    ),
+                    // config?.online == false ? 40 : 0),
+                    child: Header(
+                      transparent: true,
+                      color: Theme.of(context).colors.surfacePrimary,
+                      title: '',
+                      actionButton: Row(
+                        children: [
+                          cleaningUp || wallet == null
+                              ? const PulsingContainer(
+                                  height: 24,
+                                  width: 24,
+                                  borderRadius: 21,
+                                )
+                              : SizedBox(
+                                  width: MediaQuery.of(context).size.width - 32,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
+                                      (hasActiveSessions == true &&
+                                              isInitialized == true)
+                                          ? GestureDetector(
+                                              onTap: handleDisconnect,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20),
+                                                child: Icon(
+                                                  CupertinoIcons.link,
+                                                  size: 24,
+                                                  color: Theme.of(context)
+                                                      .colors
+                                                      .primary
+                                                      .resolveFrom(context),
+                                                ),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
                                       GestureDetector(
                                         onTap: handleOpenAccountSwitcher,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
+                                          padding: const EdgeInsets.all(20),
                                           child: SvgPicture.asset(
                                             'assets/icons/switch_accounts.svg',
                                             semanticsLabel: 'switch accounts',
@@ -1175,9 +1364,11 @@ class WalletScreenState extends State<WalletScreen> {
                                       ),
                                     ],
                                   ),
-                          ],
-                        ),
-                      )),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

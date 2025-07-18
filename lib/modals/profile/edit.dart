@@ -82,6 +82,15 @@ class EditProfileModalState extends State<EditProfileModal> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
+    if (_walletLogic.config != null &&
+        _walletLogic.credentials != null &&
+        _walletLogic.accountAddress != null) {
+      _logic.setWalletState(
+        _walletLogic.config!,
+        _walletLogic.credentials!,
+        _walletLogic.accountAddress!,
+      );
+    }
     _logic.startEdit();
   }
 
@@ -221,7 +230,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     final username = context.select((ProfileState state) => state.username);
     final hasProfile = username.isNotEmpty;
 
-    final isInvalid = usernameError || usernameController.value.text == '';
+    final isInvalid =
+        usernameError || usernameController.value.text == '' || usernameLoading;
 
     final disableSave = config?.online == false || isInvalid;
 
@@ -386,11 +396,15 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    usernameController.value.text == ''
-                                        ? AppLocalizations.of(context)!
-                                            .pleasePickAUsername
-                                        : AppLocalizations.of(context)!
-                                            .thisUsernameIsAlreadyTaken,
+                                    context.select((ProfileState state) => state
+                                            .usernameErrorMessage.isNotEmpty)
+                                        ? context.select((ProfileState state) =>
+                                            state.usernameErrorMessage)
+                                        : usernameController.value.text == ''
+                                            ? AppLocalizations.of(context)!
+                                                .pleasePickAUsername
+                                            : AppLocalizations.of(context)!
+                                                .thisUsernameIsAlreadyTaken,
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colors
