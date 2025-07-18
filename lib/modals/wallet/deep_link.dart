@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/logic.dart';
@@ -15,16 +16,21 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'package:web3dart/web3dart.dart';
 
 class DeepLinkModal extends StatefulWidget {
-  final WalletService wallet;
+  final Config config;
+  final EthPrivateKey credentials;
+  final EthereumAddress account;
 
   final String deepLink;
   final String deepLinkParams;
 
   const DeepLinkModal({
     super.key,
-    required this.wallet,
+    required this.config,
+    required this.credentials,
+    required this.account,
     required this.deepLink,
     required this.deepLinkParams,
   });
@@ -42,7 +48,7 @@ class DeepLinkModalState extends State<DeepLinkModal> {
   void initState() {
     super.initState();
 
-    _logic = DeepLinkLogic(context, widget.wallet);
+    _logic = DeepLinkLogic(context, widget.config, widget.credentials, widget.account);
 
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {

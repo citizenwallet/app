@@ -437,7 +437,6 @@ GoRouter createRouter(
                 return ChangeNotifierProvider(
                   create: (_) => DeepLinkState(extra['deepLink']),
                   child: DeepLinkScreen(
-                    wallet: extra['wallet'],
                     deepLink: extra['deepLink'],
                     deepLinkParams: extra['deepLinkParams'],
                   ),

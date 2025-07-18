@@ -1,4 +1,5 @@
 import 'package:citizenwallet/services/audio/audio.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/push/push.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
@@ -6,6 +7,7 @@ import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/web3dart.dart';
 
 class NotificationsLogic {
   final NotificationsState _state;
@@ -13,15 +15,25 @@ class NotificationsLogic {
   final PreferencesService _prefs = PreferencesService();
   final PushService _push = PushService();
   final AudioService _audio = AudioService();
-  final WalletService _wallet = WalletService();
+  Config? _config;
+  EthPrivateKey? _credentials;
+  EthereumAddress? _account;
 
   NotificationsLogic(BuildContext context)
       : _state = context.read<NotificationsState>();
 
+  void setWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _config = config;
+    _credentials = credentials;
+    _account = account;
+  }
+
   void init() async {
     try {
+      if (_account == null) return;
+
       final systemEnabled = await _push.isEnabled();
-      bool enabled = _prefs.pushNotifications(_wallet.account.hexEip55);
+      bool enabled = _prefs.pushNotifications(_account!.hexEip55);
 
       if (!systemEnabled) {
         final allowed = await _push.requestPermissions();
@@ -39,7 +51,7 @@ class NotificationsLogic {
       // enable push
       _state.setPush(true);
       await _push.start(onToken, onMessage);
-      _prefs.setPushNotifications(_wallet.account.hexEip55, true);
+      _prefs.setPushNotifications(_account!.hexEip55, true);
     } catch (e) {
       //
     }
@@ -47,8 +59,10 @@ class NotificationsLogic {
 
   void checkPushPermissions() async {
     try {
+      if (_account == null) return;
+
       final systemEnabled = await _push.isEnabled();
-      final enabled = _prefs.pushNotifications(_wallet.account.hexEip55);
+      final enabled = _prefs.pushNotifications(_account!.hexEip55);
 
       _state.setPush(systemEnabled && enabled);
     } catch (e) {
@@ -90,7 +104,14 @@ class NotificationsLogic {
 
   Future<void> onToken(String token) async {
     try {
-      final updated = await _wallet.updatePushToken(token);
+      if (_config == null || _credentials == null || _account == null) return;
+
+      final updated = await updatePushToken(
+        _config!,
+        _account!,
+        _credentials!,
+        token,
+      );
       if (!updated) {
         throw Exception('Failed to update push token');
       }
@@ -99,14 +120,21 @@ class NotificationsLogic {
     }
   }
 
-  Future<void> updatePushToken() async {
+  Future<void> refreshPushToken() async {
     try {
+      if (_config == null || _credentials == null || _account == null) return;
+
       final token = await _push.token;
       if (token == null) {
         return;
       }
 
-      final updated = await _wallet.updatePushToken(token);
+      final updated = await updatePushToken(
+        _config!,
+        _account!,
+        _credentials!,
+        token,
+      );
       if (!updated) {
         throw Exception('Failed to update push token');
       }
@@ -117,21 +145,30 @@ class NotificationsLogic {
 
   Future<void> togglePushNotifications() async {
     try {
+      if (_account == null) return;
+
       final systemEnabled = await _push.isEnabled();
-      final enabled = _prefs.pushNotifications(_wallet.account.hexEip55);
+      final enabled = _prefs.pushNotifications(_account!.hexEip55);
 
       if (systemEnabled && enabled) {
         // disable push
         _state.setPush(false);
         await _push.stop();
-        _prefs.setPushNotifications(_wallet.account.hexEip55, false);
+        _prefs.setPushNotifications(_account!.hexEip55, false);
 
         final token = await _push.token;
         if (token == null) {
           return;
         }
 
-        final updated = await _wallet.removePushToken(token);
+        if (_config == null || _credentials == null) return;
+
+        final updated = await removePushToken(
+          _config!,
+          _account!,
+          _credentials!,
+          token,
+        );
         if (!updated) {
           throw Exception('Failed to update push token');
         }
@@ -148,7 +185,7 @@ class NotificationsLogic {
       // enable push
       _state.setPush(true);
       await _push.start(onToken, onMessage);
-      _prefs.setPushNotifications(_wallet.account.hexEip55, true);
+      _prefs.setPushNotifications(_account!.hexEip55, true);
     } catch (e) {
       //
     }

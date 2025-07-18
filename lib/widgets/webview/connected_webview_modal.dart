@@ -130,7 +130,7 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
       return;
     }
 
-    widget.profilesLogic.getProfile(parsedData.address);
+    widget.profilesLogic.getLocalProfile(parsedData.address);
 
     final dismiss = await showCupertinoModalBottomSheet<bool?>(
       context: context,

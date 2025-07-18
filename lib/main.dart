@@ -62,7 +62,6 @@ FutureOr<void> appRunner() async {
 
   AccountDBService();
 
-  WalletService();
   final config = ConfigService();
 
   if (kIsWeb) {

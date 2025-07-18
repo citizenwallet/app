@@ -174,6 +174,12 @@ class WalletScreenState extends State<WalletScreen> {
       _address!,
       _alias!,
       (bool hasChanged) async {
+        _profileLogic.setWalletState(
+          _logic.config!,
+          _logic.credentials!,
+          _logic.accountAddress!,
+        );
+        
         _logic.requestWalletActions();
         await _logic.loadTransactions();
 
@@ -242,7 +248,6 @@ class WalletScreenState extends State<WalletScreen> {
         final navigator = GoRouter.of(context);
 
         await navigator.push('/wallet/$_address/deeplink', extra: {
-          'wallet': _logic.wallet,
           'deepLink': deepLink,
           'deepLinkParams': deepLinkParams,
         });
@@ -379,7 +384,7 @@ class WalletScreenState extends State<WalletScreen> {
       }
 
       _logic.updateAddress(override: true);
-      _profilesLogic.getProfile(addr);
+      _profilesLogic.getLocalProfile(addr);
 
       await navigator.push('/wallet/$_address/send/$addr', extra: {
         'walletLogic': _logic,
@@ -449,8 +454,12 @@ class WalletScreenState extends State<WalletScreen> {
     _voucherLogic.pause();
 
     if (receiveParams != null) {
+      final wallet = context.read<WalletState>().wallet;
+      if (wallet == null) {
+        return;
+      }
       final hex = await _logic.updateFromCapture(
-        '/#/?alias=${_logic.wallet.alias}&receiveParams=$receiveParams',
+        '/#/?alias=${wallet.alias}&receiveParams=$receiveParams',
       );
 
       if (hex == null) {
@@ -467,7 +476,7 @@ class WalletScreenState extends State<WalletScreen> {
         return;
       }
 
-      _profilesLogic.getProfile(hex);
+      _profilesLogic.getLocalProfile(hex);
 
       final navigator = GoRouter.of(context);
 
@@ -833,7 +842,7 @@ class WalletScreenState extends State<WalletScreen> {
       final pluginUrl = '$redirectUrl/#/?dl=plugin';
       final connection = _logic.connection;
 
-      String url = '$result?${connection.queryParams}';
+      String url = '$result?${connection?.queryParams ?? ''}';
       if (result.startsWith(pluginUrl)) {
         final resultUri = Uri.parse(result);
         final uri = Uri.parse(resultUri.fragment);
@@ -856,7 +865,7 @@ class WalletScreenState extends State<WalletScreen> {
         }
 
         url =
-            '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection.queryParams}';
+            '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection?.queryParams ?? ''}';
       }
 
       if (!super.mounted) {

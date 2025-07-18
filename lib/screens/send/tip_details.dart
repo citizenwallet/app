@@ -74,7 +74,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
       if (tipTo != null) {
         // Get profile from tipTo address
-        widget.profilesLogic.getProfile(tipTo).then((profile) {
+        widget.profilesLogic.getLocalProfile(tipTo).then((profile) {
           if (profile != null) {
             widget.profilesLogic.selectProfile(profile);
           }

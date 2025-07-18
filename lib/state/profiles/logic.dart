@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
@@ -10,13 +11,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   final AccountDBService _db = AccountDBService();
   final AccountBackupDBService _accountBackupDBService =
       AccountBackupDBService();
   late ProfilesState _state;
-  final WalletService _wallet = WalletService();
+
+  EthPrivateKey? _currentCredentials;
+  EthereumAddress? _currentAccount;
+  Config? _currentConfig;
 
   late Debounce debouncedSearchProfile;
 
@@ -41,10 +46,21 @@ class ProfilesLogic extends WidgetsBindingObserver {
     );
   }
 
+  void setWalletState(
+      Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _currentConfig = config;
+    _currentCredentials = credentials;
+    _currentAccount = account;
+  }
+
   Future<ProfileV1?> _loadCachedProfile(String addr) async {
     try {
+      if (_currentConfig == null) {
+        return null;
+      }
+
       final cachedProfile = await ContactsCache().get(addr, () async {
-        final fetchedProfile = await _wallet.getProfile(addr);
+        final fetchedProfile = await getProfile(_currentConfig!, addr);
         if (fetchedProfile == null) {
           return null;
         }
@@ -117,13 +133,18 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> _searchProfile(String value) async {
     try {
+      if (_currentConfig == null) {
+        _state.isSearchingError();
+        return;
+      }
+
       final cleanValue = value.replaceFirst('@', '');
 
       _state.isSearching();
 
       final profile = cleanValue.startsWith('0x')
-          ? await _wallet.getProfile(cleanValue)
-          : await _wallet.getProfileByUsername(cleanValue);
+          ? await getProfile(_currentConfig!, cleanValue)
+          : await getProfileByUsername(_currentConfig!, cleanValue);
 
       final results = await _db.contacts.search(cleanValue.toLowerCase());
 
@@ -151,7 +172,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSearchingError();
   }
 
-  Future<ProfileV1?> getProfile(String addr) async {
+  Future<ProfileV1?> getLocalProfile(String addr) async {
     try {
       _state.isSearching();
 
@@ -222,8 +243,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
         }
 
         // Try to get updated profile from wallet
-        final updatedProfile =
-            await _wallet.getProfile(account.address.hexEip55);
+        final updatedProfile = await getLocalProfile(account.address.hexEip55);
 
         if (updatedProfile != null) {
           profilesMap[account.address.hexEip55] = updatedProfile;
@@ -256,7 +276,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<ProfileV1?> getSendToProfile(String address) async {
-    final profile = await _wallet.getProfile(address);
+    final profile = await getLocalProfile(address);
     return profile;
   }
 

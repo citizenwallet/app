@@ -206,19 +206,26 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
-          context: context,
-          expand: true,
-          useRootNavigator: true,
-          builder: (modalContext) => ChangeNotifierProvider(
-            create: (_) => DeepLinkState(deepLink),
-            child: DeepLinkModal(
-              wallet: _logic.wallet,
-              deepLink: deepLink,
-              deepLinkParams: params,
-            ),
-          ),
-        );
+        // await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+        //   context: context,
+        //   expand: true,
+        //   useRootNavigator: true,
+        //   builder: (modalContext) => ChangeNotifierProvider(
+        //     create: (_) => DeepLinkState(deepLink),
+        //     child: DeepLinkModal(
+        //       wallet: _logic.wallet,
+        //       deepLink: deepLink,
+        //       deepLinkParams: params,
+        //     ),
+        //   ),
+        // );
+
+        final navigator = GoRouter.of(context);
+
+        await navigator.push('/wallet/${widget.encoded}/deeplink', extra: {
+          'deepLink': deepLink,
+          'deepLinkParams': params,
+        });
 
         _logic.resumeFetching();
         _profilesLogic.resume();

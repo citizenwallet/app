@@ -1,21 +1,38 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:web3dart/web3dart.dart';
 
 class DeepLinkLogic {
   final DeepLinkState _state;
-  final WalletService _wallet;
   final NotificationsLogic _notifications;
+  Config? _config;
+  EthPrivateKey? _credentials;
+  EthereumAddress? _account;
 
-  DeepLinkLogic(BuildContext context, WalletService wallet)
+  DeepLinkLogic(BuildContext context, Config config, EthPrivateKey credentials, EthereumAddress account)
       : _state = context.read<DeepLinkState>(),
-        _wallet = wallet,
-        _notifications = NotificationsLogic(context);
+        _notifications = NotificationsLogic(context) {
+    _config = config;
+    _credentials = credentials;
+    _account = account;
+  }
+
+  void setWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _config = config;
+    _credentials = credentials;
+    _account = account;
+  }
 
   Future<void> faucetV1Redeem(String params) async {
     try {
+      if (_config == null || _credentials == null || _account == null) {
+        throw Exception('Wallet not initialized');
+      }
+
       _state.request();
 
       final uri = Uri(query: params);
@@ -25,16 +42,22 @@ class DeepLinkLogic {
         throw Exception('Address is required');
       }
 
-      final calldata = await _wallet.simpleFaucetRedeemCallData(address);
+      final calldata = await simpleFaucetRedeemCallData(_config!, address);
 
-      final (_, userop) = await _wallet.prepareUserop([address], [calldata]);
+      final (_, userop) = await prepareUserop(
+        _config!,
+        _account!,
+        _credentials!,
+        [address],
+        [calldata],
+      );
 
-      final txHash = await _wallet.submitUserop(userop);
+      final txHash = await submitUserop(_config!, userop);
       if (txHash == null) {
         throw Exception('transaction failed');
       }
 
-      final success = await _wallet.waitForTxSuccess(txHash);
+      final success = await waitForTxSuccess(_config!, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -49,6 +72,10 @@ class DeepLinkLogic {
 
   Future<void> faucetV1Metadata(String params) async {
     try {
+      if (_config == null) {
+        throw Exception('Wallet not initialized');
+      }
+
       _state.request();
 
       final uri = Uri(query: params);
@@ -58,7 +85,7 @@ class DeepLinkLogic {
         throw Exception('Address is required');
       }
 
-      final amount = await _wallet.getFaucetRedeemAmount(address);
+      final amount = await getFaucetRedeemAmount(_config!, address);
 
       _state.setFaucetAmount(amount);
       _state.success();

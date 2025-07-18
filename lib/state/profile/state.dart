@@ -56,6 +56,7 @@ class ProfileState with ChangeNotifier {
   ProfileV1? viewProfile;
 
   void resetAll({notify = false}) {
+    print('ProfileState.resetAll: Resetting all profile data');
     account = '';
     username = '';
     name = '';
@@ -178,6 +179,7 @@ class ProfileState with ChangeNotifier {
     required String imageMedium,
     required String imageSmall,
   }) {
+    print('ProfileState.setProfileSuccess: Setting username to "$username"');
     this.account = account;
     this.username = username;
     this.name = name;

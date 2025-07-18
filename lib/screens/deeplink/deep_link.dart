@@ -17,14 +17,11 @@ import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class DeepLinkScreen extends StatefulWidget {
-  final WalletService wallet;
-
   final String deepLink;
   final String deepLinkParams;
 
   const DeepLinkScreen({
     super.key,
-    required this.wallet,
     required this.deepLink,
     required this.deepLinkParams,
   });
@@ -42,12 +39,11 @@ class DeepLinkScreenState extends State<DeepLinkScreen> {
   void initState() {
     super.initState();
 
-    _logic = DeepLinkLogic(context, widget.wallet);
+    // _logic = DeepLinkLogic(context);
 
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
-
       onLoad();
     });
   }
@@ -60,6 +56,10 @@ class DeepLinkScreenState extends State<DeepLinkScreen> {
   }
 
   void onLoad() async {
+    final wallet = context.read<WalletState>().wallet;
+    if (wallet == null) {
+      return;
+    }
     switch (widget.deepLink) {
       case 'faucet-v1':
         // handle loading of metadata
