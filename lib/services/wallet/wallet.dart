@@ -159,18 +159,20 @@ class WalletService {
     Config config, {
     void Function(String)? onNotify,
     void Function(bool)? onFinished,
+    String? accountFactoryAddress,
   }) async {
     _alias = config.community.alias;
 
     final token = config.getPrimaryToken();
-    final accountAbstractionConfig =
-        config.getPrimaryAccountAbstractionConfig();
+    final accountAbstractionConfig = accountFactoryAddress != null
+        ? config.getAccountAbstractionConfig(accountFactoryAddress, token.chainId)
+        : config.getPrimaryAccountAbstractionConfig();
     final chain = config.chains[token.chainId.toString()];
 
     _url = chain!.node.url;
     _wsurl = chain.node.wsUrl;
 
-    final rpcUrl = config.getRpcUrl(token.chainId.toString());
+    final rpcUrl = config.getRpcUrl(token.chainId.toString(), accountFactoryAddress);
 
     _ethClient = Web3Client(
       rpcUrl,
@@ -451,6 +453,8 @@ class WalletService {
   AccountFactoryService getAccounFactoryContract({bool legacy = false}) {
     return _contractAccountFactory;
   }
+
+  String get accountFactoryAddress => _contractAccountFactory.addr;
 
   APIService getBundlerRPC({bool legacy = false}) {
     return _bundlerRPC;

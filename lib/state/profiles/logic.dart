@@ -234,6 +234,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
               address: account.address,
               name: updatedProfile.name,
               username: updatedProfile.username,
+              accountFactoryAddress: account.accountFactoryAddress,
               profile: updatedProfile,
             ),
           );

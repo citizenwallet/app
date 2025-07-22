@@ -76,7 +76,7 @@ FutureOr<void> appRunner() async {
   }
 
   final AppDBService appDBService = AppDBService();
-  await appDBService.init('appv4');
+  await appDBService.init('appv5');
   final numConfigs = (await appDBService.communities.getAll()).length;
 
   config.singleCommunityMode = numConfigs < 2;

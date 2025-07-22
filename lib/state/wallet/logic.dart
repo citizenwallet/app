@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/engine/events.dart';
@@ -376,6 +377,7 @@ class WalletLogic extends WidgetsBindingObserver {
         dbWallet.privateKey!,
         nativeCurrency,
         communityConfig,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
         onNotify: (String message) {
           _notificationsLogic.show(message);
         },
@@ -486,6 +488,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        accountFactoryAddress: communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -553,6 +556,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -2079,6 +2083,16 @@ class WalletLogic extends WidgetsBindingObserver {
         }
 
         Config communityConfig = Config.fromJson(community.config);
+
+        try {
+          final remoteConfig = await _config.getSingleCommunityConfig(communityConfig.configLocation);
+          if (remoteConfig != null) {
+            await _appDBService.communities.upsert([DBCommunity.fromConfig(remoteConfig)]);
+            communityConfig = remoteConfig;
+          }
+        } catch (e) {
+          debugPrint('Error fetching single community config: $e');
+        }
 
         final token = communityConfig.getPrimaryToken();
 

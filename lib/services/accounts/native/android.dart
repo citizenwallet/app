@@ -3,6 +3,8 @@ import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/config/config.dart';
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
@@ -90,6 +92,67 @@ class AndroidAccountsService extends AccountsServiceInterface {
           }
         }
       },
+      5: () async {
+        final allAccounts = await _accountsDB.accounts.all();
+        
+        for (final account in allAccounts) {
+          if (account.accountFactoryAddress != null) {
+            continue;
+          }
+          
+          final community = await AppDBService().communities.get(account.alias);
+          if (community == null) {
+            continue;
+          }
+          
+          final config = Config.fromJson(community.config);
+          String accountFactoryAddress = config.community.primaryAccountFactory.address;
+          
+          switch (account.alias) {
+            case 'gratitude':
+              accountFactoryAddress = '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD';
+              break;
+            case 'bread':
+              accountFactoryAddress = '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9';
+              break;
+            case 'wallet.commonshub.brussels':
+              accountFactoryAddress = '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87';
+              break;
+            case 'wallet.sfluv.org':
+              accountFactoryAddress = '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
+              break;
+            default:
+              if (accountFactoryAddress == '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+                accountFactoryAddress = '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+              }
+              break;
+          }
+          
+          // Create new account with factory address
+          final newAccount = DBAccount(
+            alias: account.alias,
+            address: account.address,
+            name: account.name,
+            username: account.username,
+            accountFactoryAddress: accountFactoryAddress,
+            privateKey: account.privateKey,
+            profile: account.profile,
+          );
+          
+          // Delete old account and insert new one
+          await _accountsDB.accounts.delete(account.address, account.alias, account.accountFactoryAddress);
+          await _accountsDB.accounts.insert(newAccount);
+          
+          final oldKey = getAccountID(account.address, account.alias, account.accountFactoryAddress);
+          final newKey = getAccountID(account.address, account.alias, accountFactoryAddress);
+          
+          final privateKey = await _credentials.read(oldKey);
+          if (privateKey != null) {
+            await _credentials.write(newKey, privateKey);
+            await _credentials.delete(oldKey);
+          }
+        }
+      },
     };
 
     // run all migrations
@@ -143,10 +206,11 @@ class AndroidAccountsService extends AccountsServiceInterface {
 
   // get wallet backup
   @override
-  Future<DBAccount?> getAccount(String address, String alias) async {
+  Future<DBAccount?> getAccount(String address, String alias, [String? accountFactoryAddress]) async {
     final account = await _accountsDB.accounts.get(
       EthereumAddress.fromHex(address),
       alias,
+      accountFactoryAddress,
     );
 
     if (account == null) {
@@ -175,12 +239,14 @@ class AndroidAccountsService extends AccountsServiceInterface {
     await _accountsDB.accounts.delete(
       EthereumAddress.fromHex(address),
       alias,
+      null,
     );
 
     await _credentials.delete(
       getAccountID(
         EthereumAddress.fromHex(address),
         alias,
+        null,
       ),
     );
   }

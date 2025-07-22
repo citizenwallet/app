@@ -29,17 +29,6 @@ class CommunitiesLogic {
           communities.map((c) => Config.fromJson(c.config)).toList();
       _state.fetchCommunitiesSuccess(communityConfigs);
 
-      // Grouped operations for fetching and upserting communities
-      (() async {
-        final List<Config> communities =
-            await config.getCommunitiesFromRemote();
-
-        _state.upsertCommunities(communityConfigs);
-
-        await _db.communities
-            .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
-      })();
-
       for (final communityConfig in communityConfigs) {
         if (communityConfig.community.hidden) {
           continue;
@@ -109,7 +98,7 @@ class CommunitiesLogic {
       _state.fetchCommunitiesSuccess(communityConfigs);
       return;
     } catch (e) {
-      //
+      debugPrint('Error fetching communities: $e');
     }
 
     _state.fetchCommunitiesFailure();
@@ -125,9 +114,22 @@ class CommunitiesLogic {
 
   void _fetchAllCommunitiesFromRemote() async {
     try {
-      final List<Config> communities = await config.getCommunitiesFromRemote();
-      await _db.communities
-          .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
+      final communities = await _db.communities.getAll();
+      for (final community in communities) {
+        final config = Config.fromJson(community.config);
+        if (config.community.hidden) {
+          continue;
+        }
+
+        final token = config.getPrimaryToken();
+        final chain = config.chains[token.chainId.toString()];
+
+        if (chain != null) {
+          final isOnline = await this.config.isCommunityOnline(chain.node.url);
+          await _db.communities
+              .updateOnlineStatus(config.community.alias, isOnline);
+        }
+      }
       return;
     } catch (e) {
       //
@@ -166,32 +168,7 @@ class CommunitiesLogic {
       return true;
     }
 
-    for (int attempt = 0; attempt < 2; attempt++) {
-      final List<Config> communities = await config.getCommunitiesFromRemote();
-
-      for (final community in communities) {
-        if (community.community.alias != alias) {
-          continue;
-        }
-
-        final token = community.getPrimaryToken();
-        final chain = community.chains[token.chainId.toString()];
-
-        final isOnline = await config.isCommunityOnline(chain!.node.url);
-
-        await _db.communities.upsert([DBCommunity.fromConfig(community)]);
-        await _db.communities
-            .updateOnlineStatus(community.community.alias, isOnline);
-      }
-
-      // Check again if the community exists after the update
-      communityExists = await _db.communities.exists(alias);
-      if (communityExists) {
-        return true;
-      }
-    }
-
-    return communityExists;
+    return false;
   }
 
   Future<void> initializeAppDB() async {
@@ -199,6 +176,35 @@ class CommunitiesLogic {
       await _db.init('app');
     } catch (e) {
       //
+    }
+  }
+
+  Future<void> fetchAndUpdateSingleCommunity(String alias) async {
+    try {
+      final community = await _db.communities.get(alias);
+      if (community == null) {
+        return;
+      }
+
+      final config = Config.fromJson(community.config);
+      final remoteConfig =
+          await this.config.getSingleCommunityConfig(config.configLocation);
+
+      if (remoteConfig != null) {
+        await _db.communities.upsert([DBCommunity.fromConfig(remoteConfig)]);
+
+        final existingIndex = _state.communities.indexWhere(
+          (c) => c.community.alias == alias,
+        );
+
+        if (existingIndex != -1) {
+          remoteConfig.online = _state.communities[existingIndex].online;
+          _state.communities[existingIndex] = remoteConfig;
+          _state.notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching single community: $e');
     }
   }
 }

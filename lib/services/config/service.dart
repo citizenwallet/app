@@ -30,7 +30,7 @@ class ConfigService {
   static const String communityConfigListS3FileName = 'communities';
 
   static const String communityDebugFileName = 'debug';
-  static const int version = 4;
+  static const int version = 5;
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
@@ -189,8 +189,24 @@ class ConfigService {
       return config;
     } catch (e, s) {
       debugPrint('Error fetching remote config: $e');
-      debugPrint('Stacktrace: $s');
+      debugPrintStack(stackTrace: s);
 
+      return null;
+    }
+  }
+
+  Future<Config?> getSingleCommunityConfig(String configLocation) async {
+    if (kDebugMode) {
+      return null;
+    }
+
+    try {
+      final response = await _api.get(url: configLocation);
+      final config = Config.fromJson(response);
+      return config;
+    } catch (e, s) {
+      debugPrint('Error fetching single community config: $e');
+      debugPrintStack(stackTrace: s);
       return null;
     }
   }
