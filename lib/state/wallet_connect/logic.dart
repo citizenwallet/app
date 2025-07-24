@@ -8,7 +8,6 @@ import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/widgets/wallet_session_approval.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:web3dart/web3dart.dart';
 import 'dart:async';
 
 class WalletKitLogic with WidgetsBindingObserver {
@@ -20,9 +19,9 @@ class WalletKitLogic with WidgetsBindingObserver {
   WalletConnectState? _state;
 
   // Wallet state for handlers
-  Config? _config;
-  EthereumAddress? _account;
-  EthPrivateKey? _credentials;
+  late Config _config;
+  late EthereumAddress _account;
+  late EthPrivateKey _credentials;
 
   ReownWalletKit? get connectClient => _service.client;
   SessionProposalEvent? get currentProposal => _currentProposal;
@@ -397,7 +396,7 @@ class WalletKitLogic with WidgetsBindingObserver {
     String? transactionType;
     try {
       final contractData = await _service.getContractDetails(transaction['to']);
-      if (contractData != null && contractData.abi != null) {
+      if (contractData != null && contractData.abi.isNotEmpty) {
         transactionType = _service.getTransactionTypeFromAbi(
           contractData.abi,
           transaction['data'] ?? '',

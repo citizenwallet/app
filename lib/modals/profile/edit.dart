@@ -228,6 +228,10 @@ class EditProfileModalState extends State<EditProfileModal> {
         context.select((ProfileState state) => state.descriptionEdit);
 
     final username = context.select((ProfileState state) => state.username);
+
+    final usernameErrorMessage =
+        context.select((ProfileState state) => state.usernameErrorMessage);
+
     final hasProfile = username.isNotEmpty;
 
     final isInvalid =
@@ -396,11 +400,9 @@ class EditProfileModalState extends State<EditProfileModal> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    context.select((ProfileState state) => state
-                                            .usernameErrorMessage.isNotEmpty)
-                                        ? context.select((ProfileState state) =>
-                                            state.usernameErrorMessage)
-                                        : usernameController.value.text == ''
+                                    usernameErrorMessage.isNotEmpty
+                                        ? usernameErrorMessage
+                                        : usernameController.value.text.isEmpty
                                             ? AppLocalizations.of(context)!
                                                 .pleasePickAUsername
                                             : AppLocalizations.of(context)!

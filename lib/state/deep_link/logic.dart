@@ -9,9 +9,9 @@ import 'package:web3dart/web3dart.dart';
 class DeepLinkLogic {
   final DeepLinkState _state;
   final NotificationsLogic _notifications;
-  Config? _config;
-  EthPrivateKey? _credentials;
-  EthereumAddress? _account;
+  late Config _config;
+  late EthPrivateKey _credentials;
+  late EthereumAddress _account;
 
   DeepLinkLogic(BuildContext context, Config config, EthPrivateKey credentials, EthereumAddress account)
       : _state = context.read<DeepLinkState>(),
@@ -42,22 +42,22 @@ class DeepLinkLogic {
         throw Exception('Address is required');
       }
 
-      final calldata = await simpleFaucetRedeemCallData(_config!, address);
+      final calldata = await simpleFaucetRedeemCallData(_config, address);
 
       final (_, userop) = await prepareUserop(
-        _config!,
-        _account!,
-        _credentials!,
+        _config,
+        _account,
+        _credentials,
         [address],
         [calldata],
       );
 
-      final txHash = await submitUserop(_config!, userop);
+      final txHash = await submitUserop(_config, userop);
       if (txHash == null) {
         throw Exception('transaction failed');
       }
 
-      final success = await waitForTxSuccess(_config!, txHash);
+      final success = await waitForTxSuccess(_config, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -85,7 +85,7 @@ class DeepLinkLogic {
         throw Exception('Address is required');
       }
 
-      final amount = await getFaucetRedeemAmount(_config!, address);
+      final amount = await getFaucetRedeemAmount(_config, address);
 
       _state.setFaucetAmount(amount);
       _state.success();

@@ -67,16 +67,19 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     super.initState();
     _sendTransaction = widget.sendTransaction ?? SendTransaction();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final walletLogic = widget.walletLogic;
       final tipTo = context.read<WalletState>().tipTo;
 
       if (tipTo != null) {
-        widget.profilesLogic.getLocalProfile(tipTo).then((profile) {
+        try {
+          final profile = await widget.profilesLogic.getLocalProfile(tipTo);
           if (profile != null) {
             widget.profilesLogic.selectProfile(profile);
           }
-        });
+        } catch (e) {
+          debugPrint('Error fetching profile: $e');
+        }
       }
 
       onLoad();
@@ -293,12 +296,12 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
       await Future.delayed(const Duration(milliseconds: 50));
 
-      final walletAddress = walletLogic.address.isNotEmpty 
-          ? walletLogic.address 
-          : walletLogic.account.isNotEmpty 
-              ? walletLogic.account 
+      final walletAddress = walletLogic.address.isNotEmpty
+          ? walletLogic.address
+          : walletLogic.account.isNotEmpty
+              ? walletLogic.account
               : context.read<WalletState>().wallet?.address ?? '';
-      
+
       if (walletAddress.isNotEmpty) {
         navigator.go('/wallet/$walletAddress');
       } else {

@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:citizenwallet/widgets/webview/webview_navigation.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ConnectedWebViewModal extends StatefulWidget {
   final String? modalKey;
@@ -79,7 +78,6 @@ class _WebViewModalState extends State<ConnectedWebViewModal> {
 
   void handleConsoleMessage(
       InAppWebViewController controller, ConsoleMessage message) {
-    print('>>>> ${message.message}');
   }
 
   Future<NavigationActionPolicy?> shouldOverrideUrlLoading(

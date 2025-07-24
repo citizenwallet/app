@@ -32,7 +32,6 @@ class _WalletTransactionModalState extends State<WalletTransactionModal> {
 
   initState() {
     super.initState();
-    print(widget.event);
   }
 
   void _handleConfirm() {

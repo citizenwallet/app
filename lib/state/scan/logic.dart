@@ -20,9 +20,9 @@ class ScanLogic extends WidgetsBindingObserver {
   late ScanState _state;
   final NFCService _nfc = DefaultNFCService();
 
-  EthPrivateKey? _currentCredentials;
-  EthereumAddress? _currentAccount;
-  Config? _currentConfig;
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
 
   static void setGlobalWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
     _instance.setWalletState(config, credentials, account);
@@ -77,8 +77,8 @@ class ScanLogic extends WidgetsBindingObserver {
 
       _state.setNfcReading(false); //
 
-      final cardHash = await getCardHash(_currentConfig!, serialNumber);
-      final address = await getCardAddress(_currentConfig!, cardHash);
+      final cardHash = await getCardHash(_currentConfig, serialNumber);
+      final address = await getCardAddress(_currentConfig, cardHash);
 
       _state.setNfcAddressSuccess(address.hexEip55);
 

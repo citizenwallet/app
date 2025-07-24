@@ -127,12 +127,12 @@ bool isValidPrivateKey(String privateKey) {
 String compress(String data) {
   final enCodedData = utf8.encode(data);
   final gZipData = GZipEncoder().encode(enCodedData, level: 6);
-  return base64Url.encode(gZipData!);
+  return base64Url.encode(gZipData);
 }
 
 Uint8List compressBytes(Uint8List data) {
   final gZipData = GZipEncoder().encode(data, level: 6);
-  return convertBytesToUint8List(gZipData!);
+  return convertBytesToUint8List(gZipData);
 }
 
 String decompress(String data) {

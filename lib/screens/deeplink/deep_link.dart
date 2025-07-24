@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/logic.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
@@ -39,8 +36,6 @@ class DeepLinkScreenState extends State<DeepLinkScreen> {
   void initState() {
     super.initState();
 
-    // _logic = DeepLinkLogic(context);
-
     // post frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // initial requests go here
@@ -50,8 +45,6 @@ class DeepLinkScreenState extends State<DeepLinkScreen> {
 
   @override
   void dispose() {
-    //
-
     super.dispose();
   }
 

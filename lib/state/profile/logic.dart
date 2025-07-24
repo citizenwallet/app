@@ -32,9 +32,9 @@ class ProfileLogic {
   final PhotosService _photos = PhotosService();
 
   final AccountDBService _db = AccountDBService();
-  Config? _config;
-  EthPrivateKey? _credentials;
-  EthereumAddress? _account;
+  late Config _config;
+  late EthPrivateKey _credentials;
+  late EthereumAddress _account;
 
   bool _pauseProfileCreation = false;
 
@@ -90,7 +90,7 @@ class ProfileLogic {
         throw Exception('account or config not found');
       }
 
-      final community = await _appDBService.communities.get(_account!.hexEip55);
+      final community = await _appDBService.communities.get(_account.hexEip55);
 
       if (community == null) {
         throw Exception('community not found');
@@ -101,7 +101,7 @@ class ProfileLogic {
       final url = communityConfig.community.walletUrl(deepLinkURL);
 
       final compressedParams = compress(
-          '?address=${_account!.hexEip55}&alias=${communityConfig.community.alias}');
+          '?address=${_account.hexEip55}&alias=${communityConfig.community.alias}');
 
       _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;
@@ -164,12 +164,12 @@ class ProfileLogic {
     try {
       _state.setUsernameRequest();
 
-      final exists = await profileExists(_config!, username.toLowerCase());
+      final exists = await profileExists(_config, username.toLowerCase());
       if (exists) {
         final existingProfile =
-            await getProfileByUsername(_config!, username.toLowerCase());
+            await getProfileByUsername(_config, username.toLowerCase());
         if (existingProfile != null &&
-            existingProfile.account == _account!.hexEip55) {
+            existingProfile.account == _account.hexEip55) {
           _state.setUsernameSuccess();
           return;
         }
@@ -190,8 +190,8 @@ class ProfileLogic {
   }
 
   Future<void> loadProfile({String? account, bool online = false}) async {
-    final ethAccount = _account!;
-    final alias = _config!.community.alias;
+    final ethAccount = _account;
+    final alias = _config.community.alias;
     final acc = account ?? ethAccount.hexEip55;
 
     resume();
@@ -224,7 +224,7 @@ class ProfileLogic {
         throw Exception('community is offline');
       }
 
-      final profile = await getProfile(_config!, acc);
+      final profile = await getProfile(_config, acc);
       if (profile == null) {
         _state.setProfileNoChangeSuccess();
 
@@ -281,7 +281,7 @@ class ProfileLogic {
         _state.viewProfileSuccess(cachedProfile!.profile);
       }
 
-      final profile = await getProfile(_config!, account);
+      final profile = await getProfile(_config, account);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setViewProfileNoChangeSuccess();
@@ -319,7 +319,7 @@ class ProfileLogic {
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
-      final exists = await createAccount(_config!, _account!, _credentials!);
+      final exists = await createAccount(_config, _account, _credentials);
       if (!exists) {
         throw Exception('Failed to create account');
       }
@@ -331,9 +331,9 @@ class ProfileLogic {
           : await _photos.photoFromBundle('assets/icons/profile.jpg');
 
       final url = await setProfile(
-        _config!,
-        _account!,
-        _credentials!,
+        _config,
+        _account,
+        _credentials,
         ProfileRequest.fromProfileV1(profile),
         image: newImage,
         fileType: '.jpg',
@@ -344,7 +344,7 @@ class ProfileLogic {
 
       _state.setProfileFetching();
 
-      final newProfile = await getProfileFromUrl(_config!, url);
+      final newProfile = await getProfileFromUrl(_config, url);
       if (newProfile == null) {
         throw Exception('Failed to load profile');
       }
@@ -375,7 +375,7 @@ class ProfileLogic {
 
       _accountBackupDBService.accounts.update(
         DBAccount(
-          alias: _config!.community.alias,
+          alias: _config.community.alias,
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
@@ -413,7 +413,7 @@ class ProfileLogic {
 
       _state.setProfileExisting();
 
-      final existing = await getProfile(_config!, profile.account);
+      final existing = await getProfile(_config, profile.account);
       if (existing == null) {
         throw Exception('Failed to load profile');
       }
@@ -426,14 +426,14 @@ class ProfileLogic {
       _state.setProfileUploading();
 
       final url =
-          await updateProfile(_config!, _account!, _credentials!, profile);
+          await updateProfile(_config, _account, _credentials, profile);
       if (url == null) {
         throw Exception('Failed to save profile');
       }
 
       _state.setProfileFetching();
 
-      final newProfile = await getProfileFromUrl(_config!, url);
+      final newProfile = await getProfileFromUrl(_config, url);
       if (newProfile == null) {
         throw Exception('Failed to load profile');
       }
@@ -462,7 +462,7 @@ class ProfileLogic {
 
       _accountBackupDBService.accounts.update(
         DBAccount(
-          alias: _config!.community.alias,
+          alias: _config.community.alias,
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
@@ -503,7 +503,7 @@ class ProfileLogic {
     const baseDelay = Duration(milliseconds: 100);
 
     for (int tries = 1; tries <= maxTries; tries++) {
-      final exists = await profileExists(_config!, username);
+      final exists = await profileExists(_config, username);
 
       if (!exists) {
         return username;
@@ -534,8 +534,8 @@ class ProfileLogic {
 
       _state.setUsernameSuccess(username: username);
 
-      final address = _account!.hexEip55;
-      final alias = _config!.community.alias;
+      final address = _account.hexEip55;
+      final alias = _config.community.alias;
 
       final account = await _accountBackupDBService.accounts
           .get(EthereumAddress.fromHex(address), alias);
@@ -563,7 +563,7 @@ class ProfileLogic {
         return;
       }
 
-      final exists = await createAccount(_config!, _account!, _credentials!);
+      final exists = await createAccount(_config, _account, _credentials);
       if (!exists) {
         throw Exception('Failed to create account');
       }
@@ -573,9 +573,9 @@ class ProfileLogic {
       }
 
       final url = await setProfile(
-        _config!,
-        _account!,
-        _credentials!,
+        _config,
+        _account,
+        _credentials,
         ProfileRequest.fromProfileV1(profile),
         image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
         fileType: '.jpg',
@@ -588,7 +588,7 @@ class ProfileLogic {
         return;
       }
 
-      final newProfile = await getProfileFromUrl(_config!, url);
+      final newProfile = await getProfileFromUrl(_config, url);
       if (newProfile == null) {
         throw Exception('Failed to get profile from url $url');
       }

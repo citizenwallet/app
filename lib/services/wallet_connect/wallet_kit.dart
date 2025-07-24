@@ -12,7 +12,6 @@ import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:citizenwallet/services/config/config.dart';
-import 'package:web3dart/web3dart.dart';
 
 final List<String> supportedChains = [
   'eip155:100',

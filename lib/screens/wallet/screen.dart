@@ -188,7 +188,7 @@ class WalletScreenState extends State<WalletScreen>
           _logic.credentials!,
           _logic.accountAddress!,
         );
-        
+
         _logic.requestWalletActions();
         await _logic.loadTransactions();
 
@@ -817,7 +817,7 @@ class WalletScreenState extends State<WalletScreen>
     if (alias == null && params != null) {
       alias = paramsAlias(params);
     }
-    
+
     if (alias == null) {
       return (null, null);
     }
@@ -986,7 +986,7 @@ class WalletScreenState extends State<WalletScreen>
       final pluginUrl = '$redirectUrl/#/?dl=plugin';
       final connection = _logic.connection;
 
-      String url = '$result?${connection?.queryParams ?? ''}';
+      String url = '$result?${connection.queryParams}';
       if (result.startsWith(pluginUrl)) {
         final resultUri = Uri.parse(result);
         final uri = Uri.parse(resultUri.fragment);
@@ -1009,7 +1009,7 @@ class WalletScreenState extends State<WalletScreen>
         }
 
         url =
-            '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection?.queryParams ?? ''}';
+            '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection.queryParams}';
       }
 
       if (!super.mounted) {
@@ -1057,13 +1057,14 @@ class WalletScreenState extends State<WalletScreen>
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
     final sendAlias = aliasFromSendUri(result);
-    
+
     if (voucherParams != null ||
         deepLinkParams != null ||
         sendToParams != null) {
       final (address, alias) = await handleLoadFromParams(
         voucherParams ?? sendToParams ?? deepLinkParams ?? parsedQRData.alias,
-        overrideAlias: uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
+        overrideAlias:
+            uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
       );
       loadedAddress = address;
       loadedAlias = alias;

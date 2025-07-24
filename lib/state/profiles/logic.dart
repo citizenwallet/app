@@ -19,9 +19,9 @@ class ProfilesLogic extends WidgetsBindingObserver {
       AccountBackupDBService();
   late ProfilesState _state;
 
-  EthPrivateKey? _currentCredentials;
-  EthereumAddress? _currentAccount;
-  Config? _currentConfig;
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
 
   late Debounce debouncedSearchProfile;
 
@@ -60,7 +60,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       }
 
       final cachedProfile = await ContactsCache().get(addr, () async {
-        final fetchedProfile = await getProfile(_currentConfig!, addr);
+        final fetchedProfile = await getProfile(_currentConfig, addr);
         if (fetchedProfile == null) {
           return null;
         }
@@ -143,8 +143,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
       _state.isSearching();
 
       final profile = cleanValue.startsWith('0x')
-          ? await getProfile(_currentConfig!, cleanValue)
-          : await getProfileByUsername(_currentConfig!, cleanValue);
+          ? await getProfile(_currentConfig, cleanValue)
+          : await getProfileByUsername(_currentConfig, cleanValue);
 
       final results = await _db.contacts.search(cleanValue.toLowerCase());
 

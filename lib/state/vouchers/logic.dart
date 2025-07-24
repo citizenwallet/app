@@ -29,9 +29,9 @@ class VoucherLogic extends WidgetsBindingObserver {
   final AccountDBService _accountDBService = AccountDBService();
   final SharingService _sharing = SharingService();
 
-  EthPrivateKey? _currentCredentials;
-  EthereumAddress? _currentAccount;
-  Config? _currentConfig;
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
 
   late VoucherState _state;
 
@@ -78,7 +78,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
       try {
         final balance =
-            await getBalance(_currentConfig!, EthereumAddress.fromHex(addr));
+            await getBalance(_currentConfig, EthereumAddress.fromHex(addr));
 
         await _accountDBService.vouchers
             .updateBalance(addr, balance.toString());
@@ -113,7 +113,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final vouchers = await _accountDBService.vouchers
-          .getAllByAlias(_currentConfig!.community.alias);
+          .getAllByAlias(_currentConfig.community.alias);
 
       _state.vouchersSuccess(vouchers
           .map(
@@ -167,7 +167,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       EthereumAddress account = uri.queryParameters['account'] != null
           ? EthereumAddress.fromHex(uri.queryParameters['account']!)
           : await getAccountAddress(
-              _currentConfig!,
+              _currentConfig,
               credentials.address.hexEip55,
               legacy: true,
               cache: false,
@@ -221,7 +221,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final balance =
-          await getBalance(_currentConfig!, EthereumAddress.fromHex(address));
+          await getBalance(_currentConfig, EthereumAddress.fromHex(address));
 
       await _accountDBService.vouchers.updateBalance(address, balance);
 
@@ -236,12 +236,12 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: dbvoucher.legacy,
       );
 
-      if (_currentConfig!.community.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
       final community =
-          await _appDBService.communities.get(_currentConfig!.community.alias);
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -255,7 +255,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         voucher,
         voucher.getLink(
           appLink,
-          _currentConfig!.getPrimaryToken().symbol,
+          _currentConfig.getPrimaryToken().symbol,
           dbvoucher.voucher,
         ),
       );
@@ -286,15 +286,15 @@ class VoucherLogic extends WidgetsBindingObserver {
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
-        decimals: _currentConfig!.getPrimaryToken().decimals,
+        decimals: _currentConfig.getPrimaryToken().decimals,
       );
 
-      if (_currentConfig!.community.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
       final community =
-          await _appDBService.communities.get(_currentConfig!.community.alias);
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -311,7 +311,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       final List<Voucher> vouchers = [];
 
       for (int i = 0; i < quantity; i++) {
-        addresses.add(_currentConfig!.getPrimaryToken().address);
+        addresses.add(_currentConfig.getPrimaryToken().address);
 
         final credentials = EthPrivateKey.createRandom(Random.secure());
 
@@ -323,7 +323,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         );
 
         final account = await getAccountAddress(
-            _currentConfig!, credentials.address.hexEip55);
+            _currentConfig, credentials.address.hexEip55);
 
         final dbvoucher = DBVoucher(
           address: account.hexEip55,
@@ -332,7 +332,7 @@ class VoucherLogic extends WidgetsBindingObserver {
           balance: parsedAmount.toString(),
           voucher: wallet.toJson(),
           salt: salt,
-          creator: _currentAccount!.hexEip55,
+          creator: _currentAccount.hexEip55,
           legacy: false,
         );
 
@@ -340,8 +340,8 @@ class VoucherLogic extends WidgetsBindingObserver {
 
         // TODO: token id should be set
         calldata.add(tokenTransferCallData(
-          _currentConfig!,
-          _currentAccount!,
+          _currentConfig,
+          _currentAccount,
           account.hexEip55,
           parsedAmount,
         ));
@@ -361,22 +361,22 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final (_, userop) = await prepareUserop(
-        _currentConfig!,
-        _currentAccount!,
-        _currentCredentials!,
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
         addresses,
         calldata,
       );
 
       final txHash = await submitUserop(
-        _currentConfig!,
+        _currentConfig,
         userop,
       );
       if (txHash == null) {
         throw Exception('transaction failed');
       }
 
-      final success = await waitForTxSuccess(_currentConfig!, txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -412,18 +412,18 @@ class VoucherLogic extends WidgetsBindingObserver {
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
-        decimals: _currentConfig!.getPrimaryToken().decimals,
+        decimals: _currentConfig.getPrimaryToken().decimals,
       );
 
       final account = await getAccountAddress(
-          _currentConfig!, credentials.address.hexEip55);
+          _currentConfig, credentials.address.hexEip55);
 
-      if (_currentConfig!.community.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
       final community =
-          await _appDBService.communities.get(_currentConfig!.community.alias);
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -438,7 +438,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         balance: parsedAmount.toString(),
         voucher: 'v2-${bytesToHex(credentials.privateKey)}',
         salt: salt,
-        creator: _currentAccount!.hexEip55,
+        creator: _currentAccount.hexEip55,
         legacy: false,
       );
 
@@ -447,31 +447,31 @@ class VoucherLogic extends WidgetsBindingObserver {
       // TODO: token id should be set
       final calldata = mint
           ? tokenMintCallData(
-              _currentConfig!,
+              _currentConfig,
               account.hexEip55,
               parsedAmount,
             )
           : tokenTransferCallData(
-              _currentConfig!,
-              _currentAccount!,
+              _currentConfig,
+              _currentAccount,
               account.hexEip55,
               parsedAmount,
             );
 
       final (_, userop) = await prepareUserop(
-        _currentConfig!,
-        _currentAccount!,
-        _currentCredentials!,
-        [_currentConfig!.getPrimaryToken().address],
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
+        [_currentConfig.getPrimaryToken().address],
         [calldata],
       );
 
       final args = {
-        'from': _currentAccount!.hexEip55,
+        'from': _currentAccount.hexEip55,
         'to': account.hexEip55,
       };
-      if (_currentConfig!.getPrimaryToken().standard == 'erc1155') {
-        args['operator'] = _currentAccount!.hexEip55;
+      if (_currentConfig.getPrimaryToken().standard == 'erc1155') {
+        args['operator'] = _currentAccount.hexEip55;
         args['id'] = '0';
         args['amount'] = parsedAmount.toString();
       } else {
@@ -479,13 +479,13 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final eventData = createEventData(
-        stringSignature: transferEventStringSignature(_currentConfig!),
-        topic: transferEventSignature(_currentConfig!),
+        stringSignature: transferEventStringSignature(_currentConfig),
+        topic: transferEventSignature(_currentConfig),
         args: args,
       );
 
       final txHash = await submitUserop(
-        _currentConfig!,
+        _currentConfig,
         userop,
         data: eventData,
         extraData: TransferData(dbvoucher.name),
@@ -516,7 +516,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final success = await waitForTxSuccess(_currentConfig!, txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -602,35 +602,35 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       if (preSendingTransaction != null) {
         preSendingTransaction(
-            amount, tempId, _currentAccount!.hexEip55, voucher.address);
+            amount, tempId, _currentAccount.hexEip55, voucher.address);
       }
 
       final calldata = tokenTransferCallData(
-        _currentConfig!,
-        _currentAccount!,
+        _currentConfig,
+        _currentAccount,
         voucher.address,
         amount,
       );
 
       final (hash, userop) = await prepareUserop(
-        _currentConfig!,
-        _currentAccount!,
-        _currentCredentials!,
-        [_currentConfig!.getPrimaryToken().address],
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
+        [_currentConfig.getPrimaryToken().address],
         [calldata],
         customCredentials: credentials,
       );
 
       if (sendingTransaction != null) {
         sendingTransaction(
-            amount, hash, _currentAccount!.hexEip55, voucher.address);
+            amount, hash, _currentAccount.hexEip55, voucher.address);
       }
 
       final args = {
         'from': voucher.address,
-        'to': _currentAccount!.hexEip55,
+        'to': _currentAccount.hexEip55,
       };
-      if (_currentConfig!.getPrimaryToken().standard == 'erc1155') {
+      if (_currentConfig.getPrimaryToken().standard == 'erc1155') {
         args['operator'] = voucher.address;
         args['id'] = '0';
         args['amount'] = amount.toString();
@@ -639,13 +639,13 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final eventData = createEventData(
-        stringSignature: transferEventStringSignature(_currentConfig!),
-        topic: transferEventSignature(_currentConfig!),
+        stringSignature: transferEventStringSignature(_currentConfig),
+        topic: transferEventSignature(_currentConfig),
         args: args,
       );
 
       final txHash = await submitUserop(
-        _currentConfig!,
+        _currentConfig,
         userop,
         customCredentials: credentials,
         data: eventData,
@@ -655,7 +655,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      final success = await waitForTxSuccess(_currentConfig!, txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }

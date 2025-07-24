@@ -14,7 +14,6 @@ import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
-import 'package:citizenwallet/utils/uint8.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 

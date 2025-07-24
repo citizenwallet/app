@@ -5,7 +5,6 @@ import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/layouts/info_action.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
-import 'package:citizenwallet/widgets/text_input_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';

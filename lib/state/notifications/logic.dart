@@ -15,9 +15,9 @@ class NotificationsLogic {
   final PreferencesService _prefs = PreferencesService();
   final PushService _push = PushService();
   final AudioService _audio = AudioService();
-  Config? _config;
-  EthPrivateKey? _credentials;
-  EthereumAddress? _account;
+  late Config _config;
+  late EthPrivateKey _credentials;
+  late EthereumAddress _account;
 
   NotificationsLogic(BuildContext context)
       : _state = context.read<NotificationsState>();
@@ -33,7 +33,7 @@ class NotificationsLogic {
       if (_account == null) return;
 
       final systemEnabled = await _push.isEnabled();
-      bool enabled = _prefs.pushNotifications(_account!.hexEip55);
+      bool enabled = _prefs.pushNotifications(_account.hexEip55);
 
       if (!systemEnabled) {
         final allowed = await _push.requestPermissions();
@@ -51,7 +51,7 @@ class NotificationsLogic {
       // enable push
       _state.setPush(true);
       await _push.start(onToken, onMessage);
-      _prefs.setPushNotifications(_account!.hexEip55, true);
+      _prefs.setPushNotifications(_account.hexEip55, true);
     } catch (e) {
       //
     }
@@ -62,7 +62,7 @@ class NotificationsLogic {
       if (_account == null) return;
 
       final systemEnabled = await _push.isEnabled();
-      final enabled = _prefs.pushNotifications(_account!.hexEip55);
+      final enabled = _prefs.pushNotifications(_account.hexEip55);
 
       _state.setPush(systemEnabled && enabled);
     } catch (e) {
@@ -107,9 +107,9 @@ class NotificationsLogic {
       if (_config == null || _credentials == null || _account == null) return;
 
       final updated = await updatePushToken(
-        _config!,
-        _account!,
-        _credentials!,
+        _config,
+        _account,
+        _credentials,
         token,
       );
       if (!updated) {
@@ -130,9 +130,9 @@ class NotificationsLogic {
       }
 
       final updated = await updatePushToken(
-        _config!,
-        _account!,
-        _credentials!,
+        _config,
+        _account,
+        _credentials,
         token,
       );
       if (!updated) {
@@ -148,13 +148,13 @@ class NotificationsLogic {
       if (_account == null) return;
 
       final systemEnabled = await _push.isEnabled();
-      final enabled = _prefs.pushNotifications(_account!.hexEip55);
+      final enabled = _prefs.pushNotifications(_account.hexEip55);
 
       if (systemEnabled && enabled) {
         // disable push
         _state.setPush(false);
         await _push.stop();
-        _prefs.setPushNotifications(_account!.hexEip55, false);
+        _prefs.setPushNotifications(_account.hexEip55, false);
 
         final token = await _push.token;
         if (token == null) {
@@ -164,9 +164,9 @@ class NotificationsLogic {
         if (_config == null || _credentials == null) return;
 
         final updated = await removePushToken(
-          _config!,
-          _account!,
-          _credentials!,
+          _config,
+          _account,
+          _credentials,
           token,
         );
         if (!updated) {
@@ -185,7 +185,7 @@ class NotificationsLogic {
       // enable push
       _state.setPush(true);
       await _push.start(onToken, onMessage);
-      _prefs.setPushNotifications(_account!.hexEip55, true);
+      _prefs.setPushNotifications(_account.hexEip55, true);
     } catch (e) {
       //
     }

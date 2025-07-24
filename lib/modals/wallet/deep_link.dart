@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/deep_link/logic.dart';
 import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:citizenwallet/state/wallet/state.dart';

@@ -3,7 +3,6 @@ import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/svg.dart';
 
 class CommunityRow extends StatelessWidget {
   final Config config;
