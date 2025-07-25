@@ -57,6 +57,16 @@ class _SendProgressState extends State<SendProgress> {
     navigator.pop();
   }
 
+  void handleDismiss(BuildContext context) {
+    final navigator = GoRouter.of(context);
+
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      navigator.go('/wallet/${widget.walletLogic?.account}');
+    }
+  }
+
   void handleStartCloseScreenTimer(BuildContext context) {
     if (_isClosing) {
       return;
@@ -131,6 +141,8 @@ class _SendProgressState extends State<SendProgress> {
         context.select((ProfilesState state) => state.selectedProfile);
 
     final date = DateFormat.yMMMd().add_Hm().format(inProgressTransaction.date);
+
+    final hasTip = context.select((WalletState state) => state.hasTip);
 
     final statusMessage = inProgressTransactionError
         ? widget.isMinting
@@ -333,7 +345,7 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    context.select((WalletState state) => state.hasTip)
+                    hasTip && widget.sendTransaction?.tipTo == null
                         ? Column(
                             children: [
                               Button(
@@ -355,12 +367,7 @@ class _SendProgressState extends State<SendProgress> {
                                 height: 10,
                               ),
                               CupertinoButton(
-                                onPressed: () {
-                                  final navigator = GoRouter.of(context);
-
-                                  navigator.go(
-                                      '/wallet/${widget.walletLogic?.account}');
-                                },
+                                onPressed: () => handleDismiss(context),
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(
                                     minWidth: 200,

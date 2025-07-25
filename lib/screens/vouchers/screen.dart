@@ -61,6 +61,17 @@ class VouchersScreenState extends State<VouchersScreen> {
   }
 
   void onLoad() async {
+    final walletLogic = widget.walletLogic;
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      _logic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
+
     await _logic.fetchVouchers();
   }
 
@@ -87,6 +98,7 @@ class VouchersScreenState extends State<VouchersScreen> {
     await navigator.push('/wallet/${wallet.account}/vouchers/$address', extra: {
       'amount': amount,
       'logo': logo,
+      'walletLogic': widget.walletLogic,
     });
     _logic.resume(address: address);
   }
@@ -167,6 +179,7 @@ class VouchersScreenState extends State<VouchersScreen> {
           .push('/wallet/${wallet.account}/vouchers/$address', extra: {
         'amount': amount,
         'logo': logo,
+        'walletLogic': widget.walletLogic,
       });
     }
 
@@ -187,7 +200,21 @@ class VouchersScreenState extends State<VouchersScreen> {
         ),
       );
 
-      if (confirm == true) await _logic.returnVoucher(address);
+      if (confirm == true) {
+        
+        final walletLogic = widget.walletLogic;
+        if (walletLogic.config != null &&
+            walletLogic.credentials != null &&
+            walletLogic.accountAddress != null) {
+          _logic.setWalletState(
+            walletLogic.config!,
+            walletLogic.credentials!,
+            walletLogic.accountAddress!,
+          );
+        } 
+
+        await _logic.returnVoucher(address);
+      }
     }
 
     if (!super.mounted) {

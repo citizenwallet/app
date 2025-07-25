@@ -123,16 +123,37 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final voucherLogic = widget.voucherLogic;
     if (voucherLogic == null) {
+      setState(() {
+        _isSending = false;
+      });
       return;
     }
 
     final walletLogic = widget.walletLogic;
 
-    voucherLogic.createVoucher(
-      balance: widget.walletLogic.amountController.value.text,
-      symbol: symbol,
-      mint: mint,
-    );
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      voucherLogic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
+
+    try {
+      voucherLogic.createVoucher(
+        balance: widget.walletLogic.amountController.value.text,
+        symbol: symbol,
+        mint: mint,
+      );
+    } catch (e) {
+      debugPrint('Error creating voucher: $e');
+      setState(() {
+        _isSending = false;
+      });
+      return;
+    }
 
     voucherLogic.shareReady();
 

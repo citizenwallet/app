@@ -60,8 +60,8 @@ class ConfigService {
 
           _configs = [config];
         }).catchError((e, s) {
-          print('Error fetching config: $e');
-          print('Stacktrace: $s');
+          debugPrint('Error fetching config: $e');
+          debugPrint('Stacktrace: $s');
         });
 
         return _configs.first;
@@ -76,8 +76,8 @@ class ConfigService {
 
       return config;
     } catch (e, s) {
-      print('Error fetching config: $e');
-      print('Stacktrace: $s');
+      debugPrint('Error fetching config: $e');
+      debugPrint('Stacktrace: $s');
     }
 
     String alias = Uri.base.host.endsWith(appLinkSuffix)

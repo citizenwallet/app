@@ -27,14 +27,18 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   final AppDBService _appDBService = AppDBService();
   final AccountDBService _accountDBService = AccountDBService();
-  final WalletService _wallet = WalletService();
   final SharingService _sharing = SharingService();
+
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
 
   late VoucherState _state;
 
   late Debounce debouncedLoad;
   List<String> toLoad = [];
   bool stopLoading = false;
+  bool _isInitialized = false;
 
   VoucherLogic(BuildContext context) {
     _state = context.read<VoucherState>();
@@ -44,6 +48,14 @@ class VoucherLogic extends WidgetsBindingObserver {
       const Duration(milliseconds: 250),
       leading: true,
     );
+  }
+
+  void setWalletState(
+      Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _currentConfig = config;
+    _currentCredentials = credentials;
+    _currentAccount = account;
+    _isInitialized = true;
   }
 
   void resetCreate() {
@@ -63,7 +75,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         return;
       }
       try {
-        final balance = await _wallet.getBalance(addr: addr);
+        final balance =
+            await getBalance(_currentConfig, EthereumAddress.fromHex(addr));
 
         await _accountDBService.vouchers
             .updateBalance(addr, balance.toString());
@@ -91,14 +104,13 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   Future<void> fetchVouchers() async {
     try {
-      _state.vouchersRequest();
-
-      if (_wallet.alias == null) {
-        throw Exception('alias not found');
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
       }
 
-      final vouchers =
-          await _accountDBService.vouchers.getAllByAlias(_wallet.alias!);
+      _state.vouchersRequest();
+      final vouchers = await _accountDBService.vouchers
+          .getAllByAlias(_currentConfig.community.alias);
 
       _state.vouchersSuccess(vouchers
           .map(
@@ -129,6 +141,10 @@ class VoucherLogic extends WidgetsBindingObserver {
     String salt = '',
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.readVoucherRequest();
 
       final jsonVoucher = decompress(compressedVoucher);
@@ -151,13 +167,14 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       EthereumAddress account = uri.queryParameters['account'] != null
           ? EthereumAddress.fromHex(uri.queryParameters['account']!)
-          : await _wallet.getAccountAddress(
+          : await getAccountAddress(
+              _currentConfig,
               credentials.address.hexEip55,
               legacy: true,
               cache: false,
             );
 
-      final balance = await _wallet.getBalance(addr: account.hexEip55);
+      final balance = await getBalance(_currentConfig, account);
 
       final voucher = Voucher(
         address: account.hexEip55,
@@ -196,6 +213,10 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   Future<Voucher?> openVoucher(String address) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.openVoucherRequest();
 
       final dbvoucher = await _accountDBService.vouchers.get(address);
@@ -203,7 +224,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('voucher not found');
       }
 
-      final balance = await _wallet.getBalance(addr: address);
+      final balance =
+          await getBalance(_currentConfig, EthereumAddress.fromHex(address));
 
       await _accountDBService.vouchers.updateBalance(address, balance);
 
@@ -218,11 +240,12 @@ class VoucherLogic extends WidgetsBindingObserver {
         legacy: dbvoucher.legacy,
       );
 
-      if (_wallet.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
-      final community = await _appDBService.communities.get(_wallet.alias!);
+      final community =
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -236,7 +259,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         voucher,
         voucher.getLink(
           appLink,
-          _wallet.currency.symbol,
+          _currentConfig.getPrimaryToken().symbol,
           dbvoucher.voucher,
         ),
       );
@@ -262,19 +285,24 @@ class VoucherLogic extends WidgetsBindingObserver {
     String salt = '',
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.createVoucherRequest();
 
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
-        decimals: _wallet.currency.decimals,
+        decimals: _currentConfig.getPrimaryToken().decimals,
       );
 
-      if (_wallet.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
-      final community = await _appDBService.communities.get(_wallet.alias!);
+      final community =
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -291,7 +319,7 @@ class VoucherLogic extends WidgetsBindingObserver {
       final List<Voucher> vouchers = [];
 
       for (int i = 0; i < quantity; i++) {
-        addresses.add(_wallet.tokenAddress);
+        addresses.add(_currentConfig.getPrimaryToken().address);
 
         final credentials = EthPrivateKey.createRandom(Random.secure());
 
@@ -302,8 +330,8 @@ class VoucherLogic extends WidgetsBindingObserver {
           scryptN: 2,
         );
 
-        final account =
-            await _wallet.getAccountAddress(credentials.address.hexEip55);
+        final account = await getAccountAddress(
+            _currentConfig, credentials.address.hexEip55);
 
         final dbvoucher = DBVoucher(
           address: account.hexEip55,
@@ -312,14 +340,16 @@ class VoucherLogic extends WidgetsBindingObserver {
           balance: parsedAmount.toString(),
           voucher: wallet.toJson(),
           salt: salt,
-          creator: _wallet.account.hexEip55,
+          creator: _currentAccount.hexEip55,
           legacy: false,
         );
 
         dbvouchers.add(dbvoucher);
 
         // TODO: token id should be set
-        calldata.add(_wallet.tokenTransferCallData(
+        calldata.add(tokenTransferCallData(
+          _currentConfig,
+          _currentAccount,
           account.hexEip55,
           parsedAmount,
         ));
@@ -338,17 +368,23 @@ class VoucherLogic extends WidgetsBindingObserver {
         vouchers.add(voucher);
       }
 
-      final (_, userop) = await _wallet.prepareUserop(
+      final (_, userop) = await prepareUserop(
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
         addresses,
         calldata,
       );
 
-      final txHash = await _wallet.submitUserop(userop);
+      final txHash = await submitUserop(
+        _currentConfig,
+        userop,
+      );
       if (txHash == null) {
         throw Exception('transaction failed');
       }
 
-      final success = await _wallet.waitForTxSuccess(txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -362,8 +398,8 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (_) {
-      //
+    } catch (e) {
+      debugPrint('Error creating voucher: $e');
     }
 
     _state.createVoucherError();
@@ -377,6 +413,9 @@ class VoucherLogic extends WidgetsBindingObserver {
     bool mint = false,
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
       _state.createVoucherRequest();
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
@@ -384,17 +423,18 @@ class VoucherLogic extends WidgetsBindingObserver {
       final doubleAmount = balance.replaceAll(',', '.');
       final parsedAmount = toUnit(
         doubleAmount,
-        decimals: _wallet.currency.decimals,
+        decimals: _currentConfig.getPrimaryToken().decimals,
       );
 
       final account =
-          await _wallet.getAccountAddress(credentials.address.hexEip55);
+          await getAccountAddress(_currentConfig, credentials.address.hexEip55);
 
-      if (_wallet.alias == null) {
+      if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
       }
 
-      final community = await _appDBService.communities.get(_wallet.alias!);
+      final community =
+          await _appDBService.communities.get(_currentConfig.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -409,7 +449,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         balance: parsedAmount.toString(),
         voucher: 'v2-${bytesToHex(credentials.privateKey)}',
         salt: salt,
-        creator: _wallet.account.hexEip55,
+        creator: _currentAccount.hexEip55,
         legacy: false,
       );
 
@@ -417,26 +457,32 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       // TODO: token id should be set
       final calldata = mint
-          ? _wallet.tokenMintCallData(
+          ? tokenMintCallData(
+              _currentConfig,
               account.hexEip55,
               parsedAmount,
             )
-          : _wallet.tokenTransferCallData(
+          : tokenTransferCallData(
+              _currentConfig,
+              _currentAccount,
               account.hexEip55,
               parsedAmount,
             );
 
-      final (_, userop) = await _wallet.prepareUserop(
-        [_wallet.tokenAddress],
+      final (_, userop) = await prepareUserop(
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
+        [_currentConfig.getPrimaryToken().address],
         [calldata],
       );
 
       final args = {
-        'from': _wallet.account.hexEip55,
+        'from': _currentAccount.hexEip55,
         'to': account.hexEip55,
       };
-      if (_wallet.standard == 'erc1155') {
-        args['operator'] = _wallet.account.hexEip55;
+      if (_currentConfig.getPrimaryToken().standard == 'erc1155') {
+        args['operator'] = _currentAccount.hexEip55;
         args['id'] = '0';
         args['amount'] = parsedAmount.toString();
       } else {
@@ -444,12 +490,13 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final eventData = createEventData(
-        stringSignature: _wallet.transferEventStringSignature,
-        topic: _wallet.transferEventSignature,
+        stringSignature: transferEventStringSignature(_currentConfig),
+        topic: transferEventSignature(_currentConfig),
         args: args,
       );
 
-      final txHash = await _wallet.submitUserop(
+      final txHash = await submitUserop(
+        _currentConfig,
         userop,
         data: eventData,
         extraData: TransferData(dbvoucher.name),
@@ -480,7 +527,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         ),
       );
 
-      final success = await _wallet.waitForTxSuccess(txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -538,6 +585,9 @@ class VoucherLogic extends WidgetsBindingObserver {
     })? sendingTransaction,
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
       _state.returnVoucherRequest();
 
       final voucher = await _accountDBService.vouchers.get(address);
@@ -566,31 +616,35 @@ class VoucherLogic extends WidgetsBindingObserver {
 
       if (preSendingTransaction != null) {
         preSendingTransaction(
-            amount, tempId, _wallet.account.hexEip55, voucher.address);
+            amount, tempId, _currentAccount.hexEip55, voucher.address);
       }
 
-      final calldata = _wallet.tokenTransferCallData(
-        _wallet.account.hexEip55,
+      final calldata = tokenTransferCallData(
+        _currentConfig,
+        _currentAccount,
+        voucher.address,
         amount,
-        from: voucher.address,
       );
 
-      final (hash, userop) = await _wallet.prepareUserop(
-        [_wallet.tokenAddress],
+      final (hash, userop) = await prepareUserop(
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
+        [_currentConfig.getPrimaryToken().address],
         [calldata],
         customCredentials: credentials,
       );
 
       if (sendingTransaction != null) {
         sendingTransaction(
-            amount, hash, _wallet.account.hexEip55, voucher.address);
+            amount, hash, _currentAccount.hexEip55, voucher.address);
       }
 
       final args = {
         'from': voucher.address,
-        'to': _wallet.account.hexEip55,
+        'to': _currentAccount.hexEip55,
       };
-      if (_wallet.standard == 'erc1155') {
+      if (_currentConfig.getPrimaryToken().standard == 'erc1155') {
         args['operator'] = voucher.address;
         args['id'] = '0';
         args['amount'] = amount.toString();
@@ -599,12 +653,13 @@ class VoucherLogic extends WidgetsBindingObserver {
       }
 
       final eventData = createEventData(
-        stringSignature: _wallet.transferEventStringSignature,
-        topic: _wallet.transferEventSignature,
+        stringSignature: transferEventStringSignature(_currentConfig),
+        topic: transferEventSignature(_currentConfig),
         args: args,
       );
 
-      final txHash = await _wallet.submitUserop(
+      final txHash = await submitUserop(
+        _currentConfig,
         userop,
         customCredentials: credentials,
         data: eventData,
@@ -614,7 +669,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         throw Exception('transaction failed');
       }
 
-      final success = await _wallet.waitForTxSuccess(txHash);
+      final success = await waitForTxSuccess(_currentConfig, txHash);
       if (!success) {
         throw Exception('transaction failed');
       }
@@ -656,6 +711,10 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   void resume({String? address}) {
     stopLoading = false;
+
+    if (!_isInitialized) {
+      return;
+    }
 
     if (address != null) {
       updateVoucher(address);

@@ -1,6 +1,5 @@
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:sqflite_common/sqflite.dart';
 
 class AccountBackupDBService extends DBService {

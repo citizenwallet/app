@@ -8,7 +8,6 @@ import 'package:http/http.dart';
 import 'package:smartcontracts/accounts.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
     {String? customAccountFactory}) async {
@@ -17,7 +16,6 @@ Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
   final url = config.getRpcUrl(primaryAccountFactory.chainId.toString(), customAccountFactory);
   // final wsurl =
   //     config.chains[primaryAccountFactory.chainId.toString()]!.node.wsUrl;
-  print('url: $url');
 
   final client = Client();
 

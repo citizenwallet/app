@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
-import 'package:convert/convert.dart';
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:web3dart/crypto.dart';
