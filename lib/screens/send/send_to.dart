@@ -249,7 +249,7 @@ class _SendToScreenState extends State<SendToScreen> {
       return;
     }
 
-    widget.profilesLogic.getProfile(hex);
+    widget.profilesLogic.getLocalProfile(hex);
 
     if (!context.mounted) {
       return;

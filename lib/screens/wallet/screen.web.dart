@@ -1,8 +1,6 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
-import 'package:citizenwallet/modals/wallet/deep_link.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
-import 'package:citizenwallet/state/deep_link/state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universal_html/html.dart' as html;
@@ -195,7 +193,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
     switch (deepLink) {
       case 'plugin':
         final pluginConfig =
-            await _logic.getPluginConfig(widget.alias!, params);
+            await _logic.getPluginConfig(widget.alias, params);
         if (pluginConfig == null) {
           return;
         }
@@ -206,19 +204,12 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
         _profilesLogic.pause();
         _voucherLogic.pause();
 
-        await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
-          context: context,
-          expand: true,
-          useRootNavigator: true,
-          builder: (modalContext) => ChangeNotifierProvider(
-            create: (_) => DeepLinkState(deepLink),
-            child: DeepLinkModal(
-              wallet: _logic.wallet,
-              deepLink: deepLink,
-              deepLinkParams: params,
-            ),
-          ),
-        );
+        final navigator = GoRouter.of(context);
+
+        await navigator.push('/wallet/${widget.encoded}/deeplink', extra: {
+          'deepLink': deepLink,
+          'deepLinkParams': params,
+        });
 
         _logic.resumeFetching();
         _profilesLogic.resume();
