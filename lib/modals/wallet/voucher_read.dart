@@ -67,6 +67,15 @@ class VoucherReadModalState extends State<VoucherReadModal>
   }
 
   void onLoad() async {
+    final walletLogic = widget.logic;
+    if (walletLogic.config != null && walletLogic.credentials != null && walletLogic.accountAddress != null) {
+      _logic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    } 
+    
     final voucher = await _logic.openVoucher(widget.address);
 
     if (voucher == null) {
@@ -81,6 +90,19 @@ class VoucherReadModalState extends State<VoucherReadModal>
   }
 
   void handleRedeem() async {
+    print('handleRedeem called for address: ${widget.address}');
+    
+    // Initialize voucher logic if not already initialized
+    final walletLogic = widget.logic;
+    if (walletLogic.config != null && walletLogic.credentials != null && walletLogic.accountAddress != null) {
+      print('Initializing voucher logic in handleRedeem');
+      _logic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    } 
+    
     final navigator = GoRouter.of(context);
 
     _logic.returnVoucher(

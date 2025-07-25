@@ -393,6 +393,7 @@ GoRouter createRouter(
                   address: state.pathParameters['voucher'] ?? '',
                   amount: extra['amount'],
                   logo: extra['logo'],
+                  walletLogic: extra['walletLogic'],
                 );
               },
             ),

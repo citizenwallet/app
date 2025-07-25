@@ -38,6 +38,7 @@ class VoucherLogic extends WidgetsBindingObserver {
   late Debounce debouncedLoad;
   List<String> toLoad = [];
   bool stopLoading = false;
+  bool _isInitialized = false;
 
   VoucherLogic(BuildContext context) {
     _state = context.read<VoucherState>();
@@ -54,6 +55,7 @@ class VoucherLogic extends WidgetsBindingObserver {
     _currentConfig = config;
     _currentCredentials = credentials;
     _currentAccount = account;
+    _isInitialized = true;
   }
 
   void resetCreate() {
@@ -62,10 +64,6 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   _loadVoucher() async {
     if (stopLoading) {
-      return;
-    }
-
-    if (_currentConfig == null) {
       return;
     }
 
@@ -106,12 +104,11 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   Future<void> fetchVouchers() async {
     try {
-      _state.vouchersRequest();
-
-      if (_currentConfig == null) {
+      if (!_isInitialized) {
         throw Exception('wallet not initialized');
       }
 
+      _state.vouchersRequest();
       final vouchers = await _accountDBService.vouchers
           .getAllByAlias(_currentConfig.community.alias);
 
@@ -144,6 +141,10 @@ class VoucherLogic extends WidgetsBindingObserver {
     String salt = '',
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.readVoucherRequest();
 
       final jsonVoucher = decompress(compressedVoucher);
@@ -173,8 +174,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               cache: false,
             );
 
-      final balance =
-          await getBalance(_currentConfig ?? Config.fromJson({}), account);
+      final balance = await getBalance(_currentConfig, account);
 
       final voucher = Voucher(
         address: account.hexEip55,
@@ -213,6 +213,10 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   Future<Voucher?> openVoucher(String address) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.openVoucherRequest();
 
       final dbvoucher = await _accountDBService.vouchers.get(address);
@@ -281,6 +285,10 @@ class VoucherLogic extends WidgetsBindingObserver {
     String salt = '',
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
+
       _state.createVoucherRequest();
 
       final doubleAmount = balance.replaceAll(',', '.');
@@ -390,8 +398,8 @@ class VoucherLogic extends WidgetsBindingObserver {
       );
 
       return;
-    } catch (_) {
-      //
+    } catch (e) {
+      debugPrint('Error creating voucher: $e');
     }
 
     _state.createVoucherError();
@@ -405,6 +413,9 @@ class VoucherLogic extends WidgetsBindingObserver {
     bool mint = false,
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
       _state.createVoucherRequest();
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
@@ -415,8 +426,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         decimals: _currentConfig.getPrimaryToken().decimals,
       );
 
-      final account = await getAccountAddress(
-          _currentConfig, credentials.address.hexEip55);
+      final account =
+          await getAccountAddress(_currentConfig, credentials.address.hexEip55);
 
       if (_currentConfig.community.alias.isEmpty) {
         throw Exception('alias not found');
@@ -574,6 +585,9 @@ class VoucherLogic extends WidgetsBindingObserver {
     })? sendingTransaction,
   }) async {
     try {
+      if (!_isInitialized) {
+        throw Exception('wallet not initialized');
+      }
       _state.returnVoucherRequest();
 
       final voucher = await _accountDBService.vouchers.get(address);
@@ -697,6 +711,10 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   void resume({String? address}) {
     stopLoading = false;
+
+    if (!_isInitialized) {
+      return;
+    }
 
     if (address != null) {
       updateVoucher(address);

@@ -69,18 +69,6 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final walletLogic = widget.walletLogic;
-      final tipTo = context.read<WalletState>().tipTo;
-
-      if (tipTo != null) {
-        try {
-          final profile = await widget.profilesLogic.getLocalProfile(tipTo);
-          if (profile != null) {
-            widget.profilesLogic.selectProfile(profile);
-          }
-        } catch (e) {
-          debugPrint('Error fetching profile: $e');
-        }
-      }
 
       onLoad();
 
@@ -118,6 +106,19 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
+    final tipTo = context.read<WalletState>().tipTo;
+
+    if (tipTo != null) {
+      try {
+        final profile = await widget.profilesLogic.getLocalProfile(tipTo);
+        if (profile != null) {
+          widget.profilesLogic.selectProfile(profile);
+        }
+      } catch (e) {
+        debugPrint('Error fetching profile: $e');
+      }
+    }
+
     amountFocusNode.requestFocus();
     messageFocusNode.addListener(_onMessageFocusChange);
   }
@@ -147,16 +148,37 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final voucherLogic = widget.voucherLogic;
     if (voucherLogic == null) {
+      setState(() {
+        _isSending = false;
+      });
       return;
     }
 
     final walletLogic = widget.walletLogic;
 
-    voucherLogic.createVoucher(
-      balance: widget.walletLogic.amountController.value.text,
-      symbol: symbol,
-      mint: mint,
-    );
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      voucherLogic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
+
+    try {
+      voucherLogic.createVoucher(
+        balance: widget.walletLogic.amountController.value.text,
+        symbol: symbol,
+        mint: mint,
+      );
+    } catch (e) {
+      debugPrint('Error creating voucher: $e');
+      setState(() {
+        _isSending = false;
+      });
+      return;
+    }
 
     voucherLogic.shareReady();
 

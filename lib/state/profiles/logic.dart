@@ -28,6 +28,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
   late Debounce debouncedLoad;
   List<String> toLoad = [];
   bool stopLoading = false;
+  bool _isInitialized = false;
 
   ProfilesLogic(BuildContext context) {
     _state = context.read<ProfilesState>();
@@ -51,6 +52,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _currentConfig = config;
     _currentCredentials = credentials;
     _currentAccount = account;
+    _isInitialized = true;
   }
 
   Future<ProfileV1?> _loadCachedProfile(String addr) async {
@@ -295,6 +297,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void resume() {
     stopLoading = false;
+    
+    if (!_isInitialized) {
+      return;
+    }
+    
     debouncedLoad();
   }
 

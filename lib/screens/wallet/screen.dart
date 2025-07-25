@@ -189,6 +189,12 @@ class WalletScreenState extends State<WalletScreen>
           _logic.accountAddress!,
         );
 
+        _voucherLogic.setWalletState(
+          _logic.config!,
+          _logic.credentials!,
+          _logic.accountAddress!,
+        );
+
         _logic.requestWalletActions();
         await _logic.loadTransactions();
 

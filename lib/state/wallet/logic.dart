@@ -95,6 +95,7 @@ class WalletLogic extends WidgetsBindingObserver {
   late EthPrivateKey _currentCredentials;
   late EthereumAddress _currentAccount;
   late Config _currentConfig;
+  bool _isInitialized = false;
 
   SigAuthConnection get connection {
     return getSigAuthConnection(
@@ -134,15 +135,13 @@ class WalletLogic extends WidgetsBindingObserver {
     _voucherLogic = voucherLogic;
   }
 
-  EthPrivateKey? get privateKey => _currentCredentials;
-  Config? get config => _currentConfig;
-  EthPrivateKey? get credentials => _currentCredentials;
-  EthereumAddress? get accountAddress => _currentAccount;
+  EthPrivateKey? get privateKey => _isInitialized ? _currentCredentials : null;
+  Config? get config => _isInitialized ? _currentConfig : null;
+  EthPrivateKey? get credentials => _isInitialized ? _currentCredentials : null;
+  EthereumAddress? get accountAddress => _isInitialized ? _currentAccount : null;
 
   void setWalletStateInOtherLogic() {
-    if (_currentConfig != null &&
-        _currentCredentials != null &&
-        _currentAccount != null) {
+    if (_isInitialized) {
       _notificationsLogic.setWalletState(
           _currentConfig, _currentCredentials, _currentAccount);
       _profilesLogic?.setWalletState(
@@ -299,6 +298,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _currentCredentials = cred.privateKey;
       _currentAccount = EthereumAddress.fromHex(decodedSplit[0]);
       _currentConfig = config;
+      _isInitialized = true;
 
       await _accountDBService.init(
           'wallet_${_currentCredentials.address.hexEip55}'); // TODO: migrate to account address instead
@@ -425,6 +425,7 @@ class WalletLogic extends WidgetsBindingObserver {
       _currentCredentials = dbWallet.privateKey!;
       _currentAccount = dbWallet.address;
       _currentConfig = communityConfig;
+      _isInitialized = true;
 
       await _accountDBService.init(
           'wallet_${_currentCredentials.address.hexEip55}'); // TODO: migrate to account address instead
@@ -2137,6 +2138,10 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
+        if (!_isInitialized) {
+          return;
+        }
+        
         resumeFetching();
         loadTransactions();
 
