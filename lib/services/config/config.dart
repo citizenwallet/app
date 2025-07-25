@@ -637,10 +637,12 @@ class Config {
     engineIPFSService = APIService(baseURL: nodeUrl);
   }
 
-  Future<void> initContracts() async {
+  Future<void> initContracts([String? accountFactoryAddress]) async {
     final chain = chains.values.first;
 
-    final erc4337Config = getPrimaryAccountAbstractionConfig();
+    final erc4337Config = accountFactoryAddress != null 
+        ? getAccountAbstractionConfig(accountFactoryAddress, chain.id)
+        : getPrimaryAccountAbstractionConfig();
 
     entryPointContract = StackupEntryPoint(
       chain.id,

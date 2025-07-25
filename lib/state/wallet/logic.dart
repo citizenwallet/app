@@ -118,7 +118,7 @@ class WalletLogic extends WidgetsBindingObserver {
   String? get lastWallet => _preferences.lastWallet;
   String get address => _currentCredentials.address.hexEip55;
   String get account => _currentAccount.hexEip55;
-  String get token => _currentConfig.getPrimaryToken().address ;
+  String get token => _currentConfig.getPrimaryToken().address;
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
@@ -139,7 +139,8 @@ class WalletLogic extends WidgetsBindingObserver {
   EthPrivateKey? get privateKey => _isInitialized ? _currentCredentials : null;
   Config? get config => _isInitialized ? _currentConfig : null;
   EthPrivateKey? get credentials => _isInitialized ? _currentCredentials : null;
-  EthereumAddress? get accountAddress => _isInitialized ? _currentAccount : null;
+  EthereumAddress? get accountAddress =>
+      _isInitialized ? _currentAccount : null;
 
   void setWalletStateInOtherLogic() {
     if (_isInitialized) {
@@ -378,7 +379,12 @@ class WalletLogic extends WidgetsBindingObserver {
       Config communityConfig = Config.fromJson(community.config);
       _theme.changeTheme(communityConfig.community.theme);
 
-      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
+      var dbWallet = await _encPrefs.getAccount(accAddress, alias);
+
+      if (dbWallet != null && dbWallet.accountFactoryAddress != null) {
+        dbWallet = await _encPrefs.getAccount(
+            accAddress, alias, dbWallet.accountFactoryAddress);
+      }
 
       if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
@@ -419,8 +425,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      // Initialize config contracts
-      await communityConfig.initContracts();
+      await communityConfig.initContracts(dbWallet.accountFactoryAddress);
 
       // Set current wallet state
       _currentCredentials = dbWallet.privateKey!;
@@ -536,7 +541,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
-        accountFactoryAddress: communityConfig.community.primaryAccountFactory.address,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -604,7 +610,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
-        accountFactoryAddress: communityConfig.community.primaryAccountFactory.address,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -2144,7 +2151,7 @@ class WalletLogic extends WidgetsBindingObserver {
         if (!_isInitialized) {
           return;
         }
-        
+
         resumeFetching();
         loadTransactions();
 
@@ -2154,8 +2161,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await updateBalance();
 
-        final community = await _appDBService.communities
-            .get(_currentConfig.community.alias);
+        final community =
+            await _appDBService.communities.get(_currentConfig.community.alias);
 
         if (community == null) {
           return;
@@ -2164,9 +2171,11 @@ class WalletLogic extends WidgetsBindingObserver {
         Config communityConfig = Config.fromJson(community.config);
 
         try {
-          final remoteConfig = await _config.getSingleCommunityConfig(communityConfig.configLocation);
+          final remoteConfig = await _config
+              .getSingleCommunityConfig(communityConfig.configLocation);
           if (remoteConfig != null) {
-            await _appDBService.communities.upsert([DBCommunity.fromConfig(remoteConfig)]);
+            await _appDBService.communities
+                .upsert([DBCommunity.fromConfig(remoteConfig)]);
             communityConfig = remoteConfig;
           }
         } catch (e) {
