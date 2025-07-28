@@ -2221,6 +2221,11 @@ class WalletLogic extends WidgetsBindingObserver {
       buttonType: ActionButtonType.vouchers,
     ));
 
+    actionsToAdd.add(ActionButton(
+      label: 'Migration & Backup',
+      buttonType: ActionButtonType.migration,
+    ));
+
     try {
       final isMinterResult = await isMinter(_currentConfig, _currentAccount);
       _state.setWalletMinter(isMinterResult);

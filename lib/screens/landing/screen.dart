@@ -1,5 +1,6 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/account/select_account.dart';
+import 'package:citizenwallet/modals/landing/app_download_modal.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/router/utils.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -331,6 +332,18 @@ class LandingScreenState extends State<LandingScreen>
     navigator.push('/recovery');
   }
 
+  void handleShowAppDownload() async {
+    await showCupertinoModalBottomSheet(
+      context: context,
+      expand: true,
+      useRootNavigator: true,
+      builder: (modalContext) => const AppDownloadModal(
+        title: 'Get Citizen Wallet',
+        message: 'Download the app for the best experience',
+      ),
+    );
+  }
+
   void handleQRScan() async {
     final navigator = GoRouter.of(context);
 
@@ -654,6 +667,47 @@ class LandingScreenState extends State<LandingScreen>
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                             ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                            height: 44,
+                                          ),
+                                          Icon(
+                                            CupertinoIcons.arrow_right,
+                                            color: Theme.of(context)
+                                                .colors
+                                                .primary
+                                                .resolveFrom(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  CupertinoButton(
+                                    onPressed: handleShowAppDownload,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: maxWidth,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Get the App',
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colors
+                                                  .primary
+                                                  .resolveFrom(context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 2,
+                                            textAlign: TextAlign.center,
                                           ),
                                           const SizedBox(
                                             width: 10,

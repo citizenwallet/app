@@ -12,6 +12,7 @@ enum ActionButtonType {
   plugins,
   minter,
   more,
+  migration,
 }
 
 class ActionButton {

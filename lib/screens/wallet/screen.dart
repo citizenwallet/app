@@ -1173,6 +1173,8 @@ class WalletScreenState extends State<WalletScreen>
       case ActionButtonType.plugins:
         handlePlugin(pluginConfig);
         break;
+      case ActionButtonType.migration:
+        break;
     }
   }
 
