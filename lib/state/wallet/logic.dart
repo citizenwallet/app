@@ -379,9 +379,9 @@ class WalletLogic extends WidgetsBindingObserver {
       Config communityConfig = Config.fromJson(community.config);
       _theme.changeTheme(communityConfig.community.theme);
 
-      var dbWallet = await _encPrefs.getAccount(accAddress, alias);
+      var dbWallet = await _encPrefs.getAccount(accAddress, alias, '');
 
-      if (dbWallet != null && dbWallet.accountFactoryAddress != null) {
+      if (dbWallet != null && dbWallet.accountFactoryAddress.isNotEmpty) {
         dbWallet = await _encPrefs.getAccount(
             accAddress, alias, dbWallet.accountFactoryAddress);
       }
@@ -631,7 +631,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> editWallet(String address, String alias, String name) async {
     try {
-      final dbWallet = await _encPrefs.getAccount(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias, '');
       if (dbWallet == null) {
         throw NotFoundException();
       }
@@ -641,6 +641,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
       ));
 
       loadDBWallets();
@@ -802,7 +803,7 @@ class WalletLogic extends WidgetsBindingObserver {
   // takes a password and returns a wallet
   Future<String?> returnWallet(String address, String alias) async {
     try {
-      final dbWallet = await _encPrefs.getAccount(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias, '');
       if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }

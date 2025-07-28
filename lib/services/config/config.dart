@@ -637,10 +637,10 @@ class Config {
     engineIPFSService = APIService(baseURL: nodeUrl);
   }
 
-  Future<void> initContracts([String? accountFactoryAddress]) async {
+  Future<void> initContracts([String accountFactoryAddress = '']) async {
     final chain = chains.values.first;
 
-    final erc4337Config = accountFactoryAddress != null 
+    final erc4337Config = accountFactoryAddress.isNotEmpty
         ? getAccountAbstractionConfig(accountFactoryAddress, chain.id)
         : getPrimaryAccountAbstractionConfig();
 
@@ -927,12 +927,15 @@ class Config {
     return erc4337Config.paymasterType;
   }
 
-  ERC4337Config getAccountAbstractionConfig(String accountFactoryAddress, [int? chainId]) {
+  ERC4337Config getAccountAbstractionConfig(String accountFactoryAddress,
+      [int? chainId]) {
     final targetChainId = chainId ?? community.primaryAccountFactory.chainId;
-    final accountAbstraction = accounts['$targetChainId:$accountFactoryAddress'];
+    final accountAbstraction =
+        accounts['$targetChainId:$accountFactoryAddress'];
 
     if (accountAbstraction == null) {
-      throw Exception('Account Abstraction Config not found for factory: $accountFactoryAddress on chain: $targetChainId');
+      throw Exception(
+          'Account Abstraction Config not found for factory: $accountFactoryAddress on chain: $targetChainId');
     }
 
     return accountAbstraction;

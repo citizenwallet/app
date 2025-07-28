@@ -200,7 +200,7 @@ class ProfileLogic {
       _state.setProfileRequest();
 
       final account =
-          await _accountBackupDBService.accounts.get(ethAccount, alias, null);
+          await _accountBackupDBService.accounts.get(ethAccount, alias, '');
 
       if (account != null && account.profile != null) {
         final profile = account.profile!;
@@ -254,14 +254,14 @@ class ProfileLogic {
 
       // Get the existing account to preserve the account factory address
       final existingAccount =
-          await _accountBackupDBService.accounts.get(ethAccount, alias, null);
+          await _accountBackupDBService.accounts.get(ethAccount, alias, '');
 
       _accountBackupDBService.accounts.update(DBAccount(
         alias: alias,
         address: ethAccount,
         name: profile.name,
         username: profile.username,
-        accountFactoryAddress: existingAccount?.accountFactoryAddress,
+        accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
         privateKey: null,
         profile: profile,
       ));
@@ -378,12 +378,18 @@ class ProfileLogic {
         ),
       );
 
+      final existingAccount = await _accountBackupDBService.accounts.get(
+          EthereumAddress.fromHex(newProfile.account),
+          _config.community.alias,
+          '');
+
       _accountBackupDBService.accounts.update(
         DBAccount(
           alias: _config.community.alias,
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
+          accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
           privateKey: null,
           profile: newProfile,
         ),
@@ -467,7 +473,7 @@ class ProfileLogic {
       final existingAccount = await _accountBackupDBService.accounts.get(
           EthereumAddress.fromHex(newProfile.account),
           _config.community.alias,
-          null);
+          '');
 
       _accountBackupDBService.accounts.update(
         DBAccount(
@@ -475,7 +481,7 @@ class ProfileLogic {
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
-          accountFactoryAddress: existingAccount?.accountFactoryAddress,
+          accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
           privateKey: null,
           profile: newProfile,
         ),
@@ -548,7 +554,7 @@ class ProfileLogic {
       final alias = _config.community.alias;
 
       final account = await _accountBackupDBService.accounts
-          .get(EthereumAddress.fromHex(address), alias, null);
+          .get(EthereumAddress.fromHex(address), alias, '');
 
       if (account == null) {
         throw Exception(

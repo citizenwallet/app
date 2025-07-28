@@ -37,7 +37,7 @@ abstract class AccountsServiceInterface {
   Future<void> setAccount(DBAccount account);
 
   // get account
-  Future<DBAccount?> getAccount(String address, String alias, [String? accountFactoryAddress]);
+  Future<DBAccount?> getAccount(String address, String alias, [String accountFactoryAddress]);
 
   // get accounts for alias
   Future<List<DBAccount>> getAccountsForAlias(String alias);
