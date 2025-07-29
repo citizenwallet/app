@@ -144,7 +144,7 @@ class AccountsTable extends DBTable {
   Future<List<LegacyDBAccount>> getAllLegacyDBAccounts() async {
     final List<Map<String, dynamic>> maps = await db.query(
       name,
-      where: 'accountFactoryAddress IS NULL',
+      where: 'accountFactoryAddress IS NULL OR accountFactoryAddress = ""',
     );
 
     return List.generate(maps.length, (i) {

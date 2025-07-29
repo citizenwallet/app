@@ -384,6 +384,48 @@ class WalletLogic extends WidgetsBindingObserver {
       if (dbWallet != null && dbWallet.accountFactoryAddress.isNotEmpty) {
         dbWallet = await _encPrefs.getAccount(
             accAddress, alias, dbWallet.accountFactoryAddress);
+      } else if (dbWallet != null && dbWallet.accountFactoryAddress.isEmpty) {
+        String defaultAccountFactoryAddress =
+            communityConfig.community.primaryAccountFactory.address;
+
+        switch (alias) {
+          case 'gratitude':
+            defaultAccountFactoryAddress =
+                '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD';
+            break;
+          case 'bread':
+            defaultAccountFactoryAddress =
+                '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9';
+            break;
+          case 'wallet.commonshub.brussels':
+            defaultAccountFactoryAddress =
+                '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87';
+            break;
+          case 'wallet.sfluv.org':
+            defaultAccountFactoryAddress =
+                '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
+            break;
+          default:
+            if (defaultAccountFactoryAddress ==
+                '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+              defaultAccountFactoryAddress =
+                  '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+            }
+            break;
+        }
+
+        final updatedAccount = DBAccount(
+          alias: dbWallet.alias,
+          address: dbWallet.address,
+          name: dbWallet.name,
+          username: dbWallet.username,
+          accountFactoryAddress: defaultAccountFactoryAddress,
+          privateKey: dbWallet.privateKey,
+          profile: dbWallet.profile,
+        );
+
+        await _encPrefs.setAccount(updatedAccount);
+        dbWallet = updatedAccount;
       }
 
       if (dbWallet == null || dbWallet.privateKey == null) {
