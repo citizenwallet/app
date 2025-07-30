@@ -37,13 +37,6 @@
       "name": "Polygon Explorer"
     },
     "accounts": {
-      "137:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 137,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x3A3E25871c5C6C84D5f397829FF316a37F7FD596",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      },
       "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 137,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
@@ -80,7 +73,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -103,7 +96,7 @@
         "chain_id": 100
       },
       "primary_account_factory": {
-        "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 100
       },
       "primary_card_manager": {
@@ -133,11 +126,11 @@
         "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
         "paymaster_type": "cw"
       },
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 100,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -170,7 +163,7 @@
       }
     ],
     "config_location": "https://wallet.pay.brussels/config/community.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -191,7 +184,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       },
       "primary_card_manager": {
@@ -220,13 +213,6 @@
         "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
         "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
         "paymaster_type": "cw"
-      },
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
       },
       "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 42220,
@@ -257,7 +243,7 @@
     },
     "plugins": [],
     "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -279,7 +265,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -336,7 +322,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -377,11 +363,11 @@
       "name": "Gnosis Explorer"
     },
     "accounts": {
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 100,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x33500E7Eb3452421e56c2f4117530B1C4C85E0A5",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -399,7 +385,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/txirrin.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -439,11 +425,11 @@
       "name": "Polygon Explorer"
     },
     "accounts": {
-      "137:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 137,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x9a81Bd50D56485Cc863Ecb169812c7a821996C8c",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -460,7 +446,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/boliviapay.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -478,7 +464,7 @@
         "chain_id": 100
       },
       "primary_account_factory": {
-        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 100
       }
     },
@@ -504,11 +490,11 @@
         "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
         "paymaster_type": "cw"
       },
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 100,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x5C41F1114AB13aF5d66bac485924D03556d0cd51",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       },
       "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
@@ -549,7 +535,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -571,7 +557,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -634,7 +620,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.commonshub.brussels.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -678,11 +664,11 @@
       "name": "Celo Explorer"
     },
     "accounts": {
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 42220,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0xd07412020dA5054c3b49f47Ca61224637F1703af",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -722,7 +708,7 @@
       }
     ],
     "config_location": "https://seldesalm.citizenwallet.xyz/config/community.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -767,11 +753,11 @@
       "name": "Gnosis Explorer"
     },
     "accounts": {
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 100,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x68c5a20f233264DB124a3c95a200bbD20b3b9762",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -789,7 +775,7 @@
     },
     "plugins": [],
     "config_location": "https://my.techi.be/assets/community.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -809,7 +795,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -851,7 +837,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.regensunite.earth.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -874,7 +860,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -915,7 +901,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/gt.celo.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -937,7 +923,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -978,7 +964,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/ceur.celo.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -997,7 +983,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x5bA08d9fC7b90f79B2b856bdB09FC9EB32e83616",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -1039,7 +1025,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/eure.polygon.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1061,7 +1047,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x270758454C012A1f51428b68aE473D728CCdFe88",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -1103,7 +1089,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/app.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1125,7 +1111,7 @@
         "chain_id": 8453
       },
       "primary_account_factory": {
-        "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 8453
       }
     },
@@ -1167,7 +1153,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/usdc.base.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1187,7 +1173,7 @@
         "chain_id": 8453
       },
       "primary_account_factory": {
-        "address": "0x9406Cc6185a346906296840746125a0E44976454",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 8453
       }
     },
@@ -1228,7 +1214,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.oak.community.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1247,7 +1233,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -1288,7 +1274,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/sbc.polygon.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1307,7 +1293,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 137
       }
     },
@@ -1348,7 +1334,7 @@
     },
     "plugins": [],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/zinne.brussels.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1367,7 +1353,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x39b77d77f7677997871b304094a05295eb71e240",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1416,7 +1402,7 @@
       }
     ],
     "config_location": "https://timebank.regensunite.earth/indexer",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1435,7 +1421,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1484,7 +1470,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/moos.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1503,7 +1489,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1552,7 +1538,7 @@
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/selcoupdepouce.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1571,7 +1557,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1611,7 +1597,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/cit.celo.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1634,7 +1620,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       },
       "card_factory": {
@@ -1685,7 +1671,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.wolugo.be.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1704,7 +1690,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xE79E19594A749330036280c685E2719d58d99052",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1744,7 +1730,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wtc.celo.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1763,7 +1749,7 @@
         "chain_id": 84532
       },
       "primary_account_factory": {
-        "address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 84532
       }
     },
@@ -1803,7 +1789,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/testnet-ethldn.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1822,7 +1808,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 42220
       }
     },
@@ -1862,7 +1848,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/celo-c.citizenwallet.xyz.json",
-    "version": 4
+    "version": 5
   },
   {
     "community": {
@@ -1907,11 +1893,11 @@
       "name": "Celo Explorer"
     },
     "accounts": {
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 42220,
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
         "paymaster_address": "0x02BDA8370d9497A5C808B2db237cfaA8f0733F36",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "paymaster_type": "cw-safe"
       }
     },
@@ -1928,6 +1914,6 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.kingfishersmedia.io.json",
-    "version": 4
+    "version": 5
   }
 ]

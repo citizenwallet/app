@@ -41,13 +41,6 @@
         "name": "Celo Explorer"
     },
     "accounts": {
-        "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-            "chain_id": 42220,
-            "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-            "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
-            "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-            "paymaster_type": "cw-safe"
-        },
         "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
             "chain_id": 42220,
             "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
@@ -69,5 +62,5 @@
         "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.kingfishersmedia.io.json",
-    "version": 4
+    "version": 5
 }

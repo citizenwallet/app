@@ -52,7 +52,7 @@ class DBAccount {
       address: EthereumAddress.fromHex(map['address']),
       name: map['name'],
       username: map['username'],
-      accountFactoryAddress: map['accountFactoryAddress'],
+      accountFactoryAddress: map['accountFactoryAddress'] ?? '',
       privateKey: map['privateKey'] != null
           ? EthPrivateKey.fromHex(map['privateKey'])
           : null,
@@ -122,6 +122,7 @@ class AccountsTable extends DBTable {
       ],
       4: [
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT',
+        'UPDATE $name SET accountFactoryAddress = "" WHERE accountFactoryAddress IS NULL',
       ]
     };
 
@@ -169,17 +170,58 @@ class AccountsTable extends DBTable {
   // get account by id
   Future<DBAccount?> get(EthereumAddress address, String alias,
       String accountFactoryAddress) async {
+    final accountId = getAccountID(address, alias, accountFactoryAddress);
+
+    if (accountFactoryAddress.isEmpty) {
+      var maps = await db.query(
+        name,
+        where: 'id = ?',
+        whereArgs: [accountId],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      final oldFormatId = '${address.hexEip55}@$alias';
+      maps = await db.query(
+        name,
+        where: 'id = ?',
+        whereArgs: [oldFormatId],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      maps = await db.query(
+        name,
+        where: 'address = ? AND alias = ?',
+        whereArgs: [address.hexEip55, alias],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      return null;
+    }
+
     final List<Map<String, dynamic>> maps = await db.query(
       name,
       where: 'id = ?',
-      whereArgs: [getAccountID(address, alias, accountFactoryAddress)],
+      whereArgs: [accountId],
     );
 
     if (maps.isEmpty) {
       return null;
     }
 
-    return DBAccount.fromMap(maps.first);
+    final account = DBAccount.fromMap(maps.first);
+    return account;
   }
 
   Future<void> insert(DBAccount account) async {
