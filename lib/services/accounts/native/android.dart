@@ -5,6 +5,8 @@ import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:flutter/foundation.dart';
 
 const pinCodeCheckKey = 'cw__pinCodeCheck__';
 const pinCodeKey = 'cw__pinCode__';
@@ -28,6 +31,50 @@ class AndroidAccountsService extends AccountsServiceInterface {
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late SharedPreferences _sharedPreferences;
   late AccountBackupDBService _accountsDB;
+
+  Future<void> _fixSafeAccount(DBAccount account, Config config) async {
+    try {
+      if (account.accountFactoryAddress !=
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+        return;
+      }
+
+      final safeAccount = SafeAccount(
+        config.chains.values.first.node.chainId,
+        config.ethClient,
+        account.address.hexEip55,
+      );
+      await safeAccount.init();
+
+      final calldata = safeAccount.fixFallbackHandlerCallData();
+
+      final (hash, userop) = await prepareUserop(
+        config,
+        account.address,
+        account.privateKey!,
+        [account.address.hexEip55],
+        [calldata],
+        deploy: false,
+      );
+
+      final txHash = await submitUserop(config, userop);
+
+      if (txHash != null) {
+        debugPrint('fixed cw-safe account ${account.address.hexEip55}');
+      } else {
+        debugPrint(
+            'Failed to submit cw-safe account ${account.address.hexEip55}');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error: cw-safe account ${account.address.hexEip55}: $e');
+      debugPrint('Stack trace: $stackTrace');
+
+      if (e.toString().contains('contract not whitelisted')) {
+        debugPrint(
+            'Contract not whitelisted error for account ${account.address.hexEip55}');
+      }
+    }
+  }
 
   @override
   Future init(AccountsOptionsInterface options) async {
@@ -161,6 +208,15 @@ class AndroidAccountsService extends AccountsServiceInterface {
           if (privateKey != null) {
             await _credentials.write(newKey, privateKey);
             await _credentials.delete(oldKey);
+          }
+
+          if (account.accountFactoryAddress ==
+              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            try {
+              await _fixSafeAccount(newAccount, config);
+            } catch (e) {
+              debugPrint('Failed to fix cw-safe account during migration: $e');
+            }
           }
         }
       },
