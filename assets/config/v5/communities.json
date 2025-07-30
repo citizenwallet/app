@@ -162,7 +162,7 @@
         "signature": true
       }
     ],
-    "config_location": "https://wallet.pay.brussels/config/community.json",
+    "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.pay.brussels",
     "version": 5
   },
   {
@@ -242,7 +242,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
+    "config_location": "https://my.citizenwallet.xyz/api/communities/gratitude",
     "version": 5
   },
   {
@@ -700,7 +700,7 @@
         "signature": true
       }
     ],
-    "config_location": "https://seldesalm.citizenwallet.xyz/config/community.json",
+    "config_location": "https://my.citizenwallet.xyz/api/communities/seldesalm",
     "version": 5
   },
   {
@@ -767,7 +767,7 @@
       "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "plugins": [],
-    "config_location": "https://my.techi.be/assets/community.json",
+    "config_location": "https://my.citizenwallet.xyz/api/communities/my.techi.be",
     "version": 5
   },
   {
@@ -1464,7 +1464,7 @@
         "signature": true
       }
     ],
-    "config_location": "https://timebank.regensunite.earth/indexer",
+    "config_location": "https://my.citizenwallet.xyz/api/communities/timebank.regensunite.earth",
     "version": 5
   },
   {
