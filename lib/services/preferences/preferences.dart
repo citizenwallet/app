@@ -159,4 +159,10 @@ class PreferencesService {
     return _preferences.getString('languageCode');
   }
 
+  Future setMigrationModalShown(bool shown) async {
+    await _preferences.setBool('migrationModalShown', shown);
+  }
+
+  bool get migrationModalShown => _preferences.getBool('migrationModalShown') ?? false;
+
 }

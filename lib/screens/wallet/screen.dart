@@ -20,6 +20,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/state/wallet_connect/logic.dart';
 import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/migration_modal.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
@@ -244,6 +245,8 @@ class WalletScreenState extends State<WalletScreen>
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
     }
+
+    await MigrationModalUtils.showMigrationModalIfNeeded(context);
   }
 
   Future<void> handleDisconnect() async {
@@ -1173,8 +1176,7 @@ class WalletScreenState extends State<WalletScreen>
       case ActionButtonType.plugins:
         handlePlugin(pluginConfig);
         break;
-      case ActionButtonType.migration:
-        break;
+
     }
   }
 

@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
-import 'package:citizenwallet/modals/wallet/migration_backup_modal.dart';
+
 
 class MoreActionsSheet extends StatelessWidget {
   final void Function()? handleSendScreen;
@@ -103,26 +103,7 @@ class MoreActionsSheet extends StatelessWidget {
                       }),
                     );
                   }).toList();
-                case ActionButtonType.migration:
-                  return [
-                    _buildSheetItem(
-                      context,
-                      'Migration & Backup',
-                      icon: CupertinoIcons.cloud_upload,
-                      onPressed: () {
-                        navigator.pop();
-                        showCupertinoModalBottomSheet(
-                          context: context,
-                          expand: true,
-                          useRootNavigator: true,
-                          builder: (modalContext) => const MigrationBackupModal(
-                            title: 'Migration & Backup',
-                            message: 'Manage your wallet data and security',
-                          ),
-                        );
-                      },
-                    )
-                  ];
+
                 default:
                   return [
                     Container()
