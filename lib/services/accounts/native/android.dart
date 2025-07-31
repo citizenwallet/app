@@ -144,7 +144,9 @@ class AndroidAccountsService extends AccountsServiceInterface {
         final allAccounts = await _accountsDB.accounts.all();
 
         for (final account in allAccounts) {
-          if (account.accountFactoryAddress.isNotEmpty) {
+          if (account.accountFactoryAddress.isNotEmpty &&
+              account.accountFactoryAddress !=
+                  '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
             continue;
           }
 
@@ -175,7 +177,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
                   '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
               break;
             default:
-              if (accountFactoryAddress ==
+              if (account.accountFactoryAddress ==
                   '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
                 accountFactoryAddress =
                     '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
