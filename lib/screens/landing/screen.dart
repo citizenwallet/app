@@ -193,6 +193,9 @@ class LandingScreenState extends State<LandingScreen>
 
     if (address == null) {
       _appLogic.appLoaded();
+
+      await MigrationModalUtils.showMigrationModalIfNeeded(context);
+
       return;
     }
 
@@ -209,8 +212,6 @@ class LandingScreenState extends State<LandingScreen>
     );
 
     _appLogic.appLoaded();
-
-    await MigrationModalUtils.showMigrationModalIfNeeded(context);
 
     navigator.go('/wallet/$address$params');
   }
@@ -334,8 +335,6 @@ class LandingScreenState extends State<LandingScreen>
 
     navigator.push('/recovery');
   }
-
-
 
   void handleQRScan() async {
     final navigator = GoRouter.of(context);
@@ -677,7 +676,6 @@ class LandingScreenState extends State<LandingScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-
                                 ],
                                 if (isPlatformApple()) ...[
                                   Container(

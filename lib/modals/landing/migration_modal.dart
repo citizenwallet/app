@@ -1,4 +1,3 @@
-import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/theme/provider.dart' as theme_provider;
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
@@ -14,22 +13,11 @@ class MigrationModal extends StatefulWidget {
 }
 
 class MigrationModalState extends State<MigrationModal> {
-  late PreferencesService _preferences;
-
-  @override
-  void initState() {
-    super.initState();
-    _preferences = PreferencesService();
-  }
-
   void handleDismiss() {
-    _preferences.setMigrationModalShown(true);
     GoRouter.of(context).pop();
   }
 
   void handleDownload() async {
-    _preferences.setMigrationModalShown(true);
-    
     String url;
     if (isPlatformApple()) {
       url = '';
@@ -67,7 +55,7 @@ class MigrationModalState extends State<MigrationModal> {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -76,7 +64,9 @@ class MigrationModalState extends State<MigrationModal> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: theme.colors.surfacePrimary.resolveFrom(context).withOpacity(0.1),
+                color: theme.colors.surfacePrimary
+                    .resolveFrom(context)
+                    .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -85,10 +75,9 @@ class MigrationModalState extends State<MigrationModal> {
                 color: theme.colors.surfacePrimary.resolveFrom(context),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
-            // Title
+
             Text(
               'We\'ve Moved!',
               style: const TextStyle(
@@ -97,41 +86,39 @@ class MigrationModalState extends State<MigrationModal> {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 16),
-            
-            // Message
+
             Text(
-              'We\'ve migrated to a new and improved application. Download the new app to continue enjoying all the features with enhanced security and performance.',
+              'We\'ve migrated to a new and improved application. Download the new app to continue enjoying all the features.',
               style: TextStyle(
                 fontSize: 16,
-                color: CupertinoColors.label.resolveFrom(context).withOpacity(0.8),
+                color:
+                    CupertinoColors.label.resolveFrom(context).withOpacity(0.8),
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
-            // Download Button
+
             SizedBox(
               width: double.infinity,
               child: Button(
                 onPressed: handleDownload,
-                text: isPlatformApple() 
-                  ? 'Download on App Store'
-                  : 'Download on Play Store',
+                text: isPlatformApple()
+                    ? 'Download on App Store'
+                    : 'Download on Play Store',
                 color: theme.colors.surfacePrimary.resolveFrom(context),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
-            // Dismiss Button
+
             SizedBox(
               width: double.infinity,
               child: Button(
                 onPressed: handleDismiss,
-                text: 'Not Now',
+                text: 'Dismiss',
                 color: CupertinoColors.systemGrey4,
                 labelColor: CupertinoColors.label,
               ),
@@ -141,4 +128,4 @@ class MigrationModalState extends State<MigrationModal> {
       ),
     );
   }
-} 
+}

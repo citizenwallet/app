@@ -2263,8 +2263,6 @@ class WalletLogic extends WidgetsBindingObserver {
       buttonType: ActionButtonType.vouchers,
     ));
 
-
-
     try {
       final isMinterResult = await isMinter(_currentConfig, _currentAccount);
       _state.setWalletMinter(isMinterResult);
