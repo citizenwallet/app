@@ -381,9 +381,39 @@ class WalletLogic extends WidgetsBindingObserver {
 
       var dbWallet = await _encPrefs.getAccount(accAddress, alias, '');
 
+      if (dbWallet != null && dbWallet.privateKey == null) {
+        final allAccounts = await _encPrefs.getAllAccounts();
+        final accountWithKey = allAccounts
+            .where((acc) =>
+                acc.address.hexEip55 == accAddress &&
+                acc.alias == alias &&
+                acc.privateKey != null)
+            .firstOrNull;
+
+        if (accountWithKey != null) {
+          dbWallet = accountWithKey;
+        }
+      }
+
       if (dbWallet != null && dbWallet.accountFactoryAddress.isNotEmpty) {
-        dbWallet = await _encPrefs.getAccount(
+        var factoryWallet = await _encPrefs.getAccount(
             accAddress, alias, dbWallet.accountFactoryAddress);
+
+        if (factoryWallet != null && factoryWallet.privateKey == null) {
+          final allAccounts = await _encPrefs.getAllAccounts();
+          final accountWithKey = allAccounts
+              .where((acc) =>
+                  acc.address?.hexEip55 == accAddress &&
+                  acc.alias == alias &&
+                  acc.privateKey != null)
+              .firstOrNull;
+
+          if (accountWithKey != null) {
+            factoryWallet = accountWithKey;
+          }
+        }
+
+        dbWallet = factoryWallet;
       } else if (dbWallet != null && dbWallet.accountFactoryAddress.isEmpty) {
         String defaultAccountFactoryAddress =
             communityConfig.community.primaryAccountFactory.address;
