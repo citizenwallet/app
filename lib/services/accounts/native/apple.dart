@@ -29,21 +29,35 @@ class AppleAccountsService extends AccountsServiceInterface {
   late AccountBackupDBService _accountsDB;
 
   Future<void> _fixSafeAccount(DBAccount account, Config config) async {
+    print('=== _fixSafeAccount START ===');
+    print('Account address: ${account.address.hexEip55}');
+    print('Account alias: ${account.alias}');
+    print('Account factory address: ${account.accountFactoryAddress}');
+    print('Expected factory address: 0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2');
+    
     try {
       if (account.accountFactoryAddress !=
           '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+        print('Account factory address does not match expected safe factory address. Skipping _fixSafeAccount.');
+        print('=== _fixSafeAccount END (SKIPPED) ===');
         return;
       }
 
+      print('Creating SafeAccount instance...');
       final safeAccount = SafeAccount(
         config.chains.values.first.node.chainId,
         config.ethClient,
         account.address.hexEip55,
       );
+      print('Initializing SafeAccount...');
       await safeAccount.init();
+      print('SafeAccount initialized successfully');
 
+      print('Generating fixFallbackHandler call data...');
       final calldata = safeAccount.fixFallbackHandlerCallData();
+      print('Call data generated: ${calldata.length} bytes');
 
+      print('Preparing user operation...');
       final (hash, userop) = await prepareUserop(
         config,
         account.address,
@@ -52,24 +66,27 @@ class AppleAccountsService extends AccountsServiceInterface {
         [calldata],
         deploy: false,
       );
+      print('User operation prepared. Hash: $hash');
 
+      print('Submitting user operation...');
       final txHash = await submitUserop(config, userop);
+      print('User operation submission result: $txHash');
 
       if (txHash != null) {
-        debugPrint('fixed cw-safe account ${account.address.hexEip55}');
+        print('✅ SUCCESS: Fixed cw-safe account ${account.address.hexEip55}');
+        print('Transaction hash: $txHash');
       } else {
-        debugPrint(
-            'Failed to submit for cw-safe account ${account.address.hexEip55}');
+        print('❌ FAILED: Failed to submit for cw-safe account ${account.address.hexEip55}');
       }
     } catch (e, stackTrace) {
-      debugPrint('Error: cw-safe account ${account.address.hexEip55}: $e');
-      debugPrint('Stack trace: $stackTrace');
+      print('❌ ERROR: cw-safe account ${account.address.hexEip55}: $e');
+      print('Stack trace: $stackTrace');
 
       if (e.toString().contains('contract not whitelisted')) {
-        debugPrint(
-            'Contract not whitelisted error for account ${account.address.hexEip55}');
+        print('⚠️ Contract not whitelisted error for account ${account.address.hexEip55}');
       }
     }
+    print('=== _fixSafeAccount END ===');
   }
 
   @override
@@ -255,49 +272,73 @@ class AppleAccountsService extends AccountsServiceInterface {
         }
       },
       5: () async {
+        print('=== MIGRATION 5 START ===');
+        print('Starting safe account factory address migration...');
+        
         final allAccounts = await _accountsDB.accounts.all();
+        print('Found ${allAccounts.length} total accounts to process');
+
+        int processedAccounts = 0;
+        int skippedAccounts = 0;
+        int safeAccountsFixed = 0;
 
         for (final account in allAccounts) {
+          print('--- Processing account ${account.address.hexEip55} ---');
+          print('Account alias: ${account.alias}');
+          print('Current factory address: ${account.accountFactoryAddress}');
+          
           if (account.accountFactoryAddress.isNotEmpty &&
               account.accountFactoryAddress !=
                   '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            print('Skipping account - factory address is not empty and not the old safe factory');
+            skippedAccounts++;
             continue;
           }
 
           final community = await AppDBService().communities.get(account.alias);
           if (community == null) {
+            print('Skipping account - community not found for alias: ${account.alias}');
+            skippedAccounts++;
             continue;
           }
 
           final config = Config.fromJson(community.config);
           String accountFactoryAddress =
               config.community.primaryAccountFactory.address;
+          print('Default factory address from config: $accountFactoryAddress');
 
           switch (account.alias) {
             case 'gratitude':
               accountFactoryAddress =
                   '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD';
+              print('Using gratitude-specific factory address: $accountFactoryAddress');
               break;
             case 'bread':
               accountFactoryAddress =
                   '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9';
+              print('Using bread-specific factory address: $accountFactoryAddress');
               break;
             case 'wallet.commonshub.brussels':
               accountFactoryAddress =
                   '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87';
+              print('Using commonshub.brussels-specific factory address: $accountFactoryAddress');
               break;
             case 'wallet.sfluv.org':
               accountFactoryAddress =
                   '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
+              print('Using sfluv.org-specific factory address: $accountFactoryAddress');
               break;
             default:
               if (account.accountFactoryAddress ==
                   '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
                 accountFactoryAddress =
                     '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+                print('Using default safe factory address for old safe accounts: $accountFactoryAddress');
               }
               break;
           }
+
+          print('Final factory address to use: $accountFactoryAddress');
 
           // Create new account with factory address
           final newAccount = DBAccount(
@@ -310,31 +351,54 @@ class AppleAccountsService extends AccountsServiceInterface {
             profile: account.profile,
           );
 
+          print('Deleting old account from database...');
           // Delete old account and insert new one
           await _accountsDB.accounts.delete(
               account.address, account.alias, account.accountFactoryAddress);
+          print('Inserting new account into database...');
           await _accountsDB.accounts.insert(newAccount);
 
           final oldKey = getAccountID(
               account.address, account.alias, account.accountFactoryAddress);
           final newKey = getAccountID(
               account.address, account.alias, accountFactoryAddress);
+          
+          print('Old credentials key: $oldKey');
+          print('New credentials key: $newKey');
 
           final privateKey = await _credentials.read(oldKey);
           if (privateKey != null) {
+            print('Migrating credentials from old key to new key...');
             await _credentials.write(newKey, privateKey);
             await _credentials.delete(oldKey);
+            print('Credentials migrated successfully');
+          } else {
+            print('No credentials found for old key');
           }
 
           if (account.accountFactoryAddress ==
               '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            print('This is an old safe account, calling _fixSafeAccount...');
             try {
               await _fixSafeAccount(newAccount, config);
+              safeAccountsFixed++;
+              print('✅ Safe account fixed successfully');
             } catch (e) {
-              debugPrint('Failed to fix cw-safe account during migration: $e');
+              print('❌ Failed to fix cw-safe account during migration: $e');
             }
+          } else {
+            print('Not an old safe account, skipping _fixSafeAccount');
           }
+
+          processedAccounts++;
+          print('--- Account processing complete ---');
         }
+
+        print('=== MIGRATION 5 SUMMARY ===');
+        print('Total accounts processed: $processedAccounts');
+        print('Accounts skipped: $skippedAccounts');
+        print('Safe accounts fixed: $safeAccountsFixed');
+        print('=== MIGRATION 5 END ===');
       },
     };
 

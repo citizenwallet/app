@@ -113,33 +113,55 @@ class AccountsTable extends DBTable {
 
   @override
   Future<void> migrate(Database db, int oldVersion, int newVersion) async {
+    print('=== ACCOUNTS TABLE MIGRATION START ===');
+    print('Migrating from version $oldVersion to $newVersion');
     final migrations = {
-      2: [
-        'UPDATE $name SET privateKey = NULL',
-      ],
-      3: [
-        'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
-      ],
-      4: [
-        'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT',
-        'UPDATE $name SET accountFactoryAddress = "" WHERE accountFactoryAddress IS NULL',
-      ]
+      2: () async {
+        print('Running migration 2: Setting privateKey to NULL');
+        await db.execute('UPDATE $name SET privateKey = NULL');
+        print('Migration 2 completed successfully');
+      },
+      3: () async {
+        print('Running migration 3: Adding username column');
+        try {
+          await db.execute('SELECT username FROM $name LIMIT 1');
+          print('Column username already exists, skipping migration 3');
+        } catch (e) {
+          print('Column username does not exist, adding it...');
+          await db.execute('ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL');
+          print('Successfully added username column');
+        }
+      },
+      4: () async {
+        // Check if accountFactoryAddress column already exists
+        try {
+          await db.execute('SELECT accountFactoryAddress FROM $name LIMIT 1');
+          print('Column accountFactoryAddress already exists, skipping migration 4');
+        } catch (e) {
+          print('Column accountFactoryAddress does not exist, adding it...');
+          await db.execute('ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT');
+          await db.execute('UPDATE $name SET accountFactoryAddress = "" WHERE accountFactoryAddress IS NULL');
+          print('Successfully added accountFactoryAddress column');
+        }
+      }
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
-      final queries = migrations[i];
+      final migration = migrations[i];
 
-      if (queries != null) {
-        for (final query in queries) {
-          try {
-            await db.execute(query);
-          } catch (e, s) {
-            debugPrint('Migration error: $e');
-            debugPrintStack(stackTrace: s);
-          }
+      if (migration != null) {
+        print('Running migration $i...');
+        try {
+          await migration();
+        } catch (e, s) {
+          print('Migration error: $e');
+          print('Stack trace: $s');
         }
+      } else {
+        print('No migration defined for version $i');
       }
     }
+    print('=== ACCOUNTS TABLE MIGRATION END ===');
   }
 
   Future<List<LegacyDBAccount>> getAllLegacyDBAccounts() async {
