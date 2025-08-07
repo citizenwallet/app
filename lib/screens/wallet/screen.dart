@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
@@ -74,6 +75,7 @@ class WalletScreenState extends State<WalletScreen>
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
+  late CommunitiesLogic _communitiesLogic;
   final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   String? _address;
@@ -105,6 +107,7 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
     _voucherLogic = VoucherLogic(context);
+    _communitiesLogic = CommunitiesLogic(context);
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
     WidgetsBinding.instance.addObserver(_voucherLogic);
@@ -221,6 +224,10 @@ class WalletScreenState extends State<WalletScreen>
     }
 
     _notificationsLogic.init();
+
+    if (_alias != null) {
+      await _communitiesLogic.fetchAndUpdateSingleCommunity(_alias!);
+    }
 
     if (_voucher != null && _voucherParams != null) {
       await handleLoadFromVoucher();

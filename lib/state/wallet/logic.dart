@@ -10,6 +10,7 @@ import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/engine/events.dart';
@@ -117,7 +118,7 @@ class WalletLogic extends WidgetsBindingObserver {
   String? get lastWallet => _preferences.lastWallet;
   String get address => _currentCredentials.address.hexEip55;
   String get account => _currentAccount.hexEip55;
-  String get token => _currentConfig.getPrimaryToken().address ;
+  String get token => _currentConfig.getPrimaryToken().address;
 
   WalletLogic(BuildContext context, NotificationsLogic notificationsLogic)
       : _state = context.read<WalletState>(),
@@ -138,7 +139,8 @@ class WalletLogic extends WidgetsBindingObserver {
   EthPrivateKey? get privateKey => _isInitialized ? _currentCredentials : null;
   Config? get config => _isInitialized ? _currentConfig : null;
   EthPrivateKey? get credentials => _isInitialized ? _currentCredentials : null;
-  EthereumAddress? get accountAddress => _isInitialized ? _currentAccount : null;
+  EthereumAddress? get accountAddress =>
+      _isInitialized ? _currentAccount : null;
 
   void setWalletStateInOtherLogic() {
     if (_isInitialized) {
@@ -377,7 +379,84 @@ class WalletLogic extends WidgetsBindingObserver {
       Config communityConfig = Config.fromJson(community.config);
       _theme.changeTheme(communityConfig.community.theme);
 
-      final dbWallet = await _encPrefs.getAccount(accAddress, alias);
+      var dbWallet = await _encPrefs.getAccount(accAddress, alias, '');
+
+      if (dbWallet != null && dbWallet.privateKey == null) {
+        final allAccounts = await _encPrefs.getAllAccounts();
+        final accountWithKey = allAccounts
+            .where((acc) =>
+                acc.address.hexEip55 == accAddress &&
+                acc.alias == alias &&
+                acc.privateKey != null)
+            .firstOrNull;
+
+        if (accountWithKey != null) {
+          dbWallet = accountWithKey;
+        }
+      }
+
+      if (dbWallet != null && dbWallet.accountFactoryAddress.isNotEmpty) {
+        var factoryWallet = await _encPrefs.getAccount(
+            accAddress, alias, dbWallet.accountFactoryAddress);
+
+        if (factoryWallet != null && factoryWallet.privateKey == null) {
+          final allAccounts = await _encPrefs.getAllAccounts();
+          final accountWithKey = allAccounts
+              .where((acc) =>
+                  acc.address?.hexEip55 == accAddress &&
+                  acc.alias == alias &&
+                  acc.privateKey != null)
+              .firstOrNull;
+
+          if (accountWithKey != null) {
+            factoryWallet = accountWithKey;
+          }
+        }
+
+        dbWallet = factoryWallet;
+      } else if (dbWallet != null && dbWallet.accountFactoryAddress.isEmpty) {
+        String defaultAccountFactoryAddress =
+            communityConfig.community.primaryAccountFactory.address;
+
+        switch (alias) {
+          case 'gratitude':
+            defaultAccountFactoryAddress =
+                '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD';
+            break;
+          case 'bread':
+            defaultAccountFactoryAddress =
+                '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9';
+            break;
+          case 'wallet.commonshub.brussels':
+            defaultAccountFactoryAddress =
+                '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87';
+            break;
+          case 'wallet.sfluv.org':
+            defaultAccountFactoryAddress =
+                '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
+            break;
+          default:
+            if (defaultAccountFactoryAddress ==
+                '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+              defaultAccountFactoryAddress =
+                  '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+            }
+            break;
+        }
+
+        final updatedAccount = DBAccount(
+          alias: dbWallet.alias,
+          address: dbWallet.address,
+          name: dbWallet.name,
+          username: dbWallet.username,
+          accountFactoryAddress: defaultAccountFactoryAddress,
+          privateKey: dbWallet.privateKey,
+          profile: dbWallet.profile,
+        );
+
+        await _encPrefs.setAccount(updatedAccount);
+        dbWallet = updatedAccount;
+      }
 
       if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
@@ -418,8 +497,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       _state.setChainId(chainId);
 
-      // Initialize config contracts
-      await communityConfig.initContracts();
+      await communityConfig.initContracts(dbWallet.accountFactoryAddress);
 
       // Set current wallet state
       _currentCredentials = dbWallet.privateKey!;
@@ -535,6 +613,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -602,6 +682,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -621,7 +703,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> editWallet(String address, String alias, String name) async {
     try {
-      final dbWallet = await _encPrefs.getAccount(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias, '');
       if (dbWallet == null) {
         throw NotFoundException();
       }
@@ -631,6 +713,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
       ));
 
       loadDBWallets();
@@ -792,7 +875,7 @@ class WalletLogic extends WidgetsBindingObserver {
   // takes a password and returns a wallet
   Future<String?> returnWallet(String address, String alias) async {
     try {
-      final dbWallet = await _encPrefs.getAccount(address, alias);
+      final dbWallet = await _encPrefs.getAccount(address, alias, '');
       if (dbWallet == null || dbWallet.privateKey == null) {
         throw NotFoundException();
       }
@@ -2141,7 +2224,7 @@ class WalletLogic extends WidgetsBindingObserver {
         if (!_isInitialized) {
           return;
         }
-        
+
         resumeFetching();
         loadTransactions();
 
@@ -2151,14 +2234,26 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await updateBalance();
 
-        final community = await _appDBService.communities
-            .get(_currentConfig.community.alias);
+        final community =
+            await _appDBService.communities.get(_currentConfig.community.alias);
 
         if (community == null) {
           return;
         }
 
         Config communityConfig = Config.fromJson(community.config);
+
+        try {
+          final remoteConfig = await _config
+              .getSingleCommunityConfig(communityConfig.configLocation);
+          if (remoteConfig != null) {
+            await _appDBService.communities
+                .upsert([DBCommunity.fromConfig(remoteConfig)]);
+            communityConfig = remoteConfig;
+          }
+        } catch (e) {
+          debugPrint('Error fetching single community config: $e');
+        }
 
         final token = communityConfig.getPrimaryToken();
 

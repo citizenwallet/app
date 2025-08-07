@@ -3,6 +3,10 @@ import 'package:citizenwallet/services/db/backup/db.dart';
 import 'package:citizenwallet/utils/encrypt.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 
 import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
@@ -10,6 +14,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:flutter/foundation.dart';
 
 const pinCodeCheckKey = 'cw__pinCodeCheck__';
 const pinCodeKey = 'cw__pinCode__';
@@ -26,6 +31,50 @@ class AndroidAccountsService extends AccountsServiceInterface {
   final CredentialsServiceInterface _credentials = getCredentialsService();
   late SharedPreferences _sharedPreferences;
   late AccountBackupDBService _accountsDB;
+
+  Future<void> _fixSafeAccount(DBAccount account, Config config) async {
+    try {
+      if (account.accountFactoryAddress !=
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+        return;
+      }
+
+      final safeAccount = SafeAccount(
+        config.chains.values.first.node.chainId,
+        config.ethClient,
+        account.address.hexEip55,
+      );
+      await safeAccount.init();
+
+      final calldata = safeAccount.fixFallbackHandlerCallData();
+
+      final (hash, userop) = await prepareUserop(
+        config,
+        account.address,
+        account.privateKey!,
+        [account.address.hexEip55],
+        [calldata],
+        deploy: false,
+      );
+
+      final txHash = await submitUserop(config, userop);
+
+      if (txHash != null) {
+        debugPrint('fixed cw-safe account ${account.address.hexEip55}');
+      } else {
+        debugPrint(
+            'Failed to submit cw-safe account ${account.address.hexEip55}');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error: cw-safe account ${account.address.hexEip55}: $e');
+      debugPrint('Stack trace: $stackTrace');
+
+      if (e.toString().contains('contract not whitelisted')) {
+        debugPrint(
+            'Contract not whitelisted error for account ${account.address.hexEip55}');
+      }
+    }
+  }
 
   @override
   Future init(AccountsOptionsInterface options) async {
@@ -66,6 +115,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            accountFactoryAddress: '',
           );
 
           await _accountsDB.accounts.insert(account);
@@ -87,6 +137,88 @@ class AndroidAccountsService extends AccountsServiceInterface {
             await _sharedPreferences.remove(
               key,
             );
+          }
+        }
+      },
+      5: () async {
+        final allAccounts = await _accountsDB.accounts.all();
+
+        for (final account in allAccounts) {
+          if (account.accountFactoryAddress.isNotEmpty &&
+              account.accountFactoryAddress !=
+                  '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            continue;
+          }
+
+          final community = await AppDBService().communities.get(account.alias);
+          if (community == null) {
+            continue;
+          }
+
+          final config = Config.fromJson(community.config);
+          String accountFactoryAddress =
+              config.community.primaryAccountFactory.address;
+
+          switch (account.alias) {
+            case 'gratitude':
+              accountFactoryAddress =
+                  '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD';
+              break;
+            case 'bread':
+              accountFactoryAddress =
+                  '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9';
+              break;
+            case 'wallet.commonshub.brussels':
+              accountFactoryAddress =
+                  '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87';
+              break;
+            case 'wallet.sfluv.org':
+              accountFactoryAddress =
+                  '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e';
+              break;
+            default:
+              if (account.accountFactoryAddress ==
+                  '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+                accountFactoryAddress =
+                    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+              }
+              break;
+          }
+
+          // Create new account with factory address
+          final newAccount = DBAccount(
+            alias: account.alias,
+            address: account.address,
+            name: account.name,
+            username: account.username,
+            accountFactoryAddress: accountFactoryAddress,
+            privateKey: account.privateKey,
+            profile: account.profile,
+          );
+
+          // Delete old account and insert new one
+          await _accountsDB.accounts.delete(
+              account.address, account.alias, account.accountFactoryAddress);
+          await _accountsDB.accounts.insert(newAccount);
+
+          final oldKey = getAccountID(
+              account.address, account.alias, account.accountFactoryAddress);
+          final newKey = getAccountID(
+              account.address, account.alias, accountFactoryAddress);
+
+          final privateKey = await _credentials.read(oldKey);
+          if (privateKey != null) {
+            await _credentials.write(newKey, privateKey);
+            await _credentials.delete(oldKey);
+          }
+
+          if (account.accountFactoryAddress ==
+              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            try {
+              await _fixSafeAccount(newAccount, config);
+            } catch (e) {
+              debugPrint('Failed to fix cw-safe account during migration: $e');
+            }
           }
         }
       },
@@ -143,10 +275,12 @@ class AndroidAccountsService extends AccountsServiceInterface {
 
   // get wallet backup
   @override
-  Future<DBAccount?> getAccount(String address, String alias) async {
+  Future<DBAccount?> getAccount(String address, String alias,
+      [String accountFactoryAddress = '']) async {
     final account = await _accountsDB.accounts.get(
       EthereumAddress.fromHex(address),
       alias,
+      accountFactoryAddress,
     );
 
     if (account == null) {
@@ -172,17 +306,25 @@ class AndroidAccountsService extends AccountsServiceInterface {
   // delete wallet backup
   @override
   Future<void> deleteAccount(String address, String alias) async {
-    await _accountsDB.accounts.delete(
-      EthereumAddress.fromHex(address),
-      alias,
-    );
+    final accounts = await _accountsDB.accounts.allForAlias(alias);
+    final account =
+        accounts.where((acc) => acc.address.hexEip55 == address).firstOrNull;
 
-    await _credentials.delete(
-      getAccountID(
+    if (account != null) {
+      await _accountsDB.accounts.delete(
         EthereumAddress.fromHex(address),
         alias,
-      ),
-    );
+        account.accountFactoryAddress,
+      );
+
+      await _credentials.delete(
+        getAccountID(
+          EthereumAddress.fromHex(address),
+          alias,
+          account.accountFactoryAddress,
+        ),
+      );
+    }
   }
 
   // delete all wallet backups

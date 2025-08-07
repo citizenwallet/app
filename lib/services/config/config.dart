@@ -637,10 +637,12 @@ class Config {
     engineIPFSService = APIService(baseURL: nodeUrl);
   }
 
-  Future<void> initContracts() async {
+  Future<void> initContracts([String accountFactoryAddress = '']) async {
     final chain = chains.values.first;
 
-    final erc4337Config = getPrimaryAccountAbstractionConfig();
+    final erc4337Config = accountFactoryAddress.isNotEmpty
+        ? getAccountAbstractionConfig(accountFactoryAddress, chain.id)
+        : getPrimaryAccountAbstractionConfig();
 
     entryPointContract = StackupEntryPoint(
       chain.id,
@@ -925,6 +927,20 @@ class Config {
     return erc4337Config.paymasterType;
   }
 
+  ERC4337Config getAccountAbstractionConfig(String accountFactoryAddress,
+      [int? chainId]) {
+    final targetChainId = chainId ?? community.primaryAccountFactory.chainId;
+    final accountAbstraction =
+        accounts['$targetChainId:$accountFactoryAddress'];
+
+    if (accountAbstraction == null) {
+      throw Exception(
+          'Account Abstraction Config not found for factory: $accountFactoryAddress on chain: $targetChainId');
+    }
+
+    return accountAbstraction;
+  }
+
   CardsConfig? getPrimaryCardManager() {
     return cards?[community.primaryCardManager?.fullAddress];
   }
@@ -939,13 +955,17 @@ class Config {
     return chain.node.url;
   }
 
-  String getRpcUrl(String chainId) {
+  String getRpcUrl(String chainId, [String? accountFactory]) {
     final chain = chains[chainId];
 
     if (chain == null) {
       throw Exception('Chain not found');
     }
 
-    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
+    final accountAbstractionConfig = accountFactory != null
+        ? getAccountAbstractionConfig(accountFactory, int.parse(chainId))
+        : getPrimaryAccountAbstractionConfig();
+
+    return '${chain.node.url}/v1/rpc/${accountAbstractionConfig.paymasterAddress}';
   }
 }

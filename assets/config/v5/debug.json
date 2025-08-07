@@ -1,0 +1,66 @@
+{
+    "community": {
+        "name": "KFMEDIA℠",
+        "description": "Certified Education Organization. Solving systemic educational disparity using Web3 solutions, removing barriers of entry for underdeveloped economies.",
+        "url": "https://kingfishersmedia.io",
+        "alias": "wallet.kingfishersmedia.io",
+        "custom_domain": "wallet.kingfishersmedia.io",
+        "logo": "https://config.internal.citizenwallet.xyz/_images/kfmpfl.png",
+        "theme": {
+            "primary": "#88292c"
+        },
+        "profile": {
+            "address": "0x5f6FEb03ad8EfeCdD2a837FAA1a29DEA2bAcfd55",
+            "chain_id": 42220
+        },
+        "primary_token": {
+            "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+            "chain_id": 42220
+        },
+        "primary_account_factory": {
+            "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+            "chain_id": 42220
+        },
+        "primary_card_manager": {
+            "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+            "chain_id": 42220
+        }
+    },
+    "tokens": {
+        "42220:0x56744910f7dEcD48c1a7FA61B4C317b15E99F156": {
+            "standard": "erc1155",
+            "name": "KFMEDIA℠ Pathways for LATAM™",
+            "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+            "symbol": "KFMPFL",
+            "decimals": 0,
+            "chain_id": 42220
+        }
+    },
+    "scan": {
+        "url": "https://celoscan.io",
+        "name": "Celo Explorer"
+    },
+    "accounts": {
+        "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+            "chain_id": 42220,
+            "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+            "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
+            "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+            "paymaster_type": "cw-safe"
+        }
+    },
+    "chains": {
+        "42220": {
+            "id": 42220,
+            "node": {
+                "url": "https://42220.engine.citizenwallet.xyz",
+                "ws_url": "wss://42220.engine.citizenwallet.xyz"
+            }
+        }
+    },
+    "ipfs": {
+        "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.kingfishersmedia.io.json",
+    "version": 5
+}

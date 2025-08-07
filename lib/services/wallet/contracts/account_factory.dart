@@ -13,7 +13,7 @@ Future<AccountFactoryService> accountFactoryServiceFromConfig(Config config,
     {String? customAccountFactory}) async {
   final primaryAccountFactory = config.community.primaryAccountFactory;
 
-  final url = config.getRpcUrl(primaryAccountFactory.chainId.toString());
+  final url = config.getRpcUrl(primaryAccountFactory.chainId.toString(), customAccountFactory);
   // final wsurl =
   //     config.chains[primaryAccountFactory.chainId.toString()]!.node.wsUrl;
 
