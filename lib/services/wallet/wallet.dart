@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/indexer/signed_request.dart';
 import 'package:citizenwallet/services/engine/utils.dart';
 import 'package:citizenwallet/services/sigauth/sigauth.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/contracts/simpleFaucet.dart';
 import 'package:citizenwallet/services/wallet/contracts/cards/card_manager.dart';
@@ -24,6 +25,16 @@ import 'package:citizenwallet/utils/uint8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+
+int _prepareUseropCallCount = 0;
+int _submitUseropCallCount = 0;
+bool _migrationInProgress = false;
+
+void setMigrationInProgress(bool inProgress) {
+  _migrationInProgress = inProgress;
+}
+
+bool get isMigrationInProgress => _migrationInProgress;
 
 /// given a tx hash, waits for the tx to be mined
 Future<bool> waitForTxSuccess(
@@ -73,9 +84,9 @@ Uint8List tokenTransferCallData(
   } else if (config.getPrimaryToken().standard == 'erc1155') {
     return config.token1155Contract
         .transferCallData(from.hexEip55, to, tokenId ?? BigInt.zero, amount);
+  } else {
+    return Uint8List.fromList([]);
   }
-
-  return Uint8List.fromList([]);
 }
 
 String transferEventStringSignature(Config config) {
@@ -175,7 +186,8 @@ Future<ProfileV1?> getProfileByUsername(Config config, String username) async {
 /// profileExists checks whether there is a profile for this username
 Future<bool> profileExists(Config config, String username) async {
   try {
-    final url = await config.profileContract.getURLFromUsername(username)
+    final url = await config.profileContract
+        .getURLFromUsername(username)
         .timeout(const Duration(seconds: 10));
 
     return url != '';
@@ -247,6 +259,7 @@ Future<String?> setProfile(
       credentials,
       [config.profileContract.addr],
       [calldata],
+      accountFactoryAddress: config.community.primaryAccountFactory.address,
     );
 
     final txHash = await submitUserop(config, userop);
@@ -304,6 +317,7 @@ Future<String?> updateProfile(Config config, EthereumAddress account,
       credentials,
       [config.profileContract.addr],
       [calldata],
+      accountFactoryAddress: config.community.primaryAccountFactory.address,
     );
 
     final txHash = await submitUserop(config, userop);
@@ -362,7 +376,6 @@ Future<bool> deleteCurrentProfile(
   return false;
 }
 
-/// check if an account exists
 Future<bool> accountExists(
   Config config,
   EthereumAddress account,
@@ -375,7 +388,38 @@ Future<bool> accountExists(
     );
 
     return true;
-  } catch (_) {}
+  } catch (e) {
+    return false;
+  }
+}
+
+Future<bool> accountExistsWithFallback(
+  Config config,
+  EthereumAddress account,
+) async {
+  try {
+    final exists = await accountExists(config, account);
+    if (exists) {
+      return true;
+    }
+  } catch (e) {}
+
+  try {
+    final nonce = await config.entryPointContract.getNonce(account.hexEip55);
+    final exists = nonce > BigInt.zero;
+    if (exists) {
+      return true;
+    }
+  } catch (e) {}
+
+  try {
+    final balance = await getBalance(config, account);
+    final exists =
+        double.tryParse(balance) != null && double.parse(balance) > 0;
+    if (exists) {
+      return true;
+    }
+  } catch (e) {}
 
   return false;
 }
@@ -407,6 +451,7 @@ Future<bool> createAccount(
       credentials,
       [account.hexEip55],
       [calldata],
+      accountFactoryAddress: config.community.primaryAccountFactory.address,
     );
 
     final txHash = await submitUserop(
@@ -533,7 +578,48 @@ Future<(List<PaymasterData>, Exception?)> getPaymasterOOData(
   return (<PaymasterData>[], NetworkUnknownException());
 }
 
-/// prepare a userop for with calldata
+Future<(PaymasterData?, Exception?)> getPaymasterDataWithFallback(
+  Config config,
+  UserOp userop,
+  String eaddr,
+  String ptype, {
+  bool legacy = false,
+}) async {
+  try {
+    final (data, error) =
+        await getPaymasterData(config, userop, eaddr, ptype, legacy: legacy);
+    if (data != null) {
+      return (data, null);
+    }
+  } catch (e) {}
+
+  if (!legacy) {
+    try {
+      final (data, error) =
+          await getPaymasterData(config, userop, eaddr, ptype, legacy: true);
+      if (data != null) {
+        return (data, null);
+      }
+    } catch (e) {}
+  }
+
+  final alternativeTypes = ['payg', 'cw', 'cw-safe'];
+  for (final altType in alternativeTypes) {
+    if (altType != ptype) {
+      try {
+        final (data, error) = await getPaymasterData(
+            config, userop, eaddr, altType,
+            legacy: legacy);
+        if (data != null) {
+          return (data, null);
+        }
+      } catch (e) {}
+    }
+  }
+
+  return (null, NetworkUnknownException());
+}
+
 Future<(String, UserOp)> prepareUserop(
   Config config,
   EthereumAddress account,
@@ -544,6 +630,88 @@ Future<(String, UserOp)> prepareUserop(
   BigInt? customNonce,
   bool deploy = true,
   BigInt? value,
+  String? accountFactoryAddress,
+  bool migrationSafe = false,
+  bool useFallback = true,
+}) async {
+  _prepareUseropCallCount++;
+
+  if (migrationSafe) {
+    _prepareUseropCallCount--;
+    return await _prepareUseropOriginal(
+      config,
+      account,
+      credentials,
+      dest,
+      calldata,
+      customCredentials: customCredentials,
+      customNonce: customNonce,
+      deploy: deploy,
+      value: value,
+      accountFactoryAddress: accountFactoryAddress,
+    );
+  }
+
+  if (!useFallback || _prepareUseropCallCount > 1) {
+    _prepareUseropCallCount--;
+    return await _prepareUseropOriginal(
+      config,
+      account,
+      credentials,
+      dest,
+      calldata,
+      customCredentials: customCredentials,
+      customNonce: customNonce,
+      deploy: deploy,
+      value: value,
+      accountFactoryAddress: accountFactoryAddress,
+    );
+  }
+
+  if (_migrationInProgress) {
+    _prepareUseropCallCount--;
+    return await _prepareUseropOriginal(
+      config,
+      account,
+      credentials,
+      dest,
+      calldata,
+      customCredentials: customCredentials,
+      customNonce: customNonce,
+      deploy: deploy,
+      value: value,
+      accountFactoryAddress: accountFactoryAddress,
+    );
+  }
+
+  final result = await prepareUseropWithFallback(
+    config,
+    account,
+    credentials,
+    dest,
+    calldata,
+    customCredentials: customCredentials,
+    customNonce: customNonce,
+    deploy: deploy,
+    value: value,
+    accountFactoryAddress: accountFactoryAddress,
+  );
+
+  _prepareUseropCallCount--;
+  return result;
+}
+
+Future<(String, UserOp)> _prepareUseropOriginal(
+  Config config,
+  EthereumAddress account,
+  EthPrivateKey credentials,
+  List<String> dest,
+  List<Uint8List> calldata, {
+  EthPrivateKey? customCredentials,
+  BigInt? customNonce,
+  bool deploy = true,
+  BigInt? value,
+  String? accountFactoryAddress,
 }) async {
   try {
     final cred = customCredentials ?? credentials;
@@ -562,7 +730,7 @@ Future<(String, UserOp)> prepareUserop(
     // determine the appropriate nonce
     BigInt nonce = customNonce ?? await config.getNonce(acc.hexEip55);
 
-    final paymasterType = config.getPaymasterType();
+    var paymasterType = config.getPaymasterType();
 
     // if it's the first user op from this account, we need to deploy the account contract
     if (nonce == BigInt.zero && deploy) {
@@ -605,32 +773,85 @@ Future<(String, UserOp)> prepareUserop(
               : simpleAccount.executeCallData(
                   dest[0],
                   value ?? BigInt.zero,
-                  // value ?? BigInt.zero,
                   calldata[0],
                 );
           break;
         }
       case 'cw-safe':
         {
-          final safeAccount = await config.getSafeAccount(acc.hexEip55);
-          userop.callData = safeAccount.executeCallData(
-            dest[0],
-            value ?? BigInt.zero,
-            // value ?? BigInt.zero,
-            calldata[0],
-          );
+          // Get account-specific configuration if available
+          ERC4337Config? accountConfig;
+          if (accountFactoryAddress != null &&
+              accountFactoryAddress.isNotEmpty) {
+            try {
+              accountConfig =
+                  config.getAccountAbstractionConfig(accountFactoryAddress);
+            } catch (e) {}
+          }
+
+          final oldFactoryAddresses = [
+            '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2', // Old Safe factory
+            '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9', // Old Bread factory
+            '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD', // Old Gratitude factory
+            '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87', // Old Brussels factory
+            '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e', // Old SFLUV factory
+          ];
+          final isOldAccount = accountFactoryAddress != null &&
+              oldFactoryAddresses.contains(accountFactoryAddress);
+
+          if (isOldAccount) {
+            // Use SimpleAccount execution for legacy accounts
+            final simpleAccount = await config.getSimpleAccount(acc.hexEip55);
+            userop.callData = simpleAccount.executeCallData(
+              dest[0],
+              value ?? BigInt.zero,
+              calldata[0],
+            );
+
+            // Apply account-specific configuration overrides
+            if (accountConfig != null) {
+              // Override entry point if different from current
+              if (config.entryPointContract.addr !=
+                  accountConfig.entrypointAddress) {
+                config.entryPointContract = StackupEntryPoint(
+                  config.chains.values.first.id,
+                  config.ethClient,
+                  accountConfig.entrypointAddress,
+                );
+                await config.entryPointContract.init();
+              }
+
+              // Override paymaster type if different
+              if (paymasterType != accountConfig.paymasterType) {
+                paymasterType = accountConfig.paymasterType;
+              }
+
+              // Override paymaster URL if we have a paymaster address
+              if (accountConfig.paymasterAddress != null) {
+                final paymasterUrl =
+                    '${config.chains.values.first.node.url}/v1/rpc/${accountConfig.paymasterAddress!}';
+                config.engineRPC = APIService(baseURL: paymasterUrl);
+              }
+            }
+          } else {
+            // Use SafeAccount execution for new accounts
+            final safeAccount = await config.getSafeAccount(acc.hexEip55);
+            userop.callData = safeAccount.executeCallData(
+              dest[0],
+              value ?? BigInt.zero,
+              calldata[0],
+            );
+          }
           break;
         }
     }
 
-    // submit the user op to the paymaster in order to receive information to complete the user op
     List<PaymasterData> paymasterOOData = [];
     Exception? paymasterErr;
     final useAccountNonce =
         (nonce == BigInt.zero || paymasterType == 'payg') && deploy;
 
     if (useAccountNonce) {
-      // if it's the first user op, we should use a normal paymaster signature
       PaymasterData? paymasterData;
       (paymasterData, paymasterErr) = await getPaymasterData(
         config,
@@ -643,7 +864,6 @@ Future<(String, UserOp)> prepareUserop(
         paymasterOOData.add(paymasterData);
       }
     } else {
-      // if it's not the first user op, we should use an out of order paymaster signature
       (paymasterOOData, paymasterErr) = await getPaymasterOOData(
         config,
         userop,
@@ -661,31 +881,207 @@ Future<(String, UserOp)> prepareUserop(
     }
 
     final paymasterData = paymasterOOData.first;
+
     if (!useAccountNonce) {
-      // use the nonce received from the paymaster
       userop.nonce = paymasterData.nonce;
     }
 
-    // add the received data to the user op
     userop.paymasterAndData = paymasterData.paymasterAndData;
     userop.preVerificationGas = paymasterData.preVerificationGas;
     userop.verificationGasLimit = paymasterData.verificationGasLimit;
     userop.callGasLimit = paymasterData.callGasLimit;
 
-    // get the hash of the user op
     final hash = await config.entryPointContract.getUserOpHash(userop);
 
-    // now we can sign the user op
     userop.generateSignature(cred, hash);
 
     return (bytesToHex(hash, include0x: true), userop);
-  } catch (_) {
+  } catch (e, s) {
     rethrow;
   }
 }
 
-/// submit a user op
+Future<(String, UserOp)> prepareUseropWithFallback(
+  Config config,
+  EthereumAddress account,
+  EthPrivateKey credentials,
+  List<String> dest,
+  List<Uint8List> calldata, {
+  EthPrivateKey? customCredentials,
+  BigInt? customNonce,
+  bool deploy = true,
+  BigInt? value,
+  String? accountFactoryAddress,
+}) async {
+  try {
+    final (hash, userop) = await prepareUserop(
+      config,
+      account,
+      credentials,
+      dest,
+      calldata,
+      customCredentials: customCredentials,
+      customNonce: customNonce,
+      deploy: deploy,
+      value: value,
+      accountFactoryAddress: accountFactoryAddress,
+    );
+    return (hash, userop);
+  } catch (e) {}
+
+  if (!deploy) {
+    try {
+      final (hash, userop) = await prepareUserop(
+        config,
+        account,
+        credentials,
+        dest,
+        calldata,
+        customCredentials: customCredentials,
+        customNonce: customNonce,
+        deploy: true,
+        value: value,
+        accountFactoryAddress: accountFactoryAddress,
+      );
+      return (hash, userop);
+    } catch (e) {}
+  }
+
+  if (accountFactoryAddress != null) {
+    try {
+      final (hash, userop) = await prepareUserop(
+        config,
+        account,
+        credentials,
+        dest,
+        calldata,
+        customCredentials: customCredentials,
+        customNonce: customNonce,
+        deploy: deploy,
+        value: value,
+        accountFactoryAddress: null,
+      );
+      return (hash, userop);
+    } catch (e) {}
+  }
+
+  try {
+    final cred = customCredentials ?? credentials;
+    final acc = account;
+
+    final userop = UserOp.defaultUserOp();
+    userop.sender = acc.hexEip55;
+
+    final exists = await accountExistsWithFallback(config, acc);
+
+    BigInt nonce = customNonce ?? await config.getNonce(acc.hexEip55);
+
+    if (nonce == BigInt.zero && deploy && !exists) {
+      final accountFactory = config.accountFactoryContract;
+      userop.initCode = await accountFactory.createAccountInitCode(
+        cred.address.hexEip55,
+        BigInt.zero,
+      );
+    }
+
+    userop.nonce = nonce;
+
+    final simpleAccount = await config.getSimpleAccount(acc.hexEip55);
+    userop.callData = dest.length > 1 && calldata.length > 1
+        ? simpleAccount.executeBatchCallData(dest, calldata)
+        : simpleAccount.executeCallData(
+            dest[0], value ?? BigInt.zero, calldata[0]);
+
+    final (paymasterData, paymasterErr) = await getPaymasterDataWithFallback(
+      config,
+      userop,
+      config.entryPointContract.addr,
+      config.getPaymasterType(),
+    );
+
+    if (paymasterErr != null) {
+      throw paymasterErr;
+    }
+
+    if (paymasterData != null) {
+      userop.paymasterAndData = paymasterData.paymasterAndData;
+      userop.preVerificationGas = paymasterData.preVerificationGas;
+      userop.verificationGasLimit = paymasterData.verificationGasLimit;
+      userop.callGasLimit = paymasterData.callGasLimit;
+
+      if (nonce == BigInt.zero && deploy) {
+        userop.nonce = paymasterData.nonce;
+      }
+    } else {
+      throw Exception('No paymaster data available');
+    }
+
+    final hash = await config.entryPointContract.getUserOpHash(userop);
+    userop.generateSignature(cred, hash);
+
+    return (bytesToHex(hash, include0x: true), userop);
+  } catch (e) {
+    rethrow;
+  }
+}
+
 Future<String?> submitUserop(
+  Config config,
+  UserOp userop, {
+  EthPrivateKey? customCredentials,
+  Map<String, dynamic>? data,
+  TransferData? extraData,
+  bool migrationSafe = false,
+  bool useRetry = true,
+}) async {
+  _submitUseropCallCount++;
+
+  if (migrationSafe) {
+    _submitUseropCallCount--;
+    return await _submitUseropOriginal(
+      config,
+      userop,
+      customCredentials: customCredentials,
+      data: data,
+      extraData: extraData,
+    );
+  }
+
+  if (!useRetry || _submitUseropCallCount > 1) {
+    _submitUseropCallCount--;
+    return await _submitUseropOriginal(
+      config,
+      userop,
+      customCredentials: customCredentials,
+      data: data,
+      extraData: extraData,
+    );
+  }
+
+  if (_migrationInProgress) {
+    _submitUseropCallCount--;
+    return await _submitUseropOriginal(
+      config,
+      userop,
+      customCredentials: customCredentials,
+      data: data,
+      extraData: extraData,
+    );
+  }
+
+  final result = await submitUseropWithRetry(
+    config,
+    userop,
+    customCredentials: customCredentials,
+    data: data,
+    extraData: extraData,
+  );
+
+  _submitUseropCallCount--;
+  return result;
+}
+
+Future<String?> _submitUseropOriginal(
   Config config,
   UserOp userop, {
   EthPrivateKey? customCredentials,
@@ -696,6 +1092,7 @@ Future<String?> submitUserop(
     final entryPoint = config.entryPointContract;
 
     final params = [userop.toJson(), entryPoint.addr];
+
     if (data != null) {
       params.add(data);
     }
@@ -712,9 +1109,6 @@ Future<String?> submitUserop(
 
     return response.result as String;
   } catch (exception, s) {
-    debugPrint('error: $exception');
-    debugPrint('stack trace: $s');
-
     final strerr = exception.toString();
 
     if (strerr.contains(gasFeeErrorMessage)) {
@@ -729,19 +1123,58 @@ Future<String?> submitUserop(
   throw NetworkUnknownException();
 }
 
-/// makes a jsonrpc request from this wallet
+Future<String?> submitUseropWithRetry(
+  Config config,
+  UserOp userop, {
+  EthPrivateKey? customCredentials,
+  Map<String, dynamic>? data,
+  TransferData? extraData,
+  int maxRetries = 3,
+}) async {
+  int attempt = 0;
+  Duration delay = const Duration(seconds: 1);
+
+  while (attempt < maxRetries) {
+    attempt++;
+
+    try {
+      final result = await submitUserop(
+        config,
+        userop,
+        customCredentials: customCredentials,
+        data: data,
+        extraData: extraData,
+      );
+
+      if (result != null) {
+        return result;
+      }
+    } catch (e) {
+      if (attempt >= maxRetries) {
+        rethrow;
+      }
+
+      if (e is NetworkInvalidBalanceException) {
+        rethrow;
+      }
+
+      await Future.delayed(delay);
+      delay = Duration(seconds: delay.inSeconds * 2);
+    }
+  }
+
+  return null;
+}
+
 Future<SUJSONRPCResponse> requestBundler(
     Config config, SUJSONRPCRequest body) async {
   final rawResponse = await config.engineRPC.post(
     body: body,
   );
 
-  debugPrint('rawResponse: ${rawResponse.toString()}');
-
   final response = SUJSONRPCResponse.fromJson(rawResponse);
 
   if (response.error != null) {
-    debugPrint('error: ${response.error!.message}');
     throw Exception(response.error!.message);
   }
 

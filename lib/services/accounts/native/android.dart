@@ -55,6 +55,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
         [account.address.hexEip55],
         [calldata],
         deploy: false,
+        accountFactoryAddress: account.accountFactoryAddress,
       );
 
       final txHash = await submitUserop(config, userop);

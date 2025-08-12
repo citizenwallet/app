@@ -338,6 +338,7 @@ class WalletKitService {
         [transaction['to']],
         [data],
         value: value,
+        accountFactoryAddress: config.community.primaryAccountFactory.address,
       );
 
       final txHash = await submitUserop(
