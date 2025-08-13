@@ -88,6 +88,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
     await _credentials.init();
 
     await migrate(super.version);
+
+    await migratePrivateKeysFromOldFormat();
   }
 
   @override
@@ -186,8 +188,11 @@ class AndroidAccountsService extends AccountsServiceInterface {
               break;
           }
 
-          // Create new account with factory address
-          final newAccount = DBAccount(
+          final oldAccountId = account.id;
+
+          final oldPrivateKey = await _credentials.read(oldAccountId);
+
+          final updatedAccount = DBAccount(
             alias: account.alias,
             address: account.address,
             name: account.name,
@@ -197,42 +202,24 @@ class AndroidAccountsService extends AccountsServiceInterface {
             profile: account.profile,
           );
 
-          // Delete old account and insert new one
-          await _accountsDB.accounts.delete(
-              account.address, account.alias, account.accountFactoryAddress);
-          await _accountsDB.accounts.insert(newAccount);
+          final newAccountId = updatedAccount.id;
 
-          final oldKey = getAccountID(
-              account.address, account.alias, account.accountFactoryAddress);
-          final newKey = getAccountID(
-              account.address, account.alias, accountFactoryAddress);
+          await _accountsDB.accounts.update(updatedAccount);
 
-          final privateKey = await _credentials.read(oldKey);
-          if (privateKey != null) {
-            await _credentials.write(newKey, privateKey);
-            await _credentials.delete(oldKey);
-          }
-
-          if (account.accountFactoryAddress ==
-              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
-            try {
-              await _fixSafeAccount(newAccount, config);
-            } catch (e) {
-              debugPrint('Failed to fix cw-safe account during migration: $e');
-            }
+          if (oldPrivateKey != null) {
+            await _credentials.write(newAccountId, oldPrivateKey);
+            await _credentials.delete(oldAccountId);
           }
         }
       },
     };
 
-    // run all migrations
-    for (var i = oldVersion + 1; i <= version; i++) {
+    for (int i = oldVersion + 1; i <= version; i++) {
       if (migrations.containsKey(i)) {
         await migrations[i]!();
       }
     }
 
-    // after success, we can update the version
     await _sharedPreferences.setString(versionPrefix, version.toString());
   }
 
@@ -430,6 +417,26 @@ class AndroidAccountsService extends AccountsServiceInterface {
       // null private key before updating in DB
       account.privateKey = null;
       await _accountsDB.accounts.update(account);
+    }
+  }
+
+  Future<void> migratePrivateKeysFromOldFormat() async {
+    final allAccounts = await _accountsDB.accounts.all();
+
+    for (final account in allAccounts) {
+      final currentPrivateKey = await _credentials.read(account.id);
+      if (currentPrivateKey != null) {
+        continue;
+      }
+
+      final oldFormatKey = '${account.address.hexEip55}@${account.alias}';
+
+      final oldPrivateKey = await _credentials.read(oldFormatKey);
+      if (oldPrivateKey != null) {
+        await _credentials.write(account.id, oldPrivateKey);
+
+        await _credentials.delete(oldFormatKey);
+      }
     }
   }
 }

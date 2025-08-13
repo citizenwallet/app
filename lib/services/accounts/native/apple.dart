@@ -86,6 +86,8 @@ class AppleAccountsService extends AccountsServiceInterface {
     _accountsDB = appleOptions.accountsDB;
 
     await migrate(super.version);
+
+    await migratePrivateKeysFromOldFormat();
   }
 
   @override
@@ -98,64 +100,6 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     final migrations = {
-      1: () async {
-        // coming from the old version, migrate all keys and delete the old ones
-        // all or nothing, first write all the new ones, then delete all the old ones
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          // await setAccount(backup);
-          final saved = await _credentials.containsKey(backup.legacyKey2);
-          if (saved) {
-            await _credentials.delete(backup.legacyKey2);
-          }
-
-          await _credentials.write(
-            backup.legacyKey2,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // legacy delete
-          final saved = await _credentials.containsKey(
-            backup.legacyKey,
-          );
-          if (saved) {
-            await _credentials.delete(backup.legacyKey);
-          }
-        }
-      },
-      2: () async {
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          final saved = await _credentials.containsKey(backup.key);
-          if (saved) {
-            await _credentials.delete(backup.key);
-          }
-
-          await _credentials.write(
-            backup.key,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // delete legacy keys
-          final saved = await _credentials.containsKey(
-            backup.legacyKey2,
-          );
-
-          if (saved) {
-            await _credentials.delete(
-              backup.legacyKey2,
-            );
-          }
-        }
-      },
       3: () async {
         final allBackups = await getAllLegacyWalletBackups();
 
@@ -193,7 +137,6 @@ class AppleAccountsService extends AccountsServiceInterface {
             continue;
           }
 
-          // delete legacy keys
           final saved = await _credentials.containsKey(
             backup.key,
           );
@@ -243,7 +186,6 @@ class AppleAccountsService extends AccountsServiceInterface {
 
         // delete all old keys
         for (final key in toDelete) {
-          // delete legacy keys
           final saved = await _credentials.containsKey(
             key,
           );
@@ -300,8 +242,11 @@ class AppleAccountsService extends AccountsServiceInterface {
               break;
           }
 
-          // Create new account with factory address
-          final newAccount = DBAccount(
+          final oldAccountId = account.id;
+
+          final oldPrivateKey = await _credentials.read(oldAccountId);
+
+          final updatedAccount = DBAccount(
             alias: account.alias,
             address: account.address,
             name: account.name,
@@ -311,42 +256,24 @@ class AppleAccountsService extends AccountsServiceInterface {
             profile: account.profile,
           );
 
-          // Delete old account and insert new one
-          await _accountsDB.accounts.delete(
-              account.address, account.alias, account.accountFactoryAddress);
-          await _accountsDB.accounts.insert(newAccount);
+          final newAccountId = updatedAccount.id;
 
-          final oldKey = getAccountID(
-              account.address, account.alias, account.accountFactoryAddress);
-          final newKey = getAccountID(
-              account.address, account.alias, accountFactoryAddress);
+          await _accountsDB.accounts.update(updatedAccount);
 
-          final privateKey = await _credentials.read(oldKey);
-          if (privateKey != null) {
-            await _credentials.write(newKey, privateKey);
-            await _credentials.delete(oldKey);
-          }
-
-          if (account.accountFactoryAddress ==
-              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
-            try {
-              await _fixSafeAccount(newAccount, config);
-            } catch (e) {
-              debugPrint('Failed to fix cw-safe account during migration: $e');
-            }
+          if (oldPrivateKey != null) {
+            await _credentials.write(newAccountId, oldPrivateKey);
+            await _credentials.delete(oldAccountId);
           }
         }
       },
     };
 
-    // run all migrations
-    for (var i = oldVersion + 1; i <= version; i++) {
+    for (int i = oldVersion + 1; i <= version; i++) {
       if (migrations.containsKey(i)) {
         await migrations[i]!();
       }
     }
 
-    // after success, we can update the version
     await _credentials.write(versionPrefix, version.toString());
   }
 
@@ -495,5 +422,25 @@ class AppleAccountsService extends AccountsServiceInterface {
     backups.sort((a, b) => a.name.compareTo(b.name));
 
     return backups;
+  }
+
+  Future<void> migratePrivateKeysFromOldFormat() async {
+    final allAccounts = await _accountsDB.accounts.all();
+
+    for (final account in allAccounts) {
+      final currentPrivateKey = await _credentials.read(account.id);
+      if (currentPrivateKey != null) {
+        continue;
+      }
+
+      final oldFormatKey = '${account.address.hexEip55}@${account.alias}';
+
+      final oldPrivateKey = await _credentials.read(oldFormatKey);
+      if (oldPrivateKey != null) {
+        await _credentials.write(account.id, oldPrivateKey);
+
+        await _credentials.delete(oldFormatKey);
+      }
+    }
   }
 }
