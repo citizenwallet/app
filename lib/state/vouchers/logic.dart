@@ -5,6 +5,8 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/account/vouchers.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/share/share.dart';
 import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
 import 'package:citizenwallet/services/engine/utils.dart';
@@ -28,6 +30,7 @@ class VoucherLogic extends WidgetsBindingObserver {
   final AppDBService _appDBService = AppDBService();
   final AccountDBService _accountDBService = AccountDBService();
   final SharingService _sharing = SharingService();
+  final AccountsServiceInterface _encPrefs = getAccountsService();
 
   late EthPrivateKey _currentCredentials;
   late EthereumAddress _currentAccount;
@@ -60,6 +63,166 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   void resetCreate() {
     _state.resetCreate(notify: false);
+  }
+
+  Future<String> resolveAccountFactoryAddress() async {
+    try {
+      if (_currentConfig == null) {
+        throw Exception('Current config is null');
+      }
+
+      if (_currentConfig.community.primaryAccountFactory.address.isEmpty) {
+        throw Exception('Primary account factory address is empty');
+      }
+
+      if (_currentAccount == null) {
+        throw Exception('Current account is null');
+      }
+
+      try {
+        final factoryAddress =
+            await getAccountFactoryAddressWithHiddenCommunityFallback();
+        if (factoryAddress.isNotEmpty) {
+          return factoryAddress;
+        }
+      } catch (e) {}
+
+      try {
+        final possibleFactories = [
+          '',
+          _currentConfig.community.primaryAccountFactory.address,
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
+          '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
+          '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+          '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+          '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+          '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        ];
+
+        for (final factory in possibleFactories) {
+          try {
+            final dbAccount = await _encPrefs.getAccount(
+                _currentAccount.hexEip55,
+                _currentConfig.community.alias,
+                factory);
+            if (dbAccount != null &&
+                dbAccount.accountFactoryAddress.isNotEmpty) {
+              return dbAccount.accountFactoryAddress;
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        final communityMappings = {
+          'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+          'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+          'wallet.commonshub.brussels':
+              '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+          'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        };
+
+        final mappedFactory = communityMappings[_currentConfig.community.alias];
+        if (mappedFactory != null) {
+          return mappedFactory;
+        }
+      } catch (e) {}
+
+      try {
+        final allAccounts = await _encPrefs.getAllAccounts();
+        final matchingAccounts = allAccounts
+            .where((acc) => acc.address.hexEip55 == _currentAccount.hexEip55)
+            .toList();
+
+        for (final account in matchingAccounts) {
+          if (account.accountFactoryAddress.isNotEmpty) {
+            return account.accountFactoryAddress;
+          }
+        }
+      } catch (e) {}
+
+      try {
+        final primaryFactory =
+            _currentConfig.community.primaryAccountFactory.address;
+        if (primaryFactory.isNotEmpty) {
+          return primaryFactory;
+        }
+      } catch (e) {}
+
+      return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+    } catch (e) {
+      return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+    }
+  }
+
+  Future<String> getAccountFactoryAddressWithHiddenCommunityFallback() async {
+    try {
+      final dbAccount = await _encPrefs.getAccount(
+          _currentAccount.hexEip55, _currentConfig.community.alias, '');
+
+      if (dbAccount?.accountFactoryAddress != null &&
+          dbAccount!.accountFactoryAddress.isNotEmpty) {
+        return dbAccount.accountFactoryAddress;
+      }
+
+      final oldAccountFactories = {
+        'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+        'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+        'wallet.commonshub.brussels':
+            '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+        'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+      };
+
+      final oldFactory = oldAccountFactories[_currentConfig.community.alias];
+      if (oldFactory != null) {
+        if (dbAccount != null) {
+          final updatedAccount = DBAccount(
+            alias: dbAccount.alias,
+            address: dbAccount.address,
+            name: dbAccount.name,
+            username: dbAccount.username,
+            accountFactoryAddress: oldFactory,
+            privateKey: dbAccount.privateKey,
+            profile: dbAccount.profile,
+          );
+          await _encPrefs.setAccount(updatedAccount);
+        }
+        return oldFactory;
+      }
+      final allAccounts = await _encPrefs.getAllAccounts();
+      final matchingAccount = allAccounts
+          .where((acc) => acc.address.hexEip55 == _currentAccount.hexEip55)
+          .firstOrNull;
+
+      if (matchingAccount != null &&
+          matchingAccount.accountFactoryAddress.isNotEmpty) {
+        return matchingAccount.accountFactoryAddress;
+      }
+      final legacyAccount = await _encPrefs.getAccount(
+          _currentAccount.hexEip55,
+          _currentConfig.community.alias,
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2');
+      if (legacyAccount != null) {
+        const newFactoryAddress = '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+
+        final updatedAccount = DBAccount(
+          alias: legacyAccount.alias,
+          address: legacyAccount.address,
+          name: legacyAccount.name,
+          username: legacyAccount.username,
+          accountFactoryAddress: newFactoryAddress,
+          privateKey: legacyAccount.privateKey,
+          profile: legacyAccount.profile,
+        );
+        await _encPrefs.setAccount(updatedAccount);
+
+        return newFactoryAddress;
+      }
+
+      return _currentConfig.community.primaryAccountFactory.address;
+    } catch (e) {
+      return _currentConfig.community.primaryAccountFactory.address;
+    }
   }
 
   _loadVoucher() async {
@@ -368,12 +531,15 @@ class VoucherLogic extends WidgetsBindingObserver {
         vouchers.add(voucher);
       }
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (_, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
         _currentCredentials,
         addresses,
         calldata,
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final txHash = await submitUserop(
@@ -468,6 +634,7 @@ class VoucherLogic extends WidgetsBindingObserver {
               account.hexEip55,
               parsedAmount,
             );
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
 
       final (_, userop) = await prepareUserop(
         _currentConfig,
@@ -475,6 +642,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         _currentCredentials,
         [_currentConfig.getPrimaryToken().address],
         [calldata],
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final args = {
@@ -626,6 +794,8 @@ class VoucherLogic extends WidgetsBindingObserver {
         amount,
       );
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
@@ -633,6 +803,7 @@ class VoucherLogic extends WidgetsBindingObserver {
         [_currentConfig.getPrimaryToken().address],
         [calldata],
         customCredentials: credentials,
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       if (sendingTransaction != null) {

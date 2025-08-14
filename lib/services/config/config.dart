@@ -597,7 +597,13 @@ class Config {
   final int version;
   bool online;
 
-  late Web3Client ethClient;
+  Web3Client? _ethClient;
+
+  Web3Client get ethClient {
+    _initializeServices();
+    return _ethClient!;
+  }
+
   late APIService ipfsService;
   late APIService engine;
   late APIService engineRPC;
@@ -626,11 +632,17 @@ class Config {
     this.version = 0,
     this.online = true,
   }) {
+    // Defer initialization to avoid errors during config loading
+  }
+
+  void _initializeServices() {
+    if (_ethClient != null) return;
+
     final chain = chains.values.first;
     final rpcUrl = getRpcUrl(chain.id.toString());
     final nodeUrl = getNodeUrl(chain.id.toString());
 
-    ethClient = Web3Client(rpcUrl, Client());
+    _ethClient = Web3Client(rpcUrl, Client());
     ipfsService = APIService(baseURL: ipfs.url);
     engine = APIService(baseURL: nodeUrl);
     engineRPC = APIService(baseURL: rpcUrl);

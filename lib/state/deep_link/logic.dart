@@ -50,6 +50,7 @@ class DeepLinkLogic {
         _credentials,
         [address],
         [calldata],
+        accountFactoryAddress: _config.community.primaryAccountFactory.address,
       );
 
       final txHash = await submitUserop(_config, userop);

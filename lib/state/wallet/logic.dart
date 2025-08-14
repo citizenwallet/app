@@ -1196,7 +1196,18 @@ class WalletLogic extends WidgetsBindingObserver {
     String message = '',
     String? id,
     bool clearInProgress = false,
+    bool useFallbackStrategy = false,
   }) async {
+    if (useFallbackStrategy) {
+      return sendTransactionWithFallback(
+        amount,
+        to,
+        message: message,
+        id: id,
+        clearInProgress: clearInProgress,
+      );
+    }
+
     return kIsWeb
         ? sendTransactionFromUnlocked(
             amount,
@@ -1207,6 +1218,158 @@ class WalletLogic extends WidgetsBindingObserver {
           )
         : sendTransactionFromLocked(amount, to,
             message: message, id: id, clearInProgress: clearInProgress);
+  }
+
+  Future<String?> sendTransactionWithFallback(
+    String amount,
+    String to, {
+    String message = '',
+    String? id,
+    bool clearInProgress = false,
+  }) async {
+    final doubleAmount = amount.replaceAll(',', '.');
+    final parsedAmount = toUnit(
+      doubleAmount,
+      decimals: _currentConfig.getPrimaryToken().decimals,
+    );
+
+    var tempId = id ?? '${pendingTransactionId}_${generateRandomId()}';
+
+    try {
+      _state.sendTransaction(id: id);
+
+      if (to.isEmpty) {
+        _state.setInvalidAddress(true);
+        throw Exception('invalid address');
+      }
+
+      preSendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _currentAccount.hexEip55,
+        message: message,
+      );
+
+      final calldata = tokenTransferCallData(
+        _currentConfig,
+        _currentAccount,
+        to,
+        parsedAmount,
+      );
+
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
+      final (hash, userop) = await prepareUseropWithFallback(
+        _currentConfig,
+        _currentAccount,
+        _currentCredentials,
+        [_currentConfig.getPrimaryToken().address],
+        [calldata],
+        accountFactoryAddress: accountFactoryAddress,
+      );
+
+      final args = {
+        'from': _currentAccount.hexEip55,
+        'to': to,
+      };
+      if (_currentConfig.getPrimaryToken().standard == 'erc1155') {
+        args['operator'] = _currentAccount.hexEip55;
+        args['id'] = '0';
+        args['amount'] = parsedAmount.toString();
+      } else {
+        args['value'] = parsedAmount.toString();
+      }
+
+      final eventData = createEventData(
+        stringSignature: transferEventStringSignature(_currentConfig),
+        topic: transferEventSignature(_currentConfig),
+        args: args,
+      );
+
+      final txHash = await submitUseropWithRetry(
+        _currentConfig,
+        userop,
+        data: eventData,
+        extraData: message != '' ? TransferData(message) : null,
+      );
+
+      if (txHash == null) {
+        throw Exception('transaction failed');
+      }
+
+      sendingTransaction(
+        parsedAmount,
+        tempId,
+        to,
+        _currentAccount.hexEip55,
+        message: message,
+      );
+
+      if (userop.isFirst()) {
+        waitForTxSuccess(_currentConfig, txHash).then((value) {
+          if (!value) {
+            return;
+          }
+          _notificationsLogic.refreshPushToken();
+        });
+      }
+
+      clearInputControllers();
+
+      _state.sendTransactionSuccess(null);
+      if (clearInProgress) {
+        _state.clearInProgressTransaction(notify: true);
+      }
+
+      return txHash;
+    } on NetworkCongestedException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _currentConfig.getPrimaryToken().decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: to,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkCongestedException().message),
+      );
+    } on NetworkInvalidBalanceException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _currentConfig.getPrimaryToken().decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: to,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkInvalidBalanceException().message),
+      );
+    } catch (e, s) {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _currentConfig.getPrimaryToken().decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: to,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkUnknownException().message),
+      );
+    }
+
+    _state.sendTransactionError();
+
+    return null;
   }
 
   bool isInvalidAmount(String amount, {unlimited = false}) {
@@ -1320,12 +1483,15 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
       );
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
         _currentCredentials,
         [_currentConfig.getPrimaryToken().address],
         [calldata],
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final args = {
@@ -1450,6 +1616,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final calldata = hexToBytes(data);
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
@@ -1457,6 +1625,7 @@ class WalletLogic extends WidgetsBindingObserver {
         [to],
         [calldata],
         value: BigInt.parse(value.isEmpty ? '0' : value),
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final txHash = await submitUserop(
@@ -1535,12 +1704,15 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
       );
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
         _currentCredentials,
         [_currentConfig.getPrimaryToken().address],
         [calldata],
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final args = {
@@ -1686,12 +1858,15 @@ class WalletLogic extends WidgetsBindingObserver {
         parsedAmount,
       );
 
+      final accountFactoryAddress = await resolveAccountFactoryAddress();
+
       final (_, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
         _currentCredentials,
         [_currentConfig.getPrimaryToken().address],
         [calldata],
+        accountFactoryAddress: accountFactoryAddress,
       );
 
       final args = {
@@ -2078,6 +2253,168 @@ class WalletLogic extends WidgetsBindingObserver {
     } catch (_) {}
 
     _state.loadWalletsError();
+  }
+
+  Future<String> getAccountFactoryAddressWithHiddenCommunityFallback() async {
+    try {
+      final dbAccount = await _encPrefs.getAccount(
+          _currentAccount.hexEip55, _currentConfig.community.alias, '');
+
+      if (dbAccount?.accountFactoryAddress != null &&
+          dbAccount!.accountFactoryAddress.isNotEmpty) {
+        return dbAccount.accountFactoryAddress;
+      }
+
+      final oldAccountFactories = {
+        'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+        'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+        'wallet.commonshub.brussels':
+            '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+        'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+      };
+
+      final oldFactory = oldAccountFactories[_currentConfig.community.alias];
+      if (oldFactory != null) {
+        if (dbAccount != null) {
+          final updatedAccount = DBAccount(
+            alias: dbAccount.alias,
+            address: dbAccount.address,
+            name: dbAccount.name,
+            username: dbAccount.username,
+            accountFactoryAddress: oldFactory,
+            privateKey: dbAccount.privateKey,
+            profile: dbAccount.profile,
+          );
+          await _encPrefs.setAccount(updatedAccount);
+        }
+        return oldFactory;
+      }
+
+      final allAccounts = await _encPrefs.getAllAccounts();
+      final matchingAccount = allAccounts
+          .where((acc) => acc.address.hexEip55 == _currentAccount.hexEip55)
+          .firstOrNull;
+
+      if (matchingAccount != null &&
+          matchingAccount.accountFactoryAddress.isNotEmpty) {
+        return matchingAccount.accountFactoryAddress;
+      }
+
+      final legacyAccount = await _encPrefs.getAccount(
+          _currentAccount.hexEip55,
+          _currentConfig.community.alias,
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2');
+      if (legacyAccount != null) {
+        const newFactoryAddress = '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+
+        final updatedAccount = DBAccount(
+          alias: legacyAccount.alias,
+          address: legacyAccount.address,
+          name: legacyAccount.name,
+          username: legacyAccount.username,
+          accountFactoryAddress: newFactoryAddress,
+          privateKey: legacyAccount.privateKey,
+          profile: legacyAccount.profile,
+        );
+        await _encPrefs.setAccount(updatedAccount);
+
+        return newFactoryAddress;
+      }
+
+      return _currentConfig.community.primaryAccountFactory.address;
+    } catch (e) {
+      return _currentConfig.community.primaryAccountFactory.address;
+    }
+  }
+
+  Future<String> resolveAccountFactoryAddress() async {
+    try {
+      if (_currentConfig == null) {
+        throw Exception('Current config is null');
+      }
+
+      if (_currentConfig.community.primaryAccountFactory.address.isEmpty) {
+        throw Exception('Primary account factory address is empty');
+      }
+
+      if (_currentAccount == null) {
+        throw Exception('Current account is null');
+      }
+
+      try {
+        final factoryAddress =
+            await getAccountFactoryAddressWithHiddenCommunityFallback();
+        if (factoryAddress.isNotEmpty) {
+          return factoryAddress;
+        }
+      } catch (e) {}
+
+      try {
+        final possibleFactories = [
+          '',
+          _currentConfig.community.primaryAccountFactory.address,
+          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
+          '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
+          '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+          '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+          '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+          '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        ];
+
+        for (final factory in possibleFactories) {
+          try {
+            final dbAccount = await _encPrefs.getAccount(
+                _currentAccount.hexEip55,
+                _currentConfig.community.alias,
+                factory);
+            if (dbAccount != null &&
+                dbAccount.accountFactoryAddress.isNotEmpty) {
+              return dbAccount.accountFactoryAddress;
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        final communityMappings = {
+          'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+          'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+          'wallet.commonshub.brussels':
+              '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+          'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        };
+
+        final mappedFactory = communityMappings[_currentConfig.community.alias];
+        if (mappedFactory != null) {
+          return mappedFactory;
+        }
+      } catch (e) {}
+
+      try {
+        final allAccounts = await _encPrefs.getAllAccounts();
+        final matchingAccounts = allAccounts
+            .where((acc) => acc.address.hexEip55 == _currentAccount.hexEip55)
+            .toList();
+
+        for (final account in matchingAccounts) {
+          if (account.accountFactoryAddress.isNotEmpty) {
+            return account.accountFactoryAddress;
+          }
+        }
+      } catch (e) {}
+
+      try {
+        final primaryFactory =
+            _currentConfig.community.primaryAccountFactory.address;
+        if (primaryFactory.isNotEmpty) {
+          return primaryFactory;
+        }
+      } catch (e) {}
+
+      return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+    } catch (e) {
+      return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+    }
   }
 
   void prepareReplyTransaction(String address) {
