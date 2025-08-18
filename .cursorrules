@@ -1,0 +1,277 @@
+# Citizen Wallet Flutter Project - Coding Patterns & Conventions
+
+## Project Overview
+
+This is a Flutter-based mobile wallet application for community tokens, built with a focus on blockchain integration, state management, and cross-platform compatibility.
+
+## Architecture Patterns
+
+### 1. State Management
+
+- **Provider Pattern**: Uses `provider` package for state management
+- **State/Logic Separation**: Each feature has separate `state.dart` and `logic.dart` files
+- **ChangeNotifier**: All state classes extend `ChangeNotifier` for reactive updates
+- **MultiProvider**: Centralized state provisioning in `lib/state/state.dart`
+
+### 2. Directory Structure
+
+```
+lib/
+├── models/          # Data models and DTOs
+├── screens/         # UI screens organized by feature
+├── widgets/         # Reusable UI components
+├── services/        # Business logic and external integrations
+├── state/           # State management (state + logic files)
+├── router/          # Navigation and routing
+├── theme/           # UI theming and styling
+├── utils/           # Utility functions and helpers
+├── modals/          # Modal dialogs and sheets
+└── l10n/            # Localization files
+```
+
+### 3. File Naming Conventions
+
+- **snake_case**: All file names use snake_case
+- **Feature-based**: Files organized by feature/domain
+- **Platform suffixes**: `.android.dart`, `.apple.dart`, `.web.dart` for platform-specific code
+- **State files**: `state.dart` for state classes, `logic.dart` for business logic
+
+## Code Style & Patterns
+
+### 1. Dart/Flutter Conventions
+
+- **Null Safety**: Full null safety implementation
+- **Async/Await**: Prefer async/await over Future.then()
+- **Const Constructors**: Use const constructors where possible
+- **Final Variables**: Use final for immutable variables
+- **Type Annotations**: Explicit type annotations for clarity
+
+### 2. State Management Patterns
+
+```dart
+// State class pattern
+class WalletState with ChangeNotifier {
+  bool loading = false;
+  String? error;
+
+  void setLoading(bool value) {
+    loading = value;
+    notifyListeners();
+  }
+}
+
+// Logic class pattern
+class WalletLogic {
+  final WalletState _state;
+
+  Future<void> loadWallet() async {
+    _state.setLoading(true);
+    try {
+      // business logic
+    } catch (e) {
+      _state.setError(e.toString());
+    } finally {
+      _state.setLoading(false);
+    }
+  }
+}
+```
+
+### 3. Service Layer Patterns
+
+- **Singleton Services**: Services like `ConfigService`, `AccountDBService`
+- **Interface-based**: Use interfaces for service contracts
+- **Error Handling**: Comprehensive try-catch blocks with proper error propagation
+- **Async Operations**: All external operations are async
+
+### 4. UI Patterns
+
+- **Cupertino Design**: Uses Cupertino widgets for iOS-style design
+- **Responsive Design**: Platform-aware UI components
+- **Modal Sheets**: Heavy use of modal bottom sheets for user interactions
+- **Loading States**: Consistent loading indicators and skeleton screens
+- **Error Handling**: Toast notifications and error banners
+
+### 5. Navigation Patterns
+
+- **GoRouter**: Uses go_router for navigation
+- **Deep Linking**: Comprehensive deep link support
+- **Route Guards**: Conditional navigation based on app state
+- **Platform-specific**: Different navigation patterns for web/mobile
+
+## Blockchain Integration
+
+### 1. Web3 Integration
+
+- **web3dart**: Primary Web3 library
+- **Smart Contracts**: Custom contract interactions
+- **Account Abstraction**: ERC-4337 account abstraction support
+- **Gas Management**: Custom gas estimation and management
+
+### 2. Wallet Patterns
+
+- **Multi-wallet Support**: Multiple wallet accounts per user
+- **Secure Storage**: Encrypted key storage
+- **Transaction Management**: Queue-based transaction handling
+- **Event Listening**: Real-time blockchain event monitoring
+
+## Database & Storage
+
+### 1. Local Storage
+
+- **SQLite**: Primary local database (sqflite)
+- **Shared Preferences**: Simple key-value storage
+- **Secure Storage**: Encrypted sensitive data storage
+- **File System**: Asset and backup file management
+
+### 2. Data Models
+
+- **JSON Serialization**: All models support JSON serialization
+- **Copy Methods**: Immutable data with copyWith methods
+- **Validation**: Input validation and sanitization
+
+## Error Handling
+
+### 1. Exception Patterns
+
+- **Custom Exceptions**: Domain-specific exception classes
+- **Graceful Degradation**: Fallback mechanisms for failures
+- **User Feedback**: Clear error messages to users
+- **Logging**: Comprehensive error logging and monitoring
+
+### 2. Error Recovery
+
+- **Retry Logic**: Exponential backoff for network operations
+- **Offline Support**: Offline-first architecture
+- **State Recovery**: Automatic state recovery mechanisms
+
+## Testing Patterns
+
+### 1. Test Organization
+
+- **Unit Tests**: Service and utility function tests
+- **Widget Tests**: UI component testing
+- **Integration Tests**: End-to-end workflow testing
+- **Mock Services**: Comprehensive mocking for external dependencies
+
+### 2. Test Utilities
+
+- **Mock HTTP**: Network request mocking
+- **Test Helpers**: Reusable test utilities
+- **Test Data**: Consistent test data fixtures
+
+## Security Patterns
+
+### 1. Cryptography
+
+- **Encryption**: AES encryption for sensitive data
+- **Key Management**: Secure key generation and storage
+- **Digital Signatures**: Transaction signing and verification
+- **Secure Communication**: HTTPS and secure WebSocket connections
+
+### 2. Authentication
+
+- **Biometric Auth**: Touch ID/Face ID integration
+- **OAuth**: Google Sign-In integration
+- **Session Management**: Secure session handling
+
+## Performance Patterns
+
+### 1. Optimization
+
+- **Lazy Loading**: On-demand resource loading
+- **Caching**: Multi-level caching strategies
+- **Image Optimization**: Efficient image handling and caching
+- **Memory Management**: Proper disposal of resources
+
+### 2. Background Processing
+
+- **Event Listeners**: Efficient event handling
+- **Background Tasks**: Non-blocking background operations
+- **State Synchronization**: Efficient state updates
+
+## Internationalization
+
+### 1. Localization
+
+- **ARB Files**: Flutter's localization format
+- **Multi-language**: English, French, Dutch support
+- **RTL Support**: Right-to-left language support
+- **Currency Formatting**: Localized currency display
+
+## Platform-Specific Code
+
+### 1. Platform Detection
+
+- **kIsWeb**: Web platform detection
+- **Platform-specific Files**: Separate implementations for different platforms
+- **Conditional Compilation**: Platform-specific code blocks
+
+### 2. Native Integrations
+
+- **iOS**: Apple-specific features (Face ID, iCloud)
+- **Android**: Android-specific features (Google Sign-In)
+- **Web**: Web-specific optimizations and features
+
+## Dependencies & Packages
+
+### 1. Core Dependencies
+
+- **Flutter**: Latest stable version
+- **Provider**: State management
+- **GoRouter**: Navigation
+- **web3dart**: Blockchain integration
+- **sqflite**: Local database
+
+### 2. UI Dependencies
+
+- **flutter_svg**: SVG support
+- **lottie**: Animation support
+- **cached_network_image**: Image caching
+- **modal_bottom_sheet**: Modal dialogs
+
+### 3. Blockchain Dependencies
+
+- **smartcontracts**: Custom smart contract library
+- **contractforge**: Contract interaction utilities
+- **reown_walletkit**: Wallet functionality
+
+## Development Workflow
+
+### 1. Code Organization
+
+- **Feature-based**: Organize code by business features
+- **Separation of Concerns**: Clear separation between UI, business logic, and data
+- **Dependency Injection**: Service locator pattern for dependencies
+
+### 2. Code Quality
+
+- **Linting**: Flutter lints for code quality
+- **Analysis**: Static analysis with custom rules
+- **Documentation**: Comprehensive code documentation
+- **Type Safety**: Strong typing throughout the codebase
+
+## Best Practices
+
+### 1. General
+
+- **Immutability**: Prefer immutable data structures
+- **Composition**: Use composition over inheritance
+- **Single Responsibility**: Each class has a single responsibility
+- **Dependency Inversion**: Depend on abstractions, not concretions
+
+### 2. Flutter-specific
+
+- **Stateless Widgets**: Prefer stateless widgets when possible
+- **Const Constructors**: Use const constructors for performance
+- **Keys**: Use keys for widget identification
+- **Dispose**: Properly dispose of controllers and listeners
+
+### 3. State Management
+
+- **Minimal State**: Keep state as minimal as possible
+- **Predictable Updates**: State updates should be predictable
+- **Performance**: Avoid unnecessary rebuilds
+- **Testing**: Make state easily testable
+
+This project follows a well-structured, maintainable architecture with clear separation of concerns, comprehensive error handling, and strong typing throughout the codebase.
