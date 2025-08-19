@@ -2233,20 +2233,28 @@ class WalletLogic extends WidgetsBindingObserver {
       final wallets = await _encPrefs.getAllAccounts();
 
       final List<CWWallet> cwwallets = await compute((ws) {
-        return ws.where((w) => w.privateKey != null).map((w) {
+        final Map<String, CWWallet> uniqueWallets = {};
+
+        for (final w in ws.where((w) => w.privateKey != null)) {
           final creds = w.privateKey!;
-          return CWWallet(
-            '0.0',
-            name: w.name,
-            address: creds.address.hexEip55,
-            alias: w.alias,
-            account: w.address.hexEip55,
-            currencyName: '',
-            symbol: '',
-            currencyLogo: '',
-            locked: false,
-          );
-        }).toList();
+          final walletKey = '${w.address.hexEip55}_${w.alias}';
+
+          if (!uniqueWallets.containsKey(walletKey)) {
+            uniqueWallets[walletKey] = CWWallet(
+              '0.0',
+              name: w.name,
+              address: creds.address.hexEip55,
+              alias: w.alias,
+              account: w.address.hexEip55,
+              currencyName: '',
+              symbol: '',
+              currencyLogo: '',
+              locked: false,
+            );
+          }
+        }
+
+        return uniqueWallets.values.toList();
       }, wallets);
 
       _state.loadWalletsSuccess(cwwallets);
