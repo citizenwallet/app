@@ -554,6 +554,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
 
       return accAddress;
     } on NotFoundException {
@@ -621,6 +622,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(
         cwwallet,
@@ -690,6 +692,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(cwwallet);
 
@@ -2233,28 +2236,20 @@ class WalletLogic extends WidgetsBindingObserver {
       final wallets = await _encPrefs.getAllAccounts();
 
       final List<CWWallet> cwwallets = await compute((ws) {
-        final Map<String, CWWallet> uniqueWallets = {};
-
-        for (final w in ws.where((w) => w.privateKey != null)) {
+        return ws.where((w) => w.privateKey != null).map((w) {
           final creds = w.privateKey!;
-          final walletKey = '${w.address.hexEip55}_${w.alias}';
-
-          if (!uniqueWallets.containsKey(walletKey)) {
-            uniqueWallets[walletKey] = CWWallet(
-              '0.0',
-              name: w.name,
-              address: creds.address.hexEip55,
-              alias: w.alias,
-              account: w.address.hexEip55,
-              currencyName: '',
-              symbol: '',
-              currencyLogo: '',
-              locked: false,
-            );
-          }
-        }
-
-        return uniqueWallets.values.toList();
+          return CWWallet(
+            '0.0',
+            name: w.name,
+            address: creds.address.hexEip55,
+            alias: w.alias,
+            account: w.address.hexEip55,
+            currencyName: '',
+            symbol: '',
+            currencyLogo: '',
+            locked: false,
+          );
+        }).toList();
       }, wallets);
 
       _state.loadWalletsSuccess(cwwallets);

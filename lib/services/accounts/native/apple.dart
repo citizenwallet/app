@@ -301,7 +301,6 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
 
           final oldAccountId = account.id;
-
           final oldPrivateKey = await _credentials.read(oldAccountId);
 
           final updatedAccount = DBAccount(
@@ -310,18 +309,98 @@ class AppleAccountsService extends AccountsServiceInterface {
             name: account.name,
             username: account.username,
             accountFactoryAddress: accountFactoryAddress,
-            privateKey: account.privateKey,
             profile: account.profile,
           );
 
           final newAccountId = updatedAccount.id;
 
-          await _accountsDB.accounts.update(updatedAccount);
+          // Check if the account actually exists in the database with the expected ID
+          final existingAccount = await _accountsDB.accounts.db.query(
+            't_accounts',
+            where: 'id = ?',
+            whereArgs: [oldAccountId],
+          );
 
+          if (existingAccount.isNotEmpty) {
+            // Delete using the expected ID
+            await _accountsDB.accounts.delete(
+                account.address, account.alias, account.accountFactoryAddress);
+          } else {
+            // Try to find by address and alias with empty accountFactoryAddress
+            final foundByAddress = await _accountsDB.accounts.db.query(
+              't_accounts',
+              where: 'address = ? AND alias = ? AND accountFactoryAddress = ""',
+              whereArgs: [account.address.hexEip55, account.alias],
+            );
+
+            if (foundByAddress.isNotEmpty) {
+              final actualId = foundByAddress.first['id'] as String;
+
+              // Delete using the actual ID
+              await _accountsDB.accounts.db.delete(
+                't_accounts',
+                where: 'id = ?',
+                whereArgs: [actualId],
+              );
+            }
+          }
+
+          // Insert the new record
+          await _accountsDB.accounts.insert(updatedAccount);
+
+          // Write credentials into Keychain Services
           if (oldPrivateKey != null) {
             await _credentials.write(newAccountId, oldPrivateKey);
             await _credentials.delete(oldAccountId);
           }
+        }
+      },
+      6: () async {
+        final allAccounts = await _accountsDB.accounts.all();
+        final toDelete = <DBAccount>[];
+
+        for (final account in allAccounts) {
+          if (account.accountFactoryAddress.isEmpty) {
+            toDelete.add(account);
+          }
+        }
+
+        for (final account in toDelete) {
+          final existingAccount = await _accountsDB.accounts.db.query(
+            't_accounts',
+            where: 'id = ?',
+            whereArgs: [account.id],
+          );
+
+          if (existingAccount.isNotEmpty) {
+            // Delete the account from database using the actual ID
+            await _accountsDB.accounts.db.delete(
+              't_accounts',
+              where: 'id = ?',
+              whereArgs: [account.id],
+            );
+          } else {
+            // Try to find by address and alias instead
+            final foundByAddress = await _accountsDB.accounts.db.query(
+              't_accounts',
+              where: 'address = ? AND alias = ? AND accountFactoryAddress = ""',
+              whereArgs: [account.address.hexEip55, account.alias],
+            );
+
+            if (foundByAddress.isNotEmpty) {
+              final actualId = foundByAddress.first['id'] as String;
+
+              // Delete using the actual ID
+              await _accountsDB.accounts.db.delete(
+                't_accounts',
+                where: 'id = ?',
+                whereArgs: [actualId],
+              );
+            }
+          }
+
+          // Delete the private key from credentials
+          await _credentials.delete(account.id);
         }
       },
     };
