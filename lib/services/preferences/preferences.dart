@@ -79,6 +79,13 @@ class PreferencesService {
 
   String? get lastAlias => _preferences.getString('lastAlias');
 
+  // save the last account factory address that was opened
+  Future setLastAccountFactoryAddress(String accountFactoryAddress) async {
+    await _preferences.setString('lastAccountFactoryAddress', accountFactoryAddress);
+  }
+
+  String? get lastAccountFactoryAddress => _preferences.getString('lastAccountFactoryAddress');
+
   // save the last link that was opened on web
   Future setLastWalletLink(String link) async {
     await _preferences.setString('lastWalletLink', link);

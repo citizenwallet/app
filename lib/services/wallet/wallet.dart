@@ -223,6 +223,7 @@ Future<String?> setProfile(
   ProfileRequest profile, {
   required List<int> image,
   required String fileType,
+  String? accountFactoryAddress,
 }) async {
   try {
     final url =
@@ -253,13 +254,15 @@ Future<String?> setProfile(
     final calldata = config.profileContract
         .setCallData(account.hexEip55, profile.username, profileUrl);
 
+    final factoryAddress =
+        accountFactoryAddress ?? config.community.primaryAccountFactory.address;
     final (_, userop) = await prepareUserop(
       config,
       account,
       credentials,
       [config.profileContract.addr],
       [calldata],
-      accountFactoryAddress: config.community.primaryAccountFactory.address,
+      accountFactoryAddress: factoryAddress,
     );
 
     final txHash = await submitUserop(config, userop);

@@ -201,6 +201,8 @@ class BackupLogic {
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
       _preferences.setLastWallet(accounts.first.address.hexEip55);
+      _preferences
+          .setLastAccountFactoryAddress(accounts.first.accountFactoryAddress);
 
       _state.decryptSuccess(backupTime, username);
 
@@ -290,6 +292,8 @@ class BackupLogic {
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
       _preferences.setLastWallet(accounts.first.address.hexEip55);
+      _preferences
+          .setLastAccountFactoryAddress(accounts.first.accountFactoryAddress);
     } on BackupNotFoundException {
       _state.setStatus(BackupStatus.nobackup);
       _state.backupError();

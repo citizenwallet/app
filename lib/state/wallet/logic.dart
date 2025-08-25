@@ -554,6 +554,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
 
       return accAddress;
     } on NotFoundException {
@@ -621,6 +622,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(
         cwwallet,
@@ -690,6 +692,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(cwwallet);
 
