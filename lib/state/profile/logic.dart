@@ -335,6 +335,9 @@ class ProfileLogic {
           ? convertBytesToUint8List(image)
           : await _photos.photoFromBundle('assets/icons/profile.jpg');
 
+      final accountForFactory = await _accountBackupDBService.accounts
+          .get(_account!, _config!.community.alias, '');
+
       final url = await setProfile(
         _config,
         _account,
@@ -342,6 +345,7 @@ class ProfileLogic {
         ProfileRequest.fromProfileV1(profile),
         image: newImage,
         fileType: '.jpg',
+        accountFactoryAddress: accountForFactory?.accountFactoryAddress,
       );
       if (url == null) {
         throw Exception('Failed to save profile');
@@ -595,6 +599,7 @@ class ProfileLogic {
         ProfileRequest.fromProfileV1(profile),
         image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
         fileType: '.jpg',
+        accountFactoryAddress: account.accountFactoryAddress,
       );
       if (url == null) {
         throw Exception('Failed to create profile url');

@@ -55,7 +55,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
         [account.address.hexEip55],
         [calldata],
         deploy: false,
-        accountFactoryAddress: account.accountFactoryAddress,
+        accountFactoryAddress: '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
       );
 
       final txHash = await submitUserop(config, userop);
@@ -208,10 +208,11 @@ class AndroidAccountsService extends AccountsServiceInterface {
             where: 'id = ?',
             whereArgs: [oldAccountId],
           );
-          
+
           if (existingAccount.isNotEmpty) {
             // Delete using the expected ID
-            await _accountsDB.accounts.delete(account.address, account.alias, account.accountFactoryAddress);
+            await _accountsDB.accounts.delete(
+                account.address, account.alias, account.accountFactoryAddress);
           } else {
             // Try to find by address and alias with empty accountFactoryAddress
             final foundByAddress = await _accountsDB.accounts.db.query(
@@ -219,10 +220,10 @@ class AndroidAccountsService extends AccountsServiceInterface {
               where: 'address = ? AND alias = ? AND accountFactoryAddress = ""',
               whereArgs: [account.address.hexEip55, account.alias],
             );
-            
+
             if (foundByAddress.isNotEmpty) {
               final actualId = foundByAddress.first['id'] as String;
-              
+
               // Delete using the actual ID
               await _accountsDB.accounts.db.delete(
                 't_accounts',
@@ -232,9 +233,26 @@ class AndroidAccountsService extends AccountsServiceInterface {
             }
           }
 
+          if (account.accountFactoryAddress ==
+              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            final accountForFix = DBAccount(
+              alias: account.alias,
+              address: account.address,
+              name: account.name,
+              username: account.username,
+              accountFactoryAddress: account.accountFactoryAddress,
+              profile: account.profile,
+            );
+
+            accountForFix.privateKey =
+                account.privateKey ?? EthPrivateKey.fromHex(oldPrivateKey!);
+
+            await _fixSafeAccount(accountForFix, config);
+          }
+
           // Insert the new record
           await _accountsDB.accounts.insert(updatedAccount);
-          
+
           if (oldPrivateKey != null) {
             await _credentials.write(newAccountId, oldPrivateKey);
             await _credentials.delete(oldAccountId);
@@ -244,13 +262,13 @@ class AndroidAccountsService extends AccountsServiceInterface {
       6: () async {
         final allAccounts = await _accountsDB.accounts.all();
         final toDelete = <DBAccount>[];
-        
+
         for (final account in allAccounts) {
           if (account.accountFactoryAddress.isEmpty) {
             toDelete.add(account);
           }
         }
-        
+
         for (final account in toDelete) {
           // Check if the account actually exists in the database
           final existingAccount = await _accountsDB.accounts.db.query(
@@ -258,7 +276,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
             where: 'id = ?',
             whereArgs: [account.id],
           );
-          
+
           if (existingAccount.isNotEmpty) {
             // Delete the account from database using the actual ID
             await _accountsDB.accounts.db.delete(
@@ -273,10 +291,10 @@ class AndroidAccountsService extends AccountsServiceInterface {
               where: 'address = ? AND alias = ? AND accountFactoryAddress = ""',
               whereArgs: [account.address.hexEip55, account.alias],
             );
-            
+
             if (foundByAddress.isNotEmpty) {
               final actualId = foundByAddress.first['id'] as String;
-              
+
               // Delete using the actual ID
               await _accountsDB.accounts.db.delete(
                 't_accounts',
@@ -285,7 +303,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
               );
             }
           }
-          
+
           // Delete the private key from credentials
           await _credentials.delete(account.id);
         }

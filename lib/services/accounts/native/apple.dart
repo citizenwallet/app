@@ -51,7 +51,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         [account.address.hexEip55],
         [calldata],
         deploy: false,
-        accountFactoryAddress: account.accountFactoryAddress,
+        accountFactoryAddress: '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
       );
 
       final txHash = await submitUserop(config, userop);
@@ -344,11 +344,26 @@ class AppleAccountsService extends AccountsServiceInterface {
               );
             }
           }
+          if (account.accountFactoryAddress ==
+              '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
+            final accountForFix = DBAccount(
+              alias: account.alias,
+              address: account.address,
+              name: account.name,
+              username: account.username,
+              accountFactoryAddress: account.accountFactoryAddress,
+              profile: account.profile,
+            );
+
+            accountForFix.privateKey =
+                account.privateKey ?? EthPrivateKey.fromHex(oldPrivateKey!);
+
+            await _fixSafeAccount(accountForFix, config);
+          }
 
           // Insert the new record
           await _accountsDB.accounts.insert(updatedAccount);
 
-          // Write credentials into Keychain Services
           if (oldPrivateKey != null) {
             await _credentials.write(newAccountId, oldPrivateKey);
             await _credentials.delete(oldAccountId);
