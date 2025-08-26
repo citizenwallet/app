@@ -68,10 +68,11 @@ class AppLogic {
       _appState.importLoadingReq();
       final String? lastWallet = _preferences.lastWallet;
       final String? lastAlias = _preferences.lastAlias;
+      final String? lastAccountFactoryAddress = _preferences.lastAccountFactoryAddress;
 
       DBAccount? dbWallet;
-      if (lastWallet != null && lastAlias != null) {
-        dbWallet = await _accounts.getAccount(lastWallet, lastAlias);
+      if (lastWallet != null && lastAlias != null && lastAccountFactoryAddress != null) {
+        dbWallet = await _accounts.getAccount(lastWallet, lastAlias, lastAccountFactoryAddress);
       }
 
       if (dbWallet == null) {
@@ -97,6 +98,7 @@ class AppLogic {
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
+          await _preferences.setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
 
           _appState.importLoadingSuccess();
 
@@ -201,6 +203,7 @@ class AppLogic {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 
@@ -367,7 +370,7 @@ class AppLogic {
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 
       final existing = await _accounts.getAccount(
-          address.hexEip55, communityConfig.community.alias);
+          address.hexEip55, communityConfig.community.alias, '');
       if (existing != null) {
         return (existing.address.hexEip55, alias);
       }
@@ -387,6 +390,7 @@ class AppLogic {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 
