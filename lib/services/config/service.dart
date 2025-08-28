@@ -116,7 +116,7 @@ class ConfigService {
   void initWeb() {
     final scheme = Uri.base.scheme.isNotEmpty ? Uri.base.scheme : 'http';
     final url = kDebugMode || Uri.base.host.contains('localhost')
-        ? 'https://config.internal.citizenwallet.xyz'
+        ? 'https://dashboard-orpin-xi.vercel.app'
         : '$scheme://${Uri.base.host}:${Uri.base.port}/wallet-config';
 
     _api = APIService(baseURL: url);
@@ -145,9 +145,7 @@ class ConfigService {
       return [Config.fromJson(response)];
     }
 
-    final response = await _api.get(
-        url:
-            '/v$version/$communityConfigListFileName.json?cachebuster=${generateCacheBusterValue()}');
+    final response = await _api.get(url: '/api/communities');
 
     _pref.setConfigs(response);
 
@@ -201,7 +199,12 @@ class ConfigService {
     }
 
     try {
-      final response = await _api.get(url: configLocation);
+      String alias = configLocation;
+      if (configLocation.contains('/')) {
+        alias = configLocation.split('/').last;
+      }
+
+      final response = await _api.get(url: '/api/communities/$alias');
       final config = Config.fromJson(response);
       return config;
     } catch (e, s) {
@@ -222,9 +225,7 @@ class ConfigService {
       return configs;
     }
 
-    final List<dynamic> response = await _api.get(
-        url:
-            '/v$version/$communityConfigListS3FileName.json?cachebuster=${generateCacheBusterValue()}');
+    final List<dynamic> response = await _api.get(url: '/api/communities');
 
     final List<Config> communities =
         response.map((item) => Config.fromJson(item)).toList();

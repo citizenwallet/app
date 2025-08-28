@@ -346,19 +346,8 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
           if (account.accountFactoryAddress ==
               '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2') {
-            final accountForFix = DBAccount(
-              alias: account.alias,
-              address: account.address,
-              name: account.name,
-              username: account.username,
-              accountFactoryAddress: account.accountFactoryAddress,
-              profile: account.profile,
-            );
-
-            accountForFix.privateKey =
-                account.privateKey ?? EthPrivateKey.fromHex(oldPrivateKey!);
-
-            await _fixSafeAccount(accountForFix, config);
+            final accountId = account.id;
+            await _credentials.write('needs_fixing_$accountId', 'true');
           }
 
           // Insert the new record
@@ -593,6 +582,72 @@ class AppleAccountsService extends AccountsServiceInterface {
 
         await _credentials.delete(oldFormatKey);
       }
+    }
+  }
+
+  Future<void> purgePrivateKeysAndAddToEncryptedStorage() async {
+    final accounts = await _accountsDB.accounts.all();
+
+    for (final account in accounts) {
+      final privateKey = await _credentials.read(account.id);
+      if (privateKey == null) {
+        continue;
+      }
+
+      account.privateKey = EthPrivateKey.fromHex(privateKey);
+    }
+
+    await _credentials.deleteCredentials();
+
+    for (final account in accounts) {
+      if (account.privateKey == null) {
+        continue;
+      }
+
+      await _credentials.write(
+        account.id,
+        bytesToHex(account.privateKey!.privateKey),
+      );
+    }
+  }
+
+  @override
+  Future<void> fixSafeAccounts() async {
+    try {
+      final allAccounts = await _accountsDB.accounts.all();
+
+      for (final account in allAccounts) {
+        final needsFixingStr =
+            await _credentials.read('needs_fixing_${account.id}');
+        final needsFixing = needsFixingStr == 'true';
+        if (!needsFixing) {
+          continue;
+        }
+
+        final privateKey = await _credentials.read(account.id);
+        if (privateKey == null) {
+          continue;
+        }
+
+        account.privateKey = EthPrivateKey.fromHex(privateKey);
+
+        final community = await AppDBService().communities.get(account.alias);
+        if (community == null) {
+          continue;
+        }
+
+        final config = Config.fromJson(community.config);
+
+        try {
+          await _fixSafeAccount(account, config);
+
+          await _credentials.delete('needs_fixing_${account.id}');
+        } catch (e, stackTrace) {
+          debugPrint('Stack trace: $stackTrace');
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Stack trace: $stackTrace');
     }
   }
 }
