@@ -120,7 +120,10 @@ class _SendProgressState extends State<SendProgress> {
 
     if (inProgressTransaction.state == TransactionState.success &&
         _previousState != TransactionState.success) {
-      handleStartCloseScreenTimer(context);
+      final hasTip = context.read<WalletState>().hasTip;
+      if (!hasTip) {
+        handleStartCloseScreenTimer(context);
+      }
     }
 
     if (inProgressTransaction.state == TransactionState.sending &&
@@ -132,7 +135,10 @@ class _SendProgressState extends State<SendProgress> {
     if (inProgressTransaction.state == TransactionState.fail &&
         _previousState != TransactionState.fail &&
         !_isClosing) {
-      handleStartCloseScreenTimer(context);
+      final hasTip = context.read<WalletState>().hasTip;
+      if (!hasTip) {
+        handleStartCloseScreenTimer(context);
+      }
     }
 
     _previousState = inProgressTransaction.state;
