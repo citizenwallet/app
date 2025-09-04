@@ -57,7 +57,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<ProfileV1?> _loadCachedProfile(String addr) async {
     try {
-      if (_currentConfig == null) {
+      if (_currentConfig == null || !_isInitialized) {
         return null;
       }
 
@@ -95,6 +95,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
       return;
     }
 
+    if (!_isInitialized) {
+      return;
+    }
+
     final toLoadCopy = [...toLoad];
     toLoad = [];
 
@@ -124,6 +128,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfile(String addr) async {
     try {
+      if (!_isInitialized) {
+        return;
+      }
+
       if (!toLoad.contains(addr) && !_state.exists(addr)) {
         toLoad.add(addr);
         debouncedLoad();
@@ -135,7 +143,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> _searchProfile(String value) async {
     try {
-      if (_currentConfig == null) {
+      if (_currentConfig == null || !_isInitialized) {
         _state.isSearchingError();
         return;
       }
@@ -156,7 +164,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
       );
 
       if (profile != null) {
-        _db.contacts.upsert(DBContact(
+        await _db.contacts.upsert(DBContact(
           account: profile.account,
           username: profile.username,
           name: profile.name,
@@ -176,6 +184,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<ProfileV1?> getLocalProfile(String addr) async {
     try {
+      if (!_isInitialized) {
+        _state.isSearchingError();
+        return null;
+      }
+
       _state.isSearching();
 
       final profile = await _loadCachedProfile(addr);
@@ -194,12 +207,27 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<void> searchProfile(String username) async {
+    if (username.trim().isEmpty) {
+      allProfiles();
+      return;
+    }
+
+    if (!_isInitialized) {
+      _state.isSearchingError();
+      return;
+    }
+
     _state.isSearching();
     debouncedSearchProfile([username]);
   }
 
   Future<void> allProfiles() async {
     try {
+      if (!_isInitialized) {
+        _state.isSearchingError();
+        return;
+      }
+
       _state.isSearching();
 
       final results = await _db.contacts.getAll();
@@ -218,6 +246,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfiles() async {
     try {
+      if (!_isInitialized) {
+        _state.profileListFail();
+        return;
+      }
+
       _state.profileListRequest();
 
       final results = await _db.contacts.getAll();
@@ -235,6 +268,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfilesFromAllAccounts() async {
     try {
+      if (!_isInitialized) {
+        return;
+      }
+
       final accounts = await _accountBackupDBService.accounts.all();
       final profilesMap = <String, ProfileV1>{};
 
@@ -270,24 +307,49 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   void selectProfile(ProfileV1? profile) {
+    if (!_isInitialized) {
+      return;
+    }
+
     _state.isSelected(profile);
   }
 
   Future<String?> getAccountAddressWithAlias(String alias) async {
-    final accounts = await _accountBackupDBService.accounts.allForAlias(alias);
-    return accounts.first.address.hex;
+    if (!_isInitialized) {
+      return null;
+    }
+
+    try {
+      final accounts =
+          await _accountBackupDBService.accounts.allForAlias(alias);
+      return accounts.first.address.hex;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<ProfileV1?> getSendToProfile(String address) async {
+    if (!_isInitialized) {
+      return null;
+    }
+
     final profile = await getLocalProfile(address);
     return profile;
   }
 
   void deSelectProfile() {
+    if (!_isInitialized) {
+      return;
+    }
+
     _state.isDeSelected();
   }
 
   void clearSearch({bool notify = true}) {
+    if (!_isInitialized) {
+      return;
+    }
+
     _state.clearSearch(notify: notify);
   }
 
@@ -298,11 +360,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void resume() {
     stopLoading = false;
-    
+
     if (!_isInitialized) {
       return;
     }
-    
+
     debouncedLoad();
   }
 

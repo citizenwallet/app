@@ -150,6 +150,9 @@ Future<ProfileV1?> getProfile(Config config, String addr) async {
   try {
     final url = await config.profileContract.getURL(addr);
 
+    if (url.isEmpty) {
+      return null;
+    }
     final profileData = await config.ipfsService.get(url: '/$url');
 
     final profile = ProfileV1.fromJson(profileData);
@@ -169,6 +172,9 @@ Future<ProfileV1?> getProfileByUsername(Config config, String username) async {
   try {
     final url = await config.profileContract.getURLFromUsername(username);
 
+    if (url.isEmpty) {
+      return null;
+    }
     final profileData = await config.ipfsService.get(url: '/$url');
 
     final profile = ProfileV1.fromJson(profileData);
