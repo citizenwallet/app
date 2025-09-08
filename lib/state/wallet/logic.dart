@@ -1493,7 +1493,6 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final accountFactoryAddress = await resolveAccountFactoryAddress();
-
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
@@ -2280,6 +2279,7 @@ class WalletLogic extends WidgetsBindingObserver {
         'wallet.commonshub.brussels':
             '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
         'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        'wallet.pay.brussels': '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE',
       };
 
       final oldFactory = oldAccountFactories[_currentConfig.community.alias];

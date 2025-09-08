@@ -523,8 +523,8 @@ Future<(PaymasterData?, Exception?)> getPaymasterData(
 
   try {
     final response = await requestPaymaster(config, body, legacy: legacy);
-
-    return (PaymasterData.fromJson(response.result), null);
+    final result = PaymasterData.fromJson(response.result);
+    return (result, null);
   } catch (exception) {
     final strerr = exception.toString();
 
@@ -804,9 +804,40 @@ Future<(String, UserOp)> _prepareUseropOriginal(
             '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD', // Old Gratitude factory
             '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87', // Old Brussels factory
             '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e', // Old SFLUV factory
+            '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE', // Brussels Pay old factory
           ];
-          final isOldAccount = accountFactoryAddress != null &&
-              oldFactoryAddresses.contains(accountFactoryAddress);
+
+          // Determine if this account should use legacy SimpleAccount execution
+          bool needsLegacyExecution = false;
+
+          try {
+            // Check if using an old factory address - these definitely need legacy execution
+            final isUsingOldFactory = accountFactoryAddress != null &&
+                oldFactoryAddresses.contains(accountFactoryAddress);
+
+            if (isUsingOldFactory) {
+              needsLegacyExecution = true;
+            } else {
+              final paymasterTypeFromConfig =
+                  accountConfig?.paymasterType ?? paymasterType;
+
+              if (paymasterTypeFromConfig == 'cw-safe') {
+                if (nonce > BigInt.zero && _needsLegacyExecution(config)) {
+                  needsLegacyExecution = true;
+                } else {
+                  needsLegacyExecution = false;
+                }
+              } else {
+                // For other paymaster types, existing accounts might need legacy execution
+                needsLegacyExecution = nonce > BigInt.zero;
+              }
+            }
+          } catch (e) {
+            // Default to legacy for safety
+            needsLegacyExecution = true;
+          }
+
+          final isOldAccount = needsLegacyExecution;
 
           if (isOldAccount) {
             // Use SimpleAccount execution for legacy accounts
@@ -818,8 +849,35 @@ Future<(String, UserOp)> _prepareUseropOriginal(
             );
 
             // Apply account-specific configuration overrides
-            if (accountConfig != null) {
-              // Override entry point if different from current
+            // For legacy accounts, use old configuration
+            if (needsLegacyExecution && _needsLegacyExecution(config)) {
+              final oldAccountConfig = _getOldAccountConfig(config);
+              if (oldAccountConfig != null) {
+                try {
+                  // Override with old configuration
+                  if (config.entryPointContract.addr !=
+                      oldAccountConfig.entrypointAddress) {
+                    config.entryPointContract = StackupEntryPoint(
+                      config.chains.values.first.id,
+                      config.ethClient,
+                      oldAccountConfig.entrypointAddress,
+                    );
+                    await config.entryPointContract.init();
+                  }
+
+                  if (paymasterType != oldAccountConfig.paymasterType) {
+                    paymasterType = oldAccountConfig.paymasterType;
+                  }
+
+                  final paymasterUrl =
+                      '${config.chains.values.first.node.url}/v1/rpc/${oldAccountConfig.paymasterAddress}';
+                  config.engineRPC = APIService(baseURL: paymasterUrl);
+                } catch (e) {
+                  // Ignore config errors, will use defaults
+                }
+              }
+            } else if (accountConfig != null) {
+              // Use the new cw-safe configuration for SafeAccount execution
               if (config.entryPointContract.addr !=
                   accountConfig.entrypointAddress) {
                 config.entryPointContract = StackupEntryPoint(
@@ -830,12 +888,10 @@ Future<(String, UserOp)> _prepareUseropOriginal(
                 await config.entryPointContract.init();
               }
 
-              // Override paymaster type if different
               if (paymasterType != accountConfig.paymasterType) {
                 paymasterType = accountConfig.paymasterType;
               }
 
-              // Override paymaster URL if we have a paymaster address
               if (accountConfig.paymasterAddress != null) {
                 final paymasterUrl =
                     '${config.chains.values.first.node.url}/v1/rpc/${accountConfig.paymasterAddress!}';
@@ -905,7 +961,7 @@ Future<(String, UserOp)> _prepareUseropOriginal(
     userop.generateSignature(cred, hash);
 
     return (bytesToHex(hash, include0x: true), userop);
-  } catch (e, s) {
+  } catch (e) {
     rethrow;
   }
 }
@@ -1099,7 +1155,6 @@ Future<String?> _submitUseropOriginal(
 }) async {
   try {
     final entryPoint = config.entryPointContract;
-
     final params = [userop.toJson(), entryPoint.addr];
 
     if (data != null) {
@@ -1115,9 +1170,8 @@ Future<String?> _submitUseropOriginal(
     );
 
     final response = await requestBundler(config, body);
-
     return response.result as String;
-  } catch (exception, s) {
+  } catch (exception) {
     final strerr = exception.toString();
 
     if (strerr.contains(gasFeeErrorMessage)) {
@@ -1127,9 +1181,9 @@ Future<String?> _submitUseropOriginal(
     if (strerr.contains(invalidBalanceErrorMessage)) {
       throw NetworkInvalidBalanceException();
     }
-  }
 
-  throw NetworkUnknownException();
+    throw NetworkUnknownException();
+  }
 }
 
 Future<String?> submitUseropWithRetry(
@@ -1294,6 +1348,29 @@ Uint8List tokenMintCallData(
   }
 
   return Uint8List.fromList([]);
+}
+
+bool _needsLegacyExecution(Config config) {
+  const problematicCommunities = {
+    'wallet.pay.brussels',
+  };
+
+  return problematicCommunities.contains(config.community.alias);
+}
+
+ERC4337Config? _getOldAccountConfig(Config config) {
+  const oldFactoryMap = {
+    'wallet.pay.brussels': '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE',
+  };
+
+  final oldFactoryAddress = oldFactoryMap[config.community.alias];
+  if (oldFactoryAddress == null) return null;
+
+  try {
+    return config.getAccountAbstractionConfig(oldFactoryAddress);
+  } catch (e) {
+    return null;
+  }
 }
 
 /// construct simple faucet redeem call data
