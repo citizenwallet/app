@@ -168,12 +168,15 @@ class ProfileContract {
   }
 
   Future<String> getURL(String addr) async {
-    return contract.get(EthereumAddress.fromHex(addr));
+    final result = await contract.get(EthereumAddress.fromHex(addr));
+    return result;
   }
 
   Future<String> getURLFromUsername(String username) async {
-    return contract.getFromUsername(
+    final result = await contract.getFromUsername(
         convertStringToUint8List(username, forcePadLength: 32));
+
+    return result;
   }
 
   Uint8List setCallData(String addr, String username, String url) {

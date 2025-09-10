@@ -118,6 +118,16 @@ class _SendToScreenState extends State<SendToScreen> {
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      profilesLogic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
+
     profilesLogic.allProfiles();
     walletLogic.updateAddress();
 
@@ -135,9 +145,15 @@ class _SendToScreenState extends State<SendToScreen> {
 
   void handleThrottledUpdateAddress(String value) {
     final profilesLogic = widget.profilesLogic;
+    final walletLogic = widget.walletLogic;
 
     debouncedAddressUpdate();
-    profilesLogic.searchProfile(value);
+
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      profilesLogic.searchProfile(value);
+    }
   }
 
   void handleAddressFieldSubmitted(String value) {

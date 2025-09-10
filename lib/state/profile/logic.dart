@@ -90,7 +90,7 @@ class ProfileLogic {
         throw Exception('account or config not found');
       }
 
-      final community = await _appDBService.communities.get(_account.hexEip55);
+      final community = await _appDBService.communities.get(_config.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -106,7 +106,8 @@ class ProfileLogic {
       _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;
     } catch (e) {
-      //
+      // Add logging to help debug future issues
+      debugPrint('Error loading profile link: $e');
     }
 
     _state.setProfileLinkError();
@@ -552,8 +553,6 @@ class ProfileLogic {
         return;
       }
 
-      _state.setUsernameSuccess(username: username);
-
       final address = _account.hexEip55;
       final alias = _config.community.alias;
 
@@ -573,11 +572,6 @@ class ProfileLogic {
             username: username,
             name: account.name,
           );
-
-      _profiles.isLoaded(
-        profile.account,
-        profile,
-      );
 
       if (_pauseProfileCreation) {
         return;
@@ -614,6 +608,7 @@ class ProfileLogic {
         throw Exception('Failed to get profile from url $url');
       }
 
+      _state.setUsernameSuccess(username: newProfile.username);
       _profiles.isLoaded(
         newProfile.account,
         newProfile,

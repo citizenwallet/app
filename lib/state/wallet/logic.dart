@@ -513,17 +513,20 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.setWalletReady(true);
       _state.setWalletReadyLoading(false);
 
-      _config
-          .isCommunityOnline(
-              communityConfig.chains[token.chainId.toString()]!.node.url)
-          .then((isOnline) {
-        communityConfig.online = isOnline;
+      final isOnline = await _config.isCommunityOnline(
+          communityConfig.chains[token.chainId.toString()]!.node.url);
 
-        _state.setWalletConfig(communityConfig);
+      communityConfig.online = isOnline;
+      _state.setWalletConfig(communityConfig);
+      await _appDBService.communities
+          .updateOnlineStatus(communityConfig.community.alias, isOnline);
 
-        _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
-      });
+      try {
+        final accountsService = getAccountsService();
+        await accountsService.fixSafeAccounts();
+      } catch (e) {
+        debugPrint('Error fixing accounts: $e');
+      }
 
       _state.setWallet(
         CWWallet(
@@ -554,7 +557,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(accAddress);
       await _preferences.setLastAlias(communityConfig.community.alias);
-      await _preferences.setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
+      await _preferences
+          .setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
 
       return accAddress;
     } on NotFoundException {
@@ -622,7 +626,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
-      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
+      await _preferences.setLastAccountFactoryAddress(
+          communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(
         cwwallet,
@@ -692,7 +697,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
-      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
+      await _preferences.setLastAccountFactoryAddress(
+          communityConfig.community.primaryAccountFactory.address);
 
       _state.createWalletSuccess(cwwallet);
 
@@ -1487,7 +1493,6 @@ class WalletLogic extends WidgetsBindingObserver {
       );
 
       final accountFactoryAddress = await resolveAccountFactoryAddress();
-
       final (hash, userop) = await prepareUserop(
         _currentConfig,
         _currentAccount,
@@ -2274,6 +2279,7 @@ class WalletLogic extends WidgetsBindingObserver {
         'wallet.commonshub.brussels':
             '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
         'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+        'wallet.pay.brussels': '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE',
       };
 
       final oldFactory = oldAccountFactories[_currentConfig.community.alias];
@@ -2604,6 +2610,13 @@ class WalletLogic extends WidgetsBindingObserver {
             communityConfig.community.alias, communityConfig.online);
 
         _state.setWalletConfig(communityConfig);
+
+        try {
+          final accountsService = getAccountsService();
+          await accountsService.fixSafeAccounts();
+        } catch (e) {
+          debugPrint('Error fixing accounts: $e');
+        }
 
         break;
       default:

@@ -51,4 +51,6 @@ abstract class AccountsServiceInterface {
   Future<void> populatePrivateKeysFromEncryptedStorage() async {}
 
   Future<void> purgePrivateKeysAndAddToEncryptedStorage() async {}
+
+  Future<void> fixSafeAccounts() async {}
 }
