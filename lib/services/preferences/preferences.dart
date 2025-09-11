@@ -166,4 +166,26 @@ class PreferencesService {
     return _preferences.getString('languageCode');
   }
 
+  Future setMigrationModalShown(bool shown) async {
+    await _preferences.setBool('migrationModalShown', shown);
+  }
+
+  bool get migrationModalShown =>
+      _preferences.getBool('migrationModalShown') ?? false;
+
+  Future setMigrationModalDismissalCount(int count) async {
+    await _preferences.setInt('migrationModalDismissalCount', count);
+  }
+
+  int get migrationModalDismissalCount =>
+      _preferences.getInt('migrationModalDismissalCount') ?? 0;
+
+  Future incrementMigrationModalDismissalCount() async {
+    final currentCount = migrationModalDismissalCount;
+    await setMigrationModalDismissalCount(currentCount + 1);
+  }
+
+  Future resetMigrationModalDismissalCount() async {
+    await setMigrationModalDismissalCount(0);
+  }
 }

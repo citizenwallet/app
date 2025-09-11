@@ -37,6 +37,10 @@ class AppState with ChangeNotifier {
 
   bool muted = false;
 
+  bool migrationRequired = false;
+  bool migrationCheckLoading = false;
+  bool migrationCheckError = false;
+
   AppState() {
     muted = PreferencesService().muted;
 
@@ -172,6 +176,26 @@ class AppState with ChangeNotifier {
 
   void updateSingleCommunityMode() {
     singleCommunityMode = ConfigService().singleCommunityMode;
+    notifyListeners();
+  }
+
+  void migrationCheckRequest() {
+    migrationCheckLoading = true;
+    migrationCheckError = false;
+    notifyListeners();
+  }
+
+  void migrationCheckSuccess(bool required) {
+    migrationRequired = required;
+    migrationCheckLoading = false;
+    migrationCheckError = false;
+    notifyListeners();
+  }
+
+  void migrationCheckFailed() {
+    migrationRequired = false;
+    migrationCheckLoading = false;
+    migrationCheckError = true;
     notifyListeners();
   }
 }

@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -53,6 +54,20 @@ class AppLogic {
 
   void appLoaded() {
     _appState.appLoaded();
+  }
+
+  Future<void> checkMigrationRequired() async {
+    try {
+      _appState.migrationCheckRequest();
+
+      final apiService = APIService(baseURL: dotenv.get('DASHBOARD_API'));
+      final migrationRequired = await apiService.checkMigrationRequired();
+
+      _appState.migrationCheckSuccess(migrationRequired);
+    } catch (e) {
+      debugPrint('Migration check error: $e');
+      _appState.migrationCheckFailed();
+    }
   }
 
   void setFirstLaunch(bool firstLaunch) {
