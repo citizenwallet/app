@@ -7,6 +7,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/persistent_header_delegate.dart';
@@ -72,8 +73,20 @@ class _TipToScreenState extends State<TipToScreen> {
   }
 
   void onLoad() async {
+    await delay(const Duration(milliseconds: 250));
+
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
+
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      profilesLogic?.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
 
     profilesLogic?.allProfiles();
     walletLogic.updateAddress();
@@ -83,9 +96,15 @@ class _TipToScreenState extends State<TipToScreen> {
 
   void handleThrottledUpdateAddress(String value) {
     final profilesLogic = widget.profilesLogic;
+    final walletLogic = widget.walletLogic;
 
     debouncedAddressUpdate();
-    profilesLogic?.searchProfile(value);
+
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      profilesLogic?.searchProfile(value);
+    }
   }
 
   void handleAddressFieldSubmitted(String value) {

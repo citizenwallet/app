@@ -189,10 +189,12 @@ class WalletLogic extends WidgetsBindingObserver {
 
   Future<void> fetchWalletConfig() async {
     try {
-      final config =
-          await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
+      if (kIsWeb) {
+        final config =
+            await _config.getWebConfig(dotenv.get('APP_LINK_SUFFIX'), null);
 
-      _state.setWalletConfig(config);
+        _state.setWalletConfig(config);
+      }
 
       return;
     } catch (_) {}
@@ -1359,6 +1361,20 @@ class WalletLogic extends WidgetsBindingObserver {
             description: message,
             date: DateTime.now(),
             error: NetworkInvalidBalanceException().message),
+      );
+    } on NetworkUnauthorizedException {
+      _state.sendQueueAddTransaction(
+        CWTransaction.failed(
+            fromDoubleUnit(
+              parsedAmount.toString(),
+              decimals: _currentConfig.getPrimaryToken().decimals,
+            ),
+            id: tempId,
+            hash: '',
+            to: to,
+            description: message,
+            date: DateTime.now(),
+            error: NetworkUnauthorizedException().message),
       );
     } catch (e, s) {
       _state.sendQueueAddTransaction(
