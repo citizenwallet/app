@@ -1,23 +1,73 @@
 import 'package:citizenwallet/theme/provider.dart' as theme_provider;
 import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/widgets/button.dart';
+import 'package:citizenwallet/services/preferences/preferences.dart';
+import 'package:citizenwallet/services/migration/service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MigrationModal extends StatefulWidget {
-  const MigrationModal({super.key});
+  final bool isWalletScreen;
+
+  const MigrationModal({
+    super.key,
+    this.isWalletScreen = false,
+  });
 
   @override
   MigrationModalState createState() => MigrationModalState();
 }
 
 class MigrationModalState extends State<MigrationModal> {
-  void handleDismiss() {
-    GoRouter.of(context).pop();
+  final PreferencesService _preferences = PreferencesService();
+  final MigrationService _migrationService = MigrationService();
+  bool _isMigrating = false;
+
+  void handleDismiss() async {
+    await _preferences.incrementMigrationModalDismissalCount();
+
+    if (mounted) {
+      GoRouter.of(context).pop();
+    }
   }
 
-  void handleDownload() async {
+  void handleMigrate() async {
+    if (widget.isWalletScreen) {
+      // Wallet screen: perform actual migration
+      await _performMigration();
+    } else {
+      // Landing screen: launch app store
+      await _launchAppStore();
+    }
+
+    if (mounted) {
+      GoRouter.of(context).pop();
+    }
+  }
+
+  Future<void> _performMigration() async {
+    setState(() {
+      _isMigrating = true;
+    });
+
+    try {
+      await _migrationService.performMigration();
+    } catch (e) {
+      if (mounted) {
+        debugPrint('Migration failed: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isMigrating = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _launchAppStore() async {
     String url;
     if (isPlatformApple()) {
       url = '';
@@ -33,11 +83,7 @@ class MigrationModalState extends State<MigrationModal> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      debugPrint('Could not launch URL: $url');
-    }
-
-    if (mounted) {
-      GoRouter.of(context).pop();
+      // URL launch failed
     }
   }
 
@@ -79,7 +125,7 @@ class MigrationModalState extends State<MigrationModal> {
             const SizedBox(height: 24),
 
             Text(
-              'We\'ve Moved!',
+              widget.isWalletScreen ? 'Migrate Your Data' : 'We\'ve Moved!',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -90,7 +136,9 @@ class MigrationModalState extends State<MigrationModal> {
             const SizedBox(height: 16),
 
             Text(
-              'We\'ve migrated to a new and improved application. Download the new app to continue enjoying all the features.',
+              widget.isWalletScreen
+                  ? 'Migrate your wallet data to the new app. Your accounts and settings will be securely transferred.'
+                  : 'We\'ve migrated to a new and improved application. Download the new app to continue enjoying all the features.',
               style: TextStyle(
                 fontSize: 16,
                 color:
@@ -104,10 +152,12 @@ class MigrationModalState extends State<MigrationModal> {
             SizedBox(
               width: double.infinity,
               child: Button(
-                onPressed: handleDownload,
-                text: isPlatformApple()
-                    ? 'Download on App Store'
-                    : 'Download on Play Store',
+                onPressed: _isMigrating ? null : handleMigrate,
+                text: _isMigrating
+                    ? 'Migrating...'
+                    : widget.isWalletScreen
+                        ? 'Migrate'
+                        : 'Download New App',
                 color: theme.colors.surfacePrimary.resolveFrom(context),
               ),
             ),

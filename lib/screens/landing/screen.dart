@@ -11,8 +11,8 @@ import 'package:citizenwallet/state/backup/state.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
-import 'package:citizenwallet/utils/migration_modal.dart';
 import 'package:citizenwallet/utils/platform.dart';
+import 'package:citizenwallet/utils/migration_modal.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -128,6 +128,8 @@ class LandingScreenState extends State<LandingScreen>
 
     _appLogic.loadApp();
 
+    await _appLogic.checkMigrationRequired();
+
     // set up recovery
     await handleAppleRecover();
     await handleAndroidRecover();
@@ -169,7 +171,7 @@ class LandingScreenState extends State<LandingScreen>
     // pick an appropriate wallet to load
     if (widget.deepLink != null) {
       (address, alias) = await handleLoadFromParams(widget.deepLinkParams,
-          overrideAlias: alias);
+            overrideAlias: alias);
     }
 
     // handle send to params
@@ -390,6 +392,7 @@ class LandingScreenState extends State<LandingScreen>
 
     navigator.go('/wallet/$address$params');
   }
+
 
   @override
   Widget build(BuildContext context) {

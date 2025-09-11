@@ -1,6 +1,7 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/modals/wallet/community_picker.dart';
 import 'package:citizenwallet/screens/wallet/wallet_row.dart';
+import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/communities/selectors.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -16,6 +17,7 @@ import 'package:citizenwallet/widgets/export_wallet_modal.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
 import 'package:citizenwallet/widgets/text_input_modal.dart';
+import 'package:citizenwallet/utils/migration_modal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -83,8 +85,12 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
     GoRouter.of(context).pop();
   }
 
-  void handleMigration(BuildContext context) {
+  void handleMigration(BuildContext context) async {
     GoRouter.of(context).pop();
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    await MigrationModalUtils.showMigrationModal(context);
   }
 
   void handleCreate(BuildContext context) async {
@@ -406,101 +412,120 @@ class SwitchAccountModalState extends State<SwitchAccountModal> {
                       bottom: 20,
                       left: 20,
                       right: 20,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CupertinoButton(
-                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                            onPressed: () => handleMigration(context),
-                            borderRadius: BorderRadius.circular(25),
-                            color: Theme.of(context)
-                                .colors
-                                .uiBackground
-                                .resolveFrom(context),
-                            child: Row(
+                      child: Consumer<AppState>(
+                        builder: (context, appState, child) {
+                          // Show migrate button if migration is required
+                          if (appState.migrationRequired) {
+                            return Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  "Migrate Accounts",
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colors
-                                        .text
-                                        .resolveFrom(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Icon(
-                                  CupertinoIcons.up_arrow,
+                                CupertinoButton(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                  onPressed: () => handleMigration(context),
+                                  borderRadius: BorderRadius.circular(25),
                                   color: Theme.of(context)
                                       .colors
-                                      .text
+                                      .uiBackground
                                       .resolveFrom(context),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Migrate Accounts",
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colors
+                                              .text
+                                              .resolveFrom(context),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Icon(
+                                        CupertinoIcons.up_arrow,
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
+                                            .resolveFrom(context),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
-                          // CupertinoButton(
-                          //   padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                          //   onPressed: () => handleImport(context),
-                          //   borderRadius: BorderRadius.circular(25),
-                          //   color: Theme.of(context)
-                          //       .colors
-                          //       .uiBackground
-                          //       .resolveFrom(context),
-                          //   child: Row(
-                          //     mainAxisAlignment: MainAxisAlignment.center,
-                          //     crossAxisAlignment: CrossAxisAlignment.center,
-                          //     children: [
-                          //       Text(
-                          //         AppLocalizations.of(context)!.importText,
-                          //         style: TextStyle(
-                          //           color: Theme.of(context)
-                          //               .colors
-                          //               .text
-                          //               .resolveFrom(context),
-                          //         ),
-                          //       ),
-                          //       const SizedBox(width: 5),
-                          //       Icon(
-                          //         CupertinoIcons.down_arrow,
-                          //         color: Theme.of(context)
-                          //             .colors
-                          //             .text
-                          //             .resolveFrom(context),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          // const SizedBox(width: 10),
-                          // CupertinoButton(
-                          //   padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                          //   onPressed: () => handleCreate(context),
-                          //   borderRadius: BorderRadius.circular(25),
-                          //   color: Theme.of(context)
-                          //       .colors
-                          //       .surfacePrimary
-                          //       .resolveFrom(context),
-                          //   child: Row(
-                          //     mainAxisAlignment: MainAxisAlignment.center,
-                          //     crossAxisAlignment: CrossAxisAlignment.center,
-                          //     children: [
-                          //       Text(
-                          //         AppLocalizations.of(context)!.joinCommunity,
-                          //         style: TextStyle(
-                          //           color: Theme.of(context).colors.black,
-                          //         ),
-                          //       ),
-                          //       const SizedBox(width: 5),
-                          //       Icon(
-                          //         CupertinoIcons.plus,
-                          //         color: Theme.of(context).colors.black,
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                        ],
+                            );
+                          }
+
+                          // Show original import and join community buttons if migration is not required
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CupertinoButton(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                onPressed: () => handleImport(context),
+                                borderRadius: BorderRadius.circular(25),
+                                color: Theme.of(context)
+                                    .colors
+                                    .uiBackground
+                                    .resolveFrom(context),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.importText,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colors
+                                            .text
+                                            .resolveFrom(context),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Icon(
+                                      CupertinoIcons.down_arrow,
+                                      color: Theme.of(context)
+                                          .colors
+                                          .text
+                                          .resolveFrom(context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              CupertinoButton(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                onPressed: () => handleCreate(context),
+                                borderRadius: BorderRadius.circular(25),
+                                color: Theme.of(context)
+                                    .colors
+                                    .surfacePrimary
+                                    .resolveFrom(context),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!
+                                          .joinCommunity,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Icon(
+                                      CupertinoIcons.plus,
+                                      color: Theme.of(context).colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
