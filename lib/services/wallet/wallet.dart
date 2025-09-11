@@ -1182,6 +1182,12 @@ Future<String?> _submitUseropOriginal(
       throw NetworkInvalidBalanceException();
     }
 
+    if (strerr.contains(unauthorizedErrorMessage) || 
+        strerr.contains(accessDeniedErrorMessage) || 
+        strerr.contains(forbiddenErrorMessage)) {
+      throw NetworkUnauthorizedException();
+    }
+
     throw NetworkUnknownException();
   }
 }

@@ -36,6 +36,7 @@ class ConfigService {
   late APIService _api;
   late APIService _communityServer;
   bool singleCommunityMode = false;
+  bool _isWebInitialized = false;
 
   List<Config> _configs = [];
 
@@ -52,6 +53,14 @@ class ConfigService {
         _configs = [Config.fromJson(localConfig)];
 
         return _configs.first;
+      }
+
+      if (!kIsWeb) {
+        throw Exception('getWebConfig should only be called on web platform');
+      }
+
+      if (!_isWebInitialized) {
+        initWeb();
       }
 
       if (_configs.isNotEmpty && _configs.length == 1) {
@@ -121,6 +130,7 @@ class ConfigService {
 
     _api = APIService(baseURL: url);
     _communityServer = APIService(baseURL: '$scheme://${Uri.base.host}');
+    _isWebInitialized = true;
   }
 
   void init(String endpoint) {
@@ -149,7 +159,14 @@ class ConfigService {
 
     _pref.setConfigs(response);
 
-    final configs = (response as List).map((e) => Config.fromJson(e)).toList();
+    final configs = (response as List)
+        .map((e) {
+          final configData = e['json'];
+          return configData != null ? Config.fromJson(configData) : null;
+        })
+        .where((config) => config != null)
+        .cast<Config>()
+        .toList();
 
     return configs;
   }
@@ -205,7 +222,14 @@ class ConfigService {
       }
 
       final response = await _api.get(url: '/api/communities/$alias');
-      final config = Config.fromJson(response);
+
+      final configData = response['json'];
+      if (configData == null) {
+        debugPrint('No config data found in response for alias: $alias');
+        return null;
+      }
+
+      final config = Config.fromJson(configData);
       return config;
     } catch (e, s) {
       debugPrint('Error fetching single community config: $e');
@@ -227,8 +251,14 @@ class ConfigService {
 
     final List<dynamic> response = await _api.get(url: '/api/communities');
 
-    final List<Config> communities =
-        response.map((item) => Config.fromJson(item)).toList();
+    final List<Config> communities = response
+        .map((item) {
+          final configData = item['json'];
+          return configData != null ? Config.fromJson(configData) : null;
+        })
+        .where((config) => config != null)
+        .cast<Config>()
+        .toList();
 
     return communities;
   }

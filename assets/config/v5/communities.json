@@ -24,6 +24,10 @@
       "primary_session_manager": {
         "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
         "chain_id": 137
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 137
       }
     },
     "tokens": {
@@ -55,6 +59,14 @@
         "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
         "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
         "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "cards": {
+      "137:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 137,
+        "instance_id": "cw-discord-1"
       }
     },
     "chains": {
@@ -308,6 +320,10 @@
       "primary_session_manager": {
         "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
         "chain_id": 42220
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 42220
       }
     },
     "tokens": {
@@ -340,6 +356,14 @@
         "paymaster_type": "cw-safe"
       }
     },
+    "cards": {
+      "42220:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "chain_id": 42220,
+        "instance_id": "cw-discord-1",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "type": "safe"
+      }
+    },
     "sessions": {
       "42220:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
         "chain_id": 42220,
@@ -366,12 +390,10 @@
   },
   {
     "community": {
-      "name": "SFLUV Community",
-      "description": "A community currency for the city of San Francisco.",
       "url": "https://sfluv.org",
-      "alias": "wallet.berachain.sfluv.org",
-      "custom_domain": "wallet.sfluv.org",
       "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
+      "name": "SFLUV Community",
+      "alias": "wallet.berachain.sfluv.org",
       "theme": {
         "primary": "#eb6c6c"
       },
@@ -379,36 +401,38 @@
         "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
         "chain_id": 80094
       },
+      "description": "A community currency for the city of San Francisco.",
+      "custom_domain": "wallet.sfluv.org",
       "primary_token": {
         "address": "0x881cad4f885c6701d8481c0ed347f6d35444ea7e",
+        "chain_id": 80094
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
         "chain_id": 80094
       },
       "primary_account_factory": {
         "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 80094
-      }
-    },
-    "tokens": {
-      "80094:0x881cad4f885c6701d8481c0ed347f6d35444ea7e": {
-        "standard": "erc20",
-        "name": "SFLUV V1.1",
-        "address": "0x881cad4f885c6701d8481c0ed347f6d35444ea7e",
-        "symbol": "SFLUV",
-        "decimals": 18,
+      },
+      "primary_session_manager": {
+        "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
         "chain_id": 80094
       }
+    },
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "scan": {
       "url": "https://polygonscan.com",
       "name": "Polygon Explorer"
     },
-    "accounts": {
-      "80094:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+    "cards": {
+      "80094:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
         "chain_id": 80094,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x9A5be02B65f9Aa00060cB8c951dAFaBAB9B860cd",
-        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
-        "paymaster_type": "cw-safe"
+        "instance_id": "cw-discord-1"
       }
     },
     "chains": {
@@ -420,33 +444,57 @@
         }
       }
     },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
+    "tokens": {
+      "80094:0x881cad4f885c6701d8481c0ed347f6d35444ea7e": {
+        "name": "SFLUV V1.1",
+        "symbol": "SFLUV",
+        "address": "0x881cad4f885c6701d8481c0ed347f6d35444ea7e",
+        "chain_id": 80094,
+        "decimals": 18,
+        "standard": "erc20"
+      }
     },
     "plugins": [
       {
-        "name": "About",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
         "url": "https://app.sfluv.org",
-        "launch_mode": "webview",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
+        "name": "About",
+        "hidden": true,
         "signature": true,
-        "hidden": true
+        "launch_mode": "webview"
       }
     ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
-    "version": 4
+    "version": 5,
+    "accounts": {
+      "80094:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+        "chain_id": 80094,
+        "paymaster_type": "cw-safe",
+        "paymaster_address": "0x9A5be02B65f9Aa00060cB8c951dAFaBAB9B860cd",
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+      }
+    },
+    "sessions": {
+      "80094:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 80094,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.berachain.sfluv.org"
   },
   {
     "community": {
-      "name": "SFLUV Community (Polygon)",
-      "description": "A community currency for the city of San Francisco.",
       "url": "https://sfluv.org",
-      "alias": "wallet.sfluv.org",
-      "custom_domain": "wallet.polygon.sfluv.org",
       "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
+      "name": "SFLUV Community (Polygon)",
+      "alias": "wallet.sfluv.org",
       "theme": {
         "primary": "#eb6c6c"
       },
+      "description": "A community currency for the city of San Francisco.",
+      "custom_domain": "wallet.polygon.sfluv.org",
       "profile": {
         "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
         "chain_id": 137
@@ -457,6 +505,10 @@
       },
       "primary_account_factory": {
         "address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+        "chain_id": 137
+      },
+      "primary_session_manager": {
+        "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
         "chain_id": 137
       }
     },
@@ -483,6 +535,14 @@
         "paymaster_type": "cw"
       }
     },
+    "sessions": {
+      "137:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 137,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
     "chains": {
       "137": {
         "id": 137,
@@ -505,8 +565,8 @@
         "hidden": true
       }
     ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.sfluv.org.json",
-    "version": 4
+    "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.sfluv.org",
+    "version": 5
   },
   {
     "community": {
@@ -658,21 +718,25 @@
   },
   {
     "community": {
-      "name": "Breadchain Community Token",
-      "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
       "url": "https://breadchain.xyz/",
-      "alias": "bread",
       "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
+      "name": "Breadchain Community Token",
+      "alias": "bread",
       "profile": {
         "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986",
         "chain_id": 100
       },
+      "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
       "primary_token": {
         "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
         "chain_id": 100
       },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 100
+      },
       "primary_account_factory": {
-        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "chain_id": 100
       },
       "primary_session_manager": {
@@ -680,42 +744,19 @@
         "chain_id": 100
       }
     },
-    "tokens": {
-      "100:0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3": {
-        "standard": "erc20",
-        "name": "Breadchain Community Token",
-        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
-        "symbol": "BREAD",
-        "decimals": 18,
-        "chain_id": 100
-      }
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "scan": {
       "url": "https://gnosisscan.io",
       "name": "Gnosis Explorer"
     },
-    "accounts": {
-      "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
+    "cards": {
+      "100:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
         "chain_id": 100,
-        "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
-        "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
-        "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "paymaster_type": "cw"
-      },
-      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
-        "chain_id": 100,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x5C41F1114AB13aF5d66bac485924D03556d0cd51",
-        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "sessions": {
-      "100:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
-        "chain_id": 100,
-        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
-        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
-        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+        "instance_id": "cw-discord-1"
       }
     },
     "chains": {
@@ -727,28 +768,139 @@
         }
       }
     },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
+    "tokens": {
+      "100:0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3": {
+        "name": "Breadchain Community Token",
+        "symbol": "BREAD",
+        "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+        "chain_id": 100,
+        "decimals": 18,
+        "standard": "erc20"
+      }
     },
     "plugins": [
       {
-        "name": "Market",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
-        "url": "https://marketplace.citizenwallet.xyz/bread",
-        "launch_mode": "webview",
-        "signature": true
+        "url": "https://topup.citizenspring.earth/bread",
+        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "name": "Top Up",
+        "action": "topup"
       },
       {
-        "name": "Breadcon 2025 Faucet",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
-        "url": "https://faucet.citizenwallet.xyz/breadcon2025",
-        "launch_mode": "webview",
-        "signature": true,
-        "hidden": true
+        "url": "https://marketplace.citizenwallet.xyz/bread",
+        "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+        "name": "Market",
+        "launch_mode": "webview"
       }
     ],
-    "config_location": "https://my.citizenwallet.xyz/api/communities/bread",
-    "version": 5
+    "version": 5,
+    "accounts": {
+      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 100,
+        "paymaster_type": "cw-safe",
+        "paymaster_address": "0x5987e57e85014B5A56C880313580346c20a5d1c1",
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2"
+      },
+      "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
+        "chain_id": 100,
+        "paymaster_type": "cw",
+        "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
+        "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
+        "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9"
+      }
+    },
+    "sessions": {
+      "100:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 100,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "config_location": "https://my.citizenwallet.xyz/api/communities/bread"
+  },
+  {
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "scan": {
+      "url": "https://gnosisscan.io",
+      "name": "Gnosis Explorer"
+    },
+    "cards": {
+      "100:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 100,
+        "instance_id": "cw-discord-1"
+      }
+    },
+    "chains": {
+      "100": {
+        "id": 100,
+        "node": {
+          "url": "https://100.engine.citizenwallet.xyz",
+          "ws_url": "wss://100.engine.citizenwallet.xyz"
+        }
+      }
+    },
+    "tokens": {
+      "100:0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007": {
+        "name": "Labor Hour Token",
+        "symbol": "HOUR",
+        "address": "0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007",
+        "chain_id": 100,
+        "decimals": 6,
+        "standard": "erc20"
+      }
+    },
+    "plugins": [],
+    "version": 5,
+    "accounts": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+        "chain_id": 100,
+        "paymaster_type": "cw-safe",
+        "paymaster_address": "0xa7fa16C933f51d8623f39FA0dF34D3065B99Bd1c",
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+      }
+    },
+    "sessions": {
+      "100:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 100,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "community": {
+      "url": "https://breadchain.xyz/",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/laborhour.png",
+      "name": "Labor Hour Token",
+      "alias": "laborhour",
+      "profile": {
+        "address": "0x673601Eb36820bC9718214AC041E96f79383351B",
+        "chain_id": 100
+      },
+      "description": "Labor Hour Token aims to reward contributors for hours of labor, particularly targeting non-blockchain native users",
+      "primary_token": {
+        "address": "0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007",
+        "chain_id": 100
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+        "chain_id": 100
+      },
+      "primary_session_manager": {
+        "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "chain_id": 100
+      }
+    },
+    "config_location": "https://my.citizenwallet.xyz/api/communities/laborhour"
   },
   {
     "community": {
