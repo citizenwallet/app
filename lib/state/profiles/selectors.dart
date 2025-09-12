@@ -4,7 +4,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 List<ProfileV1> selectProfileSuggestions(ProfilesState state) {
   Map<String, ProfileV1> profiles = {};
 
-  if (state.searchedProfile != null) {
+  if (state.searchedProfile != null && state.isActiveSearch) {
     profiles[state.searchedProfile!.username] = state.searchedProfile!;
   }
 
