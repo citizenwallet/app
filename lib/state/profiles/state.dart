@@ -35,7 +35,6 @@ class ProfilesState with ChangeNotifier {
   List<ProfileV1> searchResults = [];
   bool searchLoading = false;
   bool searchError = false;
-  bool isActiveSearch = false;
 
   ProfileV1? selectedProfile;
 
@@ -74,7 +73,6 @@ class ProfilesState with ChangeNotifier {
     searchResults = [];
     searchLoading = false;
     searchError = false;
-    isActiveSearch = false;
 
     selectedProfile = null;
     if (notify) notifyListeners();
@@ -89,7 +87,6 @@ class ProfilesState with ChangeNotifier {
   void isSearching() {
     searchLoading = true;
     searchError = false;
-    isActiveSearch = true;
     notifyListeners();
   }
 
@@ -98,9 +95,6 @@ class ProfilesState with ChangeNotifier {
     searchedProfile = profile;
     searchLoading = false;
     searchError = false;
-    // Keep isActiveSearch true if we have a searched profile or results
-    // Set to false only when showing all profiles (profile is null and we have results)
-    isActiveSearch = profile != null || results.isEmpty;
     notifyListeners();
   }
 
@@ -108,7 +102,6 @@ class ProfilesState with ChangeNotifier {
     searchedProfile = null;
     searchLoading = false;
     searchError = true;
-    isActiveSearch = false;
     notifyListeners();
   }
 

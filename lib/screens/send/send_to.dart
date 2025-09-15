@@ -128,7 +128,7 @@ class _SendToScreenState extends State<SendToScreen> {
       );
     }
 
-    profilesLogic.allProfiles();
+    profilesLogic.clearSearch();
     walletLogic.updateAddress();
 
     nameFocusNode.requestFocus();
