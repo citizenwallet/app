@@ -379,7 +379,9 @@ class WalletState with ChangeNotifier {
     inProgressTransaction = null;
     inProgressTransactionLoading = false;
     inProgressTransactionError = false;
-    if (notify) notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void sendTransactionSuccess(CWTransaction? transaction) {
