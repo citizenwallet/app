@@ -1,4 +1,5 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
+import 'dart:async';
 import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
@@ -40,6 +41,7 @@ class SendProgress extends StatefulWidget {
 class _SendProgressState extends State<SendProgress> {
   TransactionState _previousState = TransactionState.sending;
   bool _isClosing = false;
+  Timer? _closeTimer;
 
   void handleDone(BuildContext context) {
     if (!context.mounted) {
@@ -47,7 +49,6 @@ class _SendProgressState extends State<SendProgress> {
     }
 
     final navigator = GoRouter.of(context);
-
     navigator.pop(true);
   }
 
@@ -74,12 +75,14 @@ class _SendProgressState extends State<SendProgress> {
 
     _isClosing = true;
 
-    Future.delayed(const Duration(seconds: 5), () {
+    _closeTimer?.cancel();
+
+    _closeTimer = Timer(const Duration(seconds: 5), () {
       if (!context.mounted) {
         return;
       }
 
-      // handleDone(context);
+      handleDone(context);
     });
   }
 
@@ -125,20 +128,43 @@ class _SendProgressState extends State<SendProgress> {
       (WalletState state) => state.inProgressTransactionError,
     );
 
-    if (inProgressTransaction.state == TransactionState.pending &&
-        _previousState == TransactionState.sending) {
-      // start a timer to close the screen after a few seconds
-      handleStartCloseScreenTimer(context);
+    if (inProgressTransaction.state == TransactionState.success &&
+        _previousState != TransactionState.success) {
+      final hasTip = context.read<WalletState>().hasTip;
+      if (!hasTip) {
+        handleStartCloseScreenTimer(context);
+      }
+    }
+
+    if (inProgressTransaction.state == TransactionState.sending &&
+        _previousState != TransactionState.sending) {
+      _closeTimer?.cancel();
+      _isClosing = false;
+    }
+
+    if (inProgressTransaction.state == TransactionState.fail &&
+        _previousState != TransactionState.fail &&
+        !_isClosing) {
+      final hasTip = context.read<WalletState>().hasTip;
+      if (!hasTip) {
+        handleStartCloseScreenTimer(context);
+      }
     }
 
     _previousState = inProgressTransaction.state;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     final isSending = inProgressTransaction.state == TransactionState.sending;
 
     final formattedAmount = inProgressTransaction.amount;
 
-    final selectedProfile =
-        context.select((ProfilesState state) => state.selectedProfile);
+    final profilesState = Provider.of<ProfilesState>(context, listen: true);
+    final selectedProfile = profilesState.selectedProfile;
 
     final date = DateFormat.yMMMd().add_Hm().format(inProgressTransaction.date);
 
@@ -422,5 +448,11 @@ class _SendProgressState extends State<SendProgress> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _closeTimer?.cancel();
+    super.dispose();
   }
 }

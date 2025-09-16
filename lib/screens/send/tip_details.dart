@@ -287,11 +287,16 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       tipDescription: walletLogic.messageController.value.text.trim(),
     );
 
-    walletLogic.sendTransaction(
-      sendTip.tipAmount!,
-      sendTip.tipTo!,
-      message: sendTip.tipDescription!,
-    );
+    try {
+      walletLogic.sendTransaction(
+        sendTip.tipAmount!,
+        sendTip.tipTo!,
+        message: sendTip.tipDescription!,
+      );
+    } catch (e, stackTrace) {
+      print('error: $e');
+      print('stack: $stackTrace');
+    }
 
     context.read<WalletState>().setHasTip(false);
     context.read<WalletState>().setHasAddress(false);

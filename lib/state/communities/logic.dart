@@ -29,6 +29,15 @@ class CommunitiesLogic {
           communities.map((c) => Config.fromJson(c.config)).toList();
       _state.fetchCommunitiesSuccess(communityConfigs);
 
+      // Grouped operations for fetching and upserting communities
+      config.getCommunitiesFromRemote().then((communities) {
+        _state.upsertCommunities(communities);
+        _db.communities
+            .upsert(communities.map((c) => DBCommunity.fromConfig(c)).toList());
+      }).catchError((e) {
+        //
+      });
+
       for (final communityConfig in communityConfigs) {
         if (communityConfig.community.hidden) {
           continue;

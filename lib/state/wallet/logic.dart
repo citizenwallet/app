@@ -845,6 +845,24 @@ class WalletLogic extends WidgetsBindingObserver {
           ),
         ];
 
+        if (_state.inProgressTransaction != null) {
+          if (_state.inProgressTransaction!.hash == tx.txhash &&
+              tx.status == 'success') {
+            final successTransaction = CWTransaction(
+              _state.inProgressTransaction!.amount,
+              id: _state.inProgressTransaction!.id,
+              hash: tx.txhash,
+              chainId: _state.inProgressTransaction!.chainId,
+              from: _state.inProgressTransaction!.from,
+              to: _state.inProgressTransaction!.to,
+              description: _state.inProgressTransaction!.description,
+              date: _state.inProgressTransaction!.date,
+              state: TransactionState.success,
+            );
+            _state.setInProgressTransaction(successTransaction);
+          }
+        }
+
         incomingTxNotification(txList.where((element) =>
             element.to == _currentAccount.hexEip55 &&
             element.state != TransactionState.success));
@@ -1567,8 +1585,23 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       clearInputControllers();
-
       _state.sendTransactionSuccess(null);
+
+      if (_state.inProgressTransaction != null) {
+        final successTransaction = CWTransaction(
+          _state.inProgressTransaction!.amount,
+          id: _state.inProgressTransaction!.id,
+          hash: txHash,
+          chainId: _state.inProgressTransaction!.chainId,
+          from: _state.inProgressTransaction!.from,
+          to: _state.inProgressTransaction!.to,
+          description: _state.inProgressTransaction!.description,
+          date: _state.inProgressTransaction!.date,
+          state: TransactionState.success,
+        );
+        _state.setInProgressTransaction(successTransaction);
+      }
+
       if (clearInProgress) {
         _state.clearInProgressTransaction(notify: true);
       }
