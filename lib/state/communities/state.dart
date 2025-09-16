@@ -35,6 +35,7 @@ class CommunitiesState with ChangeNotifier {
       }
     }
 
+    communities = List<Config>.from(communities);
     notifyListeners();
   }
 
