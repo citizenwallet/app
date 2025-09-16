@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/config.dart';
@@ -138,37 +140,67 @@ class ConfigService {
   }
 
   Future<List<Config>> getConfigs({String? location}) async {
-    if (kDebugMode) {
-      final localConfigs = jsonDecode(await rootBundle.loadString(
-          'assets/config/v$version/$communityConfigListFileName.json'));
+    try {
+      if (location != null) {
+        final response = await _api.get(url: location);
+        return [Config.fromJson(response)];
+      }
 
-      final configs =
-          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      final response = await _api.get(url: '/api/communities');
+
+      try {
+        _pref.setConfigs(response);
+      } catch (e) {
+        debugPrint('Error saving configs to preferences: $e');
+      }
+
+      final configs = (response as List)
+          .map((e) {
+            try {
+              final configData = e['json'];
+              return configData != null ? Config.fromJson(configData) : null;
+            } catch (e) {
+              debugPrint('Error parsing config item: $e');
+              return null;
+            }
+          })
+          .where((config) => config != null)
+          .cast<Config>()
+          .toList();
 
       return configs;
+    } on TimeoutException catch (e) {
+      debugPrint('Timeout fetching configs from API: $e');
+      return _handleConfigAPIFailure();
+    } on SocketException catch (e) {
+      debugPrint('Network error fetching configs from API: $e');
+      return _handleConfigAPIFailure();
+    } on FormatException catch (e) {
+      debugPrint('Invalid JSON response from configs API: $e');
+      return _handleConfigAPIFailure();
+    } catch (e, s) {
+      debugPrint('Error fetching configs from API: $e');
+      debugPrintStack(stackTrace: s);
+      return _handleConfigAPIFailure();
+    }
+  }
+
+  Future<List<Config>> _handleConfigAPIFailure() async {
+    if (kDebugMode) {
+      debugPrint('Falling back to local configs in debug mode');
+      try {
+        final localConfigs = jsonDecode(await rootBundle.loadString(
+            'assets/config/v$version/$communityConfigListFileName.json'));
+
+        return (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      } catch (e) {
+        debugPrint('Error loading local configs: $e');
+        return [];
+      }
     }
 
-    if (location != null) {
-      // we only need a single file for the web
-      final response = await _api.get(url: location);
-
-      return [Config.fromJson(response)];
-    }
-
-    final response = await _api.get(url: '/api/communities');
-
-    _pref.setConfigs(response);
-
-    final configs = (response as List)
-        .map((e) {
-          final configData = e['json'];
-          return configData != null ? Config.fromJson(configData) : null;
-        })
-        .where((config) => config != null)
-        .cast<Config>()
-        .toList();
-
-    return configs;
+    debugPrint('Config API failed in production mode, returning empty list');
+    return [];
   }
 
   Future<List<Config>> getLocalConfigs() async {
@@ -211,10 +243,6 @@ class ConfigService {
   }
 
   Future<Config?> getSingleCommunityConfig(String configLocation) async {
-    if (kDebugMode) {
-      return null;
-    }
-
     try {
       String alias = configLocation;
       if (configLocation.contains('/')) {
@@ -239,41 +267,78 @@ class ConfigService {
   }
 
   Future<List<Config>> getCommunitiesFromRemote() async {
+    try {
+      final List<dynamic> response = await _api.get(url: '/api/communities');
+
+      if (response.isEmpty) {
+        debugPrint('Empty response from communities API');
+        throw Exception('Empty response from communities API');
+      }
+
+      final List<Config> communities = response
+          .map((item) {
+            try {
+              final configData = item['json'];
+              return configData != null ? Config.fromJson(configData) : null;
+            } catch (e) {
+              debugPrint('Error parsing community config: $e');
+              return null;
+            }
+          })
+          .where((config) => config != null)
+          .cast<Config>()
+          .toList();
+
+      return communities;
+    } on TimeoutException catch (e) {
+      debugPrint('Timeout fetching communities from API: $e');
+      return _handleCommunityAPIFailure();
+    } on SocketException catch (e) {
+      debugPrint('Network error fetching communities from API: $e');
+      return _handleCommunityAPIFailure();
+    } on FormatException catch (e) {
+      debugPrint('Invalid JSON response from communities API: $e');
+      return _handleCommunityAPIFailure();
+    } catch (e, s) {
+      debugPrint('Error fetching communities from API: $e');
+      debugPrintStack(stackTrace: s);
+      return _handleCommunityAPIFailure();
+    }
+  }
+
+  Future<List<Config>> _handleCommunityAPIFailure() async {
     if (kDebugMode) {
-      final localConfigs = jsonDecode(await rootBundle.loadString(
-          'assets/config/v$version/$communityConfigListFileName.json'));
+      debugPrint('Falling back to local configs in debug mode');
+      try {
+        final localConfigs = jsonDecode(await rootBundle.loadString(
+            'assets/config/v$version/$communityConfigListFileName.json'));
 
-      final configs =
-          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
-
-      return configs;
+        return (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      } catch (e) {
+        debugPrint('Error loading local configs: $e');
+        return [];
+      }
     }
 
-    final List<dynamic> response = await _api.get(url: '/api/communities');
-
-    final List<Config> communities = response
-        .map((item) {
-          final configData = item['json'];
-          return configData != null ? Config.fromJson(configData) : null;
-        })
-        .where((config) => config != null)
-        .cast<Config>()
-        .toList();
-
-    return communities;
+    debugPrint('API failed in production mode, returning empty community list');
+    return [];
   }
 
   Future<bool> isCommunityOnline(String indexerUrl) async {
-    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 20);
+    final indexer = APIService(baseURL: indexerUrl, netTimeoutSeconds: 10);
 
     try {
       await indexer.get(url: '/health');
       return true;
-    } catch (e, s) {
-      debugPrint('indexerUrl: $indexerUrl');
-      debugPrint('Error checking if community is online: $e, $indexerUrl');
-      debugPrint('Stacktrace: $s, $indexerUrl');
-
+    } on TimeoutException catch (e) {
+      debugPrint('Timeout checking if community is online: $indexerUrl - $e');
+      return false;
+    } on SocketException catch (e) {
+      debugPrint(
+          'Network error checking if community is online: $indexerUrl - $e');
+      return false;
+    } catch (e) {
+      debugPrint('Error checking if community is online: $indexerUrl - $e');
       return false;
     }
   }

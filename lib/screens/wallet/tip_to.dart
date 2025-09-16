@@ -88,7 +88,7 @@ class _TipToScreenState extends State<TipToScreen> {
       );
     }
 
-    profilesLogic?.allProfiles();
+    profilesLogic?.clearSearch();
     walletLogic.updateAddress();
 
     nameFocusNode.requestFocus();

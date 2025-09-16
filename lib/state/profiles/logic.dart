@@ -156,14 +156,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
           ? await getProfile(_currentConfig, cleanValue)
           : await getProfileByUsername(_currentConfig, cleanValue);
 
-      final results = await _db.contacts.search(cleanValue.toLowerCase());
-
-      _state.isSearchingSuccess(
-        profile,
-        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
-      );
-
       if (profile != null) {
+        _state.isSearchingSuccess(profile, []);
         await _db.contacts.upsert(DBContact(
           account: profile.account,
           username: profile.username,
@@ -173,6 +167,14 @@ class ProfilesLogic extends WidgetsBindingObserver {
           imageMedium: profile.imageMedium,
           imageSmall: profile.imageSmall,
         ));
+      } else {
+        if (cleanValue.length >= 3) {
+          final results = await _db.contacts.search(cleanValue.toLowerCase());
+          _state.isSearchingSuccess(
+              null, results.map((e) => ProfileV1.fromMap(e.toMap())).toList());
+        } else {
+          _state.isSearchingSuccess(null, []);
+        }
       }
       return;
     } catch (e) {
@@ -208,7 +210,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> searchProfile(String username) async {
     if (username.trim().isEmpty) {
-      allProfiles();
+      debouncedSearchProfile.cancel();
+      _state.clearSearch();
       return;
     }
 
@@ -349,6 +352,8 @@ class ProfilesLogic extends WidgetsBindingObserver {
     if (!_isInitialized) {
       return;
     }
+
+    debouncedSearchProfile.cancel();
 
     _state.clearSearch(notify: notify);
   }

@@ -92,7 +92,7 @@ class CommunitiesLogic {
       _state.fetchCommunitiesRequest();
 
       final communities = await _db.communities.getAll();
-      List<Config> communityConfigs =
+      final communityConfigs =
           communities.map((c) => Config.fromJson(c.config)).toList();
 
       _state.fetchCommunitiesSuccess(communityConfigs);
@@ -114,32 +114,58 @@ class CommunitiesLogic {
 
   void _fetchAllCommunitiesFromRemote() async {
     try {
+      final remoteCommunities = await config.getCommunitiesFromRemote();
+
+      if (remoteCommunities.isNotEmpty) {
+        await _db.communities.upsert(remoteCommunities
+            .map((config) => DBCommunity.fromConfig(config))
+            .toList());
+        _state.upsertCommunities(remoteCommunities);
+      }
+    } catch (e) {
+      debugPrint('Error fetching communities from remote API: $e');
+    }
+
+    try {
       final communities = await _db.communities.getAll();
       for (final community in communities) {
-        final config = Config.fromJson(community.config);
-        if (config.community.hidden) {
-          continue;
-        }
+        try {
+          final config = Config.fromJson(community.config);
+          if (config.community.hidden) {
+            continue;
+          }
 
-        final token = config.getPrimaryToken();
-        final chain = config.chains[token.chainId.toString()];
+          final token = config.getPrimaryToken();
+          final chain = config.chains[token.chainId.toString()];
 
-        if (chain != null) {
-          final isOnline = await this.config.isCommunityOnline(chain.node.url);
-          await _db.communities
-              .updateOnlineStatus(config.community.alias, isOnline);
+          if (chain != null) {
+            try {
+              final isOnline =
+                  await this.config.isCommunityOnline(chain.node.url);
+              await _db.communities
+                  .updateOnlineStatus(config.community.alias, isOnline);
+              _state.setCommunityOnline(config.community.alias, isOnline);
+            } catch (e) {
+              debugPrint(
+                  'Error checking online status for ${config.community.alias}: $e');
+              await _db.communities
+                  .updateOnlineStatus(config.community.alias, false);
+              _state.setCommunityOnline(config.community.alias, false);
+            }
+          }
+        } catch (e) {
+          debugPrint('Error processing community ${community.alias}: $e');
         }
       }
-      return;
     } catch (e) {
-      //
+      debugPrint('Error checking community online status: $e');
     }
   }
 
   void _fetchSingleCommunityFromRemote() async {
     try {
       final communities = await _db.communities.getAll();
-      List<Config> communityConfigs =
+      final communityConfigs =
           communities.map((c) => Config.fromJson(c.config)).toList();
 
       if (communityConfigs.isEmpty) {
@@ -148,27 +174,26 @@ class CommunitiesLogic {
 
       final first = communityConfigs.first;
 
-      final remoteCommunity =
-          await config.getRemoteConfig(first.configLocation);
+      try {
+        final remoteCommunity =
+            await config.getRemoteConfig(first.configLocation);
 
-      if (remoteCommunity == null) {
-        return;
+        if (remoteCommunity != null) {
+          await _db.communities
+              .upsert([DBCommunity.fromConfig(remoteCommunity)]);
+          _state.upsertCommunities([remoteCommunity]);
+        }
+      } catch (e) {
+        debugPrint(
+            'Error fetching remote config for ${first.community.alias}: $e');
       }
-
-      await _db.communities.upsert([DBCommunity.fromConfig(remoteCommunity)]);
-      return;
     } catch (e) {
-      //
+      debugPrint('Error in single community remote fetch: $e');
     }
   }
 
   Future<bool> isAliasFromDeeplinkExist(String alias) async {
-    bool communityExists = await _db.communities.exists(alias);
-    if (communityExists) {
-      return true;
-    }
-
-    return false;
+    return await _db.communities.exists(alias);
   }
 
   Future<void> initializeAppDB() async {
@@ -199,8 +224,7 @@ class CommunitiesLogic {
 
         if (existingIndex != -1) {
           remoteConfig.online = _state.communities[existingIndex].online;
-          _state.communities[existingIndex] = remoteConfig;
-          _state.notifyListeners();
+          _state.upsertCommunities([remoteConfig]);
         }
       }
     } catch (e) {
