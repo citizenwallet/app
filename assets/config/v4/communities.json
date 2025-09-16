@@ -597,6 +597,178 @@
     },
     {
         "community": {
+            "url": "https://breadchain.xyz/",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/laborhour.png",
+            "name": "Labor Hour Token",
+            "alias": "laborhour",
+            "theme": {
+                "primary": "#E52D2D"
+            },
+            "profile": {
+                "address": "0x673601Eb36820bC9718214AC041E96f79383351B",
+                "chain_id": 100
+            },
+            "description": "Labor Hour Token aims to reward contributors for hours of labor, particularly targeting non-blockchain native users",
+            "primary_token": {
+                "address": "0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007",
+                "chain_id": 100
+            },
+            "primary_card_manager": {
+                "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+                "chain_id": 100
+            },
+            "primary_account_factory": {
+                "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+                "chain_id": 100
+            },
+            "primary_session_manager": {
+                "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+                "chain_id": 100
+            }
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "scan": {
+            "url": "https://gnosisscan.io",
+            "name": "Gnosis Explorer"
+        },
+        "cards": {
+            "100:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+                "type": "safe",
+                "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+                "chain_id": 100,
+                "instance_id": "cw-discord-1"
+            }
+        },
+        "chains": {
+            "100": {
+                "id": 100,
+                "node": {
+                    "url": "https://100.engine.citizenwallet.xyz",
+                    "ws_url": "wss://100.engine.citizenwallet.xyz"
+                }
+            }
+        },
+        "tokens": {
+            "100:0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007": {
+                "name": "Labor Hour Token",
+                "symbol": "HOUR",
+                "address": "0x3d36ddFfa4666Ef12a176CaA8C3e67C1047bC007",
+                "chain_id": 100,
+                "decimals": 6,
+                "standard": "erc20"
+            }
+        },
+        "plugins": [],
+        "version": 4,
+        "accounts": {
+            "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+                "chain_id": 100,
+                "paymaster_type": "cw-safe",
+                "paymaster_address": "0xa7fa16C933f51d8623f39FA0dF34D3065B99Bd1c",
+                "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+                "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+            }
+        },
+        "sessions": {
+            "100:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+                "chain_id": 100,
+                "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+                "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+                "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+            }
+        },
+        "config_location": "https://config.internal.citizenwallet.xyz/v4/laborhour.citizenwallet.xyz.json"
+    },
+    {
+        "community": {
+            "url": "https://rooted.finance/",
+            "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rooted.png",
+            "name": "Rooted.Finance",
+            "alias": "rooted",
+            "theme": {
+                "primary": "#ff4c02"
+            },
+            "profile": {
+                "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
+                "chain_id": 8453
+            },
+            "description": "Rooted in your values.",
+            "primary_token": {
+                "address": "0x3595ca37596d5895b70efab592ac315d5b9809b2",
+                "chain_id": 8453
+            },
+            "primary_card_manager": {
+                "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+                "chain_id": 8453
+            },
+            "primary_account_factory": {
+                "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+                "chain_id": 8453
+            },
+            "primary_session_manager": {
+                "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+                "chain_id": 8453
+            }
+        },
+        "ipfs": {
+            "url": "https://ipfs.internal.citizenwallet.xyz"
+        },
+        "scan": {
+            "url": "https://gnosisscan.io",
+            "name": "Gnosis Explorer"
+        },
+        "cards": {
+            "8453:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+                "type": "safe",
+                "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+                "chain_id": 8453,
+                "instance_id": "cw-discord-1"
+            }
+        },
+        "chains": {
+            "8453": {
+                "id": 8453,
+                "node": {
+                    "url": "https://8453.engine.citizenwallet.xyz",
+                    "ws_url": "wss://8453.engine.citizenwallet.xyz"
+                }
+            }
+        },
+        "tokens": {
+            "8453:0x3595ca37596d5895b70efab592ac315d5b9809b2": {
+                "name": "Azos Stablecoin",
+                "symbol": "AZUSD",
+                "address": "0x3595ca37596d5895b70efab592ac315d5b9809b2",
+                "chain_id": 8453,
+                "decimals": 18,
+                "standard": "erc20"
+            }
+        },
+        "plugins": [],
+        "version": 4,
+        "accounts": {
+            "8453:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+                "chain_id": 8453,
+                "paymaster_type": "cw-safe",
+                "paymaster_address": "0x02cd43b3d7a946dCaa8dF12ac0A6Cd50aF9cDd64",
+                "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+                "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+            }
+        },
+        "sessions": {
+            "8453:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+                "chain_id": 8453,
+                "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+                "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+                "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+            }
+        },
+        "config_location": "https://config.internal.citizenwallet.xyz/v4/rooted.citizenwallet.xyz.json"
+    },
+    {
+        "community": {
             "name": "Commons Hub Brussels",
             "description": "Community Token for the Commons Hub Brussels community",
             "url": "https://commonshub.brussels",
