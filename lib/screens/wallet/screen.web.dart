@@ -192,8 +192,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
 
     switch (deepLink) {
       case 'plugin':
-        final pluginConfig =
-            await _logic.getPluginConfig(widget.alias, params);
+        final pluginConfig = await _logic.getPluginConfig(widget.alias, params);
         if (pluginConfig == null) {
           return;
         }
@@ -510,7 +509,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (context) => const EditProfileModal(),
+      builder: (context) => EditProfileModal(walletLogic: _logic),
     );
 
     _profileLogic.resume();

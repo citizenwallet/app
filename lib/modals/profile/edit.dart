@@ -21,8 +21,11 @@ import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class EditProfileModal extends StatefulWidget {
+  final WalletLogic? walletLogic;
+
   const EditProfileModal({
     super.key,
+    this.walletLogic,
   });
 
   @override
@@ -50,11 +53,14 @@ class EditProfileModalState extends State<EditProfileModal> {
 
     _logic = ProfileLogic(context);
     _notificationsLogic = NotificationsLogic(context);
-    _walletLogic = WalletLogic(context, _notificationsLogic);
+    _walletLogic =
+        widget.walletLogic ?? WalletLogic(context, _notificationsLogic);
 
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
-        _logic.checkUsername(username);
+        if (_logic.isInitialized) {
+          _logic.checkUsername(username);
+        }
       },
       const Duration(milliseconds: 500),
     );
@@ -91,6 +97,7 @@ class EditProfileModalState extends State<EditProfileModal> {
         _walletLogic.accountAddress!,
       );
     }
+
     _logic.startEdit();
   }
 

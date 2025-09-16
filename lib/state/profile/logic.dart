@@ -36,6 +36,7 @@ class ProfileLogic {
   late EthPrivateKey _credentials;
   late EthereumAddress _account;
 
+  bool _isInitialized = false;
   bool _pauseProfileCreation = false;
 
   ProfileLogic(BuildContext context) {
@@ -48,7 +49,10 @@ class ProfileLogic {
     _config = config;
     _credentials = credentials;
     _account = account;
+    _isInitialized = true;
   }
+
+  bool get isInitialized => _isInitialized;
 
   void resetAll() {
     _state.resetAll();
@@ -86,9 +90,6 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      if (_account == null || _config == null) {
-        throw Exception('account or config not found');
-      }
 
       final community = await _appDBService.communities.get(_config.community.alias);
 
@@ -132,6 +133,11 @@ class ProfileLogic {
   }
 
   Future<void> checkUsername(String username) async {
+    if (!_isInitialized) {
+      _state.setUsernameError();
+      return;
+    }
+
     if (username == '') {
       _state.setUsernameError();
     }
@@ -154,11 +160,6 @@ class ProfileLogic {
       debugPrint(
           'Username unchanged: "$username" matches current username "${_state.username}"');
       _state.setUsernameSuccess();
-      return;
-    }
-
-    if (_config == null) {
-      _state.setUsernameError();
       return;
     }
 
@@ -312,7 +313,7 @@ class ProfileLogic {
   }
 
   Future<bool> save(ProfileV1 profile, Uint8List? image) async {
-    if (_config == null || _account == null || _credentials == null) {
+    if (!_isInitialized) {
       return false;
     }
 
@@ -337,8 +338,8 @@ class ProfileLogic {
           : await _photos.photoFromBundle('assets/icons/profile.jpg');
 
       final accountForFactory = await _accountBackupDBService.accounts
-          .get(_account!, _config!.community.alias, '');
-
+          .get(_account, _config.community.alias, '');
+      
       final url = await setProfile(
         _config,
         _account,
@@ -413,7 +414,7 @@ class ProfileLogic {
   }
 
   Future<bool> update(ProfileV1 profile) async {
-    if (_config == null || _account == null || _credentials == null) {
+    if (!_isInitialized) {
       return false;
     }
 
@@ -513,9 +514,6 @@ class ProfileLogic {
   }
 
   Future<String?> generateProfileUsername() async {
-    if (_config == null) {
-      return null;
-    }
 
     String username = await getRandomUsername();
     _state.setUsernameSuccess(username: username);
@@ -542,9 +540,6 @@ class ProfileLogic {
   Future<void> giveProfileUsername() async {
     debugPrint('handleNewProfile');
 
-    if (_config == null || _account == null || _credentials == null) {
-      return;
-    }
 
     try {
       final username = await generateProfileUsername();

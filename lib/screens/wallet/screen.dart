@@ -516,6 +516,7 @@ class WalletScreenState extends State<WalletScreen>
         account: wallet.account,
         readonly: true,
         keepLink: true,
+        walletLogic: _logic,
       ),
     );
 
@@ -667,7 +668,7 @@ class WalletScreenState extends State<WalletScreen>
     await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       topRadius: const Radius.circular(40),
-      builder: (context) => const EditProfileModal(),
+      builder: (context) => EditProfileModal(walletLogic: _logic),
     );
 
     _profileLogic.resume();
@@ -1176,7 +1177,6 @@ class WalletScreenState extends State<WalletScreen>
       case ActionButtonType.plugins:
         handlePlugin(pluginConfig);
         break;
-
     }
   }
 

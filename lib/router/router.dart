@@ -188,15 +188,22 @@ GoRouter createRouter(
                 }
 
                 final extra = state.extra as Map<String, dynamic>;
+                final logic = extra['logic'] as WalletLogic;
 
                 return ChangeNotifierProvider(
                   key: Key('transaction-$transactionHash'),
-                  create: (_) => TransactionState(
-                    transactionHash: transactionHash,
-                  ),
+                  create: (_) {
+                    final transactionState = TransactionState(
+                      transactionHash: transactionHash,
+                    );
+                    if (logic.config != null) {
+                      transactionState.setConfig(logic.config!);
+                    }
+                    return transactionState;
+                  },
                   child: TransactionScreen(
                     transactionId: transactionHash,
-                    logic: extra['logic'],
+                    logic: logic,
                     profilesLogic: extra['profilesLogic'],
                   ),
                 );
@@ -570,14 +577,33 @@ GoRouter createWebRouter(
                       return const SizedBox();
                     }
 
-                    final extra = state.extra as Map<String, dynamic>;
+                    final transactionHash =
+                        state.pathParameters['transactionId'];
+                    if (transactionHash == null) {
+                      return const SizedBox();
+                    }
 
-                    return PopScope(
-                      canPop: false,
-                      child: TransactionScreen(
-                        transactionId: state.pathParameters['transactionId'],
-                        logic: extra['logic'],
-                        profilesLogic: extra['profilesLogic'],
+                    final extra = state.extra as Map<String, dynamic>;
+                    final logic = extra['logic'] as WalletLogic;
+
+                    return ChangeNotifierProvider(
+                      key: Key('transaction-$transactionHash'),
+                      create: (_) {
+                        final transactionState = TransactionState(
+                          transactionHash: transactionHash,
+                        );
+                        if (logic.config != null) {
+                          transactionState.setConfig(logic.config!);
+                        }
+                        return transactionState;
+                      },
+                      child: PopScope(
+                        canPop: false,
+                        child: TransactionScreen(
+                          transactionId: transactionHash,
+                          logic: logic,
+                          profilesLogic: extra['profilesLogic'],
+                        ),
                       ),
                     );
                   },

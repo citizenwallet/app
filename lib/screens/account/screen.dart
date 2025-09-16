@@ -112,7 +112,7 @@ class AccountScreenState extends State<AccountScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (context) => const EditProfileModal(),
+      builder: (context) => EditProfileModal(walletLogic: _walletLogic),
     );
   }
 
