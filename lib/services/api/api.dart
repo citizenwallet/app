@@ -339,3 +339,18 @@ RPCException parseRPCErrorText(String errorText) {
     );
   }
 }
+
+extension MigrationAPI on APIService {
+  Future<bool> checkMigrationRequired() async {
+    try {
+      final response = await get(url: '/migration');
+      
+      return false;
+    } on NotFoundException {
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+}
+

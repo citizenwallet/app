@@ -1,5 +1,21 @@
+import 'dart:convert';
+
+import 'package:http/http.dart';
+import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/config/legacy.dart';
 import 'package:collection/collection.dart';
+import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
+import 'package:citizenwallet/services/wallet/contracts/cards/interface.dart';
+import 'package:citizenwallet/services/wallet/contracts/cards/safe_card_manager.dart';
+import 'package:citizenwallet/services/wallet/contracts/communityModule.dart';
+import 'package:citizenwallet/services/wallet/contracts/entrypoint.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc1155.dart';
+import 'package:citizenwallet/services/wallet/contracts/erc20.dart';
+import 'package:citizenwallet/services/wallet/contracts/profile.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
+import 'package:citizenwallet/services/wallet/contracts/simple_account.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
 
 const String defaultPrimary = '#A256FF';
 
@@ -66,6 +82,7 @@ class CommunityConfig {
   final ContractLocation profile;
   final ContractLocation primaryToken;
   final ContractLocation primaryAccountFactory;
+  final ContractLocation? primarySessionManager;
   final ContractLocation? primaryCardManager;
 
   CommunityConfig({
@@ -80,6 +97,7 @@ class CommunityConfig {
     required this.profile,
     required this.primaryToken,
     required this.primaryAccountFactory,
+    this.primarySessionManager,
     this.primaryCardManager,
   });
 
@@ -101,6 +119,9 @@ class CommunityConfig {
       primaryToken: ContractLocation.fromJson(json['primary_token']),
       primaryAccountFactory:
           ContractLocation.fromJson(json['primary_account_factory']),
+      primarySessionManager: json['primary_session_manager'] != null
+          ? ContractLocation.fromJson(json['primary_session_manager'])
+          : null,
       primaryCardManager: json['primary_card_manager'] != null
           ? ContractLocation.fromJson(json['primary_card_manager'])
           : null,
@@ -121,6 +142,8 @@ class CommunityConfig {
       'profile': profile.toJson(),
       'primary_token': primaryToken.toJson(),
       'primary_account_factory': primaryAccountFactory.toJson(),
+      if (primarySessionManager != null)
+        'primary_session_manager': primarySessionManager!.toJson(),
       if (primaryCardManager != null)
         'primary_card_manager': primaryCardManager!.toJson(),
     };
@@ -364,7 +387,7 @@ enum PluginLaunchMode {
 class PluginConfig {
   final String name;
   final String? icon;
-  String url;
+  final String url;
   final PluginLaunchMode launchMode;
   final String? action;
   final bool hidden;
@@ -394,10 +417,6 @@ class PluginConfig {
     );
   }
 
-  void updateUrl(String url) {
-    this.url = url;
-  }
-
   // to json
   Map<String, dynamic> toJson() {
     return {
@@ -414,7 +433,7 @@ class PluginConfig {
   // to string
   @override
   String toString() {
-    return 'PluginConfig{name: $name, icon: $icon, url: $url, launchMode: $launchMode, action: $action, hidden: $hidden, signature: $signature}';
+    return 'PluginConfig{name: $name, icon: $icon, url: $url}';
   }
 }
 
@@ -489,15 +508,54 @@ class CardsConfig extends ContractLocation {
     return {
       'chain_id': chainId,
       'address': address,
+      'instance_id': instanceId,
       'type': type.name,
-      if (instanceId != null) 'instance_id': instanceId,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'CardsConfig{chainId: $chainId, address: $address, type: $type}';
+    return 'CardsConfig{chainId: $chainId, address: $address, instanceId: $instanceId, type: $type}';
+  }
+}
+
+class SessionsConfig {
+  final int chainId;
+  final String moduleAddress;
+  final String factoryAddress;
+  final String providerAddress;
+
+  SessionsConfig({
+    required this.chainId,
+    required this.moduleAddress,
+    required this.factoryAddress,
+    required this.providerAddress,
+  });
+
+  factory SessionsConfig.fromJson(Map<String, dynamic> json) {
+    return SessionsConfig(
+      chainId: json['chain_id'],
+      moduleAddress: json['module_address'],
+      factoryAddress: json['factory_address'],
+      providerAddress: json['provider_address'],
+    );
+  }
+
+  // to json
+  Map<String, dynamic> toJson() {
+    return {
+      'chain_id': chainId,
+      'module_address': moduleAddress,
+      'factory_address': factoryAddress,
+      'provider_address': providerAddress,
+    };
+  }
+
+  // to string
+  @override
+  String toString() {
+    return 'SessionsConfig{chainId: $chainId, moduleAddress: $moduleAddress, factoryAddress: $factoryAddress, providerAddress: $providerAddress}';
   }
 }
 
@@ -530,6 +588,7 @@ class Config {
   final Map<String, TokenConfig> tokens;
   final ScanConfig scan;
   final Map<String, ERC4337Config> accounts;
+  final Map<String, SessionsConfig>? sessions;
   final Map<String, CardsConfig>? cards;
   final Map<String, ChainConfig> chains;
   final IPFSConfig ipfs;
@@ -538,11 +597,33 @@ class Config {
   final int version;
   bool online;
 
+  Web3Client? _ethClient;
+
+  Web3Client get ethClient {
+    _initializeServices();
+    return _ethClient!;
+  }
+
+  late APIService ipfsService;
+  late APIService engine;
+  late APIService engineRPC;
+  late APIService engineIPFSService;
+
+  late StackupEntryPoint entryPointContract;
+  late CommunityModule communityModuleContract;
+  late AccountFactoryService accountFactoryContract;
+  late ProfileContract profileContract;
+  AbstractCardManagerContract? cardManagerContract;
+
+  late ERC20Contract token20Contract;
+  late ERC1155Contract token1155Contract;
+
   Config({
     required this.community,
     required this.tokens,
     required this.scan,
     required this.accounts,
+    required this.sessions,
     required this.cards,
     required this.chains,
     required this.ipfs,
@@ -550,7 +631,116 @@ class Config {
     required this.configLocation,
     this.version = 0,
     this.online = true,
-  });
+  }) {
+    // Defer initialization to avoid errors during config loading
+  }
+
+  void _initializeServices() {
+    if (_ethClient != null) return;
+
+    final chain = chains.values.first;
+    final rpcUrl = getRpcUrl(chain.id.toString());
+    final nodeUrl = getNodeUrl(chain.id.toString());
+
+    _ethClient = Web3Client(rpcUrl, Client());
+    ipfsService = APIService(baseURL: ipfs.url);
+    engine = APIService(baseURL: nodeUrl);
+    engineRPC = APIService(baseURL: rpcUrl);
+    engineIPFSService = APIService(baseURL: nodeUrl);
+  }
+
+  Future<void> initContracts([String accountFactoryAddress = '']) async {
+    final chain = chains.values.first;
+
+    final erc4337Config = accountFactoryAddress.isNotEmpty
+        ? getAccountAbstractionConfig(accountFactoryAddress, chain.id)
+        : getPrimaryAccountAbstractionConfig();
+
+    entryPointContract = StackupEntryPoint(
+      chain.id,
+      ethClient,
+      erc4337Config.entrypointAddress,
+    );
+    await entryPointContract.init();
+
+    communityModuleContract = CommunityModule(
+      chain.id,
+      ethClient,
+      erc4337Config.entrypointAddress,
+    );
+    await communityModuleContract.init();
+
+    accountFactoryContract = AccountFactoryService(
+      chain.id,
+      ethClient,
+      erc4337Config.accountFactoryAddress,
+    );
+    await accountFactoryContract.init();
+
+    token20Contract = ERC20Contract(
+      chain.id,
+      ethClient,
+      getPrimaryToken().address,
+    );
+    await token20Contract.init();
+
+    token1155Contract = ERC1155Contract(
+      chain.id,
+      ethClient,
+      getPrimaryToken().address,
+    );
+    await token1155Contract.init();
+
+    profileContract = ProfileContract(
+      chain.id,
+      ethClient,
+      community.profile.address,
+    );
+    await profileContract.init();
+
+    final primaryCardManager = getPrimaryCardManager();
+
+    if (primaryCardManager != null &&
+        primaryCardManager.type == CardManagerType.safe) {
+      cardManagerContract = SafeCardManagerContract(
+        keccak256(utf8.encode(primaryCardManager.instanceId!)),
+        chain.id,
+        ethClient,
+        primaryCardManager.address,
+      );
+      await cardManagerContract!.init();
+    }
+  }
+
+  Future<SimpleAccount> getSimpleAccount(String address) async {
+    final chain = chains.values.first;
+
+    final account = SimpleAccount(
+      chain.id,
+      ethClient,
+      address,
+    );
+    await account.init();
+
+    return account;
+  }
+
+  Future<SafeAccount> getSafeAccount(String address) async {
+    final chain = chains.values.first;
+
+    final account = SafeAccount(
+      chain.id,
+      ethClient,
+      address,
+    );
+    await account.init();
+
+    return account;
+  }
+
+  Future<BigInt> getNonce(String address) async {
+    return await entryPointContract.getNonce(address);
+  }
 
   factory Config.fromLegacy(LegacyConfig legacy) {
     final community = CommunityConfig(
@@ -636,6 +826,7 @@ class Config {
       tokens: tokens,
       scan: ScanConfig(name: legacy.scan.name, url: legacy.scan.url),
       accounts: accounts,
+      sessions: null,
       cards: cards,
       chains: chains,
       ipfs: IPFSConfig(url: legacy.ipfs.url),
@@ -658,6 +849,8 @@ class Config {
       scan: ScanConfig.fromJson(json['scan']),
       accounts: (json['accounts'] as Map<String, dynamic>)
           .map((key, value) => MapEntry(key, ERC4337Config.fromJson(value))),
+      sessions: (json['sessions'] as Map<String, dynamic>?)
+          ?.map((key, value) => MapEntry(key, SessionsConfig.fromJson(value))),
       cards: (json['cards'] as Map<String, dynamic>?)
           ?.map((key, value) => MapEntry(key, CardsConfig.fromJson(value))),
       chains: (json['chains'] as Map<String, dynamic>)
@@ -678,6 +871,9 @@ class Config {
       'tokens': tokens.map((key, value) => MapEntry(key, value.toJson())),
       'scan': scan.toJson(),
       'accounts': accounts.map((key, value) => MapEntry(key, value.toJson())),
+      if (sessions != null)
+        'sessions':
+            sessions!.map((key, value) => MapEntry(key, value.toJson())),
       if (cards != null)
         'cards': cards!.map((key, value) => MapEntry(key, value.toJson())),
       'chains': chains.map((key, value) => MapEntry(key, value.toJson())),
@@ -722,6 +918,41 @@ class Config {
     return primaryAccountAbstraction;
   }
 
+  SessionsConfig getPrimarySessionManager() {
+    if (sessions == null) {
+      throw Exception('Sessions not found');
+    }
+
+    final primarySessionManager =
+        sessions![community.primarySessionManager!.fullAddress];
+
+    if (primarySessionManager == null) {
+      throw Exception('Primary Session Manager Config not found');
+    }
+
+    return primarySessionManager;
+  }
+
+  String getPaymasterType() {
+    final erc4337Config = getPrimaryAccountAbstractionConfig();
+
+    return erc4337Config.paymasterType;
+  }
+
+  ERC4337Config getAccountAbstractionConfig(String accountFactoryAddress,
+      [int? chainId]) {
+    final targetChainId = chainId ?? community.primaryAccountFactory.chainId;
+    final accountAbstraction =
+        accounts['$targetChainId:$accountFactoryAddress'];
+
+    if (accountAbstraction == null) {
+      throw Exception(
+          'Account Abstraction Config not found for factory: $accountFactoryAddress on chain: $targetChainId');
+    }
+
+    return accountAbstraction;
+  }
+
   CardsConfig? getPrimaryCardManager() {
     return cards?[community.primaryCardManager?.fullAddress];
   }
@@ -736,13 +967,17 @@ class Config {
     return chain.node.url;
   }
 
-  String getRpcUrl(String chainId) {
+  String getRpcUrl(String chainId, [String? accountFactory]) {
     final chain = chains[chainId];
 
     if (chain == null) {
       throw Exception('Chain not found');
     }
 
-    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
+    final accountAbstractionConfig = accountFactory != null
+        ? getAccountAbstractionConfig(accountFactory, int.parse(chainId))
+        : getPrimaryAccountAbstractionConfig();
+
+    return '${chain.node.url}/v1/rpc/${accountAbstractionConfig.paymasterAddress}';
   }
 }

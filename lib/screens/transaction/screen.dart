@@ -88,7 +88,7 @@ class TransactionScreenState extends State<TransactionScreen>
 
     walletLogic.addressController.text = address;
 
-    final profile = await profilesLogic.getProfile(address);
+    final profile = await profilesLogic.getLocalProfile(address);
 
     walletLogic.updateAddress(override: profile != null);
 
@@ -139,7 +139,7 @@ class TransactionScreenState extends State<TransactionScreen>
     walletLogic.updateMessage();
     walletLogic.updateListenerAmount();
 
-    final profile = await profilesLogic.getProfile(address);
+    final profile = await profilesLogic.getLocalProfile(address);
 
     walletLogic.updateAddress(override: profile != null);
     walletLogic.updateAmount();

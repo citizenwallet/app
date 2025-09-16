@@ -1,5 +1,6 @@
 import 'package:citizenwallet/state/vouchers/logic.dart';
 import 'package:citizenwallet/state/vouchers/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/widgets/blurry_child.dart';
@@ -18,12 +19,14 @@ class VoucherScreen extends StatefulWidget {
   final String address;
   final String amount;
   final String? logo;
+  final WalletLogic walletLogic;
 
   const VoucherScreen({
     super.key,
     required this.address,
     required this.amount,
     this.logo = 'assets/icons/voucher.svg',
+    required this.walletLogic,
   });
 
   @override
@@ -61,6 +64,16 @@ class VoucherViewModalState extends State<VoucherScreen>
   }
 
   void onLoad() async {
+    final walletLogic = widget.walletLogic;
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      _logic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
     _logic.openVoucher(widget.address);
   }
 

@@ -11,6 +11,7 @@ import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/services/wallet/contracts/account_factory.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
+import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -55,6 +56,20 @@ class AppLogic {
     _appState.appLoaded();
   }
 
+  Future<void> checkMigrationRequired() async {
+    try {
+      _appState.migrationCheckRequest();
+
+      final apiService = APIService(baseURL: dotenv.get('DASHBOARD_API'));
+      final migrationRequired = await apiService.checkMigrationRequired();
+
+      _appState.migrationCheckSuccess(migrationRequired);
+    } catch (e) {
+      debugPrint('Migration check error: $e');
+      _appState.migrationCheckFailed();
+    }
+  }
+
   void setFirstLaunch(bool firstLaunch) {
     try {
       _preferences.setFirstLaunch(firstLaunch);
@@ -68,10 +83,11 @@ class AppLogic {
       _appState.importLoadingReq();
       final String? lastWallet = _preferences.lastWallet;
       final String? lastAlias = _preferences.lastAlias;
+      final String? lastAccountFactoryAddress = _preferences.lastAccountFactoryAddress;
 
       DBAccount? dbWallet;
-      if (lastWallet != null && lastAlias != null) {
-        dbWallet = await _accounts.getAccount(lastWallet, lastAlias);
+      if (lastWallet != null && lastAlias != null && lastAccountFactoryAddress != null) {
+        dbWallet = await _accounts.getAccount(lastWallet, lastAlias, lastAccountFactoryAddress);
       }
 
       if (dbWallet == null) {
@@ -97,6 +113,7 @@ class AppLogic {
 
           await _preferences.setLastWallet(address);
           await _preferences.setLastAlias(dbWallet.alias);
+          await _preferences.setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
 
           _appState.importLoadingSuccess();
 
@@ -193,12 +210,15 @@ class AppLogic {
         privateKey: credentials,
         name: token.name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 
@@ -308,6 +328,8 @@ class AppLogic {
           privateKey: credentials,
           name: name,
           alias: communityConfig.community.alias,
+          accountFactoryAddress:
+              communityConfig.community.primaryAccountFactory.address,
         ),
       );
 
@@ -363,7 +385,7 @@ class AppLogic {
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 
       final existing = await _accounts.getAccount(
-          address.hexEip55, communityConfig.community.alias);
+          address.hexEip55, communityConfig.community.alias, '');
       if (existing != null) {
         return (existing.address.hexEip55, alias);
       }
@@ -374,6 +396,8 @@ class AppLogic {
           privateKey: credentials,
           name: '${token.symbol} Web Account',
           alias: communityConfig.community.alias,
+          accountFactoryAddress:
+              communityConfig.community.primaryAccountFactory.address,
         ),
       );
 
@@ -381,6 +405,7 @@ class AppLogic {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 

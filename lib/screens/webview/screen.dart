@@ -114,8 +114,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
   void handleBack() async {
     bool canGoBack = await webViewController?.canGoBack() ?? false;
 
-    print('can go back $canGoBack');
-
     if (canGoBack) {
       await webViewController?.goBack();
     }
