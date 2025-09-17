@@ -87,7 +87,6 @@ class WalletScreenState extends State<WalletScreen>
   String? _deepLink;
   String? _deepLinkParams;
   String? _sendToURL;
-  Config? _config;
 
   @override
   void initState() {
@@ -187,12 +186,6 @@ class WalletScreenState extends State<WalletScreen>
       _address!,
       _alias!,
       (bool hasChanged) async {
-        _profileLogic.setWalletState(
-          _logic.config!,
-          _logic.credentials!,
-          _logic.accountAddress!,
-        );
-
         _voucherLogic.setWalletState(
           _logic.config!,
           _logic.credentials!,
@@ -668,7 +661,7 @@ class WalletScreenState extends State<WalletScreen>
     await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       topRadius: const Radius.circular(40),
-      builder: (context) => EditProfileModal(walletLogic: _logic),
+      builder: (context) => const EditProfileModal(),
     );
 
     _profileLogic.resume();
@@ -1392,7 +1385,7 @@ class WalletScreenState extends State<WalletScreen>
             ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
-              display: isOffline,
+              display: showOfflineBanner,
               loading: eventServiceState == EventServiceState.connecting,
             ),
           ],

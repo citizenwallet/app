@@ -1,8 +1,6 @@
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
-import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
@@ -21,11 +19,8 @@ import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 
 class EditProfileModal extends StatefulWidget {
-  final WalletLogic? walletLogic;
-
   const EditProfileModal({
     super.key,
-    this.walletLogic,
   });
 
   @override
@@ -39,9 +34,7 @@ class EditProfileModalState extends State<EditProfileModal> {
   final FocusNode nameFocusNode = FocusNode();
   final FocusNode descriptionFocusNode = FocusNode();
 
-  late ProfileLogic _logic;
-  late WalletLogic _walletLogic;
-  late NotificationsLogic _notificationsLogic;
+  late final ProfileLogic _logic = ProfileLogic(context);
 
   late Debounce debouncedHandleUsernameUpdate;
   late Debounce debouncedHandleNameUpdate;
@@ -51,16 +44,10 @@ class EditProfileModalState extends State<EditProfileModal> {
   void initState() {
     super.initState();
 
-    _logic = ProfileLogic(context);
-    _notificationsLogic = NotificationsLogic(context);
-    _walletLogic =
-        widget.walletLogic ?? WalletLogic(context, _notificationsLogic);
 
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
-        if (_logic.isInitialized) {
-          _logic.checkUsername(username);
-        }
+        _logic.checkUsername(username);
       },
       const Duration(milliseconds: 500),
     );
@@ -87,17 +74,7 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
-
-    if (_walletLogic.config != null &&
-        _walletLogic.credentials != null &&
-        _walletLogic.accountAddress != null) {
-      _logic.setWalletState(
-        _walletLogic.config!,
-        _walletLogic.credentials!,
-        _walletLogic.accountAddress!,
-      );
-    }
-
+    
     _logic.startEdit();
   }
 
@@ -139,7 +116,6 @@ class EditProfileModalState extends State<EditProfileModal> {
     HapticFeedback.lightImpact();
 
     final wallet = context.read<WalletState>().wallet;
-    final newName = context.read<ProfileState>().nameController.value.text;
 
     if (wallet == null) {
       return;
@@ -156,10 +132,6 @@ class EditProfileModalState extends State<EditProfileModal> {
       return;
     }
 
-    if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
-    }
-
     HapticFeedback.heavyImpact();
     navigator.pop();
   }
@@ -170,8 +142,8 @@ class EditProfileModalState extends State<EditProfileModal> {
     FocusManager.instance.primaryFocus?.unfocus();
     HapticFeedback.lightImpact();
 
-    final wallet = context.read<WalletState>().wallet;
-    final newName = context.read<ProfileState>().nameController.value.text;
+    final walletState = context.read<WalletState>();
+    final wallet = walletState.wallet;
 
     if (wallet == null) {
       return;
@@ -187,10 +159,6 @@ class EditProfileModalState extends State<EditProfileModal> {
       return;
     }
 
-    if (newName.isNotEmpty) {
-      await _walletLogic.editWallet(wallet.account, wallet.alias, newName);
-    }
-
     HapticFeedback.heavyImpact();
     navigator.pop();
   }
@@ -200,6 +168,7 @@ class EditProfileModalState extends State<EditProfileModal> {
 
     _logic.selectPhoto();
   }
+
 
   @override
   Widget build(BuildContext context) {

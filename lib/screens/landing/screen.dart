@@ -128,7 +128,11 @@ class LandingScreenState extends State<LandingScreen>
 
     _appLogic.loadApp();
 
-    await _appLogic.checkMigrationRequired();
+    // Feature flag for migration check - set to false to disable
+    const bool enableMigrationCheck = false;
+    if (enableMigrationCheck) {
+      await _appLogic.checkMigrationRequired();
+    }
 
     // set up recovery
     await handleAppleRecover();

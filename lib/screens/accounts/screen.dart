@@ -339,7 +339,7 @@ class AccountsScreenState extends State<AccountsScreen> {
     await showCupertinoModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       topRadius: const Radius.circular(40),
-      builder: (context) => EditProfileModal(walletLogic: widget.logic),
+      builder: (context) => const EditProfileModal(),
     );
   }
 

@@ -73,7 +73,7 @@ class ProfileModalState extends State<ProfileModal> {
       context: context,
       expand: true,
       topRadius: const Radius.circular(40),
-      builder: (context) => EditProfileModal(walletLogic: widget.walletLogic),
+      builder: (context) => const EditProfileModal(),
     );
   }
 

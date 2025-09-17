@@ -509,7 +509,7 @@ class BurnerWalletScreenState extends State<BurnerWalletScreen> {
       context: context,
       expand: true,
       useRootNavigator: true,
-      builder: (context) => EditProfileModal(walletLogic: _logic),
+      builder: (context) => const EditProfileModal(),
     );
 
     _profileLogic.resume();

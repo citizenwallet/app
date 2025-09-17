@@ -584,7 +584,6 @@ GoRouter createWebRouter(
                     }
 
                     final extra = state.extra as Map<String, dynamic>;
-                    final logic = extra['logic'] as WalletLogic;
 
                     return ChangeNotifierProvider(
                       key: Key('transaction-$transactionHash'),
@@ -592,16 +591,13 @@ GoRouter createWebRouter(
                         final transactionState = TransactionState(
                           transactionHash: transactionHash,
                         );
-                        if (logic.config != null) {
-                          transactionState.setConfig(logic.config!);
-                        }
                         return transactionState;
                       },
                       child: PopScope(
                         canPop: false,
                         child: TransactionScreen(
                           transactionId: transactionHash,
-                          logic: logic,
+                          logic: extra['logic'],
                           profilesLogic: extra['profilesLogic'],
                         ),
                       ),
