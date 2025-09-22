@@ -762,7 +762,7 @@
                 "chain_id": 8453,
                 "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
                 "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
-                "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+                "provider_address": "0x0c2e78DB6FaF8D4d68984A830339764AD9f800D4"
             }
         },
         "config_location": "https://config.internal.citizenwallet.xyz/v4/rooted.citizenwallet.xyz.json"
