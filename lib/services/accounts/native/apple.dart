@@ -54,7 +54,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         accountFactoryAddress: '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
       );
 
-      final txHash = await submitUserop(config, userop);
+      final txHash = await submitUserop(config, userop, migrationSafe: true);
 
       if (txHash != null) {
         debugPrint('fixed cw-safe account ${account.address.hexEip55}');
@@ -100,112 +100,6 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     final migrations = {
-      1: () async {
-        // coming from the old version, migrate all keys and delete the old ones
-        // all or nothing, first write all the new ones, then delete all the old ones
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          // await setAccount(backup);
-          final saved = await _credentials.containsKey(backup.legacyKey2);
-          if (saved) {
-            await _credentials.delete(backup.legacyKey2);
-          }
-
-          await _credentials.write(
-            backup.legacyKey2,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // legacy delete
-          final saved = await _credentials.containsKey(
-            backup.legacyKey,
-          );
-          if (saved) {
-            await _credentials.delete(backup.legacyKey);
-          }
-        }
-      },
-      2: () async {
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          final saved = await _credentials.containsKey(backup.key);
-          if (saved) {
-            await _credentials.delete(backup.key);
-          }
-
-          await _credentials.write(
-            backup.key,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // delete legacy keys
-          final saved = await _credentials.containsKey(
-            backup.legacyKey2,
-          );
-
-          if (saved) {
-            await _credentials.delete(
-              backup.legacyKey2,
-            );
-          }
-        }
-      },
-      3: () async {
-        final allBackups = await getAllLegacyWalletBackups();
-
-        final toDelete = <String>[];
-
-        for (final backup in allBackups) {
-          bool saved = await _credentials.containsKey(backup.key);
-          if (!saved) {
-            continue;
-          }
-
-          final account = await getLegacyAccountAddress(backup);
-          if (account == null) {
-            continue;
-          }
-
-          final newBackup = LegacyBackupWallet(
-            address: account.hexEip55,
-            privateKey: backup.privateKey,
-            name: backup.name,
-            alias: backup.alias,
-          );
-
-          await _credentials.write(
-            newBackup.key,
-            newBackup.value,
-          );
-
-          toDelete.add(backup.key);
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          if (!toDelete.contains(backup.key)) {
-            continue;
-          }
-
-          final saved = await _credentials.containsKey(
-            backup.key,
-          );
-
-          if (saved) {
-            await _credentials.delete(
-              backup.key,
-            );
-          }
-        }
-      },
       4: () async {
         final allLegacyBackups = await getAllLegacyWalletBackups();
 

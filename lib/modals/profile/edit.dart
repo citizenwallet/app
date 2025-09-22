@@ -44,7 +44,6 @@ class EditProfileModalState extends State<EditProfileModal> {
   void initState() {
     super.initState();
 
-
     debouncedHandleUsernameUpdate = debounce(
       (String username) {
         _logic.checkUsername(username);
@@ -74,7 +73,7 @@ class EditProfileModalState extends State<EditProfileModal> {
 
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
-    
+
     _logic.startEdit();
   }
 
@@ -169,7 +168,6 @@ class EditProfileModalState extends State<EditProfileModal> {
     _logic.selectPhoto();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -247,7 +245,8 @@ class EditProfileModalState extends State<EditProfileModal> {
                         child: ListView(
                           controller: ModalScrollController.of(context),
                           physics: const ScrollPhysics(
-                              parent: BouncingScrollPhysics()),
+                            parent: BouncingScrollPhysics(),
+                          ),
                           children: [
                             Stack(
                               alignment: Alignment.center,
