@@ -208,14 +208,11 @@ Future<bool> profileExists(Config config, String username) async {
 Future<ProfileV1?> getProfileFromUrl(Config config, String url) async {
   try {
     final profileData = await config.ipfsService.get(url: '/$url');
-
     final profile = ProfileV1.fromJson(profileData);
-
     profile.parseIPFSImageURLs(config.ipfs.url);
-
     return profile;
   } catch (exception) {
-    //
+    debugPrint('Error: $exception');
   }
 
   return null;
@@ -271,7 +268,14 @@ Future<String?> setProfile(
       accountFactoryAddress: factoryAddress,
     );
 
-    final txHash = await submitUserop(config, userop);
+    final paymasterType = config.getPaymasterType();
+    final isCWSafeAccount = paymasterType == 'cw-safe';
+
+    final txHash = await submitUserop(
+      config,
+      userop,
+      migrationSafe: isCWSafeAccount,
+    );
     if (txHash == null) {
       throw Exception('profile update failed');
     }
@@ -291,8 +295,13 @@ Future<String?> setProfile(
 }
 
 /// update profile data
-Future<String?> updateProfile(Config config, EthereumAddress account,
-    EthPrivateKey credentials, ProfileV1 profile) async {
+Future<String?> updateProfile(
+  Config config,
+  EthereumAddress account,
+  EthPrivateKey credentials,
+  ProfileV1 profile, {
+  String? accountFactoryAddress,
+}) async {
   try {
     final url =
         '/v1/profiles/${config.profileContract.addr}/${account.hexEip55}';
@@ -320,16 +329,27 @@ Future<String?> updateProfile(Config config, EthereumAddress account,
     final calldata = config.profileContract
         .setCallData(account.hexEip55, profile.username, profileUrl);
 
+    final factoryAddress =
+        accountFactoryAddress ?? config.community.primaryAccountFactory.address;
+
     final (_, userop) = await prepareUserop(
       config,
       account,
       credentials,
       [config.profileContract.addr],
       [calldata],
-      accountFactoryAddress: config.community.primaryAccountFactory.address,
+      accountFactoryAddress: factoryAddress,
     );
 
-    final txHash = await submitUserop(config, userop);
+    final paymasterType = config.getPaymasterType();
+    final isCWSafeAccount = paymasterType == 'cw-safe';
+
+    final txHash = await submitUserop(
+      config,
+      userop,
+      migrationSafe: isCWSafeAccount,
+    );
+
     if (txHash == null) {
       throw Exception('profile update failed');
     }
@@ -340,7 +360,9 @@ Future<String?> updateProfile(Config config, EthereumAddress account,
     }
 
     return profileUrl;
-  } catch (_) {}
+  } catch (e, stackTrace) {
+    debugPrint('Stack trace: $stackTrace');
+  }
 
   return null;
 }
@@ -1182,8 +1204,8 @@ Future<String?> _submitUseropOriginal(
       throw NetworkInvalidBalanceException();
     }
 
-    if (strerr.contains(unauthorizedErrorMessage) || 
-        strerr.contains(accessDeniedErrorMessage) || 
+    if (strerr.contains(unauthorizedErrorMessage) ||
+        strerr.contains(accessDeniedErrorMessage) ||
         strerr.contains(forbiddenErrorMessage)) {
       throw NetworkUnauthorizedException();
     }

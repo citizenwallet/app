@@ -107,8 +107,8 @@ class MigrationService {
 
       await launchNewApp(privateKeyHex);
     } catch (e, stackTrace) {
-      debugPrint('   🚨 Error: $e');
-      debugPrint('   📍 Stack Trace: $stackTrace');
+      debugPrint('Error: $e');
+      debugPrint('Stack Trace: $stackTrace');
       rethrow;
     }
   }

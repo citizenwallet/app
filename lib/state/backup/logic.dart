@@ -54,7 +54,11 @@ class BackupLogic {
           accountsDB: AccountBackupDBService(),
         ),
       );
-    } catch (_) {}
+      await delay(const Duration(milliseconds: 500));
+
+    } catch (e) {
+      debugPrint('Error setting up Apple keychain: $e');
+    }
   }
 
   Future<bool> hasAccounts() async {

@@ -1,6 +1,7 @@
 import 'package:citizenwallet/modals/profile/edit.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
 import 'package:citizenwallet/state/profile/state.dart';
+import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/widgets/profile/profile_qr_badge.dart';
@@ -15,12 +16,14 @@ class ProfileModal extends StatefulWidget {
   final String account;
   final bool readonly;
   final bool keepLink;
+  final WalletLogic? walletLogic;
 
   const ProfileModal({
     super.key,
     required this.account,
     this.readonly = false,
     this.keepLink = false,
+    this.walletLogic,
   });
 
   @override
