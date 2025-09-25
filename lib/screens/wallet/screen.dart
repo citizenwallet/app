@@ -235,6 +235,24 @@ class WalletScreenState extends State<WalletScreen>
       await handleSendScreen(sendToURL: _sendToURL);
     }
 
+    final currentUri = GoRouter.of(context).routeInformationProvider.value.uri;
+    
+    if (currentUri.queryParameters.containsKey('sendto')) {
+      final params = <String>[];
+      currentUri.queryParameters.forEach((key, value) {
+        if (key != 'alias') {
+          params.add('$key=$value');
+        }
+      });
+      if (params.isNotEmpty) {
+        final sendToURL = 'https://app.citizenwallet.xyz/?${params.join('&')}';
+        
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await handleSendScreen(sendToURL: sendToURL);
+        });
+      }
+    }
+
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
     }

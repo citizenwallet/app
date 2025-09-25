@@ -84,8 +84,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     super.didChangeDependencies();
     final tipTo = context.read<WalletState>().tipTo;
     if (tipTo != null) {
-      context.read<WalletState>().setHasTip(true);
-      context.read<WalletState>().setHasAddress(true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<WalletState>().setHasTip(true);
+        context.read<WalletState>().setHasAddress(true);
+      });
     }
   }
 
@@ -106,7 +108,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
-    final tipTo = context.read<WalletState>().tipTo;
+    final walletState = context.read<WalletState>();
+    final tipTo = walletState.tipTo;
+    final tipAmount = walletState.tipAmount;
+    final tipDescription = walletState.tipDescription;
 
     if (tipTo != null) {
       try {
@@ -117,6 +122,13 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       } catch (e) {
         debugPrint('Error fetching profile: $e');
       }
+    }
+    if (tipAmount != null && tipAmount.isNotEmpty) {
+      widget.walletLogic.amountController.text = tipAmount;
+    }
+
+    if (tipDescription != null && tipDescription.isNotEmpty) {
+      widget.walletLogic.messageController.text = tipDescription;
     }
 
     amountFocusNode.requestFocus();

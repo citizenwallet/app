@@ -29,6 +29,7 @@ const List<String> cases = [
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test',
   'https://app.citizenwallet.xyz/#/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels%26amount%3D10.50%26description%3Dtest',
   'https://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test&tipTo=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE&tipAmount=2.00&tipDescription=tipDescriptionTest',
+  'citizenwallet://example.com/?sendto=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE@wallet.pay.brussels&amount=10.50&description=test&tipTo=0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE&tipAmount=2.00&tipDescription=tipDescriptionTest',
   'https://app.citizenwallet.xyz/#/?alias=bread&dl=plugin&plugin=https%3A%2F%2Fmarketplace.citizenwallet.xyz%2Fbread',
   'https://example.com/?eip681=ethereum%3A0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE%408453%3Fvalue%3D10.50&alias=wallet.pay.brussels',
   'https://app.citizenwallet.xyz/#/?eip681=ethereum%3A0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607%40137%2Ftransfer%3Faddress%3D0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86B&alias=wallet.pay.brussels',
@@ -53,6 +54,7 @@ const List<QRFormat> expected = [
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrlWithEIP681,
+  QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
   QRFormat.sendtoUrl,
@@ -124,6 +126,17 @@ const List<(String, String?, String?, String?, SendDestination?)>
     'test',
     'wallet.pay.brussels',
     null
+  ),
+  (
+    '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+    '10.50',
+    'test',
+    'wallet.pay.brussels',
+    SendDestination(
+      to: '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',
+      amount: '2.00',
+      description: 'tipDescriptionTest',
+    )
   ),
   (
     '0x6C8bdE31530Ca3382150Fb18e17D8f920CcF86BE',

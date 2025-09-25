@@ -104,17 +104,13 @@ class LandingScreenState extends State<LandingScreen>
     }
 
     if (sendToParams != null) {
-      params += '&$sendToParams';
+      params += '&${Uri.decodeComponent(sendToParams)}';
     }
 
     if (deepLink != null && deepLinkParams != null) {
       params += '&dl=$deepLink';
       params += '&$deepLink=$deepLinkParams';
     }
-
-    // if (sendToParams != null) {
-    //   params += '&${Uri.decodeComponent(sendToParams)}';
-    // }
 
     if (extra.isNotEmpty) {
       params += '&${extra.join('&')}';

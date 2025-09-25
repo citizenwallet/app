@@ -475,6 +475,13 @@ class WalletLogic extends WidgetsBindingObserver {
       if (isWalletLoaded &&
           accAddress == _currentAccount.hexEip55 &&
           alias == communityConfig.community.alias) {
+        final dbWallet = await _encPrefs.getAccount(accAddress, alias, '');
+        if (dbWallet != null) {
+          await communityConfig.initContracts(dbWallet.accountFactoryAddress);
+        } else {
+          await communityConfig.initContracts();
+        }
+        
         getBalance(communityConfig, _currentAccount).then((v) {
           _state.updateWalletBalanceSuccess(v);
         });
@@ -2167,6 +2174,8 @@ class WalletLogic extends WidgetsBindingObserver {
       // Handle tip information if present
       if (parsedData.tip != null) {
         _state.setTipTo(parsedData.tip!.to);
+        _state.setTipAmount(parsedData.tip!.amount);
+        _state.setTipDescription(parsedData.tip!.description);
         _state.setHasTip(true);
       }
 
