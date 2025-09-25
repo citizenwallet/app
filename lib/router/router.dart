@@ -393,6 +393,7 @@ GoRouter createRouter(
                   address: state.pathParameters['voucher'] ?? '',
                   amount: extra['amount'],
                   logo: extra['logo'],
+                  walletLogic: extra['walletLogic'],
                 );
               },
             ),
@@ -441,7 +442,6 @@ GoRouter createRouter(
                 return ChangeNotifierProvider(
                   create: (_) => DeepLinkState(extra['deepLink']),
                   child: DeepLinkScreen(
-                    wallet: extra['wallet'],
                     deepLink: extra['deepLink'],
                     deepLinkParams: extra['deepLinkParams'],
                   ),

@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/nfc/default.dart';
 import 'package:citizenwallet/services/nfc/service.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/scan/state.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ScanLogic extends WidgetsBindingObserver {
   static final ScanLogic _instance = ScanLogic._internal();
@@ -18,10 +20,22 @@ class ScanLogic extends WidgetsBindingObserver {
   late ScanState _state;
   final NFCService _nfc = DefaultNFCService();
 
-  final WalletService _wallet = WalletService();
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
+
+  static void setGlobalWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _instance.setWalletState(config, credentials, account);
+  }
 
   void init(BuildContext context) {
     _state = context.read<ScanState>();
+  }
+
+  void setWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _currentConfig = config;
+    _currentCredentials = credentials;
+    _currentAccount = account;
   }
 
   void load() async {
@@ -48,6 +62,10 @@ class ScanLogic extends WidgetsBindingObserver {
 
   Future<String?> read({String? message, String? successMessage}) async {
     try {
+      if (_currentConfig == null || _currentCredentials == null || _currentAccount == null) {
+        throw Exception('Wallet not initialized');
+      }
+
       _state.setNfcAddressRequest();
 
       _state.setNfcReading(true);
@@ -59,8 +77,8 @@ class ScanLogic extends WidgetsBindingObserver {
 
       _state.setNfcReading(false); //
 
-      final cardHash = await _wallet.getCardHash(serialNumber);
-      final address = await _wallet.getCardAddress(cardHash);
+      final cardHash = await getCardHash(_currentConfig, serialNumber);
+      final address = await getCardAddress(_currentConfig, cardHash);
 
       _state.setNfcAddressSuccess(address.hexEip55);
 

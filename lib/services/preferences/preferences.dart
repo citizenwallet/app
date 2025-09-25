@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -80,6 +78,13 @@ class PreferencesService {
   }
 
   String? get lastAlias => _preferences.getString('lastAlias');
+
+  // save the last account factory address that was opened
+  Future setLastAccountFactoryAddress(String accountFactoryAddress) async {
+    await _preferences.setString('lastAccountFactoryAddress', accountFactoryAddress);
+  }
+
+  String? get lastAccountFactoryAddress => _preferences.getString('lastAccountFactoryAddress');
 
   // save the last link that was opened on web
   Future setLastWalletLink(String link) async {
@@ -161,4 +166,26 @@ class PreferencesService {
     return _preferences.getString('languageCode');
   }
 
+  Future setMigrationModalShown(bool shown) async {
+    await _preferences.setBool('migrationModalShown', shown);
+  }
+
+  bool get migrationModalShown =>
+      _preferences.getBool('migrationModalShown') ?? false;
+
+  Future setMigrationModalDismissalCount(int count) async {
+    await _preferences.setInt('migrationModalDismissalCount', count);
+  }
+
+  int get migrationModalDismissalCount =>
+      _preferences.getInt('migrationModalDismissalCount') ?? 0;
+
+  Future incrementMigrationModalDismissalCount() async {
+    final currentCount = migrationModalDismissalCount;
+    await setMigrationModalDismissalCount(currentCount + 1);
+  }
+
+  Future resetMigrationModalDismissalCount() async {
+    await setMigrationModalDismissalCount(0);
+  }
 }

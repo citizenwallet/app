@@ -5,6 +5,7 @@ import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:collection/collection.dart';
 
 Future<List<DBCommunity>> legacyToV4(Database db, String name) async {
   final List<Map<String, dynamic>> maps = await db.query(name);
@@ -26,6 +27,40 @@ Future<List<DBCommunity>> legacyToV4(Database db, String name) async {
   }
 
   return v4Configs;
+}
+
+Future<List<DBCommunity>> V5Migration(Database db, String name) async {
+  final ConfigService config = ConfigService();
+
+  final localConfigs = await config.getLocalConfigs();
+
+  final List<Map<String, dynamic>> maps = await db.query(name);
+  final existingCommunities = List.generate(maps.length, (i) {
+    return DBCommunity.fromMap(maps[i]);
+  });
+
+  final List<DBCommunity> updatedConfigs = [];
+
+  for (final localConfig in localConfigs) {
+    final existingCommunity = existingCommunities.firstWhereOrNull(
+      (c) => c.alias == localConfig.community.alias,
+    );
+
+    if (existingCommunity != null) {
+      final updatedCommunity = DBCommunity(
+        alias: localConfig.community.alias,
+        config: localConfig.toJson(),
+        hidden: localConfig.community.hidden,
+        version: localConfig.version,
+        online: existingCommunity.online,
+      );
+      updatedConfigs.add(updatedCommunity);
+    } else {
+      updatedConfigs.add(DBCommunity.fromConfig(localConfig));
+    }
+  }
+
+  return updatedConfigs;
 }
 
 class DBCommunity {
@@ -118,6 +153,9 @@ class CommunityTable extends DBTable {
       2: [
         'V4Migration',
       ],
+      3: [
+        'V5Migration',
+      ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
@@ -129,6 +167,10 @@ class CommunityTable extends DBTable {
             switch (query) {
               case 'V4Migration':
                 final updatedConfigs = await legacyToV4(db, name);
+                await upsert(updatedConfigs);
+                continue;
+              case 'V5Migration':
+                final updatedConfigs = await V5Migration(db, name);
                 await upsert(updatedConfigs);
                 continue;
             }

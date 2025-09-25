@@ -42,7 +42,7 @@ class WebAccountsService extends AccountsServiceInterface {
 
   // get wallet backup
   @override
-  Future<DBAccount?> getAccount(String address, String alias) async {
+  Future<DBAccount?> getAccount(String address, String alias, [String accountFactoryAddress = '']) async {
     return null;
   }
 

@@ -45,11 +45,6 @@ class CardsScreenState extends State<CardsScreen> {
       return;
     }
 
-    print(
-        '${AppLocalizations.of(context)!.initialAddress} ${widget.walletLogic.privateKey.address.hexEip55}');
-
-    // _logic.configure(
-    //     widget.walletLogic.privateKey, wallet.account, wallet.alias);
     _logic.read();
   }
 

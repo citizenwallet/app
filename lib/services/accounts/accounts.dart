@@ -14,7 +14,7 @@ abstract class AccountsOptionsInterface {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class AccountsServiceInterface {
-  final int _version = 4;
+  final int _version = 6;
 
   int get version => _version;
 
@@ -37,7 +37,7 @@ abstract class AccountsServiceInterface {
   Future<void> setAccount(DBAccount account);
 
   // get account
-  Future<DBAccount?> getAccount(String address, String alias);
+  Future<DBAccount?> getAccount(String address, String alias, String accountFactoryAddress);
 
   // get accounts for alias
   Future<List<DBAccount>> getAccountsForAlias(String alias);
@@ -51,4 +51,6 @@ abstract class AccountsServiceInterface {
   Future<void> populatePrivateKeysFromEncryptedStorage() async {}
 
   Future<void> purgePrivateKeysAndAddToEncryptedStorage() async {}
+
+  Future<void> fixSafeAccounts() async {}
 }

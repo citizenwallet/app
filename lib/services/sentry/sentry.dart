@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
-
 // remove the sensitive part of the fragment
 String? scrubFragment(String? fragment) {
   if (fragment == null) {

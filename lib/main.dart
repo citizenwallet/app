@@ -7,7 +7,6 @@ import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/app/logic.dart';
 import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/communities/logic.dart';
@@ -61,7 +60,6 @@ FutureOr<void> appRunner() async {
 
   AccountDBService();
 
-  WalletService();
   final config = ConfigService();
 
   if (kIsWeb) {
@@ -76,7 +74,7 @@ FutureOr<void> appRunner() async {
   }
 
   final AppDBService appDBService = AppDBService();
-  await appDBService.init('appv4');
+  await appDBService.init('appv5');
   final numConfigs = (await appDBService.communities.getAll()).length;
 
   config.singleCommunityMode = numConfigs < 2;

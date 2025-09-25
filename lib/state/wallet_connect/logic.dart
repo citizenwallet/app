@@ -7,6 +7,7 @@ import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/widgets/wallet_session_approval.dart';
+import 'package:citizenwallet/services/config/config.dart';
 import 'dart:async';
 
 class WalletKitLogic with WidgetsBindingObserver {
@@ -16,6 +17,11 @@ class WalletKitLogic with WidgetsBindingObserver {
   BuildContext? _context;
   NotificationsLogic? _notificationsLogic;
   WalletConnectState? _state;
+
+  // Wallet state for handlers
+  late Config _config;
+  late EthereumAddress _account;
+  late EthPrivateKey _credentials;
 
   ReownWalletKit? get connectClient => _service.client;
   SessionProposalEvent? get currentProposal => _currentProposal;
@@ -33,6 +39,13 @@ class WalletKitLogic with WidgetsBindingObserver {
     _context = context;
     _notificationsLogic = NotificationsLogic(context);
     _state = context.read<WalletConnectState>();
+  }
+
+  void setWalletState(
+      Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _config = config;
+    _credentials = credentials;
+    _account = account;
   }
 
   Future<void> initialize() async {
@@ -356,7 +369,8 @@ class WalletKitLogic with WidgetsBindingObserver {
   }
 
   Future<void> _personalSignHandler(String topic, dynamic params) async {
-    return await _service.personalSignHandler(topic, params, true);
+    return await _service.personalSignHandler(
+        topic, params, true, _credentials);
   }
 
   Future<void> _ethSendTransactionHandler(String topic, dynamic params) async {
@@ -369,7 +383,8 @@ class WalletKitLogic with WidgetsBindingObserver {
 
     if (currentSession == null) {
       debugPrint('No active session found for topic: $topic');
-      return await _service.ethSendTransactionHandler(topic, params, false);
+      return await _service.ethSendTransactionHandler(
+          topic, params, false, _config, _account, _credentials);
     }
 
     final List<dynamic> paramsList = params as List<dynamic>;
@@ -381,7 +396,7 @@ class WalletKitLogic with WidgetsBindingObserver {
     String? transactionType;
     try {
       final contractData = await _service.getContractDetails(transaction['to']);
-      if (contractData != null && contractData.abi != null) {
+      if (contractData != null && contractData.abi.isNotEmpty) {
         transactionType = _service.getTransactionTypeFromAbi(
           contractData.abi,
           transaction['data'] ?? '',
@@ -400,11 +415,13 @@ class WalletKitLogic with WidgetsBindingObserver {
         event: currentSession,
         transactionType: transactionType ?? '',
         onConfirm: () async {
-          await _service.ethSendTransactionHandler(topic, params, true);
+          await _service.ethSendTransactionHandler(
+              topic, params, true, _config, _account, _credentials);
           Navigator.of(_context!).pop(true);
         },
         onCancel: () async {
-          await _service.ethSendTransactionHandler(topic, params, false);
+          await _service.ethSendTransactionHandler(
+              topic, params, false, _config, _account, _credentials);
           Navigator.of(_context!).pop(false);
         },
       ),
