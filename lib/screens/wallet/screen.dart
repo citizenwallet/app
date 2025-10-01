@@ -172,6 +172,17 @@ class WalletScreenState extends State<WalletScreen>
     );
   }
 
+  void _cleanupDeeplinkRoute() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        final navigator = GoRouter.of(context);
+        final cleanRoute = '/wallet/$_address?alias=$_alias';
+
+        navigator.go(cleanRoute);
+      }
+    });
+  }
+
   void onLoad() async {
     if (_address == null || _alias == null) {
       return;
@@ -220,6 +231,10 @@ class WalletScreenState extends State<WalletScreen>
 
     if (_sendToURL != null) {
       await handleSendScreen(sendToURL: _sendToURL);
+
+      _cleanupDeeplinkRoute();
+    } else {
+      //
     }
 
     if (_deepLink != null && _deepLinkParams != null) {
@@ -560,12 +575,16 @@ class WalletScreenState extends State<WalletScreen>
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/$_address/send', extra: {
+    final result = await navigator.push('/wallet/$_address/send', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
       'sendToURL': sendToURL,
     });
+
+    if (result != true && sendToURL != null) {
+      context.read<WalletState>().clearTipTo();
+    }
 
     _profileLogic.resume();
     _profilesLogic.resume();
@@ -808,7 +827,7 @@ class WalletScreenState extends State<WalletScreen>
     if (alias == null && params != null) {
       alias = paramsAlias(params);
     }
-    
+
     if (alias == null) {
       return (null, null);
     }
@@ -1048,13 +1067,14 @@ class WalletScreenState extends State<WalletScreen>
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
     final sendAlias = aliasFromSendUri(result);
-    
+
     if (voucherParams != null ||
         deepLinkParams != null ||
         sendToParams != null) {
       final (address, alias) = await handleLoadFromParams(
         voucherParams ?? sendToParams ?? deepLinkParams ?? parsedQRData.alias,
-        overrideAlias: uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
+        overrideAlias:
+            uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
       );
       loadedAddress = address;
       loadedAlias = alias;

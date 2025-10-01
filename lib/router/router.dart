@@ -56,8 +56,12 @@ GoRouter createRouter(
             builder: (context, state) {
               final appState = Provider.of<AppState>(context, listen: true);
 
-              // coming in from a deep link "#/wallet/..." will come as a fragment
-              final uri = Uri.parse(state.uri.fragment);
+              Uri uri = Uri.parse(state.uri.fragment);
+
+              if (uri.queryParameters.isEmpty &&
+                  state.uri.queryParameters.isNotEmpty) {
+                uri = state.uri;
+              }
 
               // parse from a deep link
               String? deepLinkParams;
@@ -72,9 +76,20 @@ GoRouter createRouter(
               String? sendToParams;
               final sendTo = uri.queryParameters['sendto'];
               final eip681 = uri.queryParameters['eip681'];
+              final tipTo = uri.queryParameters['tipTo'];
+
               if (sendTo != null) {
-                sendToParams =
-                    encodeParams(uri.toString().replaceFirst('/?', ''));
+                sendToParams = 'sendto=$sendTo';
+                if (tipTo != null) {
+                  sendToParams += '&tipTo=$tipTo';
+                }
+                if (uri.queryParameters['amount'] != null) {
+                  sendToParams += '&amount=${uri.queryParameters['amount']}';
+                }
+                if (uri.queryParameters['description'] != null) {
+                  sendToParams +=
+                      '&description=${uri.queryParameters['description']}';
+                }
               } else if (eip681 != null) {
                 sendToParams =
                     encodeParams(uri.toString().replaceFirst('/?', ''));
@@ -157,6 +172,22 @@ GoRouter createRouter(
               deepLinkParams = state.uri.queryParameters[deepLink];
             }
 
+            String? sendToURL;
+            final sendToParams = state.uri.queryParameters['sendToParams'];
+            if (sendToParams != null) {
+              sendToURL = 'https://app.citizenwallet.xyz/?$sendToParams';
+            } else {
+              final sendTo = state.uri.queryParameters['sendto'];
+              final tipTo = state.uri.queryParameters['tipTo'];
+              if (sendTo != null) {
+                String params = 'sendto=$sendTo';
+                if (tipTo != null) {
+                  params += '&tipTo=$tipTo';
+                }
+                sendToURL = 'https://app.citizenwallet.xyz/?$params';
+              }
+            }
+
             return NoTransitionPage(
               key: state.pageKey,
               name: state.name,
@@ -169,6 +200,7 @@ GoRouter createRouter(
                 receiveParams: state.uri.queryParameters['receiveParams'],
                 deepLink: deepLink,
                 deepLinkParams: deepLinkParams,
+                sendToURL: sendToURL,
               ),
             );
           },
@@ -501,6 +533,22 @@ GoRouter createWebRouter(
               deepLinkParams = state.uri.queryParameters[deepLink];
               if (deepLinkParams != null) {
                 deepLinkParams = encodeParams(deepLinkParams);
+              }
+            }
+
+            String? sendToParams;
+            if (state.uri.queryParameters['sendto'] != null) {
+              sendToParams = 'sendto=${state.uri.queryParameters['sendto']}';
+              if (state.uri.queryParameters['tipTo'] != null) {
+                sendToParams += '&tipTo=${state.uri.queryParameters['tipTo']}';
+              }
+              if (state.uri.queryParameters['amount'] != null) {
+                sendToParams +=
+                    '&amount=${state.uri.queryParameters['amount']}';
+              }
+              if (state.uri.queryParameters['description'] != null) {
+                sendToParams +=
+                    '&description=${state.uri.queryParameters['description']}';
               }
             }
 
