@@ -9,6 +9,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/app/logic.dart';
+import 'package:citizenwallet/state/communities/logic.dart';
 import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/notifications/state.dart';
 import 'package:citizenwallet/state/profile/logic.dart';
@@ -19,6 +20,7 @@ import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/state/wallet_connect/logic.dart';
 import 'package:citizenwallet/state/wallet_connect/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/migration_modal.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/widgets/header.dart';
 import 'package:citizenwallet/widgets/scanner/scanner_modal.dart';
@@ -74,6 +76,7 @@ class WalletScreenState extends State<WalletScreen>
   late ProfileLogic _profileLogic;
   late ProfilesLogic _profilesLogic;
   late VoucherLogic _voucherLogic;
+  late CommunitiesLogic _communitiesLogic;
   final WalletKitLogic _walletKitLogic = WalletKitLogic();
 
   String? _address;
@@ -84,7 +87,6 @@ class WalletScreenState extends State<WalletScreen>
   String? _deepLink;
   String? _deepLinkParams;
   String? _sendToURL;
-  Config? _config;
 
   @override
   void initState() {
@@ -105,6 +107,7 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic = ProfileLogic(context);
     _profilesLogic = ProfilesLogic(context);
     _voucherLogic = VoucherLogic(context);
+    _communitiesLogic = CommunitiesLogic(context);
 
     WidgetsBinding.instance.addObserver(_profilesLogic);
     WidgetsBinding.instance.addObserver(_voucherLogic);
@@ -183,6 +186,12 @@ class WalletScreenState extends State<WalletScreen>
       _address!,
       _alias!,
       (bool hasChanged) async {
+        _voucherLogic.setWalletState(
+          _logic.config!,
+          _logic.credentials!,
+          _logic.accountAddress!,
+        );
+
         _logic.requestWalletActions();
         await _logic.loadTransactions();
 
@@ -210,6 +219,10 @@ class WalletScreenState extends State<WalletScreen>
 
     _notificationsLogic.init();
 
+    if (_alias != null) {
+      await _communitiesLogic.fetchAndUpdateSingleCommunity(_alias!);
+    }
+
     if (_voucher != null && _voucherParams != null) {
       await handleLoadFromVoucher();
     }
@@ -225,6 +238,8 @@ class WalletScreenState extends State<WalletScreen>
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
     }
+
+    await MigrationModalUtils.showMigrationModalIfNeeded(context);
   }
 
   Future<void> handleDisconnect() async {
@@ -308,7 +323,6 @@ class WalletScreenState extends State<WalletScreen>
         final navigator = GoRouter.of(context);
 
         await navigator.push('/wallet/$_address/deeplink', extra: {
-          'wallet': _logic.wallet,
           'deepLink': deepLink,
           'deepLinkParams': deepLinkParams,
         });
@@ -445,7 +459,7 @@ class WalletScreenState extends State<WalletScreen>
       }
 
       _logic.updateAddress(override: true);
-      _profilesLogic.getProfile(addr);
+      _profilesLogic.getLocalProfile(addr);
 
       await navigator.push('/wallet/$_address/send/$addr', extra: {
         'walletLogic': _logic,
@@ -495,6 +509,7 @@ class WalletScreenState extends State<WalletScreen>
         account: wallet.account,
         readonly: true,
         keepLink: true,
+        walletLogic: _logic,
       ),
     );
 
@@ -514,8 +529,12 @@ class WalletScreenState extends State<WalletScreen>
     _voucherLogic.pause();
 
     if (receiveParams != null) {
+      final wallet = context.read<WalletState>().wallet;
+      if (wallet == null) {
+        return;
+      }
       final hex = await _logic.updateFromCapture(
-        '/#/?alias=${_logic.wallet.alias}&receiveParams=$receiveParams',
+        '/#/?alias=${wallet.alias}&receiveParams=$receiveParams',
       );
 
       if (hex == null) {
@@ -532,7 +551,7 @@ class WalletScreenState extends State<WalletScreen>
         return;
       }
 
-      _profilesLogic.getProfile(hex);
+      _profilesLogic.getLocalProfile(hex);
 
       final navigator = GoRouter.of(context);
 
@@ -808,7 +827,7 @@ class WalletScreenState extends State<WalletScreen>
     if (alias == null && params != null) {
       alias = paramsAlias(params);
     }
-    
+
     if (alias == null) {
       return (null, null);
     }
@@ -1048,13 +1067,14 @@ class WalletScreenState extends State<WalletScreen>
     final uriAlias = aliasFromUri(result);
     final receiveAlias = aliasFromReceiveUri(result);
     final sendAlias = aliasFromSendUri(result);
-    
+
     if (voucherParams != null ||
         deepLinkParams != null ||
         sendToParams != null) {
       final (address, alias) = await handleLoadFromParams(
         voucherParams ?? sendToParams ?? deepLinkParams ?? parsedQRData.alias,
-        overrideAlias: uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
+        overrideAlias:
+            uriAlias ?? receiveAlias ?? sendAlias ?? parsedQRData.alias,
       );
       loadedAddress = address;
       loadedAlias = alias;
@@ -1365,7 +1385,7 @@ class WalletScreenState extends State<WalletScreen>
             ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
-              display: isOffline,
+              display: showOfflineBanner,
               loading: eventServiceState == EventServiceState.connecting,
             ),
           ],

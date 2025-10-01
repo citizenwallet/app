@@ -54,7 +54,11 @@ class BackupLogic {
           accountsDB: AccountBackupDBService(),
         ),
       );
-    } catch (_) {}
+      await delay(const Duration(milliseconds: 500));
+
+    } catch (e) {
+      debugPrint('Error setting up Apple keychain: $e');
+    }
   }
 
   Future<bool> hasAccounts() async {
@@ -201,6 +205,8 @@ class BackupLogic {
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
       _preferences.setLastWallet(accounts.first.address.hexEip55);
+      _preferences
+          .setLastAccountFactoryAddress(accounts.first.accountFactoryAddress);
 
       _state.decryptSuccess(backupTime, username);
 
@@ -290,6 +296,8 @@ class BackupLogic {
       // set up the first wallet as the default, this will allow the app to start normally
       _preferences.setLastAlias(accounts.first.alias);
       _preferences.setLastWallet(accounts.first.address.hexEip55);
+      _preferences
+          .setLastAccountFactoryAddress(accounts.first.accountFactoryAddress);
     } on BackupNotFoundException {
       _state.setStatus(BackupStatus.nobackup);
       _state.backupError();

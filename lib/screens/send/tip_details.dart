@@ -67,17 +67,8 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     super.initState();
     _sendTransaction = widget.sendTransaction ?? SendTransaction();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final walletLogic = widget.walletLogic;
-      final tipTo = context.read<WalletState>().tipTo;
-
-      if (tipTo != null) {
-        widget.profilesLogic.getProfile(tipTo).then((profile) {
-          if (profile != null) {
-            widget.profilesLogic.selectProfile(profile);
-          }
-        });
-      }
 
       onLoad();
 
@@ -115,6 +106,19 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
+    final tipTo = context.read<WalletState>().tipTo;
+
+    if (tipTo != null) {
+      try {
+        final profile = await widget.profilesLogic.getLocalProfile(tipTo);
+        if (profile != null) {
+          widget.profilesLogic.selectProfile(profile);
+        }
+      } catch (e) {
+        debugPrint('Error fetching profile: $e');
+      }
+    }
+
     amountFocusNode.requestFocus();
     messageFocusNode.addListener(_onMessageFocusChange);
   }
@@ -144,16 +148,37 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final voucherLogic = widget.voucherLogic;
     if (voucherLogic == null) {
+      setState(() {
+        _isSending = false;
+      });
       return;
     }
 
     final walletLogic = widget.walletLogic;
 
-    voucherLogic.createVoucher(
-      balance: widget.walletLogic.amountController.value.text,
-      symbol: symbol,
-      mint: mint,
-    );
+    if (walletLogic.config != null &&
+        walletLogic.credentials != null &&
+        walletLogic.accountAddress != null) {
+      voucherLogic.setWalletState(
+        walletLogic.config!,
+        walletLogic.credentials!,
+        walletLogic.accountAddress!,
+      );
+    }
+
+    try {
+      voucherLogic.createVoucher(
+        balance: widget.walletLogic.amountController.value.text,
+        symbol: symbol,
+        mint: mint,
+      );
+    } catch (e) {
+      debugPrint('Error creating voucher: $e');
+      setState(() {
+        _isSending = false;
+      });
+      return;
+    }
 
     voucherLogic.shareReady();
 
@@ -243,7 +268,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final isValid = walletLogic.validateSendFields(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      tipTo,
     );
 
     if (!isValid) {
@@ -282,7 +307,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     HapticFeedback.heavyImpact();
 
     final sent = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send/$toAccount/progress',
+        '/wallet/${walletLogic.account}/send/$tipTo/progress',
         extra: {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
@@ -291,16 +316,23 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
         });
 
     if (sent == true) {
+      walletLogic.clearInProgressTransaction();
       walletLogic.clearInputControllers();
       walletLogic.resetInputErrorState();
       widget.profilesLogic.clearSearch();
 
       await Future.delayed(const Duration(milliseconds: 50));
 
-      if (navigator.canPop()) {
-        navigator.go('/wallet/${walletLogic.account}');
+      final walletAddress = walletLogic.address.isNotEmpty
+          ? walletLogic.address
+          : walletLogic.account.isNotEmpty
+              ? walletLogic.account
+              : context.read<WalletState>().wallet?.address ?? '';
+
+      if (walletAddress.isNotEmpty) {
+        navigator.go('/wallet/$walletAddress');
       } else {
-        navigator.go('/wallet/${walletLogic.account}');
+        navigator.go('/');
       }
       return;
     }

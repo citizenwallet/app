@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:citizenwallet/services/config/config.dart';
 
 final List<String> supportedChains = [
   'eip155:100',
@@ -254,8 +255,8 @@ class WalletKitService {
     _connectClient!.onSessionRequest.subscribe(callback);
   }
 
-  Future<void> personalSignHandler(
-      String topic, dynamic params, bool? approve) async {
+  Future<void> personalSignHandler(String topic, dynamic params, bool? approve,
+      EthPrivateKey? credentials) async {
     if (_connectClient == null) throw Exception('WalletKit not initialized');
 
     final SessionRequest request =
@@ -265,11 +266,7 @@ class WalletKitService {
     final decoded = hex.decode(params.first.substring(2));
     final message = utf8.decode(decoded);
 
-    if (approve == true) {
-      final walletService = WalletService();
-
-      final credentials = walletService.credentials;
-
+    if (approve == true && credentials != null) {
       final signature = bytesToHex(
         credentials.signPersonalMessageToUint8List(
           keccak256(utf8.encode(message)),
@@ -299,7 +296,12 @@ class WalletKitService {
   }
 
   Future<void> ethSendTransactionHandler(
-      String topic, dynamic params, bool approve) async {
+      String topic,
+      dynamic params,
+      bool approve,
+      Config? config,
+      EthereumAddress? account,
+      EthPrivateKey? credentials) async {
     if (_connectClient == null) throw Exception('WalletKit not initialized');
 
     final SessionRequest request =
@@ -309,9 +311,10 @@ class WalletKitService {
 
     final transaction = (params as List<dynamic>).first as Map<String, dynamic>;
 
-    if (approve == true) {
-      final walletService = WalletService();
-
+    if (approve == true &&
+        config != null &&
+        account != null &&
+        credentials != null) {
       final data = transaction['data'] != null
           ? hexToBytes(transaction['data'])
           : Uint8List(0);
@@ -328,19 +331,23 @@ class WalletKitService {
         value = BigInt.zero;
       }
 
-      final (hash, userop) = await walletService.prepareUserop(
+      final (hash, userop) = await prepareUserop(
+        config,
+        account,
+        credentials,
         [transaction['to']],
         [data],
         value: value,
+        accountFactoryAddress: config.community.primaryAccountFactory.address,
       );
 
-      final txHash = await walletService.submitUserop(
+      final txHash = await submitUserop(
+        config,
         userop,
-        data: {'data': transaction['data']},
       );
 
-      if (userop.isFirst()) {
-        await walletService.waitForTxSuccess(txHash!).then((value) {});
+      if (txHash != null && userop.isFirst()) {
+        await waitForTxSuccess(config, txHash).then((value) {});
       }
 
       return _connectClient!.respondSessionRequest(

@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
@@ -10,6 +11,7 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:citizenwallet/state/profile/state.dart';
 import 'package:citizenwallet/state/profiles/state.dart';
+import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/formatters.dart';
 import 'package:citizenwallet/utils/random.dart';
@@ -30,15 +32,51 @@ class ProfileLogic {
   late ProfileState _state;
   late ProfilesState _profiles;
   final PhotosService _photos = PhotosService();
+  final AccountsServiceInterface _accountsService = getAccountsService();
 
   final AccountDBService _db = AccountDBService();
-  final WalletService _wallet = WalletService();
-
+  late BuildContext _context;
   bool _pauseProfileCreation = false;
 
   ProfileLogic(BuildContext context) {
+    _context = context;
     _state = context.read<ProfileState>();
     _profiles = context.read<ProfilesState>();
+  }
+
+  Config? get _config => _context.read<WalletState>().config;
+  String? get _walletAccount => _context.read<WalletState>().wallet?.account;
+  String? get _walletAlias => _context.read<WalletState>().wallet?.alias;
+
+  Future<EthPrivateKey?> get _credentials async {
+    final account = _walletAccount;
+    final alias = _walletAlias;
+    if (account == null || alias == null) return null;
+
+    final dbAccount = await _accountsService.getAccount(account, alias, '');
+    return dbAccount?.privateKey;
+  }
+
+  EthereumAddress? get _account {
+    final account = _walletAccount;
+    return account != null ? EthereumAddress.fromHex(account) : null;
+  }
+
+  Future<
+      ({
+        Config? config,
+        EthPrivateKey? credentials,
+        EthereumAddress? account
+      })?> get _walletData async {
+    final config = _config;
+    final credentials = await _credentials;
+    final account = _account;
+
+    if (config == null || credentials == null || account == null) {
+      return null;
+    }
+
+    return (config: config, credentials: credentials, account: account);
   }
 
   void resetAll() {
@@ -77,11 +115,11 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      if (_wallet.alias == null) {
-        throw Exception('alias not found');
-      }
+      final walletData = await _walletData;
+      if (walletData == null) return;
 
-      final community = await _appDBService.communities.get(_wallet.alias!);
+      final community = await _appDBService.communities
+          .get(walletData.config!.community.alias);
 
       if (community == null) {
         throw Exception('community not found');
@@ -92,12 +130,13 @@ class ProfileLogic {
       final url = communityConfig.community.walletUrl(deepLinkURL);
 
       final compressedParams = compress(
-          '?address=${_wallet.account.hexEip55}&alias=${communityConfig.community.alias}');
+          '?address=${walletData.account!.hexEip55}&alias=${communityConfig.community.alias}');
 
       _state.setProfileLinkSuccess('$url&receiveParams=$compressedParams');
       return;
     } catch (e) {
-      //
+      // Add logging to help debug future issues
+      debugPrint('Error loading profile link: $e');
     }
 
     _state.setProfileLinkError();
@@ -122,34 +161,70 @@ class ProfileLogic {
   }
 
   Future<void> checkUsername(String username) async {
+    final walletData = await _walletData;
+    if (walletData == null) {
+      _state.setUsernameError();
+      return;
+    }
+
     if (username == '') {
       _state.setUsernameError();
     }
 
-    if (username == _state.username) {
+    if (username.length < 3) {
+      _state.setUsernameError(
+          message: 'Username must be at least 3 characters long.');
+      return;
+    }
+
+    final usernameRegex = RegExp(r'^[a-zA-Z0-9_-]+$');
+    if (!usernameRegex.hasMatch(username)) {
+      _state.setUsernameError(
+          message:
+              'Username can only contain letters, numbers, underscores, and hyphens.');
+      return;
+    }
+
+    if (username.toLowerCase() == _state.username.toLowerCase()) {
+      _state.setUsernameSuccess();
       return;
     }
 
     try {
       _state.setUsernameRequest();
 
-      final exists = await _wallet.profileExists(username);
+      final exists =
+          await profileExists(walletData.config!, username.toLowerCase());
       if (exists) {
+        final existingProfile = await getProfileByUsername(
+            walletData.config!, username.toLowerCase());
+        if (existingProfile != null &&
+            existingProfile.account == walletData.account!.hexEip55) {
+          _state.setUsernameSuccess();
+          return;
+        }
         throw Exception('Already exists');
       }
 
       _state.setUsernameSuccess();
       return;
     } catch (exception) {
-      //
+      debugPrint('Username check error: $exception');
+      if (exception.toString().contains('Already exists')) {
+        _state.setUsernameError(message: 'This username is already taken.');
+      } else {
+        _state.setUsernameError(
+            message: 'Unable to check username availability.');
+      }
     }
-
-    _state.setUsernameError();
   }
 
   Future<void> loadProfile({String? account, bool online = false}) async {
-    final ethAccount = _wallet.account;
-    final alias = _wallet.alias ?? '';
+    final walletData = await _walletData;
+    if (walletData == null) return;
+
+    final ethAccount = walletData.account!;
+    final alias = walletData.config!.community.alias;
     final acc = account ?? ethAccount.hexEip55;
 
     resume();
@@ -158,7 +233,7 @@ class ProfileLogic {
       _state.setProfileRequest();
 
       final account =
-          await _accountBackupDBService.accounts.get(ethAccount, alias);
+          await _accountBackupDBService.accounts.get(ethAccount, alias, '');
 
       if (account != null && account.profile != null) {
         final profile = account.profile!;
@@ -182,10 +257,13 @@ class ProfileLogic {
         throw Exception('community is offline');
       }
 
-      final profile = await _wallet.getProfile(acc);
+      final profile = await getProfile(walletData.config!, acc);
       if (profile == null) {
         _state.setProfileNoChangeSuccess();
-        giveProfileUsername();
+
+        if (_state.username.isEmpty) {
+          giveProfileUsername();
+        }
 
         return;
       }
@@ -207,11 +285,16 @@ class ProfileLogic {
         profile,
       );
 
+      // Get the existing account to preserve the account factory address
+      final existingAccount =
+          await _accountBackupDBService.accounts.get(ethAccount, alias, '');
+
       _accountBackupDBService.accounts.update(DBAccount(
         alias: alias,
         address: ethAccount,
         name: profile.name,
         username: profile.username,
+        accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
         privateKey: null,
         profile: profile,
       ));
@@ -236,7 +319,10 @@ class ProfileLogic {
         _state.viewProfileSuccess(cachedProfile!.profile);
       }
 
-      final profile = await _wallet.getProfile(account);
+      final config = _config;
+      if (config == null) return;
+
+      final profile = await getProfile(config, account);
       if (profile == null) {
         await delay(const Duration(milliseconds: 500));
         _state.setViewProfileNoChangeSuccess();
@@ -260,7 +346,16 @@ class ProfileLogic {
     _state.viewProfileError();
   }
 
+  /// Save a new profile with optional image
   Future<bool> save(ProfileV1 profile, Uint8List? image) async {
+    final config = _config;
+    final credentials = await _credentials;
+    final account = _account;
+
+    if (config == null || credentials == null || account == null) {
+      return false;
+    }
+
     try {
       _state.setProfileRequest();
 
@@ -270,7 +365,7 @@ class ProfileLogic {
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
 
-      final exists = await _wallet.createAccount();
+      final exists = await createAccount(config, account, credentials);
       if (!exists) {
         throw Exception('Failed to create account');
       }
@@ -281,10 +376,17 @@ class ProfileLogic {
           ? convertBytesToUint8List(image)
           : await _photos.photoFromBundle('assets/icons/profile.jpg');
 
-      final url = await _wallet.setProfile(
+      final accountForFactory = await _accountBackupDBService.accounts
+          .get(account, config.community.alias, '');
+
+      final url = await setProfile(
+        config,
+        account,
+        credentials,
         ProfileRequest.fromProfileV1(profile),
         image: newImage,
         fileType: '.jpg',
+        accountFactoryAddress: accountForFactory?.accountFactoryAddress,
       );
       if (url == null) {
         throw Exception('Failed to save profile');
@@ -292,7 +394,7 @@ class ProfileLogic {
 
       _state.setProfileFetching();
 
-      final newProfile = await _wallet.getProfileFromUrl(url);
+      final newProfile = await getProfileFromUrl(config, url);
       if (newProfile == null) {
         throw Exception('Failed to load profile');
       }
@@ -321,12 +423,18 @@ class ProfileLogic {
         ),
       );
 
+      final existingAccount = await _accountBackupDBService.accounts.get(
+          EthereumAddress.fromHex(newProfile.account),
+          config.community.alias,
+          '');
+
       _accountBackupDBService.accounts.update(
         DBAccount(
-          alias: _wallet.alias!,
+          alias: config.community.alias,
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
+          accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
           privateKey: null,
           profile: newProfile,
         ),
@@ -344,7 +452,16 @@ class ProfileLogic {
     return false;
   }
 
+  /// Update an existing profile
   Future<bool> update(ProfileV1 profile) async {
+    final config = _config;
+    final credentials = await _credentials;
+    final account = _account;
+
+    if (config == null || credentials == null || account == null) {
+      return false;
+    }
+
     try {
       _state.setProfileRequest();
 
@@ -357,7 +474,7 @@ class ProfileLogic {
 
       _state.setProfileExisting();
 
-      final existing = await _wallet.getProfile(profile.account);
+      final existing = await getProfile(config, profile.account);
       if (existing == null) {
         throw Exception('Failed to load profile');
       }
@@ -369,14 +486,27 @@ class ProfileLogic {
 
       _state.setProfileUploading();
 
-      final url = await _wallet.updateProfile(profile);
+      final accountForFactory = await _accountBackupDBService.accounts
+          .get(account, config.community.alias, '');
+
+      if (accountForFactory == null) {}
+
+      final factoryAddress = accountForFactory?.accountFactoryAddress;
+
+      final url = await updateProfile(
+        config,
+        account,
+        credentials,
+        profile,
+        accountFactoryAddress: factoryAddress,
+      );
       if (url == null) {
         throw Exception('Failed to save profile');
       }
 
       _state.setProfileFetching();
 
-      final newProfile = await _wallet.getProfileFromUrl(url);
+      final newProfile = await getProfileFromUrl(config, url);
       if (newProfile == null) {
         throw Exception('Failed to load profile');
       }
@@ -403,12 +533,18 @@ class ProfileLogic {
         imageSmall: newProfile.imageSmall,
       ));
 
+      final existingAccount = await _accountBackupDBService.accounts.get(
+          EthereumAddress.fromHex(newProfile.account),
+          config.community.alias,
+          '');
+
       _accountBackupDBService.accounts.update(
         DBAccount(
-          alias: _wallet.alias!,
+          alias: config.community.alias,
           address: EthereumAddress.fromHex(newProfile.account),
           name: newProfile.name,
           username: newProfile.username,
+          accountFactoryAddress: existingAccount?.accountFactoryAddress ?? '',
           privateKey: null,
           profile: newProfile,
         ),
@@ -420,7 +556,10 @@ class ProfileLogic {
       );
 
       return true;
-    } catch (_) {}
+    } catch (e, stackTrace) {
+      debugPrint('ProfileLogic.update() - Error during profile update: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
 
     _state.setProfileError();
     return false;
@@ -435,6 +574,9 @@ class ProfileLogic {
   }
 
   Future<String?> generateProfileUsername() async {
+    final walletData = await _walletData;
+    if (walletData == null) return null;
+
     String username = await getRandomUsername();
     _state.setUsernameSuccess(username: username);
 
@@ -442,7 +584,7 @@ class ProfileLogic {
     const baseDelay = Duration(milliseconds: 100);
 
     for (int tries = 1; tries <= maxTries; tries++) {
-      final exists = await _wallet.profileExists(username);
+      final exists = await profileExists(walletData.config!, username);
 
       if (!exists) {
         return username;
@@ -460,6 +602,9 @@ class ProfileLogic {
   Future<void> giveProfileUsername() async {
     debugPrint('handleNewProfile');
 
+    final walletData = await _walletData;
+    if (walletData == null) return;
+
     try {
       final username = await generateProfileUsername();
       if (username == null) {
@@ -467,13 +612,11 @@ class ProfileLogic {
         return;
       }
 
-      _state.setUsernameSuccess(username: username);
-
-      final address = _wallet.account.hexEip55;
-      final alias = _wallet.alias ?? '';
+      final address = walletData.account!.hexEip55;
+      final alias = walletData.config!.community.alias;
 
       final account = await _accountBackupDBService.accounts
-          .get(EthereumAddress.fromHex(address), alias);
+          .get(EthereumAddress.fromHex(address), alias, '');
 
       if (account == null) {
         throw Exception(
@@ -489,16 +632,12 @@ class ProfileLogic {
             name: account.name,
           );
 
-      _profiles.isLoaded(
-        profile.account,
-        profile,
-      );
-
       if (_pauseProfileCreation) {
         return;
       }
 
-      final exists = await _wallet.createAccount();
+      final exists = await createAccount(
+          walletData.config!, walletData.account!, walletData.credentials!);
       if (!exists) {
         throw Exception('Failed to create account');
       }
@@ -507,10 +646,14 @@ class ProfileLogic {
         return;
       }
 
-      final url = await _wallet.setProfile(
+      final url = await setProfile(
+        walletData.config!,
+        walletData.account!,
+        walletData.credentials!,
         ProfileRequest.fromProfileV1(profile),
         image: await _photos.photoFromBundle('assets/icons/profile.jpg'),
         fileType: '.jpg',
+        accountFactoryAddress: account.accountFactoryAddress,
       );
       if (url == null) {
         throw Exception('Failed to create profile url');
@@ -520,11 +663,12 @@ class ProfileLogic {
         return;
       }
 
-      final newProfile = await _wallet.getProfileFromUrl(url);
+      final newProfile = await getProfileFromUrl(walletData.config!, url);
       if (newProfile == null) {
         throw Exception('Failed to get profile from url $url');
       }
 
+      _state.setUsernameSuccess(username: newProfile.username);
       _profiles.isLoaded(
         newProfile.account,
         newProfile,
@@ -556,6 +700,7 @@ class ProfileLogic {
           address: EthereumAddress.fromHex(address),
           name: newProfile.name,
           username: newProfile.username,
+          accountFactoryAddress: account.accountFactoryAddress,
           profile: newProfile,
         ),
       );

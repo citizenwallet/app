@@ -41,7 +41,6 @@ class WebSocketEvent {
       final jsonData = json.decode(message);
       return WebSocketEvent.fromJson(jsonData);
     } catch (e) {
-      print('Error parsing WebSocket message: $e');
       return null;
     }
   }
@@ -66,7 +65,6 @@ class EventService {
   bool get isOffline => _isConnected == false;
 
   Future<void> connect({Duration? reconnectDelay}) async {
-    print('Connecting to $_url/v1/events/$_contractAddress/$_topic');
 
     if (_isConnected) return;
 
@@ -89,7 +87,6 @@ class EventService {
         onDone: _onDone,
       );
     } catch (e) {
-      print('Connection error: $e');
       _isConnected = false;
       _onStateChange(EventServiceState.error);
       Duration delay = Duration(seconds: _reconnectDelay.inSeconds);
@@ -118,36 +115,26 @@ class EventService {
   }
 
   void _onMessage(dynamic message) {
-    print('Received message: $message');
 
     if (message is String) {
       final event = WebSocketEvent.tryParse(message);
       if (event != null) {
         // Handle the parsed event
-        print('Parsed WebSocketEvent: ${event.type} - ${event.id}');
         _messageHandler?.call(event);
-      } else {
-        print('Failed to parse WebSocket message');
       }
-    } else {
-      print('Received non-string message');
     }
   }
 
   void _onError(error) {
-    print('WebSocket error: $error');
     _isConnected = false;
     _onStateChange(EventServiceState.error);
 
     if (!_intentionalDisconnect) {
       _scheduleReconnect();
-    } else {
-      print('Skipping reconnect due to intentional disconnect');
     }
   }
 
   void _onDone() {
-    print('WebSocket connection closed');
     _isConnected = false;
     if (!_intentionalDisconnect) {
       _scheduleReconnect();
@@ -164,7 +151,6 @@ class EventService {
 
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(reconnectDelay ?? _reconnectDelay, () async {
-      print('Attempting to reconnect...');
 
       _onStateChange(EventServiceState.connecting);
 
@@ -175,7 +161,6 @@ class EventService {
   }
 
   Future<void> disconnect() async {
-    print('Disconnecting from $_url/v1/events/$_contractAddress/$_topic');
     _reconnectTimer?.cancel();
     _isConnected = false;
     _intentionalDisconnect = true;

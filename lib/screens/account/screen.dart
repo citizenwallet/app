@@ -75,7 +75,10 @@ class AccountScreenState extends State<AccountScreen> {
         await _logic.loadProfileLink();
 
         if (hasChanged) {
-          _logic.resetAll();
+          final profileState = context.read<ProfileState>();
+          if (profileState.username.isEmpty) {
+            _logic.resetAll();
+          }
           final online = _walletLogic.isOnline;
           _logic.loadProfile(online: online);
         }

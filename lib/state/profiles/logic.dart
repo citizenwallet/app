@@ -1,3 +1,4 @@
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/db/account/contacts.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
@@ -10,19 +11,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:citizenwallet/services/cache/contacts.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ProfilesLogic extends WidgetsBindingObserver {
   final AccountDBService _db = AccountDBService();
   final AccountBackupDBService _accountBackupDBService =
       AccountBackupDBService();
   late ProfilesState _state;
-  final WalletService _wallet = WalletService();
+
+  late EthPrivateKey _currentCredentials;
+  late EthereumAddress _currentAccount;
+  late Config _currentConfig;
 
   late Debounce debouncedSearchProfile;
 
   late Debounce debouncedLoad;
   List<String> toLoad = [];
   bool stopLoading = false;
+  bool _isInitialized = false;
 
   ProfilesLogic(BuildContext context) {
     _state = context.read<ProfilesState>();
@@ -41,10 +47,22 @@ class ProfilesLogic extends WidgetsBindingObserver {
     );
   }
 
+  void setWalletState(
+      Config config, EthPrivateKey credentials, EthereumAddress account) {
+    _currentConfig = config;
+    _currentCredentials = credentials;
+    _currentAccount = account;
+    _isInitialized = true;
+  }
+
   Future<ProfileV1?> _loadCachedProfile(String addr) async {
     try {
+      if (_currentConfig == null || !_isInitialized) {
+        return null;
+      }
+
       final cachedProfile = await ContactsCache().get(addr, () async {
-        final fetchedProfile = await _wallet.getProfile(addr);
+        final fetchedProfile = await getProfile(_currentConfig, addr);
         if (fetchedProfile == null) {
           return null;
         }
@@ -77,6 +95,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
       return;
     }
 
+    if (!_isInitialized) {
+      return;
+    }
+
     final toLoadCopy = [...toLoad];
     toLoad = [];
 
@@ -106,6 +128,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfile(String addr) async {
     try {
+      if (!_isInitialized) {
+        return;
+      }
+
       if (!toLoad.contains(addr) && !_state.exists(addr)) {
         toLoad.add(addr);
         debouncedLoad();
@@ -117,23 +143,22 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> _searchProfile(String value) async {
     try {
+      if (_currentConfig == null || !_isInitialized) {
+        _state.isSearchingError();
+        return;
+      }
+
       final cleanValue = value.replaceFirst('@', '');
 
       _state.isSearching();
 
       final profile = cleanValue.startsWith('0x')
-          ? await _wallet.getProfile(cleanValue)
-          : await _wallet.getProfileByUsername(cleanValue);
-
-      final results = await _db.contacts.search(cleanValue.toLowerCase());
-
-      _state.isSearchingSuccess(
-        profile,
-        results.map((e) => ProfileV1.fromMap(e.toMap())).toList(),
-      );
+          ? await getProfile(_currentConfig, cleanValue)
+          : await getProfileByUsername(_currentConfig, cleanValue);
 
       if (profile != null) {
-        _db.contacts.upsert(DBContact(
+        _state.isSearchingSuccess(profile, []);
+        await _db.contacts.upsert(DBContact(
           account: profile.account,
           username: profile.username,
           name: profile.name,
@@ -142,6 +167,14 @@ class ProfilesLogic extends WidgetsBindingObserver {
           imageMedium: profile.imageMedium,
           imageSmall: profile.imageSmall,
         ));
+      } else {
+        if (cleanValue.length >= 3) {
+          final results = await _db.contacts.search(cleanValue.toLowerCase());
+          _state.isSearchingSuccess(
+              null, results.map((e) => ProfileV1.fromMap(e.toMap())).toList());
+        } else {
+          _state.isSearchingSuccess(null, []);
+        }
       }
       return;
     } catch (e) {
@@ -151,8 +184,13 @@ class ProfilesLogic extends WidgetsBindingObserver {
     _state.isSearchingError();
   }
 
-  Future<ProfileV1?> getProfile(String addr) async {
+  Future<ProfileV1?> getLocalProfile(String addr) async {
     try {
+      if (!_isInitialized) {
+        _state.isSearchingError();
+        return null;
+      }
+
       _state.isSearching();
 
       final profile = await _loadCachedProfile(addr);
@@ -171,12 +209,29 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   Future<void> searchProfile(String username) async {
+    if (username.trim().isEmpty) {
+      debouncedSearchProfile.cancel();
+      _state.clearSearch();
+      await allProfiles();
+      return;
+    }
+
+    if (!_isInitialized) {
+      _state.isSearchingError();
+      return;
+    }
+
     _state.isSearching();
     debouncedSearchProfile([username]);
   }
 
   Future<void> allProfiles() async {
     try {
+      if (!_isInitialized) {
+        _state.isSearchingError();
+        return;
+      }
+
       _state.isSearching();
 
       final results = await _db.contacts.getAll();
@@ -195,6 +250,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfiles() async {
     try {
+      if (!_isInitialized) {
+        _state.profileListFail();
+        return;
+      }
+
       _state.profileListRequest();
 
       final results = await _db.contacts.getAll();
@@ -212,6 +272,10 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   Future<void> loadProfilesFromAllAccounts() async {
     try {
+      if (!_isInitialized) {
+        return;
+      }
+
       final accounts = await _accountBackupDBService.accounts.all();
       final profilesMap = <String, ProfileV1>{};
 
@@ -222,8 +286,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
         }
 
         // Try to get updated profile from wallet
-        final updatedProfile =
-            await _wallet.getProfile(account.address.hexEip55);
+        final updatedProfile = await getLocalProfile(account.address.hexEip55);
 
         if (updatedProfile != null) {
           profilesMap[account.address.hexEip55] = updatedProfile;
@@ -234,6 +297,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
               address: account.address,
               name: updatedProfile.name,
               username: updatedProfile.username,
+              accountFactoryAddress: account.accountFactoryAddress,
               profile: updatedProfile,
             ),
           );
@@ -247,24 +311,51 @@ class ProfilesLogic extends WidgetsBindingObserver {
   }
 
   void selectProfile(ProfileV1? profile) {
+    if (!_isInitialized) {
+      return;
+    }
+
     _state.isSelected(profile);
   }
 
   Future<String?> getAccountAddressWithAlias(String alias) async {
-    final accounts = await _accountBackupDBService.accounts.allForAlias(alias);
-    return accounts.first.address.hex;
+    if (!_isInitialized) {
+      return null;
+    }
+
+    try {
+      final accounts =
+          await _accountBackupDBService.accounts.allForAlias(alias);
+      return accounts.first.address.hex;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<ProfileV1?> getSendToProfile(String address) async {
-    final profile = await _wallet.getProfile(address);
+    if (!_isInitialized) {
+      return null;
+    }
+
+    final profile = await getLocalProfile(address);
     return profile;
   }
 
   void deSelectProfile() {
+    if (!_isInitialized) {
+      return;
+    }
+
     _state.isDeSelected();
   }
 
   void clearSearch({bool notify = true}) {
+    if (!_isInitialized) {
+      return;
+    }
+
+    debouncedSearchProfile.cancel();
+
     _state.clearSearch(notify: notify);
   }
 
@@ -275,6 +366,11 @@ class ProfilesLogic extends WidgetsBindingObserver {
 
   void resume() {
     stopLoading = false;
+
+    if (!_isInitialized) {
+      return;
+    }
+
     debouncedLoad();
   }
 

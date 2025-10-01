@@ -88,7 +88,7 @@ class TransactionScreenState extends State<TransactionScreen>
 
     walletLogic.addressController.text = address;
 
-    final profile = await profilesLogic.getProfile(address);
+    final profile = await profilesLogic.getLocalProfile(address);
 
     walletLogic.updateAddress(override: profile != null);
 
@@ -139,7 +139,7 @@ class TransactionScreenState extends State<TransactionScreen>
     walletLogic.updateMessage();
     walletLogic.updateListenerAmount();
 
-    final profile = await profilesLogic.getProfile(address);
+    final profile = await profilesLogic.getLocalProfile(address);
 
     walletLogic.updateAddress(override: profile != null);
     walletLogic.updateAmount();
@@ -171,6 +171,7 @@ class TransactionScreenState extends State<TransactionScreen>
       builder: (_) => ProfileModal(
         account: account,
         readonly: true,
+        walletLogic: widget.logic,
       ),
     );
   }
@@ -181,14 +182,151 @@ class TransactionScreenState extends State<TransactionScreen>
 
     final wallet = context.select((WalletState state) => state.wallet);
 
-    final transaction =
-        context.watch<transaction_state.TransactionState>().transaction;
+    final transactionState =
+        context.watch<transaction_state.TransactionState>();
+    final transaction = transactionState.transaction;
+    final transactionLoading = transactionState.loading;
 
     final loading = context.select((WalletState state) => state.loading);
 
     final blockSending = context.select(selectShouldBlockSending);
 
-    if (wallet == null || transaction == null) {
+    if (wallet == null) {
+      return const SizedBox();
+    }
+
+    if (transaction == null && transactionLoading) {
+      return CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: Theme.of(context).colors.transparent,
+        body: CupertinoPageScaffold(
+          backgroundColor:
+              Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+          child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(left: 10, right: 10),
+            child: Flex(
+              direction: Axis.vertical,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Center(
+                          child: CupertinoActivityIndicator(),
+                        ),
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top,
+                          left: 0,
+                          child: CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            onPressed: () => handleDismiss(context),
+                            child: Icon(
+                              CupertinoIcons.back,
+                              color: Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (transaction == null && !transactionLoading) {
+      return CupertinoScaffold(
+        topRadius: const Radius.circular(40),
+        transitionBackgroundColor: Theme.of(context).colors.transparent,
+        body: CupertinoPageScaffold(
+          backgroundColor:
+              Theme.of(context).colors.uiBackgroundAlt.resolveFrom(context),
+          child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(left: 10, right: 10),
+            child: Flex(
+              direction: Axis.vertical,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.exclamationmark_triangle,
+                                size: 48,
+                                color: Theme.of(context)
+                                    .colors
+                                    .text
+                                    .resolveFrom(context),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Transaction not found',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'The transaction could not be loaded.',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context)
+                                      .colors
+                                      .text
+                                      .resolveFrom(context),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top,
+                          left: 0,
+                          child: CupertinoButton(
+                            padding: const EdgeInsets.all(5),
+                            onPressed: () => handleDismiss(context),
+                            child: Icon(
+                              CupertinoIcons.back,
+                              color: Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (transaction == null) {
       return const SizedBox();
     }
 

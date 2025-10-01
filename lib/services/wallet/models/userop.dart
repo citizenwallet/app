@@ -6,6 +6,9 @@ import 'package:web3dart/web3dart.dart';
 const String gasFeeErrorMessage =
     'pending ops: replacement op must increase maxFeePerGas and MaxPriorityFeePerGas';
 const String invalidBalanceErrorMessage = 'transfer amount exceeds balance';
+const String unauthorizedErrorMessage = 'Unauthorized';
+const String accessDeniedErrorMessage = 'Access Denied';
+const String forbiddenErrorMessage = 'Forbidden';
 
 class NetworkCongestedException implements Exception {
   final String message = 'network congestion';
@@ -23,6 +26,12 @@ class NetworkUnknownException implements Exception {
   final String message = 'network error';
 
   NetworkUnknownException();
+}
+
+class NetworkUnauthorizedException implements Exception {
+  final String message = 'unauthorized access';
+
+  NetworkUnauthorizedException();
 }
 
 const String zeroAddress = '0x0000000000000000000000000000000000000000';

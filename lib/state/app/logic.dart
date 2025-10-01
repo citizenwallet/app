@@ -1,11 +1,18 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'package:web3dart/web3dart.dart';
 import 'package:citizenwallet/models/wallet.dart';
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/accounts/native/apple.dart';
+import 'package:citizenwallet/services/api/api.dart';
 import 'package:citizenwallet/services/audio/audio.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
-import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
@@ -15,11 +22,6 @@ import 'package:citizenwallet/state/app/state.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/utils/delay.dart';
 import 'package:citizenwallet/utils/uint8.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
-import 'package:web3dart/web3dart.dart';
 
 class AppLogic {
   final ThemeLogic _theme = ThemeLogic();
@@ -55,6 +57,20 @@ class AppLogic {
     _appState.appLoaded();
   }
 
+  Future<void> checkMigrationRequired() async {
+    try {
+      _appState.migrationCheckRequest();
+
+      final apiService = APIService(baseURL: dotenv.get('DASHBOARD_API'));
+      final migrationRequired = await apiService.checkMigrationRequired();
+
+      _appState.migrationCheckSuccess(migrationRequired);
+    } catch (e) {
+      debugPrint('Migration check error: $e');
+      _appState.migrationCheckFailed();
+    }
+  }
+
   void setFirstLaunch(bool firstLaunch) {
     try {
       _preferences.setFirstLaunch(firstLaunch);
@@ -64,62 +80,94 @@ class AppLogic {
   }
 
   Future<(String?, String?)> loadLastWallet() async {
-    try {
-      _appState.importLoadingReq();
-      final String? lastWallet = _preferences.lastWallet;
-      final String? lastAlias = _preferences.lastAlias;
+    return _loadLastWalletWithRetry();
+  }
 
-      DBAccount? dbWallet;
-      if (lastWallet != null && lastAlias != null) {
-        dbWallet = await _accounts.getAccount(lastWallet, lastAlias);
-      }
+  Future<(String?, String?)> _loadLastWalletWithRetry(
+      {int maxRetries = 3}) async {
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        _appState.importLoadingReq();
+        final String? lastWallet = _preferences.lastWallet;
+        final String? lastAlias = _preferences.lastAlias;
+        final String? lastAccountFactoryAddress =
+            _preferences.lastAccountFactoryAddress;
 
-      if (dbWallet == null) {
-        // attempt to see if there are any other wallets backed up
-        final dbWallets = await _accounts.getAllAccounts();
-
-        if (dbWallets.isNotEmpty) {
-          final dbWallet = dbWallets[0];
-
-          final address = dbWallet.address.hexEip55;
-
-          // final config = await _config.getConfig(dbWallet.alias);
-
-          final community = await _appDBService.communities.get(dbWallet.alias);
-
-          if (community == null) {
-            throw Exception('community not found');
-          }
-
-          Config communityConfig = Config.fromJson(community.config);
-
-          _theme.changeTheme(communityConfig.community.theme);
-
-          await _preferences.setLastWallet(address);
-          await _preferences.setLastAlias(dbWallet.alias);
-
-          _appState.importLoadingSuccess();
-
-          return (address, dbWallet.alias);
+        DBAccount? dbWallet;
+        if (lastWallet != null &&
+            lastAlias != null &&
+            lastAccountFactoryAddress != null) {
+          dbWallet = await _accounts.getAccount(
+              lastWallet, lastAlias, lastAccountFactoryAddress);
         }
 
-        _appState.importLoadingError();
+        if (dbWallet == null) {
+          final dbWallets = await _accounts.getAllAccounts();
 
-        return (null, null);
+          if (dbWallets.isNotEmpty) {
+            final dbWallet = dbWallets[0];
+            final address = dbWallet.address.hexEip55;
+
+            final community =
+                await _appDBService.communities.get(dbWallet.alias);
+
+            if (community == null) {
+              throw Exception('community not found');
+            }
+
+            Config communityConfig = Config.fromJson(community.config);
+
+            _theme.changeTheme(communityConfig.community.theme);
+
+            await _preferences.setLastWallet(address);
+            await _preferences.setLastAlias(dbWallet.alias);
+            await _preferences
+                .setLastAccountFactoryAddress(dbWallet.accountFactoryAddress);
+
+            _appState.importLoadingSuccess();
+
+            return (address, dbWallet.alias);
+          }
+
+          // If this is not the last attempt and no accounts found, try recovery and retry
+          if (attempt < maxRetries - 1) {
+            // Try to restore missing accounts from keychain on each retry
+            try {
+              final accountsService = getAccountsService();
+              if (accountsService is AppleAccountsService) {
+                await accountsService.restoreAccountsFromKeychain();
+              }
+            } catch (e) {
+              debugPrint('Error during account restoration: $e');
+            }
+
+            await delay(Duration(
+                milliseconds: 1000 + (attempt * 500))); // Progressive delay
+            continue;
+          }
+
+          _appState.importLoadingError();
+          return (null, null);
+        }
+
+        await delay(
+            const Duration(milliseconds: 1500)); // smoother launch experience
+
+        _appState.importLoadingSuccess();
+
+        final address = dbWallet.address.hexEip55;
+
+        return (address, dbWallet.alias);
+      } catch (e) {
+        if (attempt < maxRetries - 1) {
+          await delay(Duration(
+              milliseconds: 1000 + (attempt * 500))); // Progressive delay
+          continue;
+        }
       }
-
-      await delay(
-          const Duration(milliseconds: 1500)); // smoother launch experience
-
-      _appState.importLoadingSuccess();
-
-      final address = dbWallet.address.hexEip55;
-
-      return (address, dbWallet.alias);
-    } catch (_) {}
+    }
 
     _appState.importLoadingError();
-
     return (null, null);
   }
 
@@ -193,12 +241,16 @@ class AppLogic {
         privateKey: credentials,
         name: token.name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress:
+            communityConfig.community.primaryAccountFactory.address,
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(
+          communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 
@@ -308,6 +360,8 @@ class AppLogic {
           privateKey: credentials,
           name: name,
           alias: communityConfig.community.alias,
+          accountFactoryAddress:
+              communityConfig.community.primaryAccountFactory.address,
         ),
       );
 
@@ -363,7 +417,7 @@ class AppLogic {
       final address = EthereumAddress.fromHex(decodedSplit[0]);
 
       final existing = await _accounts.getAccount(
-          address.hexEip55, communityConfig.community.alias);
+          address.hexEip55, communityConfig.community.alias, '');
       if (existing != null) {
         return (existing.address.hexEip55, alias);
       }
@@ -374,6 +428,8 @@ class AppLogic {
           privateKey: credentials,
           name: '${token.symbol} Web Account',
           alias: communityConfig.community.alias,
+          accountFactoryAddress:
+              communityConfig.community.primaryAccountFactory.address,
         ),
       );
 
@@ -381,6 +437,8 @@ class AppLogic {
 
       await _preferences.setLastWallet(address.hexEip55);
       await _preferences.setLastAlias(communityConfig.community.alias);
+      await _preferences.setLastAccountFactoryAddress(
+          communityConfig.community.primaryAccountFactory.address);
 
       _appState.importLoadingSuccess();
 

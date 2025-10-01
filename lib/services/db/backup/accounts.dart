@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:citizenwallet/services/db/backup/legacy.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:web3dart/crypto.dart';
@@ -15,6 +15,7 @@ class DBAccount {
   final String name;
   final UserHandle? userHandle;
   final String? username;
+  final String accountFactoryAddress;
   EthPrivateKey? privateKey;
   final ProfileV1? profile;
 
@@ -22,10 +23,11 @@ class DBAccount {
     required this.alias,
     required this.address,
     required this.name,
+    required this.accountFactoryAddress,
     this.username,
     this.privateKey,
     this.profile,
-  })  : id = getAccountID(address, alias),
+  })  : id = getAccountID(address, alias, accountFactoryAddress),
         userHandle = username != null ? UserHandle(username, alias) : null;
 
   // toMap
@@ -36,6 +38,7 @@ class DBAccount {
       'address': address.hexEip55,
       if (name.isNotEmpty) 'name': name,
       'username': username,
+      'accountFactoryAddress': accountFactoryAddress,
       'privateKey':
           privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
@@ -49,6 +52,7 @@ class DBAccount {
       address: EthereumAddress.fromHex(map['address']),
       name: map['name'],
       username: map['username'],
+      accountFactoryAddress: map['accountFactoryAddress'] ?? '',
       privateKey: map['privateKey'] != null
           ? EthPrivateKey.fromHex(map['privateKey'])
           : null,
@@ -59,8 +63,9 @@ class DBAccount {
   }
 }
 
-String getAccountID(EthereumAddress address, String alias) {
-  return '${address.hexEip55}@$alias';
+String getAccountID(
+    EthereumAddress address, String alias, String accountFactoryAddress) {
+  return '${address.hexEip55}@$accountFactoryAddress@$alias';
 }
 
 class UserHandle {
@@ -95,6 +100,7 @@ class AccountsTable extends DBTable {
         address TEXT NOT NULL,
         name TEXT NOT NULL,
         username TEXT,
+        accountFactoryAddress TEXT NOT NULL,
         privateKey TEXT,
         profile TEXT
       )
@@ -113,6 +119,10 @@ class AccountsTable extends DBTable {
       ],
       3: [
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
+      ],
+      4: [
+        'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT',
+        'UPDATE $name SET accountFactoryAddress = "" WHERE accountFactoryAddress IS NULL',
       ]
     };
 
@@ -132,19 +142,86 @@ class AccountsTable extends DBTable {
     }
   }
 
+  Future<List<LegacyDBAccount>> getAllLegacyDBAccounts() async {
+    final List<Map<String, dynamic>> maps = await db.query(
+      name,
+      where: 'accountFactoryAddress IS NULL OR accountFactoryAddress = ""',
+    );
+
+    return List.generate(maps.length, (i) {
+      return LegacyDBAccount.fromMap(maps[i]);
+    });
+  }
+
+  /// Converts a LegacyDBAccount to a DBAccount
+  /// For legacy accounts, we use a default account factory address
+  DBAccount convertLegacyToDBAccount(LegacyDBAccount legacyAccount) {
+    return DBAccount(
+      alias: legacyAccount.alias,
+      address: legacyAccount.address,
+      name: legacyAccount.name,
+      username: legacyAccount.username,
+      accountFactoryAddress: '',
+      privateKey: legacyAccount.privateKey,
+      profile: legacyAccount.profile,
+    );
+  }
+
   // get account by id
-  Future<DBAccount?> get(EthereumAddress address, String alias) async {
+  Future<DBAccount?> get(EthereumAddress address, String alias,
+      String accountFactoryAddress) async {
+    final accountId = getAccountID(address, alias, accountFactoryAddress);
+
+    if (accountFactoryAddress.isEmpty) {
+      var maps = await db.query(
+        name,
+        where: 'id = ?',
+        whereArgs: [accountId],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      final oldFormatId = '${address.hexEip55}@$alias';
+      maps = await db.query(
+        name,
+        where: 'id = ?',
+        whereArgs: [oldFormatId],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      maps = await db.query(
+        name,
+        where: 'address = ? AND alias = ?',
+        whereArgs: [address.hexEip55, alias],
+      );
+
+      if (maps.isNotEmpty) {
+        final account = DBAccount.fromMap(maps.first);
+        return account;
+      }
+
+      return null;
+    }
+
     final List<Map<String, dynamic>> maps = await db.query(
       name,
       where: 'id = ?',
-      whereArgs: [getAccountID(address, alias)],
+      whereArgs: [accountId],
     );
 
     if (maps.isEmpty) {
       return null;
     }
 
-    return DBAccount.fromMap(maps.first);
+    final account = DBAccount.fromMap(maps.first);
+    return account;
   }
 
   Future<void> insert(DBAccount account) async {
@@ -164,11 +241,12 @@ class AccountsTable extends DBTable {
     );
   }
 
-  Future<void> delete(EthereumAddress address, String alias) async {
+  Future<void> delete(EthereumAddress address, String alias,
+      String accountFactoryAddress) async {
     await db.delete(
       name,
       where: 'id = ?',
-      whereArgs: [getAccountID(address, alias)],
+      whereArgs: [getAccountID(address, alias, accountFactoryAddress)],
     );
   }
 

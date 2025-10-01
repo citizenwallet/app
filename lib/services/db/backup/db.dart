@@ -1,6 +1,5 @@
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/db.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:sqflite_common/sqflite.dart';
 
 class AccountBackupDBService extends DBService {
@@ -40,7 +39,7 @@ class AccountBackupDBService extends DBService {
 
         return;
       },
-      version: 3,
+      version: 4,
     );
 
     final db = await databaseFactory.openDatabase(
