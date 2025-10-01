@@ -407,7 +407,7 @@ class WalletLogic extends WidgetsBindingObserver {
           final allAccounts = await _encPrefs.getAllAccounts();
           final accountWithKey = allAccounts
               .where((acc) =>
-                  acc.address?.hexEip55 == accAddress &&
+                  acc.address.hexEip55 == accAddress &&
                   acc.alias == alias &&
                   acc.privateKey != null)
               .firstOrNull;

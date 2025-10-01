@@ -66,7 +66,7 @@ class CWWallet {
 
   // convert to Wallet object from JSON
   CWWallet.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
+      : name = json['name'] ?? '',
         address = json['address'],
         alias = json['alias'] ?? dotenv.get('DEFAULT_COMMUNITY_ALIAS'),
         account = json['account'],
