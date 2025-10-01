@@ -12,6 +12,7 @@ class DeepLinkLogic {
   late Config _config;
   late EthPrivateKey _credentials;
   late EthereumAddress _account;
+  bool _isInitialized = false;
 
   DeepLinkLogic(BuildContext context, Config config, EthPrivateKey credentials, EthereumAddress account)
       : _state = context.read<DeepLinkState>(),
@@ -19,18 +20,21 @@ class DeepLinkLogic {
     _config = config;
     _credentials = credentials;
     _account = account;
+    _isInitialized = true;
   }
 
   void setWalletState(Config config, EthPrivateKey credentials, EthereumAddress account) {
     _config = config;
     _credentials = credentials;
     _account = account;
+    _isInitialized = true;
   }
 
   Future<void> faucetV1Redeem(String params) async {
     try {
-      if (_config == null || _credentials == null || _account == null) {
-        throw Exception('Wallet not initialized');
+      if (!_isInitialized) {
+        _state.fail();
+        return;
       }
 
       _state.request();
@@ -73,7 +77,7 @@ class DeepLinkLogic {
 
   Future<void> faucetV1Metadata(String params) async {
     try {
-      if (_config == null) {
+      if (!_isInitialized) {
         throw Exception('Wallet not initialized');
       }
 

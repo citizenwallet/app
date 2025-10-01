@@ -345,6 +345,8 @@ class WalletScreenState extends State<WalletScreen>
           'deepLinkParams': deepLinkParams,
         });
 
+        _logic.clearDeepLinkRouteState();
+
         _profileLogic.resume();
         _profilesLogic.resume();
         _voucherLogic.resume();
@@ -603,6 +605,8 @@ class WalletScreenState extends State<WalletScreen>
       'voucherLogic': _voucherLogic,
       'sendToURL': sendToURL,
     });
+    
+    _logic.clearDeepLinkRouteState();
 
     _profileLogic.resume();
     _profilesLogic.resume();

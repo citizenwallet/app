@@ -85,8 +85,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final walletLogic = widget.walletLogic;
 
-    walletLogic.clearAmountController();
-    walletLogic.resetInputErrorState();
+    walletLogic.clearDeepLinkRouteState();
 
     super.dispose();
   }
@@ -281,8 +280,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     walletLogic.clearInProgressTransaction();
 
     if (sent == true) {
-      walletLogic.clearInputControllers();
-      walletLogic.resetInputErrorState();
+      walletLogic.clearDeepLinkRouteState();
       widget.profilesLogic.clearSearch();
 
       await Future.delayed(const Duration(milliseconds: 50));
@@ -354,8 +352,7 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     walletLogic.clearInProgressTransaction();
 
     if (sent == true) {
-      walletLogic.clearInputControllers();
-      walletLogic.resetInputErrorState();
+      walletLogic.clearDeepLinkRouteState();
       widget.profilesLogic.clearSearch();
 
       if (navigator.canPop()) {

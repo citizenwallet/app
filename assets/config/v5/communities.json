@@ -736,7 +736,7 @@
         "chain_id": 100
       },
       "primary_account_factory": {
-        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
         "chain_id": 100
       },
       "primary_session_manager": {
@@ -794,12 +794,12 @@
     ],
     "version": 5,
     "accounts": {
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
         "chain_id": 100,
         "paymaster_type": "cw-safe",
-        "paymaster_address": "0x5987e57e85014B5A56C880313580346c20a5d1c1",
+        "paymaster_address": "0xa7fa16C933f51d8623f39FA0dF34D3065B99Bd1c",
         "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2"
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
       },
       "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
         "chain_id": 100,

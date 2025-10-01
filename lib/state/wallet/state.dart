@@ -730,4 +730,26 @@ class WalletState with ChangeNotifier {
     _hasTip = false;
     notifyListeners();
   }
+
+  void clearDeepLinkState() {
+    tipTo = null;
+    tipAmount = null;
+    tipDescription = null;
+    _hasTip = false;
+
+    // Clear address and amount state
+    hasAddress = false;
+    hasAmount = false;
+    amount = '';
+    message = '';
+
+    // Clear parsing and error state
+    parsingQRAddress = false;
+    parsingQRAddressError = false;
+    invalidScanMessage = null;
+    invalidAddress = false;
+    invalidAmount = false;
+
+    notifyListeners();
+  }
 }
