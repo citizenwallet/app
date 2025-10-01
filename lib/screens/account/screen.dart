@@ -72,12 +72,6 @@ class AccountScreenState extends State<AccountScreen> {
       widget.address!,
       widget.alias!,
       (bool hasChanged) async {
-        _logic.setWalletState(
-          _walletLogic.config!,
-          _walletLogic.credentials!,
-          _walletLogic.accountAddress!,
-        );
-        
         await _logic.loadProfileLink();
 
         if (hasChanged) {

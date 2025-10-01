@@ -251,6 +251,11 @@ class ConfigService {
 
       final response = await _api.get(url: '/api/communities/$alias');
 
+      if (response == null) {
+        debugPrint('No response received for community alias: $alias');
+        return null;
+      }
+
       final configData = response['json'];
       if (configData == null) {
         debugPrint('No config data found in response for alias: $alias');

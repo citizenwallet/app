@@ -1,22 +1,21 @@
-import 'package:citizenwallet/services/accounts/backup.dart';
-import 'package:citizenwallet/services/accounts/accounts.dart';
-import 'package:citizenwallet/services/accounts/options.dart';
-import 'package:citizenwallet/services/accounts/utils.dart';
-import 'package:citizenwallet/services/credentials/credentials.dart';
-import 'package:citizenwallet/services/credentials/native/apple.dart';
-import 'package:citizenwallet/services/db/backup/accounts.dart';
-import 'package:citizenwallet/services/db/backup/db.dart';
-import 'package:citizenwallet/services/db/app/db.dart';
-import 'package:citizenwallet/services/config/config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:flutter/foundation.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
-import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
 
-/// AppleAccountsService implements an AccountsServiceInterface for iOS and macOS
+import 'package:citizenwallet/services/accounts/accounts.dart';
+import 'package:citizenwallet/services/accounts/backup.dart';
+import 'package:citizenwallet/services/accounts/options.dart';
+import 'package:citizenwallet/services/config/config.dart';
+import 'package:citizenwallet/services/credentials/credentials.dart';
+import 'package:citizenwallet/services/credentials/native/apple.dart';
+import 'package:citizenwallet/services/db/app/db.dart';
+import 'package:citizenwallet/services/db/backup/accounts.dart';
+import 'package:citizenwallet/services/db/backup/db.dart';
+import 'package:citizenwallet/services/wallet/contracts/safe_account.dart';
+import 'package:citizenwallet/services/wallet/wallet.dart';
+
 class AppleAccountsService extends AccountsServiceInterface {
   static final AppleAccountsService _instance =
       AppleAccountsService._internal();
@@ -54,7 +53,7 @@ class AppleAccountsService extends AccountsServiceInterface {
         accountFactoryAddress: '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
       );
 
-      final txHash = await submitUserop(config, userop);
+      final txHash = await submitUserop(config, userop, migrationSafe: true);
 
       if (txHash != null) {
         debugPrint('fixed cw-safe account ${account.address.hexEip55}');
@@ -85,6 +84,9 @@ class AppleAccountsService extends AccountsServiceInterface {
 
     _accountsDB = appleOptions.accountsDB;
 
+    await restoreAccountsFromKeychain();
+
+    // Run migrations on the complete dataset (existing + restored accounts)
     await migrate(super.version);
 
     await migratePrivateKeysFromOldFormat();
@@ -100,112 +102,6 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     final migrations = {
-      1: () async {
-        // coming from the old version, migrate all keys and delete the old ones
-        // all or nothing, first write all the new ones, then delete all the old ones
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          // await setAccount(backup);
-          final saved = await _credentials.containsKey(backup.legacyKey2);
-          if (saved) {
-            await _credentials.delete(backup.legacyKey2);
-          }
-
-          await _credentials.write(
-            backup.legacyKey2,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // legacy delete
-          final saved = await _credentials.containsKey(
-            backup.legacyKey,
-          );
-          if (saved) {
-            await _credentials.delete(backup.legacyKey);
-          }
-        }
-      },
-      2: () async {
-        final allBackups = await getAllLegacyWalletBackups();
-
-        for (final backup in allBackups) {
-          final saved = await _credentials.containsKey(backup.key);
-          if (saved) {
-            await _credentials.delete(backup.key);
-          }
-
-          await _credentials.write(
-            backup.key,
-            backup.value,
-          );
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          // delete legacy keys
-          final saved = await _credentials.containsKey(
-            backup.legacyKey2,
-          );
-
-          if (saved) {
-            await _credentials.delete(
-              backup.legacyKey2,
-            );
-          }
-        }
-      },
-      3: () async {
-        final allBackups = await getAllLegacyWalletBackups();
-
-        final toDelete = <String>[];
-
-        for (final backup in allBackups) {
-          bool saved = await _credentials.containsKey(backup.key);
-          if (!saved) {
-            continue;
-          }
-
-          final account = await getLegacyAccountAddress(backup);
-          if (account == null) {
-            continue;
-          }
-
-          final newBackup = LegacyBackupWallet(
-            address: account.hexEip55,
-            privateKey: backup.privateKey,
-            name: backup.name,
-            alias: backup.alias,
-          );
-
-          await _credentials.write(
-            newBackup.key,
-            newBackup.value,
-          );
-
-          toDelete.add(backup.key);
-        }
-
-        // delete all old keys
-        for (final backup in allBackups) {
-          if (!toDelete.contains(backup.key)) {
-            continue;
-          }
-
-          final saved = await _credentials.containsKey(
-            backup.key,
-          );
-
-          if (saved) {
-            await _credentials.delete(
-              backup.key,
-            );
-          }
-        }
-      },
       4: () async {
         final allLegacyBackups = await getAllLegacyWalletBackups();
 
@@ -356,6 +252,12 @@ class AppleAccountsService extends AccountsServiceInterface {
           if (oldPrivateKey != null) {
             await _credentials.write(newAccountId, oldPrivateKey);
             await _credentials.delete(oldAccountId);
+
+            final legacyKeychainKey =
+                '${account.address.hexEip55}@${account.alias}';
+            if (await _credentials.containsKey(legacyKeychainKey)) {
+              await _credentials.delete(legacyKeychainKey);
+            }
           }
         }
       },
@@ -439,6 +341,145 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     return accounts;
+  }
+
+  Future<int> restoreAccountsFromKeychain() async {
+    int restoredCount = 0;
+    try {
+      final allKeychainData = await _credentials.readAll();
+
+      if (allKeychainData.isEmpty) {
+        return 0;
+      }
+
+      final existingAccounts = await _accountsDB.accounts.all();
+      final existingAddresses = existingAccounts
+          .map((acc) => acc.address.hexEip55.toLowerCase())
+          .toSet();
+
+      final existingAccountIds = existingAccounts.map((acc) => acc.id).toSet();
+
+      if (existingAccounts.length >= (allKeychainData.length - 1)) {
+        return 0;
+      }
+
+      final allLegacyBackups = await getAllLegacyWalletBackups();
+
+      for (final legacyBackup in allLegacyBackups) {
+        final saved = await _credentials.containsKey(legacyBackup.key);
+        if (!saved) {
+          continue;
+        }
+
+        final addressLower = legacyBackup.address.toLowerCase();
+        if (existingAddresses.contains(addressLower)) {
+          continue;
+        }
+
+        try {
+          final account = DBAccount(
+            alias: legacyBackup.alias,
+            address: EthereumAddress.fromHex(legacyBackup.address),
+            name: legacyBackup.name,
+            accountFactoryAddress: '',
+            privateKey: null,
+          );
+
+          await _accountsDB.accounts.insert(account);
+
+          final backup = BackupWallet(
+            address: legacyBackup.address,
+            alias: legacyBackup.alias,
+            privateKey: legacyBackup.privateKey,
+          );
+
+          await _credentials.write(backup.key, backup.value);
+          restoredCount++;
+        } catch (e, stackTrace) {
+          if (kDebugMode) {
+            debugPrint('Error restoring legacy account: $e');
+            debugPrintStack(stackTrace: stackTrace);
+          }
+        }
+      }
+
+      for (final entry in allKeychainData.entries) {
+        try {
+          final key = entry.key;
+
+          if (_isSystemKey(key) || key.startsWith(backupPrefix)) {
+            continue;
+          }
+
+          if (!key.contains('@')) {
+            continue;
+          }
+
+          final parts = key.split('@');
+          if (parts.length != 2 && parts.length != 3) {
+            continue;
+          }
+
+          String accountAddress;
+          String factoryAddress;
+          String alias;
+
+          if (parts.length == 2) {
+            accountAddress = parts[0];
+            factoryAddress = '';
+            alias = parts[1];
+          } else {
+            accountAddress = parts[0];
+            factoryAddress = parts[1];
+            alias = parts[2];
+          }
+
+          final potentialAccount = DBAccount(
+            alias: alias,
+            address: EthereumAddress.fromHex(accountAddress),
+            name: alias.toUpperCase(),
+            accountFactoryAddress: factoryAddress.isEmpty ? '' : factoryAddress,
+          );
+
+          if (existingAddresses.contains(accountAddress.toLowerCase()) ||
+              existingAccountIds.contains(potentialAccount.id)) {
+            continue;
+          }
+
+          final account = DBAccount(
+            alias: alias,
+            address: EthereumAddress.fromHex(accountAddress),
+            name: alias.toUpperCase(),
+            accountFactoryAddress: factoryAddress.isEmpty ? '' : factoryAddress,
+            privateKey: null,
+          );
+
+          await _accountsDB.accounts.insert(account);
+
+          await _credentials.write(account.id, entry.value);
+          restoredCount++;
+        } catch (e, stackTrace) {
+          if (kDebugMode) {
+            debugPrint('Error processing keychain entry ${entry.key}: $e');
+            debugPrintStack(stackTrace: stackTrace);
+          }
+        }
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('Error restoring accounts from keychain: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    }
+
+    return restoredCount;
+  }
+
+  bool _isSystemKey(String key) {
+    return key.startsWith('credential_storage_key') ||
+        key.startsWith('version_') ||
+        key.startsWith(versionPrefix) ||
+        key.length < 10;
   }
 
   // set wallet backup
@@ -566,22 +607,30 @@ class AppleAccountsService extends AccountsServiceInterface {
   }
 
   Future<void> migratePrivateKeysFromOldFormat() async {
-    final allAccounts = await _accountsDB.accounts.all();
+    try {
+      final allAccounts = await _accountsDB.accounts.all();
 
-    for (final account in allAccounts) {
-      final currentPrivateKey = await _credentials.read(account.id);
-      if (currentPrivateKey != null) {
-        continue;
+      for (final account in allAccounts) {
+        try {
+          final currentPrivateKey = await _credentials.read(account.id);
+          if (currentPrivateKey != null) {
+            continue;
+          }
+
+          final oldFormatKey = '${account.address.hexEip55}@${account.alias}';
+
+          final oldPrivateKey = await _credentials.read(oldFormatKey);
+          if (oldPrivateKey != null) {
+            await _credentials.write(account.id, oldPrivateKey);
+            await _credentials.delete(oldFormatKey);
+          }
+        } catch (e) {
+          debugPrint(
+              'Error migrating private key for account ${account.id}: $e');
+        }
       }
-
-      final oldFormatKey = '${account.address.hexEip55}@${account.alias}';
-
-      final oldPrivateKey = await _credentials.read(oldFormatKey);
-      if (oldPrivateKey != null) {
-        await _credentials.write(account.id, oldPrivateKey);
-
-        await _credentials.delete(oldFormatKey);
-      }
+    } catch (e) {
+      debugPrint('Error during private key migration: $e');
     }
   }
 

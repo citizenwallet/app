@@ -212,6 +212,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
     if (username.trim().isEmpty) {
       debouncedSearchProfile.cancel();
       _state.clearSearch();
+      await allProfiles();
       return;
     }
 

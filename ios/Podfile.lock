@@ -159,9 +159,9 @@ PODS:
   - reown_yttrium (0.0.1):
     - Flutter
     - YttriumWrapper (= 0.8.35)
-  - SDWebImage (5.21.0):
-    - SDWebImage/Core (= 5.21.0)
-  - SDWebImage/Core (5.21.0)
+  - SDWebImage (5.21.2):
+    - SDWebImage/Core (= 5.21.2)
+  - SDWebImage/Core (5.21.2)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -265,43 +265,43 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
-  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
-  connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
-  credential_manager: feb21034894e469e3686461dc96fb24bb7d350e4
+  audioplayers_darwin: ccf9c770ee768abb07e26d90af093f7bab1c12ab
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  credential_manager: e32c96e222e95368067810f7529eea06d9c5c171
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  file_picker: be9a674155d9f334323856cb266e0d145d75d5c0
+  file_picker: 6d4bf27b7318804adf4ddc1827dbc5cd4b78042d
   Firebase: 1fe1c0a7d9aaea32efe01fbea5f0ebd8d70e53a2
-  firebase_core: 3c2f323cae65c97a636a05a23b17730ef93df2cf
-  firebase_messaging: 456e01ff29a451c90097d0b45925551d5be0c143
+  firebase_core: ba71b44041571da878cb624ce0d80250bcbe58ad
+  firebase_messaging: 13129fe2ca166d1ed2d095062d76cee88943d067
   FirebaseCore: 8344daef5e2661eb004b177488d6f9f0f24251b7
   FirebaseCoreInternal: ef4505d2afb1d0ebbc33162cb3795382904b5679
   FirebaseInstallations: 9980995bdd06ec8081dfb6ab364162bdd64245c3
   FirebaseMessaging: 2b9f56aa4ed286e1f0ce2ee1d413aabb8f9f5cb9
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
-  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  google_sign_in_ios: 7411fab6948df90490dc4620ecbcabdc3ca04017
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  google_sign_in_ios: b48bb9af78576358a168361173155596c845f0b9
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  icloud_storage: d9ac7a33ced81df08ba7ea1bf3099cc0ee58f60a
-  mobile_scanner: 77265f3dc8d580810e91849d4a0811a90467ed5e
+  icloud_storage: e55639f0c0d7cb2b0ba9c0b3d5968ccca9cd9aa2
+  mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  nfc_manager: d7da7cb781f7744b94df5fe9dbca904ac4a0939e
+  nfc_manager: 9c40fe22528ab871ca11e52ea8b95790e9d92ca2
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
-  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
-  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
-  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
+  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
 PODFILE CHECKSUM: f90b7b7d52ec0d905039aa6f51266424548151c7

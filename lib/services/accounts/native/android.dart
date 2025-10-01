@@ -58,7 +58,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
         accountFactoryAddress: '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
       );
 
-      final txHash = await submitUserop(config, userop);
+      final txHash = await submitUserop(config, userop, migrationSafe: true);
 
       if (txHash != null) {
         debugPrint('fixed cw-safe account ${account.address.hexEip55}');

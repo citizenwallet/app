@@ -163,8 +163,7 @@ class _SendProgressState extends State<SendProgress> {
 
     final formattedAmount = inProgressTransaction.amount;
 
-    final profilesState = Provider.of<ProfilesState>(context, listen: true);
-    final selectedProfile = profilesState.selectedProfile;
+    final selectedProfile = context.watch<ProfilesState>().selectedProfile;
 
     final date = DateFormat.yMMMd().add_Hm().format(inProgressTransaction.date);
 
