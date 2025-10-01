@@ -157,6 +157,7 @@ class AccountScreenState extends State<AccountScreen> {
     }
 
     _walletLogic.cleanupWalletState();
+    _walletLogic.clearDeepLinkRouteState();
 
     await delay(const Duration(milliseconds: 250));
 

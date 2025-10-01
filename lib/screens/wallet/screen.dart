@@ -816,6 +816,13 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.clearProfileLink();
     _profileLogic.resetAll();
 
+    _sendToURL = null;
+    _voucher = null;
+    _voucherParams = null;
+    _receiveParams = null;
+    _deepLink = null;
+    _deepLinkParams = null;
+
     _address = address;
     _alias = alias;
 
