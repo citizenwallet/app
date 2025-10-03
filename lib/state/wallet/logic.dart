@@ -347,6 +347,8 @@ class WalletLogic extends WidgetsBindingObserver {
       _state.setWalletReady(true);
       _state.setWalletReadyLoading(false);
 
+      _state.clearDeepLinkState();
+
       return (true, false);
     } catch (_) {}
 
@@ -405,7 +407,7 @@ class WalletLogic extends WidgetsBindingObserver {
           final allAccounts = await _encPrefs.getAllAccounts();
           final accountWithKey = allAccounts
               .where((acc) =>
-                  acc.address?.hexEip55 == accAddress &&
+                  acc.address.hexEip55 == accAddress &&
                   acc.alias == alias &&
                   acc.privateKey != null)
               .firstOrNull;
@@ -475,6 +477,13 @@ class WalletLogic extends WidgetsBindingObserver {
       if (isWalletLoaded &&
           accAddress == _currentAccount.hexEip55 &&
           alias == communityConfig.community.alias) {
+        final dbWallet = await _encPrefs.getAccount(accAddress, alias, '');
+        if (dbWallet != null) {
+          await communityConfig.initContracts(dbWallet.accountFactoryAddress);
+        } else {
+          await communityConfig.initContracts();
+        }
+
         getBalance(communityConfig, _currentAccount).then((v) {
           _state.updateWalletBalanceSuccess(v);
         });
@@ -487,6 +496,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
         await _preferences.setLastWallet(address);
         await _preferences.setLastAlias(alias);
+
+        _state.clearDeepLinkState();
 
         return address;
       }
@@ -2011,6 +2022,12 @@ class WalletLogic extends WidgetsBindingObserver {
     _messageController.clear();
   }
 
+  void clearDeepLinkRouteState() {
+    clearInputControllers();
+    resetInputErrorState();
+    _state.clearDeepLinkState();
+  }
+
   void clearAddressController() {
     _addressController.clear();
   }
@@ -2167,6 +2184,8 @@ class WalletLogic extends WidgetsBindingObserver {
       // Handle tip information if present
       if (parsedData.tip != null) {
         _state.setTipTo(parsedData.tip!.to);
+        _state.setTipAmount(parsedData.tip!.amount);
+        _state.setTipDescription(parsedData.tip!.description);
         _state.setHasTip(true);
       }
 

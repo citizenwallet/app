@@ -235,6 +235,24 @@ class WalletScreenState extends State<WalletScreen>
       await handleSendScreen(sendToURL: _sendToURL);
     }
 
+    final currentUri = GoRouter.of(context).routeInformationProvider.value.uri;
+    
+    if (currentUri.queryParameters.containsKey('sendto')) {
+      final params = <String>[];
+      currentUri.queryParameters.forEach((key, value) {
+        if (key != 'alias') {
+          params.add('$key=$value');
+        }
+      });
+      if (params.isNotEmpty) {
+        final sendToURL = 'https://app.citizenwallet.xyz/?${params.join('&')}';
+        
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await handleSendScreen(sendToURL: sendToURL);
+        });
+      }
+    }
+
     if (_deepLink != null && _deepLinkParams != null) {
       await handleLoadDeepLink();
     }
@@ -326,6 +344,8 @@ class WalletScreenState extends State<WalletScreen>
           'deepLink': deepLink,
           'deepLinkParams': deepLinkParams,
         });
+
+        _logic.clearDeepLinkRouteState();
 
         _profileLogic.resume();
         _profilesLogic.resume();
@@ -585,6 +605,8 @@ class WalletScreenState extends State<WalletScreen>
       'voucherLogic': _voucherLogic,
       'sendToURL': sendToURL,
     });
+    
+    _logic.clearDeepLinkRouteState();
 
     _profileLogic.resume();
     _profilesLogic.resume();
@@ -793,6 +815,13 @@ class WalletScreenState extends State<WalletScreen>
     _logic.pauseFetching();
     _profileLogic.clearProfileLink();
     _profileLogic.resetAll();
+
+    _sendToURL = null;
+    _voucher = null;
+    _voucherParams = null;
+    _receiveParams = null;
+    _deepLink = null;
+    _deepLinkParams = null;
 
     _address = address;
     _alias = alias;

@@ -67,16 +67,12 @@ class VoucherLogic extends WidgetsBindingObserver {
 
   Future<String> resolveAccountFactoryAddress() async {
     try {
-      if (_currentConfig == null) {
-        throw Exception('Current config is null');
+      if (!_isInitialized) {
+        throw Exception('Wallet not initialized');
       }
 
       if (_currentConfig.community.primaryAccountFactory.address.isEmpty) {
         throw Exception('Primary account factory address is empty');
-      }
-
-      if (_currentAccount == null) {
-        throw Exception('Current account is null');
       }
 
       try {
@@ -91,7 +87,6 @@ class VoucherLogic extends WidgetsBindingObserver {
         final possibleFactories = [
           '',
           _currentConfig.community.primaryAccountFactory.address,
-          '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
           '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
           '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
           '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',

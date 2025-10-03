@@ -79,6 +79,28 @@ class ProfileLogic {
     return (config: config, credentials: credentials, account: account);
   }
 
+  Future<
+          ({
+            Config? config,
+            EthPrivateKey? credentials,
+            EthereumAddress? account
+          })?>
+      _waitForWalletData(
+          {int maxRetries = 10,
+          Duration retryDelay = const Duration(milliseconds: 500)}) async {
+    for (int i = 0; i < maxRetries; i++) {
+      final walletData = await _walletData;
+      if (walletData != null) {
+        return walletData;
+      }
+
+      if (i < maxRetries - 1) {
+        await delay(retryDelay);
+      }
+    }
+    return null;
+  }
+
   void resetAll() {
     _state.resetAll();
   }
@@ -115,7 +137,7 @@ class ProfileLogic {
     try {
       _state.setProfileLinkRequest();
 
-      final walletData = await _walletData;
+      final walletData = await _waitForWalletData();
       if (walletData == null) return;
 
       final community = await _appDBService.communities
@@ -161,7 +183,7 @@ class ProfileLogic {
   }
 
   Future<void> checkUsername(String username) async {
-    final walletData = await _walletData;
+    final walletData = await _waitForWalletData();
     if (walletData == null) {
       _state.setUsernameError();
       return;
@@ -196,12 +218,16 @@ class ProfileLogic {
       final exists =
           await profileExists(walletData.config!, username.toLowerCase());
       if (exists) {
-        final existingProfile = await getProfileByUsername(
-            walletData.config!, username.toLowerCase());
-        if (existingProfile != null &&
-            existingProfile.account == walletData.account!.hexEip55) {
-          _state.setUsernameSuccess();
-          return;
+        try {
+          final existingProfile = await getProfileByUsername(
+              walletData.config!, username.toLowerCase());
+          if (existingProfile != null &&
+              existingProfile.account == walletData.account!.hexEip55) {
+            _state.setUsernameSuccess();
+            return;
+          }
+        } catch (e) {
+          //
         }
         throw Exception('Already exists');
       }
@@ -220,7 +246,7 @@ class ProfileLogic {
   }
 
   Future<void> loadProfile({String? account, bool online = false}) async {
-    final walletData = await _walletData;
+    final walletData = await _waitForWalletData();
     if (walletData == null) return;
 
     final ethAccount = walletData.account!;
@@ -257,7 +283,13 @@ class ProfileLogic {
         throw Exception('community is offline');
       }
 
-      final profile = await getProfile(walletData.config!, acc);
+      ProfileV1? profile;
+      try {
+        profile = await getProfile(walletData.config!, acc);
+      } catch (e) {
+        return;
+      }
+
       if (profile == null) {
         _state.setProfileNoChangeSuccess();
 
@@ -348,13 +380,14 @@ class ProfileLogic {
 
   /// Save a new profile with optional image
   Future<bool> save(ProfileV1 profile, Uint8List? image) async {
-    final config = _config;
-    final credentials = await _credentials;
-    final account = _account;
-
-    if (config == null || credentials == null || account == null) {
+    final walletData = await _waitForWalletData();
+    if (walletData == null) {
       return false;
     }
+
+    final config = walletData.config!;
+    final credentials = walletData.credentials!;
+    final account = walletData.account!;
 
     try {
       _state.setProfileRequest();
@@ -364,6 +397,12 @@ class ProfileLogic {
       profile.username = _state.usernameController.value.text.toLowerCase();
       profile.name = _state.nameController.value.text;
       profile.description = _state.descriptionController.value.text;
+
+      try {
+        await config.initContracts();
+      } catch (e) {
+        //
+      }
 
       final exists = await createAccount(config, account, credentials);
       if (!exists) {
@@ -454,13 +493,14 @@ class ProfileLogic {
 
   /// Update an existing profile
   Future<bool> update(ProfileV1 profile) async {
-    final config = _config;
-    final credentials = await _credentials;
-    final account = _account;
-
-    if (config == null || credentials == null || account == null) {
+    final walletData = await _waitForWalletData();
+    if (walletData == null) {
       return false;
     }
+
+    final config = walletData.config!;
+    final credentials = walletData.credentials!;
+    final account = walletData.account!;
 
     try {
       _state.setProfileRequest();
@@ -474,17 +514,23 @@ class ProfileLogic {
 
       _state.setProfileExisting();
 
-      final existing = await getProfile(config, profile.account);
-      if (existing == null) {
-        throw Exception('Failed to load profile');
-      }
+      ProfileV1? existing;
+      try {
+        existing = await getProfile(config, profile.account);
+      } catch (e) {}
 
-      if (existing == profile) {
+      if (existing != null && existing == profile) {
         _state.setProfileNoChangeSuccess();
         return true;
       }
 
       _state.setProfileUploading();
+
+      try {
+        await config.initContracts();
+      } catch (e) {
+        //
+      }
 
       final accountForFactory = await _accountBackupDBService.accounts
           .get(account, config.community.alias, '');
@@ -574,7 +620,7 @@ class ProfileLogic {
   }
 
   Future<String?> generateProfileUsername() async {
-    final walletData = await _walletData;
+    final walletData = await _waitForWalletData();
     if (walletData == null) return null;
 
     String username = await getRandomUsername();
@@ -602,7 +648,7 @@ class ProfileLogic {
   Future<void> giveProfileUsername() async {
     debugPrint('handleNewProfile');
 
-    final walletData = await _walletData;
+    final walletData = await _waitForWalletData();
     if (walletData == null) return;
 
     try {
@@ -634,6 +680,12 @@ class ProfileLogic {
 
       if (_pauseProfileCreation) {
         return;
+      }
+
+      try {
+        await walletData.config!.initContracts();
+      } catch (e) {
+        //
       }
 
       final exists = await createAccount(

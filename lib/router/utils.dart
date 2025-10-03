@@ -18,7 +18,7 @@ import 'package:citizenwallet/utils/qr.dart';
 
   if (uriData.queryParameters['sendto'] != null) {
     sendToParams =
-        'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}';
+        'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}${uriData.queryParameters['tipTo'] != null ? '&tipTo=${uriData.queryParameters['tipTo']}' : ''}${uriData.queryParameters['tipAmount'] != null ? '&tipAmount=${uriData.queryParameters['tipAmount']}' : ''}${uriData.queryParameters['tipDescription'] != null ? '&tipDescription=${uriData.queryParameters['tipDescription']}' : ''}';
   } else if (uriData.queryParameters['eip681'] != null) {
     sendToParams =
         'eip681=${uriData.queryParameters['eip681']}${uriData.queryParameters['alias'] != null ? '&alias=${uriData.queryParameters['alias']}' : ''}';

@@ -88,10 +88,10 @@ class _SendToScreenState extends State<SendToScreen> {
     final walletLogic = widget.walletLogic;
     final profilesLogic = widget.profilesLogic;
 
-    walletLogic.clearAddressController();
     profilesLogic.clearSearch(notify: false);
-
     _scanLogic.cancelScan(notify: false);
+
+    walletLogic.clearDeepLinkRouteState();
 
     super.dispose();
   }

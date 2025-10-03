@@ -60,12 +60,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
-  late SendTransaction _sendTransaction;
 
   @override
   void initState() {
     super.initState();
-    _sendTransaction = widget.sendTransaction ?? SendTransaction();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final walletLogic = widget.walletLogic;
@@ -84,8 +82,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     super.didChangeDependencies();
     final tipTo = context.read<WalletState>().tipTo;
     if (tipTo != null) {
-      context.read<WalletState>().setHasTip(true);
-      context.read<WalletState>().setHasAddress(true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<WalletState>().setHasTip(true);
+        context.read<WalletState>().setHasAddress(true);
+      });
     }
   }
 
@@ -97,8 +97,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final walletLogic = widget.walletLogic;
 
-    walletLogic.clearAmountController();
-    walletLogic.resetInputErrorState();
+    walletLogic.clearDeepLinkRouteState();
 
     super.dispose();
   }
@@ -106,7 +105,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   void onLoad() async {
     await delay(const Duration(milliseconds: 250));
 
-    final tipTo = context.read<WalletState>().tipTo;
+    final walletState = context.read<WalletState>();
+    final tipTo = walletState.tipTo;
+    final tipAmount = walletState.tipAmount;
+    final tipDescription = walletState.tipDescription;
 
     if (tipTo != null) {
       try {
@@ -117,6 +119,13 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       } catch (e) {
         debugPrint('Error fetching profile: $e');
       }
+    }
+    if (tipAmount != null && tipAmount.isNotEmpty) {
+      widget.walletLogic.amountController.text = tipAmount;
+    }
+
+    if (tipDescription != null && tipDescription.isNotEmpty) {
+      widget.walletLogic.messageController.text = tipDescription;
     }
 
     amountFocusNode.requestFocus();
@@ -278,9 +287,6 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       return;
     }
 
-    final toAccount =
-        selectedAddress ?? walletLogic.addressController.value.text;
-
     final sendTip = SendTransaction(
       tipAmount: walletLogic.amountController.value.text,
       tipTo: tipTo,
@@ -317,8 +323,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     if (sent == true) {
       walletLogic.clearInProgressTransaction();
-      walletLogic.clearInputControllers();
-      walletLogic.resetInputErrorState();
+      walletLogic.clearDeepLinkRouteState();
       widget.profilesLogic.clearSearch();
 
       await Future.delayed(const Duration(milliseconds: 50));
@@ -396,8 +401,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     walletLogic.clearInProgressTransaction();
 
     if (sent == true) {
-      walletLogic.clearInputControllers();
-      walletLogic.resetInputErrorState();
+      walletLogic.clearDeepLinkRouteState();
       widget.profilesLogic.clearSearch();
 
       if (navigator.canPop()) {

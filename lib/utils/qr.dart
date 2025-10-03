@@ -23,11 +23,17 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.eip681Transfer;
   } else if (raw.startsWith('https://') && raw.contains('eip681=')) {
     return QRFormat.sendtoUrlWithEIP681;
+  } else if (raw.startsWith('citizenwallet://') && raw.contains('eip681=')) {
+    return QRFormat.sendtoUrlWithEIP681;
   } else if (raw.startsWith('http://') && raw.contains('sendto=')) {
     return QRFormat.sendtoUrl;
   } else if (raw.startsWith('https://') && raw.contains('sendto=')) {
     return QRFormat.sendtoUrl;
+  } else if (raw.startsWith('citizenwallet://') && raw.contains('sendto=')) {
+    return QRFormat.sendtoUrl;
   } else if (raw.startsWith('https://') && raw.contains('calldata=')) {
+    return QRFormat.calldataUrl;
+  } else if (raw.startsWith('citizenwallet://') && raw.contains('calldata=')) {
     return QRFormat.calldataUrl;
   } else if (raw.startsWith('0x')) {
     return QRFormat.address;
@@ -37,7 +43,9 @@ QRFormat parseQRFormat(String raw) {
     return QRFormat.voucher;
   } else if (raw.contains('dl=plugin')) {
     return QRFormat.plugin;
-  } else if (raw.startsWith('https://') || raw.startsWith('http://')) {
+  } else if (raw.startsWith('https://') ||
+      raw.startsWith('http://') ||
+      raw.startsWith('citizenwallet://')) {
     return QRFormat.url;
   } else {
     return QRFormat.unsupported;
@@ -51,7 +59,7 @@ ParsedQRData parseEIP681(String raw) {
   // EIP681 format is ethereum:address@chainId/...
   // The address is in the authority part, not path segments
   String address = url.authority;
-  
+
   // If authority is empty, try path segments as fallback
   if (address.isEmpty && url.pathSegments.isNotEmpty) {
     address = url.pathSegments.first;
@@ -143,13 +151,14 @@ ParsedQRData parseSendtoUrl(String raw) {
   final address = sendToParam.split('@').first;
   final alias = sendToParam.split('@').last;
 
-  final tip = tipToParam != null
-      ? SendDestination(
-          to: tipToParam,
-          amount: tipAmountParam,
-          description: tipDescriptionParam,
-        )
-      : null;
+  SendDestination? tip;
+  if (tipToParam != null) {
+    tip = SendDestination(
+      to: tipToParam,
+      amount: tipAmountParam,
+      description: tipDescriptionParam,
+    );
+  }
 
   return ParsedQRData(
     address: address,

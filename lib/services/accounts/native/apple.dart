@@ -437,7 +437,7 @@ class AppleAccountsService extends AccountsServiceInterface {
           final potentialAccount = DBAccount(
             alias: alias,
             address: EthereumAddress.fromHex(accountAddress),
-            name: alias.toUpperCase(),
+            name: await _getProperAccountName(alias, accountAddress),
             accountFactoryAddress: factoryAddress.isEmpty ? '' : factoryAddress,
           );
 
@@ -449,7 +449,7 @@ class AppleAccountsService extends AccountsServiceInterface {
           final account = DBAccount(
             alias: alias,
             address: EthereumAddress.fromHex(accountAddress),
-            name: alias.toUpperCase(),
+            name: await _getProperAccountName(alias, accountAddress),
             accountFactoryAddress: factoryAddress.isEmpty ? '' : factoryAddress,
             privateKey: null,
           );
@@ -473,6 +473,26 @@ class AppleAccountsService extends AccountsServiceInterface {
     }
 
     return restoredCount;
+  }
+
+  Future<String> _getProperAccountName(
+      String alias, String accountAddress) async {
+    try {
+      final existingAccount = await _accountsDB.accounts.get(
+        EthereumAddress.fromHex(accountAddress),
+        alias,
+        '',
+      );
+
+      if (existingAccount != null && existingAccount.name.isNotEmpty) {
+        debugPrint('Using existing account name: ${existingAccount.name}');
+        return existingAccount.name;
+      }
+    } catch (e) {
+      debugPrint('Error checking existing account: $e');
+    }
+
+    return 'Account';
   }
 
   bool _isSystemKey(String key) {
