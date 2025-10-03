@@ -1123,7 +1123,12 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      _sendToURL = result;
+      
+      if (voucher != null && voucherParams != null) {
+        _sendToURL = null;
+      } else {
+        _sendToURL = result;
+      }
 
       onLoad();
       return;
