@@ -178,6 +178,8 @@ class WalletScreenState extends State<WalletScreen>
         final navigator = GoRouter.of(context);
         final cleanRoute = '/wallet/$_address?alias=$_alias';
 
+        _sendToURL = null;
+
         navigator.go(cleanRoute);
       }
     });
@@ -584,6 +586,7 @@ class WalletScreenState extends State<WalletScreen>
 
     if (result != true && sendToURL != null) {
       context.read<WalletState>().clearTipTo();
+      _sendToURL = null;
     }
 
     _profileLogic.resume();
@@ -793,6 +796,13 @@ class WalletScreenState extends State<WalletScreen>
     _logic.pauseFetching();
     _profileLogic.clearProfileLink();
     _profileLogic.resetAll();
+
+    _sendToURL = null;
+    _voucher = null;
+    _voucherParams = null;
+    _receiveParams = null;
+    _deepLink = null;
+    _deepLinkParams = null;
 
     _address = address;
     _alias = alias;
