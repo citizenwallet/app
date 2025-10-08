@@ -117,7 +117,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
         _selectedProfile = context.read<ProfilesState>().selectedProfile;
       });
 
-      context.read<WalletState>().setTipTo(result);
+      widget.logic.setTipTo(result);
       // Update QR code with new tip information
       widget.logic.updateReceiveQR();
     }
@@ -130,7 +130,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     });
     widget.profilesLogic.deSelectProfile();
     widget.logic.clearAddressController();
-    context.read<WalletState>().setTipTo(null);
+    widget.logic.setTipTo(null);
     widget.logic.updateReceiveQR();
   }
 

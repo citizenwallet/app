@@ -2,15 +2,19 @@ import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/utils/qr.dart';
 
 (String?, String?, String?) deepLinkParamsFromUri(String uri) {
-  final fragment = Uri.parse(uri).fragment;
+  final parsedUri = Uri.parse(uri);
   
-  // Handle the case where fragment starts with /?
+  final fragment = parsedUri.fragment;
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
+
+  Uri uriData = Uri.parse('temp://temp?$queryString');
   
-  final uriData = Uri.parse('temp://temp?$queryString');
+  if (fragment.isEmpty || uriData.queryParameters.isEmpty) {
+    uriData = parsedUri;
+  }
 
   String? voucherParams = uriData.queryParameters['params'];
   // String? receiveParams = uriData.queryParameters['receiveParams'];
@@ -19,6 +23,10 @@ import 'package:citizenwallet/utils/qr.dart';
   if (uriData.queryParameters['sendto'] != null) {
     sendToParams =
         'sendto=${uriData.queryParameters['sendto']}${uriData.queryParameters['amount'] != null ? '&amount=${uriData.queryParameters['amount']}' : ''}${uriData.queryParameters['description'] != null ? '&description=${uriData.queryParameters['description']}' : ''}';
+
+    if (uriData.queryParameters['tipTo'] != null) {
+      sendToParams += '&tipTo=${uriData.queryParameters['tipTo']}';
+    }
   } else if (uriData.queryParameters['eip681'] != null) {
     sendToParams =
         'eip681=${uriData.queryParameters['eip681']}${uriData.queryParameters['alias'] != null ? '&alias=${uriData.queryParameters['alias']}' : ''}';
@@ -37,42 +45,50 @@ import 'package:citizenwallet/utils/qr.dart';
 }
 
 (String?, String?) deepLinkContentFromUri(String uri) {
-  final fragment = Uri.parse(uri).fragment;
+  final parsedUri = Uri.parse(uri);
   
-  // Handle the case where fragment starts with /?
+  final fragment = parsedUri.fragment;
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
+
+  Uri uriData = Uri.parse('temp://temp?$queryString');
   
-  final uriData = Uri.parse('temp://temp?$queryString');
+  if (fragment.isEmpty || uriData.queryParameters.isEmpty) {
+    uriData = parsedUri;
+  }
 
   return (uriData.queryParameters['voucher'], uriData.queryParameters['dl']);
 }
 
 String? aliasFromUri(String uri) {
-  final fragment = Uri.parse(uri).fragment;
+  final parsedUri = Uri.parse(uri);
   
-  // Handle the case where fragment starts with /?
+  final fragment = parsedUri.fragment;
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
+
+  Uri uriData = Uri.parse('temp://temp?$queryString');
   
-  final uriData = Uri.parse('temp://temp?$queryString');
+  if (fragment.isEmpty || uriData.queryParameters.isEmpty) {
+    uriData = parsedUri;
+  }
 
   return uriData.queryParameters['alias'];
 }
 
 String? aliasFromDeepLinkUri(String uri) {
   final fragment = Uri.parse(uri).fragment;
-  
+
   // Handle the case where fragment starts with /?
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
-  
+
   final uriData = Uri.parse('temp://temp?$queryString');
 
   final deepLinkName = uriData.queryParameters['dl'];
@@ -98,13 +114,13 @@ String? aliasFromReceiveUri(String uri) {
   }
 
   final fragment = Uri.parse(uri).fragment;
-  
+
   // Handle the case where fragment starts with /?
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
-  
+
   final uriData = Uri.parse('temp://temp?$queryString');
 
   final compressedParams = uriData.queryParameters['receiveParams'];
@@ -121,19 +137,29 @@ String? aliasFromReceiveUri(String uri) {
 
 String? aliasFromSendUri(String uri) {
   final format = parseQRFormat(uri);
-  
+
   if (format != QRFormat.sendtoUrl && format != QRFormat.sendtoUrlWithEIP681) {
+    try {
+      final parsedUri = Uri.parse(uri);
+      final sendToParam = parsedUri.queryParameters['sendto'];
+      if (sendToParam != null && sendToParam.contains('@')) {
+        final alias = sendToParam.split('@').last;
+        return alias;
+      }
+    } catch (e) {
+      //
+    }
     return null;
   }
 
   final fragment = Uri.parse(uri).fragment;
-  
+
   // Handle the case where fragment starts with /?
   String queryString = fragment;
   if (fragment.startsWith('/?')) {
     queryString = fragment.substring(2);
   }
-  
+
   final uriData = Uri.parse('temp://temp?$queryString');
 
   switch (format) {

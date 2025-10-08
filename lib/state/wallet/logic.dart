@@ -1665,6 +1665,22 @@ class WalletLogic extends WidgetsBindingObserver {
     _amountController.clear();
   }
 
+  void clearTipTo() {
+    _state.clearTipTo();
+  }
+
+  void setTipTo(String? tipTo) {
+    _state.setTipTo(tipTo);
+  }
+
+  void setHasTip(bool value) {
+    _state.setHasTip(value);
+  }
+
+  void setHasAddress(bool value) {
+    _state.setHasAddress(value);
+  }
+
   void resetInputErrorState() {
     _state.resetInvalidInputs();
   }
