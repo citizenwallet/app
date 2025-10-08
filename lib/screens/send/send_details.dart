@@ -204,7 +204,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     }
 
     final walletLogic = widget.walletLogic;
-    final walletState = context.read<WalletState>();
 
     FocusManager.instance.primaryFocus?.unfocus();
 

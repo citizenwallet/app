@@ -590,6 +590,30 @@
         "launch_mode": "webview",
         "signature": true,
         "hidden": true
+      },
+      {
+          "name": "Japan Demo",
+          "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
+          "url": "https://hackatsuonvoting.vercel.app",
+          "launch_mode": "webview",
+          "signature": true,
+          "hidden": true
+      },
+      {
+          "name": "Japan Demo",
+          "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
+          "url": "https://grow-kesennuma.vercel.app",
+          "launch_mode": "webview",
+          "signature": true,
+          "hidden": true
+      },
+      {
+          "name": "Mutual Vend",
+          "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/bread.svg",
+          "url": "https://mutual-vend.com",
+          "launch_mode": "webview",
+          "signature": true,
+          "hidden": true
       }
     ],
     "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",

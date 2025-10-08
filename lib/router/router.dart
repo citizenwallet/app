@@ -179,10 +179,18 @@ GoRouter createRouter(
             } else {
               final sendTo = state.uri.queryParameters['sendto'];
               final tipTo = state.uri.queryParameters['tipTo'];
+              final amount = state.uri.queryParameters['amount'];
+              final description = state.uri.queryParameters['description'];
               if (sendTo != null) {
                 String params = 'sendto=$sendTo';
                 if (tipTo != null) {
                   params += '&tipTo=$tipTo';
+                }
+                if (amount != null) {
+                  params += '&amount=$amount';
+                }
+                if (description != null) {
+                  params += '&description=$description';
                 }
                 sendToURL = 'https://app.citizenwallet.xyz/?$params';
               }
@@ -536,21 +544,6 @@ GoRouter createWebRouter(
               }
             }
 
-            String? sendToParams;
-            if (state.uri.queryParameters['sendto'] != null) {
-              sendToParams = 'sendto=${state.uri.queryParameters['sendto']}';
-              if (state.uri.queryParameters['tipTo'] != null) {
-                sendToParams += '&tipTo=${state.uri.queryParameters['tipTo']}';
-              }
-              if (state.uri.queryParameters['amount'] != null) {
-                sendToParams +=
-                    '&amount=${state.uri.queryParameters['amount']}';
-              }
-              if (state.uri.queryParameters['description'] != null) {
-                sendToParams +=
-                    '&description=${state.uri.queryParameters['description']}';
-              }
-            }
 
             return WebLandingScreen(
               voucher: state.uri.queryParameters['voucher'],

@@ -93,8 +93,8 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     super.didChangeDependencies();
     final tipTo = context.read<WalletState>().tipTo;
     if (tipTo != null) {
-      context.read<WalletState>().setHasTip(true);
-      context.read<WalletState>().setHasAddress(true);
+      widget.walletLogic.setHasTip(true);
+      widget.walletLogic.setHasAddress(true);
     }
   }
 
@@ -273,9 +273,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       print('stack: $stackTrace');
     }
 
-    context.read<WalletState>().setHasTip(false);
-    context.read<WalletState>().setHasAddress(false);
-    context.read<WalletState>().setTipTo(null);
+    widget.walletLogic.setHasTip(false);
+    widget.walletLogic.setHasAddress(false);
+    widget.walletLogic.setTipTo(null);
 
     await Future.delayed(const Duration(milliseconds: 50));
 

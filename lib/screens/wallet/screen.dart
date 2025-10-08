@@ -585,7 +585,7 @@ class WalletScreenState extends State<WalletScreen>
     });
 
     if (result != true && sendToURL != null) {
-      context.read<WalletState>().clearTipTo();
+      _logic.clearTipTo();
       _sendToURL = null;
     }
 

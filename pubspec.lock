@@ -302,10 +302,10 @@ packages:
     dependency: "direct main"
     description:
       name: credential_manager
-      sha256: "91d54ed2eade14880e381edc604722d400966b6f2e50e87c38eb02ff988c5238"
+      sha256: "4dbd38e17fb9a8fd30d591826246b7d327d69d7c33bd15e8a9192aa40c178374"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.4"
   cross_file:
     dependency: transitive
     description:
