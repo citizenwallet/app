@@ -151,6 +151,10 @@ class LandingScreenState extends State<LandingScreen>
     alias ??= aliasFromReceiveUri(widget.uri);
     alias ??= aliasFromSendUri(widget.uri);
 
+    if (alias == null && widget.sendToParams != null) {
+      alias = extractAliasFromSendToParams(widget.sendToParams!);
+    }
+
     // handle voucher redemption
     // pick an appropriate wallet to load
     if (widget.voucher != null &&
@@ -275,6 +279,26 @@ class LandingScreenState extends State<LandingScreen>
     final uri = Uri(query: params);
 
     return uri.queryParameters['alias'];
+  }
+
+  String? extractAliasFromSendToParams(String sendToParams) {
+    try {
+      final uri = Uri(query: sendToParams);
+      final sendToParam = uri.queryParameters['sendto'];
+
+      if (sendToParam != null && sendToParam.contains('@')) {
+        final parts = sendToParam.split('@');
+        if (parts.length >= 2) {
+          final alias = parts.last;
+          return alias;
+        }
+      }
+
+      return null;
+    } catch (e) {
+      //
+      return null;
+    }
   }
 
   /// handleAppleRecover handles the apple recover flow if needed and then returns

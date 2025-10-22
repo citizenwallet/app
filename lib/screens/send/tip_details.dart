@@ -304,9 +304,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       print('stack: $stackTrace');
     }
 
-    context.read<WalletState>().setHasTip(false);
-    context.read<WalletState>().setHasAddress(false);
-    context.read<WalletState>().setTipTo(null);
+    widget.walletLogic.setHasTip(false);
+    widget.walletLogic.setHasAddress(false);
+    widget.walletLogic.setTipTo(null);
 
     await Future.delayed(const Duration(milliseconds: 50));
 

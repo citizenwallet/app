@@ -175,6 +175,19 @@ class WalletScreenState extends State<WalletScreen>
     );
   }
 
+  void _cleanupDeeplinkRoute() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        final navigator = GoRouter.of(context);
+        final cleanRoute = '/wallet/$_address?alias=$_alias';
+
+        _sendToURL = null;
+
+        navigator.go(cleanRoute);
+      }
+    });
+  }
+
   void onLoad() async {
     if (_address == null || _alias == null) {
       return;
@@ -233,6 +246,10 @@ class WalletScreenState extends State<WalletScreen>
 
     if (_sendToURL != null) {
       await handleSendScreen(sendToURL: _sendToURL);
+
+      _cleanupDeeplinkRoute();
+    } else {
+      //
     }
 
     final currentUri = GoRouter.of(context).routeInformationProvider.value.uri;
@@ -599,7 +616,7 @@ class WalletScreenState extends State<WalletScreen>
 
     final navigator = GoRouter.of(context);
 
-    await navigator.push('/wallet/$_address/send', extra: {
+    final result = await navigator.push('/wallet/$_address/send', extra: {
       'walletLogic': _logic,
       'profilesLogic': _profilesLogic,
       'voucherLogic': _voucherLogic,
@@ -607,6 +624,11 @@ class WalletScreenState extends State<WalletScreen>
     });
     
     _logic.clearDeepLinkRouteState();
+
+    if (result != true && sendToURL != null) {
+      _logic.clearTipTo();
+      _sendToURL = null;
+    }
 
     _profileLogic.resume();
     _profilesLogic.resume();
@@ -1142,7 +1164,12 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      _sendToURL = result;
+      
+      if (voucher != null && voucherParams != null) {
+        _sendToURL = null;
+      } else {
+        _sendToURL = result;
+      }
 
       onLoad();
       return;
