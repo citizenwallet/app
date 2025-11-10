@@ -247,9 +247,12 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final navigator = GoRouter.of(context);
 
+    // For tips, use tipTo address (profile is optional, address is required)
+    final addressToValidate = tipTo;
+
     final isValid = walletLogic.validateSendFields(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      addressToValidate,
     );
 
     if (!isValid) {
@@ -259,8 +262,8 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       return;
     }
 
-    final toAccount =
-        selectedAddress ?? walletLogic.addressController.value.text;
+    // For tips, use tipTo as the account address
+    final toAccount = tipTo;
 
     final sendTip = SendTransaction(
       tipAmount: walletLogic.amountController.value.text,
@@ -469,8 +472,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
             walletLogic.addressController.value.text.length == 42) ||
         selectedProfile != null;
 
-    final formattedAddress =
-        formatHexAddress(walletLogic.addressController.value.text);
+    // For tips, use tipTo address if available, otherwise use address controller
+    final addressToDisplay = tipTo ?? walletLogic.addressController.value.text;
+    final formattedAddress = formatHexAddress(addressToDisplay);
 
     final isSendingValid = (hasAddress || isLink) &&
         hasAmount &&
@@ -506,6 +510,8 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
+                        // Show profile section if there's a profile or an address to display
+                        // formattedAddress already includes tipTo if available, otherwise falls back to address controller
                         if (selectedProfile != null ||
                             formattedAddress.isNotEmpty) ...[
                           const SizedBox(height: 10),
@@ -541,7 +547,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                         ? formattedAddress
                                         : (selectedProfile.username.isNotEmpty
                                             ? '@${selectedProfile.username}'
-                                            : ''),
+                                            : formattedAddress),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
