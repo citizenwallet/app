@@ -1095,12 +1095,36 @@ class WalletLogic extends WidgetsBindingObserver {
       return false;
     }
 
-    final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
-    final doubleAmount = double.parse(toUnit(
-      amount.replaceAll(',', '.'),
-      decimals: _wallet.currency.decimals,
-    ).toString());
+    if (amount.isEmpty) {
+      return false;
+    }
 
+    // Handle trailing decimal separator - validate what's before the separator
+    final trimmedAmount = amount.trim();
+    if (trimmedAmount.endsWith(',') || trimmedAmount.endsWith('.')) {
+      // Remove trailing separator and validate the partial amount
+      final withoutTrailing = trimmedAmount.substring(0, trimmedAmount.length - 1);
+      if (withoutTrailing.isEmpty) {
+        // Just "," or "." - treat as empty (not invalid, but also not valid)
+        return false;
+      }
+      // Validate what's before the trailing separator
+      amount = withoutTrailing;
+    }
+
+    // Balance is stored in smallest units, convert to human-readable format for comparison
+    final balanceRaw = _state.wallet?.balance ?? '0.0';
+    final balance = double.parse(fromDoubleUnit(
+      balanceRaw,
+      decimals: _wallet.currency.decimals,
+    ));
+    
+    // Parse the amount as a double in human-readable format
+    // Handle both comma and dot as decimal separators
+    final normalizedAmount = amount.replaceAll(',', '.');
+    final doubleAmount = double.tryParse(normalizedAmount) ?? 0.0;
+
+    // If parsing fails or amount is 0 or greater than balance, it's invalid
     return doubleAmount == 0 || doubleAmount > balance;
   }
 
@@ -1699,7 +1723,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.setInvalidAddress(true);
   }
 
-  void updateAmount({bool unlimited = false}) {
+  Future<void> updateAmount({bool unlimited = false}) async {
+    // Fetch current balance before validating to ensure we check against the latest balance
+    await updateBalance();
+    
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text, unlimited: unlimited),
