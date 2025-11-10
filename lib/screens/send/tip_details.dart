@@ -476,8 +476,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     final addressToDisplay = tipTo ?? walletLogic.addressController.value.text;
     final formattedAddress = formatHexAddress(addressToDisplay);
 
+    final hasAmountText = walletLogic.amountController.value.text.isNotEmpty;
     final isSendingValid = (hasAddress || isLink) &&
-        hasAmount &&
+        (hasAmount || hasAmountText) &&
         !invalidAmount &&
         (!invalidAddress || isLink) &&
         !(balance <= 0 && topUpPlugin == null);
@@ -630,7 +631,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                   ? amountFormatter
                                   : integerAmountFormatter,
                             ],
-                            onChanged: (_) => handleThrottledUpdateAmount(),
+                            onChanged: (_) {
+                              setState(() {});
+                              handleThrottledUpdateAmount();
+                            },
                             onSubmitted: (_) {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },

@@ -429,8 +429,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final formattedAddress =
         formatHexAddress(walletLogic.addressController.value.text);
 
+    final hasAmountText = walletLogic.amountController.value.text.isNotEmpty;
     final isSendingValid = (hasAddress || isLink) &&
-        hasAmount &&
+        (hasAmount || hasAmountText) &&
         !invalidAmount &&
         (!invalidAddress || isLink) &&
         !(!widget.isMinting && balance <= 0 && topUpPlugin == null);
@@ -581,7 +582,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                   ? amountFormatter
                                   : integerAmountFormatter,
                             ],
-                            onChanged: (_) => handleThrottledUpdateAmount(),
+                            onChanged: (_) {
+                              setState(() {});
+                              handleThrottledUpdateAmount();
+                            },
                             onSubmitted: (_) {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },
