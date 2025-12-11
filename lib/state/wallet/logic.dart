@@ -622,12 +622,6 @@ class WalletLogic extends WidgetsBindingObserver {
         _eventService = null;
       }
 
-      // Check if community is hidden/closed
-      if (communityConfig.community.hidden) {
-        handleEventServiceStateChange(EventServiceState.closed);
-        return;
-      }
-
       _eventService = EventService(
         communityConfig.chains[token.chainId.toString()]!.node.wsUrl,
         token.address,
