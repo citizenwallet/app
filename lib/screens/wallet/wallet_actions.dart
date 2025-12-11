@@ -73,14 +73,20 @@ class _WalletActionsState extends State<WalletActions> {
     final withOfflineBanner = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
+    final isCommunityClosed = eventServiceState == EventServiceState.closed;
+
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||
         firstLoad ||
-        widget.handleSendScreen == null;
+        widget.handleSendScreen == null ||
+        isCommunityClosed;
     final sendLoading = context.read<WalletState>().transactionSendLoading;
 
-    final blockReceive =
-        loading || firstLoad || widget.handleReceive == null || sendLoading;
+    final blockReceive = loading ||
+        firstLoad ||
+        widget.handleReceive == null ||
+        sendLoading ||
+        isCommunityClosed;
 
     final hasPending = context.select(selectHasProcessingTransactions);
     final newBalance = context.select(selectWalletBalance);
