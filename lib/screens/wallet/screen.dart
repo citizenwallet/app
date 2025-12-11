@@ -1259,10 +1259,6 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
-            // Positioned(
-            //   bottom: 60,
-            //   left: 0,
-            //   right: 0,
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
