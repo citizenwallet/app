@@ -1123,7 +1123,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      
+
       if (voucher != null && voucherParams != null) {
         _sendToURL = null;
       } else {
@@ -1195,13 +1195,10 @@ class WalletScreenState extends State<WalletScreen>
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
-    final eventServiceIntentionalDisconnect = context
-        .select((WalletState state) => state.eventServiceIntentionalDisconnect);
-
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
-    final showOfflineBanner = isOffline && !eventServiceIntentionalDisconnect;
+    final isClosed = eventServiceState == EventServiceState.closed;
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
