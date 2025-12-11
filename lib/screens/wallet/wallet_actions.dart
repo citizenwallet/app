@@ -63,15 +63,15 @@ class _WalletActionsState extends State<WalletActions> {
     final actionButton = context.select(selectActionButtonToShow);
     final plugins = context.select(selectVisiblePlugins);
     final featuredPlugins = context.select(selectFeaturedPlugins);
-    final featuredPlugin = featuredPlugins.isNotEmpty ? featuredPlugins.first : null;
+    final featuredPlugin =
+        featuredPlugins.isNotEmpty ? featuredPlugins.first : null;
     final onePlugin = plugins.isNotEmpty ? plugins.first : null;
 
     final imageSmall = context.select((ProfileState state) => state.imageSmall);
     final username = context.select((ProfileState state) => state.username);
 
-    final withOfflineBanner =
-        eventServiceState != EventServiceState.connected &&
-            eventServiceState != EventServiceState.disconnected;
+    final withOfflineBanner = eventServiceState == EventServiceState.error ||
+        eventServiceState == EventServiceState.connecting;
 
     final blockSending = context.select(selectShouldBlockSending) ||
         loading ||
@@ -121,22 +121,22 @@ class _WalletActionsState extends State<WalletActions> {
     final buttonSeparator = buttonCount > 3
         ? (baseButtonSeparator * 0.5).clamp(5.0, 20.0)
         : baseButtonSeparator;
-    
+
     final buttonBarHeight = (1 - widget.shrink) < 0.7
         ? 60.0
         : progressiveClamp(40, 120, widget.shrink);
-    
+
     // Reduce button size when there are more buttons
     final baseButtonSize = (1 - widget.shrink) < 0.9 ? 60.0 : 80.0;
     final buttonSize = buttonCount > 3
         ? (baseButtonSize * 0.85).clamp(50.0, 70.0)
         : baseButtonSize;
-    
+
     final baseButtonIconSize = (1 - widget.shrink) < 0.9 ? 20.0 : 40.0;
     final buttonIconSize = buttonCount > 3
         ? (baseButtonIconSize * 0.85).clamp(18.0, 35.0)
         : baseButtonIconSize;
-    
+
     final buttonFontSize = (1 - widget.shrink) < 0.9
         ? 12.0
         : progressiveClamp(10, buttonCount > 3 ? 12 : 14, widget.shrink);
@@ -363,11 +363,13 @@ class _WalletActionsState extends State<WalletActions> {
                       if (showActionButton && featuredPlugin != null) ...[
                         Flexible(
                           child: WalletActionButton(
-                            key: Key('featured_plugin_action_button_${featuredPlugin.name}'),
+                            key: Key(
+                                'featured_plugin_action_button_${featuredPlugin.name}'),
                             customIcon: featuredPlugin.icon != null
                                 ? SvgPicture.network(
                                     featuredPlugin.icon!,
-                                    semanticsLabel: '${featuredPlugin.name} icon',
+                                    semanticsLabel:
+                                        '${featuredPlugin.name} icon',
                                     height: buttonIconSize,
                                     width: buttonIconSize,
                                     placeholderBuilder: (_) => Icon(
@@ -390,7 +392,8 @@ class _WalletActionsState extends State<WalletActions> {
                             alt: true,
                             loading: sendLoading,
                             disabled: sendLoading,
-                            onPressed: () => widget.handlePlugin!(featuredPlugin),
+                            onPressed: () =>
+                                widget.handlePlugin!(featuredPlugin),
                           ),
                         ),
                         SizedBox(
