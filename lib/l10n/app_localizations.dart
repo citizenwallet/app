@@ -1331,6 +1331,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account not found'**
   String get accountNotFound;
+
+  /// No description provided for @communityClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This community is currently closed'**
+  String get communityClosed;
+
+  /// No description provided for @communityClosedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This community is not accepting transactions at this time. Contact the community administrator for more information.'**
+  String get communityClosedDescription;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
 }
 
 class _AppLocalizationsDelegate

@@ -672,4 +672,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Compte non trouvé';
+
+  @override
+  String get communityClosed => 'Cette communauté est actuellement fermée';
+
+  @override
+  String get communityClosedDescription => 'Cette communauté n\'accepte pas les transactions pour le moment. Contactez l\'administrateur de la communauté pour plus d\'informations.';
+
+  @override
+  String get learnMore => 'En savoir plus';
 }
