@@ -86,6 +86,7 @@ class WalletScreenState extends State<WalletScreen>
   String? _deepLinkParams;
   String? _sendToURL;
   Config? _config;
+  bool _isClosedBannerDismissed = false;
 
   @override
   void initState() {
@@ -1200,6 +1201,9 @@ class WalletScreenState extends State<WalletScreen>
         eventServiceState == EventServiceState.connecting;
 
     final isClosed = eventServiceState == EventServiceState.closed;
+    final offboardPlugin = context.select(
+      (WalletState state) => state.config!.getOffboardPlugin(),
+    );
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
@@ -1396,7 +1400,14 @@ class WalletScreenState extends State<WalletScreen>
             ),
             if (isClosed)
               CommunityClosedBanner(
-                communityUrl: config?.community.url ?? '',
+                handleOffboardPlugin: offboardPlugin != null
+                    ? () => handlePlugin(offboardPlugin)
+                    : null,
+                onDismiss: () {
+                  setState(() {
+                    _isClosedBannerDismissed = true;
+                  });
+                },
                 display: isClosed,
               ),
             OfflineBanner(
