@@ -706,6 +706,10 @@ class Config {
     return plugins?.firstWhereOrNull((plugin) => plugin.action == 'topup');
   }
 
+  PluginConfig? getOffboardPlugin() {
+    return plugins?.firstWhereOrNull((plugin) => plugin.action == 'offboard');
+  }
+
   TokenConfig getPrimaryToken() {
     final primaryToken = tokens[community.primaryToken.fullAddress];
     if (primaryToken == null) {
