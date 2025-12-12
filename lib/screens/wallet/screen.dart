@@ -1200,7 +1200,7 @@ class WalletScreenState extends State<WalletScreen>
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
-    final isClosed = eventServiceState == EventServiceState.closed;
+    final isCommunityClosed = eventServiceState == EventServiceState.closed;
     final offboardPlugin = context.select(
       (WalletState state) => state.config!.getOffboardPlugin(),
     );
@@ -1273,7 +1273,7 @@ class WalletScreenState extends State<WalletScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: (config?.online == false || isClosed)
+                      onTap: (config?.online == false || isCommunityClosed)
                           ? () => ()
                           : handleQRScan,
                       child: Container(
@@ -1286,7 +1286,7 @@ class WalletScreenState extends State<WalletScreen>
                               .resolveFrom(context),
                           borderRadius: BorderRadius.circular(45),
                           border: Border.all(
-                            color: (config?.online == false || isClosed)
+                            color: (config?.online == false || isCommunityClosed)
                                 ? scanQrDisabledColor
                                 : Theme.of(context).colors.surfacePrimary,
                             width: 3,
@@ -1309,7 +1309,7 @@ class WalletScreenState extends State<WalletScreen>
                           child: Icon(
                             CupertinoIcons.qrcode_viewfinder,
                             size: 60,
-                            color: (config?.online == false || isClosed)
+                            color: (config?.online == false || isCommunityClosed)
                                 ? scanQrDisabledColor
                                 : Theme.of(context).colors.surfacePrimary,
                           ),
@@ -1398,7 +1398,7 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
-            if (isClosed)
+            if (isCommunityClosed)
               CommunityClosedBanner(
                 handleOffboardPlugin: offboardPlugin != null
                     ? () => handlePlugin(offboardPlugin)
@@ -1408,7 +1408,7 @@ class WalletScreenState extends State<WalletScreen>
                     _isClosedBannerDismissed = true;
                   });
                 },
-                display: isClosed,
+                display: isCommunityClosed,
               ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
