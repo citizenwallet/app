@@ -34,6 +34,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
+import 'package:citizenwallet/widgets/communities/community_closed_banner.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'dart:async';
 
@@ -1268,7 +1269,9 @@ class WalletScreenState extends State<WalletScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: config?.online == false ? () => () : handleQRScan,
+                      onTap: (config?.online == false || isClosed)
+                          ? () => ()
+                          : handleQRScan,
                       child: Container(
                         height: 90,
                         width: 90,
@@ -1279,7 +1282,7 @@ class WalletScreenState extends State<WalletScreen>
                               .resolveFrom(context),
                           borderRadius: BorderRadius.circular(45),
                           border: Border.all(
-                            color: config?.online == false
+                            color: (config?.online == false || isClosed)
                                 ? scanQrDisabledColor
                                 : Theme.of(context).colors.surfacePrimary,
                             width: 3,
@@ -1302,7 +1305,7 @@ class WalletScreenState extends State<WalletScreen>
                           child: Icon(
                             CupertinoIcons.qrcode_viewfinder,
                             size: 60,
-                            color: config?.online == false
+                            color: (config?.online == false || isClosed)
                                 ? scanQrDisabledColor
                                 : Theme.of(context).colors.surfacePrimary,
                           ),
@@ -1391,6 +1394,11 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
+            if (isClosed)
+              CommunityClosedBanner(
+                communityUrl: config?.community.url ?? '',
+                display: isClosed,
+              ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
               display: isOffline,
