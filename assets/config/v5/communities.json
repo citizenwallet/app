@@ -2022,7 +2022,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/selcoupdepouce"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -2090,80 +2089,88 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/cit.celo"
 },
 
-  {
-    "community": {
-      "name": "Wolugo",
-      "description": "A community for the Woluwe-Saint-Pierre civic engagement platform",
-      "url": "https://wolugo.be",
-      "alias": "wallet.wolugo.be",
-      "custom_domain": "wallet.wolugo.be",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wolugo.svg",
-      "theme": {
-        "primary": "#81e2c1"
-      },
-      "hidden": true,
-      "profile": {
-        "address": "0x07e7b95B35866302b3A089feF4CFA3061061a51d",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
-        "chain_id": 42220
-      },
-      "card_factory": {
-        "address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451": {
-        "standard": "erc20",
-        "name": "Wolu",
-        "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
-        "symbol": "WOLU",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "CELO Explorer"
-    },
-    "accounts": {
-      "42220:0x8474153A00C959f2cB64852949954DBC68415Bb3": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x0F805BC1ED718FB9C7C18439cB11E1C17C6538C4",
-        "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
-        "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3",
-        "paymaster_type": "cw"
-      }
-    },
-    "cards": {
-      "42220:0xA3E1446E332a098A1f3b0555c5d149b4784A095F": {
-        "chain_id": 42220,
-        "address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F",
-        "type": "classic"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.wolugo.be.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "CELO Explorer"
+  },
+  "cards": {
+    "42220:0xA3E1446E332a098A1f3b0555c5d149b4784A095F": {
+      "type": "classic",
+      "address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F",
+      "chain_id": 42220
+    }
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451": {
+      "name": "Wolu",
+      "symbol": "WOLU",
+      "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0x8474153A00C959f2cB64852949954DBC68415Bb3": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c",
+      "entrypoint_address": "0x0F805BC1ED718FB9C7C18439cB11E1C17C6538C4",
+      "account_factory_address": "0x8474153A00C959f2cB64852949954DBC68415Bb3"
+    }
+  },
+  "community": {
+    "url": "https://wolugo.be",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wolugo.svg",
+    "name": "Wolugo",
+    "alias": "wallet.wolugo.be",
+    "theme": {
+      "primary": "#81e2c1"
+    },
+    "hidden": true,
+    "profile": {
+      "address": "0x07e7b95B35866302b3A089feF4CFA3061061a51d",
+      "chain_id": 42220
+    },
+    "description": "A community for the Woluwe-Saint-Pierre civic engagement platform",
+    "card_factory": {
+      "address": "0xA3E1446E332a098A1f3b0555c5d149b4784A095F",
+      "chain_id": 42220
+    },
+    "custom_domain": "wallet.wolugo.be",
+    "primary_token": {
+      "address": "0x13Dd4B3cD2f2Be3eb41cD0C3E2ce9F8d8C93A451",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.wolugo.be"
+},
+
   {
     "community": {
       "name": "Woluwe Test",
