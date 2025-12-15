@@ -2235,7 +2235,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/wtc.celo"
 },
-
  {
    "ipfs": {
      "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -2303,65 +2302,73 @@
    "config_location": "https://my.citizenwallet.xyz/api/communities/testnet-ethldn"
  },
 
-  {
-    "community": {
-      "name": "Celo Community Point",
-      "description": "This is a community for the Celo Point",
-      "url": "https://citizenwallet.xyz",
-      "alias": "celo-c.citizenwallet.xyz",
-      "logo": "https://celo-c.citizenwallet.xyz/uploads/logo.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x14004E13907282cFaD05f742022E56926eE92dAd",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x3C960E72BBbD837293e75080E1d0Fee6a4640357": {
-        "standard": "erc20",
-        "name": "Celo Community Point",
-        "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
-        "symbol": "CeloC",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "CELO Explorer"
-    },
-    "accounts": {
-      "42220:0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x66fE9c22CcA49B257dd4F00508AC90198d99Bf27",
-        "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
-        "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/celo-c.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "CELO Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x3C960E72BBbD837293e75080E1d0Fee6a4640357": {
+      "name": "Celo Community Point",
+      "symbol": "CeloC",
+      "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x7f4011845Ea914b6cefc60629e1e00600c972c75",
+      "entrypoint_address": "0x66fE9c22CcA49B257dd4F00508AC90198d99Bf27",
+      "account_factory_address": "0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA"
+    }
+  },
+  "community": {
+    "url": "https://citizenwallet.xyz",
+    "logo": "https://celo-c.citizenwallet.xyz/uploads/logo.svg",
+    "name": "Celo Community Point",
+    "alias": "celo-c.citizenwallet.xyz",
+    "hidden": true,
+    "profile": {
+      "address": "0x14004E13907282cFaD05f742022E56926eE92dAd",
+      "chain_id": 42220
+    },
+    "description": "This is a community for the Celo Point",
+    "primary_token": {
+      "address": "0x3C960E72BBbD837293e75080E1d0Fee6a4640357",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/celo-c.citizenwallet.xyz"
+},
+
   {
     "community": {
       "name": "KFMEDIA℠",
