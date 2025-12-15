@@ -2088,7 +2088,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/cit.celo"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -2171,65 +2170,73 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.wolugo.be"
 },
 
-  {
-    "community": {
-      "name": "Woluwe Test",
-      "description": "Local currency for the Woluwe Test community.",
-      "url": "https://wollet-v2.citizenwallet.net/token",
-      "alias": "wtc.celo",
-      "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0xB99a7B1574f051020EB4cb2fce5d48EE07592AfF",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0xc53Cb35591959cA62471dA9fF6AC16629A89874a",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xE79E19594A749330036280c685E2719d58d99052",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0xc53Cb35591959cA62471dA9fF6AC16629A89874a": {
-        "standard": "erc20",
-        "name": "Woluwe Test Coin",
-        "address": "0xc53Cb35591959cA62471dA9fF6AC16629A89874a",
-        "symbol": "WTC",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xE79E19594A749330036280c685E2719d58d99052": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "paymaster_address": "0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9",
-        "account_factory_address": "0xE79E19594A749330036280c685E2719d58d99052",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wtc.celo.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0xc53Cb35591959cA62471dA9fF6AC16629A89874a": {
+      "name": "Woluwe Test Coin",
+      "symbol": "WTC",
+      "address": "0xc53Cb35591959cA62471dA9fF6AC16629A89874a",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0xE79E19594A749330036280c685E2719d58d99052": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9",
+      "entrypoint_address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
+      "account_factory_address": "0xE79E19594A749330036280c685E2719d58d99052"
+    }
+  },
+  "community": {
+    "url": "https://wollet-v2.citizenwallet.net/token",
+    "logo": "https://wtc.celo.citizenwallet.xyz/wallet-config/_images/wtc.celo.svg",
+    "name": "Woluwe Test",
+    "alias": "wtc.celo",
+    "hidden": true,
+    "profile": {
+      "address": "0xB99a7B1574f051020EB4cb2fce5d48EE07592AfF",
+      "chain_id": 42220
+    },
+    "description": "Local currency for the Woluwe Test community.",
+    "primary_token": {
+      "address": "0xc53Cb35591959cA62471dA9fF6AC16629A89874a",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/wtc.celo"
+},
+
   {
     "community": {
       "name": "ETHGlobal London Token",
