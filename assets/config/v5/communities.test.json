@@ -1175,7 +1175,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/my.techi.be"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1246,70 +1245,78 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.regensunite.earth"
 },
 
-  {
-    "community": {
-      "name": "Gratitude Token",
-      "description": "Express your gratitude towards someone by sending them a token.",
-      "url": "https://citizenwallet.xyz/gratitude",
-      "alias": "gt.celo",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
-      "custom_domain": null,
-      "hidden": true,
-      "theme": {
-        "primary": "#a256ff"
-      },
-      "profile": {
-        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "Gratitude Token",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "GT",
-        "decimals": 0,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
-        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
-        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/gt.celo.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+      "name": "Gratitude Token",
+      "symbol": "GT",
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "chain_id": 42220,
+      "decimals": 0,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+      "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+      "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+      "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD"
+    }
+  },
+  "community": {
+    "url": "https://citizenwallet.xyz/gratitude",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
+    "name": "Gratitude Token",
+    "alias": "gt.celo",
+    "theme": {
+      "primary": "#a256ff"
+    },
+    "hidden": true,
+    "profile": {
+      "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
+      "chain_id": 42220
+    },
+    "description": "Express your gratitude towards someone by sending them a token.",
+    "custom_domain": null,
+    "primary_token": {
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/gt.celo"
+},
+
   {
     "community": {
       "name": "Celo Euro",
