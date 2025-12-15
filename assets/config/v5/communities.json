@@ -817,7 +817,6 @@
   },
   "config_location": "https://config.internal.citizenwallet.xyz/v4/laborhour.citizenwallet.xyz.json"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -905,84 +904,104 @@
   "config_location": "https://my.citizenwallet.xyz/communities/rooted"
 },
 
-  {
-    "community": {
-      "name": "Commons Hub Brussels",
-      "description": "Community Token for the Commons Hub Brussels community",
-      "url": "https://commonshub.brussels",
-      "alias": "wallet.commonshub.brussels",
-      "custom_domain": "wallet.commonshub.brussels",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/chb.png",
-      "theme": {
-        "primary": "#ff4c02"
-      },
-      "profile": {
-        "address": "0xc06bE1BbbeEAF2f34F3d5b76069D2560aee184Ae",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x65DD32834927de9E57E72a3E2130a19f81C6371D": {
-        "standard": "erc20",
-        "name": "Commons Hub Token",
-        "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
-        "symbol": "CHT",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "CELO Explorer"
-    },
-    "accounts": {
-      "42220:0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87": {
-        "chain_id": 42220,
-        "entrypoint_address": "0xb7608dDA592d319687C89c4479e320b5a7740117",
-        "paymaster_address": "0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3",
-        "account_factory_address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "cards": {
-      "42220:0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570": {
-        "chain_id": 42220,
-        "address": "0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570",
-        "type": "classic"
-      }
-    },
-    "plugins": [
-      {
-        "name": "Market",
-        "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
-        "url": "https://marketplace.citizenwallet.xyz/wallet.commonshub.brussels",
-        "launch_mode": "webview",
-        "signature": true
-      }
-    ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.commonshub.brussels.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "CELO Explorer"
+  },
+  "cards": {
+    "42220:0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570": {
+      "type": "classic",
+      "address": "0xc0F9e0907C8de79fd5902b61e463dFEdc5dc8570",
+      "chain_id": 42220
+    }
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x65DD32834927de9E57E72a3E2130a19f81C6371D": {
+      "name": "Commons Hub Token",
+      "symbol": "CHT",
+      "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [
+    {
+      "url": "https://marketplace.citizenwallet.xyz/wallet.commonshub.brussels",
+      "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
+      "name": "Market",
+      "signature": true,
+      "launch_mode": "webview"
+    }
+  ],
+  "version": 5,
+  "accounts": {
+    "42220:0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3",
+      "entrypoint_address": "0xb7608dDA592d319687C89c4479e320b5a7740117",
+      "account_factory_address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87"
+    },
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x4860C0f127500F0cbF4a5Bd797cBb5aA50Eb0FbA",
+      "entrypoint_address": "0xb7608dDA592d319687C89c4479e320b5a7740117",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "sessions": {
+    "42220:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+      "chain_id": 42220,
+      "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+      "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+    }
+  },
+  "community": {
+    "url": "https://commonshub.brussels",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/chb.png",
+    "name": "Commons Hub Brussels",
+    "alias": "wallet.commonshub.brussels",
+    "theme": {
+      "primary": "#ff4c02"
+    },
+    "profile": {
+      "address": "0xc06bE1BbbeEAF2f34F3d5b76069D2560aee184Ae",
+      "chain_id": 42220
+    },
+    "description": "Community Token for the Commons Hub Brussels community",
+    "custom_domain": "wallet.commonshub.brussels",
+    "primary_token": {
+      "address": "0x65DD32834927de9E57E72a3E2130a19f81C6371D",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    },
+    "primary_session_manager": {
+      "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.commonshub.brussels"
+},
+
   {
     "community": {
       "name": "Sel de Salm",
