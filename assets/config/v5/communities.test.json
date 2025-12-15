@@ -1663,7 +1663,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.oak.community"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1732,66 +1731,74 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/sbc.polygon"
 },
 
-  {
-    "community": {
-      "name": "Zinne.brussels",
-      "description": "A community currency for the city of Brussels",
-      "url": "https://zinne.brussels",
-      "alias": "zinne",
-      "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x23DB3D3Da510e60aF40902A04850E1F3a744905c",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D": {
-        "standard": "erc20",
-        "name": "Zinne.brussels Token",
-        "address": "0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D",
-        "symbol": "ZINNE",
-        "decimals": 6,
-        "chain_id": 137
-      }
-    },
-    "scan": {
-      "url": "https://polygonscan.com",
-      "name": "Polygon Explorer"
-    },
-    "accounts": {
-      "137:0x11af2639817692D2b805BcE0e1e405E530B20006": {
-        "chain_id": 137,
-        "entrypoint_address": "0xF5507B3042f1C63625D856a2ABFF046243A5D74e",
-        "paymaster_address": "0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b",
-        "account_factory_address": "0x11af2639817692D2b805BcE0e1e405E530B20006",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "137": {
-        "id": 137,
-        "node": {
-          "url": "https://137.engine.citizenwallet.xyz",
-          "ws_url": "wss://137.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/zinne.brussels.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://polygonscan.com",
+    "name": "Polygon Explorer"
+  },
+  "chains": {
+    "137": {
+      "id": 137,
+      "node": {
+        "url": "https://137.engine.citizenwallet.xyz",
+        "ws_url": "wss://137.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "137:0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D": {
+      "name": "Zinne.brussels Token",
+      "symbol": "ZINNE",
+      "address": "0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D",
+      "chain_id": 137,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "137:0x11af2639817692D2b805BcE0e1e405E530B20006": {
+      "chain_id": 137,
+      "paymaster_type": "cw",
+      "paymaster_address": "0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b",
+      "entrypoint_address": "0xF5507B3042f1C63625D856a2ABFF046243A5D74e",
+      "account_factory_address": "0x11af2639817692D2b805BcE0e1e405E530B20006"
+    },
+    "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 137,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://zinne.brussels",
+    "logo": "https://citizenwallet.xyz/zinne/zinne-coin.svg",
+    "name": "Zinne.brussels",
+    "alias": "zinne",
+    "hidden": true,
+    "profile": {
+      "address": "0x23DB3D3Da510e60aF40902A04850E1F3a744905c",
+      "chain_id": 137
+    },
+    "description": "A community currency for the city of Brussels",
+    "primary_token": {
+      "address": "0x5491a3d35F148a44F0af4D718B9636A6e55eBc2D",
+      "chain_id": 137
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 137
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/zinne"
+},
+
   {
     "community": {
       "name": "Regens Unite Time Bank",
