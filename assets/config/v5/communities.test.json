@@ -207,86 +207,101 @@
     },
     "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.pay.brussels"
   },
-  {
-    "community": {
-      "name": "Gratitude Token",
-      "description": "Express your gratitude towards someone by sending them a token of gratitude.",
-      "url": "https://citizenwallet.xyz/gratitude",
-      "alias": "gratitude",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
-      "theme": {
-        "primary": "#4EC19D"
-      },
-      "profile": {
-        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "chain_id": 42220
-      },
-      "primary_card_manager": {
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "Gratitude Token",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "GT",
-        "decimals": 0,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
-        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
-        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "paymaster_type": "cw"
-      },
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "cards": {
-      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-        "chain_id": 42220,
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "type": "classic"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
-    "version": 4
+  
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "cards": {
+    "42220:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+      "type": "safe",
+      "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+      "chain_id": 42220,
+      "instance_id": "cw-discord-1"
+    }
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+      "name": "Gratitude Token",
+      "symbol": "GT",
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "chain_id": 42220,
+      "decimals": 0,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+      "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+      "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD"
+    }
+  },
+  "sessions": {
+    "42220:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+      "chain_id": 42220,
+      "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+      "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+    }
+  },
+  "community": {
+    "url": "https://citizenwallet.xyz/gratitude",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/gt.svg",
+    "name": "Gratitude Token",
+    "alias": "gratitude",
+    "theme": {
+      "primary": "#4EC19D"
+    },
+    "profile": {
+      "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
+      "chain_id": 42220
+    },
+    "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+    "primary_token": {
+      "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+      "chain_id": 42220
+    },
+    "primary_card_manager": {
+      "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    },
+    "primary_session_manager": {
+      "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/gratitude"
+},
+  
   {
     "community": {
       "name": "SFLUV Community",
