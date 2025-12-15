@@ -903,7 +903,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/communities/rooted"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1002,95 +1001,107 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.commonshub.brussels"
 },
 
-  {
-    "community": {
-      "name": "Sel de Salm",
-      "description": "La communauté de Sel de Salm",
-      "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
-      "alias": "seldesalm",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
-      "theme": {
-        "primary": "#6B5CA4"
-      },
-      "profile": {
-        "address": "0x4083724953cC1cC13e76b436149B2b1e1a3E5970",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "chain_id": 42220
-      },
-      "primary_card_manager": {
-        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2": {
-        "standard": "erc20",
-        "name": "Myrtille",
-        "address": "0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2",
-        "symbol": "MYRT",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0xd07412020dA5054c3b49f47Ca61224637F1703af",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "cards": {
-      "42220:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
-        "chain_id": 42220,
-        "instance_id": "cw-seldesalm",
-        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
-        "type": "safe"
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Informations Générales",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
-        "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
-        "launch_mode": "webview"
-      },
-      {
-        "name": "Échanges",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
-        "url": "https://marketplace.citizenwallet.xyz/seldesalm",
-        "launch_mode": "webview",
-        "signature": true,
-        "featured": true
-      }
-    ],
-    "config_location": "https://seldesalm.citizenwallet.xyz/config/community.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "cards": {
+    "42220:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+      "type": "safe",
+      "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+      "chain_id": 42220,
+      "instance_id": "cw-seldesalm"
+    }
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2": {
+      "name": "Myrtille",
+      "symbol": "MYRT",
+      "address": "0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [
+    {
+      "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
+      "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
+      "name": "Informations Générales",
+      "launch_mode": "webview"
+    },
+    {
+      "url": "https://marketplace.citizenwallet.xyz/seldesalm",
+      "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
+      "name": "Échanges",
+      "signature": true,
+      "launch_mode": "webview"
+    }
+  ],
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xd07412020dA5054c3b49f47Ca61224637F1703af",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "sessions": {
+    "42220:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+      "chain_id": 42220,
+      "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+      "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+    }
+  },
+  "community": {
+    "url": "https://citizenwallet.xyz/community-currency-documentation/sel-de-salm",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/myrt.png",
+    "name": "Sel de Salm",
+    "alias": "seldesalm",
+    "theme": {
+      "primary": "#6B5CA4"
+    },
+    "profile": {
+      "address": "0x4083724953cC1cC13e76b436149B2b1e1a3E5970",
+      "chain_id": 42220
+    },
+    "description": "La communauté de Sel de Salm",
+    "primary_token": {
+      "address": "0x83DfEB42347a7Ce46F1497F307a5c156D1f19CB2",
+      "chain_id": 42220
+    },
+    "primary_card_manager": {
+      "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    },
+    "primary_session_manager": {
+      "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/seldesalm"
+},
+
   {
     "community": {
       "name": "TECHI",
