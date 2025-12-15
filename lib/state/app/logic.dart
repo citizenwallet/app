@@ -83,8 +83,6 @@ class AppLogic {
 
           final address = dbWallet.address.hexEip55;
 
-          // final config = await _config.getConfig(dbWallet.alias);
-
           final community = await _appDBService.communities.get(dbWallet.alias);
 
           if (community == null) {
@@ -131,8 +129,6 @@ class AppLogic {
 
       await delay(
           const Duration(milliseconds: 500)); // smoother launch experience
-
-      // final config = await _config.getConfig(alias);
 
       final community = await _appDBService.communities.get(alias);
 
@@ -285,8 +281,6 @@ class AppLogic {
         throw Exception('Invalid private key');
       }
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -347,8 +341,6 @@ class AppLogic {
       final wallet = Wallet.fromJson(decodedSplit[1], password);
 
       final credentials = wallet.privateKey;
-
-      // final config = await _config.getConfig(alias);
 
       final community = await _appDBService.communities.get(alias);
 

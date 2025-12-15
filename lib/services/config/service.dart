@@ -30,7 +30,7 @@ class ConfigService {
   static const String communityConfigListS3FileName = 'communities';
 
   static const String communityDebugFileName = 'debug';
-  static const int version = 4;
+  static const int version = 5;
 
   final PreferencesService _pref = PreferencesService();
   late APIService _api;
@@ -105,6 +105,14 @@ class ConfigService {
       }
     }
 
+    // NEW: Try direct fetch first (more efficient)
+    try {
+      final config = await getConfigByAlias(alias);
+      if (config != null) {
+        return config;
+      }
+    } catch (_) {}
+
     try {
       // fetch the config and await
       _configs = await getConfigs(location: location);
@@ -145,9 +153,7 @@ class ConfigService {
       return [Config.fromJson(response)];
     }
 
-    final response = await _api.get(
-        url:
-            '/v$version/$communityConfigListFileName.json?cachebuster=${generateCacheBusterValue()}');
+    final response = await _api.get(url: '/api/communities');
 
     _pref.setConfigs(response);
 
@@ -206,14 +212,32 @@ class ConfigService {
       return configs;
     }
 
-    final List<dynamic> response = await _api.get(
-        url:
-            '/v$version/$communityConfigListS3FileName.json?cachebuster=${generateCacheBusterValue()}');
+    final List<dynamic> response = await _api.get(url: '/api/communities');
 
     final List<Config> communities =
         response.map((item) => Config.fromJson(item)).toList();
 
     return communities;
+  }
+
+  Future<Config?> getConfigByAlias(String alias) async {
+    if (kDebugMode) {
+      final localConfigs = jsonDecode(await rootBundle.loadString(
+          'assets/config/v$version/$communityConfigListFileName.json'));
+
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      return configs.firstWhereOrNull((c) => c.community.alias == alias);
+    }
+
+    try {
+      final response = await _api.get(url: '/api/communities/$alias');
+      return Config.fromJson(response);
+    } catch (e, s) {
+      debugPrint('Error fetching config for $alias: $e');
+      debugPrint('Stacktrace: $s');
+      return null;
+    }
   }
 
   Future<bool> isCommunityOnline(String indexerUrl) async {

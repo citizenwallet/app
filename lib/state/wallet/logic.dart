@@ -452,8 +452,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {

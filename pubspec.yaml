@@ -131,6 +131,9 @@ flutter:
     - assets/config/v4/communities.json
     - assets/config/v4/communities.test.json
     - assets/config/v4/debug.json
+    - assets/config/v5/communities.json
+    - assets/config/v5/communities.test.json
+    - assets/config/v5/debug.json
     - assets/icons/switch_accounts.svg
     - assets/config/v3/communities.json
     - assets/config/v3/communities.test.json
