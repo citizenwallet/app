@@ -15,7 +15,6 @@ import 'package:web3dart/web3dart.dart';
 Future<EthereumAddress?> getLegacyAccountAddress(
     LegacyBackupWallet backup) async {
   try {
-    // final config = await ConfigService().getConfig(backup.alias);
     final community = await AppDBService().communities.get(backup.alias);
 
     if (community == null) {
