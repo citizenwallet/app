@@ -2169,7 +2169,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.wolugo.be"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -2237,65 +2236,73 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/wtc.celo"
 },
 
-  {
-    "community": {
-      "name": "ETHGlobal London Token",
-      "description": "The community of people using ETHLDN on Base.",
-      "url": "https://en.wikipedia.org/wiki/USD_Coin",
-      "alias": "testnet-ethldn",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd",
-        "chain_id": 84532
-      },
-      "primary_token": {
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "chain_id": 84532
-      },
-      "primary_account_factory": {
-        "address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
-        "chain_id": 84532
-      }
-    },
-    "tokens": {
-      "84532:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
-        "standard": "erc20",
-        "name": "ETHGlobal London Token",
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "symbol": "ETHLDN",
-        "decimals": 6,
-        "chain_id": 84532
-      }
-    },
-    "scan": {
-      "url": "https://sepolia.basescan.org",
-      "name": "Base Sepolia Explorer"
-    },
-    "accounts": {
-      "84532:0xc1654087C580f868F08E34cd1c01eDB1d3673b82": {
-        "chain_id": 84532,
-        "entrypoint_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-        "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
-        "account_factory_address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "84532": {
-        "id": 84532,
-        "node": {
-          "url": "https://84532.engine.citizenwallet.xyz",
-          "ws_url": "wss://84532.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/testnet-ethldn.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://sepolia.basescan.org",
+    "name": "Base Sepolia Explorer"
+  },
+  "chains": {
+    "84532": {
+      "id": 84532,
+      "node": {
+        "url": "https://84532.engine.citizenwallet.xyz",
+        "ws_url": "wss://84532.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "84532:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
+      "name": "ETHGlobal London Token",
+      "symbol": "ETHLDN",
+      "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+      "chain_id": 84532,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "84532:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 84532,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "84532:0xc1654087C580f868F08E34cd1c01eDB1d3673b82": {
+      "chain_id": 84532,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x389182aCCeE26D953d5188BF4b92c49339DcC9FC",
+      "entrypoint_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
+      "account_factory_address": "0xc1654087C580f868F08E34cd1c01eDB1d3673b82"
+    }
+  },
+  "community": {
+    "url": "https://en.wikipedia.org/wiki/USD_Coin",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/testnet-ethldn.svg",
+    "name": "ETHGlobal London Token",
+    "alias": "testnet-ethldn",
+    "hidden": true,
+    "profile": {
+      "address": "0x0785D720279f42326846D5396b5F44b97d0BfECd",
+      "chain_id": 84532
+    },
+    "description": "The community of people using ETHLDN on Base.",
+    "primary_token": {
+      "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+      "chain_id": 84532
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 84532
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/testnet-ethldn"
+},
+
   {
     "community": {
       "name": "Celo Community Point",
