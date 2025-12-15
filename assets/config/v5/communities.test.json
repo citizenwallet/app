@@ -1947,7 +1947,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/moos"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -2024,65 +2023,73 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/selcoupdepouce"
 },
 
-  {
-    "community": {
-      "name": "CI token",
-      "description": "Monnaie locale du Cercle Informatique de l’ULB",
-      "url": "https://citizenwallet.xyz/cit",
-      "alias": "cit.celo",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/cit.celo.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x4cB296BEc9FAd0B5e1E4FF1A2F307B425724AC82",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9": {
-        "standard": "erc20",
-        "name": "CI token",
-        "address": "0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9",
-        "symbol": "CIT",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970": {
-        "chain_id": 42220,
-        "entrypoint_address": "0xB8d9412f3A91A00ca762B5c35cd0863E9b716D68",
-        "paymaster_address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
-        "account_factory_address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/cit.celo.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9": {
+      "name": "CI token",
+      "symbol": "CIT",
+      "address": "0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "42220:0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
+      "entrypoint_address": "0xB8d9412f3A91A00ca762B5c35cd0863E9b716D68",
+      "account_factory_address": "0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970"
+    },
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x452F7ff3e55fe29f481841985dE7f4939FD645fa",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://citizenwallet.xyz/cit",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/cit.celo.svg",
+    "name": "CI token",
+    "alias": "cit.celo",
+    "hidden": true,
+    "profile": {
+      "address": "0x4cB296BEc9FAd0B5e1E4FF1A2F307B425724AC82",
+      "chain_id": 42220
+    },
+    "description": "Monnaie locale du Cercle Informatique de l’ULB",
+    "primary_token": {
+      "address": "0x12e26FAED228c425BceA8a8dd7658a9CeD944dd9",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/cit.celo"
+},
+
   {
     "community": {
       "name": "Wolugo",
