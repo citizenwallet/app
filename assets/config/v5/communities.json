@@ -1872,7 +1872,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/timebank.regensunite.earth"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1949,74 +1948,82 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/moos"
 },
 
-  {
-    "community": {
-      "name": "Bonne Heure",
-      "description": "Système d'Échange Local de Villers-la-Ville",
-      "url": "https://selcoupdepouce.be",
-      "alias": "selcoupdepouce",
-      "logo": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/sel-coin.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0xfB8F1e7ED42599638B3c509679E2F43937002C56",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3": {
-        "standard": "erc20",
-        "name": "Bonne Heure",
-        "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
-        "symbol": "BHR",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284": {
-        "chain_id": 42220,
-        "entrypoint_address": "0xA90904F33df36899d810d040b8d5b3b77265Bb05",
-        "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
-        "account_factory_address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Market",
-        "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
-        "url": "https://marketplace.citizenwallet.xyz/selcoupdepouce",
-        "launch_mode": "browser",
-        "signature": true
-      }
-    ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/selcoupdepouce.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3": {
+      "name": "Bonne Heure",
+      "symbol": "BHR",
+      "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [
+    {
+      "url": "https://marketplace.citizenwallet.xyz/selcoupdepouce",
+      "icon": "https://marketplace.citizenwallet.xyz/marketplace.svg",
+      "name": "Market",
+      "signature": true,
+      "launch_mode": "browser"
+    }
+  ],
+  "version": 5,
+  "accounts": {
+    "42220:0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
+      "entrypoint_address": "0xA90904F33df36899d810d040b8d5b3b77265Bb05",
+      "account_factory_address": "0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284"
+    },
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x635032605337aB36A46D767905108e67EE687a72",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://selcoupdepouce.be",
+    "logo": "https://topup.citizenwallet.xyz/communities/selcoupdepouce/sel-coin.svg",
+    "name": "Bonne Heure",
+    "alias": "selcoupdepouce",
+    "hidden": true,
+    "profile": {
+      "address": "0xfB8F1e7ED42599638B3c509679E2F43937002C56",
+      "chain_id": 42220
+    },
+    "description": "Système d'Échange Local de Villers-la-Ville",
+    "primary_token": {
+      "address": "0x5Cdbc862BF4E20D98456D4c41D4A5239aDd496d3",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/selcoupdepouce"
+},
+
   {
     "community": {
       "name": "CI token",
