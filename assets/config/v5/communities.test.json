@@ -100,69 +100,24 @@
     "config_location": "https://my.citizenwallet.xyz/api/communities/ctzn"
   },
   {
-    "community": {
-      "name": "Brussels Pay",
-      "description": "A community for the city of Brussels",
-      "url": "https://pay.brussels",
-      "alias": "wallet.pay.brussels",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
-      "custom_domain": "wallet.pay.brussels",
-      "hidden": false,
-      "theme": {
-        "primary": "#4a90e2"
-      },
-      "profile": {
-        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
-        "chain_id": 100
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 100
-      },
-      "primary_account_factory": {
-        "address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-        "chain_id": 100
-      },
-      "primary_card_manager": {
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "chain_id": 100
-      }
-    },
-    "tokens": {
-      "100:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "pay.brussels",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "EURb",
-        "decimals": 6,
-        "chain_id": 100
-      }
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "scan": {
       "url": "https://gnosisscan.io",
       "name": "Gnosis Explorer"
     },
-    "accounts": {
-      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
-        "chain_id": 100,
-        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
-        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
-        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE",
-        "paymaster_type": "cw"
-      },
-      "100:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 100,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
     "cards": {
       "100:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-        "chain_id": 100,
+        "type": "classic",
         "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "type": "classic"
+        "chain_id": 100
+      },
+      "100:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 100,
+        "instance_id": "brussels-pay"
       }
     },
     "chains": {
@@ -174,21 +129,83 @@
         }
       }
     },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
+    "tokens": {
+      "100:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
+        "name": "pay.brussels",
+        "symbol": "EURb",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "chain_id": 100,
+        "decimals": 6,
+        "standard": "erc20"
+      }
     },
     "plugins": [
       {
-        "name": "Top Up",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
         "url": "https://checkout.pay.brussels/topup",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
+        "name": "Top Up",
         "action": "topup",
-        "signature": true,
-        "featured": true
+        "signature": true
       }
     ],
-    "config_location": "https://wallet.pay.brussels/config/community.json",
-    "version": 4
+    "version": 5,
+    "accounts": {
+      "100:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+        "chain_id": 100,
+        "paymaster_type": "cw-safe",
+        "paymaster_address": "0xE69C843898E21C0E95eA7DD310cD850AAc0aB897",
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+      },
+      "100:0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE": {
+        "chain_id": 100,
+        "paymaster_type": "cw",
+        "paymaster_address": "0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F",
+        "entrypoint_address": "0xAAEb9DC18aDadae9b3aE7ec2b47842565A81113f",
+        "account_factory_address": "0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE"
+      }
+    },
+    "sessions": {
+      "100:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 100,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "community": {
+      "url": "https://pay.brussels",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
+      "name": "Brussels Pay",
+      "alias": "wallet.pay.brussels",
+      "theme": {
+        "primary": "#4a90e2"
+      },
+      "hidden": false,
+      "profile": {
+        "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
+        "chain_id": 100
+      },
+      "description": "A community for the city of Brussels",
+      "custom_domain": "wallet.pay.brussels",
+      "primary_token": {
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "chain_id": 100
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 100
+      },
+      "primary_account_factory": {
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+        "chain_id": 100
+      },
+      "primary_session_manager": {
+        "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "chain_id": 100
+      }
+    },
+    "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.pay.brussels"
   },
   {
     "community": {
