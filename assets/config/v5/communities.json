@@ -1797,7 +1797,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/zinne"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1874,74 +1873,82 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/timebank.regensunite.earth"
 },
 
-  {
-    "community": {
-      "name": "MOOS Token",
-      "description": "A community currency for MOOS.",
-      "url": "https://www.moos.garden/",
-      "alias": "moos",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/moos.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3": {
-        "standard": "erc20",
-        "name": "MOOS Token",
-        "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
-        "symbol": "MOOS",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0x671f0662de72268d0f3966Fb62dFc6ee6389e244": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
-        "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
-        "account_factory_address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Market",
-        "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
-        "url": "https://marketplace.citizenwallet.xyz/moos",
-        "launch_mode": "webview",
-        "signature": true
-      }
-    ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/moos.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3": {
+      "name": "MOOS Token",
+      "symbol": "MOOS",
+      "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [
+    {
+      "url": "https://marketplace.citizenwallet.xyz/moos",
+      "icon": "https://moos.citizenwallet.xyz/wallet-config/_images/moos.svg",
+      "name": "Market",
+      "signature": true,
+      "launch_mode": "webview"
+    }
+  ],
+  "version": 5,
+  "accounts": {
+    "42220:0x671f0662de72268d0f3966Fb62dFc6ee6389e244": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
+      "entrypoint_address": "0x45a8e6AaDCc48D1Ce19eCbE07Ccd3a536EF712ed",
+      "account_factory_address": "0x671f0662de72268d0f3966Fb62dFc6ee6389e244"
+    },
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://www.moos.garden/",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/moos.svg",
+    "name": "MOOS Token",
+    "alias": "moos",
+    "hidden": true,
+    "profile": {
+      "address": "0x2e4542Be47408d05F41703386eFaf4338Ee1D341",
+      "chain_id": 42220
+    },
+    "description": "A community currency for MOOS.",
+    "primary_token": {
+      "address": "0x230542eda83346929e4E54f4a98e1ca1A4BFc0c3",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/moos"
+},
+
   {
     "community": {
       "name": "Bonne Heure",
