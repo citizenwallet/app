@@ -1100,7 +1100,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/seldesalm"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1177,68 +1176,76 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/my.techi.be"
 },
 
-  {
-    "community": {
-      "name": "Regens Unite",
-      "description": "A community currency for the Regens Unite community.",
-      "url": "https://www.regensunite.earth/",
-      "alias": "wallet.regensunite.earth",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
-      "custom_domain": "wallet.regensunite.earth",
-      "hidden": true,
-      "profile": {
-        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x9406Cc6185a346906296840746125a0E44976454",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
-        "standard": "erc20",
-        "name": "Regens Unite Token",
-        "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
-        "symbol": "RGN",
-        "decimals": 6,
-        "chain_id": 137
-      }
-    },
-    "scan": {
-      "url": "https://polygonscan.com",
-      "name": "Polygon Explorer"
-    },
-    "accounts": {
-      "137:0x9406Cc6185a346906296840746125a0E44976454": {
-        "chain_id": 137,
-        "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-        "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
-        "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454",
-        "paymaster_type": "payg",
-        "gas_extra_percentage": 50
-      }
-    },
-    "chains": {
-      "137": {
-        "id": 137,
-        "node": {
-          "url": "https://137.engine.citizenwallet.xyz",
-          "ws_url": "wss://137.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/wallet.regensunite.earth.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://polygonscan.com",
+    "name": "Polygon Explorer"
+  },
+  "chains": {
+    "137": {
+      "id": 137,
+      "node": {
+        "url": "https://137.engine.citizenwallet.xyz",
+        "ws_url": "wss://137.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "137:0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e": {
+      "name": "Regens Unite Token",
+      "symbol": "RGN",
+      "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+      "chain_id": 137,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 137,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "137:0x9406Cc6185a346906296840746125a0E44976454": {
+      "chain_id": 137,
+      "paymaster_type": "payg",
+      "paymaster_address": "0x250711045d58b6310f0635C7D110BFe663cE1da5",
+      "entrypoint_address": "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+      "gas_extra_percentage": 50,
+      "account_factory_address": "0x9406Cc6185a346906296840746125a0E44976454"
+    }
+  },
+  "community": {
+    "url": "https://www.regensunite.earth/",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
+    "name": "Regens Unite",
+    "alias": "wallet.regensunite.earth",
+    "hidden": true,
+    "profile": {
+      "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+      "chain_id": 137
+    },
+    "description": "A community currency for the Regens Unite community.",
+    "custom_domain": "wallet.regensunite.earth",
+    "primary_token": {
+      "address": "0x9b1a0D2951b11Ac26A6cBbd5aEf2c4cb014b3B6e",
+      "chain_id": 137
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 137
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.regensunite.earth"
+},
+
   {
     "community": {
       "name": "Gratitude Token",
