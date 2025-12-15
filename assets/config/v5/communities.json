@@ -1730,7 +1730,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/sbc.polygon"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1799,74 +1798,82 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/zinne"
 },
 
-  {
-    "community": {
-      "name": "Regens Unite Time Bank",
-      "description": "Make time to regen",
-      "url": "https://regensunite.earth",
-      "alias": "timebank.regensunite.earth",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0x605A827DF8C405D16Ec70AAb8d9a47D21db45c09",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x186DaBD027e228C988777907465807FDab270894",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0x39b77d77f7677997871b304094a05295eb71e240",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0x186DaBD027e228C988777907465807FDab270894": {
-        "standard": "erc20",
-        "name": "Regen Hour",
-        "address": "0x186DaBD027e228C988777907465807FDab270894",
-        "symbol": "rHour",
-        "decimals": 6,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "CELO Explorer"
-    },
-    "accounts": {
-      "42220:0x39b77d77f7677997871b304094a05295eb71e240": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x41176F0C9b8f795Cb99e2DD5Db16017978eeFa4d",
-        "paymaster_address": "0xe45858bf63176595c2920822581917c7C705a12f",
-        "account_factory_address": "0x39b77d77f7677997871b304094a05295eb71e240",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Market",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
-        "url": "https://marketplace.citizenwallet.xyz/timebank.regensunite.earth",
-        "launch_mode": "webview",
-        "signature": true
-      }
-    ],
-    "config_location": "https://timebank.regensunite.earth/indexer",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "CELO Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x186DaBD027e228C988777907465807FDab270894": {
+      "name": "Regen Hour",
+      "symbol": "rHour",
+      "address": "0x186DaBD027e228C988777907465807FDab270894",
+      "chain_id": 42220,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [
+    {
+      "url": "https://marketplace.citizenwallet.xyz/timebank.regensunite.earth",
+      "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
+      "name": "Market",
+      "signature": true,
+      "launch_mode": "webview"
+    }
+  ],
+  "version": 5,
+  "accounts": {
+    "42220:0x39b77d77f7677997871b304094a05295eb71e240": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0xe45858bf63176595c2920822581917c7C705a12f",
+      "entrypoint_address": "0x41176F0C9b8f795Cb99e2DD5Db16017978eeFa4d",
+      "account_factory_address": "0x39b77d77f7677997871b304094a05295eb71e240"
+    },
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xe45858bf63176595c2920822581917c7C705a12f",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://regensunite.earth",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/rgn.svg",
+    "name": "Regens Unite Time Bank",
+    "alias": "timebank.regensunite.earth",
+    "hidden": true,
+    "profile": {
+      "address": "0x605A827DF8C405D16Ec70AAb8d9a47D21db45c09",
+      "chain_id": 42220
+    },
+    "description": "Make time to regen",
+    "primary_token": {
+      "address": "0x186DaBD027e228C988777907465807FDab270894",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/timebank.regensunite.earth"
+},
+
   {
     "community": {
       "name": "MOOS Token",
