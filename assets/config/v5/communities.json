@@ -1595,7 +1595,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/usdc.base"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1665,66 +1664,74 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.oak.community"
 },
 
-  {
-    "community": {
-      "name": "Stable Coin",
-      "description": "SBC is a digital dollar stablecoin issued by Brale",
-      "url": "https://brale.xyz/",
-      "alias": "sbc.polygon",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sbc.svg",
-      "hidden": true,
-      "profile": {
-        "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798": {
-        "standard": "erc20",
-        "name": "Stable Coin",
-        "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
-        "symbol": "SBC",
-        "decimals": 18,
-        "chain_id": 137
-      }
-    },
-    "scan": {
-      "url": "https://polygonscan.com",
-      "name": "Polygon Explorer"
-    },
-    "accounts": {
-      "137:0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5": {
-        "chain_id": 137,
-        "entrypoint_address": "0xe84423Ba1A3f3535B09237245e22dBda5E27eB88",
-        "paymaster_address": "0x123",
-        "account_factory_address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "137": {
-        "id": 137,
-        "node": {
-          "url": "https://137.engine.citizenwallet.xyz",
-          "ws_url": "wss://137.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/sbc.polygon.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://polygonscan.com",
+    "name": "Polygon Explorer"
+  },
+  "chains": {
+    "137": {
+      "id": 137,
+      "node": {
+        "url": "https://137.engine.citizenwallet.xyz",
+        "ws_url": "wss://137.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "137:0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798": {
+      "name": "Stable Coin",
+      "symbol": "SBC",
+      "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
+      "chain_id": 137,
+      "decimals": 18,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "137:0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5": {
+      "chain_id": 137,
+      "paymaster_type": "cw",
+      "paymaster_address": "0x123",
+      "entrypoint_address": "0xe84423Ba1A3f3535B09237245e22dBda5E27eB88",
+      "account_factory_address": "0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5"
+    },
+    "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 137,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x123",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://brale.xyz/",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/sbc.svg",
+    "name": "Stable Coin",
+    "alias": "sbc.polygon",
+    "hidden": true,
+    "profile": {
+      "address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
+      "chain_id": 137
+    },
+    "description": "SBC is a digital dollar stablecoin issued by Brale",
+    "primary_token": {
+      "address": "0xfdcC3dd6671eaB0709A4C0f3F53De9a333d80798",
+      "chain_id": 137
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 137
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/sbc.polygon"
+},
+
   {
     "community": {
       "name": "Zinne.brussels",
