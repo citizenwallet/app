@@ -1,48 +1,18 @@
 [
   {
-    "community": {
-      "name": "Citizen Wallet (CTZN)",
-      "description": "The token powering the Citizen Wallet economy.",
-      "url": "https://citizenwallet.xyz",
-      "alias": "ctzn",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
-      "theme": {
-        "primary": "#9563D3"
-      },
-      "profile": {
-        "address": "0x8dA817724Eb6A2aA47c0F8d8b8A98b9B3C2Ddb68",
-        "chain_id": 137
-      },
-      "primary_token": {
-        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
-        "chain_id": 137
-      },
-      "primary_account_factory": {
-        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "chain_id": 137
-      }
-    },
-    "tokens": {
-      "137:0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607": {
-        "standard": "erc20",
-        "name": "Citizen Wallet",
-        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
-        "symbol": "CTZN",
-        "decimals": 18,
-        "chain_id": 137
-      }
+    "ipfs": {
+      "url": "https://ipfs.internal.citizenwallet.xyz"
     },
     "scan": {
       "url": "https://polygonscan.com",
       "name": "Polygon Explorer"
     },
-    "accounts": {
-      "137:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+    "cards": {
+      "137:0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28": {
+        "type": "safe",
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
         "chain_id": 137,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x3A3E25871c5C6C84D5f397829FF316a37F7FD596",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
+        "instance_id": "cw-discord-1"
       }
     },
     "chains": {
@@ -54,26 +24,80 @@
         }
       }
     },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
+    "tokens": {
+      "137:0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607": {
+        "name": "Citizen Wallet",
+        "symbol": "CTZN",
+        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
+        "chain_id": 137,
+        "decimals": 18,
+        "standard": "erc20"
+      }
     },
     "plugins": [
       {
-        "name": "About",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
         "url": "https://citizenwallet.xyz/pay-with-ctzn",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+        "name": "About",
         "launch_mode": "browser"
       },
       {
-        "name": "Top Up",
-        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
         "url": "https://my.citizenwallet.xyz/onramp",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+        "name": "Top Up",
         "action": "topup",
         "signature": true
       }
     ],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/ctzn.json",
-    "version": 4
+    "version": 5,
+    "accounts": {
+      "137:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+        "chain_id": 137,
+        "paymaster_type": "cw-safe",
+        "paymaster_address": "0x3A3E25871c5C6C84D5f397829FF316a37F7FD596",
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+      }
+    },
+    "sessions": {
+      "137:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+        "chain_id": 137,
+        "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+        "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+      }
+    },
+    "community": {
+      "url": "https://citizenwallet.xyz",
+      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ctzn.svg",
+      "name": "Citizen Wallet (CTZN)",
+      "alias": "ctzn",
+      "theme": {
+        "primary": "#9563D3"
+      },
+      "profile": {
+        "address": "0x8dA817724Eb6A2aA47c0F8d8b8A98b9B3C2Ddb68",
+        "chain_id": 137
+      },
+      "description": "The token powering the Citizen Wallet economy.",
+      "primary_token": {
+        "address": "0x0D9B0790E97e3426C161580dF4Ee853E4A7C4607",
+        "chain_id": 137
+      },
+      "primary_card_manager": {
+        "address": "0xBA861e2DABd8316cf11Ae7CdA101d110CF581f28",
+        "chain_id": 137
+      },
+      "primary_account_factory": {
+        "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+        "chain_id": 137
+      },
+      "primary_session_manager": {
+        "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+        "chain_id": 137
+      }
+    },
+    "config_location": "https://my.citizenwallet.xyz/api/communities/ctzn"
   },
   {
     "community": {
