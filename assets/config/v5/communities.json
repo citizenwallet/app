@@ -1244,7 +1244,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.regensunite.earth"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1317,69 +1316,77 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/gt.celo"
 },
 
-  {
-    "community": {
-      "name": "Celo Euro",
-      "description": "Celo Euro is a stablecoin for the Celo Community.",
-      "url": "https://celo.org/",
-      "alias": "ceur.celo",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ceur.svg",
-      "hidden": true,
-      "theme": {
-        "primary": "#a256ff"
-      },
-      "profile": {
-        "address": "0x0334C579E61aF6922D5deFEF02A361FBb2D6f406",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098",
-        "chain_id": 42220
-      }
-    },
-    "tokens": {
-      "42220:0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73": {
-        "standard": "erc20",
-        "name": "Celo Euro",
-        "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
-        "symbol": "cEUR",
-        "decimals": 18,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098": {
-        "chain_id": 42220,
-        "entrypoint_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
-        "paymaster_address": "0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F",
-        "account_factory_address": "0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098",
-        "paymaster_type": "cw"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/ceur.celo.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73": {
+      "name": "Celo Euro",
+      "symbol": "cEUR",
+      "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+      "chain_id": 42220,
+      "decimals": 18,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F",
+      "entrypoint_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    },
+    "42220:0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098": {
+      "chain_id": 42220,
+      "paymaster_type": "cw",
+      "paymaster_address": "0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F",
+      "entrypoint_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
+      "account_factory_address": "0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098"
+    }
+  },
+  "community": {
+    "url": "https://celo.org/",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/ceur.svg",
+    "name": "Celo Euro",
+    "alias": "ceur.celo",
+    "theme": {
+      "primary": "#a256ff"
+    },
+    "hidden": true,
+    "profile": {
+      "address": "0x0334C579E61aF6922D5deFEF02A361FBb2D6f406",
+      "chain_id": 42220
+    },
+    "description": "Celo Euro is a stablecoin for the Celo Community.",
+    "primary_token": {
+      "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/ceur.celo"
+},
+
   {
     "community": {
       "name": "EUR e-money",
