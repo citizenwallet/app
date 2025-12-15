@@ -1453,7 +1453,6 @@
   },
   "config_location": "https://my.citizenwallet.xyz/api/communities/eure.polygon"
 },
-
 {
   "ipfs": {
     "url": "https://ipfs.internal.citizenwallet.xyz"
@@ -1526,70 +1525,78 @@
   "config_location": "https://my.citizenwallet.xyz/api/communities/app"
 },
 
-  {
-    "community": {
-      "name": "USDC on Base",
-      "description": "The community of people using USDC on Base.",
-      "url": "https://en.wikipedia.org/wiki/USD_Coin",
-      "alias": "usdc.base",
-      "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/usdc.svg",
-      "hidden": true,
-      "theme": {
-        "primary": "#0052ff"
-      },
-      "profile": {
-        "address": "0x51Ef5Add405CCF63c206A80AF8c2B3cEE0282830",
-        "chain_id": 8453
-      },
-      "primary_token": {
-        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "chain_id": 8453
-      },
-      "primary_account_factory": {
-        "address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
-        "chain_id": 8453
-      }
-    },
-    "tokens": {
-      "8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": {
-        "standard": "erc20",
-        "name": "USD Coin",
-        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "symbol": "USDC",
-        "decimals": 6,
-        "chain_id": 8453
-      }
-    },
-    "scan": {
-      "url": "https://basescan.org",
-      "name": "Base Explorer"
-    },
-    "accounts": {
-      "8453:0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99": {
-        "chain_id": 8453,
-        "entrypoint_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
-        "paymaster_address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7",
-        "account_factory_address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99",
-        "paymaster_type": "cw",
-        "gas_extra_percentage": 50
-      }
-    },
-    "chains": {
-      "8453": {
-        "id": 8453,
-        "node": {
-          "url": "https://8453.engine.citizenwallet.xyz",
-          "ws_url": "wss://8453.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [],
-    "config_location": "https://config.internal.citizenwallet.xyz/v4/usdc.base.citizenwallet.xyz.json",
-    "version": 4
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
   },
+  "scan": {
+    "url": "https://basescan.org",
+    "name": "Base Explorer"
+  },
+  "chains": {
+    "8453": {
+      "id": 8453,
+      "node": {
+        "url": "https://8453.engine.citizenwallet.xyz",
+        "ws_url": "wss://8453.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": {
+      "name": "USD Coin",
+      "symbol": "USDC",
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "chain_id": 8453,
+      "decimals": 6,
+      "standard": "erc20"
+    }
+  },
+  "plugins": [],
+  "version": 5,
+  "accounts": {
+    "8453:0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99": {
+      "chain_id": 8453,
+      "paymaster_type": "cw",
+      "paymaster_address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7",
+      "entrypoint_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+      "gas_extra_percentage": 50,
+      "account_factory_address": "0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99"
+    },
+    "8453:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 8453,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "community": {
+    "url": "https://en.wikipedia.org/wiki/USD_Coin",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/usdc.svg",
+    "name": "USDC on Base",
+    "alias": "usdc.base",
+    "theme": {
+      "primary": "#0052ff"
+    },
+    "hidden": true,
+    "profile": {
+      "address": "0x51Ef5Add405CCF63c206A80AF8c2B3cEE0282830",
+      "chain_id": 8453
+    },
+    "description": "The community of people using USDC on Base.",
+    "primary_token": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "chain_id": 8453
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 8453
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/usdc.base"
+},
+
   {
     "community": {
       "name": "OAK Community",
