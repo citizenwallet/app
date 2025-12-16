@@ -163,13 +163,19 @@ class ConfigService {
   }
 
   Future<List<Config>> getLocalConfigs() async {
-    final localConfigs = jsonDecode(await rootBundle.loadString(
-        'assets/config/v$version/$communityConfigListFileName.json'));
+    try {
+      final localConfigs = jsonDecode(await rootBundle.loadString(
+          'assets/config/v$version/$communityConfigListFileName.json'));
 
-    final configs =
-        (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      final configs =
+          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
 
-    return configs;
+      return configs;
+    } catch (e, s) {
+      debugPrint('ERROR in getLocalConfigs: $e');
+      debugPrintStack(stackTrace: s);
+      return [];
+    }
   }
 
   Future<Config?> getRemoteConfig(String remoteConfigUrl) async {
