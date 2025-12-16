@@ -726,6 +726,28 @@ class Config {
     return primaryAccountAbstraction;
   }
 
+  ERC4337Config getAccountAbstractionConfig({String? accountFactoryAddress}) {
+    // If no accountFactoryAddress is provided, return the primary config
+    if (accountFactoryAddress == null || accountFactoryAddress.isEmpty) {
+      return getPrimaryAccountAbstractionConfig();
+    }
+
+    // Build the full address key using chainId:accountFactoryAddress format
+    final chainId = community.primaryToken.chainId;
+    final fullAddress = '$chainId:$accountFactoryAddress';
+
+    // Try to find the account config
+    final accountConfig = accounts[fullAddress];
+
+    if (accountConfig == null) {
+      throw Exception(
+        'Account Abstraction Config not found for address: $fullAddress',
+      );
+    }
+
+    return accountConfig;
+  }
+
   CardsConfig? getPrimaryCardManager() {
     return cards?[community.primaryCardManager?.fullAddress];
   }
