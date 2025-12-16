@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
@@ -390,17 +391,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
-      _config
-          .isCommunityOnline(
-              communityConfig.chains[token.chainId.toString()]!.node.url)
-          .then((isOnline) {
-        communityConfig.online = isOnline;
-
-        _state.setWalletConfig(communityConfig);
-
-        _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
-      });
+      updateWalletConfigFromRemote();
 
       _state.setWallet(
         CWWallet(
@@ -1101,7 +1092,8 @@ class WalletLogic extends WidgetsBindingObserver {
     final trimmedAmount = amount.trim();
     if (trimmedAmount.endsWith(',') || trimmedAmount.endsWith('.')) {
       // Remove trailing separator and validate the partial amount
-      final withoutTrailing = trimmedAmount.substring(0, trimmedAmount.length - 1);
+      final withoutTrailing =
+          trimmedAmount.substring(0, trimmedAmount.length - 1);
       if (withoutTrailing.isEmpty) {
         // Just "," or "." - treat as empty (not invalid, but also not valid)
         return false;
@@ -1116,7 +1108,7 @@ class WalletLogic extends WidgetsBindingObserver {
       balanceRaw,
       decimals: _wallet.currency.decimals,
     ));
-    
+
     // Parse the amount as a double in human-readable format
     // Handle both comma and dot as decimal separators
     final normalizedAmount = amount.replaceAll(',', '.');
@@ -1724,7 +1716,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> updateAmount({bool unlimited = false}) async {
     // Fetch current balance before validating to ensure we check against the latest balance
     await updateBalance();
-    
+
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text, unlimited: unlimited),
@@ -2142,6 +2134,53 @@ class WalletLogic extends WidgetsBindingObserver {
     cleanupWalletService();
   }
 
+  Future<void> updateWalletConfigFromRemote() async {
+    try {
+      if (_wallet.alias == null) {
+        return;
+      }
+
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        return;
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final remoteConfigUrl = communityConfig.configLocation;
+
+      if (remoteConfigUrl.isEmpty) {
+        return;
+      }
+
+      final remoteConfig = await _config.getRemoteConfig(remoteConfigUrl);
+
+      if (remoteConfig == null) {
+        return;
+      }
+
+      // Update the wallet config with the remote config
+      _state.setWalletConfig(remoteConfig);
+
+      final token = remoteConfig.getPrimaryToken();
+
+      remoteConfig.online = await _config.isCommunityOnline(
+          remoteConfig.chains[token.chainId.toString()]!.node.url);
+
+      _state.setWalletConfig(remoteConfig);
+
+      // Update the database with the new config
+      await _appDBService.communities.upsert(
+        [DBCommunity.fromConfig(remoteConfig)],
+      );
+      debugPrint('Remote config updated');
+    } catch (e, s) {
+      debugPrint('Error updating remote config: $e');
+      debugPrint('Stacktrace: $s');
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
@@ -2154,24 +2193,7 @@ class WalletLogic extends WidgetsBindingObserver {
         }
 
         await updateBalance();
-
-        final community = await _appDBService.communities.get(_wallet.alias!);
-
-        if (community == null) {
-          return;
-        }
-
-        Config communityConfig = Config.fromJson(community.config);
-
-        final token = communityConfig.getPrimaryToken();
-
-        communityConfig.online = await _config.isCommunityOnline(
-            communityConfig.chains[token.chainId.toString()]!.node.url);
-
-        await _appDBService.communities.updateOnlineStatus(
-            communityConfig.community.alias, communityConfig.online);
-
-        _state.setWalletConfig(communityConfig);
+        await updateWalletConfigFromRemote();
 
         break;
       default:
