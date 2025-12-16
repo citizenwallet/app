@@ -90,6 +90,139 @@ const Map<String, List<String>> communitiesWithMultipleAccountFactories = {
   ],
 };
 
+const Map<String, Map<String, String>> communityRpcUrls = {
+  'ctzn': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0x3A3E25871c5C6C84D5f397829FF316a37F7FD596',
+  },
+  'wallet.pay.brussels': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://engine.pay.brussels/v1/rpc/0xE69C843898E21C0E95eA7DD310cD850AAc0aB897',
+    '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE':
+        'https://engine.pay.brussels/v1/rpc/0xcA1B9EC1117340818C1c1fdd1B48Ea79E57C140F',
+  },
+  'gratitude': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xF05ba2641b31AF70c2678e3324eD8b9C53093FbE',
+    '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8'
+  },
+  'bread': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://100.engine.citizenwallet.xyz/v1/rpc/0x5987e57e85014B5A56C880313580346c20a5d1c1',
+    '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9':
+        'https://100.engine.citizenwallet.xyz/v1/rpc/0xbE2Cb3358aa14621134e923B68b8429315368E32'
+  },
+  'wallet.commonshub.brussels': {
+    '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x4860C0f127500F0cbF4a5Bd797cBb5aA50Eb0FbA'
+  },
+  'wallet.regensunite.earth': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0x250711045d58b6310f0635C7D110BFe663cE1da5',
+    '0x9406Cc6185a346906296840746125a0E44976454':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0x250711045d58b6310f0635C7D110BFe663cE1da5'
+  },
+  'gt.celo': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8',
+    '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8'
+  },
+  'ceur.celo': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F',
+    '0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xedbEA8c0F25B34510149EaD4f72867B0d3D2264F'
+  },
+  'eure.polygon': {
+    '0x5bA08d9fC7b90f79B2b856bdB09FC9EB32e83616':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xB2cb6b75C2357Ca94dBdF58897E468E45fAC83Ec',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xB2cb6b75C2357Ca94dBdF58897E468E45fAC83Ec'
+  },
+  'app': {
+    '0x270758454C012A1f51428b68aE473D728CCdFe88':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xB5D1C0167E6325466E2918e9fda8cc41384C0291',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xB5D1C0167E6325466E2918e9fda8cc41384C0291'
+  },
+  'usdc.base': {
+    '0x05e2Fb34b4548990F96B3ba422eA3EF49D5dAa99':
+        'https://8453.engine.citizenwallet.xyz/v1/rpc/0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://8453.engine.citizenwallet.xyz/v1/rpc/0xA63DFccB8a39a3DFE4479b33190b12019Ee594E7'
+  },
+  'wallet.oak.community': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://8453.engine.citizenwallet.xyz/v1/rpc/0x123',
+    '0x9406Cc6185a346906296840746125a0E44976454':
+        'https://8453.engine.citizenwallet.xyz/v1/rpc/0x123'
+  },
+  'sbc.polygon': {
+    '0x3Be13D9325C8C9174C3819d3d868D5D3aB8Fc8a5':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0x123',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0x123'
+  },
+  'zinne': {
+    '0x11af2639817692D2b805BcE0e1e405E530B20006':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://137.engine.citizenwallet.xyz/v1/rpc/0xBb796D122Ec1aBDeD081D50B06a072f981c7E62b'
+  },
+  'timebank.regensunite.earth': {
+    '0x39b77d77f7677997871b304094a05295eb71e240':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xe45858bf63176595c2920822581917c7C705a12f',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xe45858bf63176595c2920822581917c7C705a12f'
+  },
+  'moos': {
+    '0x671f0662de72268d0f3966Fb62dFc6ee6389e244':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x55E519bfD63c7152D9F7B88Acd712A37F0BEC482'
+  },
+  'selcoupdepouce': {
+    '0x4Cc883b7E8E0BCB2e293703EF06426F9b4A5A284':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x635032605337aB36A46D767905108e67EE687a72',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x635032605337aB36A46D767905108e67EE687a72'
+  },
+  'cit.celo': {
+    '0x0a9f4B7e7Ec393fF25dc9267289Be259Ec3FB970':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x452F7ff3e55fe29f481841985dE7f4939FD645fa',
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x452F7ff3e55fe29f481841985dE7f4939FD645fa'
+  },
+  'wallet.wolugo.be': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c',
+    '0x8474153A00C959f2cB64852949954DBC68415Bb3':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0xF2EFEC3cBFaDE0bB6108620cbF7Cc608d27DCF3c'
+  },
+  'wtc.celo': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9',
+    '0xE79E19594A749330036280c685E2719d58d99052':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x3fefC19674f3F6E43B1dFf1861E07c303B9eAAc9'
+  },
+  'testnet-ethldn': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://84532.engine.citizenwallet.xyz/v1/rpc/0x389182aCCeE26D953d5188BF4b92c49339DcC9FC',
+    '0xc1654087C580f868F08E34cd1c01eDB1d3673b82':
+        'https://84532.engine.citizenwallet.xyz/v1/rpc/0x389182aCCeE26D953d5188BF4b92c49339DcC9FC'
+  },
+  'celo-c.citizenwallet.xyz': {
+    '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x7f4011845Ea914b6cefc60629e1e00600c972c75',
+    '0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA':
+        'https://42220.engine.citizenwallet.xyz/v1/rpc/0x7f4011845Ea914b6cefc60629e1e00600c972c75'
+  },
+};
+
 void main() {
   late List<Config> configs;
 
@@ -363,6 +496,114 @@ void main() {
           }
         }
       }
+    });
+  });
+
+  group('getRpcUrl', () {
+    test('returns correct URL for primary account factory', () {
+      for (final config in configs) {
+        final alias = config.community.alias;
+
+        // Skip if no expected RPC URL defined for this community
+        if (!communityRpcUrls.containsKey(alias)) {
+          continue;
+        }
+
+        final chainId = config.community.primaryToken.chainId.toString();
+        final primaryAccountFactory =
+            config.community.primaryAccountFactory.address;
+        final expectedUrls = communityRpcUrls[alias]!;
+
+        // Get the expected URL for the primary account factory
+        final expectedUrl = expectedUrls[primaryAccountFactory];
+
+        if (expectedUrl != null) {
+          final actualUrl = config.getRpcUrl(chainId);
+          expect(actualUrl, equals(expectedUrl),
+              reason: 'RPC URL mismatch for $alias (primary account factory)');
+        }
+      }
+    });
+
+    test('returns correct URL for specific account factory', () {
+      for (final config in configs) {
+        final alias = config.community.alias;
+
+        // Skip if no expected RPC URLs defined for this community
+        if (!communityRpcUrls.containsKey(alias)) {
+          continue;
+        }
+
+        final chainId = config.community.primaryToken.chainId.toString();
+        final expectedUrls = communityRpcUrls[alias]!;
+
+        // Test each account factory address
+        for (final accountFactory in expectedUrls.keys) {
+          final expectedUrl = expectedUrls[accountFactory]!;
+          final actualUrl = config.getRpcUrl(
+            chainId,
+            accountFactoryAddress: accountFactory,
+          );
+
+          expect(actualUrl, equals(expectedUrl),
+              reason:
+                  'RPC URL mismatch for $alias with account factory $accountFactory');
+        }
+      }
+    });
+
+    test('works for communities with multiple account factories', () {
+      for (final alias in communitiesWithMultipleAccountFactories.keys) {
+        final config = configs.firstWhere((c) => c.community.alias == alias);
+        final accountFactories =
+            communitiesWithMultipleAccountFactories[alias]!;
+        final chainId = config.community.primaryToken.chainId.toString();
+
+        expect(accountFactories.length, greaterThan(1),
+            reason: '$alias should have multiple account factories');
+
+        // Verify each account factory returns a different RPC URL
+        final urls = <String>{};
+        for (final accountFactory in accountFactories) {
+          final url = config.getRpcUrl(
+            chainId,
+            accountFactoryAddress: accountFactory,
+          );
+          urls.add(url);
+        }
+
+        // All URLs should be valid and non-empty
+        for (final url in urls) {
+          expect(url, isNotEmpty);
+          expect(url, startsWith('https://'));
+          expect(url, contains('/v1/rpc/'));
+        }
+      }
+    });
+
+    test('throws exception for invalid chain ID', () {
+      final config = configs.first;
+
+      expect(
+        () => config.getRpcUrl('99999'),
+        throwsException,
+        reason: 'Should throw exception for non-existent chain ID',
+      );
+    });
+
+    test('throws exception for non-existent account factory', () {
+      final config = configs.first;
+      final chainId = config.community.primaryToken.chainId.toString();
+
+      expect(
+        () => config.getRpcUrl(
+          chainId,
+          accountFactoryAddress: '0xNonExistentAddress',
+        ),
+        throwsException,
+        reason:
+            'Should throw exception for non-existent account factory address',
+      );
     });
   });
 }

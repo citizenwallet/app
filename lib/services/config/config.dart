@@ -762,13 +762,18 @@ class Config {
     return chain.node.url;
   }
 
-  String getRpcUrl(String chainId) {
+  String getRpcUrl(String chainId, {String? accountFactoryAddress}) {
     final chain = chains[chainId];
 
     if (chain == null) {
       throw Exception('Chain not found');
     }
 
-    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
+    // Get the account config (primary or specific based on accountFactoryAddress)
+    final accountConfig = getAccountAbstractionConfig(
+      accountFactoryAddress: accountFactoryAddress,
+    );
+
+    return '${chain.node.url}/v1/rpc/${accountConfig.paymasterAddress}';
   }
 }
