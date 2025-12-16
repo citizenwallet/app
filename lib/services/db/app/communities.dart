@@ -180,6 +180,7 @@ class CommunityTable extends DBTable {
                 await upsert(updatedConfigs);
                 continue;
               case 'V5Migration':
+                debugPrint('V5Migration');
                 final updatedConfigs = await V5Migration(db, name);
                 await upsert(updatedConfigs);
                 continue;
@@ -196,26 +197,32 @@ class CommunityTable extends DBTable {
   }
 
   Future<void> seed() async {
-    final localConfigs = await _config.getLocalConfigs();
+    try {
+      // Check if the table is empty
+      final count = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM $name'));
 
-    // Check if the table is empty
-    final count =
-        Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $name'));
-    if (count != null && count > 0) {
-      return; // Table is not empty, skip seeding
+      if (count != null && count > 0) {
+        return; // Table is not empty, skip seeding
+      }
+
+      final localConfigs = await _config.getLocalConfigs();
+
+      // Prepare batch operation for efficient insertion
+      final batch = db.batch();
+
+      for (final config in localConfigs) {
+        batch.insert(
+          name,
+          DBCommunity.fromConfig(config).toMap(),
+        );
+      }
+
+      await batch.commit(noResult: true);
+    } catch (e, s) {
+      print('Error seeding communities table: $e');
+      print('Stack trace: $s');
     }
-
-    // Prepare batch operation for efficient insertion
-    final batch = db.batch();
-
-    for (final config in localConfigs) {
-      batch.insert(
-        name,
-        DBCommunity.fromConfig(config).toMap(),
-      );
-    }
-
-    await batch.commit(noResult: true);
   }
 
   Future<void> upsert(List<DBCommunity> communities) async {
