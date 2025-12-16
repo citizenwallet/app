@@ -3,6 +3,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/legacy.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/db.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -26,6 +27,50 @@ Future<List<DBCommunity>> legacyToV4(Database db, String name) async {
   }
 
   return v4Configs;
+}
+
+Future<List<DBCommunity>> V5Migration(Database db, String name) async {
+  try {
+    final ConfigService config = ConfigService();
+    final localConfigs = await config.getLocalConfigs();
+
+    final List<Map<String, dynamic>> maps = await db.query(name);
+    final existingCommunities = List.generate(maps.length, (i) {
+      return DBCommunity.fromMap(maps[i]);
+    });
+
+    final List<DBCommunity> updatedConfigs = [];
+
+    for (final localConfig in localConfigs) {
+      final existingCommunity = existingCommunities.firstWhereOrNull(
+        (c) => c.alias == localConfig.community.alias,
+      );
+
+      if (existingCommunity != null) {
+        // Update existing community, preserve online status
+        final updatedCommunity = DBCommunity(
+          alias: localConfig.community.alias,
+          config: localConfig.toJson(),
+          hidden: localConfig.community.hidden,
+          version: localConfig.version,
+          online: existingCommunity.online,
+        );
+        updatedConfigs.add(updatedCommunity);
+      } else {
+        // New community in v5
+        updatedConfigs.add(DBCommunity.fromConfig(localConfig));
+      }
+    }
+
+    return updatedConfigs;
+  } catch (e, s) {
+    debugPrint('ERROR in V5Migration: $e');
+    debugPrintStack(stackTrace: s);
+
+    // Return existing data unchanged on error
+    final List<Map<String, dynamic>> maps = await db.query(name);
+    return List.generate(maps.length, (i) => DBCommunity.fromMap(maps[i]));
+  }
 }
 
 class DBCommunity {
@@ -118,6 +163,9 @@ class CommunityTable extends DBTable {
       2: [
         'V4Migration',
       ],
+      3: [
+        'V5Migration',
+      ],
     };
 
     for (var i = oldVersion + 1; i <= newVersion; i++) {
@@ -129,6 +177,10 @@ class CommunityTable extends DBTable {
             switch (query) {
               case 'V4Migration':
                 final updatedConfigs = await legacyToV4(db, name);
+                await upsert(updatedConfigs);
+                continue;
+              case 'V5Migration':
+                final updatedConfigs = await V5Migration(db, name);
                 await upsert(updatedConfigs);
                 continue;
             }
