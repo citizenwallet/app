@@ -157,7 +157,11 @@ class ConfigService {
 
     _pref.setConfigs(response);
 
-    final configs = (response as List).map((e) => Config.fromJson(e)).toList();
+    // The API returns an array of wrapper objects with the config nested in the 'json' field
+    final configs = (response as List).map((e) {
+      final configData = e['json'] as Map<String, dynamic>;
+      return Config.fromJson(configData);
+    }).toList();
 
     return configs;
   }
@@ -196,7 +200,19 @@ class ConfigService {
       final dynamic response =
           await remote.get(url: '?cachebuster=${generateCacheBusterValue()}');
 
-      final config = Config.fromJson(response);
+      if (response == null) {
+        debugPrint('Empty response for remote config');
+        return null;
+      }
+
+      // The API returns a wrapper object with the config nested in the 'json' field
+      final configData = response['json'] as Map<String, dynamic>?;
+      if (configData == null) {
+        debugPrint('No json field in response for remote config');
+        return null;
+      }
+
+      final config = Config.fromJson(configData);
 
       return config;
     } catch (e, s) {
@@ -220,8 +236,11 @@ class ConfigService {
 
     final List<dynamic> response = await _api.get(url: '/api/communities');
 
-    final List<Config> communities =
-        response.map((item) => Config.fromJson(item)).toList();
+    // The API returns an array of wrapper objects with the config nested in the 'json' field
+    final List<Config> communities = response.map((item) {
+      final configData = item['json'] as Map<String, dynamic>;
+      return Config.fromJson(configData);
+    }).toList();
 
     return communities;
   }
@@ -238,7 +257,17 @@ class ConfigService {
 
     try {
       final response = await _api.get(url: '/api/communities/$alias');
-      return Config.fromJson(response);
+      if (response == null) {
+        debugPrint('Empty response for config: $alias');
+        return null;
+      }
+      // The API returns a wrapper object with the config nested in the 'json' field
+      final configData = response['json'] as Map<String, dynamic>?;
+      if (configData == null) {
+        debugPrint('No json field in response for config: $alias');
+        return null;
+      }
+      return Config.fromJson(configData);
     } catch (e, s) {
       debugPrint('Error fetching config for $alias: $e');
       debugPrint('Stacktrace: $s');
