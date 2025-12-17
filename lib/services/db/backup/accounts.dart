@@ -17,7 +17,6 @@ class DBAccount {
   final String? username;
   EthPrivateKey? privateKey;
   final ProfileV1? profile;
-  final String accountFactoryAddress; // Add this field
 
   DBAccount({
     required this.alias,
@@ -26,7 +25,6 @@ class DBAccount {
     this.username,
     this.privateKey,
     this.profile,
-    required this.accountFactoryAddress,
   })  : id = getAccountID(address, alias),
         userHandle = username != null ? UserHandle(username, alias) : null;
 
@@ -41,7 +39,6 @@ class DBAccount {
       'privateKey':
           privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
-      'accountFactoryAddress': accountFactoryAddress, // Add this line
     };
   }
 
@@ -58,7 +55,6 @@ class DBAccount {
       profile: map['profile'] != null
           ? ProfileV1.fromJson(jsonDecode(map['profile']))
           : null,
-      accountFactoryAddress: map['accountFactoryAddress'],
     );
   }
 }
