@@ -16,20 +16,29 @@ String fixLegacyAliases(String alias) {
   return alias == 'localhost' || alias == '' ? defaultAlias : alias;
 }
 
+/// migrate the accounts from the accounts migration db (when migrating from old app and you want to put a value in the account secret)
+/// hard coded values for these communities (gratitude, bread, wallet.commonshub.brussels, wallet.sfluv.org)
+/// if account factory address is '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2', return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185'
+/// the others just take the primary account factory
 const Map<String, String> configV4PrimaryAccountFactoryMap = {
+  /****cw-safe (old)*****/
   'ctzn': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
-  'wallet.pay.brussels': '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE',
-  'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
-  'wallet.berachain.sfluv.org': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
-  'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
   'txirrin': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
   'boliviapay': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
-  'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
-  'laborhour': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
-  'rooted': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
-  'wallet.commonshub.brussels': '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
   'seldesalm': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
   'my.techi.be': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
+  'wallet.kingfishersmedia.io': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
+  /*********/
+  'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
+  'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
+  'wallet.commonshub.brussels': '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
+  'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
+  /****cw-safe (new)*****/
+  'wallet.berachain.sfluv.org': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
+  'laborhour': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
+  'rooted': '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185',
+  /*********/
+  'wallet.pay.brussels': '0xBABCf159c4e3186cf48e4a48bC0AeC17CF9d90FE',
   'wallet.regensunite.earth': '0x9406Cc6185a346906296840746125a0E44976454',
   'gt.celo': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
   'ceur.celo': '0xdA529eBEd3D459dac9d9D3D45b8Cae2D5796c098',
@@ -47,15 +56,46 @@ const Map<String, String> configV4PrimaryAccountFactoryMap = {
   'wtc.celo': '0xE79E19594A749330036280c685E2719d58d99052',
   'testnet-ethldn': '0xc1654087C580f868F08E34cd1c01eDB1d3673b82',
   'celo-c.citizenwallet.xyz': '0xcd8b1B9E760148c5026Bc5B0D56a5374e301FDcA',
-  'wallet.kingfishersmedia.io': '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
 };
 
-/// migrate the accounts from the accounts migration db (when migrating from old app and you want to put a value in the account secret)
-/// hard coded values for these communities
-/// the others just take the primary account factory
-const Map<String, String> configV5AccountFactoryMap = {
-  'gratitude': '0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD',
-  'bread': '0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9',
-  'wallet.commonshub.brussels': '0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87',
-  'wallet.sfluv.org': '0x5e987a6c4bb4239d498E78c34e986acf29c81E8e',
-};
+const String oldSafeFactory = '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2';
+const String newSafeFactory = '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185';
+
+/// Returns the correct account factory address for a given community alias during database migration.
+///
+/// Priority logic:
+/// 1. Specific hardcoded overrides for: gratitude, bread, wallet.commonshub.brussels, wallet.sfluv.org
+/// 2. Safe factory redirection: if the mapped address is '0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2',
+///    return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185' instead
+/// 3. General fallback: return the address from the map
+/// 4. Safety: if alias not found, return '0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185'
+String getAccountFactoryAddressByAlias(String alias) {
+  // List of specific aliases that should keep their original addresses
+  const Set<String> hardcodedOverrides = {
+    'gratitude',
+    'bread',
+    'wallet.commonshub.brussels',
+    'wallet.sfluv.org',
+  };
+
+  // 1. Check if this is a hardcoded override
+  if (hardcodedOverrides.contains(alias)) {
+    return configV4PrimaryAccountFactoryMap[alias]!;
+  }
+
+  // Get the address from the map
+  final String? mappedAddress = configV4PrimaryAccountFactoryMap[alias];
+
+  // 4. Safety: if alias not found, return new safe factory
+  if (mappedAddress == null) {
+    return newSafeFactory;
+  }
+
+  // 2. Safe factory redirection: if old safe factory, return new safe factory
+  if (mappedAddress == oldSafeFactory) {
+    return newSafeFactory;
+  }
+
+  // 3. General fallback: return the mapped address
+  return mappedAddress;
+}
