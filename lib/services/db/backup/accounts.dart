@@ -17,6 +17,7 @@ class DBAccount {
   final String? username;
   EthPrivateKey? privateKey;
   final ProfileV1? profile;
+  final String accountFactoryAddress; // Add this field
 
   DBAccount({
     required this.alias,
@@ -25,6 +26,7 @@ class DBAccount {
     this.username,
     this.privateKey,
     this.profile,
+    required this.accountFactoryAddress,
   })  : id = getAccountID(address, alias),
         userHandle = username != null ? UserHandle(username, alias) : null;
 
@@ -39,6 +41,7 @@ class DBAccount {
       'privateKey':
           privateKey != null ? bytesToHex(privateKey!.privateKey) : null,
       if (profile != null) 'profile': jsonEncode(profile!.toJson()),
+      'accountFactoryAddress': accountFactoryAddress, // Add this line
     };
   }
 
@@ -55,6 +58,7 @@ class DBAccount {
       profile: map['profile'] != null
           ? ProfileV1.fromJson(jsonDecode(map['profile']))
           : null,
+      accountFactoryAddress: map['accountFactoryAddress'],
     );
   }
 }
@@ -96,7 +100,8 @@ class AccountsTable extends DBTable {
         name TEXT NOT NULL,
         username TEXT,
         privateKey TEXT,
-        profile TEXT
+        profile TEXT,
+        accountFactoryAddress TEXT NOT NULL
       )
   ''';
 
@@ -113,6 +118,10 @@ class AccountsTable extends DBTable {
       ],
       3: [
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
+      ],
+      4: [
+        'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
+        'PopulateAccountFactoryAddressMigration',
       ]
     };
 
@@ -122,6 +131,12 @@ class AccountsTable extends DBTable {
       if (queries != null) {
         for (final query in queries) {
           try {
+            switch (query) {
+              case 'PopulateAccountFactoryAddressMigration':
+                await _populateAccountFactoryAddressMigration(db, name);
+                continue;
+            }
+
             await db.execute(query);
           } catch (e, s) {
             debugPrint('Migration error: $e');
@@ -131,6 +146,19 @@ class AccountsTable extends DBTable {
       }
     }
   }
+
+
+  Future<void> _populateAccountFactoryAddressMigration(Database db, String name) async {
+    final allAccounts = await all();
+    for (final account in allAccounts) {
+      await db.update(
+        name,
+        {'accountFactoryAddress': account.accountFactoryAddress},
+      );
+    }
+  }
+
+
 
   // get account by id
   Future<DBAccount?> get(EthereumAddress address, String alias) async {
