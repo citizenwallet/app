@@ -715,6 +715,7 @@ class Config {
     return primaryToken;
   }
 
+// TODO: remove use of getPrimaryAccountAbstractionConfig
   ERC4337Config getPrimaryAccountAbstractionConfig() {
     final primaryAccountAbstraction =
         accounts[community.primaryAccountFactory.fullAddress];
