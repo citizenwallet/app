@@ -127,6 +127,7 @@ class AccountsTable extends DBTable {
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
         'PopulateAccountFactoryAddressMigration',
         'InsertRowsInNewIdFormatMigration', // Insert the rows in the new format $address@$accountFactoryAddress@$alias
+        // TODO: delete the rows in the old format $address@$alias
       ]
     };
 
