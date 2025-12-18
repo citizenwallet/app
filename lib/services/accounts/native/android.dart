@@ -62,6 +62,7 @@ class AndroidAccountsService extends AccountsServiceInterface {
           }
 
           // write the account data in the accounts table
+          // TODO: use DBAccountV4, with getAccountFactoryAddressByAlias
           final account = DBAccount(
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
