@@ -60,15 +60,62 @@ class DBAccount {
   }
 }
 
+class DBAccountV4 extends DBAccount {
+  final EthereumAddress accountFactoryAddress;
+
+  DBAccountV4({
+    required super.alias,
+    required super.address,
+    required super.name,
+    super.username,
+    super.privateKey,
+    super.profile,
+    required this.accountFactoryAddress,
+  }) : super();
+
+  // Override toMap to include accountFactoryAddress and update the ID format
+  @override
+  Map<String, dynamic> toMap() {
+    final map = super.toMap();
+    // Update the ID to the V4 format: address@accountFactoryAddress@alias
+    map['id'] = getAccountIdV4(
+      address: address,
+      alias: alias,
+      accountFactoryAddress: accountFactoryAddress,
+    );
+    map['accountFactoryAddress'] = accountFactoryAddress.hexEip55;
+    return map;
+  }
+
+  // fromMap factory for the V4 structure
+  factory DBAccountV4.fromMap(Map<String, dynamic> map) {
+    return DBAccountV4(
+      alias: map['alias'],
+      address: EthereumAddress.fromHex(map['address']),
+      name: map['name'],
+      username: map['username'],
+      accountFactoryAddress:
+          EthereumAddress.fromHex(map['accountFactoryAddress']),
+      privateKey: map['privateKey'] != null
+          ? EthPrivateKey.fromHex(map['privateKey'])
+          : null,
+      profile: map['profile'] != null
+          ? ProfileV1.fromJson(jsonDecode(map['profile']))
+          : null,
+    );
+  }
+}
+
 String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
 }
 
-String getAccountIDNew(
-    {required EthereumAddress address,
-    required String alias,
-    required String accountFactoryAddress}) {
-  return '${address.hexEip55}@$accountFactoryAddress@$alias';
+String getAccountIdV4({
+  required EthereumAddress address,
+  required String alias,
+  required EthereumAddress accountFactoryAddress,
+}) {
+  return '${address.hexEip55}@${accountFactoryAddress.hexEip55}@$alias';
 }
 
 class UserHandle {
@@ -126,8 +173,8 @@ class AccountsTable extends DBTable {
       4: [
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
         'PopulateAccountFactoryAddressMigration',
-        'InsertRowsInNewIdFormatMigration', // Insert the rows in the new format $address@$accountFactoryAddress@$alias
-        // TODO: delete the rows in the old format $address@$alias
+        'InsertRowsInV4IdFormatMigration', // Insert the rows in the new format $address@$accountFactoryAddress@$alias
+        
       ]
     };
 
@@ -142,8 +189,8 @@ class AccountsTable extends DBTable {
                 await _populateAccountFactoryAddressMigration(db, name);
                 continue;
 
-              case 'InsertRowsInNewIdFormatMigration':
-                await _insertRowsInNewIdFormatMigration(db, name);
+              case 'InsertRowsInV4IdFormatMigration':
+                await _insertRowsInV4IdFormatMigration(db, name);
                 continue;
             }
 
@@ -178,33 +225,49 @@ class AccountsTable extends DBTable {
     }
   }
 
-  Future<void> _insertRowsInNewIdFormatMigration(
-      Database db, String name) async {
-    List<Map<String, dynamic>> accounts = await db.query(name); //
+  Future<void> _insertRowsInV4IdFormatMigration(
+    Database db,
+    String name,
+  ) async {
+    List<Map<String, dynamic>> accounts = await db.query(name);
 
+    // Create all DBAccountV4 objects
+    final List<DBAccountV4> dbAccountsV4 = [];
     for (final Map<String, dynamic> account in accounts) {
-      final address = account['address'] as String;
-      final accountFactoryAddress = account['accountFactoryAddress'] as String;
-      final alias = account['alias'] as String;
+      final dbAccountV4 = DBAccountV4(
+        alias: account['alias'] as String,
+        address: EthereumAddress.fromHex(account['address'] as String),
+        name: account['name'] as String,
+        username: account['username'] as String?,
+        privateKey: account['privateKey'] != null
+            ? EthPrivateKey.fromHex(account['privateKey'] as String)
+            : null,
+        profile: account['profile'] != null
+            ? ProfileV1.fromJson(jsonDecode(account['profile'] as String))
+            : null,
+        accountFactoryAddress:
+            EthereumAddress.fromHex(account['accountFactoryAddress'] as String),
+      );
+      dbAccountsV4.add(dbAccountV4);
+    }
 
-      final newId = getAccountIDNew(
-          address: EthereumAddress.fromHex(address),
-          alias: alias,
-          accountFactoryAddress: accountFactoryAddress);
-
-      await db.insert(
+    // Batch insert new accounts
+    final batch = db.batch();
+    for (final dbAccountV4 in dbAccountsV4) {
+      batch.insert(
         name,
-        {
-          'id': newId,
-          'alias': account['alias'],
-          'address': account['address'],
-          'accountFactoryAddress': account['accountFactoryAddress'],
-          'name': account['name'],
-          'username': account['username'],
-          'privateKey': account['privateKey'],
-          'profile': account['profile'],
-        },
+        dbAccountV4.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+
+    // Delete old accounts only after successful insert
+    for (final Map<String, dynamic> account in accounts) {
+      await db.delete(
+        name,
+        where: 'id = ?',
+        whereArgs: [account['id']],
       );
     }
   }
