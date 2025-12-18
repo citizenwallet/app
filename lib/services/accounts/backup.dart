@@ -81,3 +81,31 @@ class BackupWallet {
   String get key => '$address@$alias';
   String get value => privateKey;
 }
+
+class BackupWalletV5 extends BackupWallet {
+  final String accountFactoryAddress;
+
+  BackupWalletV5({
+    required super.address,
+    required super.alias,
+    required super.privateKey,
+    required String accountFactoryAddress,
+  }) : accountFactoryAddress =
+            EthereumAddress.fromHex(accountFactoryAddress).hexEip55;
+
+  // Fixes the 'json' super parameter lint
+  BackupWalletV5.fromJson(super.json)
+      : accountFactoryAddress =
+            EthereumAddress.fromHex(json['accountFactoryAddress']).hexEip55,
+        super.fromJson();
+
+  @override
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
+    json['accountFactoryAddress'] = accountFactoryAddress;
+    return json;
+  }
+
+  @override
+  String get key => '$address@$accountFactoryAddress@$alias';
+}

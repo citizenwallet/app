@@ -2,10 +2,12 @@ import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/accounts/utils.dart';
+import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/credentials/native/apple.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/backup/db.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
@@ -200,6 +202,81 @@ class AppleAccountsService extends AccountsServiceInterface {
             await _credentials.delete(
               key,
             );
+          }
+        }
+      },
+      5: () async {
+        // Read all credentials from Keychain
+        final allValues = await _credentials.readAll();
+
+        // Filter keys that match the old format: address@alias
+        // These are keys that don't start with backupPrefix and contain exactly one '@'
+        final oldFormatKeys = allValues.keys.where((key) {
+          if (key.startsWith(backupPrefix) || key == versionPrefix) {
+            return false;
+          }
+          // Check if it matches address@alias format (one @ symbol)
+          final parts = key.split('@');
+          if (parts.length != 2) {
+            return false;
+          }
+
+          // Validate that the first part is a valid Ethereum address
+          try {
+            EthereumAddress.fromHex(parts[0]);
+            return true;
+          } catch (_) {
+            return false;
+          }
+        }).toList();
+
+        final toDelete = <String>[];
+
+        for (final oldKey in oldFormatKeys) {
+          final privateKeyValue = allValues[oldKey];
+          if (privateKeyValue == null) {
+            continue;
+          }
+
+          // Parse the old key format: address@alias
+          final parts = oldKey.split('@');
+          if (parts.length != 2) {
+            continue;
+          }
+
+          final address = parts[0];
+          final alias = parts[1];
+
+          try {
+            // Get the account factory address for this alias
+            final accountFactoryAddress =
+                getAccountFactoryAddressByAlias(alias);
+
+            // Create a BackupWalletV5 with the new format
+            final backup = BackupWalletV5(
+              address: address,
+              alias: alias,
+              accountFactoryAddress: accountFactoryAddress,
+              privateKey: privateKeyValue,
+            );
+
+            // Write the credential with the new key format
+            await _credentials.write(backup.key, backup.value);
+
+            // Mark old key for deletion
+            toDelete.add(oldKey);
+          } catch (e) {
+            // If we can't determine the account factory address, skip this key
+            debugPrint('Error migrating key $oldKey: $e');
+            continue;
+          }
+        }
+
+        // Delete all old format keys
+        for (final key in toDelete) {
+          final saved = await _credentials.containsKey(key);
+          if (saved) {
+            await _credentials.delete(key);
           }
         }
       },
