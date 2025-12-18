@@ -168,6 +168,7 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
 
           // write the account data in the accounts table
+          // TODO: use DBAccountV4, with getAccountFactoryAddressByAlias
           final DBAccount account = DBAccount(
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
