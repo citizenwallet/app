@@ -715,6 +715,7 @@ class Config {
     return primaryToken;
   }
 
+// TODO: remove use of getPrimaryAccountAbstractionConfig
   ERC4337Config getPrimaryAccountAbstractionConfig() {
     final primaryAccountAbstraction =
         accounts[community.primaryAccountFactory.fullAddress];
@@ -726,6 +727,8 @@ class Config {
     return primaryAccountAbstraction;
   }
 
+ // TODO: force required accountFactoryAddress
+ // TODO: remove use of getPrimaryAccountAbstractionConfig
   ERC4337Config getAccountAbstractionConfig({String? accountFactoryAddress}) {
     // If no accountFactoryAddress is provided, return the primary config
     if (accountFactoryAddress == null || accountFactoryAddress.isEmpty) {
@@ -762,6 +765,7 @@ class Config {
     return chain.node.url;
   }
 
+  // TODO: force required accountFactoryAddress
   String getRpcUrl(String chainId, {String? accountFactoryAddress}) {
     final chain = chains[chainId];
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/wallet.dart';
@@ -63,6 +64,13 @@ String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
 }
 
+String getAccountIDNew(
+    {required EthereumAddress address,
+    required String alias,
+    required String accountFactoryAddress}) {
+  return '${address.hexEip55}@$accountFactoryAddress@$alias';
+}
+
 class UserHandle {
   final String username;
   final String communityAlias;
@@ -96,7 +104,8 @@ class AccountsTable extends DBTable {
         name TEXT NOT NULL,
         username TEXT,
         privateKey TEXT,
-        profile TEXT
+        profile TEXT,
+        accountFactoryAddress TEXT NOT NULL
       )
   ''';
 
@@ -113,6 +122,12 @@ class AccountsTable extends DBTable {
       ],
       3: [
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
+      ],
+      4: [
+        'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
+        'PopulateAccountFactoryAddressMigration',
+        'InsertRowsInNewIdFormatMigration', // Insert the rows in the new format $address@$accountFactoryAddress@$alias
+        // TODO: delete the rows in the old format $address@$alias
       ]
     };
 
@@ -122,6 +137,16 @@ class AccountsTable extends DBTable {
       if (queries != null) {
         for (final query in queries) {
           try {
+            switch (query) {
+              case 'PopulateAccountFactoryAddressMigration':
+                await _populateAccountFactoryAddressMigration(db, name);
+                continue;
+
+              case 'InsertRowsInNewIdFormatMigration':
+                await _insertRowsInNewIdFormatMigration(db, name);
+                continue;
+            }
+
             await db.execute(query);
           } catch (e, s) {
             debugPrint('Migration error: $e');
@@ -129,6 +154,58 @@ class AccountsTable extends DBTable {
           }
         }
       }
+    }
+  }
+
+  Future<void> _populateAccountFactoryAddressMigration(
+      Database db, String name) async {
+    // Work directly with raw DB data, not DBAccount objects
+    List<Map<String, dynamic>> accounts = await db.query(name);
+
+    for (final Map<String, dynamic> account in accounts) {
+      final alias = account['alias'] as String;
+      final oldId = account['id'] as String;
+
+      final accountFactoryAddress = getAccountFactoryAddressByAlias(alias);
+
+      // Update the accountFactoryAddress column (ID still in old format $address@$alias)
+      await db.update(
+        name,
+        {'accountFactoryAddress': accountFactoryAddress},
+        where: 'id = ?',
+        whereArgs: [oldId],
+      );
+    }
+  }
+
+  Future<void> _insertRowsInNewIdFormatMigration(
+      Database db, String name) async {
+    List<Map<String, dynamic>> accounts = await db.query(name); //
+
+    for (final Map<String, dynamic> account in accounts) {
+      final address = account['address'] as String;
+      final accountFactoryAddress = account['accountFactoryAddress'] as String;
+      final alias = account['alias'] as String;
+
+      final newId = getAccountIDNew(
+          address: EthereumAddress.fromHex(address),
+          alias: alias,
+          accountFactoryAddress: accountFactoryAddress);
+
+      await db.insert(
+        name,
+        {
+          'id': newId,
+          'alias': account['alias'],
+          'address': account['address'],
+          'accountFactoryAddress': account['accountFactoryAddress'],
+          'name': account['name'],
+          'username': account['username'],
+          'privateKey': account['privateKey'],
+          'profile': account['profile'],
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
   }
 
