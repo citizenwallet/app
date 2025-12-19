@@ -168,11 +168,11 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
 
           // write the account data in the accounts table
-          // TODO: use DBAccountV4, with getAccountFactoryAddressByAlias
           final DBAccount account = DBAccount(
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            accountFactoryAddress: EthereumAddress.fromHex(getAccountFactoryAddressByAlias(legacyBackup.alias)),
           );
 
           await _accountsDB.accounts.insert(account);
@@ -302,8 +302,8 @@ class AppleAccountsService extends AccountsServiceInterface {
 
   // get all wallet backups
   @override
-  Future<List<DBAccountV4>> getAllAccounts() async {
-    final List<DBAccountV4> accounts = await _accountsDB.accounts.all();
+  Future<List<DBAccount>> getAllAccounts() async {
+    final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
       final privateKey = await _credentials.read(account.id);

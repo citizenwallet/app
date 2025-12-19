@@ -31,7 +31,7 @@ abstract class AccountsServiceInterface {
   // key = wb_$wallet_address, value = $name|$privateKey
 
   // get all accounts
-  Future<List<DBAccountV4>> getAllAccounts();
+  Future<List<DBAccount>> getAllAccounts();
 
   // set account
   Future<void> setAccount(DBAccount account);

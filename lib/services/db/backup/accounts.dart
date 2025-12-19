@@ -60,63 +60,10 @@ class DBAccount {
   }
 }
 
-class DBAccountV4 extends DBAccount {
-  final EthereumAddress accountFactoryAddress;
-
-  DBAccountV4({
-    required super.alias,
-    required super.address,
-    required super.name,
-    super.username,
-    super.privateKey,
-    super.profile,
-    required this.accountFactoryAddress,
-  }) : super();
-
-  // Override toMap to include accountFactoryAddress and update the ID format
-  @override
-  Map<String, dynamic> toMap() {
-    final map = super.toMap();
-    // Update the ID to the V4 format: address@accountFactoryAddress@alias
-    map['id'] = getAccountIdV4(
-      address: address,
-      alias: alias,
-      accountFactoryAddress: accountFactoryAddress,
-    );
-    map['accountFactoryAddress'] = accountFactoryAddress.hexEip55;
-    return map;
-  }
-
-  // fromMap factory for the V4 structure
-  factory DBAccountV4.fromMap(Map<String, dynamic> map) {
-    return DBAccountV4(
-      alias: map['alias'],
-      address: EthereumAddress.fromHex(map['address']),
-      name: map['name'],
-      username: map['username'],
-      accountFactoryAddress:
-          EthereumAddress.fromHex(map['accountFactoryAddress']),
-      privateKey: map['privateKey'] != null
-          ? EthPrivateKey.fromHex(map['privateKey'])
-          : null,
-      profile: map['profile'] != null
-          ? ProfileV1.fromJson(jsonDecode(map['profile']))
-          : null,
-    );
-  }
-}
-
 String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
 }
 
-String getAccountIdV4({
-  required EthereumAddress address,
-  required String alias,
-  required EthereumAddress accountFactoryAddress,
-}) {
-  return '${address.hexEip55}@${accountFactoryAddress.hexEip55}@$alias';
-}
 
 class UserHandle {
   final String username;
@@ -264,11 +211,11 @@ class AccountsTable extends DBTable {
     await db.delete(name);
   }
 
-  Future<List<DBAccountV4>> all() async {
+  Future<List<DBAccount>> all() async {
     final List<Map<String, dynamic>> maps = await db.query(name);
 
     return List.generate(maps.length, (i) {
-      return DBAccountV4.fromMap(maps[i]);
+      return DBAccount.fromMap(maps[i]);
     });
   }
 
