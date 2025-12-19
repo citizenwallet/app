@@ -78,6 +78,8 @@ class WalletService {
   late EthPrivateKey
       _credentials; // Represents a private key for an Ethereum account.
   late EthereumAddress _account; // Represents an Ethereum address.
+  late EthereumAddress _accountFactoryAddress;
+
   late SigAuthService _sigAuth;
 
   late StackupEntryPoint
@@ -100,6 +102,7 @@ class WalletService {
   EthPrivateKey get credentials => _credentials;
   EthereumAddress get address => _credentials.address;
   EthereumAddress get account => _account;
+  EthereumAddress get accountFactoryAddress => _accountFactoryAddress;
 
   /// retrieves the current balance of the address
   Future<String> getBalance({String? addr, BigInt? tokenId}) async {
@@ -154,13 +157,16 @@ class WalletService {
 
   Future<void> init(
     EthereumAddress account,
+    EthereumAddress accountFactoryAddress,
     EthPrivateKey privateKey,
     NativeCurrency currency,
-    Config config, {
+    Config config,
+     {
     void Function(String)? onNotify,
     void Function(bool)? onFinished,
   }) async {
     _alias = config.community.alias;
+    _accountFactoryAddress = accountFactoryAddress;
 
     final token = config.getPrimaryToken();
     final accountAbstractionConfig =
