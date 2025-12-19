@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:web3dart/crypto.dart';
@@ -13,6 +12,7 @@ class DBAccount {
   final String id;
   final String alias;
   final EthereumAddress address;
+  final EthereumAddress accountFactoryAddress;
   final String name;
   final UserHandle? userHandle;
   final String? username;
@@ -22,6 +22,7 @@ class DBAccount {
   DBAccount({
     required this.alias,
     required this.address,
+    required this.accountFactoryAddress,
     required this.name,
     this.username,
     this.privateKey,
@@ -35,6 +36,7 @@ class DBAccount {
       'id': id,
       'alias': alias,
       'address': address.hexEip55,
+      'accountFactoryAddress': accountFactoryAddress.hexEip55,
       if (name.isNotEmpty) 'name': name,
       'username': username,
       'privateKey':
@@ -48,6 +50,7 @@ class DBAccount {
     return DBAccount(
       alias: map['alias'],
       address: EthereumAddress.fromHex(map['address']),
+      accountFactoryAddress: EthereumAddress.fromHex(map['accountFactoryAddress']),
       name: map['name'],
       username: map['username'],
       privateKey: map['privateKey'] != null
