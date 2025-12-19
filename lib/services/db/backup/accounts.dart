@@ -173,8 +173,6 @@ class AccountsTable extends DBTable {
       4: [
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
         'PopulateAccountFactoryAddressMigration',
-        'InsertRowsInV4IdFormatMigration', // Insert the rows in the new format $address@$accountFactoryAddress@$alias
-        
       ]
     };
 
@@ -187,10 +185,6 @@ class AccountsTable extends DBTable {
             switch (query) {
               case 'PopulateAccountFactoryAddressMigration':
                 await _populateAccountFactoryAddressMigration(db, name);
-                continue;
-
-              case 'InsertRowsInV4IdFormatMigration':
-                await _insertRowsInV4IdFormatMigration(db, name);
                 continue;
             }
 
@@ -221,53 +215,6 @@ class AccountsTable extends DBTable {
         {'accountFactoryAddress': accountFactoryAddress},
         where: 'id = ?',
         whereArgs: [oldId],
-      );
-    }
-  }
-
-  Future<void> _insertRowsInV4IdFormatMigration(
-    Database db,
-    String name,
-  ) async {
-    List<Map<String, dynamic>> accounts = await db.query(name);
-
-    // Create all DBAccountV4 objects
-    final List<DBAccountV4> dbAccountsV4 = [];
-    for (final Map<String, dynamic> account in accounts) {
-      final dbAccountV4 = DBAccountV4(
-        alias: account['alias'] as String,
-        address: EthereumAddress.fromHex(account['address'] as String),
-        name: account['name'] as String,
-        username: account['username'] as String?,
-        privateKey: account['privateKey'] != null
-            ? EthPrivateKey.fromHex(account['privateKey'] as String)
-            : null,
-        profile: account['profile'] != null
-            ? ProfileV1.fromJson(jsonDecode(account['profile'] as String))
-            : null,
-        accountFactoryAddress:
-            EthereumAddress.fromHex(account['accountFactoryAddress'] as String),
-      );
-      dbAccountsV4.add(dbAccountV4);
-    }
-
-    // Batch insert new accounts
-    final batch = db.batch();
-    for (final dbAccountV4 in dbAccountsV4) {
-      batch.insert(
-        name,
-        dbAccountV4.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-    await batch.commit(noResult: true);
-
-    // Delete old accounts only after successful insert
-    for (final Map<String, dynamic> account in accounts) {
-      await db.delete(
-        name,
-        where: 'id = ?',
-        whereArgs: [account['id']],
       );
     }
   }
