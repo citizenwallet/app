@@ -369,7 +369,9 @@ void main() {
 
     test('getPrimaryAccountAbstractionConfig returns valid config', () {
       for (final config in configs) {
-        final aaConfig = config.getPrimaryAccountAbstractionConfig();
+        final aaConfig = config.getAccountAbstractionConfig(
+            accountFactoryAddress:
+                config.community.primaryAccountFactory.address);
         expect(aaConfig.entrypointAddress, isNotEmpty,
             reason:
                 'Entrypoint address should not be empty for ${config.community.alias}');
@@ -425,7 +427,9 @@ void main() {
   group('getAccountAbstractionConfig', () {
     test('returns primary config when no address provided', () {
       for (final config in configs) {
-        final aaConfig = config.getAccountAbstractionConfig();
+        final aaConfig = config.getAccountAbstractionConfig(
+            accountFactoryAddress:
+                config.community.primaryAccountFactory.address);
         expect(aaConfig, isA<ERC4337Config>(),
             reason:
                 'Should return ERC4337Config for ${config.community.alias}');
@@ -436,18 +440,14 @@ void main() {
       }
     });
 
-    test('returns primary config when empty address provided', () {
-      for (final config in configs) {
-        final aaConfig =
-            config.getAccountAbstractionConfig(accountFactoryAddress: '');
-        expect(aaConfig, isA<ERC4337Config>(),
-            reason:
-                'Should return ERC4337Config for ${config.community.alias}');
-        expect(aaConfig.accountFactoryAddress,
-            config.community.primaryAccountFactory.address,
-            reason:
-                'Should return primary account factory address when empty string provided for ${config.community.alias}');
-      }
+    test('throws exception when empty address provided', () {
+      final config = configs.first;
+      expect(
+        () => config.getAccountAbstractionConfig(accountFactoryAddress: ''),
+        throwsException,
+        reason:
+            'Should throw exception when empty account factory address is provided',
+      );
     });
 
     test(
@@ -518,7 +518,8 @@ void main() {
         final expectedUrl = expectedUrls[primaryAccountFactory];
 
         if (expectedUrl != null) {
-          final actualUrl = config.getRpcUrl(chainId);
+          final actualUrl = config.getRpcUrl(
+              chainId: chainId, accountFactoryAddress: primaryAccountFactory);
           expect(actualUrl, equals(expectedUrl),
               reason: 'RPC URL mismatch for $alias (primary account factory)');
         }
@@ -541,7 +542,7 @@ void main() {
         for (final accountFactory in expectedUrls.keys) {
           final expectedUrl = expectedUrls[accountFactory]!;
           final actualUrl = config.getRpcUrl(
-            chainId,
+            chainId: chainId,
             accountFactoryAddress: accountFactory,
           );
 
@@ -566,7 +567,7 @@ void main() {
         final urls = <String>{};
         for (final accountFactory in accountFactories) {
           final url = config.getRpcUrl(
-            chainId,
+            chainId: chainId,
             accountFactoryAddress: accountFactory,
           );
           urls.add(url);
@@ -585,7 +586,10 @@ void main() {
       final config = configs.first;
 
       expect(
-        () => config.getRpcUrl('99999'),
+        () => config.getRpcUrl(
+            chainId: '99999',
+            accountFactoryAddress:
+                config.community.primaryAccountFactory.address),
         throwsException,
         reason: 'Should throw exception for non-existent chain ID',
       );
@@ -597,7 +601,7 @@ void main() {
 
       expect(
         () => config.getRpcUrl(
-          chainId,
+          chainId: chainId,
           accountFactoryAddress: '0xNonExistentAddress',
         ),
         throwsException,

@@ -160,8 +160,7 @@ class WalletService {
     EthereumAddress accountFactoryAddress,
     EthPrivateKey privateKey,
     NativeCurrency currency,
-    Config config,
-     {
+    Config config, {
     void Function(String)? onNotify,
     void Function(bool)? onFinished,
   }) async {
@@ -169,14 +168,16 @@ class WalletService {
     _accountFactoryAddress = accountFactoryAddress;
 
     final token = config.getPrimaryToken();
-    final accountAbstractionConfig =
-        config.getPrimaryAccountAbstractionConfig();
+
+    final accountAbstractionConfig = config.getAccountAbstractionConfig(
+        accountFactoryAddress: accountFactoryAddress.hexEip55);
+
     final chain = config.chains[token.chainId.toString()];
 
     _url = chain!.node.url;
     _wsurl = chain.node.wsUrl;
 
-    final rpcUrl = config.getRpcUrl(token.chainId.toString());
+    final rpcUrl = config.getRpcUrl(chainId: token.chainId.toString(), accountFactoryAddress: accountFactoryAddress.hexEip55);
 
     _ethClient = Web3Client(
       rpcUrl,
