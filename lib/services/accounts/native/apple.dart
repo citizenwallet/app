@@ -172,7 +172,8 @@ class AppleAccountsService extends AccountsServiceInterface {
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
-            accountFactoryAddress: EthereumAddress.fromHex(getAccountFactoryAddressByAlias(legacyBackup.alias)),
+            accountFactoryAddress: EthereumAddress.fromHex(
+                getAccountFactoryAddressByAlias(legacyBackup.alias)),
           );
 
           await _accountsDB.accounts.insert(account);
@@ -306,7 +307,14 @@ class AppleAccountsService extends AccountsServiceInterface {
     final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
-      final privateKey = await _credentials.read(account.id);
+      final backupKey = BackupWalletV5(
+        address: account.address.hexEip55,
+        alias: account.alias,
+        accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+        privateKey: '',
+      ).key;
+
+      final privateKey = await _credentials.read(backupKey);
       if (privateKey == null) {
         continue;
       }
@@ -326,9 +334,16 @@ class AppleAccountsService extends AccountsServiceInterface {
       return;
     }
 
+    final backup = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: bytesToHex(account.privateKey!.privateKey),
+    );
+
     await _credentials.write(
-      account.id,
-      bytesToHex(account.privateKey!.privateKey),
+      backup.key,
+      backup.value,
     );
   }
 
@@ -344,7 +359,14 @@ class AppleAccountsService extends AccountsServiceInterface {
       return null;
     }
 
-    final privateKey = await _credentials.read(account.id);
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
+    final privateKey = await _credentials.read(backupKey);
     if (privateKey == null) {
       return account;
     }
@@ -363,16 +385,29 @@ class AppleAccountsService extends AccountsServiceInterface {
   // delete wallet backup
   @override
   Future<void> deleteAccount(String address, String alias) async {
+    final account = await _accountsDB.accounts.get(
+      EthereumAddress.fromHex(address),
+      alias,
+    );
+
+    if (account == null) {
+      return;
+    }
+
     await _accountsDB.accounts.delete(
       EthereumAddress.fromHex(address),
       alias,
     );
 
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
     await _credentials.delete(
-      getAccountID(
-        EthereumAddress.fromHex(address),
-        alias,
-      ),
+      backupKey,
     );
   }
 
