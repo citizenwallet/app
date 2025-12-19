@@ -14,7 +14,7 @@ abstract class AccountsOptionsInterface {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class AccountsServiceInterface {
-  final int _version = 5;
+  final int _version = 5; // TODO: figure out correct version number (Kevin, Others)
 
   int get version => _version;
 
