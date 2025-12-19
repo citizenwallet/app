@@ -189,8 +189,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
 
   // get all wallet backups
   @override
-  Future<List<DBAccount>> getAllAccounts() async {
-    final List<DBAccount> accounts = await _accountsDB.accounts.all();
+  Future<List<DBAccountV4>> getAllAccounts() async {
+    final List<DBAccountV4> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
       final privateKey = await _credentials.read(account.id);

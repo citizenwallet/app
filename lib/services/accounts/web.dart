@@ -32,7 +32,7 @@ class WebAccountsService extends AccountsServiceInterface {
 
   // get all wallet backups
   @override
-  Future<List<DBAccount>> getAllAccounts() async {
+  Future<List<DBAccountV4>> getAllAccounts() async {
     return [];
   }
 

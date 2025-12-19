@@ -317,11 +317,11 @@ class AccountsTable extends DBTable {
     await db.delete(name);
   }
 
-  Future<List<DBAccount>> all() async {
+  Future<List<DBAccountV4>> all() async {
     final List<Map<String, dynamic>> maps = await db.query(name);
 
     return List.generate(maps.length, (i) {
-      return DBAccount.fromMap(maps[i]);
+      return DBAccountV4.fromMap(maps[i]);
     });
   }
 
