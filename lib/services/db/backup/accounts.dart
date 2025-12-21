@@ -50,7 +50,8 @@ class DBAccount {
     return DBAccount(
       alias: map['alias'],
       address: EthereumAddress.fromHex(map['address']),
-      accountFactoryAddress: EthereumAddress.fromHex(map['accountFactoryAddress']),
+      accountFactoryAddress:
+          EthereumAddress.fromHex(map['accountFactoryAddress']),
       name: map['name'],
       username: map['username'],
       privateKey: map['privateKey'] != null
@@ -66,7 +67,6 @@ class DBAccount {
 String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
 }
-
 
 class UserHandle {
   final String username;
@@ -121,6 +121,11 @@ class AccountsTable extends DBTable {
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
       ],
       4: [
+        // bad migration,https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/db/backup/accounts.dart#L123
+      ],
+      5: [
+        // Kevin start from 4
+        // Others start from 3
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
         'PopulateAccountFactoryAddressMigration',
       ]

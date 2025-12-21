@@ -40,7 +40,7 @@ class AccountBackupDBService extends DBService {
 
         return;
       },
-      version: 4, // TODO: figure out correct version number (Kevin, Others)
+      version: 5, 
     );
 
     final db = await databaseFactory.openDatabase(

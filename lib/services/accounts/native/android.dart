@@ -95,6 +95,15 @@ class AndroidAccountsService extends AccountsServiceInterface {
         }
       },
       5: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/android.dart#L146
+      },
+      6: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/android.dart#L251
+      },
+      7: () async {
+        // distinguish migration starting from 4 (Others)
+        //distinguish migration starting from 6 (Kevin, Jonas)
+
         // Read all credentials from secure storage
         final allValues = await _credentials.readAll();
 
