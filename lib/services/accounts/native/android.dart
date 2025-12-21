@@ -156,7 +156,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
             await _credentials.write(backup.key, backup.value);
 
             // Mark old key for deletion
-            toDelete.add(oldKey);
+            // TODO: delete the old key
+            // toDelete.add(oldKey);
           } catch (e) {
             // If we can't determine the account factory address, skip this key
             debugPrint('Error migrating key $oldKey: $e');
