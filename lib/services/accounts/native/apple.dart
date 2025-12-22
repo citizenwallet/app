@@ -214,44 +214,55 @@ class AppleAccountsService extends AccountsServiceInterface {
         // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/apple.dart#L264
       },
       7: () async {
-
-        // distinguish migration starting from 4 (Others)
-        //distinguish migration starting from 6 (Kevin, Jonas)
-
+        // This migration handles two paths:
+        // - AppKevin (v6 -> v7): Clean dirty keys with wrong accountFactoryAddress
+        // - AppOthers (v4 -> v7): Migrate from old format to new format
 
         // Read all credentials from Keychain
         final allValues = await _credentials.readAll();
 
-        // Filter keys that match the old format: address@alias
-        // These are keys that don't start with backupPrefix and contain exactly one '@'
-        final oldFormatKeys = allValues.keys.where((key) {
+        // Separate keys into different formats
+        final oldFormatKeys = <String>[]; // address@alias
+        final dirtyNewFormatKeys =
+            <String>[]; // address@accountFactoryAddress@alias (dirty)
+
+        for (final key in allValues.keys) {
           if (key.startsWith(backupPrefix) || key == versionPrefix) {
-            return false;
-          }
-          // Check if it matches address@alias format (one @ symbol)
-          final parts = key.split('@');
-          if (parts.length != 2) {
-            return false;
+            continue;
           }
 
-          // Validate that the first part is a valid Ethereum address
-          try {
-            EthereumAddress.fromHex(parts[0]);
-            return true;
-          } catch (_) {
-            return false;
+          final parts = key.split('@');
+
+          // Check for old format: address@alias (2 parts)
+          if (parts.length == 2) {
+            try {
+              EthereumAddress.fromHex(parts[0]);
+              oldFormatKeys.add(key);
+            } catch (_) {
+              // Not a valid address, skip
+            }
           }
-        }).toList();
+          // Check for new format: address@accountFactoryAddress@alias (3 parts)
+          else if (parts.length == 3) {
+            try {
+              EthereumAddress.fromHex(parts[0]);
+              EthereumAddress.fromHex(parts[1]);
+              dirtyNewFormatKeys.add(key);
+            } catch (_) {
+              // Not valid addresses, skip
+            }
+          }
+        }
 
         final toDelete = <String>[];
 
+        // Handle AppOthers path: Migrate old format keys to new format
         for (final oldKey in oldFormatKeys) {
           final privateKeyValue = allValues[oldKey];
           if (privateKeyValue == null) {
             continue;
           }
 
-          // Parse the old key format: address@alias
           final parts = oldKey.split('@');
           if (parts.length != 2) {
             continue;
@@ -261,7 +272,7 @@ class AppleAccountsService extends AccountsServiceInterface {
           final alias = parts[1];
 
           try {
-            // Get the account factory address for this alias
+            // Get the correct account factory address for this alias
             final accountFactoryAddress =
                 getAccountFactoryAddressByAlias(alias);
 
@@ -276,12 +287,66 @@ class AppleAccountsService extends AccountsServiceInterface {
             // Write the credential with the new key format
             await _credentials.write(backup.key, backup.value);
 
+            debugPrint('Migrated old format key: $oldKey -> ${backup.key}');
+
             // Mark old key for deletion
-            // TODO: delete the old key
-            // toDelete.add(oldKey);
+            toDelete.add(oldKey);
           } catch (e) {
-            // If we can't determine the account factory address, skip this key
             debugPrint('Error migrating key $oldKey: $e');
+            continue;
+          }
+        }
+
+        // Handle AppKevin path: Clean dirty new format keys
+        for (final dirtyKey in dirtyNewFormatKeys) {
+          final privateKeyValue = allValues[dirtyKey];
+          if (privateKeyValue == null) {
+            continue;
+          }
+
+          final parts = dirtyKey.split('@');
+          if (parts.length != 3) {
+            continue;
+          }
+
+          final address = parts[0];
+          final dirtyAccountFactoryAddress = parts[1];
+          final alias = parts[2];
+
+          try {
+            // Get the CORRECT account factory address for this alias
+            final correctAccountFactoryAddress =
+                getAccountFactoryAddressByAlias(alias);
+
+            // Check if the dirty key has the wrong accountFactoryAddress
+            if (dirtyAccountFactoryAddress.toLowerCase() !=
+                correctAccountFactoryAddress.toLowerCase()) {
+              debugPrint(
+                  'Found dirty key with wrong accountFactoryAddress: $dirtyKey');
+              debugPrint('  Dirty: $dirtyAccountFactoryAddress');
+              debugPrint('  Correct: $correctAccountFactoryAddress');
+
+              // Create a BackupWalletV5 with the CORRECT account factory address
+              final cleanBackup = BackupWalletV5(
+                address: address,
+                alias: alias,
+                accountFactoryAddress: correctAccountFactoryAddress,
+                privateKey: privateKeyValue,
+              );
+
+              // Write the credential with the correct key format
+              await _credentials.write(cleanBackup.key, cleanBackup.value);
+
+              debugPrint('Cleaned dirty key: $dirtyKey -> ${cleanBackup.key}');
+
+              // Mark dirty key for deletion
+              toDelete.add(dirtyKey);
+            } else {
+              // Key already has correct accountFactoryAddress, no action needed
+              debugPrint('Key already correct: $dirtyKey');
+            }
+          } catch (e) {
+            debugPrint('Error cleaning dirty key $dirtyKey: $e');
             continue;
           }
         }
