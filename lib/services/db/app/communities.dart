@@ -179,8 +179,7 @@ class CommunityTable extends DBTable {
                 final updatedConfigs = await legacyToV4(db, name);
                 await upsert(updatedConfigs);
                 continue;
-              case 'V5Migration':
-                debugPrint('V5Migration');
+              case 'V5Migration':            
                 final updatedConfigs = await V5Migration(db, name);
                 await upsert(updatedConfigs);
                 continue;
