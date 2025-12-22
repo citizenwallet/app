@@ -260,8 +260,44 @@ class AccountsTable extends DBTable {
         // Already in correct old format, do nothing
         debugPrint('Account already in correct format: $currentId');
       } else {
-        // Unexpected format, log warning but don't touch it
-        debugPrint('Warning: Unexpected ID format: $currentId');
+        // Unexpected format - force to old format
+        debugPrint(
+            'Warning: Unexpected ID format, forcing to old format: $currentId -> $oldFormatId');
+
+        // Check if an account with the old format ID already exists
+        final existingOldFormat = await db.query(
+          name,
+          where: 'id = ?',
+          whereArgs: [oldFormatId],
+        );
+
+        if (existingOldFormat.isEmpty) {
+          // No conflict: Insert new row with old ID format, preserving all other columns
+          final Map<String, dynamic> cleanAccount = Map.from(account);
+          cleanAccount['id'] = oldFormatId;
+
+          await db.insert(
+            name,
+            cleanAccount,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+
+          debugPrint(
+              'Inserted account with corrected old format ID: $oldFormatId');
+        } else {
+          // Conflict exists: Keep the existing old format
+          debugPrint(
+              'Old format ID already exists, keeping existing: $oldFormatId');
+        }
+
+        // Delete the row with unexpected format ID
+        await db.delete(
+          name,
+          where: 'id = ?',
+          whereArgs: [currentId],
+        );
+
+        debugPrint('Deleted account with unexpected format ID: $currentId');
       }
     }
   }
