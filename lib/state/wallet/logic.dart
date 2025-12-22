@@ -374,6 +374,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _wallet.init(
         dbWallet.address,
+        dbWallet.accountFactoryAddress,
         dbWallet.privateKey!,
         nativeCurrency,
         communityConfig,
@@ -475,6 +476,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(
+            communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -542,6 +545,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -571,6 +575,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
       ));
 
       loadDBWallets();

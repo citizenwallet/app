@@ -189,6 +189,8 @@ class AppLogic {
         privateKey: credentials,
         name: token.name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
+        
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -302,6 +304,7 @@ class AppLogic {
           privateKey: credentials,
           name: name,
           alias: communityConfig.community.alias,
+          accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
         ),
       );
 
@@ -366,6 +369,8 @@ class AppLogic {
           privateKey: credentials,
           name: '${token.symbol} Web Account',
           alias: communityConfig.community.alias,
+          accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
+          
         ),
       );
 

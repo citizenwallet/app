@@ -14,7 +14,7 @@ abstract class AccountsOptionsInterface {}
 ///
 /// This is used to store wallet backups and the implementation is platform specific.
 abstract class AccountsServiceInterface {
-  final int _version = 5; // TODO: figure out correct version number (Kevin, Others)
+  final int _version = 7;
 
   int get version => _version;
 
@@ -31,7 +31,7 @@ abstract class AccountsServiceInterface {
   // key = wb_$wallet_address, value = $name|$privateKey
 
   // get all accounts
-  Future<List<DBAccountV4>> getAllAccounts();
+  Future<List<DBAccount>> getAllAccounts();
 
   // set account
   Future<void> setAccount(DBAccount account);

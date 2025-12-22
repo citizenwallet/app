@@ -64,11 +64,12 @@ class AndroidAccountsService extends AccountsServiceInterface {
           }
 
           // write the account data in the accounts table
-          // TODO: use DBAccountV4, with getAccountFactoryAddressByAlias
           final account = DBAccount(
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            accountFactoryAddress: EthereumAddress.fromHex(
+                getAccountFactoryAddressByAlias(legacyBackup.alias)),
           );
 
           await _accountsDB.accounts.insert(account);
@@ -94,6 +95,15 @@ class AndroidAccountsService extends AccountsServiceInterface {
         }
       },
       5: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/android.dart#L146
+      },
+      6: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/android.dart#L251
+      },
+      7: () async {
+        // distinguish migration starting from 4 (Others)
+        //distinguish migration starting from 6 (Kevin, Jonas)
+
         // Read all credentials from secure storage
         final allValues = await _credentials.readAll();
 
@@ -155,7 +165,8 @@ class AndroidAccountsService extends AccountsServiceInterface {
             await _credentials.write(backup.key, backup.value);
 
             // Mark old key for deletion
-            toDelete.add(oldKey);
+            // TODO: delete the old key
+            // toDelete.add(oldKey);
           } catch (e) {
             // If we can't determine the account factory address, skip this key
             debugPrint('Error migrating key $oldKey: $e');
@@ -189,11 +200,18 @@ class AndroidAccountsService extends AccountsServiceInterface {
 
   // get all wallet backups
   @override
-  Future<List<DBAccountV4>> getAllAccounts() async {
-    final List<DBAccountV4> accounts = await _accountsDB.accounts.all();
+  Future<List<DBAccount>> getAllAccounts() async {
+    final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
-      final privateKey = await _credentials.read(account.id);
+      final backupKey = BackupWalletV5(
+        address: account.address.hexEip55,
+        alias: account.alias,
+        accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+        privateKey: '',
+      ).key;
+
+      final privateKey = await _credentials.read(backupKey);
       if (privateKey == null) {
         continue;
       }
@@ -213,9 +231,16 @@ class AndroidAccountsService extends AccountsServiceInterface {
       return;
     }
 
+    final backup = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: bytesToHex(account.privateKey!.privateKey),
+    );
+
     await _credentials.write(
-      account.id,
-      bytesToHex(account.privateKey!.privateKey),
+      backup.key,
+      backup.value,
     );
   }
 
@@ -231,7 +256,14 @@ class AndroidAccountsService extends AccountsServiceInterface {
       return null;
     }
 
-    final privateKey = await _credentials.read(account.id);
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
+    final privateKey = await _credentials.read(backupKey);
     if (privateKey == null) {
       return account;
     }
@@ -250,16 +282,28 @@ class AndroidAccountsService extends AccountsServiceInterface {
   // delete wallet backup
   @override
   Future<void> deleteAccount(String address, String alias) async {
+    // Get the account before deleting it
+    final account =
+        await _accountsDB.accounts.get(EthereumAddress.fromHex(address), alias);
+
+    if (account == null) {
+      return;
+    }
+
     await _accountsDB.accounts.delete(
       EthereumAddress.fromHex(address),
       alias,
     );
 
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
     await _credentials.delete(
-      getAccountID(
-        EthereumAddress.fromHex(address),
-        alias,
-      ),
+      backupKey,
     );
   }
 
@@ -357,9 +401,16 @@ class AndroidAccountsService extends AccountsServiceInterface {
     final allAccounts = await getAllAccounts(); // accounts with private keys
 
     for (final account in allAccounts) {
+      final backup = BackupWalletV5(
+        address: account.address.hexEip55,
+        alias: account.alias,
+        accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+        privateKey: bytesToHex(account.privateKey!.privateKey),
+      );
+
       await _credentials.write(
-        account.id,
-        bytesToHex(account.privateKey!.privateKey),
+        backup.key,
+        backup.value,
       );
 
       // null private key before updating in DB

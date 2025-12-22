@@ -150,6 +150,7 @@ class ProfileLogic {
   Future<void> loadProfile({String? account, bool online = false}) async {
     final ethAccount = _wallet.account;
     final alias = _wallet.alias ?? '';
+    final accountFactoryAddress = _wallet.accountFactoryAddress.hexEip55;
     final acc = account ?? ethAccount.hexEip55;
 
     resume();
@@ -210,6 +211,7 @@ class ProfileLogic {
       _accountBackupDBService.accounts.update(DBAccount(
         alias: alias,
         address: ethAccount,
+        accountFactoryAddress: EthereumAddress.fromHex(accountFactoryAddress),
         name: profile.name,
         username: profile.username,
         privateKey: null,
@@ -325,6 +327,7 @@ class ProfileLogic {
         DBAccount(
           alias: _wallet.alias!,
           address: EthereumAddress.fromHex(newProfile.account),
+          accountFactoryAddress: _wallet.accountFactoryAddress,
           name: newProfile.name,
           username: newProfile.username,
           privateKey: null,
@@ -407,6 +410,7 @@ class ProfileLogic {
         DBAccount(
           alias: _wallet.alias!,
           address: EthereumAddress.fromHex(newProfile.account),
+          accountFactoryAddress: _wallet.accountFactoryAddress,
           name: newProfile.name,
           username: newProfile.username,
           privateKey: null,
@@ -471,6 +475,7 @@ class ProfileLogic {
 
       final address = _wallet.account.hexEip55;
       final alias = _wallet.alias ?? '';
+      final accountFactoryAddress = _wallet.accountFactoryAddress.hexEip55;
 
       final account = await _accountBackupDBService.accounts
           .get(EthereumAddress.fromHex(address), alias);
@@ -554,6 +559,7 @@ class ProfileLogic {
         DBAccount(
           alias: alias,
           address: EthereumAddress.fromHex(address),
+          accountFactoryAddress: EthereumAddress.fromHex(accountFactoryAddress),
           name: newProfile.name,
           username: newProfile.username,
           profile: newProfile,

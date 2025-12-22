@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/db/db.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
-import 'package:citizenwallet/services/wallet/wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:web3dart/crypto.dart';
@@ -13,6 +12,7 @@ class DBAccount {
   final String id;
   final String alias;
   final EthereumAddress address;
+  final EthereumAddress accountFactoryAddress;
   final String name;
   final UserHandle? userHandle;
   final String? username;
@@ -22,6 +22,7 @@ class DBAccount {
   DBAccount({
     required this.alias,
     required this.address,
+    required this.accountFactoryAddress,
     required this.name,
     this.username,
     this.privateKey,
@@ -35,6 +36,7 @@ class DBAccount {
       'id': id,
       'alias': alias,
       'address': address.hexEip55,
+      'accountFactoryAddress': accountFactoryAddress.hexEip55,
       if (name.isNotEmpty) 'name': name,
       'username': username,
       'privateKey':
@@ -48,54 +50,10 @@ class DBAccount {
     return DBAccount(
       alias: map['alias'],
       address: EthereumAddress.fromHex(map['address']),
-      name: map['name'],
-      username: map['username'],
-      privateKey: map['privateKey'] != null
-          ? EthPrivateKey.fromHex(map['privateKey'])
-          : null,
-      profile: map['profile'] != null
-          ? ProfileV1.fromJson(jsonDecode(map['profile']))
-          : null,
-    );
-  }
-}
-
-class DBAccountV4 extends DBAccount {
-  final EthereumAddress accountFactoryAddress;
-
-  DBAccountV4({
-    required super.alias,
-    required super.address,
-    required super.name,
-    super.username,
-    super.privateKey,
-    super.profile,
-    required this.accountFactoryAddress,
-  }) : super();
-
-  // Override toMap to include accountFactoryAddress and update the ID format
-  @override
-  Map<String, dynamic> toMap() {
-    final map = super.toMap();
-    // Update the ID to the V4 format: address@accountFactoryAddress@alias
-    map['id'] = getAccountIdV4(
-      address: address,
-      alias: alias,
-      accountFactoryAddress: accountFactoryAddress,
-    );
-    map['accountFactoryAddress'] = accountFactoryAddress.hexEip55;
-    return map;
-  }
-
-  // fromMap factory for the V4 structure
-  factory DBAccountV4.fromMap(Map<String, dynamic> map) {
-    return DBAccountV4(
-      alias: map['alias'],
-      address: EthereumAddress.fromHex(map['address']),
-      name: map['name'],
-      username: map['username'],
       accountFactoryAddress:
           EthereumAddress.fromHex(map['accountFactoryAddress']),
+      name: map['name'],
+      username: map['username'],
       privateKey: map['privateKey'] != null
           ? EthPrivateKey.fromHex(map['privateKey'])
           : null,
@@ -108,14 +66,6 @@ class DBAccountV4 extends DBAccount {
 
 String getAccountID(EthereumAddress address, String alias) {
   return '${address.hexEip55}@$alias';
-}
-
-String getAccountIdV4({
-  required EthereumAddress address,
-  required String alias,
-  required EthereumAddress accountFactoryAddress,
-}) {
-  return '${address.hexEip55}@${accountFactoryAddress.hexEip55}@$alias';
 }
 
 class UserHandle {
@@ -171,6 +121,11 @@ class AccountsTable extends DBTable {
         'ALTER TABLE $name ADD COLUMN username TEXT DEFAULT NULL',
       ],
       4: [
+        // bad migration,https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/db/backup/accounts.dart#L123
+      ],
+      5: [
+        // Kevin start from 4
+        // Others start from 3
         'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
         'PopulateAccountFactoryAddressMigration',
       ]
@@ -264,11 +219,11 @@ class AccountsTable extends DBTable {
     await db.delete(name);
   }
 
-  Future<List<DBAccountV4>> all() async {
+  Future<List<DBAccount>> all() async {
     final List<Map<String, dynamic>> maps = await db.query(name);
 
     return List.generate(maps.length, (i) {
-      return DBAccountV4.fromMap(maps[i]);
+      return DBAccount.fromMap(maps[i]);
     });
   }
 
