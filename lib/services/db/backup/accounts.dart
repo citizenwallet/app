@@ -124,10 +124,12 @@ class AccountsTable extends DBTable {
         // bad migration,https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/db/backup/accounts.dart#L123
       ],
       5: [
-        // Kevin start from 4
-        // Others start from 3
-        'ALTER TABLE $name ADD COLUMN accountFactoryAddress TEXT DEFAULT ""',
+        // This migration handles both paths:
+        // - AppKevin (v4 -> v5): column already exists, just populate
+        // - AppOthers (v3 -> v5): column doesn't exist, add it then populate
+        'AddAccountFactoryAddressIfNotExists',
         'PopulateAccountFactoryAddressMigration',
+        'CleanDirtyV4Accounts',
       ]
     };
 
@@ -138,8 +140,16 @@ class AccountsTable extends DBTable {
         for (final query in queries) {
           try {
             switch (query) {
+              case 'AddAccountFactoryAddressIfNotExists':
+                await _addAccountFactoryAddressIfNotExists(db, name);
+                continue;
+
               case 'PopulateAccountFactoryAddressMigration':
                 await _populateAccountFactoryAddressMigration(db, name);
+                continue;
+
+              case 'CleanDirtyV4Accounts':
+                await _cleanDirtyV4Accounts(db, name);
                 continue;
             }
 
@@ -151,6 +161,24 @@ class AccountsTable extends DBTable {
         }
       }
     }
+  }
+
+  Future<void> _addAccountFactoryAddressIfNotExists(
+    Database db,
+    String name,
+  ) async {
+    final columnName = 'accountFactoryAddress';
+
+    // Check if column exists
+    final tableInfo = await db.rawQuery('PRAGMA table_info($name)');
+    final hasColumn = tableInfo.any((col) => col['name'] == columnName);
+
+    if (hasColumn) {
+      return;
+    }
+
+    await db
+        .execute('ALTER TABLE $name ADD COLUMN $columnName  TEXT DEFAULT ""');
   }
 
   Future<void> _populateAccountFactoryAddressMigration(
@@ -171,6 +199,70 @@ class AccountsTable extends DBTable {
         where: 'id = ?',
         whereArgs: [oldId],
       );
+    }
+  }
+
+  Future<void> _cleanDirtyV4Accounts(Database db, String name) async {
+    // Get all accounts from the database
+    List<Map<String, dynamic>> accounts = await db.query(name);
+
+    for (final Map<String, dynamic> account in accounts) {
+      final String currentId = account['id'] as String;
+      final String alias = account['alias'] as String;
+      final String addressStr = account['address'] as String;
+      final String accountFactoryAddressStr =
+          account['accountFactoryAddress'] as String;
+
+      // Construct what the ID should be in the old format
+      final String oldFormatId = getAccountID(EthereumAddress.fromHex(addressStr), alias);
+
+      // Construct what the ID would be in the new (bad) format
+      final String newFormatId = '$addressStr@$accountFactoryAddressStr@$alias';
+
+      // Check if current ID matches the new (bad) format
+      if (currentId == newFormatId) {
+        debugPrint('Cleaning dirty account: $currentId -> $oldFormatId');
+
+        // Check if an account with the old format ID already exists
+        final existingOldFormat = await db.query(
+          name,
+          where: 'id = ?',
+          whereArgs: [oldFormatId],
+        );
+
+        if (existingOldFormat.isEmpty) {
+          // No conflict: Insert new row with old ID format
+          final Map<String, dynamic> cleanAccount = Map.from(account);
+          cleanAccount['id'] = oldFormatId;
+
+          await db.insert(
+            name,
+            cleanAccount,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+
+          debugPrint('Inserted clean account with old format ID: $oldFormatId');
+        } else {
+          // Conflict exists: Keep the existing old format, just log
+          debugPrint(
+              'Old format ID already exists, keeping existing: $oldFormatId');
+        }
+
+        // Delete the row with new (bad) format ID
+        await db.delete(
+          name,
+          where: 'id = ?',
+          whereArgs: [currentId],
+        );
+
+        debugPrint('Deleted dirty account with new format ID: $currentId');
+      } else if (currentId == oldFormatId) {
+        // Already in correct old format, do nothing
+        debugPrint('Account already in correct format: $currentId');
+      } else {
+        // Unexpected format, log warning but don't touch it
+        debugPrint('Warning: Unexpected ID format: $currentId');
+      }
     }
   }
 
