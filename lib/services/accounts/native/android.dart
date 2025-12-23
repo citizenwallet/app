@@ -235,8 +235,9 @@ class AndroidAccountsService extends AccountsServiceInterface {
               // Key already has correct accountFactoryAddress, no action needed
               debugPrint('Key already correct: $dirtyKey');
             }
-          } catch (e) {
+          } catch (e,s) {
             debugPrint('Error cleaning dirty key $dirtyKey: $e');
+            debugPrintStack(stackTrace: s);
             continue;
           }
         }
