@@ -242,10 +242,11 @@ class AndroidAccountsService extends AccountsServiceInterface {
         }
 
         // Delete all old and dirty keys
-        for (final key in toDelete) {
-          await _credentials.delete(key);
-          debugPrint('Deleted old/dirty key: $key');
-        }
+        // TODO: delete old keys after testing
+        // for (final key in toDelete) {
+        //   await _credentials.delete(key);
+        //   debugPrint('Deleted old/dirty key: $key');
+        // }
       },
     };
 

@@ -352,12 +352,13 @@ class AppleAccountsService extends AccountsServiceInterface {
         }
 
         // Delete all old format keys
-        for (final key in toDelete) {
-          final saved = await _credentials.containsKey(key);
-          if (saved) {
-            await _credentials.delete(key);
-          }
-        }
+        // TODO: delete old keys after testing
+        // for (final key in toDelete) {
+        //   final saved = await _credentials.containsKey(key);
+        //   if (saved) {
+        //     await _credentials.delete(key);
+        //   }
+        // }
       },
     };
 
