@@ -219,8 +219,8 @@ class CommunityTable extends DBTable {
 
       await batch.commit(noResult: true);
     } catch (e, s) {
-      print('Error seeding communities table: $e');
-      print('Stack trace: $s');
+      debugPrint('Error seeding communities table: $e');
+      debugPrintStack(stackTrace: s);
     }
   }
 
