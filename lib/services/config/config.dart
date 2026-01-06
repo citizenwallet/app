@@ -370,6 +370,7 @@ class PluginConfig {
   final bool hidden;
   final bool signature;
   final bool featured;
+  final Map<String, dynamic>? meta;
 
   PluginConfig({
     required this.name,
@@ -380,6 +381,7 @@ class PluginConfig {
     this.hidden = false,
     this.signature = false,
     this.featured = false,
+    this.meta,
   });
 
   factory PluginConfig.fromJson(Map<String, dynamic> json) {
@@ -394,6 +396,7 @@ class PluginConfig {
       hidden: json['hidden'] ?? false,
       signature: json['signature'] ?? false,
       featured: json['featured'] ?? false,
+      meta: json['meta'] as Map<String, dynamic>?,
     );
   }
 
@@ -412,13 +415,14 @@ class PluginConfig {
       'hidden': hidden,
       'signature': signature,
       'featured': featured,
+      if (meta != null) 'meta': meta,
     };
   }
 
   // to string
   @override
   String toString() {
-    return 'PluginConfig{name: $name, icon: $icon, url: $url, launchMode: $launchMode, action: $action, hidden: $hidden, signature: $signature, featured: $featured}';
+    return 'PluginConfig{name: $name, icon: $icon, url: $url, launchMode: $launchMode, action: $action, hidden: $hidden, signature: $signature, featured: $featured, meta: $meta}';
   }
 }
 

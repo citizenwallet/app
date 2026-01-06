@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/theme/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -10,12 +11,14 @@ class CommunityClosedBanner extends StatefulWidget {
   final VoidCallback? handleOffboardPlugin;
   final VoidCallback? onDismiss;
   final bool display;
+  final PluginConfig? offboardPlugin;
 
   const CommunityClosedBanner({
     super.key,
     this.handleOffboardPlugin,
     this.onDismiss,
     this.display = false,
+    this.offboardPlugin,
   });
 
   @override
@@ -47,7 +50,7 @@ class _CommunityClosedBannerState extends State<CommunityClosedBanner>
   Timer? _hideTimer;
 
   @override
-void initState() {
+  void initState() {
     super.initState();
 
     _display = widget.display;
@@ -158,7 +161,7 @@ void initState() {
     });
   }
 
-void _handleDragUpdate(DragUpdateDetails details) {
+  void _handleDragUpdate(DragUpdateDetails details) {
     setState(() {
       // 1. Update the drag offset based on user movement (details.delta.dy)
       // Dragging down (dy > 0) increases _dragOffset.
@@ -250,9 +253,6 @@ void _handleDragUpdate(DragUpdateDetails details) {
     // It's either the real-time drag (if dragging) or the animated value (if snapping back/dismissing)
     final currentDragOffset = _isDragging ? _dragOffset : _dragAnimation.value;
 
-    // Calculate the total offset including the initial slide-in/out and the current drag/animation
-    final totalOffset = _slideOffset + currentDragOffset;
-
     return Positioned(
       bottom: 0,
       left: 0,
@@ -262,27 +262,22 @@ void _handleDragUpdate(DragUpdateDetails details) {
         onVerticalDragUpdate: _handleDragUpdate,
         onVerticalDragEnd: _handleDragEnd,
         child: AnimatedContainer(
-          // Keep AnimatedContainer for the initial slide-in/out (_slideOffset)
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
-          // Apply the main slide-in/out offset here
           transform: Matrix4.translationValues(0, _slideOffset, 0),
           height: bannerHeight,
-          // Wrap the content in AnimatedBuilder to handle the drag animation
           child: AnimatedBuilder(
             animation: _dragAnimationController,
             builder: (context, child) {
-              // Apply the drag/snap-back/dismissal offset here
               return Transform.translate(
                 offset: Offset(0, currentDragOffset),
                 child: child,
               );
             },
             child: Container(
-              // Now the main content container
-             padding: EdgeInsets.fromLTRB(20, 10, 20, safeBottomPadding + 20),
+              padding: EdgeInsets.fromLTRB(20, 10, 20, safeBottomPadding + 20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F0), // Pearl white
+                color: const Color(0xFFF5F5F0),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -295,102 +290,106 @@ void _handleDragUpdate(DragUpdateDetails details) {
                   ),
                 ],
               ),
-              child: Stack(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ... rest of the banner content remains the same
                   // Drag handle indicator
-                  Positioned(
-                    top: 8,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colors.black.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 8, bottom: 30),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colors.black.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          CupertinoIcons.info_circle_fill,
-                          size: 60,
-                          color: Theme.of(context)
-                              .colors
-                              .primary
-                              .resolveFrom(context),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.communityClosed,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            AppLocalizations.of(context)!
-                                .communityClosedDescription,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Theme.of(context)
-                                  .colors
-                                  .black
-                                  .withOpacity(0.7),
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        if (widget.handleOffboardPlugin != null)
-                          CupertinoButton(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 12,
-                            ),
+                  // Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            CupertinoIcons.info_circle_fill,
+                            size: 60,
                             color: Theme.of(context)
                                 .colors
                                 .primary
                                 .resolveFrom(context),
-                            borderRadius: BorderRadius.circular(25),
-                            onPressed: handleLearnMore,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.learnMore,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colors.white,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  CupertinoIcons.arrow_right_circle_fill,
-                                  color: Theme.of(context).colors.white,
-                                  size: 20,
-                                ),
-                              ],
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              widget.offboardPlugin?.meta?['title']
+                                      as String? ??
+                                  AppLocalizations.of(context)!.communityClosed,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colors.black,
+                              ),
                             ),
                           ),
-                      ],
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: Text(
+                              widget.offboardPlugin?.meta?['desc'] as String? ??
+                                  AppLocalizations.of(context)!
+                                      .communityClosedDescription,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context)
+                                    .colors
+                                    .black
+                                    .withOpacity(0.7),
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          if (widget.handleOffboardPlugin != null)
+                            CupertinoButton(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 14,
+                              ),
+                              color: Theme.of(context)
+                                  .colors
+                                  .primary
+                                  .resolveFrom(context),
+                              borderRadius: BorderRadius.circular(25),
+                              onPressed: handleLearnMore,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.offboardPlugin?.meta?['button']
+                                            as String? ??
+                                        AppLocalizations.of(context)!.learnMore,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    CupertinoIcons.arrow_right_circle_fill,
+                                    color: Theme.of(context).colors.white,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

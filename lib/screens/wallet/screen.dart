@@ -1286,9 +1286,10 @@ class WalletScreenState extends State<WalletScreen>
                               .resolveFrom(context),
                           borderRadius: BorderRadius.circular(45),
                           border: Border.all(
-                            color: (config?.online == false || isCommunityClosed)
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                             width: 3,
                           ),
                           boxShadow: [
@@ -1309,9 +1310,10 @@ class WalletScreenState extends State<WalletScreen>
                           child: Icon(
                             CupertinoIcons.qrcode_viewfinder,
                             size: 60,
-                            color: (config?.online == false || isCommunityClosed)
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                           ),
                         ),
                       ),
@@ -1409,6 +1411,7 @@ class WalletScreenState extends State<WalletScreen>
                   });
                 },
                 display: isCommunityClosed,
+                offboardPlugin: offboardPlugin,
               ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
