@@ -734,6 +734,25 @@ class Config {
     return primaryAccountAbstraction;
   }
 
+  ERC4337Config getAccountAbstractionConfig({
+    required String accountFactoryAddress,
+  }) {
+    // Build the full address key using chainId:accountFactoryAddress format
+    final chainId = community.primaryToken.chainId;
+    final fullAddress = '$chainId:$accountFactoryAddress';
+
+    // Try to find the account config
+    final accountConfig = accounts[fullAddress];
+
+    if (accountConfig == null) {
+      throw Exception(
+        'Account Abstraction Config not found for address: $fullAddress',
+      );
+    }
+
+    return accountConfig;
+  }
+
   CardsConfig? getPrimaryCardManager() {
     return cards?[community.primaryCardManager?.fullAddress];
   }
@@ -748,13 +767,21 @@ class Config {
     return chain.node.url;
   }
 
-  String getRpcUrl(String chainId) {
+  String getRpcUrl({
+    required String chainId,
+    required String accountFactoryAddress,
+  }) {
     final chain = chains[chainId];
 
     if (chain == null) {
       throw Exception('Chain not found');
     }
 
-    return '${chain.node.url}/v1/rpc/${getPrimaryAccountAbstractionConfig().paymasterAddress}';
+    // Get the account config (primary or specific based on accountFactoryAddress)
+    final accountConfig = getAccountAbstractionConfig(
+      accountFactoryAddress: accountFactoryAddress,
+    );
+
+    return '${chain.node.url}/v1/rpc/${accountConfig.paymasterAddress}';
   }
 }

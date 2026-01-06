@@ -1,0 +1,74 @@
+{
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
+  },
+  "scan": {
+    "url": "https://celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "chains": {
+    "42220": {
+      "id": 42220,
+      "node": {
+        "url": "https://42220.engine.citizenwallet.xyz",
+        "ws_url": "wss://42220.engine.citizenwallet.xyz"
+      }
+    }
+  },
+  "tokens": {
+    "42220:0x56744910f7dEcD48c1a7FA61B4C317b15E99F156": {
+      "name": "KFMEDIA℠ Pathways for LATAM™",
+      "symbol": "KFMPFL",
+      "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+      "chain_id": 42220,
+      "decimals": 0,
+      "standard": "erc1155"
+    }
+  },
+  "version": 5,
+  "accounts": {
+    "42220:0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185": {
+      "chain_id": 42220,
+      "paymaster_type": "cw-safe",
+      "paymaster_address": "0x02BDA8370d9497A5C808B2db237cfaA8f0733F36",
+      "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+      "account_factory_address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185"
+    }
+  },
+  "sessions": {
+    "42220:0xE2F3DC3E638113b9496060349e5332963d9C1152": {
+      "chain_id": 42220,
+      "module_address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "factory_address": "0xEd0cD3886b84369A0e29Db9a4480ADF5051c76C9",
+      "provider_address": "0xF3004A1690f97Cf5d307eDc5958a7F76b62f9FC9"
+    }
+  },
+  "community": {
+    "url": "https://kingfishersmedia.io",
+    "logo": "https://assets.citizenwallet.xyz/wallet-config/_images/kfmpfl.png",
+    "name": "KFMEDIA℠",
+    "alias": "wallet.kingfishersmedia.io",
+    "theme": {
+      "primary": "#88292c"
+    },
+    "profile": {
+      "address": "0x5f6FEb03ad8EfeCdD2a837FAA1a29DEA2bAcfd55",
+      "chain_id": 42220
+    },
+    "description": "Certified Education Organization. Solving systemic educational disparity using Web3 solutions, removing barriers of entry for underdeveloped economies.",
+    "custom_domain": "wallet.kingfishersmedia.io",
+    "primary_token": {
+      "address": "0x56744910f7dEcD48c1a7FA61B4C317b15E99F156",
+      "chain_id": 42220
+    },
+    "primary_account_factory": {
+      "address": "0x7cC54D54bBFc65d1f0af7ACee5e4042654AF8185",
+      "chain_id": 42220
+    },
+    "primary_session_manager": {
+      "address": "0xE2F3DC3E638113b9496060349e5332963d9C1152",
+      "chain_id": 42220
+    }
+  },
+  "config_location": "https://my.citizenwallet.xyz/api/communities/wallet.kingfishersmedia.io"
+}

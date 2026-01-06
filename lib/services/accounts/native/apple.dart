@@ -2,10 +2,12 @@ import 'package:citizenwallet/services/accounts/backup.dart';
 import 'package:citizenwallet/services/accounts/accounts.dart';
 import 'package:citizenwallet/services/accounts/options.dart';
 import 'package:citizenwallet/services/accounts/utils.dart';
+import 'package:citizenwallet/services/config/utils.dart';
 import 'package:citizenwallet/services/credentials/credentials.dart';
 import 'package:citizenwallet/services/credentials/native/apple.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/backup/db.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
@@ -170,6 +172,8 @@ class AppleAccountsService extends AccountsServiceInterface {
             alias: legacyBackup.alias,
             address: EthereumAddress.fromHex(legacyBackup.address),
             name: legacyBackup.name,
+            accountFactoryAddress: EthereumAddress.fromHex(
+                getAccountFactoryAddressByAlias(legacyBackup.alias)),
           );
 
           await _accountsDB.accounts.insert(account);
@@ -203,6 +207,160 @@ class AppleAccountsService extends AccountsServiceInterface {
           }
         }
       },
+      5: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/apple.dart#L154
+      },
+      6: () async {
+        // bad migration, https://github.com/citizenwallet/app/blob/d4f72940e11f1812c34dfb47c0bffe7488a1c32e/lib/services/accounts/native/apple.dart#L264
+      },
+      7: () async {
+        // This migration handles two paths:
+        // - AppKevin (v6 -> v7): Clean dirty keys with wrong accountFactoryAddress
+        // - AppOthers (v4 -> v7): Migrate from old format to new format
+
+        // Read all credentials from Keychain
+        final allValues = await _credentials.readAll();
+
+        // Separate keys into different formats
+        final oldFormatKeys = <String>[]; // address@alias
+        final dirtyNewFormatKeys =
+            <String>[]; // address@accountFactoryAddress@alias (dirty)
+
+        for (final key in allValues.keys) {
+          if (key.startsWith(backupPrefix) || key == versionPrefix) {
+            continue;
+          }
+
+          final parts = key.split('@');
+
+          // Check for old format: address@alias (2 parts)
+          if (parts.length == 2) {
+            try {
+              EthereumAddress.fromHex(parts[0]);
+              oldFormatKeys.add(key);
+            } catch (_) {
+              // Not a valid address, skip
+            }
+          }
+          // Check for new format: address@accountFactoryAddress@alias (3 parts)
+          else if (parts.length == 3) {
+            try {
+              EthereumAddress.fromHex(parts[0]);
+              EthereumAddress.fromHex(parts[1]);
+              dirtyNewFormatKeys.add(key);
+            } catch (_) {
+              // Not valid addresses, skip
+            }
+          }
+        }
+
+        final toDelete = <String>[];
+
+        // Handle AppOthers path: Migrate old format keys to new format
+        for (final oldKey in oldFormatKeys) {
+          final privateKeyValue = allValues[oldKey];
+          if (privateKeyValue == null) {
+            continue;
+          }
+
+          final parts = oldKey.split('@');
+          if (parts.length != 2) {
+            continue;
+          }
+
+          final address = parts[0];
+          final alias = parts[1];
+
+          try {
+            // Get the correct account factory address for this alias
+            final accountFactoryAddress =
+                getAccountFactoryAddressByAlias(alias);
+
+            // Create a BackupWalletV5 with the new format
+            final backup = BackupWalletV5(
+              address: address,
+              alias: alias,
+              accountFactoryAddress: accountFactoryAddress,
+              privateKey: privateKeyValue,
+            );
+
+            // Write the credential with the new key format
+            await _credentials.write(backup.key, backup.value);
+
+            debugPrint('Migrated old format key: $oldKey -> ${backup.key}');
+
+            // Mark old key for deletion
+            toDelete.add(oldKey);
+          } catch (e) {
+            debugPrint('Error migrating key $oldKey: $e');
+            continue;
+          }
+        }
+
+        // Handle AppKevin path: Clean dirty new format keys
+        for (final dirtyKey in dirtyNewFormatKeys) {
+          final privateKeyValue = allValues[dirtyKey];
+          if (privateKeyValue == null) {
+            continue;
+          }
+
+          final parts = dirtyKey.split('@');
+          if (parts.length != 3) {
+            continue;
+          }
+
+          final address = parts[0];
+          final dirtyAccountFactoryAddress = parts[1];
+          final alias = parts[2];
+
+          try {
+            // Get the CORRECT account factory address for this alias
+            final correctAccountFactoryAddress =
+                getAccountFactoryAddressByAlias(alias);
+
+            // Check if the dirty key has the wrong accountFactoryAddress
+            if (dirtyAccountFactoryAddress.toLowerCase() !=
+                correctAccountFactoryAddress.toLowerCase()) {
+              debugPrint(
+                  'Found dirty key with wrong accountFactoryAddress: $dirtyKey');
+              debugPrint('  Dirty: $dirtyAccountFactoryAddress');
+              debugPrint('  Correct: $correctAccountFactoryAddress');
+
+              // Create a BackupWalletV5 with the CORRECT account factory address
+              final cleanBackup = BackupWalletV5(
+                address: address,
+                alias: alias,
+                accountFactoryAddress: correctAccountFactoryAddress,
+                privateKey: privateKeyValue,
+              );
+
+              // Write the credential with the correct key format
+              await _credentials.write(cleanBackup.key, cleanBackup.value);
+
+              debugPrint('Cleaned dirty key: $dirtyKey -> ${cleanBackup.key}');
+
+              // Mark dirty key for deletion
+              toDelete.add(dirtyKey);
+            } else {
+              // Key already has correct accountFactoryAddress, no action needed
+              debugPrint('Key already correct: $dirtyKey');
+            }
+          } catch (e,s) {
+            debugPrint('Error cleaning dirty key $dirtyKey: $e');
+            debugPrintStack(stackTrace: s);
+            continue;
+          }
+        }
+
+        // Delete all old format keys
+        // TODO: delete old keys after testing
+        // for (final key in toDelete) {
+        //   final saved = await _credentials.containsKey(key);
+        //   if (saved) {
+        //     await _credentials.delete(key);
+        //   }
+        // }
+      },
     };
 
     // run all migrations
@@ -228,7 +386,14 @@ class AppleAccountsService extends AccountsServiceInterface {
     final List<DBAccount> accounts = await _accountsDB.accounts.all();
 
     for (final account in accounts) {
-      final privateKey = await _credentials.read(account.id);
+      final backupKey = BackupWalletV5(
+        address: account.address.hexEip55,
+        alias: account.alias,
+        accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+        privateKey: '',
+      ).key;
+
+      final privateKey = await _credentials.read(backupKey);
       if (privateKey == null) {
         continue;
       }
@@ -248,9 +413,16 @@ class AppleAccountsService extends AccountsServiceInterface {
       return;
     }
 
+    final backup = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: bytesToHex(account.privateKey!.privateKey),
+    );
+
     await _credentials.write(
-      account.id,
-      bytesToHex(account.privateKey!.privateKey),
+      backup.key,
+      backup.value,
     );
   }
 
@@ -266,7 +438,14 @@ class AppleAccountsService extends AccountsServiceInterface {
       return null;
     }
 
-    final privateKey = await _credentials.read(account.id);
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
+    final privateKey = await _credentials.read(backupKey);
     if (privateKey == null) {
       return account;
     }
@@ -285,16 +464,29 @@ class AppleAccountsService extends AccountsServiceInterface {
   // delete wallet backup
   @override
   Future<void> deleteAccount(String address, String alias) async {
+    final account = await _accountsDB.accounts.get(
+      EthereumAddress.fromHex(address),
+      alias,
+    );
+
+    if (account == null) {
+      return;
+    }
+
     await _accountsDB.accounts.delete(
       EthereumAddress.fromHex(address),
       alias,
     );
 
+    final backupKey = BackupWalletV5(
+      address: account.address.hexEip55,
+      alias: account.alias,
+      accountFactoryAddress: account.accountFactoryAddress.hexEip55,
+      privateKey: '',
+    ).key;
+
     await _credentials.delete(
-      getAccountID(
-        EthereumAddress.fromHex(address),
-        alias,
-      ),
+      backupKey,
     );
   }
 

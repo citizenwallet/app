@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
@@ -373,6 +374,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _wallet.init(
         dbWallet.address,
+        dbWallet.accountFactoryAddress,
         dbWallet.privateKey!,
         nativeCurrency,
         communityConfig,
@@ -390,17 +392,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
-      _config
-          .isCommunityOnline(
-              communityConfig.chains[token.chainId.toString()]!.node.url)
-          .then((isOnline) {
-        communityConfig.online = isOnline;
-
-        _state.setWalletConfig(communityConfig);
-
-        _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
-      });
+      updateWalletConfigFromRemote();
 
       _state.setWallet(
         CWWallet(
@@ -452,8 +444,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -486,6 +476,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(
+            communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -553,6 +545,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -582,6 +575,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
       ));
 
       loadDBWallets();
@@ -2145,6 +2139,53 @@ class WalletLogic extends WidgetsBindingObserver {
     cleanupWalletService();
   }
 
+  Future<void> updateWalletConfigFromRemote() async {
+    try {
+      if (_wallet.alias == null) {
+        return;
+      }
+
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        return;
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final remoteConfigUrl = communityConfig.configLocation;
+
+      if (remoteConfigUrl.isEmpty) {
+        return;
+      }
+
+      final remoteConfig = await _config.getRemoteConfig(remoteConfigUrl);
+
+      if (remoteConfig == null) {
+        return;
+      }
+
+      // Update the wallet config with the remote config
+      _state.setWalletConfig(remoteConfig);
+
+      final token = remoteConfig.getPrimaryToken();
+
+      remoteConfig.online = await _config.isCommunityOnline(
+          remoteConfig.chains[token.chainId.toString()]!.node.url);
+
+      _state.setWalletConfig(remoteConfig);
+
+      // Update the database with the new config
+      await _appDBService.communities.upsert(
+        [DBCommunity.fromConfig(remoteConfig)],
+      );
+      debugPrint('Remote config updated');
+    } catch (e, s) {
+      debugPrint('Error updating remote config: $e');
+      debugPrint('Stacktrace: $s');
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
@@ -2157,24 +2198,7 @@ class WalletLogic extends WidgetsBindingObserver {
         }
 
         await updateBalance();
-
-        final community = await _appDBService.communities.get(_wallet.alias!);
-
-        if (community == null) {
-          return;
-        }
-
-        Config communityConfig = Config.fromJson(community.config);
-
-        final token = communityConfig.getPrimaryToken();
-
-        communityConfig.online = await _config.isCommunityOnline(
-            communityConfig.chains[token.chainId.toString()]!.node.url);
-
-        await _appDBService.communities.updateOnlineStatus(
-            communityConfig.community.alias, communityConfig.online);
-
-        _state.setWalletConfig(communityConfig);
+        await updateWalletConfigFromRemote();
 
         break;
       default:
