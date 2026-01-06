@@ -153,7 +153,8 @@ class CommunityTable extends DBTable {
       CREATE INDEX idx_${name}_alias ON $name (alias)
     ''');
 
-    await seed();
+    // Don't call seed() here - it will be called after onCreate completes
+    // This avoids transaction deadlock issues
   }
 
   // Migrates the table
@@ -179,7 +180,7 @@ class CommunityTable extends DBTable {
                 final updatedConfigs = await legacyToV4(db, name);
                 await upsert(updatedConfigs);
                 continue;
-              case 'V5Migration':            
+              case 'V5Migration':
                 final updatedConfigs = await V5Migration(db, name);
                 await upsert(updatedConfigs);
                 continue;
@@ -195,32 +196,61 @@ class CommunityTable extends DBTable {
     }
   }
 
-  Future<void> seed() async {
+  Future<void> seed(Database db) async {
     try {
+      debugPrint('🌱 Starting seed process...');
+
       // Check if the table is empty
+      debugPrint('🌱 Checking if table is empty...');
       final count = Sqflite.firstIntValue(
           await db.rawQuery('SELECT COUNT(*) FROM $name'));
 
       if (count != null && count > 0) {
+        debugPrint('🌱 Table already has $count entries, skipping seed');
         return; // Table is not empty, skip seeding
       }
 
+      debugPrint('🌱 Loading local configs...');
       final localConfigs = await _config.getLocalConfigs();
+      debugPrint('🌱 Loaded ${localConfigs.length} configs');
 
-      // Prepare batch operation for efficient insertion
+      if (localConfigs.isEmpty) {
+        debugPrint('🌱 No configs to seed');
+        return;
+      }
+
+      debugPrint('🌱 Converting configs to DB format...');
+      final communities = <DBCommunity>[];
+      for (var i = 0; i < localConfigs.length; i++) {
+        try {
+          final community = DBCommunity.fromConfig(localConfigs[i]);
+          communities.add(community);
+          if ((i + 1) % 10 == 0) {
+            debugPrint('🌱 Converted ${i + 1}/${localConfigs.length} configs');
+          }
+        } catch (e) {
+          debugPrint('❌ Error converting config $i: $e');
+        }
+      }
+      debugPrint('🌱 Converted ${communities.length} configs total');
+
+      debugPrint('🌱 Preparing batch insert...');
       final batch = db.batch();
 
-      for (final config in localConfigs) {
+      for (final community in communities) {
         batch.insert(
           name,
-          DBCommunity.fromConfig(config).toMap(),
+          community.toMap(),
         );
       }
 
+      debugPrint('🌱 Committing batch with ${communities.length} inserts...');
       await batch.commit(noResult: true);
+      debugPrint('🌱 Seed completed successfully!');
     } catch (e, s) {
-      debugPrint('Error seeding communities table: $e');
+      debugPrint('❌ Error seeding communities table: $e');
       debugPrintStack(stackTrace: s);
+      rethrow; // Rethrow to surface the error
     }
   }
 

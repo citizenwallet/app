@@ -168,12 +168,33 @@ class ConfigService {
 
   Future<List<Config>> getLocalConfigs() async {
     try {
-      final localConfigs = jsonDecode(await rootBundle.loadString(
-          'assets/config/v$version/$communityConfigListFileName.json'));
+      debugPrint(
+          '📄 Loading JSON file: assets/config/v$version/$communityConfigListFileName.json');
+      final jsonString = await rootBundle.loadString(
+          'assets/config/v$version/$communityConfigListFileName.json');
 
-      final configs =
-          (localConfigs as List).map((e) => Config.fromJson(e)).toList();
+      debugPrint('📄 JSON loaded, size: ${jsonString.length} chars');
+      debugPrint('📄 Parsing JSON...');
+      final localConfigs = jsonDecode(jsonString);
 
+      debugPrint(
+          '📄 JSON parsed, found ${(localConfigs as List).length} items');
+      debugPrint('📄 Converting to Config objects...');
+
+      final configs = <Config>[];
+      for (var i = 0; i < localConfigs.length; i++) {
+        try {
+          final config = Config.fromJson(localConfigs[i]);
+          configs.add(config);
+          if ((i + 1) % 10 == 0 || i == localConfigs.length - 1) {
+            debugPrint('📄 Converted ${i + 1}/${localConfigs.length} configs');
+          }
+        } catch (e) {
+          debugPrint('❌ Error converting config $i: $e');
+        }
+      }
+
+      debugPrint('📄 All configs converted successfully');
       return configs;
     } catch (e, s) {
       debugPrint('ERROR in getLocalConfigs: $e');
