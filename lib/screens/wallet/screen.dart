@@ -34,6 +34,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
+import 'package:citizenwallet/widgets/communities/community_closed_banner.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'dart:async';
 
@@ -85,6 +86,7 @@ class WalletScreenState extends State<WalletScreen>
   String? _deepLinkParams;
   String? _sendToURL;
   Config? _config;
+  bool _isClosedBannerDismissed = false;
 
   @override
   void initState() {
@@ -1123,7 +1125,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      
+
       if (voucher != null && voucherParams != null) {
         _sendToURL = null;
       } else {
@@ -1195,13 +1197,13 @@ class WalletScreenState extends State<WalletScreen>
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
-    final eventServiceIntentionalDisconnect = context
-        .select((WalletState state) => state.eventServiceIntentionalDisconnect);
-
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
-    final showOfflineBanner = isOffline && !eventServiceIntentionalDisconnect;
+    final isCommunityClosed = eventServiceState == EventServiceState.closed;
+    final offboardPlugin = context.select(
+      (WalletState state) => state.config!.getOffboardPlugin(),
+    );
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
     final config = context.select((WalletState state) => state.config);
@@ -1262,10 +1264,6 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
-            // Positioned(
-            //   bottom: 60,
-            //   left: 0,
-            //   right: 0,
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -1275,7 +1273,9 @@ class WalletScreenState extends State<WalletScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: config?.online == false ? () => () : handleQRScan,
+                      onTap: (config?.online == false || isCommunityClosed)
+                          ? () => ()
+                          : handleQRScan,
                       child: Container(
                         height: 90,
                         width: 90,
@@ -1286,9 +1286,10 @@ class WalletScreenState extends State<WalletScreen>
                               .resolveFrom(context),
                           borderRadius: BorderRadius.circular(45),
                           border: Border.all(
-                            color: config?.online == false
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                             width: 3,
                           ),
                           boxShadow: [
@@ -1309,9 +1310,10 @@ class WalletScreenState extends State<WalletScreen>
                           child: Icon(
                             CupertinoIcons.qrcode_viewfinder,
                             size: 60,
-                            color: config?.online == false
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                           ),
                         ),
                       ),
@@ -1398,6 +1400,19 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
+            if (isCommunityClosed)
+              CommunityClosedBanner(
+                handleOffboardPlugin: offboardPlugin != null
+                    ? () => handlePlugin(offboardPlugin)
+                    : null,
+                onDismiss: () {
+                  setState(() {
+                    _isClosedBannerDismissed = true;
+                  });
+                },
+                display: isCommunityClosed,
+                offboardPlugin: offboardPlugin,
+              ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
               display: isOffline,

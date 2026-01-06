@@ -1103,7 +1103,8 @@ class WalletLogic extends WidgetsBindingObserver {
     final trimmedAmount = amount.trim();
     if (trimmedAmount.endsWith(',') || trimmedAmount.endsWith('.')) {
       // Remove trailing separator and validate the partial amount
-      final withoutTrailing = trimmedAmount.substring(0, trimmedAmount.length - 1);
+      final withoutTrailing =
+          trimmedAmount.substring(0, trimmedAmount.length - 1);
       if (withoutTrailing.isEmpty) {
         // Just "," or "." - treat as empty (not invalid, but also not valid)
         return false;
@@ -1118,7 +1119,7 @@ class WalletLogic extends WidgetsBindingObserver {
       balanceRaw,
       decimals: _wallet.currency.decimals,
     ));
-    
+
     // Parse the amount as a double in human-readable format
     // Handle both comma and dot as decimal separators
     final normalizedAmount = amount.replaceAll(',', '.');
@@ -1726,7 +1727,7 @@ class WalletLogic extends WidgetsBindingObserver {
   Future<void> updateAmount({bool unlimited = false}) async {
     // Fetch current balance before validating to ensure we check against the latest balance
     await updateBalance();
-    
+
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text, unlimited: unlimited),

@@ -674,4 +674,13 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Account niet gevonden';
+
+  @override
+  String get communityClosed => 'Deze gemeenschap is momenteel gesloten';
+
+  @override
+  String get communityClosedDescription => 'Deze gemeenschap accepteert momenteel geen transacties. Neem contact op met de gemeenschapsadministrator voor meer informatie.';
+
+  @override
+  String get learnMore => 'Meer informatie';
 }

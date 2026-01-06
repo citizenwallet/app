@@ -571,4 +571,8 @@ class LegacyConfig {
   LegacyPluginConfig? getTopUpPlugin() {
     return plugins.firstWhereOrNull((plugin) => plugin.action == 'topup');
   }
+
+  LegacyPluginConfig? getOffboardPlugin() {
+    return plugins.firstWhereOrNull((plugin) => plugin.action == 'offboard');
+  }
 }
