@@ -90,6 +90,14 @@ GoRouter createRouter(
                   sendToParams +=
                       '&description=${uri.queryParameters['description']}';
                 }
+                if (uri.queryParameters['tipAmount'] != null) {
+                  sendToParams +=
+                      '&tipAmount=${uri.queryParameters['tipAmount']}';
+                }
+                if (uri.queryParameters['tipDescription'] != null) {
+                  sendToParams +=
+                      '&tipDescription=${uri.queryParameters['tipDescription']}';
+                }
               } else if (eip681 != null) {
                 sendToParams =
                     encodeParams(uri.toString().replaceFirst('/?', ''));
@@ -181,6 +189,9 @@ GoRouter createRouter(
               final tipTo = state.uri.queryParameters['tipTo'];
               final amount = state.uri.queryParameters['amount'];
               final description = state.uri.queryParameters['description'];
+              final tipAmount = state.uri.queryParameters['tipAmount'];
+              final tipDescription =
+                  state.uri.queryParameters['tipDescription'];
               if (sendTo != null) {
                 String params = 'sendto=$sendTo';
                 if (tipTo != null) {
@@ -191,6 +202,12 @@ GoRouter createRouter(
                 }
                 if (description != null) {
                   params += '&description=$description';
+                }
+                if (tipAmount != null) {
+                  params += '&tipAmount=$tipAmount';
+                }
+                if (tipDescription != null) {
+                  params += '&tipDescription=$tipDescription';
                 }
                 sendToURL = 'https://app.citizenwallet.xyz/?$params';
               }
@@ -543,7 +560,6 @@ GoRouter createWebRouter(
                 deepLinkParams = encodeParams(deepLinkParams);
               }
             }
-
 
             return WebLandingScreen(
               voucher: state.uri.queryParameters['voucher'],
