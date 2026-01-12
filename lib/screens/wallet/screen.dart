@@ -586,6 +586,7 @@ class WalletScreenState extends State<WalletScreen>
     });
 
     if (result != true && sendToURL != null) {
+      // TODO: check clear tipping
       _logic.clearTipTo();
       _sendToURL = null;
     }

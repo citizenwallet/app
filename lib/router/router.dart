@@ -276,7 +276,6 @@ GoRouter createRouter(
                   voucherLogic: extra['voucherLogic'],
                   isMinting: extra['isMinting'] ?? false,
                   sendToURL: extra['sendToURL'],
-                  sendTransaction: extra['sendTransaction'],
                 );
               },
             ),
