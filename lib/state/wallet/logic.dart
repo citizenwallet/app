@@ -2183,6 +2183,19 @@ class WalletLogic extends WidgetsBindingObserver {
         [DBCommunity.fromConfig(remoteConfig)],
       );
       debugPrint('Remote config updated');
+
+      // Update wallet properties with the new config
+      if (_state.wallet != null) {
+        final updatedWallet = _state.wallet!.copyWith(
+          currencyName: token.name,
+          symbol: token.symbol,
+          currencyLogo: remoteConfig.community.logo,
+          decimalDigits: token.decimals,
+          plugins: remoteConfig.plugins ?? [],
+        );
+        _state.setWallet(updatedWallet);
+        debugPrint('Wallet properties updated with remote config');
+      }
     } catch (e, s) {
       debugPrint('Error updating remote config: $e');
       debugPrint('Stacktrace: $s');
