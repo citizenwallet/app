@@ -142,6 +142,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = widget.receiveParams;
       _deepLink = widget.deepLink;
       _deepLinkParams = widget.deepLinkParams;
+      _sendToURL = widget.sendToURL;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
