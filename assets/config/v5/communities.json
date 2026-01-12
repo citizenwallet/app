@@ -444,6 +444,20 @@
         "hidden": true,
         "signature": true,
         "launch_mode": "webview"
+      },
+      {
+        "url": "https://sfluv.org/communitymigration",
+        "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/sfluv.svg",
+        "name": "Offoard",
+        "hidden": true,
+        "signature": true,
+        "launch_mode": "webview",
+        "action": "offboard",
+        "meta": {
+          "title": "SFLUV has Migrated",
+          "desc": "SFLUV has migrated from Polygon to BeraChain, so this community (SFLUV Polygon) has been closed. Click the link below to create an account in the new SFLUV community. Your SFLUV Polygon balance will be transferred over once you have a new account.",
+          "button": "Migrate"
+        }
       }
     ],
     "version": 5,
