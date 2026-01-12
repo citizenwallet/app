@@ -671,4 +671,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Cuenta no encontrada';
+
+  @override
+  String get sendTip => 'Enviar propina';
 }

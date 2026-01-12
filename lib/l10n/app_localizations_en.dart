@@ -667,4 +667,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Account not found';
+
+  @override
+  String get sendTip => 'Send Tip';
 }

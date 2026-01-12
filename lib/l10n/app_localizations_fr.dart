@@ -672,4 +672,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Compte non trouvé';
+
+  @override
+  String get sendTip => 'Envoyer un pourboire';
 }

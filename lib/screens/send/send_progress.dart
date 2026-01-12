@@ -363,8 +363,7 @@ class _SendProgressState extends State<SendProgress> {
                         ? Column(
                             children: [
                               Button(
-                                text:
-                                    "${AppLocalizations.of(context)!.send} Tip",
+                                text: AppLocalizations.of(context)!.sendTip,
                                 color: Theme.of(context)
                                     .colors
                                     .primary

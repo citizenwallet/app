@@ -674,4 +674,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Account niet gevonden';
+
+  @override
+  String get sendTip => 'Fooi versturen';
 }

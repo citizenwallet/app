@@ -1331,6 +1331,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account not found'**
   String get accountNotFound;
+
+  /// No description provided for @sendTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Tip'**
+  String get sendTip;
 }
 
 class _AppLocalizationsDelegate

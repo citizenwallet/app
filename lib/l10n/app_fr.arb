@@ -203,5 +203,6 @@
   "close": "Fermer",
   "start": "Commencer",
   "connecting": "Connexion",
-  "accountNotFound": "Compte non trouvé"
+  "accountNotFound": "Compte non trouvé",
+  "sendTip": "Envoyer un pourboire"
 }
