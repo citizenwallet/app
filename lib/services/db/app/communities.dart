@@ -153,8 +153,7 @@ class CommunityTable extends DBTable {
       CREATE INDEX idx_${name}_alias ON $name (alias)
     ''');
 
-    // Don't call seed() here - it will be called after onCreate completes
-    // This avoids transaction deadlock issues
+    await seed();
   }
 
   // Migrates the table
@@ -196,14 +195,14 @@ class CommunityTable extends DBTable {
     }
   }
 
-  Future<void> seed(Database db) async {
+  Future<void> seed() async {
     try {
       debugPrint('🌱 Starting seed process...');
 
       // Check if the table is empty
       debugPrint('🌱 Checking if table is empty...');
       final count = Sqflite.firstIntValue(
-          await db.rawQuery('SELECT COUNT(*) FROM $name'));
+          await this.db.rawQuery('SELECT COUNT(*) FROM $name'));
 
       if (count != null && count > 0) {
         debugPrint('🌱 Table already has $count entries, skipping seed');
@@ -235,7 +234,7 @@ class CommunityTable extends DBTable {
       debugPrint('🌱 Converted ${communities.length} configs total');
 
       debugPrint('🌱 Preparing batch insert...');
-      final batch = db.batch();
+      final batch = this.db.batch();
 
       for (final community in communities) {
         batch.insert(
