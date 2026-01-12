@@ -392,6 +392,8 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
+      _state.setWalletConfig(communityConfig);
+
       updateWalletConfigFromRemote();
 
       _state.setWallet(
@@ -545,7 +547,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
-        accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
+        accountFactoryAddress: EthereumAddress.fromHex(
+            communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
