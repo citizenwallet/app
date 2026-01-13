@@ -80,6 +80,13 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     widget.logic.clearInputControllers();
     widget.profilesLogic.clearSearch(notify: false);
 
+    // Defer state updates until after the current frame to avoid widget tree lock
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.logic.clearTipping();
+      widget.logic.updateMessage();
+      widget.logic.updateListenerAmount();
+    });
+
     super.dispose();
   }
 
