@@ -110,8 +110,12 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final walletLogic = widget.walletLogic;
 
-    walletLogic.clearAmountController();
-    walletLogic.resetInputErrorState();
+    // Schedule controller clearing after the current frame to avoid
+    // triggering rebuilds during navigation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      walletLogic.clearAmountController();
+      walletLogic.resetInputErrorState();
+    });
 
     super.dispose();
   }
