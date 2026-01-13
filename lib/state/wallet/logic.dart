@@ -1861,24 +1861,29 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       // Handle tip information if present
-      if (parsedData.tip != null && parsedData.tip!.amount != null) {
-        // Format tip amount based on community decimal support
-        final tipNumValue = double.tryParse(parsedData.tip!.amount!) ?? 0;
-        final decimalDigits = _state.wallet?.decimalDigits ?? 0;
-        String formattedTipAmount;
-        if (decimalDigits == 0) {
-          // No decimal support - use integer format
-          formattedTipAmount = tipNumValue.toInt().toString();
-        } else {
-          // Decimal support - format with appropriate precision
-          formattedTipAmount = tipNumValue
-              .toStringAsFixed(decimalDigits)
-              .replaceAll(RegExp(r'\.?0+$'), '');
+      if (parsedData.tip != null) {
+        String? formattedTipAmount;
+
+        // Format tip amount if provided, based on community decimal support
+        if (parsedData.tip!.amount != null) {
+          final tipNumValue = double.tryParse(parsedData.tip!.amount!) ?? 0;
+          final decimalDigits = _state.wallet?.decimalDigits ?? 0;
+
+          if (decimalDigits == 0) {
+            // No decimal support - use integer format
+            formattedTipAmount = tipNumValue.toInt().toString();
+          } else {
+            // Decimal support - format with appropriate precision
+            formattedTipAmount = tipNumValue
+                .toStringAsFixed(decimalDigits)
+                .replaceAll(RegExp(r'\.?0+$'), '');
+          }
         }
 
+        // Always create tipping state if tip destination is present
         _state.setTipping(
           to: parsedData.tip!.to,
-          amount: formattedTipAmount,
+          amount: formattedTipAmount, // Will be null if not provided
           description: parsedData.tip!.description,
         );
       }
