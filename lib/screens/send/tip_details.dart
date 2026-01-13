@@ -295,7 +295,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       await Future.delayed(const Duration(milliseconds: 50));
 
       if (navigator.canPop()) {
-        navigator.go('/wallet/${walletLogic.account}');
+        navigator.pop(true);
       } else {
         navigator.go('/wallet/${walletLogic.account}');
       }

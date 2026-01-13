@@ -86,7 +86,7 @@ class _SendProgressState extends State<SendProgress> {
 
     final toAccount = tipping.to;
 
-    await navigator.push(
+    final tipSent = await navigator.push<bool?>(
       '/wallet/${widget.walletLogic?.account}/send/$toAccount/tip',
       extra: {
         'walletLogic': widget.walletLogic,
@@ -94,6 +94,12 @@ class _SendProgressState extends State<SendProgress> {
         'isMinting': widget.isMinting,
       },
     );
+
+    // If tip was sent successfully, navigate to wallet home
+    if (tipSent == true && context.mounted) {
+      widget.walletLogic?.clearTipping();
+      handleDone(context);
+    }
   }
 
   @override
