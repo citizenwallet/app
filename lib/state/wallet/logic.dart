@@ -8,6 +8,7 @@ import 'package:citizenwallet/services/cache/contacts.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/config/service.dart';
 import 'package:citizenwallet/services/db/account/db.dart';
+import 'package:citizenwallet/services/db/app/communities.dart';
 import 'package:citizenwallet/services/db/backup/accounts.dart';
 import 'package:citizenwallet/services/db/app/db.dart';
 import 'package:citizenwallet/services/db/account/transactions.dart';
@@ -373,6 +374,7 @@ class WalletLogic extends WidgetsBindingObserver {
 
       await _wallet.init(
         dbWallet.address,
+        dbWallet.accountFactoryAddress,
         dbWallet.privateKey!,
         nativeCurrency,
         communityConfig,
@@ -390,17 +392,9 @@ class WalletLogic extends WidgetsBindingObserver {
 
       ContactsCache().init(_accountDBService);
 
-      _config
-          .isCommunityOnline(
-              communityConfig.chains[token.chainId.toString()]!.node.url)
-          .then((isOnline) {
-        communityConfig.online = isOnline;
+      _state.setWalletConfig(communityConfig);
 
-        _state.setWalletConfig(communityConfig);
-
-        _appDBService.communities
-            .updateOnlineStatus(communityConfig.community.alias, isOnline);
-      });
+      updateWalletConfigFromRemote();
 
       _state.setWallet(
         CWWallet(
@@ -452,8 +446,6 @@ class WalletLogic extends WidgetsBindingObserver {
 
       final credentials = EthPrivateKey.createRandom(Random.secure());
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -486,6 +478,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: 'New ${token.symbol} Account',
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(
+            communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -553,6 +547,8 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: credentials,
         name: name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(
+            communityConfig.community.primaryAccountFactory.address),
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -582,6 +578,7 @@ class WalletLogic extends WidgetsBindingObserver {
         privateKey: dbWallet.privateKey,
         name: name,
         alias: dbWallet.alias,
+        accountFactoryAddress: dbWallet.accountFactoryAddress,
       ));
 
       loadDBWallets();
@@ -1095,12 +1092,37 @@ class WalletLogic extends WidgetsBindingObserver {
       return false;
     }
 
-    final balance = double.tryParse(_state.wallet?.balance ?? '0.0') ?? 0.0;
-    final doubleAmount = double.parse(toUnit(
-      amount.replaceAll(',', '.'),
-      decimals: _wallet.currency.decimals,
-    ).toString());
+    if (amount.isEmpty) {
+      return false;
+    }
 
+    // Handle trailing decimal separator - validate what's before the separator
+    final trimmedAmount = amount.trim();
+    if (trimmedAmount.endsWith(',') || trimmedAmount.endsWith('.')) {
+      // Remove trailing separator and validate the partial amount
+      final withoutTrailing =
+          trimmedAmount.substring(0, trimmedAmount.length - 1);
+      if (withoutTrailing.isEmpty) {
+        // Just "," or "." - treat as empty (not invalid, but also not valid)
+        return false;
+      }
+      // Validate what's before the trailing separator
+      amount = withoutTrailing;
+    }
+
+    // Balance is stored in smallest units, convert to human-readable format for comparison
+    final balanceRaw = _state.wallet?.balance ?? '0.0';
+    final balance = double.parse(fromDoubleUnit(
+      balanceRaw,
+      decimals: _wallet.currency.decimals,
+    ));
+
+    // Parse the amount as a double in human-readable format
+    // Handle both comma and dot as decimal separators
+    final normalizedAmount = amount.replaceAll(',', '.');
+    final doubleAmount = double.tryParse(normalizedAmount) ?? 0.0;
+
+    // If parsing fails or amount is 0 or greater than balance, it's invalid
     return doubleAmount == 0 || doubleAmount > balance;
   }
 
@@ -1703,7 +1725,10 @@ class WalletLogic extends WidgetsBindingObserver {
     _state.setInvalidAddress(true);
   }
 
-  void updateAmount({bool unlimited = false}) {
+  Future<void> updateAmount({bool unlimited = false}) async {
+    // Fetch current balance before validating to ensure we check against the latest balance
+    await updateBalance();
+
     _state.setHasAmount(
       _amountController.text.isNotEmpty,
       isInvalidAmount(_amountController.value.text, unlimited: unlimited),
@@ -2124,6 +2149,66 @@ class WalletLogic extends WidgetsBindingObserver {
     cleanupWalletService();
   }
 
+  Future<void> updateWalletConfigFromRemote() async {
+    try {
+      if (_wallet.alias == null) {
+        return;
+      }
+
+      final community = await _appDBService.communities.get(_wallet.alias!);
+
+      if (community == null) {
+        return;
+      }
+
+      Config communityConfig = Config.fromJson(community.config);
+
+      final remoteConfigUrl = communityConfig.configLocation;
+
+      if (remoteConfigUrl.isEmpty) {
+        return;
+      }
+
+      final remoteConfig = await _config.getRemoteConfig(remoteConfigUrl);
+
+      if (remoteConfig == null) {
+        return;
+      }
+
+      // Update the wallet config with the remote config
+      _state.setWalletConfig(remoteConfig);
+
+      final token = remoteConfig.getPrimaryToken();
+
+      remoteConfig.online = await _config.isCommunityOnline(
+          remoteConfig.chains[token.chainId.toString()]!.node.url);
+
+      _state.setWalletConfig(remoteConfig);
+
+      // Update the database with the new config
+      await _appDBService.communities.upsert(
+        [DBCommunity.fromConfig(remoteConfig)],
+      );
+      debugPrint('Remote config updated');
+
+      // Update wallet properties with the new config
+      if (_state.wallet != null) {
+        final updatedWallet = _state.wallet!.copyWith(
+          currencyName: token.name,
+          symbol: token.symbol,
+          currencyLogo: remoteConfig.community.logo,
+          decimalDigits: token.decimals,
+          plugins: remoteConfig.plugins ?? [],
+        );
+        _state.setWallet(updatedWallet);
+        debugPrint('Wallet properties updated with remote config');
+      }
+    } catch (e, s) {
+      debugPrint('Error updating remote config: $e');
+      debugPrint('Stacktrace: $s');
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
@@ -2136,24 +2221,7 @@ class WalletLogic extends WidgetsBindingObserver {
         }
 
         await updateBalance();
-
-        final community = await _appDBService.communities.get(_wallet.alias!);
-
-        if (community == null) {
-          return;
-        }
-
-        Config communityConfig = Config.fromJson(community.config);
-
-        final token = communityConfig.getPrimaryToken();
-
-        communityConfig.online = await _config.isCommunityOnline(
-            communityConfig.chains[token.chainId.toString()]!.node.url);
-
-        await _appDBService.communities.updateOnlineStatus(
-            communityConfig.community.alias, communityConfig.online);
-
-        _state.setWalletConfig(communityConfig);
+        await updateWalletConfigFromRemote();
 
         break;
       default:

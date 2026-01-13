@@ -458,8 +458,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     final formattedAddress =
         formatHexAddress(walletLogic.addressController.value.text);
 
+    final hasAmountText = walletLogic.amountController.value.text.isNotEmpty;
     final isSendingValid = (hasAddress || isLink) &&
-        hasAmount &&
+        (hasAmount || hasAmountText) &&
         !invalidAmount &&
         (!invalidAddress || isLink) &&
         !(balance <= 0 && topUpPlugin == null);
@@ -492,6 +493,8 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                           const ScrollPhysics(parent: BouncingScrollPhysics()),
                       scrollDirection: Axis.vertical,
                       children: [
+                        // Show profile section if there's a profile or an address to display
+                        // formattedAddress already includes tipTo if available, otherwise falls back to address controller
                         if (selectedProfile != null ||
                             formattedAddress.isNotEmpty) ...[
                           const SizedBox(height: 10),
@@ -527,7 +530,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                         ? formattedAddress
                                         : (selectedProfile.username.isNotEmpty
                                             ? '@${selectedProfile.username}'
-                                            : ''),
+                                            : formattedAddress),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -610,7 +613,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                   ? amountFormatter
                                   : integerAmountFormatter,
                             ],
-                            onChanged: (_) => handleThrottledUpdateAmount(),
+                            onChanged: (_) {
+                              setState(() {});
+                              handleThrottledUpdateAmount();
+                            },
                             onSubmitted: (_) {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },

@@ -13,7 +13,7 @@ PODS:
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
-  - credential_manager (1.0.4):
+  - credential_manager_ios (2.0.5):
     - Flutter
   - DKImagePickerController/Core (4.3.9):
     - DKImagePickerController/ImageDataManager
@@ -178,7 +178,7 @@ PODS:
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
-  - credential_manager (from `.symlinks/plugins/credential_manager/ios`)
+  - credential_manager_ios (from `.symlinks/plugins/credential_manager_ios/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -225,8 +225,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audioplayers_darwin/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  credential_manager:
-    :path: ".symlinks/plugins/credential_manager/ios"
+  credential_manager_ios:
+    :path: ".symlinks/plugins/credential_manager_ios/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   firebase_core:
@@ -267,7 +267,7 @@ SPEC CHECKSUMS:
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
-  credential_manager: feb21034894e469e3686461dc96fb24bb7d350e4
+  credential_manager_ios: fd1d96ef11fa3d76f868f038342de171c3bc2b28
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: be9a674155d9f334323856cb266e0d145d75d5c0

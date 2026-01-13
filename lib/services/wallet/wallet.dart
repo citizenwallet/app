@@ -78,6 +78,8 @@ class WalletService {
   late EthPrivateKey
       _credentials; // Represents a private key for an Ethereum account.
   late EthereumAddress _account; // Represents an Ethereum address.
+  late EthereumAddress _accountFactoryAddress;
+
   late SigAuthService _sigAuth;
 
   late StackupEntryPoint
@@ -100,6 +102,7 @@ class WalletService {
   EthPrivateKey get credentials => _credentials;
   EthereumAddress get address => _credentials.address;
   EthereumAddress get account => _account;
+  EthereumAddress get accountFactoryAddress => _accountFactoryAddress;
 
   /// retrieves the current balance of the address
   Future<String> getBalance({String? addr, BigInt? tokenId}) async {
@@ -154,6 +157,7 @@ class WalletService {
 
   Future<void> init(
     EthereumAddress account,
+    EthereumAddress accountFactoryAddress,
     EthPrivateKey privateKey,
     NativeCurrency currency,
     Config config, {
@@ -161,16 +165,19 @@ class WalletService {
     void Function(bool)? onFinished,
   }) async {
     _alias = config.community.alias;
+    _accountFactoryAddress = accountFactoryAddress;
 
     final token = config.getPrimaryToken();
-    final accountAbstractionConfig =
-        config.getPrimaryAccountAbstractionConfig();
+
+    final accountAbstractionConfig = config.getAccountAbstractionConfig(
+        accountFactoryAddress: accountFactoryAddress.hexEip55);
+
     final chain = config.chains[token.chainId.toString()];
 
     _url = chain!.node.url;
     _wsurl = chain.node.wsUrl;
 
-    final rpcUrl = config.getRpcUrl(token.chainId.toString());
+    final rpcUrl = config.getRpcUrl(chainId: token.chainId.toString(), accountFactoryAddress: accountFactoryAddress.hexEip55);
 
     _ethClient = Web3Client(
       rpcUrl,

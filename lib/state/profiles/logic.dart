@@ -232,6 +232,7 @@ class ProfilesLogic extends WidgetsBindingObserver {
             DBAccount(
               alias: account.alias,
               address: account.address,
+              accountFactoryAddress: account.accountFactoryAddress,
               name: updatedProfile.name,
               username: updatedProfile.username,
               profile: updatedProfile,

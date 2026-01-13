@@ -161,6 +161,19 @@
                 "action": "topup",
                 "signature": true,
                 "featured": true
+            },
+            {
+              "name": "Offboard",
+              "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
+              "url": "https://my.citizenpay.xyz/cw-migrate",
+              "launch_mode": "webview",
+              "signature": true,
+              "action": "offboard",
+              "meta": {
+                "title": "Migrate to Citizen Pay",
+                "desc": "This community has moved. Migrate your balance over to the Citizen Pay App.",
+                "button": "Start Migration"
+              }
             }
         ],
         "config_location": "https://wallet.pay.brussels/config/community.json",
