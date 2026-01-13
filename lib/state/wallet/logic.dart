@@ -1820,15 +1820,21 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       if (parsedData.amount != null) {
-        if (format == QRFormat.eip681Transfer) {
-          final amount = fromDoubleUnit(
-            parsedData.amount!,
-            decimals: _wallet.currency.decimals,
-          );
-          _amountController.text = amount;
+        // Parse amount value
+        final numValue = double.tryParse(parsedData.amount!) ?? 0;
+
+        // Format amount based on community decimal support
+        final decimalDigits = _state.wallet?.decimalDigits ?? 0;
+        if (decimalDigits == 0) {
+          // No decimal support - use integer format
+          _amountController.text = numValue.toInt().toString();
         } else {
-          _amountController.text = parsedData.amount!;
+          // Decimal support - format with appropriate precision
+          _amountController.text = numValue
+              .toStringAsFixed(decimalDigits)
+              .replaceAll(RegExp(r'\.?0+$'), '');
         }
+
         updateAmount();
       }
 
@@ -1855,10 +1861,24 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       // Handle tip information if present
-      if (parsedData.tip != null) {
+      if (parsedData.tip != null && parsedData.tip!.amount != null) {
+        // Format tip amount based on community decimal support
+        final tipNumValue = double.tryParse(parsedData.tip!.amount!) ?? 0;
+        final decimalDigits = _state.wallet?.decimalDigits ?? 0;
+        String formattedTipAmount;
+        if (decimalDigits == 0) {
+          // No decimal support - use integer format
+          formattedTipAmount = tipNumValue.toInt().toString();
+        } else {
+          // Decimal support - format with appropriate precision
+          formattedTipAmount = tipNumValue
+              .toStringAsFixed(decimalDigits)
+              .replaceAll(RegExp(r'\.?0+$'), '');
+        }
+
         _state.setTipping(
           to: parsedData.tip!.to,
-          amount: parsedData.tip!.amount,
+          amount: formattedTipAmount,
           description: parsedData.tip!.description,
         );
       }
