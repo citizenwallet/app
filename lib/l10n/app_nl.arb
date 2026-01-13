@@ -206,5 +206,6 @@
   "close": "Sluiten",
   "start": "Start",
   "connecting": "Verbinding maken",
-  "accountNotFound": "Account niet gevonden"
+  "accountNotFound": "Account niet gevonden",
+  "sendTip": "Fooi versturen"
 }

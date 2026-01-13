@@ -1349,6 +1349,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Learn More'**
   String get learnMore;
+
+  /// No description provided for @sendTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Tip'**
+  String get sendTip;
 }
 
 class _AppLocalizationsDelegate

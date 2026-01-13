@@ -680,4 +680,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get learnMore => 'Más información';
+
+  @override
+  String get sendTip => 'Enviar propina';
 }

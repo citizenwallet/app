@@ -683,4 +683,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get learnMore => 'Meer informatie';
+
+  @override
+  String get sendTip => 'Fooi versturen';
 }

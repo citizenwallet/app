@@ -144,6 +144,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = widget.receiveParams;
       _deepLink = widget.deepLink;
       _deepLinkParams = widget.deepLinkParams;
+      _sendToURL = widget.sendToURL;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
@@ -587,7 +588,7 @@ class WalletScreenState extends State<WalletScreen>
     });
 
     if (result != true && sendToURL != null) {
-      _logic.clearTipTo();
+      _logic.clearTipping();
       _sendToURL = null;
     }
 

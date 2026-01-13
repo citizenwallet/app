@@ -681,4 +681,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get learnMore => 'En savoir plus';
+
+  @override
+  String get sendTip => 'Envoyer un pourboire';
 }

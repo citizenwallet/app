@@ -207,5 +207,6 @@
   "more": "More",
   "start": "Start",
   "connecting": "Connecting",
-  "accountNotFound": "Account not found"
+  "accountNotFound": "Account not found",
+  "sendTip": "Send Tip"
 }

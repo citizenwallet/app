@@ -207,5 +207,6 @@
   "more": "Más",
   "start": "Iniciar",
   "connecting": "Conectando",
-  "accountNotFound": "Cuenta no encontrada"
+  "accountNotFound": "Cuenta no encontrada",
+  "sendTip": "Enviar propina"
 }

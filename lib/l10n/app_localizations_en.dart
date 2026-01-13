@@ -676,4 +676,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get learnMore => 'Learn More';
+
+  @override
+  String get sendTip => 'Send Tip';
 }
