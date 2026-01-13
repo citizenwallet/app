@@ -1665,16 +1665,20 @@ class WalletLogic extends WidgetsBindingObserver {
     _amountController.clear();
   }
 
-  void clearTipTo() {
-    _state.clearTipTo();
+  void setTipping({
+    required String to,
+    String? amount,
+    String? description,
+  }) {
+    _state.setTipping(
+      to: to,
+      amount: amount,
+      description: description,
+    );
   }
 
-  void setTipTo(String? tipTo) {
-    _state.setTipTo(tipTo);
-  }
-
-  void setHasTip(bool value) {
-    _state.setHasTip(value);
+  void clearTipping() {
+    _state.clearTipping();
   }
 
   void setHasAddress(bool value) {
@@ -1827,8 +1831,11 @@ class WalletLogic extends WidgetsBindingObserver {
 
       // Handle tip information if present
       if (parsedData.tip != null) {
-        _state.setTipTo(parsedData.tip!.to);
-        _state.setHasTip(true);
+        _state.setTipping(
+          to: parsedData.tip!.to,
+          amount: parsedData.tip!.amount,
+          description: parsedData.tip!.description,
+        );
       }
 
       return addressToUse;
@@ -1894,9 +1901,9 @@ class WalletLogic extends WidgetsBindingObserver {
       }
 
       // Add tipTo parameter if it exists in the state
-      final tipTo = _state.tipTo;
-      if (tipTo != null && tipTo.isNotEmpty) {
-        params += '&tipTo=$tipTo';
+      final tipping = _state.tipping;
+      if (tipping != null && tipping.to.isNotEmpty) {
+        params += '&tipTo=${tipping.to}';
       }
 
       // Check if URL already has query parameters in the fragment

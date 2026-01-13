@@ -332,7 +332,6 @@ GoRouter createRouter(
                   walletLogic: extra['walletLogic'],
                   profilesLogic: extra['profilesLogic'],
                   isMinting: extra['isMinting'] ?? false,
-                  sendTransaction: extra['sendTransaction'],
                 );
               },
             ),
@@ -363,7 +362,6 @@ GoRouter createRouter(
                   to: state.pathParameters['to'],
                   isMinting: extra?['isMinting'] ?? false,
                   profilesLogic: extra?['profilesLogic'],
-                  sendTransaction: extra?['sendTransaction'],
                   walletLogic: extra?['walletLogic'],
                 );
               },

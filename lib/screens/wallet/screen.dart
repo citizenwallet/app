@@ -586,8 +586,7 @@ class WalletScreenState extends State<WalletScreen>
     });
 
     if (result != true && sendToURL != null) {
-      // TODO: check clear tipping
-      _logic.clearTipTo();
+      _logic.clearTipping();
       _sendToURL = null;
     }
 
@@ -1125,7 +1124,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      
+
       if (voucher != null && voucherParams != null) {
         _sendToURL = null;
       } else {

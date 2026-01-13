@@ -1,5 +1,4 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -29,7 +28,6 @@ class TipDetailsScreen extends StatefulWidget {
   final WalletLogic walletLogic;
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
-  final SendTransaction? sendTransaction;
 
   final bool isMinting;
   final bool isLink;
@@ -39,7 +37,6 @@ class TipDetailsScreen extends StatefulWidget {
     required this.walletLogic,
     required this.profilesLogic,
     this.voucherLogic,
-    this.sendTransaction,
     this.isMinting = false,
     this.isLink = false,
   });
@@ -60,12 +57,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
   late void Function() debouncedAmountUpdate;
 
   bool _isSending = false;
-  late SendTransaction _sendTransaction;
 
   @override
   void initState() {
     super.initState();
-    _sendTransaction = widget.sendTransaction ?? SendTransaction();
 
     // Clear amount controller when tip screen initializes
     // to ensure hasAmount state is reset
@@ -73,10 +68,25 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final walletLogic = widget.walletLogic;
-      final tipTo = context.read<WalletState>().tipTo;
+      final tipping = context.read<WalletState>().tipping;
 
-      if (tipTo != null) {
-        widget.profilesLogic.getProfile(tipTo).then((profile) {
+      if (tipping != null) {
+        // Set address state
+        walletLogic.setHasAddress(true);
+
+        // Pre-fill amount and description if provided
+        if (tipping.amount != null) {
+          walletLogic.amountController.text = tipping.amount!;
+        }
+        if (tipping.description != null) {
+          walletLogic.messageController.text = tipping.description!;
+        }
+
+        // Update amount after setting text
+        walletLogic.updateAmount(unlimited: widget.isMinting);
+
+        // Load profile for tip recipient
+        widget.profilesLogic.getProfile(tipping.to).then((profile) {
           if (profile != null) {
             widget.profilesLogic.selectProfile(profile);
           }
@@ -90,18 +100,6 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
         const Duration(milliseconds: 500),
       );
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final tipTo = context.read<WalletState>().tipTo;
-    if (tipTo != null) {
-      widget.walletLogic.setHasTip(true);
-      widget.walletLogic.setHasAddress(true);
-      // Reset amount state since tip screen starts with empty amount
-      widget.walletLogic.updateAmount(unlimited: widget.isMinting);
-    }
   }
 
   @override
@@ -225,15 +223,14 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
     }
   }
 
-  void handleSend(
-      BuildContext context, String? selectedAddress, String? tipTo) async {
+  void handleSend(BuildContext context, String? selectedAddress) async {
     if (_isSending) {
       return;
     }
 
     final walletLogic = widget.walletLogic;
 
-    if (tipTo == null) {
+    if (selectedAddress == null) {
       return;
     }
 
@@ -249,7 +246,7 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final isValid = walletLogic.validateSendFields(
       walletLogic.amountController.value.text,
-      selectedAddress ?? walletLogic.addressController.value.text,
+      selectedAddress,
     );
 
     if (!isValid) {
@@ -259,41 +256,30 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
       return;
     }
 
-    final toAccount =
-        selectedAddress ?? walletLogic.addressController.value.text;
-
-    final sendTip = SendTransaction(
-      tipAmount: walletLogic.amountController.value.text,
-      tipTo: tipTo,
-      tipDescription: walletLogic.messageController.value.text.trim(),
-    );
-
     try {
       walletLogic.sendTransaction(
-        sendTip.tipAmount!,
-        sendTip.tipTo!,
-        message: sendTip.tipDescription!,
+        walletLogic.amountController.value.text,
+        selectedAddress,
+        message: walletLogic.messageController.value.text.trim(),
       );
     } catch (e, stackTrace) {
-      print('error: $e');
-      print('stack: $stackTrace');
+      debugPrint('error: $e');
+      debugPrint('stack: $stackTrace');
     }
 
-    widget.walletLogic.setHasTip(false);
+    widget.walletLogic.clearTipping();
     widget.walletLogic.setHasAddress(false);
-    widget.walletLogic.setTipTo(null);
 
     await Future.delayed(const Duration(milliseconds: 50));
 
     HapticFeedback.heavyImpact();
 
     final sent = await navigator.push<bool?>(
-        '/wallet/${walletLogic.account}/send/$toAccount/progress',
+        '/wallet/${walletLogic.account}/send/$selectedAddress/progress',
         extra: {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
           'profilesLogic': widget.profilesLogic,
-          'sendTransaction': sendTip,
         });
 
     if (sent == true) {
@@ -414,10 +400,6 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
 
     final wallet = context.select(
       (WalletState state) => state.wallet,
-    );
-
-    final tipTo = context.select(
-      (WalletState state) => state.tipTo,
     );
 
     final balance =
@@ -827,7 +809,6 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                                     selectedProfile?.account ??
                                                         searchedProfile
                                                             ?.account,
-                                                    tipTo,
                                                   )
                                       : null,
                                   enabled: isSendingValid,
@@ -836,8 +817,10 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                       ? AppLocalizations.of(context)!
                                           .swipeToMint
                                       : isLink
-                                          ? "${AppLocalizations.of(context)!.swipeToConfirm} Tip"
-                                          : "${AppLocalizations.of(context)!.swipeToSend} Tip",
+                                          ? AppLocalizations.of(context)!
+                                              .swipeToConfirm
+                                          : AppLocalizations.of(context)!
+                                              .swipeToSend,
                                   completionLabelColor: Theme.of(context)
                                       .colors
                                       .primary
