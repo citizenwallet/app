@@ -89,6 +89,9 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
         widget.profilesLogic.getProfile(tipping.to).then((profile) {
           if (profile != null) {
             widget.profilesLogic.selectProfile(profile);
+          } else {
+            // If no profile found, set the raw address so handleSend can use it
+            walletLogic.addressController.text = tipping.to;
           }
         });
       }
@@ -818,7 +821,11 @@ class _TipDetailsScreenState extends State<TipDetailsScreen> {
                                                     context,
                                                     selectedProfile?.account ??
                                                         searchedProfile
-                                                            ?.account,
+                                                            ?.account ??
+                                                        walletLogic
+                                                            .addressController
+                                                            .value
+                                                            .text,
                                                   )
                                       : null,
                                   enabled: isSendingValid,
