@@ -87,6 +87,7 @@ class WalletScreenState extends State<WalletScreen>
   String? _sendToURL;
   Config? _config;
   bool _isClosedBannerDismissed = false;
+  int _bannerResetKey = 0;
 
   @override
   void initState() {
@@ -149,6 +150,20 @@ class WalletScreenState extends State<WalletScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
       });
+    }
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _logic.updateWalletConfigFromRemote();
+        setState(() {
+          _isClosedBannerDismissed = false;
+          _bannerResetKey++;
+        });
+        break;
+      default:
     }
   }
 
@@ -374,6 +389,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
 
     navigator.go('/wallet/$_address');
   }
@@ -595,6 +615,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleReceive() async {
@@ -602,9 +627,15 @@ class WalletScreenState extends State<WalletScreen>
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/$_address/receive', extra: {
+    await navigator.push('/wallet/$_address/receive', extra: {
       'logic': _logic,
       'profilesLogic': _profilesLogic,
+    });
+
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
     });
   }
 
@@ -700,6 +731,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   Future<void> handleMint({String? receiveParams}) async {
@@ -721,6 +757,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleVouchers() async {
@@ -742,6 +783,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleCopy(String value) {
@@ -768,6 +814,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleLoad(String address) async {
@@ -785,6 +836,11 @@ class WalletScreenState extends State<WalletScreen>
 
     if (args == null) {
       _logic.resumeFetching();
+      _logic.updateWalletConfigFromRemote();
+      setState(() {
+        _isClosedBannerDismissed = false;
+        _bannerResetKey++;
+      });
       return;
     }
 
@@ -792,6 +848,11 @@ class WalletScreenState extends State<WalletScreen>
 
     if (address == _address && alias == _alias) {
       _logic.resumeFetching();
+      _logic.updateWalletConfigFromRemote();
+      setState(() {
+        _isClosedBannerDismissed = false;
+        _bannerResetKey++;
+      });
       return;
     }
 
@@ -1201,13 +1262,14 @@ class WalletScreenState extends State<WalletScreen>
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
-    final isCommunityClosed = eventServiceState == EventServiceState.closed;
+    final config = context.select((WalletState state) => state.config);
+    final isCommunityClosed = eventServiceState == EventServiceState.closed ||
+        (config?.community.closed ?? false);
     final offboardPlugin = context.select(
       (WalletState state) => state.config!.getOffboardPlugin(),
     );
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final config = context.select((WalletState state) => state.config);
     final hasActiveSessions =
         context.select((WalletConnectState state) => state.hasActiveSessions);
 
@@ -1401,19 +1463,19 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
-            if (isCommunityClosed)
-              CommunityClosedBanner(
-                handleOffboardPlugin: offboardPlugin != null
-                    ? () => handlePlugin(offboardPlugin)
-                    : null,
-                onDismiss: () {
-                  setState(() {
-                    _isClosedBannerDismissed = true;
-                  });
-                },
-                display: isCommunityClosed,
-                offboardPlugin: offboardPlugin,
-              ),
+            CommunityClosedBanner(
+              key: ValueKey('community_closed_banner_$_bannerResetKey'),
+              handleOffboardPlugin: offboardPlugin != null
+                  ? () => handlePlugin(offboardPlugin)
+                  : null,
+              onDismiss: () {
+                setState(() {
+                  _isClosedBannerDismissed = true;
+                });
+              },
+              display: isCommunityClosed && !_isClosedBannerDismissed,
+              offboardPlugin: offboardPlugin,
+            ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',
               display: isOffline,
