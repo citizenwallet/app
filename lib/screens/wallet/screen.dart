@@ -153,6 +153,20 @@ class WalletScreenState extends State<WalletScreen>
     }
   }
 
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _logic.updateWalletConfigFromRemote();
+        setState(() {
+          _isClosedBannerDismissed = false;
+          _bannerResetKey++;
+        });
+        break;
+      default:
+    }
+  }
+
   void onScrollUpdate() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 300) {
