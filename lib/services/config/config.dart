@@ -62,6 +62,7 @@ class CommunityConfig {
   final String logo;
   final String? customDomain;
   final bool hidden;
+  final bool closed;
   final ColorTheme theme;
   final ContractLocation profile;
   final ContractLocation primaryToken;
@@ -76,6 +77,7 @@ class CommunityConfig {
     required this.logo,
     this.customDomain,
     this.hidden = false,
+    this.closed = false,
     required this.theme,
     required this.profile,
     required this.primaryToken,
@@ -96,6 +98,7 @@ class CommunityConfig {
       logo: json['logo'] ?? '',
       customDomain: json['custom_domain'],
       hidden: json['hidden'] ?? false,
+      closed: json['closed'] ?? false,
       theme: theme,
       profile: ContractLocation.fromJson(json['profile']),
       primaryToken: ContractLocation.fromJson(json['primary_token']),
@@ -117,6 +120,7 @@ class CommunityConfig {
       'logo': logo,
       'custom_domain': customDomain,
       'hidden': hidden,
+      'closed': closed,
       'theme': theme,
       'profile': profile.toJson(),
       'primary_token': primaryToken.toJson(),
