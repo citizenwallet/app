@@ -1263,8 +1263,7 @@ class WalletScreenState extends State<WalletScreen>
         eventServiceState == EventServiceState.connecting;
 
     final config = context.select((WalletState state) => state.config);
-    final isCommunityClosed = eventServiceState == EventServiceState.closed ||
-        (config?.community.closed ?? false);
+    final isCommunityClosed = (config?.community.closed ?? false);
     final offboardPlugin = context.select(
       (WalletState state) => state.config!.getOffboardPlugin(),
     );
