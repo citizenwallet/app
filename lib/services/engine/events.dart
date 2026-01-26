@@ -90,25 +90,9 @@ class EventService {
         onDone: _onDone,
       );
     } catch (e) {
-      // Check if this is a WebSocketException with 404 status
-      if (e is WebSocketException) {
-        final fullError = e.toString();
-
-        // Check if the full error string contains "404"
-        if (fullError.contains('404')) {
-          // Don't reconnect on 404 - the endpoint doesn't exist
-          _isConnected = false;
-          _onStateChange(EventServiceState.closed);
-          return;
-        }
-      }
-
-      // Handle other connection errors
       print('Connection error: $e');
-      print('Error type: ${e.runtimeType}');
       _isConnected = false;
       _onStateChange(EventServiceState.error);
-
       Duration delay = Duration(seconds: _reconnectDelay.inSeconds);
       if (reconnectDelay != null && reconnectDelay >= _reconnectMaxSeconds) {
         delay = Duration(seconds: reconnectDelay.inSeconds);
