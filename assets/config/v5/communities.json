@@ -148,16 +148,17 @@
         "signature": true
       },
       {
-        "name": "Offboard",
+        "name": "Migrate to Citizen Pay",
         "icon": "https://assets.citizenwallet.xyz/wallet-config/_images/wallet.pay.brussels.png",
-        "url": "https://my.citizenpay.xyz/cw-migrate",
+        "url": "https://checkout.citizenpay.xyz/cw-cp-migration",
         "launch_mode": "webview",
         "signature": true,
+        "hidden": true,
         "action": "offboard",
         "meta": {
-          "title": "Migrate to Citizen Pay",
-          "desc": "This community has moved. Migrate your balance over to the Citizen Pay App.",
-          "button": "Start Migration"
+          "title": "Brussels Pay is moving",
+          "desc": "In order to focus our support efforts we are moving to Citizen Pay. It is a very simple migration process, you will just send your tokens to your new Citizen Pay account. More information on the next page.",
+          "button": "Let's go"
         }
       }
     ],
@@ -195,6 +196,7 @@
         "primary": "#4a90e2"
       },
       "hidden": false,
+      "closed": true,
       "profile": {
         "address": "0x56Cc38bDa01bE6eC6D854513C995f6621Ee71229",
         "chain_id": 100
