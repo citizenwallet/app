@@ -148,6 +148,7 @@ flutter:
     - assets/lottie/wallet_receive.json
     - assets/lottie/qr_scan_success.json
     - assets/lottie/piggie_bank.json
+
     - packages/smartcontracts/contracts/accounts/Account.abi.json
     - packages/smartcontracts/contracts/accounts/AccountFactory.abi.json
     - packages/smartcontracts/contracts/external/DERC20.abi.json
@@ -160,6 +161,19 @@ flutter:
     - packages/smartcontracts/contracts/standards/ERC1155.abi.json
     - packages/smartcontracts/contracts/apps/Profile.abi.json
     - packages/smartcontracts/contracts/external/CardFactory.abi.json
+
+    - assets/contracts/accounts/Account.abi.json
+    - assets/contracts/accounts/AccountFactory.abi.json
+    - assets/contracts/accounts/TokenEntryPoint.abi.json
+    - assets/contracts/apps/Profile.abi.json
+    - assets/contracts/apps/SimpleFaucet.abi.json
+    - assets/contracts/external/CardFactory.abi.json
+    - assets/contracts/external/DERC20.abi.json
+    - assets/contracts/external/SimpleAccountFactory.abi.json
+    - assets/contracts/standards/ERC20.abi.json
+    - assets/contracts/standards/ERC1155.abi.json
+    - assets/contracts/standards/IAccessControlUpgradeable.abi.json
+
     - packages/contractforge/abi/CardManagerModule.json
     - packages/contractforge/abi/Safe.json
     - packages/contractforge/abi/CommunityModule.json
