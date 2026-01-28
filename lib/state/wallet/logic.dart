@@ -28,6 +28,7 @@ import 'package:citizenwallet/state/notifications/logic.dart';
 import 'package:citizenwallet/state/theme/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/utils/delay.dart';
+import 'package:citizenwallet/utils/platform.dart';
 import 'package:citizenwallet/utils/qr.dart';
 import 'package:citizenwallet/utils/random.dart';
 import 'package:citizenwallet/utils/uint8.dart';
@@ -2086,17 +2087,47 @@ class WalletLogic extends WidgetsBindingObserver {
       final encodedRedirectUrl = Uri.encodeComponent(redirectUrl);
 
       final parsedURL = Uri.parse(appUniversalURL);
+      
+      // Determine platform value
+      final platformValue = isPlatformAndroid() ? 'android' : 'ios';
+
+      // Parse the plugin URL
+      final pluginUri = Uri.parse(pluginConfig.url);
 
       if (pluginConfig.signature) {
+        // Parse existing connection query params
+        final connectionParams = Uri(query: connection.queryParams).queryParameters;
+        
+        // Merge with platform parameter
+        final updatedUri = pluginUri.replace(
+          queryParameters: {
+            ...pluginUri.queryParameters,
+            ...connectionParams,
+            'platform': platformValue,
+          },
+        );
+        
         return (
-          '${pluginConfig.url}${pluginConfig.url.contains('?') ? '&' : '?'}${connection.queryParams}',
+          updatedUri.toString(),
           parsedURL.scheme != 'https' ? parsedURL.scheme : null,
           redirectUrl,
         );
       }
 
+      // For non-signature case, add all parameters including platform
+      final updatedUri = pluginUri.replace(
+        queryParameters: {
+          ...pluginUri.queryParameters,
+          'account': _wallet.account.hexEip55,
+          'expiry': now.millisecondsSinceEpoch.toString(),
+          'redirectUrl': encodedRedirectUrl,
+          'signature': '0x123',
+          'platform': platformValue,
+        },
+      );
+
       return (
-        '${pluginConfig.url}?account=${_wallet.account.hexEip55}&expiry=${now.millisecondsSinceEpoch}&redirectUrl=$encodedRedirectUrl&signature=0x123',
+        updatedUri.toString(),
         parsedURL.scheme != 'https' ? parsedURL.scheme : null,
         redirectUrl,
       );
