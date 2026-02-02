@@ -651,6 +651,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityCurrentlyOffline => 'Community currently offline';
 
   @override
+  String get communityClosed => 'This community is currently closed';
+
+  @override
+  String get communityClosedDescription =>
+      'This community is not accepting transactions at this time. Contact the community administrator for more information.';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
   String get topup => 'Top Up';
 
   @override
@@ -667,4 +677,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Account not found';
+
+  @override
+  String get sendTip => 'Send Tip';
 }

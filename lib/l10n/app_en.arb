@@ -199,10 +199,14 @@
   "emptyBalanceText2": "Redeem this voucher to your account.",
   "tapToScan": "Tap to scan",
   "communityCurrentlyOffline": "Community currently offline",
+  "communityClosed": "This community is currently closed",
+  "communityClosedDescription": "This community is not accepting transactions at this time. Contact the community administrator for more information.",
+  "learnMore": "Learn More",
   "topup": "Top Up",
   "close": "Close",
   "more": "More",
   "start": "Start",
   "connecting": "Connecting",
-  "accountNotFound": "Account not found"
+  "accountNotFound": "Account not found",
+  "sendTip": "Send Tip"
 }

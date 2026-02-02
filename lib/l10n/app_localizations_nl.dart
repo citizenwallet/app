@@ -658,6 +658,16 @@ class AppLocalizationsNl extends AppLocalizations {
   String get communityCurrentlyOffline => 'Gemeenschap momenteel offline';
 
   @override
+  String get communityClosed => 'Deze gemeenschap is momenteel gesloten';
+
+  @override
+  String get communityClosedDescription =>
+      'Deze gemeenschap accepteert momenteel geen transacties. Neem contact op met de gemeenschapsbeheerder voor meer informatie.';
+
+  @override
+  String get learnMore => 'Meer informatie';
+
+  @override
   String get topup => 'Opwaarderen';
 
   @override
@@ -674,4 +684,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get accountNotFound => 'Account niet gevonden';
+
+  @override
+  String get sendTip => 'Fooi versturen';
 }

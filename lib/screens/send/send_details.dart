@@ -1,5 +1,4 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -230,17 +229,13 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
 
     final toAccount =
         selectedAddress ?? walletLogic.addressController.value.text;
-
-    final sendTransaction = SendTransaction(
-      amount: walletLogic.amountController.value.text,
-      to: toAccount,
-      description: walletLogic.messageController.value.text.trim(),
-    );
+    final amount = walletLogic.amountController.value.text;
+    final description = walletLogic.messageController.value.text.trim();
 
     walletLogic.sendTransaction(
-      sendTransaction.amount!,
-      sendTransaction.to!,
-      message: sendTransaction.description!,
+      amount,
+      toAccount,
+      message: description,
     );
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -253,7 +248,6 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
           'isMinting': widget.isMinting,
           'walletLogic': walletLogic,
           'profilesLogic': widget.profilesLogic,
-          'sendTransaction': sendTransaction,
         });
 
     walletLogic.clearInProgressTransaction();
@@ -429,8 +423,9 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
     final formattedAddress =
         formatHexAddress(walletLogic.addressController.value.text);
 
+    final hasAmountText = walletLogic.amountController.value.text.isNotEmpty;
     final isSendingValid = (hasAddress || isLink) &&
-        hasAmount &&
+        (hasAmount || hasAmountText) &&
         !invalidAmount &&
         (!invalidAddress || isLink) &&
         !(!widget.isMinting && balance <= 0 && topUpPlugin == null);
@@ -581,7 +576,10 @@ class _SendDetailsScreenState extends State<SendDetailsScreen> {
                                   ? amountFormatter
                                   : integerAmountFormatter,
                             ],
-                            onChanged: (_) => handleThrottledUpdateAmount(),
+                            onChanged: (_) {
+                              setState(() {});
+                              handleThrottledUpdateAmount();
+                            },
                             onSubmitted: (_) {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },

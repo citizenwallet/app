@@ -1,5 +1,4 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/services/wallet/contracts/profile.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -34,7 +33,6 @@ class SendToScreen extends StatefulWidget {
   final ProfilesLogic profilesLogic;
   final VoucherLogic? voucherLogic;
   final String? sendToURL;
-  final SendTransaction? sendTransaction;
 
   final bool isMinting;
 
@@ -45,7 +43,6 @@ class SendToScreen extends StatefulWidget {
     this.voucherLogic,
     this.isMinting = false,
     this.sendToURL,
-    this.sendTransaction,
   });
 
   @override
@@ -57,7 +54,6 @@ class _SendToScreenState extends State<SendToScreen> {
   final ScanLogic _scanLogic = ScanLogic();
   String? _currentSendToURL;
   final _scrollController = ScrollController();
-  // late SendTransaction _sendTransaction;
 
   late void Function() debouncedAddressUpdate;
 

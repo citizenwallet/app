@@ -167,10 +167,12 @@ class ProfileContract {
     rcontract = DeployedContract(cabi, EthereumAddress.fromHex(addr));
   }
 
+// TODO: await return
   Future<String> getURL(String addr) async {
     return contract.get(EthereumAddress.fromHex(addr));
   }
 
+// TODO: await return
   Future<String> getURLFromUsername(String username) async {
     return contract.getFromUsername(
         convertStringToUint8List(username, forcePadLength: 32));

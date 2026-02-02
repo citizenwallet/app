@@ -1296,6 +1296,24 @@ abstract class AppLocalizations {
   /// **'Community currently offline'**
   String get communityCurrentlyOffline;
 
+  /// No description provided for @communityClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This community is currently closed'**
+  String get communityClosed;
+
+  /// No description provided for @communityClosedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This community is not accepting transactions at this time. Contact the community administrator for more information.'**
+  String get communityClosedDescription;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
+
   /// No description provided for @topup.
   ///
   /// In en, this message translates to:
@@ -1331,6 +1349,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account not found'**
   String get accountNotFound;
+
+  /// No description provided for @sendTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Tip'**
+  String get sendTip;
 }
 
 class _AppLocalizationsDelegate

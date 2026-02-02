@@ -133,7 +133,6 @@ ParsedQRData parseSendtoUrl(String raw) {
   }
 
   // Handle malformed query strings (convert ? to & after the first one)
-  // e.g., "alias=...?sendto=..." becomes "alias=...&sendto=..."
   if (queryString.contains('?')) {
     final firstQuestionMark = queryString.indexOf('?');
     queryString = queryString.substring(0, firstQuestionMark) +
@@ -148,24 +147,54 @@ ParsedQRData parseSendtoUrl(String raw) {
     uriData = parsedUri;
   }
 
-  final sendToParam = uriData.queryParameters['sendto'];
-  final amountParam = uriData.queryParameters['amount'];
-  final descriptionParam = uriData.queryParameters['description'];
+  // Use 'var' so we can update them if hidden params are found
+  var sendToParam = uriData.queryParameters['sendto'];
+  var amountParam = uriData.queryParameters['amount'];
+  var descriptionParam = uriData.queryParameters['description'];
 
-  final tipToParam = uriData.queryParameters['tipTo'];
-  final tipAmountParam = uriData.queryParameters['tipAmount'];
-  final tipDescriptionParam = uriData.queryParameters['tipDescription'];
+  var tipToParam = uriData.queryParameters['tipTo'];
+  var tipAmountParam = uriData.queryParameters['tipAmount'];
+  var tipDescriptionParam = uriData.queryParameters['tipDescription'];
+
+  // 1. Handle encoded params inside sendto
+  if (sendToParam != null && sendToParam.contains('&')) {
+    final firstAmpIndex = sendToParam.indexOf('&');
+    final realSendTo = sendToParam.substring(0, firstAmpIndex);
+    final hiddenParamsString = sendToParam.substring(firstAmpIndex + 1);
+
+    sendToParam = realSendTo;
+
+    final hiddenParams = Uri.splitQueryString(hiddenParamsString);
+    amountParam ??= hiddenParams['amount'];
+    descriptionParam ??= hiddenParams['description'];
+  }
+
+  // 2. Handle encoded params inside tipTo (NEW LOGIC)
+  if (tipToParam != null && tipToParam.contains('&')) {
+    final firstAmpIndex = tipToParam.indexOf('&');
+    final realTipTo = tipToParam.substring(0, firstAmpIndex);
+    final hiddenParamsString = tipToParam.substring(firstAmpIndex + 1);
+
+    // Clean the tipTo param
+    tipToParam = realTipTo;
+
+    // Parse the hidden string
+    final hiddenTipParams = Uri.splitQueryString(hiddenParamsString);
+
+    // Populate tipAmount and tipDescription if they are null
+    tipAmountParam ??= hiddenTipParams['tipAmount'];
+    tipDescriptionParam ??= hiddenTipParams['tipDescription'];
+  }
 
   if (sendToParam == null) {
     return ParsedQRData(address: '');
   }
 
   final address = sendToParam.split('@').first;
-  // Extract alias from sendto parameter (after @) as fallback
-  final aliasFromSendto = sendToParam.contains('@') 
-      ? sendToParam.split('@').last 
-      : null;
-  // Use explicit alias parameter if present, otherwise fallback to alias from sendto
+
+  final aliasFromSendto =
+      sendToParam.contains('@') ? sendToParam.split('@').last : null;
+
   final alias = uriData.queryParameters['alias'] ?? aliasFromSendto;
 
   final tip = tipToParam != null

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show WebSocket;
+import 'dart:io' show WebSocket, WebSocketException;
 
 import 'package:citizenwallet/utils/delay.dart';
 
@@ -9,6 +9,7 @@ enum EventServiceState {
   connecting,
   connected,
   error,
+  closed,
 }
 
 class WebSocketEvent {

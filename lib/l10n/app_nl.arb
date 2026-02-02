@@ -198,10 +198,14 @@
   "emptyBalanceText2": "Claim deze voucher op je account",
   "tapToScan": "Tik om te scannen",
   "communityCurrentlyOffline": "Gemeenschap momenteel offline",
+  "communityClosed": "Deze gemeenschap is momenteel gesloten",
+  "communityClosedDescription": "Deze gemeenschap accepteert momenteel geen transacties. Neem contact op met de gemeenschapsbeheerder voor meer informatie.",
+  "learnMore": "Meer informatie",
   "topup": "Opwaarderen",
   "more": "Meer",
   "close": "Sluiten",
   "start": "Start",
   "connecting": "Verbinding maken",
-  "accountNotFound": "Account niet gevonden"
+  "accountNotFound": "Account niet gevonden",
+  "sendTip": "Fooi versturen"
 }

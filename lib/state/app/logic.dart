@@ -83,8 +83,6 @@ class AppLogic {
 
           final address = dbWallet.address.hexEip55;
 
-          // final config = await _config.getConfig(dbWallet.alias);
-
           final community = await _appDBService.communities.get(dbWallet.alias);
 
           if (community == null) {
@@ -131,8 +129,6 @@ class AppLogic {
 
       await delay(
           const Duration(milliseconds: 500)); // smoother launch experience
-
-      // final config = await _config.getConfig(alias);
 
       final community = await _appDBService.communities.get(alias);
 
@@ -193,6 +189,8 @@ class AppLogic {
         privateKey: credentials,
         name: token.name,
         alias: communityConfig.community.alias,
+        accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
+        
       ));
 
       _theme.changeTheme(communityConfig.community.theme);
@@ -285,8 +283,6 @@ class AppLogic {
         throw Exception('Invalid private key');
       }
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -308,6 +304,7 @@ class AppLogic {
           privateKey: credentials,
           name: name,
           alias: communityConfig.community.alias,
+          accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
         ),
       );
 
@@ -348,8 +345,6 @@ class AppLogic {
 
       final credentials = wallet.privateKey;
 
-      // final config = await _config.getConfig(alias);
-
       final community = await _appDBService.communities.get(alias);
 
       if (community == null) {
@@ -374,6 +369,8 @@ class AppLogic {
           privateKey: credentials,
           name: '${token.symbol} Web Account',
           alias: communityConfig.community.alias,
+          accountFactoryAddress: EthereumAddress.fromHex(communityConfig.community.primaryAccountFactory.address),
+          
         ),
       );
 

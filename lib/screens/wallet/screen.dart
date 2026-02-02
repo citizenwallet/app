@@ -34,6 +34,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'package:citizenwallet/widgets/communities/offline_banner.dart';
+import 'package:citizenwallet/widgets/communities/community_closed_banner.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'dart:async';
 
@@ -85,6 +86,8 @@ class WalletScreenState extends State<WalletScreen>
   String? _deepLinkParams;
   String? _sendToURL;
   Config? _config;
+  bool _isClosedBannerDismissed = false;
+  int _bannerResetKey = 0;
 
   @override
   void initState() {
@@ -142,10 +145,25 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = widget.receiveParams;
       _deepLink = widget.deepLink;
       _deepLinkParams = widget.deepLinkParams;
+      _sendToURL = widget.sendToURL;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         onLoad();
       });
+    }
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _logic.updateWalletConfigFromRemote();
+        setState(() {
+          _isClosedBannerDismissed = false;
+          _bannerResetKey++;
+        });
+        break;
+      default:
     }
   }
 
@@ -371,6 +389,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
 
     navigator.go('/wallet/$_address');
   }
@@ -585,13 +608,18 @@ class WalletScreenState extends State<WalletScreen>
     });
 
     if (result != true && sendToURL != null) {
-      _logic.clearTipTo();
+      _logic.clearTipping();
       _sendToURL = null;
     }
 
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleReceive() async {
@@ -599,9 +627,15 @@ class WalletScreenState extends State<WalletScreen>
 
     final navigator = GoRouter.of(context);
 
-    navigator.push('/wallet/$_address/receive', extra: {
+    await navigator.push('/wallet/$_address/receive', extra: {
       'logic': _logic,
       'profilesLogic': _profilesLogic,
+    });
+
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
     });
   }
 
@@ -697,6 +731,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   Future<void> handleMint({String? receiveParams}) async {
@@ -718,6 +757,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleVouchers() async {
@@ -739,6 +783,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleCopy(String value) {
@@ -765,6 +814,11 @@ class WalletScreenState extends State<WalletScreen>
     _profileLogic.resume();
     _profilesLogic.resume();
     _voucherLogic.resume();
+    _logic.updateWalletConfigFromRemote();
+    setState(() {
+      _isClosedBannerDismissed = false;
+      _bannerResetKey++;
+    });
   }
 
   void handleLoad(String address) async {
@@ -782,6 +836,11 @@ class WalletScreenState extends State<WalletScreen>
 
     if (args == null) {
       _logic.resumeFetching();
+      _logic.updateWalletConfigFromRemote();
+      setState(() {
+        _isClosedBannerDismissed = false;
+        _bannerResetKey++;
+      });
       return;
     }
 
@@ -789,6 +848,11 @@ class WalletScreenState extends State<WalletScreen>
 
     if (address == _address && alias == _alias) {
       _logic.resumeFetching();
+      _logic.updateWalletConfigFromRemote();
+      setState(() {
+        _isClosedBannerDismissed = false;
+        _bannerResetKey++;
+      });
       return;
     }
 
@@ -1123,7 +1187,7 @@ class WalletScreenState extends State<WalletScreen>
       _receiveParams = null;
       _deepLink = deepLink;
       _deepLinkParams = deepLinkParams;
-      
+
       if (voucher != null && voucherParams != null) {
         _sendToURL = null;
       } else {
@@ -1195,16 +1259,16 @@ class WalletScreenState extends State<WalletScreen>
     final eventServiceState =
         context.select((WalletState state) => state.eventServiceState);
 
-    final eventServiceIntentionalDisconnect = context
-        .select((WalletState state) => state.eventServiceIntentionalDisconnect);
-
     final isOffline = eventServiceState == EventServiceState.error ||
         eventServiceState == EventServiceState.connecting;
 
-    final showOfflineBanner = isOffline && !eventServiceIntentionalDisconnect;
+    final config = context.select((WalletState state) => state.config);
+    final isCommunityClosed = (config?.community.closed ?? false);
+    final offboardPlugin = context.select(
+      (WalletState state) => state.config!.getOffboardPlugin(),
+    );
 
     final cleaningUp = context.select((WalletState state) => state.cleaningUp);
-    final config = context.select((WalletState state) => state.config);
     final hasActiveSessions =
         context.select((WalletConnectState state) => state.hasActiveSessions);
 
@@ -1262,10 +1326,6 @@ class WalletScreenState extends State<WalletScreen>
                 ),
               ),
             ),
-            // Positioned(
-            //   bottom: 60,
-            //   left: 0,
-            //   right: 0,
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -1275,7 +1335,9 @@ class WalletScreenState extends State<WalletScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: config?.online == false ? () => () : handleQRScan,
+                      onTap: (config?.online == false || isCommunityClosed)
+                          ? () => ()
+                          : handleQRScan,
                       child: Container(
                         height: 90,
                         width: 90,
@@ -1286,9 +1348,10 @@ class WalletScreenState extends State<WalletScreen>
                               .resolveFrom(context),
                           borderRadius: BorderRadius.circular(45),
                           border: Border.all(
-                            color: config?.online == false
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                             width: 3,
                           ),
                           boxShadow: [
@@ -1309,9 +1372,10 @@ class WalletScreenState extends State<WalletScreen>
                           child: Icon(
                             CupertinoIcons.qrcode_viewfinder,
                             size: 60,
-                            color: config?.online == false
-                                ? scanQrDisabledColor
-                                : Theme.of(context).colors.surfacePrimary,
+                            color:
+                                (config?.online == false || isCommunityClosed)
+                                    ? scanQrDisabledColor
+                                    : Theme.of(context).colors.surfacePrimary,
                           ),
                         ),
                       ),
@@ -1397,6 +1461,19 @@ class WalletScreenState extends State<WalletScreen>
                   ),
                 ),
               ),
+            ),
+            CommunityClosedBanner(
+              key: ValueKey('community_closed_banner_$_bannerResetKey'),
+              handleOffboardPlugin: offboardPlugin != null
+                  ? () => handlePlugin(offboardPlugin)
+                  : null,
+              onDismiss: () {
+                setState(() {
+                  _isClosedBannerDismissed = true;
+                });
+              },
+              display: isCommunityClosed && !_isClosedBannerDismissed,
+              offboardPlugin: offboardPlugin,
             ),
             OfflineBanner(
               communityUrl: config?.community.url ?? '',

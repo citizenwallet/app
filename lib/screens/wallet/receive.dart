@@ -80,6 +80,13 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     widget.logic.clearInputControllers();
     widget.profilesLogic.clearSearch(notify: false);
 
+    // Defer state updates until after the current frame to avoid widget tree lock
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.logic.clearTipping();
+      widget.logic.updateMessage();
+      widget.logic.updateListenerAmount();
+    });
+
     super.dispose();
   }
 
@@ -117,7 +124,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
         _selectedProfile = context.read<ProfilesState>().selectedProfile;
       });
 
-      widget.logic.setTipTo(result);
+      widget.logic.setTipping(to: result);
       // Update QR code with new tip information
       widget.logic.updateReceiveQR();
     }
@@ -130,7 +137,7 @@ class ReceiveScreenState extends State<ReceiveScreen> {
     });
     widget.profilesLogic.deSelectProfile();
     widget.logic.clearAddressController();
-    widget.logic.setTipTo(null);
+    widget.logic.clearTipping();
     widget.logic.updateReceiveQR();
   }
 

@@ -4,6 +4,7 @@ import 'package:citizenwallet/services/config/config.dart';
 import 'package:citizenwallet/services/engine/events.dart';
 import 'package:citizenwallet/services/preferences/preferences.dart';
 import 'package:citizenwallet/state/wallet/utils.dart';
+import 'package:citizenwallet/utils/send.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -80,9 +81,7 @@ class WalletState with ChangeNotifier {
   bool cwWalletsLoading = false;
   bool cwWalletsError = false;
 
-  String? tipTo;
-  bool _hasTip = false;
-  bool get hasTip => _hasTip;
+  SendDestination? tipping;
 
   void setEventServiceState(EventServiceState state) {
     eventServiceState = state;
@@ -701,19 +700,23 @@ class WalletState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setTipTo(String? tipTo) {
-    this.tipTo = tipTo;
+  void setTipping({
+    required String to,
+    String? amount,
+    String? description,
+  }) {
+    tipping = SendDestination(
+      to: to,
+      amount: amount,
+      description: description,
+    );
     notifyListeners();
   }
 
-  void setHasTip(bool value) {
-    _hasTip = value;
+  void clearTipping() {
+    tipping = null;
     notifyListeners();
   }
 
-  void clearTipTo() {
-    tipTo = null;
-    _hasTip = false;
-    notifyListeners();
-  }
+  bool get hasTip => tipping != null;
 }

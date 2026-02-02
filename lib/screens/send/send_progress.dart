@@ -1,6 +1,5 @@
 // import 'package:citizenwallet/l10n/app_localizations.dart';
 import 'dart:async';
-import 'package:citizenwallet/models/send_transaction.dart';
 import 'package:citizenwallet/models/transaction.dart';
 import 'package:citizenwallet/services/wallet/utils.dart';
 import 'package:citizenwallet/state/profiles/logic.dart';
@@ -8,6 +7,7 @@ import 'package:citizenwallet/state/profiles/state.dart';
 import 'package:citizenwallet/state/wallet/logic.dart';
 import 'package:citizenwallet/state/wallet/state.dart';
 import 'package:citizenwallet/theme/provider.dart';
+import 'package:citizenwallet/utils/send.dart';
 import 'package:citizenwallet/widgets/button.dart';
 import 'package:citizenwallet/widgets/coin_logo.dart';
 import 'package:citizenwallet/widgets/loaders/progress_circle.dart';
@@ -23,7 +23,6 @@ class SendProgress extends StatefulWidget {
   final bool isMinting;
   final WalletLogic? walletLogic;
   final ProfilesLogic? profilesLogic;
-  final SendTransaction? sendTransaction;
 
   const SendProgress({
     super.key,
@@ -31,7 +30,6 @@ class SendProgress extends StatefulWidget {
     this.isMinting = false,
     this.walletLogic,
     this.profilesLogic,
-    this.sendTransaction,
   });
 
   @override
@@ -76,25 +74,32 @@ class _SendProgressState extends State<SendProgress> {
     });
   }
 
-  Future<void> handleSendTip(BuildContext context) async {
+  Future<void> handleSendTip(
+    BuildContext context,
+    SendDestination tipping,
+  ) async {
     if (!context.mounted) {
       return;
     }
 
     final navigator = GoRouter.of(context);
 
-    final toAccount = widget.sendTransaction?.to ??
-        widget.walletLogic?.addressController.value.text;
+    final toAccount = tipping.to;
 
-    await navigator.push(
+    final tipSent = await navigator.push<bool?>(
       '/wallet/${widget.walletLogic?.account}/send/$toAccount/tip',
       extra: {
         'walletLogic': widget.walletLogic,
         'profilesLogic': widget.profilesLogic,
         'isMinting': widget.isMinting,
-        'sendTransaction': widget.sendTransaction,
       },
     );
+
+    // If tip was sent successfully, navigate to wallet home
+    if (tipSent == true && context.mounted) {
+      widget.walletLogic?.clearTipping();
+      handleDone(context);
+    }
   }
 
   @override
@@ -118,9 +123,12 @@ class _SendProgressState extends State<SendProgress> {
       (WalletState state) => state.inProgressTransactionError,
     );
 
+    final tipping = context.select((WalletState state) => state.tipping);
+
     if (inProgressTransaction.state == TransactionState.success &&
         _previousState != TransactionState.success) {
-      final hasTip = context.read<WalletState>().hasTip;
+      final hasTip =
+          context.select((WalletState state) => state.tipping) != null;
       if (!hasTip) {
         handleStartCloseScreenTimer(context);
       }
@@ -135,7 +143,8 @@ class _SendProgressState extends State<SendProgress> {
     if (inProgressTransaction.state == TransactionState.fail &&
         _previousState != TransactionState.fail &&
         !_isClosing) {
-      final hasTip = context.read<WalletState>().hasTip;
+      final hasTip =
+          context.select((WalletState state) => state.tipping) != null;
       if (!hasTip) {
         handleStartCloseScreenTimer(context);
       }
@@ -359,12 +368,11 @@ class _SendProgressState extends State<SendProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    context.select((WalletState state) => state.hasTip)
+                    tipping != null
                         ? Column(
                             children: [
                               Button(
-                                text:
-                                    "${AppLocalizations.of(context)!.send} Tip",
+                                text: AppLocalizations.of(context)!.sendTip,
                                 color: Theme.of(context)
                                     .colors
                                     .primary
@@ -373,7 +381,8 @@ class _SendProgressState extends State<SendProgress> {
                                     .colors
                                     .white
                                     .resolveFrom(context),
-                                onPressed: () => handleSendTip(context),
+                                onPressed: () =>
+                                    handleSendTip(context, tipping),
                                 minWidth: 200,
                                 maxWidth: width - 60,
                               ),
@@ -383,6 +392,8 @@ class _SendProgressState extends State<SendProgress> {
                               CupertinoButton(
                                 onPressed: () {
                                   final navigator = GoRouter.of(context);
+
+                                  widget.walletLogic?.clearTipping();
 
                                   navigator.go(
                                       '/wallet/${widget.walletLogic?.account}');
